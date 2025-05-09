@@ -1,3 +1,4 @@
+
 import {
   Accordion,
   AccordionContent,
@@ -33,7 +34,7 @@ const faqs = [
 export function FaqSection() {
   return (
     <section className="py-16 md:py-24 bg-secondary/30">
-      <div className="container max-w-3xl">
+      <div className="container mx-auto max-w-3xl">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Veelgestelde Vragen
         </h2>
@@ -44,10 +45,10 @@ export function FaqSection() {
               value={`item-${index}`} 
               className="bg-card rounded-lg shadow-sm border-0"
             >
-              <AccordionTrigger className="text-left text-lg hover:no-underline font-semibold text-foreground py-5 px-6">
+              <AccordionTrigger className="text-left text-lg hover:no-underline font-semibold text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary [&[data-state=open]>svg]:rotate-180 transition-all">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed px-6">
+              <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-1 bg-card rounded-b-lg">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
@@ -55,7 +56,7 @@ export function FaqSection() {
         </Accordion>
         <div className="mt-10 text-center">
             <p className="text-muted-foreground mb-4">Heb je nog andere vragen?</p>
-            <Button variant="default" asChild>
+            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link href="/contact">Neem contact op</Link>
             </Button>
         </div>
@@ -63,3 +64,4 @@ export function FaqSection() {
     </section>
   );
 }
+
