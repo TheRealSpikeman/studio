@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label'; // Added import
 import { useToast } from '@/hooks/use-toast';
 import { 
   Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
