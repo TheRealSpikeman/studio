@@ -11,7 +11,7 @@ export function HeroSection() {
             Ontdek je <span className="text-primary">neurodiversiteits</span>-profiel
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Krijg inzicht in jouw unieke sterktes en uitdagingen. Start vandaag nog met onze wetenschappelijk onderbouwde quiz en ontvang gepersonaliseerde coaching.
+            Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
           </p>
           <Button size="lg" asChild className="shadow-lg hover:shadow-primary/50 transition-shadow">
             <Link href="/quizzes">Start gratis quiz</Link>
@@ -19,8 +19,8 @@ export function HeroSection() {
         </div>
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-md">
           <Image
-            src="https://picsum.photos/seed/neurodiversityArt/800/450"
-            alt="Creatieve weergave van neurodiversiteit"
+            src="https://picsum.photos/seed/neuroArtCreative/800/450"
+            alt="Creatieve weergave van neurodiversiteit profiel"
             layout="fill"
             objectFit="cover"
             data-ai-hint="brain creativity"
