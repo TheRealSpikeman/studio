@@ -25,6 +25,7 @@ const initialUserData = {
 };
 
 const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
+const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_"; // Unique non-empty value for "Niet opgegeven"
 
 const socialMediaOptions = [
   { id: 'facebook', label: 'Facebook' },
@@ -72,7 +73,7 @@ export default function ProfilePage() {
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
-        setUserAge(initialUserData.age?.toString() || '');
+        setUserAge(initialUserData.age?.toString() || ''); // If age is undefined, userAge becomes ""
         setSelectedSocialMedia(initialUserData.socialMedia);
         setProfileImageUrl(initialUserData.profileImageUrl);
         setCurrentPassword('');
@@ -107,12 +108,18 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = () => {
-    const ageValue = userAge ? parseInt(userAge, 10) : undefined;
+    let ageToSave: number | undefined = undefined;
+    if (userAge && userAge !== NO_AGE_SPECIFIED_VALUE) {
+      const parsedAge = parseInt(userAge, 10);
+      if (!isNaN(parsedAge)) {
+        ageToSave = parsedAge;
+      }
+    }
     
     console.log("Profile saved:", { 
       name: userName, 
       email: userEmail, 
-      age: ageValue,
+      age: ageToSave,
       socialMedia: selectedSocialMedia,
       profileImageUrl: profileImageUrl, 
     });
@@ -121,10 +128,6 @@ export default function ProfilePage() {
       description: "Je profielgegevens zijn bijgewerkt.",
       variant: "default",
     });
-    // Password change is handled separately, so don't set isEditing false here
-    // if password section is also being edited.
-    // For now, we assume saving profile doesn't automatically exit password edit.
-    // If we want a global "Save All" then logic would be different.
   };
 
   const handleCancelEdit = () => {
@@ -358,15 +361,17 @@ export default function ProfilePage() {
             </Label>
             {isEditing ? (
               <Select
-                value={userAge || ""} // Ensure value is not undefined for Select
-                onValueChange={setUserAge}
+                value={userAge} 
+                onValueChange={(value) => {
+                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? "" : value);
+                }}
                 disabled={!isEditing}
               >
                 <SelectTrigger id="userAge" className="mt-1">
                   <SelectValue placeholder="Selecteer je leeftijd" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Niet opgegeven</SelectItem>
+                  <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
                   {ageOptions.map(age => (
                     <SelectItem key={age} value={age}>{age}</SelectItem>
                   ))}
@@ -376,7 +381,7 @@ export default function ProfilePage() {
               <Input
                 id="userAgeDisplay"
                 type="text"
-                value={userAge || "Niet opgegeven"}
+                value={userAge && userAge !== NO_AGE_SPECIFIED_VALUE ? userAge : "Niet opgegeven"}
                 disabled
                 className="mt-1"
               />
@@ -518,3 +523,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+
