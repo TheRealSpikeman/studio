@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -5,12 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { SiteLogo } from '@/components/common/site-logo';
+import { useToast } from '@/hooks/use-toast';
 
 export default function VerifyEmailPage() {
-  // TODO: Add action to resend email
+  const { toast } = useToast();
+
   const handleResendEmail = () => {
+    // TODO: Implement actual backend logic to resend the verification email
     console.log("Resend verification email logic here.");
-    // Add toast notification or similar feedback
+    toast({
+      title: "Verificatie-e-mail opnieuw verzonden",
+      description: "Een nieuwe verificatielink is naar je e-mailadres gestuurd. Controleer je inbox (en spamfolder).",
+      variant: "default",
+    });
   };
 
   return (
@@ -20,17 +28,17 @@ export default function VerifyEmailPage() {
       </div>
       <Card className="w-full max-w-md text-center shadow-xl">
         <CardHeader>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MailCheck className="h-8 w-8" />
           </div>
           <CardTitle className="text-2xl font-bold">Controleer je inbox</CardTitle>
           <CardDescription>
-            We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link om je account te activeren.
+            We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link in de e-mail om je account te activeren en je aanmelding te voltooien.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Geen e-mail ontvangen? Controleer je spamfolder of probeer het opnieuw.
+            Geen e-mail ontvangen? Controleer je spamfolder of vraag hieronder een nieuwe verificatie-e-mail aan.
           </p>
           <Button onClick={handleResendEmail} className="w-full">
             Verificatie-e-mail opnieuw verzenden

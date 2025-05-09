@@ -1,3 +1,4 @@
+
 // src/components/auth/signup-form.tsx
 "use client";
 
@@ -53,8 +54,11 @@ export function SignupForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: Implement actual signup logic, including saving age
-    console.log(values);
+    // TODO: Implement actual signup logic:
+    // 1. Call backend to create user with 'niet geverifieerd' status.
+    // 2. Backend sends verification email.
+    // 3. On success, redirect.
+    console.log("Signup values (including age):", values); 
     // For now, redirect to email verification page
     router.push('/verify-email');
   }
@@ -125,8 +129,8 @@ export function SignupForm() {
                   <div className="relative">
                      <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
                     <Select
-                      onValueChange={(value) => field.onChange(+value)} // Convert string value from select to number
-                      value={field.value?.toString() ?? ''} // Convert number to string for Select value
+                      onValueChange={(value) => field.onChange(value ? +value : undefined)} // Convert string value from select to number or undefined
+                      value={field.value?.toString() ?? ""} // Convert number to string for Select value, ensure it's not undefined
                       name={field.name}
                       disabled={field.disabled}
                     >
@@ -161,11 +165,11 @@ export function SignupForm() {
                     <FormLabel>
                       Ik ga akkoord met de{' '}
                       <Button variant="link" asChild className="p-0 h-auto">
-                        <Link href="/terms">algemene voorwaarden</Link>
+                        <Link href="/terms" target="_blank">algemene voorwaarden</Link>
                       </Button>
                        {' '}en het{' '}
                        <Button variant="link" asChild className="p-0 h-auto">
-                         <Link href="/privacy">privacybeleid</Link>
+                         <Link href="/privacy" target="_blank">privacybeleid</Link>
                        </Button>.
                     </FormLabel>
                     <FormMessage />
@@ -174,6 +178,9 @@ export function SignupForm() {
               )}
             />
             <Button type="submit" className="w-full">Aanmelden</Button>
+            <p className="pt-1 text-xs text-muted-foreground text-center">
+              Na aanmelding ontvang je een e-mail om je account te verifiëren.
+            </p>
           </form>
         </Form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
