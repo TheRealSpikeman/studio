@@ -1,22 +1,30 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck, Puzzle, MessagesSquare } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
     title: 'Persoonlijk Rapport',
     description: 'Ontvang een gedetailleerd rapport over jouw neurodiversiteitsprofiel, inclusief sterke punten en aandachtspunten.',
+    ctaText: 'Bekijk Rapport Voorbeeld',
+    ctaLink: '/dashboard/results', // Placeholder link
   },
   {
     icon: <Puzzle className="h-10 w-10 text-primary" />,
     title: 'Diepgaande Subquizzen',
     description: 'Verdiep je kennis met specifieke subquizzen die aansluiten bij jouw basisprofiel voor een completer beeld.',
+    ctaText: 'Ontdek Subquizzen',
+    ctaLink: '/quizzes', // Placeholder link
   },
   {
     icon: <MessagesSquare className="h-10 w-10 text-primary" />,
     title: 'Dagelijkse Coaching',
     description: 'Krijg dagelijkse, op maat gemaakte tips en inzichten om je te helpen navigeren en groeien.',
+    ctaText: 'Probeer Coaching',
+    ctaLink: '/dashboard/coaching', // Placeholder link
   },
 ];
 
@@ -31,17 +39,22 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="flex flex-col items-center text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-transparent hover:border-primary/30"
+              className="flex flex-col items-center text-center shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-primary/30"
             >
-              <CardHeader>
+              <CardHeader className="items-center"> {/* Added items-center to CardHeader for icon centering */}
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                   {feature.icon}
                 </div>
                 <CardTitle className="text-xl font-semibold">{feature.title}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-grow">
                 <p className="text-muted-foreground">{feature.description}</p>
               </CardContent>
+              <CardFooter className="w-full">
+                <Button asChild className="w-full">
+                  <Link href={feature.ctaLink}>{feature.ctaText}</Link>
+                </Button>
+              </CardFooter>
             </Card>
           ))}
         </div>
