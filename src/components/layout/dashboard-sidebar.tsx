@@ -13,13 +13,18 @@ import { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList }, // This links to the public quizzes overview
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
-  { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
+  { 
+    href: '/dashboard/coaching', 
+    label: 'Coaching', 
+    icon: MessageSquare,
+    children: [
+      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
+    ]
+  },
   { href: '/dashboard/homework-assistance', label: 'Huiswerkbegeleiding', icon: BookOpenCheck },
-  { href: '/dashboard/coaching/settings', label: 'Coaching Instellingen', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
-  // TODO: Conditionally show admin items based on user role from auth context
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
 ];
 
@@ -41,31 +46,51 @@ function SidebarNavigationContent() {
               return null;
             }
             
-            let isActive = pathname === item.href;
-            // If the current path starts with the item's parent path, and this item is a sub-item, it could also be considered active (or parent active)
-            if (item.parent && pathname.startsWith(item.parent)) {
-              // More specific check if needed: if item.href itself is a subpath of current path
-              if (pathname.startsWith(item.href)) isActive = true;
-            }
-            // Special handling for parent items to stay active if a sub-item is active
-            if (!item.isSubItem && navItems.some(sub => sub.parent === item.href && pathname.startsWith(sub.href))) {
+            let isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            // For parent items, check if any child is active
+            if (item.children) {
+              if (item.children.some(child => pathname === child.href || pathname.startsWith(child.href))) {
                 isActive = true;
+              }
             }
-
+            
+            // If it's a sub-item, its parent should not be marked active just because the sub-item is active, unless the parent's own href matches.
+            // The general check `pathname.startsWith(item.href)` handles parent active state well.
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                  isActive && 'bg-primary/10 text-primary font-semibold',
-                  item.isSubItem && 'ml-4 text-sm py-2' // Indent sub-items
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
+              <>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                    isActive && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+                {item.children && item.children.map(child => {
+                   if (child.adminOnly && userRole !== 'admin') {
+                    return null;
+                  }
+                  const isChildActive = pathname === child.href || pathname.startsWith(child.href);
+                  return (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isChildActive && 'bg-primary/10 text-primary font-semibold',
+                        child.isSubItem && 'ml-4 text-sm py-2' 
+                      )}
+                    >
+                      <child.icon className="h-5 w-5" />
+                      {child.label}
+                    </Link>
+                  );
+                })}
+              </>
             );
           })}
         </nav>
@@ -76,16 +101,15 @@ function SidebarNavigationContent() {
 
 export function DashboardSidebar() {
   const [isMobile, setIsMobile] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false); // Control Sheet visibility
+  const [isSheetOpen, setIsSheetOpen] = useState(false); 
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768); // md breakpoint
+    const checkMobile = () => setIsMobile(window.innerWidth < 768); 
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Close sheet on navigation for mobile
   const pathname = usePathname();
   useEffect(() => {
     if (isMobile) {

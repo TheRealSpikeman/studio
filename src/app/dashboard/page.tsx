@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, AlertTriangle } from 'lucide-react';
+import { MessageSquare, TrendingUp, AlertTriangle, Download } from 'lucide-react';
 import { ResultsChart } from '@/components/dashboard/results-chart';
 
 // Dummy data for demonstration
@@ -16,7 +16,7 @@ const currentUser = {
 const allDashboardQuizzes = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
-    title: 'Basis Neurodiversiteit (12-14 jr)', 
+    title: 'Basis Neuroprofiel (12-14 jaar)', 
     description: 'Ontdek jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/dash1214/400/200',
@@ -25,7 +25,7 @@ const allDashboardQuizzes = [
   },
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
-    title: 'Basis Neurodiversiteit (15-18 jr)', 
+    title: 'Basis Neuroprofiel (15-18 jaar)', 
     description: 'Ontdek jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/dash1518/400/200',
@@ -74,7 +74,7 @@ const latestCoachingTip = {
 
 const resultsData = [
   // Filter or ensure resultsData also aligns with user's quizzes or make it generic
-  { name: 'Basis Neurodiversiteit (15-18 jr)', score: 75, date: '2024-03-15' }, // Example
+  { name: 'Basis Neuroprofiel (15-18 jr)', score: 75, date: '2024-03-15' }, // Example
   { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' }, // Example
   // Add more data as needed
 ];
@@ -91,20 +91,20 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 pt-6">
             <h2 className="text-2xl font-semibold text-foreground">Jouw Quizzen</h2>
             <Button variant="outline" asChild>
                 <Link href="/quizzes">Alle Quizzen</Link>
             </Button>
         </div>
         {quizzes.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
             {quizzes.slice(0,3).map((quiz) => ( // Show first 3 relevant quizzes
               <QuizCard key={quiz.id} {...quiz} />
             ))}
           </div>
         ) : (
-          <Card className="bg-secondary/50 border-secondary">
+          <Card className="bg-secondary/50 border-secondary mt-6">
             <CardContent className="p-6 flex flex-col items-center text-center">
               <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen beschikbaar</h3>
@@ -133,11 +133,18 @@ export default function DashboardPage() {
                 <TrendingUp className="h-6 w-6 text-primary" />
                 Score Overzicht
               </CardTitle>
-              <CardDescription>Een visuele weergave van je quizscores.</CardDescription>
+              <CardDescription>Zo viel jij de afgelopen quizzes op in scores (%).</CardDescription>
             </CardHeader>
             <CardContent>
               {resultsData.length > 0 ? <ResultsChart data={resultsData} /> : <p className="text-muted-foreground">Nog geen resultaten om weer te geven. Start een quiz!</p>}
             </CardContent>
+            <CardFooter>
+                <Button variant="outline" asChild>
+                    <Link href="/dashboard/results">
+                        <Download className="mr-2 h-4 w-4" /> Download Rapporten
+                    </Link>
+                </Button>
+            </CardFooter>
           </Card>
         </section>
 
@@ -150,8 +157,8 @@ export default function DashboardPage() {
           </div>
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-6 w-6 text-accent" />
+              <CardTitle className="flex items-center gap-2 text-xl text-primary">
+                <MessageSquare className="h-6 w-6 text-primary" />
                 {latestCoachingTip.title}
               </CardTitle>
             </CardHeader>
@@ -159,7 +166,7 @@ export default function DashboardPage() {
               <p className="text-muted-foreground">{latestCoachingTip.message}</p>
             </CardContent>
             <CardFooter>
-                <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                     Markeer als gelezen
                 </Button>
             </CardFooter>
