@@ -28,7 +28,7 @@ export function HeroSection() {
             alt="Een creatieve en kleurrijke abstracte afbeelding die neurodiversiteit en verschillende manieren van denken symboliseert, met gestileerde hersenen en verbindingen."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="neurodiversity brain"
+            data-ai-hint="brain illustration"
             priority
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
@@ -37,4 +37,3 @@ export function HeroSection() {
     </section>
   );
 }
-
