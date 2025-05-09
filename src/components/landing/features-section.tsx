@@ -29,7 +29,10 @@ export function FeaturesSection() {
         </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 justify-center">
           {features.map((feature, index) => (
-            <Card key={index} className="flex flex-col items-center text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card 
+              key={index} 
+              className="flex flex-col items-center text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-transparent hover:border-primary/30"
+            >
               <CardHeader>
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                   {feature.icon}
@@ -46,3 +49,4 @@ export function FeaturesSection() {
     </section>
   );
 }
+
