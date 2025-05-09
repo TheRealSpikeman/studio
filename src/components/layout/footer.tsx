@@ -13,11 +13,11 @@ export function Footer() {
         <div className="flex flex-col items-center gap-4 text-center md:items-end md:text-right">
            <div className="mb-2 md:mb-0">
             <h4 className="text-sm font-semibold text-foreground">Word Tutor bij MindNavigator</h4>
-            <p className="text-xs text-muted-foreground">Help tieners met hun huiswerk en verdien iets bij.</p>
+            <p className="text-xs text-muted-foreground">Help tieners 12–18 jaar met hun huiswerk, bepaal je eigen tarief en uren.</p>
             <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                <li>✓ Bepaal je eigen tarief</li>
-                <li>✓ Werk uren die jou uitkomen</li>
-                <li>✓ Wij regelen de administratie (10% servicekosten)</li>
+                <li>✓ Flexibel je eigen beschikbaarheid instellen</li>
+                <li>✓ Eenvoudig online sessies plannen</li>
+                <li>✓ 10% servicekosten, rest is voor jou</li>
             </ul>
             <Button variant="link" asChild className="px-0 text-xs text-primary hover:text-primary/80 h-auto py-0 mt-1">
                 <Link href="/word-tutor">Meer informatie & Aanmelden</Link>

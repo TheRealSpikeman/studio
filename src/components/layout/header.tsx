@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { GraduationCap } from 'lucide-react';
 
 export function Header() {
   return (
@@ -17,12 +16,6 @@ export function Header() {
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/#pricing">Prijzen</Link>
-          </Button>
-           <Button variant="ghost" asChild>
-            <Link href="/word-tutor" className="flex items-center">
-              <GraduationCap className="mr-1 h-4 w-4 md:mr-2" />
-              Word Tutor
-            </Link>
           </Button>
           <Button variant="link" asChild className="hidden sm:inline-flex">
             <Link href="/login">Inloggen</Link>

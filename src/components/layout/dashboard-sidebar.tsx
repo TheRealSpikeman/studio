@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase } from 'lucide-react'; // Added Briefcase for Tutor Dashboard
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
@@ -29,7 +29,7 @@ const navItems = [
     icon: BookOpenCheck,
     children: [
       { 
-        href: '/dashboard/homework-assistance', // This child shares href with parent
+        href: '/dashboard/homework-assistance', 
         label: 'Online Tips & Tools', 
         icon: Lightbulb,
         isSubItem: true, 
@@ -46,12 +46,15 @@ const navItems = [
   },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
+  // Conceptually, this link would only be shown if the user has the 'tutor' role.
+  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true }, 
 ];
 
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  const userRole: 'admin' | 'user' = 'admin'; 
+  // In a real app, userRole would come from an authentication context/hook.
+  const userRole: 'admin' | 'user' | 'tutor' = 'tutor'; // Example: set to 'tutor' to see the link
 
   return (
     <>
@@ -62,6 +65,10 @@ function SidebarNavigationContent() {
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
           {navItems.map((item) => {
             if (item.adminOnly && userRole !== 'admin') {
+              return null;
+            }
+            // @ts-ignore - tutorOnly is a custom prop for this example
+            if (item.tutorOnly && userRole !== 'tutor') {
               return null;
             }
             
@@ -77,7 +84,6 @@ function SidebarNavigationContent() {
                 isParentExpanded = true;
               }
 
-              // If a child is directly active and shares the same href as the parent, the parent should not be highlighted.
               const activeChildSharesHrefWithParent = item.children.find(child => child.href === item.href && pathname === item.href);
               if (activeChildSharesHrefWithParent) {
                 isParentHighlighted = false;
@@ -90,6 +96,7 @@ function SidebarNavigationContent() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                    // @ts-ignore
                     isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold' 
                   )}
                 >
@@ -97,20 +104,24 @@ function SidebarNavigationContent() {
                   {item.label}
                 </Link>
                 {isParentExpanded && item.children && item.children.map(child => { 
+                   // @ts-ignore
                    if (child.adminOnly && userRole !== 'admin') {
                     return null;
                   }
+                  // @ts-ignore
+                  if (child.tutorOnly && userRole !== 'tutor') {
+                    return null;
+                  }
                   const isChildDirectlyActive = pathname === child.href;
-                  // For a child to be considered generally active (for further submenus, if any), use startsWith
-                  const isChildEffectivelyActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href !== item.href);
-
+                  
                   return (
                     <Link
                       key={child.href} 
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isChildDirectlyActive && 'bg-primary/10 text-primary font-semibold', // Highlight child if its direct link is active
+                        isChildDirectlyActive && 'bg-primary/10 text-primary font-semibold',
+                        // @ts-ignore
                         child.isSubItem && 'ml-4 text-sm py-2' 
                       )}
                     >
