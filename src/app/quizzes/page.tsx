@@ -4,9 +4,13 @@
 import { useState } from 'react'; 
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, AlertTriangle } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+
 
 interface Quiz {
   id: string; 
@@ -16,6 +20,7 @@ interface Quiz {
   progress?: number;
   imageUrl?: string;
   dataAiHint?: string;
+  ageGroup?: '12-14' | '15-18' | 'all'; // Added for potential future filtering
 }
 
 const baseTeenQuizzes: Quiz[] = [
@@ -26,6 +31,7 @@ const baseTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/teenquiz1214/400/200',
     dataAiHint: 'teenager study',
+    ageGroup: '12-14',
   },
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
@@ -34,6 +40,7 @@ const baseTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/teenquiz1518/400/200',
     dataAiHint: 'teenager focused',
+    ageGroup: '15-18',
   },
 ];
 
@@ -45,6 +52,7 @@ const thematicTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/examstress/400/200',
     dataAiHint: 'student exam',
+    ageGroup: 'all',
   },
   { 
     id: 'social-anxiety-friendships', 
@@ -53,6 +61,7 @@ const thematicTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/socialanxiety/400/200',
     dataAiHint: 'teenagers friends',
+    ageGroup: 'all',
   },
   { 
     id: 'focus-digital-distraction', 
@@ -61,6 +70,7 @@ const thematicTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/digitalfocus/400/200',
     dataAiHint: 'teenager phone',
+    ageGroup: 'all',
   },
   { 
     id: 'motivation-goals', 
@@ -69,12 +79,15 @@ const thematicTeenQuizzes: Quiz[] = [
     status: 'Nog niet gestart' as QuizStatus, 
     imageUrl: 'https://picsum.photos/seed/motivationgoals/400/200',
     dataAiHint: 'success achievement',
+    ageGroup: 'all',
   },
 ];
 
 export default function QuizzesOverviewPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
+  // In a real app with user context, this filter could be enhanced.
+  // For now, it's a simple text search on the predefined teen quizzes.
   const filterQuizzes = (quizzes: Quiz[]) => {
     if (!searchTerm) return quizzes;
     return quizzes.filter(quiz => 
@@ -85,6 +98,7 @@ export default function QuizzesOverviewPage() {
 
   const filteredBaseQuizzes = filterQuizzes(baseTeenQuizzes);
   const filteredThematicQuizzes = filterQuizzes(thematicTeenQuizzes);
+  const noResultsForSearch = searchTerm && filteredBaseQuizzes.length === 0 && filteredThematicQuizzes.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -109,35 +123,54 @@ export default function QuizzesOverviewPage() {
             />
           </div>
           
-          <section>
-            <h2 className="mb-6 text-2xl font-semibold text-foreground">Basistests voor jouw leeftijd</h2>
-            {filteredBaseQuizzes.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredBaseQuizzes.map((quiz) => (
-                  <QuizCard key={quiz.id} {...quiz} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-6">
-                {searchTerm ? "Geen basistests gevonden die overeenkomen met je zoekopdracht." : "Geen basistests beschikbaar."}
-              </p>
-            )}
-          </section>
+          {noResultsForSearch && (
+             <Card className="bg-secondary/50 border-secondary">
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen gevonden</h3>
+                <p className="text-muted-foreground">
+                    Er zijn geen quizzen die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm.
+                </p>
+                <Button onClick={() => setSearchTerm('')} className="mt-4">
+                    Wis zoekopdracht
+                </Button>
+                </CardContent>
+            </Card>
+          )}
 
-          <section>
-            <h2 className="mb-6 text-2xl font-semibold text-foreground">Verdiepende thema-quizzes</h2>
-            {filteredThematicQuizzes.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredThematicQuizzes.map((quiz) => (
-                  <QuizCard key={quiz.id} {...quiz} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-6">
-                {searchTerm ? "Geen thema-quizzen gevonden die overeenkomen met je zoekopdracht." : "Geen thema-quizzen beschikbaar."}
-              </p>
-            )}
-          </section>
+          {!noResultsForSearch && (
+            <>
+              <section>
+                <h2 className="mb-6 text-2xl font-semibold text-foreground">Basistests voor jouw leeftijd</h2>
+                {filteredBaseQuizzes.length > 0 ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredBaseQuizzes.map((quiz) => (
+                      <QuizCard key={quiz.id} {...quiz} />
+                    ))}
+                  </div>
+                ) : (
+                   <p className="text-muted-foreground text-center py-6">
+                    Geen basistests beschikbaar.
+                  </p>
+                )}
+              </section>
+
+              <section>
+                <h2 className="mb-6 text-2xl font-semibold text-foreground">Verdiepende thema-quizzen</h2>
+                {filteredThematicQuizzes.length > 0 ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredThematicQuizzes.map((quiz) => (
+                      <QuizCard key={quiz.id} {...quiz} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-6">
+                    Geen thema-quizzen beschikbaar.
+                  </p>
+                )}
+              </section>
+            </>
+          )}
 
         </div>
       </main>

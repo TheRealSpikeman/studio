@@ -1,18 +1,71 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp } from 'lucide-react';
+import { MessageSquare, TrendingUp, AlertTriangle } from 'lucide-react';
 import { ResultsChart } from '@/components/dashboard/results-chart';
 
 // Dummy data for demonstration
-const userName = "Alex"; // TODO: Fetch actual user name
+// TODO: Fetch actual user data and their ageGroup from authentication context
+const currentUser = {
+  name: "Alex", 
+  ageGroup: '15-18' as '12-14' | '15-18' | 'adult' // Example age group
+};
 
-const quizzes = [
-  { id: 'neuroprofile-101', title: 'Basis Neuroprofiel Quiz', description: 'Ontdek je fundamentele neurodiversiteitskenmerken.', status: 'Nog niet gestart' as QuizStatus, imageUrl: 'https://picsum.photos/seed/neuro1/400/200', dataAiHint: 'brain puzzle' },
-  { id: 'adhd-focus-201', title: 'ADHD & Focus Verdieping', description: 'Specifieke vragen rondom aandacht en hyperactiviteit.', status: 'In progress' as QuizStatus, progress: 60, imageUrl: 'https://picsum.photos/seed/adhd1/400/200', dataAiHint: 'focus target' },
-  { id: 'autism-spectrum-202', title: 'Autisme Spectrum Verkenning', description: 'Verken kenmerken gerelateerd aan het autismespectrum.', status: 'Voltooid' as QuizStatus, imageUrl: 'https://picsum.photos/seed/autism1/400/200', dataAiHint: 'social connection' },
+const allDashboardQuizzes = [
+  { 
+    id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
+    title: 'Basis Neurodiversiteit (12-14 jr)', 
+    description: 'Ontdek jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
+    status: 'Nog niet gestart' as QuizStatus, 
+    imageUrl: 'https://picsum.photos/seed/dash1214/400/200',
+    dataAiHint: 'teenager puzzle',
+    ageGroup: '12-14',
+  },
+  { 
+    id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
+    title: 'Basis Neurodiversiteit (15-18 jr)', 
+    description: 'Ontdek jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
+    status: 'Nog niet gestart' as QuizStatus, 
+    imageUrl: 'https://picsum.photos/seed/dash1518/400/200',
+    dataAiHint: 'teenager study',
+    ageGroup: '15-18',
+  },
+  { 
+    id: 'exam-stress-planning', 
+    title: 'Examenvrees & Planning (Tieners)', 
+    description: 'Leer stress beheersen en je planning scherp te houden.', 
+    status: 'In progress' as QuizStatus, 
+    progress: 60, 
+    imageUrl: 'https://picsum.photos/seed/dashexamstress/400/200', 
+    dataAiHint: 'student exam',
+    ageGroup: 'all', // Indicates suitable for all teen age groups
+  },
+  { 
+    id: 'social-anxiety-friendships', 
+    title: 'Sociale Angst & Vriendschap (Tieners)', 
+    description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
+    status: 'Voltooid' as QuizStatus, 
+    imageUrl: 'https://picsum.photos/seed/dashsocialanxiety/400/200',
+    dataAiHint: 'teenagers friends',
+    ageGroup: 'all',
+  },
+   { 
+    id: 'focus-digital-distraction', 
+    title: 'Focus & Digitale Afleiding (Tieners)', 
+    description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
+    status: 'Nog niet gestart' as QuizStatus, 
+    imageUrl: 'https://picsum.photos/seed/dashdigitalfocus/400/200',
+    dataAiHint: 'teenager phone',
+    ageGroup: 'all',
+  },
 ];
+
+// Filter quizzes based on currentUser.ageGroup
+const quizzes = allDashboardQuizzes.filter(quiz => 
+  quiz.ageGroup === currentUser.ageGroup || quiz.ageGroup === 'all'
+);
 
 const latestCoachingTip = {
   title: "Tip van de dag: Structuur en Routine",
@@ -20,9 +73,9 @@ const latestCoachingTip = {
 };
 
 const resultsData = [
-  { name: 'Basis Neuroprofiel', score: 75, date: '2024-03-15' },
-  { name: 'ADHD & Focus', score: 60, date: '2024-03-20' },
-  { name: 'Autisme Spectrum', score: 85, date: '2024-03-25' },
+  // Filter or ensure resultsData also aligns with user's quizzes or make it generic
+  { name: 'Basis Neurodiversiteit (15-18 jr)', score: 75, date: '2024-03-15' }, // Example
+  { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' }, // Example
   // Add more data as needed
 ];
 
@@ -32,7 +85,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <section>
         <h1 className="text-3xl font-bold text-foreground">
-          Welkom terug, <span className="text-primary">{userName}</span>!
+          Welkom terug, <span className="text-primary">{currentUser.name}</span>!
         </h1>
         <p className="text-muted-foreground">Klaar om meer over jezelf te ontdekken?</p>
       </section>
@@ -44,11 +97,26 @@ export default function DashboardPage() {
                 <Link href="/quizzes">Alle Quizzen</Link>
             </Button>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {quizzes.slice(0,3).map((quiz) => ( // Show first 3 quizzes
-            <QuizCard key={quiz.id} {...quiz} />
-          ))}
-        </div>
+        {quizzes.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {quizzes.slice(0,3).map((quiz) => ( // Show first 3 relevant quizzes
+              <QuizCard key={quiz.id} {...quiz} />
+            ))}
+          </div>
+        ) : (
+          <Card className="bg-secondary/50 border-secondary">
+            <CardContent className="p-6 flex flex-col items-center text-center">
+              <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen beschikbaar</h3>
+              <p className="text-muted-foreground">
+                Er zijn op dit moment geen quizzen beschikbaar die specifiek zijn afgestemd op jouw leeftijdsgroep ({currentUser.ageGroup} jaar).
+              </p>
+              <Button asChild className="mt-4">
+                <Link href="/quizzes">Bekijk alle tienerquizzen</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </section>
 
       <div className="grid gap-8 lg:grid-cols-3">

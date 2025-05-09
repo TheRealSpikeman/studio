@@ -13,13 +13,13 @@ import { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList }, // This links to the public quizzes overview
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
   { href: '/dashboard/homework-assistance', label: 'Huiswerkbegeleiding', icon: BookOpenCheck },
-  { href: '/dashboard/coaching/settings', label: 'Coaching Instellingen', icon: Settings },
+  { href: '/dashboard/coaching/settings', label: 'Coaching Instellingen', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
-  // TODO: Conditionally show admin items based on user role
+  // TODO: Conditionally show admin items based on user role from auth context
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
 ];
 
@@ -35,17 +35,20 @@ function SidebarNavigationContent() {
         <SiteLogo />
       </div>
       <ScrollArea className="flex-1">
-        <nav className="grid items-start gap-2 p-4 text-sm font-medium">
+        <nav className="grid items-start gap-1 p-4 text-sm font-medium">
           {navItems.map((item) => {
             if (item.adminOnly && userRole !== 'admin') {
               return null;
             }
-            // Check for active parent for sub-items
+            
             let isActive = pathname === item.href;
-            if (item.href === '/dashboard/coaching' && pathname.startsWith('/dashboard/coaching/settings')) {
-                isActive = true;
+            // If the current path starts with the item's parent path, and this item is a sub-item, it could also be considered active (or parent active)
+            if (item.parent && pathname.startsWith(item.parent)) {
+              // More specific check if needed: if item.href itself is a subpath of current path
+              if (pathname.startsWith(item.href)) isActive = true;
             }
-            if (item.href === '/dashboard/homework-assistance' && pathname.startsWith('/dashboard/homework-assistance/')) {
+            // Special handling for parent items to stay active if a sub-item is active
+            if (!item.isSubItem && navItems.some(sub => sub.parent === item.href && pathname.startsWith(sub.href))) {
                 isActive = true;
             }
 
@@ -55,8 +58,9 @@ function SidebarNavigationContent() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                  isActive && 'bg-primary/10 text-primary font-semibold'
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                  isActive && 'bg-primary/10 text-primary font-semibold',
+                  item.isSubItem && 'ml-4 text-sm py-2' // Indent sub-items
                 )}
               >
                 <item.icon className="h-5 w-5" />
