@@ -44,7 +44,7 @@ export function QuizPreviewSection() {
           </CardContent>
         </Card>
         <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-          <Link href="/quiz/teen-neurodiversity-quiz">Probeer nu gratis de Tienerquiz</Link>
+          <Link href="/quizzes">Probeer nu een gratis quiz</Link>
         </Button>
       </div>
     </section>

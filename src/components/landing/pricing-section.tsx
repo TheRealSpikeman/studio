@@ -16,7 +16,7 @@ const plans = [
       pdfRapport: 'beperkt',
     },
     ctaText: 'Start gratis quiz',
-    ctaLink: '/quiz/teen-neurodiversity-quiz',
+    ctaLink: '/quizzes', // Changed from /quiz/teen-neurodiversity-quiz
     isPopular: false,
   },
   {
@@ -134,7 +134,7 @@ export function PricingSection() {
                   variant={plan.isPopular ? 'default' : (plan.price === 'Gratis' ? 'outline' : 'secondary')}
                 >
                   <Link href={plan.ctaLink}>
-                    {plan.price === 'Gratis' ? 'Start gratis quiz' : (plan.name.includes('Maandelijks') ? 'Kies Maandelijks' : 'Kies Jaarlijks')}
+                    {plan.ctaText}
                   </Link>
                 </Button>
               </CardFooter>

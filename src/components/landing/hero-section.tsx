@@ -13,7 +13,7 @@ export function HeroSection() {
             Ontdek je <span className="text-primary">unieke</span> sterktes en uitdagingen
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Krijg diepgaand inzicht in hoe jouw brein werkt. Start met onze gratis basisquiz en ontdek je neurodiversiteitsprofiel. Met een abonnement krijg je toegang tot dagelijkse coaching en verdiepende subquizzen.
+            Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
@@ -31,7 +31,7 @@ export function HeroSection() {
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quiz/teen-neurodiversity-quiz">Start gratis quiz</Link>
+              <Link href="/quizzes">Start gratis quiz</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
               <Link href="/#pricing">Bekijk prijzen</Link>

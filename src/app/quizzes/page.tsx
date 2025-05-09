@@ -1,7 +1,7 @@
 // src/app/quizzes/page.tsx
-"use client"; // Made client component for potential future dynamic age handling
+"use client"; 
 
-import { useState, useEffect } from 'react'; // Added useState and useEffect
+import { useState, useEffect } from 'react'; 
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
@@ -9,27 +9,37 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
 interface Quiz {
-  id: string;
+  id: string; // This will be the quiz path segment, e.g., 'teen-neurodiversity-quiz?ageGroup=12-14'
   title: string;
   description: string;
   status: QuizStatus;
   progress?: number;
   imageUrl?: string;
   dataAiHint?: string;
-  minAge?: number;
-  maxAge?: number;
+  minAge?: number; // For filtering on this page if userAge context is available
+  maxAge?: number; // For filtering on this page if userAge context is available
 }
 
 // Dummy data for demonstration, in a real app this would come from an API
 const allQuizzes: Quiz[] = [
   { 
-    id: 'teen-neurodiversity-quiz', 
-    title: 'Neurodiversiteit Quiz (12-18 jaar)', 
-    description: 'Een quiz speciaal ontworpen voor tieners om inzicht te krijgen in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie.', 
+    id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
+    title: 'Neurodiversiteit Quiz (12-14 jaar)', 
+    description: 'Een quiz speciaal ontworpen voor jou (12-14 jaar) om inzicht te krijgen in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie.', 
     status: 'Nog niet gestart' as QuizStatus, 
-    imageUrl: 'https://picsum.photos/seed/teenquiz/400/200',
-    dataAiHint: 'teenager brain',
+    imageUrl: 'https://picsum.photos/seed/teenquiz1214/400/200',
+    dataAiHint: 'teenager study',
     minAge: 12,
+    maxAge: 14,
+  },
+  { 
+    id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
+    title: 'Neurodiversiteit Quiz (15-18 jaar)', 
+    description: 'Een quiz speciaal ontworpen voor jou (15-18 jaar) om inzicht te krijgen in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie.', 
+    status: 'Nog niet gestart' as QuizStatus, 
+    imageUrl: 'https://picsum.photos/seed/teenquiz1518/400/200',
+    dataAiHint: 'teenager focused',
+    minAge: 15,
     maxAge: 18,
   },
   { 
@@ -82,21 +92,14 @@ const allQuizzes: Quiz[] = [
 
 export default function QuizzesOverviewPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  // In a real application, userAge would come from authentication context or user profile.
-  // For demonstration, we're using a hardcoded age.
-  // Try changing this value (e.g., 15 for teen, 25 for adult) to see filtering in action.
-  const [userAge, setUserAge] = useState<number | undefined>(undefined); // Default to undefined to show all if no age context
+  // userAge could be fetched from auth context if user is logged in.
+  // For this page's purpose of selecting a quiz, explicit age filtering might not be primary
+  // if quizzes are already named by age group (e.g. "Quiz 12-14 jaar").
+  const [userAge, setUserAge] = useState<number | undefined>(undefined); 
 
-  // Simulate fetching user age (e.g., after login)
   useEffect(() => {
-    // Placeholder: In a real app, you'd fetch this from your auth provider/backend
-    // For this demo, we'll set a default age.
-    // If you want to test different age filters, you can change this value.
-    // For example, set to 15 to see teen-specific quizzes, 25 for adult quizzes.
-    // setUserAge(15); 
-    // setUserAge(25);
-    // By default, no age is set, so all quizzes are shown unless explicitly filtered by age properties.
-    // If an age is provided during signup, it should be stored and retrieved here.
+    // Example: Fetch userAge from auth context or a stored profile
+    // setUserAge(16); // for testing
   }, []);
 
 
@@ -106,22 +109,15 @@ export default function QuizzesOverviewPage() {
 
     if (!matchesSearch) return false;
 
-    // If userAge is not set, or quiz has no age restrictions, show it (if it matches search)
-    if (userAge === undefined) {
-        // If no user age context, show quizzes that don't have specific age restrictions
-        // or are generally available. Teens might not want to see adult specific quizzes by default and vice-versa.
-        // This logic can be refined. For now, if no userAge, show all (that match search).
-        // A better approach might be to show only 'Algemeen' and 'Tiener' if no age is known.
-        return true; 
+    // If userAge is available (e.g., from logged-in profile), filter by it.
+    // Otherwise, show all quizzes that match search term.
+    if (userAge !== undefined) {
+        const meetsMinAge = quiz.minAge === undefined || userAge >= quiz.minAge;
+        const meetsMaxAge = quiz.maxAge === undefined || userAge <= quiz.maxAge;
+        return meetsMinAge && meetsMaxAge;
     }
-
-    // Quiz has no age restriction defined
-    if (quiz.minAge === undefined && quiz.maxAge === undefined) return true;
-
-    const meetsMinAge = quiz.minAge === undefined || userAge >= quiz.minAge;
-    const meetsMaxAge = quiz.maxAge === undefined || userAge <= quiz.maxAge;
     
-    return meetsMinAge && meetsMaxAge;
+    return true; // Show all if no userAge context or no specific age selection on this page
   });
 
   return (
@@ -133,7 +129,7 @@ export default function QuizzesOverviewPage() {
             <h1 className="text-3xl font-bold text-foreground">Alle Quizzen</h1>
             <p className="text-muted-foreground">
               Verken alle beschikbare quizzen en verdiep je inzicht in neurodiversiteit. 
-              {userAge && ` Momenteel gefilterd voor leeftijd: ${userAge}.`}
+              Kies de quiz die het beste bij jouw leeftijdscategorie past.
             </p>
           </section>
 
@@ -145,23 +141,19 @@ export default function QuizzesOverviewPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} 
             />
-            {/* Example: Simple buttons to test age filtering for demo purposes */}
-            {/* <div className="mt-2 space-x-2">
-              <Button onClick={() => setUserAge(15)} variant="outline" size="sm">Toon voor 15 jaar</Button>
-              <Button onClick={() => setUserAge(25)} variant="outline" size="sm">Toon voor 25 jaar</Button>
-              <Button onClick={() => setUserAge(undefined)} variant="outline" size="sm">Reset leeftijdfilter</Button>
-            </div> */}
           </div>
           
           {filteredQuizzes.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredQuizzes.map((quiz) => (
+                // The QuizCard will use `quiz.id` to construct the href: `/quiz/${quiz.id}`
+                // So, for `id: 'teen-neurodiversity-quiz?ageGroup=12-14'`, href becomes `/quiz/teen-neurodiversity-quiz?ageGroup=12-14`
                 <QuizCard key={quiz.id} {...quiz} />
               ))}
             </div>
           ) : (
             <p className="text-muted-foreground text-center py-10">
-              {searchTerm ? "Geen quizzen gevonden die overeenkomen met je zoekopdracht." : "Geen quizzen beschikbaar voor de geselecteerde leeftijdscategorie."}
+              {searchTerm ? "Geen quizzen gevonden die overeenkomen met je zoekopdracht." : "Geen quizzen beschikbaar."}
             </p>
           )}
         </div>

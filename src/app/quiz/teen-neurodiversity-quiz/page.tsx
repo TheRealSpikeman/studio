@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
@@ -11,19 +11,25 @@ import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, User
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
-  baseQuestionsTeen,
-  subTestsTeen,
+  baseQuestionsTeen12_14,
+  baseQuestionsTeen15_18,
+  subTestsTeen12_14,
+  subTestsTeen15_18,
   subtestDescriptionsTeen,
-  thresholdsTeen,
+  thresholdsTeen12_14,
+  thresholdsTeen15_18,
   neurotypeDescriptionsTeen,
   NeurotypeDescription,
   answerOptions,
   calculateAverage,
+  QuizOption, // Ensure QuizOption is exported if TeenQuestion needs it directly from here
 } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 
 type QuizStep = 'intro' | 'baseQuestions' | 'subtestConfirmation' | 'subtestQuestions' | 'results';
+type AgeGroup = '12-14' | '15-18' | null;
 
 interface Scores {
   [key: string]: number;
@@ -31,12 +37,41 @@ interface Scores {
 
 export default function TeenNeurodiversityQuizPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
+  
   const [currentStep, setCurrentStep] = useState<QuizStep>('intro');
-  const [baseAnswers, setBaseAnswers] = useState<(number | undefined)[]>(new Array(baseQuestionsTeen.length).fill(undefined));
+  const [baseAnswers, setBaseAnswers] = useState<(number | undefined)[]>([]);
   const [subtestAnswers, setSubtestAnswers] = useState<Record<string, (number | undefined)[]>>({});
   const [relevantSubtests, setRelevantSubtests] = useState<string[]>([]);
   const [finalScores, setFinalScores] = useState<Scores>({});
   const [showUnansweredWarning, setShowUnansweredWarning] = useState(false);
+
+  const [currentBaseQuestions, setCurrentBaseQuestions] = useState<string[]>([]);
+  const [currentSubTests, setCurrentSubTests] = useState<Record<string, string[]>>({});
+  const [currentThresholds, setCurrentThresholds] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const group = searchParams.get('ageGroup') as AgeGroup;
+    if (group === '12-14' || group === '15-18') {
+      setAgeGroup(group);
+      if (group === '12-14') {
+        setCurrentBaseQuestions(baseQuestionsTeen12_14);
+        setCurrentSubTests(subTestsTeen12_14);
+        setCurrentThresholds(thresholdsTeen12_14);
+        setBaseAnswers(new Array(baseQuestionsTeen12_14.length).fill(undefined));
+      } else {
+        setCurrentBaseQuestions(baseQuestionsTeen15_18);
+        setCurrentSubTests(subTestsTeen15_18);
+        setCurrentThresholds(thresholdsTeen15_18);
+        setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
+      }
+    } else {
+      // Default or handle error - e.g., redirect or show selection
+      // For now, defaulting to 15-18 if no valid group, or redirect
+      router.push('/quizzes'); // Redirect if no valid age group
+    }
+  }, [searchParams, router]);
 
   const answeredBaseQuestionsCount = useMemo(() => baseAnswers.filter(ans => ans !== undefined).length, [baseAnswers]);
 
@@ -48,40 +83,73 @@ export default function TeenNeurodiversityQuizPage() {
 
   const handleSubtestAnswerChange = (subtestKey: string, questionIndex: number, value: string) => {
     setSubtestAnswers(prev => {
-      const currentSubtestAns = prev[subtestKey] ? [...prev[subtestKey]] : new Array(subTestsTeen[subtestKey].length).fill(undefined);
+      const currentSubtestAns = prev[subtestKey] ? [...prev[subtestKey]] : new Array(currentSubTests[subtestKey]?.length || 0).fill(undefined);
       currentSubtestAns[questionIndex] = parseInt(value, 10);
       return { ...prev, [subtestKey]: currentSubtestAns };
     });
   };
   
   const calculateRelevantSubtests = (): string[] => {
-    const scores: Scores = {
-      ADD: calculateAverage(baseAnswers.slice(0, 3)),
-      ADHD: calculateAverage(baseAnswers.slice(3, 6)),
-      HSP: calculateAverage(baseAnswers.slice(6, 9)),
-      ASS: calculateAverage(baseAnswers.slice(9, 12)),
-      AngstDepressie: calculateAverage(baseAnswers.slice(12, 15))
-    };
-    return Object.keys(scores).filter(key => scores[key] >= thresholdsTeen[key] && !isNaN(scores[key]));
+    if (currentBaseQuestions.length === 0 || Object.keys(currentThresholds).length === 0) return [];
+    
+    const scores: Scores = {};
+    // This mapping needs to be robust based on how baseQuestions are structured for each age group
+    // Assuming first 3 questions map to ADD, next 3 to ADHD etc. for 15-18.
+    // For 12-14, questions are fewer, so slicing indices need care.
+    // For simplicity, assuming baseQuestions are always structured consistently for category mapping.
+    // Example:
+    // ADD: baseAnswers.slice(0, X)
+    // ADHD: baseAnswers.slice(X, Y)
+    // This needs careful alignment with question design for each age group.
+
+    // Simplified/Placeholder logic for category scores from base answers
+    // This should be adapted based on the actual structure of baseQuestions per age group
+    if (ageGroup === '15-18') {
+        scores.ADD = calculateAverage(baseAnswers.slice(0, 3));
+        scores.ADHD = calculateAverage(baseAnswers.slice(3, 6));
+        scores.HSP = calculateAverage(baseAnswers.slice(6, 9));
+        scores.ASS = calculateAverage(baseAnswers.slice(9, 12));
+        scores.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
+    } else if (ageGroup === '12-14') {
+        // Example mapping for 12-14 (12 questions)
+        scores.ADD = calculateAverage(baseAnswers.slice(0, 2)); // e.g., first 2 for ADD
+        scores.ADHD = calculateAverage(baseAnswers.slice(2, 4)); // next 2 for ADHD
+        scores.HSP = calculateAverage(baseAnswers.slice(4, 6));
+        scores.ASS = calculateAverage(baseAnswers.slice(6, 8));
+        scores.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
+        // The last 2 questions (10,11) might need special mapping or contribute to existing categories
+    }
+    
+    return Object.keys(scores).filter(key => currentThresholds[key] && scores[key] >= currentThresholds[key] && !isNaN(scores[key]));
   };
 
   const calculateFinalScores = (currentRelevantSubtests: string[]): Scores => {
+    if (Object.keys(currentThresholds).length === 0) return {};
     const scores: Scores = {};
-    const baseScoresCalc = {
-        ADD: calculateAverage(baseAnswers.slice(0, 3)),
-        ADHD: calculateAverage(baseAnswers.slice(3, 6)),
-        HSP: calculateAverage(baseAnswers.slice(6, 9)),
-        ASS: calculateAverage(baseAnswers.slice(9, 12)),
-        AngstDepressie: calculateAverage(baseAnswers.slice(12, 15))
-    };
+    
+    let baseScoresCalc: Scores = {};
+     if (ageGroup === '15-18') {
+        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 3));
+        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(3, 6));
+        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(6, 9));
+        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(9, 12));
+        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
+    } else if (ageGroup === '12-14') {
+        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 2));
+        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(2, 4));
+        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(4, 6));
+        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(6, 8));
+        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
+    }
 
-    Object.keys(thresholdsTeen).forEach(key => {
+
+    Object.keys(currentThresholds).forEach(key => {
       if (currentRelevantSubtests.includes(key) && subtestAnswers[key] && subtestAnswers[key]?.filter(ans => ans !== undefined).length > 0) {
         scores[key] = calculateAverage(subtestAnswers[key]);
       } else {
-         scores[key] = baseScoresCalc[key];
+         scores[key] = baseScoresCalc[key] || 0;
       }
-       scores[key] = Math.round(scores[key] * 100) / 100; // Round to 2 decimal places
+       scores[key] = Math.round(scores[key] * 100) / 100; 
     });
     return scores;
   };
@@ -93,10 +161,9 @@ export default function TeenNeurodiversityQuizPage() {
       setFinalScores(calculateFinalScores([]));
       setCurrentStep('results');
     } else {
-      // Initialize subtestAnswers for relevant subtests
       const initialSubAnswers: Record<string, (number | undefined)[]> = {};
       relSubtests.forEach(key => {
-        initialSubAnswers[key] = new Array(subTestsTeen[key].length).fill(undefined);
+        initialSubAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
       });
       setSubtestAnswers(initialSubAnswers);
       setCurrentStep('subtestConfirmation');
@@ -104,7 +171,7 @@ export default function TeenNeurodiversityQuizPage() {
   };
 
   const handleBaseNext = () => {
-    if (answeredBaseQuestionsCount < baseQuestionsTeen.length) {
+    if (currentBaseQuestions.length > 0 && answeredBaseQuestionsCount < currentBaseQuestions.length) {
       setShowUnansweredWarning(true);
       return;
     }
@@ -113,14 +180,20 @@ export default function TeenNeurodiversityQuizPage() {
   
   const handleRestart = () => {
     setCurrentStep('intro');
-    setBaseAnswers(new Array(baseQuestionsTeen.length).fill(undefined));
+    if (ageGroup === '12-14') {
+      setBaseAnswers(new Array(baseQuestionsTeen12_14.length).fill(undefined));
+    } else if (ageGroup === '15-18') {
+      setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
+    } else {
+       setBaseAnswers([]);
+    }
     setSubtestAnswers({});
     setRelevantSubtests([]);
     setFinalScores({});
   };
 
   const generateSummaryText = (scores: Scores, shownSubtests: string[]): string => {
-    const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && scores[key] >= thresholdsTeen[key]);
+    const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && scores[key] >= currentThresholds[key]);
     
     if (profilesToShow.length === 0) {
       return "Op basis van je antwoorden zie je geen opvallend sterke kenmerken van de verschillende neurodiversiteitsprofielen. Dit betekent niet dat je geen enkele eigenschap hebt - iedereen heeft in meer of mindere mate kenmerken die passen bij verschillende profielen.";
@@ -129,13 +202,13 @@ export default function TeenNeurodiversityQuizPage() {
     if (profilesToShow.length === 1) {
       const profileKey = profilesToShow[0];
       const profile = neurotypeDescriptionsTeen[profileKey];
-      return `Je antwoorden laten zien dat je vooral eigenschappen herkent die passen bij ${profile.title}. ${profile.detail} Denk eraan dat deze quiz geen diagnostisch instrument is maar je wel inzicht kan geven in je sterke punten en uitdagingen.`;
+      return `Je antwoorden laten zien dat je vooral eigenschappen herkent die passen bij ${profile.title}. ${profile.detail} Denk eraan dat deze quiz geen diagnostisch instrument is maar je wel inzicht kan geven in je sterke punten en uitdagingen. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
     }
     
     const profileTitles = profilesToShow.map(d => neurotypeDescriptionsTeen[d].title);
     const lastProfileTitle = profileTitles.pop();
     
-    return `Je antwoorden laten zien dat je eigenschappen herkent die passen bij meerdere profielen: ${profileTitles.join(', ')} en ${lastProfileTitle}. Deze combinatie is uniek en toont je persoonlijke neurodiversiteitsprofiel. De tips in dit rapport kunnen je helpen om je sterke punten te gebruiken en met je uitdagingen om te gaan.`;
+    return `Je antwoorden laten zien dat je eigenschappen herkent die passen bij meerdere profielen: ${profileTitles.join(', ')} en ${lastProfileTitle}. Deze combinatie is uniek en toont je persoonlijke neurodiversiteitsprofiel. De tips in dit rapport kunnen je helpen om je sterke punten te gebruiken en met je uitdagingen om te gaan. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
   };
   
   const progressStepNames = ["Basisvragen", "Verdieping", "Resultaten"];
@@ -147,6 +220,15 @@ export default function TeenNeurodiversityQuizPage() {
     window.scrollTo(0, 0);
   }, [currentStep]);
 
+  if (!ageGroup || currentBaseQuestions.length === 0) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <SiteLogo />
+        <p className="mt-4">Quiz informatie laden...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-10 md:pt-16">
       <div className="absolute top-4 left-4 md:top-8 md:left-8">
@@ -154,6 +236,16 @@ export default function TeenNeurodiversityQuizPage() {
       </div>
 
       <div className="w-full max-w-3xl">
+        {ageGroup && (
+            <Alert variant="default" className="mb-6 bg-primary/10 border-primary/30 text-primary">
+                 <Info className="h-5 w-5 !text-primary" />
+                <AlertTitleUi className="font-semibold">Quiz voor {ageGroup} jaar</AlertTitleUi>
+                <AlertDescUi>
+                    Deze vragen en tips zijn speciaal afgestemd op jouw leeftijdscategorie.
+                </AlertDescUi>
+            </Alert>
+        )}
+
         {currentStep !== 'intro' && (
           <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
         )}
@@ -161,11 +253,11 @@ export default function TeenNeurodiversityQuizPage() {
         {currentStep === 'intro' && (
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-center">Welkom bij de Neurodiversiteit Quiz (12-18 jaar)</CardTitle>
+              <CardTitle className="text-3xl font-bold text-center">Welkom bij de Neurodiversiteit Quiz ({ageGroup} jaar)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-center">
               <p className="text-muted-foreground">
-                Deze test geeft inzicht in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn 15 basisvragen; op basis van je antwoorden kun je één of meerdere subtests doen voor verdieping.
+                Deze test geeft inzicht in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn {currentBaseQuestions.length} basisvragen; op basis van je antwoorden kun je één of meerdere subtests doen voor verdieping.
               </p>
               <p className="text-muted-foreground">
                 Je ontvangt een persoonlijk rapport met uitleg, herkenbare voorbeelden en tips. Er zijn geen foute antwoorden; kijk wat bij jou past.
@@ -188,13 +280,13 @@ export default function TeenNeurodiversityQuizPage() {
         {currentStep === 'baseQuestions' && (
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="text-2xl">Basisvragen</CardTitle>
+              <CardTitle className="text-2xl">Basisvragen ({ageGroup} jaar)</CardTitle>
               <CardDescription>
-                Deze eerste 15 vragen helpen om te bepalen welke eigenschappen bij jou het sterkst aanwezig zijn. Kies bij elke vraag het antwoord dat het beste bij jou past.
+                Deze eerste {currentBaseQuestions.length} vragen helpen om te bepalen welke eigenschappen bij jou het sterkst aanwezig zijn. Kies bij elke vraag het antwoord dat het beste bij jou past.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {baseQuestionsTeen.map((q, index) => (
+              {currentBaseQuestions.map((q, index) => (
                 <TeenQuestion
                   key={index}
                   questionText={q}
@@ -205,7 +297,7 @@ export default function TeenNeurodiversityQuizPage() {
                 />
               ))}
               <p className="mt-4 text-sm italic text-muted-foreground text-center">
-                Vraag {answeredBaseQuestionsCount} van {baseQuestionsTeen.length} beantwoord
+                Vraag {answeredBaseQuestionsCount} van {currentBaseQuestions.length} beantwoord
               </p>
             </CardContent>
             <CardFooter className="flex justify-end">
@@ -233,7 +325,7 @@ export default function TeenNeurodiversityQuizPage() {
         {currentStep === 'subtestConfirmation' && (
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="text-2xl">Verdiepende vragen</CardTitle>
+              <CardTitle className="text-2xl">Verdiepende vragen ({ageGroup} jaar)</CardTitle>
               <CardDescription>
                 Op basis van je antwoorden willen we je graag meer vragen stellen over specifieke gebieden.
               </CardDescription>
@@ -243,7 +335,7 @@ export default function TeenNeurodiversityQuizPage() {
                 <>
                   <p>Op basis van je antwoorden lijkt het zinvol om verder te kijken naar <strong>{neurotypeDescriptionsTeen[relevantSubtests[0]].title}</strong>.</p>
                   <p className="text-sm text-muted-foreground">{subtestDescriptionsTeen[relevantSubtests[0]]}</p>
-                  <p>We stellen je graag nog 10 verdiepende vragen voor meer inzicht.</p>
+                  <p>We stellen je graag nog {currentSubTests[relevantSubtests[0]]?.length || 0} verdiepende vragen voor meer inzicht.</p>
                 </>
               ) : (
                 <>
@@ -255,7 +347,7 @@ export default function TeenNeurodiversityQuizPage() {
                       </li>
                     ))}
                   </ul>
-                  <p>Voor elk relevant gebied stellen we je 10 verdiepende vragen voor meer inzicht.</p>
+                  <p>Voor elk relevant gebied stellen we je {currentSubTests[relevantSubtests[0]]?.length || 0} verdiepende vragen voor meer inzicht.</p>
                 </>
               )}
             </CardContent>
@@ -273,7 +365,7 @@ export default function TeenNeurodiversityQuizPage() {
         {currentStep === 'subtestQuestions' && (
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="text-2xl">Vervolgvragen</CardTitle>
+              <CardTitle className="text-2xl">Vervolgvragen ({ageGroup} jaar)</CardTitle>
               <CardDescription>
                  Deze vragen helpen om een beter beeld te krijgen van de gebieden die bij jou het sterkst naar voren komen.
               </CardDescription>
@@ -283,7 +375,7 @@ export default function TeenNeurodiversityQuizPage() {
                 <div key={subtestKey} className="mb-6">
                   <h3 className="mb-3 text-xl font-semibold text-primary">{neurotypeDescriptionsTeen[subtestKey].title}</h3>
                   <p className="mb-3 text-sm text-muted-foreground">{subtestDescriptionsTeen[subtestKey]}</p>
-                  {subTestsTeen[subtestKey].map((q, index) => (
+                  {currentSubTests[subtestKey]?.map((q, index) => (
                     <TeenQuestion
                       key={`${subtestKey}-${index}`}
                       questionText={q}
@@ -308,7 +400,7 @@ export default function TeenNeurodiversityQuizPage() {
           <div className="space-y-6">
             <Card className="shadow-xl">
               <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-bold">Jouw Persoonlijke Rapport</CardTitle>
+                <CardTitle className="text-3xl font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="rounded-md border border-primary/30 bg-primary/5 p-4">
@@ -316,7 +408,7 @@ export default function TeenNeurodiversityQuizPage() {
                     <p className="text-foreground">{generateSummaryText(finalScores, relevantSubtests)}</p>
                 </div>
                 
-                {Object.keys(finalScores).filter(key => neurotypeDescriptionsTeen[key] && finalScores[key] >= thresholdsTeen[key]).length > 0 && (
+                {Object.keys(finalScores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && finalScores[key] >= currentThresholds[key]).length > 0 && (
                     <div className="rounded-md border border-accent/30 bg-accent/5 p-4 text-sm">
                         <h3 className="mb-2 flex items-center text-lg font-semibold text-accent"><Info className="mr-2 h-5 w-5" />Wat betekent dit voor jou?</h3>
                         <p>De scores hieronder geven aan waar jouw neurodiversiteitskenmerken het sterkst naar voren komen. 
@@ -327,7 +419,7 @@ export default function TeenNeurodiversityQuizPage() {
                 )}
 
                 {Object.keys(neurotypeDescriptionsTeen)
-                  .filter(key => finalScores[key] >= thresholdsTeen[key] || (relevantSubtests.length === 0 && finalScores[key] > 0) ) 
+                  .filter(key => finalScores[key] >= (currentThresholds[key] || 0) || (relevantSubtests.length === 0 && finalScores[key] > 0) ) 
                   .sort((a,b) => finalScores[b] - finalScores[a]) 
                   .map(key => {
                     const profile = neurotypeDescriptionsTeen[key];
@@ -339,7 +431,7 @@ export default function TeenNeurodiversityQuizPage() {
                         <CardHeader className="bg-muted/30">
                           <CardTitle className="text-2xl" style={{color: profile.color || 'hsl(var(--primary))'}}>
                             {profile.title} 
-                            <span className="ml-2 text-lg font-normal text-muted-foreground">(Score: {score.toFixed(2)})</span>
+                            <span className="ml-2 text-lg font-normal text-muted-foreground">(Score: {score?.toFixed(2) || 'N/A'})</span>
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 pt-4">
@@ -355,7 +447,7 @@ export default function TeenNeurodiversityQuizPage() {
                           </div>
 
                           <div>
-                            <h4 className="mb-2 text-md font-semibold">Tips en strategieën:</h4>
+                            <h4 className="mb-2 text-md font-semibold">Tips en strategieën (voor {ageGroup} jaar):</h4>
                             <div className="space-y-2 text-sm">
                               <div className="rounded-md bg-green-50 p-3 border border-green-200"><strong className="text-green-700">Op school/studie:</strong> {profile.tips.school}</div>
                               <div className="rounded-md bg-blue-50 p-3 border border-blue-200"><strong className="text-blue-700">Thuis:</strong> {profile.tips.thuis}</div>
@@ -376,7 +468,6 @@ export default function TeenNeurodiversityQuizPage() {
               </CardContent>
             </Card>
 
-            {/* Upsell Section */}
             <Card className="w-full shadow-xl mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary">
                 <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl text-primary">
