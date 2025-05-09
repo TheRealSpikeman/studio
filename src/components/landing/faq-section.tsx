@@ -1,4 +1,3 @@
-
 import {
   Accordion,
   AccordionContent,
@@ -29,6 +28,11 @@ const faqs = [
     answer:
       'De Tienerquiz is speciaal ontworpen voor jongeren van ongeveer 12 tot 18 jaar. Voor volwassenen hebben we andere, meer geschikte quizzen beschikbaar.',
   },
+  {
+    question: 'Hoe werkt de betaling als ik jonger dan 18 ben?',
+    answer:
+      'Als je jonger dan 18 jaar bent en een betaald abonnement kiest, vragen we je om de gegevens van een ouder of verzorger. Zij ontvangen dan een e-mail met een beveiligde link om de betaling te voltooien en toestemming te geven. Zodra zij de betaling hebben afgerond, wordt je abonnement geactiveerd.'
+  }
 ];
 
 export function FaqSection() {
@@ -48,7 +52,7 @@ export function FaqSection() {
               <AccordionTrigger className="text-left text-lg hover:no-underline font-semibold text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary [&[data-state=open]>svg]:rotate-180 transition-all">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-1 bg-card rounded-b-lg">
+              <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-1 bg-card rounded-b-lg text-base data-[state=open]:bg-muted/30">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
@@ -64,4 +68,3 @@ export function FaqSection() {
     </section>
   );
 }
-
