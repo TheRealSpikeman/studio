@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { 
   Mail, MessageSquare, Zap, Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
-  CalendarPlus, PlaySquare, Headphones, Library, Rocket, Users, Bot, Trophy, Bell, Check, Image as ImageIcon, Mic, CalendarDays
+  CalendarPlus, PlaySquare, Headphones, Library, Rocket, Users, Bot, Trophy, Bell, Check, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff
 } from 'lucide-react'; 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -101,6 +101,8 @@ export default function CoachingPage() {
   
   const [pushNotifications, setPushNotifications] = useState(true);
   const [affirmationTiming, setAffirmationTiming] = useState("08:00");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
 
   const { toast } = useToast();
 
@@ -166,6 +168,10 @@ export default function CoachingPage() {
       )
     );
   };
+  
+  const toggleCalendar = () => {
+    setIsCalendarOpen(prev => !prev);
+  };
 
   return (
     <div className="space-y-8">
@@ -177,23 +183,29 @@ export default function CoachingPage() {
       </section>
 
       <Card className="shadow-lg">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <CalendarDays className="h-6 w-6 text-primary" />
             Selecteer een datum
           </CardTitle>
+          <Button onClick={toggleCalendar} variant="outline">
+            {isCalendarOpen ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+            {isCalendarOpen ? "Verberg Kalender" : "Toon Kalender"}
+          </Button>
         </CardHeader>
-        <CardContent className="flex justify-center">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            className="rounded-md border"
-            locale={nl}
-            disabled={(date) => date > new Date() || date < COACHING_START_DATE}
-            initialFocus
-          />
-        </CardContent>
+        {isCalendarOpen && (
+          <CardContent className="flex justify-center pt-4"> {/* Added pt-4 for spacing */}
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              className="rounded-md border"
+              locale={nl}
+              disabled={(date) => date > new Date() || date < COACHING_START_DATE}
+              initialFocus
+            />
+          </CardContent>
+        )}
       </Card>
 
       {/* --- Row 1: Affirmation & Streaks --- */}
@@ -491,3 +503,4 @@ export default function CoachingPage() {
     </div>
   );
 }
+
