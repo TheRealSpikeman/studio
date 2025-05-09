@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MessageSquare, TrendingUp } from 'lucide-react';
+import { ResultsChart } from '@/components/dashboard/results-chart';
 
 // Dummy data for demonstration
 const userName = "Alex"; // TODO: Fetch actual user name
@@ -25,38 +25,6 @@ const resultsData = [
   { name: 'Autisme Spectrum', score: 85, date: '2024-03-25' },
   // Add more data as needed
 ];
-
-// Chart component - Note: Recharts needs client-side rendering.
-// If this page is a Server Component, this part might need to be a separate client component.
-// For simplicity here, assuming this page can be a client component or Recharts handles it gracefully.
-function ResultsChart() {
-    // This useEffect is for client-side only rendering if Recharts causes hydration issues
-    // For now, we'll attempt direct render. If hydration errors occur, wrap in useEffect.
-    // const [isClient, setIsClient] = useState(false);
-    // useEffect(() => { setIsClient(true); }, []);
-    // if (!isClient) return <div className="h-64 bg-muted rounded-lg animate-pulse" />;
-
-
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={resultsData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-        <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-        <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: 'hsl(var(--background))',
-            borderColor: 'hsl(var(--border))',
-            borderRadius: 'var(--radius)',
-          }}
-          labelStyle={{ color: 'hsl(var(--foreground))' }}
-        />
-        <Legend wrapperStyle={{ fontSize: 14 }} />
-        <Bar dataKey="score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Score (%)" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-}
 
 
 export default function DashboardPage() {
@@ -100,7 +68,7 @@ export default function DashboardPage() {
               <CardDescription>Een visuele weergave van je quizscores.</CardDescription>
             </CardHeader>
             <CardContent>
-              {resultsData.length > 0 ? <ResultsChart /> : <p className="text-muted-foreground">Nog geen resultaten om weer te geven. Start een quiz!</p>}
+              {resultsData.length > 0 ? <ResultsChart data={resultsData} /> : <p className="text-muted-foreground">Nog geen resultaten om weer te geven. Start een quiz!</p>}
             </CardContent>
           </Card>
         </section>
