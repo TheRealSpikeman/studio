@@ -1,3 +1,7 @@
+
+"use client";
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -15,36 +19,55 @@ const sampleQuestion = {
 };
 
 export function QuizPreviewSection() {
+  const [selectedOptionText, setSelectedOptionText] = useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
+
+  const handleOptionChange = (value: string) => {
+    setSelectedValue(value);
+    const selectedOpt = sampleQuestion.options.find(opt => opt.id === value);
+    setSelectedOptionText(selectedOpt ? `Jouw selectie: ${selectedOpt.text}` : null);
+  };
+
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container flex flex-col items-center text-center">
-        <h2 className="mb-8 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+        <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Probeer een voorbeeldvraag
         </h2>
-        <Card className="w-full max-w-xl shadow-xl mb-8">
+        <p className="mb-6 text-muted-foreground">
+          Beantwoord één voorbeeldvraag om te zien hoe onze quiz werkt.
+        </p>
+        <Card className="w-full max-w-xl shadow-xl mb-6" aria-labelledby="sample-question-title" aria-describedby="sample-question-description">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold">{sampleQuestion.text}</CardTitle>
-            <CardDescription>
-              Dit is een voorbeeld van hoe een vraag eruit ziet.
+            <CardTitle id="sample-question-title" className="text-xl font-semibold">{sampleQuestion.text}</CardTitle>
+            <CardDescription id="sample-question-description">
+              Zo ziet een vraag eruit—kies wat het beste bij jou past. (Voorbeeldvraag 1 van 1)
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RadioGroup className="space-y-3">
+            <RadioGroup value={selectedValue} onValueChange={handleOptionChange} className="space-y-3" aria-label={sampleQuestion.text}>
               {sampleQuestion.options.map((option) => (
                 <Label
                   key={option.id}
                   htmlFor={option.id}
-                  className="flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors hover:bg-muted/50"
+                  className={`flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors 
+                              hover:bg-primary/10 has-[input:checked]:border-primary has-[input:checked]:bg-primary/5`}
                 >
-                  <RadioGroupItem value={option.id} id={option.id} />
+                  <RadioGroupItem value={option.id} id={option.id} aria-label={option.text} />
                   <span>{option.text}</span>
                 </Label>
               ))}
             </RadioGroup>
+            {selectedOptionText && (
+              <p className="mt-4 text-sm text-primary font-medium animate-pulse">{selectedOptionText}</p>
+            )}
+            <p className="mt-4 text-xs text-muted-foreground">
+              Ontdek hoe jij je verhoudt tot andere jongeren.
+            </p>
           </CardContent>
         </Card>
         <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-          <Link href="/quizzes">Probeer nu een gratis quiz</Link>
+          <Link href="/quizzes">Doe de volledige quiz gratis</Link>
         </Button>
       </div>
     </section>
