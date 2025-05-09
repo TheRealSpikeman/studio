@@ -10,21 +10,21 @@ const features = [
     title: 'Persoonlijk Rapport',
     description: 'Ontvang een gedetailleerd rapport over jouw neurodiversiteitsprofiel, inclusief sterke punten en aandachtspunten.',
     ctaText: 'Bekijk Rapport Voorbeeld',
-    ctaLink: '/dashboard/results', // Placeholder link
+    ctaLink: '/dummy-report.pdf', // Changed link to dummy PDF
   },
   {
     icon: <Puzzle className="h-10 w-10 text-primary" />,
     title: 'Diepgaande Subquizzen',
     description: 'Verdiep je kennis met specifieke subquizzen die aansluiten bij jouw basisprofiel voor een completer beeld.',
     ctaText: 'Ontdek Subquizzen',
-    ctaLink: '/quizzes', // Placeholder link
+    ctaLink: '/quizzes',
   },
   {
     icon: <MessagesSquare className="h-10 w-10 text-primary" />,
     title: 'Dagelijkse Coaching',
     description: 'Krijg dagelijkse, op maat gemaakte tips en inzichten om je te helpen navigeren en groeien.',
     ctaText: 'Probeer Coaching',
-    ctaLink: '/dashboard/coaching', // Placeholder link
+    ctaLink: '/dashboard/coaching',
   },
 ];
 
@@ -41,7 +41,7 @@ export function FeaturesSection() {
               key={index} 
               className="flex flex-col items-center text-center shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-primary/30"
             >
-              <CardHeader className="items-center"> {/* Added items-center to CardHeader for icon centering */}
+              <CardHeader className="items-center">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                   {feature.icon}
                 </div>
@@ -62,4 +62,3 @@ export function FeaturesSection() {
     </section>
   );
 }
-
