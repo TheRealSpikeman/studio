@@ -1,3 +1,4 @@
+// src/components/layout/dashboard-sidebar.tsx
 "use client";
 
 import Link from 'next/link';
@@ -6,13 +7,14 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, LogOut } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
   { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
+  { href: '/dashboard/profile', label: 'Profiel', icon: User }, // Added Profile link
 ];
 
 // TODO: Admin items, show conditionally based on user role
