@@ -4,10 +4,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'; // Kept for potential future use, but not for logout here
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, LogOut, Users } from 'lucide-react'; // Added Users
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu } from 'lucide-react'; // Added Menu for mobile toggle
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // For mobile sidebar
+import { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
@@ -20,13 +22,13 @@ const navItems = [
 ];
 
 
-export function DashboardSidebar() {
+function SidebarNavigationContent() {
   const pathname = usePathname();
   // In a real app, userRole would come from an auth context
   const userRole: 'admin' | 'user' = 'admin'; // Placeholder for admin role check
 
   return (
-    <aside className="fixed top-0 left-0 z-40 flex h-screen w-64 flex-col border-r bg-card shadow-lg">
+    <>
       <div className="flex h-16 items-center border-b px-6">
         <SiteLogo />
       </div>
@@ -52,14 +54,40 @@ export function DashboardSidebar() {
           })}
         </nav>
       </ScrollArea>
-      <div className="mt-auto border-t p-4">
-        {/* TODO: User profile / logout */}
-        <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive">
-          <LogOut className="h-5 w-5" />
-          Uitloggen
-        </Button>
-      </div>
-    </aside>
+      {/* Logout button is removed from here, it's now in DashboardHeader user dropdown */}
+    </>
   );
 }
 
+export function DashboardSidebar() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768); // md breakpoint
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="fixed top-4 left-4 z-50 md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col p-0 w-64 bg-card">
+          <SidebarNavigationContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <aside className="fixed top-0 left-0 z-40 hidden h-screen w-64 flex-col border-r bg-card shadow-lg md:flex">
+      <SidebarNavigationContent />
+    </aside>
+  );
+}
