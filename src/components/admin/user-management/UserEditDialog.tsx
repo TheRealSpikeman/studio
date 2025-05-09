@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
+import { nl } from 'date-fns/locale'; // Added import for nl locale
 import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp } from 'lucide-react'; // Added icons
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -125,7 +126,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
       <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{isAddingNewUser ? 'Nieuwe Gebruiker Toevoegen' : 'Gebruiker Bewerken'}</DialogTitle>
-          {!isAddingNewUser && user && <DialogDescription>ID: {user.id} | Aangemaakt: {format(new Date(user.createdAt), 'Pp', { locale: { code: 'nl-NL' }})}</DialogDescription>}
+          {!isAddingNewUser && user && <DialogDescription>ID: {user.id} | Aangemaakt: {user.createdAt ? format(new Date(user.createdAt), 'Pp', { locale: nl }) : 'N/A'}</DialogDescription>}
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
@@ -235,7 +236,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                             )}
                             >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP", {locale: { code: 'nl-NL' }}) : <span>Kies een datum</span>}
+                            {field.value ? format(field.value, "PPP", {locale: nl }) : <span>Kies een datum</span>}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
