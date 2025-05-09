@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,20 +19,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, Cake } from 'lucide-react';
+import { Mail, Lock, UserCircleIcon } from 'lucide-react'; // Replaced Cake with UserCircleIcon for age group
 import { useRouter } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-const MIN_AGE = 12;
-const MAX_AGE = 120;
-
-const ageOptions = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (i + MIN_AGE).toString());
+const ageGroupValues = ["12-14", "15-18", "ouder-18"] as const;
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
-  age: z.coerce.number().int("Leeftijd moet een geheel getal zijn.").min(MIN_AGE, `Leeftijd moet minimaal ${MIN_AGE} zijn.`).max(MAX_AGE, "Ongeldige leeftijd."),
+  ageGroup: z.enum(ageGroupValues, {
+    required_error: "Selecteer een leeftijdsgroep.",
+  }),
   agreeToTerms: z.boolean().refine(value => value === true, {
     message: "Je moet akkoord gaan met de voorwaarden.",
   }),
@@ -48,7 +48,7 @@ export function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      age: undefined,
+      ageGroup: undefined, // Will be one of "12-14", "15-18", "ouder-18"
       agreeToTerms: false,
     },
   });
@@ -58,9 +58,16 @@ export function SignupForm() {
     // 1. Call backend to create user with 'niet geverifieerd' status.
     // 2. Backend sends verification email.
     // 3. On success, redirect.
-    console.log("Signup values (including age):", values); 
+    // 4. If ageGroup is "ouder-18", potentially trigger a different flow or require parent details.
+    console.log("Signup values (including ageGroup):", values); 
     // For now, redirect to email verification page
-    router.push('/verify-email');
+    // If a paid plan was selected and user is < 18, redirect to parental approval
+    const plan = new URLSearchParams(window.location.search).get('plan');
+    if (plan && (values.ageGroup === '12-14' || values.ageGroup === '15-18')) {
+        router.push(`/parental-approval?plan=${plan}`);
+    } else {
+        router.push('/verify-email');
+    }
   }
 
   return (
@@ -120,32 +127,56 @@ export function SignupForm() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
-              name="age"
+              name="ageGroup"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Leeftijd</FormLabel>
-                  <div className="relative">
-                     <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
-                    <Select
-                      onValueChange={(value) => field.onChange(value ? +value : undefined)} // Convert string value from select to number or undefined
-                      value={field.value?.toString()} // Convert number to string for Select value
-                      name={field.name}
-                      disabled={field.disabled}
+                <FormItem className="space-y-3">
+                  <FormLabel className="flex items-center gap-1">
+                     <UserCircleIcon className="h-4 w-4 text-muted-foreground"/>
+                     Leeftijdsgroep
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-2"
                     >
-                      <FormControl>
-                        <SelectTrigger className="pl-10">
-                          <SelectValue placeholder="Selecteer je leeftijd" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent ref={field.ref} onBlur={field.onBlur}>
-                        {ageOptions.map(age => (
-                          <SelectItem key={age} value={age}>{age}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="12-14" id="age-12-14" />
+                        </FormControl>
+                        <FormLabel htmlFor="age-12-14" className="font-normal cursor-pointer">
+                          Ik ben 12–14 jaar
+                          <FormDescription className="!mt-0.5">
+                            Kies deze optie als je in groep 8, brugklas of klas 2–3 zit.
+                          </FormDescription>
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="15-18" id="age-15-18" />
+                        </FormControl>
+                        <FormLabel htmlFor="age-15-18" className="font-normal cursor-pointer">
+                          Ik ben 15–18 jaar
+                           <FormDescription className="!mt-0.5">
+                            Kies deze optie als je in de bovenbouw zit of je eindexamen doet.
+                          </FormDescription>
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="ouder-18" id="age-ouder-18" />
+                        </FormControl>
+                        <FormLabel htmlFor="age-ouder-18" className="font-normal cursor-pointer">
+                          Ik ben ouder dan 18 jaar (ouder/verzorger)
+                          <FormDescription className="!mt-0.5">
+                            Selecteer dit als u een ouder/verzorger bent die een account aanmaakt.
+                          </FormDescription>
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -159,10 +190,11 @@ export function SignupForm() {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      id="agreeToTerms"
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
+                    <FormLabel htmlFor="agreeToTerms" className="cursor-pointer">
                       Ik ga akkoord met de{' '}
                       <Button variant="link" asChild className="p-0 h-auto">
                         <Link href="/terms" target="_blank">algemene voorwaarden</Link>
@@ -177,7 +209,9 @@ export function SignupForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">Aanmelden</Button>
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !form.formState.isValid}>
+              Aanmelden
+            </Button>
             <p className="pt-1 text-xs text-muted-foreground text-center">
               Na aanmelding ontvang je een e-mail om je account te verifiëren.
             </p>
@@ -193,3 +227,4 @@ export function SignupForm() {
     </Card>
   );
 }
+

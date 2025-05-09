@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -47,15 +48,17 @@ export default function ParentalApprovalPage() {
     // TODO: Implement actual backend logic to:
     // 1. Securely store this request (e.g., associate with the child's user ID and plan).
     // 2. Send a unique, secure payment link to the parent's email.
-    console.log("Parental approval form submitted for new user:", values, "for plan:", planName);
+    // 3. Create the child's account with status 'pending_parental_approval'
+    // 4. Send verification email to child's email (if provided separately, or use parent's email for now if child's email isn't collected yet in this flow)
+    console.log("Parental approval form submitted for new user signup:", values, "for plan:", planName);
     toast({
       title: "Verzoek verzonden",
-      description: `Een betalingsverzoek voor het ${planName} abonnement is naar ${values.parentEmail} gestuurd. Vraag je ouder/verzorger om hun e-mail te controleren.`,
-      duration: 7000,
+      description: `Een betalingsverzoek voor het ${planName} abonnement is naar ${values.parentEmail} gestuurd. Vraag hen om hun e-mail te controleren. Het account voor de jongere wordt aangemaakt zodra de betaling is voltooid.`,
+      duration: 9000,
     });
     // TODO: Update child's user record to indicate 'pending_parental_approval' for the plan.
-    // Redirect to dashboard or a specific pending page.
-    router.push("/dashboard"); 
+    // Redirect to a specific pending page or login page after a delay.
+    router.push("/verify-email"); 
   };
 
   if (!planId) {
@@ -92,13 +95,13 @@ export default function ParentalApprovalPage() {
           <ShieldAlert className="mx-auto h-12 w-12 text-primary mb-3" />
           <CardTitle className="text-2xl font-bold">Bijna klaar!</CardTitle>
           <CardDescription>
-            Je account is aangemaakt! Om je "{planName}" abonnement te activeren, is toestemming en betaling door een ouder/verzorger nodig. Vul hieronder hun gegevens in.
+            Om het "{planName}" abonnement voor je kind te activeren, is jouw toestemming en betaling nodig. Vul hieronder je gegevens in. We sturen je dan een beveiligde link om de betaling af te ronden.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <Label htmlFor="parentName">Naam ouder/verzorger</Label>
+              <Label htmlFor="parentName">Jouw volledige naam (ouder/verzorger)</Label>
               <div className="relative mt-1">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -113,7 +116,7 @@ export default function ParentalApprovalPage() {
               )}
             </div>
             <div>
-              <Label htmlFor="parentEmail">E-mailadres ouder/verzorger</Label>
+              <Label htmlFor="parentEmail">Jouw e-mailadres (ouder/verzorger)</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -129,13 +132,13 @@ export default function ParentalApprovalPage() {
               )}
             </div>
             <Button type="submit" className="w-full">
-              Verstuur betalingsverzoek naar ouder
+              Verstuur betalingsverzoek naar mijn e-mail
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Geen ouder/verzorger in de buurt? Je kunt deze stap later voltooien via je dashboard.
-            <Button variant="link" asChild className="px-0 block mx-auto mt-1">
-                <Link href="/dashboard">Ga naar Dashboard</Link>
+           Nadat de betaling is voltooid, wordt het account voor je kind aangemaakt en ontvangen zij instructies om in te loggen (indien apart e-mailadres voor kind is opgegeven bij registratie, anders via jouw e-mail).
+             <Button variant="link" asChild className="px-0 block mx-auto mt-1">
+                <Link href="/">Terug naar home</Link>
             </Button>
           </p>
         </CardContent>
@@ -143,3 +146,4 @@ export default function ParentalApprovalPage() {
     </div>
   );
 }
+
