@@ -134,7 +134,7 @@ export default function ProfilePage() {
                   <SelectValue placeholder="Selecteer je leeftijd" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Selecteer je leeftijd</SelectItem>
+                  {/* <SelectItem value="">Selecteer je leeftijd</SelectItem> // Removed this line */}
                   {ageOptions.map(age => (
                     <SelectItem key={age} value={age}>{age}</SelectItem>
                   ))}
