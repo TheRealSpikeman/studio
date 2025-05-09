@@ -17,14 +17,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User, Cake } from 'lucide-react';
+import { Mail, Lock, Cake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const MIN_AGE = 12;
+const MAX_AGE = 120;
+
+const ageOptions = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (i + MIN_AGE).toString());
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
-  age: z.coerce.number().int("Leeftijd moet een geheel getal zijn.").min(1, "Leeftijd is vereist.").max(120, "Ongeldige leeftijd."),
+  age: z.coerce.number().int("Leeftijd moet een geheel getal zijn.").min(MIN_AGE, `Leeftijd moet minimaal ${MIN_AGE} zijn.`).max(MAX_AGE, "Ongeldige leeftijd."),
   agreeToTerms: z.boolean().refine(value => value === true, {
     message: "Je moet akkoord gaan met de voorwaarden.",
   }),
@@ -117,24 +123,24 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Leeftijd</FormLabel>
                   <div className="relative">
-                    <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Je leeftijd"
-                        name={field.name}
-                        onBlur={field.onBlur}
-                        ref={field.ref}
-                        disabled={field.disabled}
-                        value={field.value ?? ''} // Ensures controlled input, maps undefined to empty string
-                        onChange={event => {
-                          // RHF's field.onChange expects the actual value type (number for age)
-                          // +event.target.value converts empty string to 0, string numbers to numbers
-                          field.onChange(+event.target.value);
-                        }}
-                        className="pl-10"
-                      />
-                    </FormControl>
+                     <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
+                    <Select
+                      onValueChange={(value) => field.onChange(+value)} // Convert string value from select to number
+                      value={field.value?.toString() ?? ''} // Convert number to string for Select value
+                      name={field.name}
+                      disabled={field.disabled}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="pl-10">
+                          <SelectValue placeholder="Selecteer je leeftijd" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent ref={field.ref} onBlur={field.onBlur}>
+                        {ageOptions.map(age => (
+                          <SelectItem key={age} value={age}>{age}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <FormMessage />
                 </FormItem>
