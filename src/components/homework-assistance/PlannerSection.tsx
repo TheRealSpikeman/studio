@@ -1,14 +1,14 @@
 // src/components/homework-assistance/PlannerSection.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarDays, PlusCircle } from 'lucide-react';
 import { nl } from 'date-fns/locale';
-import { format } from 'date-fns';
+import { format, startOfDay, isEqual } from 'date-fns';
 
 interface CalendarEvent {
   date: Date;
@@ -16,13 +16,29 @@ interface CalendarEvent {
   subject: string;
 }
 
+const generateInitialEvents = (): CalendarEvent[] => {
+  const today = startOfDay(new Date());
+  const twoDaysLater = new Date(today);
+  twoDaysLater.setDate(today.getDate() + 2);
+
+  return [
+    { date: today, title: "Wiskunde H.3 maken", subject: "Wiskunde" },
+    { date: twoDaysLater, title: "Engels essay inleveren", subject: "Engels" }
+  ];
+};
+
+
 export function PlannerSection() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [newTask, setNewTask] = useState('');
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    { date: new Date(), title: "Wiskunde H.3 maken", subject: "Wiskunde" },
-    { date: new Date(Date.now() + 86400000 * 2), title: "Engels essay inleveren", subject: "Engels" }
-  ]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setSelectedDate(startOfDay(new Date()));
+    setEvents(generateInitialEvents());
+  }, []);
 
   const handleAddTask = () => {
     if (newTask && selectedDate) {
@@ -32,9 +48,37 @@ export function PlannerSection() {
     }
   };
 
-  const eventsForSelectedDate = selectedDate 
-    ? events.filter(event => format(event.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd'))
+  const eventsForSelectedDate = selectedDate && isClient
+    ? events.filter(event => isEqual(startOfDay(event.date), selectedDate))
     : [];
+    
+  if (!isClient) {
+    // Render a placeholder or loader on the server and during initial client render
+    return (
+        <Card className="shadow-md">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-6 w-6 text-primary" />
+                Week- & Dagplanner
+                </CardTitle>
+                <CardDescription>Plan je huiswerk, deadlines en studiesessies.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="h-[300px] bg-muted rounded-md animate-pulse"></div>
+                 <div className="flex gap-2 mt-4 pt-4 border-t">
+                    <Input placeholder="Nieuwe taak of deadline..." disabled />
+                    <Button disabled>
+                        <PlusCircle className="h-4 w-4 mr-2 sm:mr-0 md:mr-2" />
+                        <span className="hidden sm:inline md:hidden lg:inline">Toevoegen</span>
+                    </Button>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <p className="text-xs text-muted-foreground italic">Synchroniseer met Google/Outlook Calendar (binnenkort).</p>
+            </CardFooter>
+        </Card>
+    );
+  }
 
   return (
     <Card className="shadow-md">
@@ -49,7 +93,7 @@ export function PlannerSection() {
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={setSelectedDate}
+          onSelect={(date) => date && setSelectedDate(startOfDay(date))}
           className="rounded-md border shadow-sm mx-auto"
           locale={nl}
           modifiers={{ 
@@ -58,6 +102,7 @@ export function PlannerSection() {
           modifiersStyles={{ 
             events: { fontWeight: 'bold', color: 'hsl(var(--primary))' } 
           }}
+          initialFocus
         />
         {selectedDate && (
           <div className="mt-4 pt-4 border-t">
