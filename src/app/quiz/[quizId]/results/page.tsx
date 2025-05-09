@@ -8,7 +8,8 @@ import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
 import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn } from 'lucide-react'; // Added UserPlus, LogIn
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { generateQuizSummary, generateCoachingInsights } from '@/ai/flows'; 
+import { generateQuizSummary } from '@/ai/flows/generate-quiz-summary';
+import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights';
 import { useEffect, useState } from 'react';
 
 // Dummy data - replace with actual data fetching and AI generation
@@ -63,6 +64,7 @@ export default function QuizResultsPage() {
     async function fetchData() {
       setIsLoading(true);
       try {
+        // TODO: Replace with actual quiz answers from state or props
         const quizResultsForAI = { question1: "answerA", question2: "answerB" }; 
         
         const summaryOutput = await generateQuizSummary({ quizResults: quizResultsForAI });
@@ -212,3 +214,4 @@ export default function QuizResultsPage() {
     </div>
   );
 }
+
