@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { UserCircle, Cake, Save } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Dummy user data - in a real app, this would come from context/API
 const initialUserData = {
@@ -15,6 +16,8 @@ const initialUserData = {
   email: "alex.tester@example.com",
   age: undefined as number | undefined, // Age can be undefined initially
 };
+
+const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
 
 export default function ProfilePage() {
   const [userName, setUserName] = useState(initialUserData.name);
@@ -32,26 +35,11 @@ export default function ProfilePage() {
     // setUserAge(fetchedUser.age ? fetchedUser.age.toString() : '');
   }, []);
 
-  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow only numbers or empty string
-    if (/^\d*$/.test(value)) {
-      setUserAge(value);
-    }
-  };
-
   const handleSaveProfile = () => {
     // TODO: Implement actual backend logic to save user data
-    const ageValue = parseInt(userAge, 10);
-    if (userAge !== '' && (isNaN(ageValue) || ageValue <= 0 || ageValue > 120)) {
-        toast({
-            title: "Ongeldige leeftijd",
-            description: "Voer een geldige leeftijd in.",
-            variant: "destructive",
-        });
-        return;
-    }
-    console.log("Profile saved:", { name: userName, email: userEmail, age: userAge ? ageValue : undefined });
+    const ageValue = userAge ? parseInt(userAge, 10) : undefined;
+    
+    console.log("Profile saved:", { name: userName, email: userEmail, age: ageValue });
     toast({
       title: "Profiel Opgeslagen",
       description: "Je profielgegevens zijn bijgewerkt.",
@@ -107,18 +95,30 @@ export default function ProfilePage() {
                 <Cake className="h-4 w-4 text-muted-foreground"/>
                 Leeftijd
             </Label>
-            <Input 
-              id="userAge" 
-              type="text" // Use text to allow empty string and then parse
-              inputMode="numeric" // Hint for mobile keyboards
-              value={userAge} 
-              onChange={handleAgeChange}
-              placeholder="Voer je leeftijd in"
-              disabled={!isEditing}
-              className="mt-1"
-            />
-             {userAge !== '' && (isNaN(parseInt(userAge, 10)) || parseInt(userAge, 10) <=0 || parseInt(userAge, 10) > 120) && isEditing && (
-                <p className="text-sm text-destructive mt-1">Voer een geldige leeftijd in (bijv. 1 tot 120).</p>
+            {isEditing ? (
+              <Select
+                value={userAge}
+                onValueChange={setUserAge}
+                disabled={!isEditing}
+              >
+                <SelectTrigger id="userAge" className="mt-1">
+                  <SelectValue placeholder="Selecteer je leeftijd" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Selecteer je leeftijd</SelectItem>
+                  {ageOptions.map(age => (
+                    <SelectItem key={age} value={age}>{age}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="userAgeDisplay"
+                type="text"
+                value={userAge || "Niet opgegeven"}
+                disabled
+                className="mt-1"
+              />
             )}
           </div>
         </CardContent>
