@@ -1,6 +1,13 @@
+// src/app/dashboard/coaching/page.tsx
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { MessageSquare, Zap } from 'lucide-react'; // Zap for "insights"
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { Mail, MessageSquare, Zap } from 'lucide-react'; 
+import { useState } from 'react';
 
 // Dummy data for demonstration
 const coachingMessages = [
@@ -12,6 +19,22 @@ const coachingMessages = [
 ];
 
 export default function CoachingPage() {
+  const [receiveDailyEmails, setReceiveDailyEmails] = useState(false);
+  const { toast } = useToast();
+
+  const handleEmailPreferenceChange = (checked: boolean) => {
+    setReceiveDailyEmails(checked);
+    // TODO: Implement actual backend logic to save this preference
+    toast({
+      title: "Voorkeur bijgewerkt",
+      description: checked 
+        ? "Je ontvangt nu dagelijkse coaching tips per e-mail." 
+        : "Je ontvangt geen dagelijkse coaching tips meer per e-mail.",
+      variant: "default",
+    });
+    console.log(`Daily email preference set to: ${checked}`);
+  };
+
   return (
     <div className="space-y-8">
       <section>
@@ -20,6 +43,34 @@ export default function CoachingPage() {
           Hier vind je al je dagelijkse coachingberichten, tips en inzichten.
         </p>
       </section>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-6 w-6 text-primary" />
+            Dagelijkse Tips per E-mail
+          </CardTitle>
+          <CardDescription>
+            Ontvang elke dag een nieuwe coaching tip direct in je inbox.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2">
+            <Switch 
+              id="daily-email-toggle" 
+              checked={receiveDailyEmails}
+              onCheckedChange={handleEmailPreferenceChange}
+              aria-label="Ontvang dagelijkse coaching tips per e-mail"
+            />
+            <Label htmlFor="daily-email-toggle" className="cursor-pointer">
+              Ja, ik wil graag dagelijkse coaching tips per e-mail ontvangen.
+            </Label>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Je kunt je op elk moment weer afmelden. We sturen je geen spam.
+          </p>
+        </CardContent>
+      </Card>
 
       <Card className="shadow-lg">
         <CardHeader>
