@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
+import { GraduationCap } from 'lucide-react';
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <SiteLogo />
-        <nav className="flex items-center gap-2 md:gap-4">
+        <nav className="flex items-center gap-1 md:gap-2">
           <Button variant="ghost" asChild>
             <Link href="/quizzes">Quizzen</Link>
           </Button>
@@ -16,6 +17,12 @@ export function Header() {
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/#pricing">Prijzen</Link>
+          </Button>
+           <Button variant="ghost" asChild>
+            <Link href="/word-tutor" className="flex items-center">
+              <GraduationCap className="mr-1 h-4 w-4 md:mr-2" />
+              Word Tutor
+            </Link>
           </Button>
           <Button variant="link" asChild className="hidden sm:inline-flex">
             <Link href="/login">Inloggen</Link>
