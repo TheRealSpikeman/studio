@@ -24,21 +24,21 @@ const navItems = [
     ]
   },
   { 
-    href: '/dashboard/homework-assistance', // Parent links to "Online Tips & Tools"
+    href: '/dashboard/homework-assistance', 
     label: 'Huiswerkbegeleiding', 
     icon: BookOpenCheck,
     children: [
       { 
-        href: '/dashboard/homework-assistance', 
+        href: '/dashboard/homework-assistance', // This child shares href with parent
         label: 'Online Tips & Tools', 
-        icon: Lightbulb, // Icon for Online Tips & Tools
+        icon: Lightbulb,
         isSubItem: true, 
         parent: '/dashboard/homework-assistance' 
       },
       { 
-        href: '/dashboard/homework-assistance/tutors', // Placeholder link for 1-on-1
+        href: '/dashboard/homework-assistance/tutors', 
         label: '1-op-1 Begeleiding', 
-        icon: Users2, // Icon for 1-on-1 Begeleiding
+        icon: Users2,
         isSubItem: true, 
         parent: '/dashboard/homework-assistance' 
       },
@@ -51,8 +51,7 @@ const navItems = [
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  // In a real app, userRole would come from an auth context
-  const userRole: 'admin' | 'user' = 'admin'; // Placeholder for admin role check
+  const userRole: 'admin' | 'user' = 'admin'; 
 
   return (
     <>
@@ -66,16 +65,22 @@ function SidebarNavigationContent() {
               return null;
             }
             
-            let isActive = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/' && pathname.startsWith(item.href));
-            
-            // If it's a parent item, it's active if its own href matches or if any child is active
-            // Exception: if a child has the exact same href as the parent, parent active state is based on that child.
+            const isItemDirectlyActive = pathname === item.href;
+            let isParentHighlighted = isItemDirectlyActive;
+            let isParentExpanded = isItemDirectlyActive;
+
             if (item.children) {
-              const isAnyChildActive = item.children.some(child => pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href)));
+              const isAnyChildActive = item.children.some(child => 
+                pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href !== item.href)
+              );
               if (isAnyChildActive) {
-                // If parent's own link is NOT the one active, but a DIFFERENT child is, parent is active.
-                // If parent's own link IS active (because a child shares it, or it's the direct target), isActive is already true.
-                isActive = true;
+                isParentExpanded = true;
+              }
+
+              // If a child is directly active and shares the same href as the parent, the parent should not be highlighted.
+              const activeChildSharesHrefWithParent = item.children.find(child => child.href === item.href && pathname === item.href);
+              if (activeChildSharesHrefWithParent) {
+                isParentHighlighted = false;
               }
             }
             
@@ -85,24 +90,27 @@ function SidebarNavigationContent() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    isActive && !item.isSubItem && 'bg-primary/10 text-primary font-semibold' 
+                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold' 
                   )}
                 >
                   <item.icon className="h-5 w-5" />
                   {item.label}
                 </Link>
-                {isActive && item.children && item.children.map(child => { // Render children only if parent is active
+                {isParentExpanded && item.children && item.children.map(child => { 
                    if (child.adminOnly && userRole !== 'admin') {
                     return null;
                   }
-                  const isChildActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href));
+                  const isChildDirectlyActive = pathname === child.href;
+                  // For a child to be considered generally active (for further submenus, if any), use startsWith
+                  const isChildEffectivelyActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href !== item.href);
+
                   return (
                     <Link
                       key={child.href} 
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isChildActive && 'bg-primary/10 text-primary font-semibold',
+                        isChildDirectlyActive && 'bg-primary/10 text-primary font-semibold', // Highlight child if its direct link is active
                         child.isSubItem && 'ml-4 text-sm py-2' 
                       )}
                     >
@@ -161,4 +169,3 @@ export function DashboardSidebar() {
     </aside>
   );
 }
-
