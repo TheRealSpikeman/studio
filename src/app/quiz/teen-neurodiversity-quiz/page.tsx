@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -327,8 +327,8 @@ export default function TeenNeurodiversityQuizPage() {
                 )}
 
                 {Object.keys(neurotypeDescriptionsTeen)
-                  .filter(key => finalScores[key] >= thresholdsTeen[key] || (relevantSubtests.length === 0 && finalScores[key] > 0) ) // Show if score is above threshold OR if no subtests were relevant but there is some score
-                  .sort((a,b) => finalScores[b] - finalScores[a]) // Sort by score descending
+                  .filter(key => finalScores[key] >= thresholdsTeen[key] || (relevantSubtests.length === 0 && finalScores[key] > 0) ) 
+                  .sort((a,b) => finalScores[b] - finalScores[a]) 
                   .map(key => {
                     const profile = neurotypeDescriptionsTeen[key];
                     const score = finalScores[key];
@@ -374,10 +374,68 @@ export default function TeenNeurodiversityQuizPage() {
                 </div>
 
               </CardContent>
-               <CardFooter className="flex flex-col items-center gap-4">
+            </Card>
+
+            {/* Upsell Section */}
+            <Card className="w-full shadow-xl mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary">
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl text-primary">
+                    <Sparkles className="h-6 w-6" />
+                    Wil je nog dieper duiken & dagelijkse ondersteuning?
+                </CardTitle>
+                </CardHeader>
+                <CardContent>
+                <p className="text-muted-foreground mb-4">
+                    Dit rapport is een geweldige start! Met een MindNavigator account krijg je toegang tot:
+                </p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-4 pl-5">
+                    <li>Dagelijkse, gepersonaliseerde coaching tips & routines</li>
+                    <li>Mogelijkheid om alle verdiepende subquizzen te doen</li>
+                    <li>Je voortgang opslaan en bijhouden</li>
+                    <li>Downloadbare PDF rapportages</li>
+                </ul>
+                <p className="text-center text-lg font-semibold text-primary mb-4">
+                    Vanaf slechts €2,50 per maand!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Button asChild className="flex-1" size="lg">
+                    <Link href="/#pricing">
+                        Bekijk abonnementen & maak account
+                    </Link>
+                    </Button>
+                </div>
+                </CardContent>
+            </Card>
+             
+             <Card className="w-full shadow-xl mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                   Sla je resultaten op (zonder coaching)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Wil je alleen dit resultaat opslaan en je voortgang bijhouden zonder direct te abonneren op coaching? Maak een gratis account aan.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button asChild className="flex-1">
+                    <Link href="/signup">
+                      <UserPlus className="mr-2 h-4 w-4" /> Registreer gratis
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild className="flex-1">
+                    <Link href="/login">
+                      <LogIn className="mr-2 h-4 w-4" /> Inloggen
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <CardFooter className="flex flex-col items-center gap-4 pt-6">
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="outline"><RefreshCw className="mr-2 h-4 w-4" />Opnieuw doen</Button>
+                        <Button variant="outline"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -395,32 +453,7 @@ export default function TeenNeurodiversityQuizPage() {
                  <Button variant="link" asChild>
                     <Link href="/quizzes">Terug naar quiz overzicht</Link>
                 </Button>
-              </CardFooter>
-            </Card>
-             <Card className="w-full shadow-xl mt-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                   Sla je resultaten op & meer!
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Wil je je resultaten opslaan, je voortgang bijhouden en toegang krijgen tot gepersonaliseerde coaching? Maak een gratis account aan of log in.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild className="flex-1">
-                    <Link href="/signup">
-                      Registreer gratis
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild className="flex-1">
-                    <Link href="/login">
-                      Inloggen
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            </CardFooter>
           </div>
         )}
       </div>

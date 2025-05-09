@@ -1,21 +1,23 @@
 // This page will be client-rendered if it needs to access searchParams for subquiz info
 "use client";
 
-import { useParams, useSearchParams, useRouter } from 'next/navigation'; // Added useRouter
+import { useParams, useSearchParams, useRouter } from 'next/navigation'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
-import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn } from 'lucide-react'; // Added UserPlus, LogIn
+import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn, Sparkles } from 'lucide-react'; 
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
 import { generateQuizSummary } from '@/ai/flows/generate-quiz-summary';
 import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights';
 import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { jsPDF } from 'jspdf';
+import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-neurodiversity-quiz'; // Assuming this quiz might redirect here.
 
-// Dummy data - replace with actual data fetching and AI generation
 interface ProfileSection {
   title: string;
-  score?: number; // Optional score display
+  score?: number; 
   explanation: string;
   strengths: string[];
   tips: string[];
@@ -43,6 +45,7 @@ const dummyResults = {
 const quizTitles: { [key: string]: string } = {
     'neuroprofile-101': 'Basis Neuroprofiel Quiz',
     'adhd-focus-201': 'ADHD & Focus Verdieping',
+    'teen-neurodiversity-quiz': 'Neurodiversiteit Quiz (12-18 jaar)',
      // ... add other quiz titles
 };
 
@@ -50,9 +53,10 @@ const quizTitles: { [key: string]: string } = {
 export default function QuizResultsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter(); // Initialized useRouter
+  const router = useRouter(); 
   const quizId = params.quizId as string;
   const subQuizId = searchParams.get('subquiz'); 
+  const { toast } = useToast();
 
   const [summary, setSummary] = useState("Laden van samenvatting...");
   const [coaching, setCoaching] = useState("Laden van coaching inzichten...");
@@ -64,18 +68,22 @@ export default function QuizResultsPage() {
     async function fetchData() {
       setIsLoading(true);
       try {
-        // TODO: Replace with actual quiz answers from state or props
-        const quizResultsForAI = { question1: "answerA", question2: "answerB" }; 
+        const quizResultsForAI = { question1: "answerA", question2: "answerB", quizType: quizId }; 
         
         const summaryOutput = await generateQuizSummary({ quizResults: quizResultsForAI });
         setSummary(summaryOutput.summary);
 
         const coachingInput = {
           quizResults: JSON.stringify(quizResultsForAI),
-          profileDescription: "Gebruiker heeft zojuist een neurodiversiteitsquiz voltooid."
+          profileDescription: `Gebruiker heeft zojuist de ${quizTitle} voltooid.`
         };
-        const coachingOutput = await generateCoachingInsights(coachingInput);
-        setCoaching(coachingOutput.coachingInsights);
+        // Only fetch coaching insights if it's not the teen quiz (as that one has its own full report structure)
+        if (quizId !== 'teen-neurodiversity-quiz') {
+            const coachingOutput = await generateCoachingInsights(coachingInput);
+            setCoaching(coachingOutput.coachingInsights);
+        } else {
+            setCoaching("Bekijk de uitgebreide tips en strategieën in je rapport hierboven.");
+        }
 
       } catch (error) {
         console.error("Error fetching AI results:", error);
@@ -85,14 +93,35 @@ export default function QuizResultsPage() {
         setIsLoading(false);
       }
     }
-    fetchData();
-  }, [quizId, subQuizId]);
+    // Only run AI if it's not the teen quiz, which has its own detailed report structure.
+    if (quizId !== 'teen-neurodiversity-quiz') {
+        fetchData();
+    } else {
+        // For teen quiz, the results are typically handled by its own page.
+        // If somehow landed here, show a generic message or use dummy data.
+        setSummary("Je resultaten worden hieronder weergegeven. Voor de Tienerquiz is dit een samenvatting, het volledige rapport staat op de vorige pagina.");
+        setCoaching("Specifieke coaching inzichten voor de Tienerquiz vind je in het uitgebreide rapport.");
+        setIsLoading(false); 
+    }
+  }, [quizId, subQuizId, quizTitle]);
 
 
-  const resultsToDisplay = isLoading ? { summary, profileSections: [], coachingInsights: coaching } : dummyResults;
+  const resultsToDisplay = isLoading ? { summary, profileSections: [], coachingInsights: coaching } : {
+      summary: summary, // Use AI generated summary
+      profileSections: dummyResults.profileSections, // Keep dummy for now for adult quizzes
+      coachingInsights: coaching, // Use AI generated coaching
+  };
 
   const handleRestartQuiz = () => {
-    router.push(`/quiz/${quizId}`);
+    router.push(quizId === 'teen-neurodiversity-quiz' ? `/quiz/teen-neurodiversity-quiz` : `/quiz/${quizId}`);
+  };
+
+  const handlePdfDownloadClick = () => {
+     toast({
+        title: "PDF Download (Voorbeeld)",
+        description: `Deze functie is nog in ontwikkeling. Je rapport voor "${quizTitle}" zou hier gedownload worden.`,
+      });
+      // Actual PDF generation logic would go here, similar to /dashboard/results page
   };
 
   const totalSteps = 3; 
@@ -128,7 +157,8 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
       
-      {resultsToDisplay.profileSections.map((section, index) => (
+      {/* Only show these sections if not teen quiz, as teen quiz has its own structure on its page */}
+      {quizId !== 'teen-neurodiversity-quiz' && resultsToDisplay.profileSections.map((section, index) => (
         <Card key={index} className="w-full max-w-3xl shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
@@ -173,16 +203,48 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
 
-      <Card className="w-full max-w-3xl shadow-xl mb-8">
+      {/* Upsell Section */}
+      <Card className="w-full max-w-3xl shadow-xl mb-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <UserPlus className="h-6 w-6 text-primary" />
-            Sla je resultaten op!
+          <CardTitle className="flex items-center gap-2 text-xl text-primary">
+            <Sparkles className="h-6 w-6" />
+            Ontgrendel je volledige potentieel!
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Wil je je resultaten opslaan, je voortgang bijhouden en toegang krijgen tot meer functies?
+            Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met verdiepende subquizzen en dagelijkse, persoonlijke coaching ontvangen?
+          </p>
+          <p className="text-lg font-semibold mb-1">Krijg toegang tot premium functies:</p>
+          <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-4 pl-5">
+            <li>Alle verdiepende subquizzen</li>
+            <li>Dagelijkse coaching tips & routines</li>
+            <li>Uitgebreide PDF rapportages</li>
+            <li>Voortgangstracking en meer!</li>
+          </ul>
+          <p className="text-center text-xl font-bold text-primary mb-4">
+            Vanaf slechts €2,50 per maand!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button asChild className="flex-1" size="lg">
+              <Link href="/#pricing">
+                Bekijk abonnementen
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="w-full max-w-3xl shadow-xl mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <UserPlus className="h-6 w-6 text-primary" />
+            Sla je resultaten op & meer!
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            Maak een gratis account aan om je resultaten op te slaan, je voortgang bij te houden en later makkelijk te upgraden.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button asChild className="flex-1">
@@ -201,11 +263,14 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
 
-
       <div className="w-full max-w-3xl flex flex-col sm:flex-row gap-4">
         <Button onClick={handleRestartQuiz} variant="outline" className="flex-1">
           <RefreshCw className="mr-2 h-4 w-4" />
-          Herstart Quiz
+          Doe een andere quiz
+        </Button>
+         <Button onClick={handlePdfDownloadClick} variant="outline" className="flex-1" disabled={quizId === 'teen-neurodiversity-quiz'}>
+          <Download className="mr-2 h-4 w-4" />
+          Download PDF Samenvatting
         </Button>
       </div>
        <Button variant="link" asChild className="mt-8">
@@ -214,4 +279,3 @@ export default function QuizResultsPage() {
     </div>
   );
 }
-

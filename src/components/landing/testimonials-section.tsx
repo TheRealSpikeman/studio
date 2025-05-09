@@ -1,7 +1,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Star } from 'lucide-react';
+import { Star, Users,ThumbsUp } from 'lucide-react';
 
 const testimonials = [
   {
@@ -29,7 +29,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 md:py-24 bg-secondary/30">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Wat anderen zeggen
@@ -62,6 +62,18 @@ export function TestimonialsSection() {
               </CardContent>
             </Card>
           ))}
+        </div>
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
+                <Users className="mx-auto h-12 w-12 text-primary mb-3"/>
+                <p className="text-3xl font-bold text-foreground">1.200+</p>
+                <p className="text-muted-foreground">Quizzen al voltooid</p>
+            </div>
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
+                <ThumbsUp className="mx-auto h-12 w-12 text-primary mb-3"/>
+                <p className="text-3xl font-bold text-foreground">95%</p>
+                <p className="text-muted-foreground">Beveelt ons aan</p>
+            </div>
         </div>
       </div>
     </section>
