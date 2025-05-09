@@ -1,6 +1,6 @@
 "use client"; // This page needs client-side interactivity for quiz progression
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
 import { QuestionDisplay, QuizQuestion as QuestionType } from '@/components/quiz/question-display';
@@ -24,16 +24,22 @@ const dummyQuizData: { [key: string]: QuestionType[] } = {
 };
 
 const quizTitles: { [key: string]: string } = {
-    'neuroprofile-101': 'Basis Neuroprofiel Quiz',
-    'adhd-focus-201': 'ADHD & Focus Verdieping',
+    'neuroprofile-101': 'Basis Neuroprofiel Quiz (Volwassenen)',
+    'adhd-focus-201': 'ADHD & Focus Verdieping (Volwassenen)',
 };
 
 export default function TakeQuizPage() {
   const params = useParams();
   const router = useRouter();
   const quizId = params.quizId as string;
+
+  useEffect(() => {
+    if (quizId === 'teen-neurodiversity-quiz') {
+      router.replace('/quiz/teen-neurodiversity-quiz');
+    }
+  }, [quizId, router]);
   
-  const questions = dummyQuizData[quizId] || [];
+  const questions = quizId === 'teen-neurodiversity-quiz' ? [] : dummyQuizData[quizId] || [];
   const quizTitle = quizTitles[quizId] || "Quiz";
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -57,6 +63,15 @@ export default function TakeQuizPage() {
     }
   };
   
+  if (quizId === 'teen-neurodiversity-quiz') {
+    // This will be briefly visible while redirecting, or you can show a loader.
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
+        <p>Laden van de quiz...</p>
+      </div>
+    );
+  }
+  
   if (!questions || questions.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
@@ -64,9 +79,9 @@ export default function TakeQuizPage() {
             <SiteLogo />
         </div>
         <h1 className="text-2xl font-semibold mb-4">Quiz niet gevonden</h1>
-        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde quiz niet laden.</p>
+        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde quiz niet laden of deze is verplaatst.</p>
         <Button asChild>
-          <Link href="/dashboard/quizzes">Terug naar quizoverzicht</Link>
+          <Link href="/quizzes">Terug naar quizoverzicht</Link>
         </Button>
       </div>
     );
