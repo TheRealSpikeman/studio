@@ -9,7 +9,7 @@ export function SiteLogo({ className }: SiteLogoProps) {
   return (
     <Link href="/" className={`flex items-center gap-2 text-xl font-bold text-primary ${className}`}>
       <Brain className="h-7 w-7" />
-      <span>NeuroDiversity Navigator</span>
+      <span>MindNavigator</span>
     </Link>
   );
 }

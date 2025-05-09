@@ -17,7 +17,7 @@ export default function PrivacyPage() {
               <p>Laatst bijgewerkt: {new Date().toLocaleDateString('nl-NL')}</p>
               
               <h2>1. Inleiding</h2>
-              <p>Welkom bij NeuroDiversity Navigator. Wij hechten veel waarde aan uw privacy en de bescherming van uw persoonsgegevens. In dit privacybeleid leggen wij uit hoe wij uw gegevens verzamelen, gebruiken, delen en beschermen.</p>
+              <p>Welkom bij MindNavigator. Wij hechten veel waarde aan uw privacy en de bescherming van uw persoonsgegevens. In dit privacybeleid leggen wij uit hoe wij uw gegevens verzamelen, gebruiken, delen en beschermen.</p>
 
               <h2>2. Welke gegevens verzamelen wij?</h2>
               <p>Wij kunnen de volgende soorten persoonsgegevens verzamelen:</p>
@@ -65,4 +65,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-

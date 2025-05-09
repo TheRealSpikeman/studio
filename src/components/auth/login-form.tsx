@@ -44,7 +44,7 @@ export function LoginForm() {
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Inloggen</CardTitle>
-        <CardDescription>Log in op je NeuroDiversity Navigator account.</CardDescription>
+        <CardDescription>Log in op je MindNavigator account.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

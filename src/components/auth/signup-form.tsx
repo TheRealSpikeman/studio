@@ -67,7 +67,7 @@ export function SignupForm() {
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Account aanmaken</CardTitle>
-        <CardDescription>Start je reis met NeuroDiversity Navigator.</CardDescription>
+        <CardDescription>Start je reis met MindNavigator.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -130,7 +130,7 @@ export function SignupForm() {
                      <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
                     <Select
                       onValueChange={(value) => field.onChange(value ? +value : undefined)} // Convert string value from select to number or undefined
-                      value={field.value?.toString() ?? ""} // Convert number to string for Select value, ensure it's not undefined
+                      value={field.value?.toString()} // Convert number to string for Select value
                       name={field.name}
                       disabled={field.disabled}
                     >

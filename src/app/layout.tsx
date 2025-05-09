@@ -5,8 +5,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'NeuroDiversity Navigator',
-  description: 'Ontdek je neurodiversiteits-profiel en krijg dagelijkse coaching.',
+  title: 'MindNavigator – Ontdek je unieke sterktes en uitdagingen',
+  description: 'MindNavigator helpt jou via korte quizzes, verdiepende subtests en dagelijkse coaching om je neurodiversiteitsprofiel te ontdekken en te benutten.',
 };
 
 export default function RootLayout({

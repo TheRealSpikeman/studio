@@ -20,7 +20,7 @@ export default function CookiesPage() {
               <p>Cookies zijn kleine tekstbestanden die door een website op uw computer of mobiele apparaat worden geplaatst wanneer u de website bezoekt. Cookies worden veel gebruikt om websites efficiënter te laten werken en om informatie te verstrekken aan de eigenaren van de site.</p>
 
               <h2>2. Hoe gebruiken wij cookies?</h2>
-              <p>NeuroDiversity Navigator gebruikt cookies voor de volgende doeleinden:</p>
+              <p>MindNavigator gebruikt cookies voor de volgende doeleinden:</p>
               <ul>
                 <li><strong>Functionele cookies:</strong> Deze cookies zijn essentieel om u in staat te stellen door de website te navigeren en de functies ervan te gebruiken, zoals toegang tot beveiligde gedeelten van de website (bijvoorbeeld uw dashboard na inloggen). Zonder deze cookies kunnen de diensten waar u om heeft gevraagd niet worden geleverd.</li>
                 <li><strong>Analytische cookies:</strong> Wij gebruiken analytische cookies om informatie te verzamelen over hoe bezoekers onze website gebruiken. Dit helpt ons de prestaties van onze website te verbeteren. Deze cookies verzamelen informatie in een geaggregeerde vorm. (Momenteel gebruiken we geen expliciete analytische cookies van derden, maar dit kan in de toekomst veranderen).</li>
@@ -47,4 +47,3 @@ export default function CookiesPage() {
     </div>
   );
 }
-
