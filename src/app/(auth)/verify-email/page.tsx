@@ -33,7 +33,8 @@ export default function VerifyEmailPage() {
           </div>
           <CardTitle className="text-2xl font-bold">Controleer je inbox</CardTitle>
           <CardDescription>
-            We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link in de e-mail om je account te activeren en je aanmelding te voltooien.
+            We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link in de e-mail om je account te activeren.
+            Als je jonger dan 18 bent en een betaald abonnement hebt gekozen, word je na verificatie gevraagd om gegevens van een ouder/verzorger voor de betaling.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

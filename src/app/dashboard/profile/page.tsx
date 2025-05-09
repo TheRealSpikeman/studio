@@ -1,3 +1,4 @@
+
 // src/app/dashboard/profile/page.tsx
 "use client";
 
@@ -19,13 +20,32 @@ import Image from 'next/image';
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
-  age: undefined as number | undefined, 
+  age: 30 as number | undefined, // Default age for adult
   socialMedia: [] as string[],
   profileImageUrl: null as string | null,
+  subscription: {
+    planName: "Coaching Maandelijks" as string | null,
+    status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
+    nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
+  }
 };
+// Example for underage pending:
+// const initialUserData = {
+//   name: "Junior Tester",
+//   email: "junior.tester@example.com",
+//   age: 15 as number | undefined,
+//   socialMedia: [] as string[],
+//   profileImageUrl: null as string | null,
+//   subscription: {
+//     planName: "Coaching Jaarlijks" as string | null,
+//     status: 'pending_parental_approval' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
+//     nextBillingDate: null, // No billing date until parent approves
+//   }
+// };
+
 
 const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
-const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_"; // Unique non-empty value for "Niet opgegeven"
+const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 
 const socialMediaOptions = [
   { id: 'facebook', label: 'Facebook' },
@@ -48,14 +68,6 @@ const predefinedAvatars = [
   { id: 'avatar6', src: 'https://picsum.photos/seed/avatar6/200/200', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
-// Dummy subscription data
-const initialSubscriptionData = {
-  status: "Actief (Proefperiode)" as string,
-  nextBillingDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric'}),
-  plan: "Gratis Proefperiode" as string,
-};
-
-
 export default function ProfilePage() {
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
@@ -74,12 +86,15 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-  const [subscriptionStatus, setSubscriptionStatus] = useState(initialSubscriptionData.status);
-  const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialSubscriptionData.nextBillingDate);
-  const [subscriptionPlan, setSubscriptionPlan] = useState(initialSubscriptionData.plan);
+  // Subscription state
+  const [subscriptionPlan, setSubscriptionPlan] = useState(initialUserData.subscription.planName);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(initialUserData.subscription.status);
+  const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialUserData.subscription.nextBillingDate);
 
 
   useEffect(() => {
+    // Reset form to initial data when not editing or when component mounts with initial data
+    // This is simplified; in a real app, you'd fetch user data and subscription data
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
@@ -89,9 +104,10 @@ export default function ProfilePage() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
-        setSubscriptionStatus(initialSubscriptionData.status);
-        setSubscriptionNextBillingDate(initialSubscriptionData.nextBillingDate);
-        setSubscriptionPlan(initialSubscriptionData.plan);
+        // Reset subscription details
+        setSubscriptionPlan(initialUserData.subscription.planName);
+        setSubscriptionStatus(initialUserData.subscription.status);
+        setSubscriptionNextBillingDate(initialUserData.subscription.nextBillingDate);
     }
   }, [isEditing]);
 
@@ -129,6 +145,7 @@ export default function ProfilePage() {
       }
     }
     
+    // TODO: Implement actual backend save logic
     console.log("Profile saved:", { 
       name: userName, 
       email: userEmail, 
@@ -141,23 +158,12 @@ export default function ProfilePage() {
       description: "Je profielgegevens zijn bijgewerkt.",
       variant: "default",
     });
+    setIsEditing(false); // Exit editing mode after save
   };
 
   const handleCancelEdit = () => {
-    setUserName(initialUserData.name);
-    setUserEmail(initialUserData.email);
-    setUserAge(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
-    setSelectedSocialMedia(initialUserData.socialMedia);
-    setProfileImageUrl(initialUserData.profileImageUrl);
-    
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
+    // useEffect will handle resetting fields to initialUserData
     setIsEditing(false);
-
-    setSubscriptionStatus(initialSubscriptionData.status);
-    setSubscriptionNextBillingDate(initialSubscriptionData.nextBillingDate);
-    setSubscriptionPlan(initialSubscriptionData.plan);
   };
 
   function generateStrongPassword(length = 12): string {
@@ -216,6 +222,17 @@ export default function ProfilePage() {
 
 
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+
+  const getSubscriptionStatusText = (status: typeof subscriptionStatus) => {
+    switch (status) {
+      case 'active': return 'Actief';
+      case 'pending_parental_approval': return 'Wacht op goedkeuring ouder';
+      case 'cancelled': return 'Geannuleerd';
+      case 'past_due': return 'Betaling mislukt';
+      case 'none':
+      default: return 'Geen abonnement';
+    }
+  };
 
 
   return (
@@ -378,9 +395,9 @@ export default function ProfilePage() {
             </Label>
             {isEditing ? (
               <Select
-                value={userAge === '' ? NO_AGE_SPECIFIED_VALUE : userAge} 
+                value={userAge === NO_AGE_SPECIFIED_VALUE || userAge === undefined ? NO_AGE_SPECIFIED_VALUE : userAge.toString()} 
                 onValueChange={(value) => {
-                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? '' : value);
+                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? NO_AGE_SPECIFIED_VALUE : value);
                 }}
                 disabled={!isEditing}
               >
@@ -550,22 +567,32 @@ export default function ProfilePage() {
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="subscriptionPlan">Huidig Plan</Label>
-            <Input id="subscriptionPlan" value={subscriptionPlan} disabled className="mt-1 bg-muted/30" />
+            <Input id="subscriptionPlan" value={subscriptionPlan || "Geen"} disabled className="mt-1 bg-muted/30" />
           </div>
           <div>
             <Label htmlFor="subscriptionStatus">Status</Label>
-            <Input id="subscriptionStatus" value={subscriptionStatus} disabled className="mt-1 bg-muted/30" />
+            <Input id="subscriptionStatus" value={getSubscriptionStatusText(subscriptionStatus)} disabled className="mt-1 bg-muted/30" />
           </div>
-          {(subscriptionStatus.includes("Actief") || subscriptionStatus.includes("Proef")) && (
+          {subscriptionStatus === 'active' && subscriptionNextBillingDate && (
             <div>
-              <Label htmlFor="subscriptionNextBillingDate">Volgende Factuurdatum / Verloopdatum Proef</Label>
+              <Label htmlFor="subscriptionNextBillingDate">Volgende Factuurdatum</Label>
               <Input id="subscriptionNextBillingDate" value={subscriptionNextBillingDate} disabled className="mt-1 bg-muted/30" />
             </div>
           )}
+           {subscriptionStatus === 'pending_parental_approval' && (
+             <p className="text-sm text-accent p-3 bg-accent/10 rounded-md border border-accent/30">
+               Je abonnement "{subscriptionPlan}" wacht op goedkeuring en betaling door je ouder/verzorger.
+               Vraag hen om de e-mail te controleren die we hebben gestuurd.
+             </p>
+           )}
         </CardContent>
         <CardFooter>
-          {subscriptionStatus.includes("Proef") || !subscriptionStatus.includes("Actief") ? (
-            <Button disabled className="w-full sm:w-auto">Upgrade naar volledig abonnement (binnenkort)</Button>
+          {subscriptionStatus === 'none' || subscriptionStatus === 'cancelled' || subscriptionStatus === 'past_due' ? (
+            <Button asChild className="w-full sm:w-auto">
+                <Link href="/#pricing">Bekijk abonnementen</Link>
+            </Button>
+          ) : subscriptionStatus === 'pending_parental_approval' ? (
+            <Button disabled className="w-full sm:w-auto">Wacht op goedkeuring</Button>
           ) : (
             <Button disabled className="w-full sm:w-auto">Beheer abonnement (binnenkort)</Button>
           )}
@@ -575,4 +602,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
