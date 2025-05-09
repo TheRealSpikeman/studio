@@ -24,8 +24,8 @@ export function HeroSection() {
         </div>
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-2xl">
           <Image
-            src="https://picsum.photos/seed/neurodiversityHero/800/450"
-            alt="Een creatieve en kleurrijke abstracte afbeelding die neurodiversiteit en verschillende manieren van denken symboliseert, met gestileerde hersenen en verbindingen."
+            src="https://picsum.photos/seed/neuroHeroNewVisual/800/450"
+            alt="Een creatieve en kleurrijke abstracte afbeelding die neurodiversiteit en verschillende manieren van denken symboliseert, met gestileerde hersenen, vergrootglas en puzzelstukken."
             layout="fill"
             objectFit="cover"
             data-ai-hint="brain illustration"
