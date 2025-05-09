@@ -41,7 +41,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold text-foreground">Jouw Quizzen</h2>
             <Button variant="outline" asChild>
-                <Link href="/dashboard/quizzes">Alle Quizzen</Link>
+                <Link href="/quizzes">Alle Quizzen</Link>
             </Button>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

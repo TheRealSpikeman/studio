@@ -14,7 +14,7 @@ export function HeroSection() {
             Krijg inzicht in jouw unieke sterktes en uitdagingen. Start vandaag nog met onze wetenschappelijk onderbouwde quiz en ontvang gepersonaliseerde coaching.
           </p>
           <Button size="lg" asChild className="shadow-lg hover:shadow-primary/50 transition-shadow">
-            <Link href="/signup">Start gratis quiz</Link>
+            <Link href="/quizzes">Start gratis quiz</Link>
           </Button>
         </div>
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl">

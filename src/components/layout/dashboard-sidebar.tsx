@@ -10,7 +10,7 @@ import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, Settings, Log
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
-  { href: '/dashboard/quizzes', label: 'Quizzen', icon: ClipboardList },
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
 ];

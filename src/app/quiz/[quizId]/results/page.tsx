@@ -1,14 +1,14 @@
 // This page will be client-rendered if it needs to access searchParams for subquiz info
 "use client";
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation'; // Added useRouter
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
-import { Download, RefreshCw, Award, Lightbulb, Target } from 'lucide-react';
+import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn } from 'lucide-react'; // Added UserPlus, LogIn
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { generateQuizSummary, generateCoachingInsights } from '@/ai/flows'; // Assuming these can be called client-side if wrapped or are server actions
+import { generateQuizSummary, generateCoachingInsights } from '@/ai/flows'; 
 import { useEffect, useState } from 'react';
 
 // Dummy data - replace with actual data fetching and AI generation
@@ -49,8 +49,9 @@ const quizTitles: { [key: string]: string } = {
 export default function QuizResultsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter(); // Initialized useRouter
   const quizId = params.quizId as string;
-  const subQuizId = searchParams.get('subquiz'); // Check if a subquiz was taken
+  const subQuizId = searchParams.get('subquiz'); 
 
   const [summary, setSummary] = useState("Laden van samenvatting...");
   const [coaching, setCoaching] = useState("Laden van coaching inzichten...");
@@ -58,14 +59,10 @@ export default function QuizResultsPage() {
   
   const quizTitle = quizTitles[quizId] || "Quiz";
 
-  // TODO: This is a placeholder for calling AI functions.
-  // In a real app, ensure these are server actions or handled via an API route
-  // to protect API keys and manage execution.
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        // Dummy quiz results for AI input. In real app, this would be the actual answers.
         const quizResultsForAI = { question1: "answerA", question2: "answerB" }; 
         
         const summaryOutput = await generateQuizSummary({ quizResults: quizResultsForAI });
@@ -91,22 +88,13 @@ export default function QuizResultsPage() {
 
 
   const resultsToDisplay = isLoading ? { summary, profileSections: [], coachingInsights: coaching } : dummyResults;
-  // If AI calls were successful, you'd merge results:
-  // const resultsToDisplay = { summary: aiSummary, profileSections: dummyResults.profileSections /* or also AI generated */, coachingInsights: aiCoaching };
-
-
-  const handleDownloadPDF = () => {
-    // TODO: Implement PDF generation and download logic
-    console.log("Download PDF clicked for quiz:", quizId, "Subquiz:", subQuizId);
-    alert("PDF download functionaliteit is nog niet geïmplementeerd.");
-  };
 
   const handleRestartQuiz = () => {
     router.push(`/quiz/${quizId}`);
   };
 
-  const totalSteps = 3; // Basis, Subquiz, Resultaten
-  const currentGlobalStep = 3; // Resultaten
+  const totalSteps = 3; 
+  const currentGlobalStep = 3; 
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24">
@@ -183,18 +171,43 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
 
+      <Card className="w-full max-w-3xl shadow-xl mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <UserPlus className="h-6 w-6 text-primary" />
+            Sla je resultaten op!
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            Wil je je resultaten opslaan, je voortgang bijhouden en toegang krijgen tot meer functies?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button asChild className="flex-1">
+              <Link href="/signup">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Registreer gratis
+              </Link>
+            </Button>
+            <Button variant="outline" asChild className="flex-1">
+              <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4" />
+                Inloggen
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+
       <div className="w-full max-w-3xl flex flex-col sm:flex-row gap-4">
-        <Button onClick={handleDownloadPDF} className="flex-1">
-          <Download className="mr-2 h-4 w-4" />
-          Download PDF
-        </Button>
         <Button onClick={handleRestartQuiz} variant="outline" className="flex-1">
           <RefreshCw className="mr-2 h-4 w-4" />
           Herstart Quiz
         </Button>
       </div>
        <Button variant="link" asChild className="mt-8">
-          <Link href="/dashboard">Terug naar Dashboard</Link>
+          <Link href="/quizzes">Terug naar quiz overzicht</Link>
         </Button>
     </div>
   );
