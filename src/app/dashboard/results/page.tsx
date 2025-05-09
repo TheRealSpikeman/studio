@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Download, Eye, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { jsPDF } from 'jspdf';
 
 // Dummy data for demonstration
 const completedQuizzes = [
@@ -75,30 +76,92 @@ export default function ResultsHistoryPage() {
 
 
     try {
-      const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      // Sanitize title for filename
-      const fileName = `${quiz.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rapport.txt`;
-      link.download = fileName;
+      const doc = new jsPDF();
+      const pageHeight = doc.internal.pageSize.height;
+      const margins = { top: 20, bottom: 20, left: 15, right: 15 };
+      const usableWidth = doc.internal.pageSize.width - margins.left - margins.right;
       
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      let y = margins.top;
+      const lineHeight = 7; // approximate line height in mm
+
+      doc.setFontSize(16);
+      doc.text(`Rapport voor: ${quiz.title}`, margins.left, y);
+      y += lineHeight * 1.5;
+      
+      doc.setFontSize(12);
+      doc.text(`Datum voltooid: ${quiz.dateCompleted}`, margins.left, y);
+      y += lineHeight;
+      doc.text(`Score/Profiel: ${quiz.score}`, margins.left, y);
+      y += lineHeight * 2;
+
+      doc.setFontSize(14);
+      doc.text(`Samenvatting:`, margins.left, y);
+      y += lineHeight;
+      doc.setFontSize(10);
+      const summaryLines = doc.splitTextToSize(quiz.reportData.summary, usableWidth);
+      summaryLines.forEach((line: string) => {
+        if (y + lineHeight > pageHeight - margins.bottom) {
+          doc.addPage();
+          y = margins.top;
+        }
+        doc.text(line, margins.left, y);
+        y += lineHeight;
+      });
+      y += lineHeight;
+
+
+      doc.setFontSize(14);
+      doc.text(`Antwoorden (voorbeeld):`, margins.left, y);
+      y += lineHeight;
+      doc.setFontSize(10);
+      quiz.reportData.answers.forEach(ans => {
+         const answerLine = `- ${ans.question}: ${ans.answer}`;
+         const wrappedLines = doc.splitTextToSize(answerLine, usableWidth);
+         wrappedLines.forEach((line: string) => {
+            if (y + lineHeight > pageHeight - margins.bottom) {
+                doc.addPage();
+                y = margins.top;
+            }
+            doc.text(line, margins.left, y);
+            y += lineHeight;
+        });
+      });
+      y += lineHeight * 2;
+
+      doc.setFontSize(10);
+      doc.text(`--- Einde van het rapport ---`, margins.left, y);
+      y += lineHeight * 2;
+      
+      doc.setFontSize(8);
+      const disclaimerLines = doc.splitTextToSize(
+        `Disclaimer: Dit is een gesimuleerd rapport. Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.`, 
+        usableWidth
+      );
+       disclaimerLines.forEach((line: string) => {
+        if (y + lineHeight > pageHeight - margins.bottom) {
+            doc.addPage();
+            y = margins.top;
+        }
+        doc.text(line, margins.left, y);
+        y += lineHeight * 0.8; // Smaller line height for disclaimer
+      });
+
+
+      // Sanitize title for filename
+      const fileName = `${quiz.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rapport.pdf`;
+      doc.save(fileName);
 
       toast({
-        title: "Rapport Gedownload (als .txt)",
-        description: `Het rapport voor "${quizTitle}" is gedownload als een tekstbestand.`,
+        title: "Rapport Gedownload (als PDF)",
+        description: `Het rapport voor "${quizTitle}" is gedownload als een PDF-bestand.`,
         variant: "default",
       });
 
     } catch (error) {
-      console.error("Downloadfout:", error);
+      console.error("PDF Downloadfout:", error);
       toast({
-        title: "Download Mislukt",
-        description: "Er is een fout opgetreden bij het downloaden van het rapport.",
+        title: "PDF Download Mislukt",
+        description: "Er is een fout opgetreden bij het downloaden van het PDF rapport.",
         variant: "destructive",
       });
     }
@@ -154,7 +217,7 @@ export default function ResultsHistoryPage() {
                         onClick={() => handlePdfDownloadClick(quiz.id, quiz.title)}
                       >
                         <Download className="mr-2 h-4 w-4" />
-                        TXT Rapport
+                        PDF Rapport
                       </Button>
                     </TableCell>
                   </TableRow>
