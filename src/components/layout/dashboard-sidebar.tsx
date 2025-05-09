@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect } from 'react';
 
@@ -16,6 +16,7 @@ const navItems = [
   { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
+  { href: '/dashboard/homework-assistance', label: 'Huiswerkbegeleiding', icon: BookOpenCheck },
   { href: '/dashboard/coaching/settings', label: 'Coaching Instellingen', icon: Settings },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   // TODO: Conditionally show admin items based on user role
@@ -40,8 +41,15 @@ function SidebarNavigationContent() {
               return null;
             }
             // Check for active parent for sub-items
-            const isActive = pathname === item.href || (item.href === '/dashboard/coaching' && pathname.startsWith('/dashboard/coaching/settings'));
-            
+            let isActive = pathname === item.href;
+            if (item.href === '/dashboard/coaching' && pathname.startsWith('/dashboard/coaching/settings')) {
+                isActive = true;
+            }
+            if (item.href === '/dashboard/homework-assistance' && pathname.startsWith('/dashboard/homework-assistance/')) {
+                isActive = true;
+            }
+
+
             return (
               <Link
                 key={item.href}
