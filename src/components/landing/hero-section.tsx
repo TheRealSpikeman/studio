@@ -5,7 +5,7 @@ import Image from 'next/image';
 export function HeroSection() {
   return (
     <section className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background to-secondary/30">
-      <div className="container grid grid-cols-1 items-center justify-items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+      <div className="container mx-auto grid grid-cols-1 items-center justify-items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
         <div className="flex flex-col items-start text-left gap-6 md:items-start md:text-left">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
             Ontdek je <span className="text-primary">neurodiversiteits</span>-profiel
@@ -19,11 +19,11 @@ export function HeroSection() {
         </div>
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-md">
           <Image
-            src="https://picsum.photos/seed/neuroArtCreative/800/450"
-            alt="Creatieve weergave van neurodiversiteit profiel"
+            src="https://picsum.photos/seed/neuroMindArt/800/450"
+            alt="Creatieve weergave van neurodiversiteit"
             layout="fill"
             objectFit="cover"
-            data-ai-hint="neurodiversity concept"
+            data-ai-hint="neurodiversity art"
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
         </div>
