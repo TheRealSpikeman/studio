@@ -8,6 +8,8 @@ import { Download, Eye, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
+import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-neurodiversity-quiz';
+import type { NeurotypeDescription } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 
 // Dummy data for demonstration
 const completedQuizzes = [
@@ -16,10 +18,18 @@ const completedQuizzes = [
     title: 'Basis Neuroprofiel Quiz', 
     dateCompleted: '2024-03-10', 
     score: 'Uitgebalanceerd Profiel', 
-    // Actual quiz data/answers would be needed here for a real report
     reportData: { 
-      summary: "Dit is een voorlopige samenvatting voor het Basis Neuroprofiel.",
-      answers: [{question: "Vraag 1", answer: "Antwoord A"}, {question: "Vraag 2", answer: "Antwoord B"}] 
+      summary: "Dit is een voorlopige samenvatting voor het Basis Neuroprofiel. U vertoont een evenwichtige mix van eigenschappen, wat wijst op een flexibele aanpassing aan verschillende situaties. Uw sterke punten liggen mogelijk in het combineren van analytisch denken met creatieve oplossingen.",
+      answers: [
+        {question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie"}, 
+        {question: "Als je een nieuwe taak krijgt, hoe pak je die meestal aan?", answer: "Ik zoek een balans tussen plannen en doen"},
+        {question: "Hoe ga je om met onverwachte veranderingen in je routine?", answer: "Het hangt af van de soort verandering"}
+      ],
+      tips: [
+        "Blijf uw flexibiliteit benutten door open te staan voor nieuwe ervaringen.",
+        "Reflecteer regelmatig op welke aanpak het beste werkt in verschillende contexten.",
+        "Zoek naar mogelijkheden om zowel uw analytische als creatieve kanten te ontwikkelen."
+      ]
     } 
   },
   { 
@@ -28,24 +38,35 @@ const completedQuizzes = [
     dateCompleted: '2024-03-25', 
     score: 'Sterke Kenmerken',
     reportData: { 
-      summary: "Rapport voor Autisme Spectrum Verkenning.",
-      answers: [{question: "Sociale interactie", answer: "Soms uitdagend"}, {question: "Routine", answer: "Zeer belangrijk"}] 
+      summary: "Uw antwoorden wijzen op sterke kenmerken die vaak geassocieerd worden met het autismespectrum. Dit kan een voorkeur voor routine, een diepgaande focus op interesses en een unieke manier van sociale interactie inhouden.",
+      answers: [
+        {question: "Hoe belangrijk is een vaste routine voor u?", answer: "Zeer belangrijk"}, 
+        {question: "Hoe ervaart u onverwachte sociale interacties?", answer: "Soms uitdagend"},
+        {question: "Kunt u zich langdurig concentreren op een specifiek onderwerp?", answer: "Ja, zeer goed"}
+      ],
+      tips: [
+        "Creëer duidelijke structuren en routines in uw dagelijks leven.",
+        "Communiceer uw behoeften en grenzen helder aan anderen.",
+        "Zoek omgevingen en activiteiten die aansluiten bij uw interesses en sterke punten."
+      ]
     } 
   },
   { 
     id: 'teen-neurodiversity-quiz', 
     title: 'Neurodiversiteit Quiz (12-18 jaar)', 
     dateCompleted: '2024-04-05', 
-    score: 'Profiel: ADD & HSP',
+    score: 'Profiel: ADD & HSP', // Example: this score indicates ADD and HSP profiles were identified
     reportData: { 
-      summary: "Resultaten voor de Tiener Neurodiversiteit Quiz.",
+      summary: "Je antwoorden laten zien dat je eigenschappen herkent die passen bij ADD (aandacht en concentratie) en HSP (hoogsensitiviteit). Dit is een unieke combinatie die zowel sterke punten als uitdagingen met zich meebrengt.",
       answers: [
-        {question: "Focus op schoolwerk", answer: "Soms"},
-        {question: "Overweldigd door drukte", answer: "Vaak"}
-      ] 
+        {question: "Ik merk dat mijn gedachten afdwalen, zelfs als ik probeer te focussen op schoolwerk.", answer: "Vaak (3)"},
+        {question: "Kleine afleidingen zoals tikkende pennen verstoren mijn concentratie.", answer: "Altijd (4)"},
+        {question: "Na een lange schooldag heb ik echt tijd nodig om bij te komen.", answer: "Vaak (3)"},
+        {question: "Ik merk geuren, geluiden of aanrakingen sterker op dan mijn vrienden.", answer: "Altijd (4)"}
+      ]
+      // Tips for teen quiz will be dynamically pulled from neurotypeDescriptionsTeen
     } 
   },
-  // Add more completed quizzes
 ];
 
 export default function ResultsHistoryPage() {
@@ -62,106 +83,134 @@ export default function ResultsHistoryPage() {
       return;
     }
 
-    // Simulate PDF content generation
-    let reportContent = `Rapport voor: ${quiz.title}\n`;
-    reportContent += `Datum voltooid: ${quiz.dateCompleted}\n`;
-    reportContent += `Score/Profiel: ${quiz.score}\n\n`;
-    reportContent += `Samenvatting:\n${quiz.reportData.summary}\n\n`;
-    reportContent += `Antwoorden (voorbeeld):\n`;
-    quiz.reportData.answers.forEach(ans => {
-      reportContent += `- ${ans.question}: ${ans.answer}\n`;
-    });
-    reportContent += `\n\n--- Einde van het rapport ---`;
-    reportContent += `\n\nDisclaimer: Dit is een gesimuleerd rapport. Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.`;
-
-
     try {
       const doc = new jsPDF();
       const pageHeight = doc.internal.pageSize.height;
       const margins = { top: 20, bottom: 20, left: 15, right: 15 };
       const usableWidth = doc.internal.pageSize.width - margins.left - margins.right;
-      
       let y = margins.top;
-      const lineHeight = 7; // approximate line height in mm
 
-      doc.setFontSize(16);
-      doc.text(`Rapport voor: ${quiz.title}`, margins.left, y);
-      y += lineHeight * 1.5;
-      
-      doc.setFontSize(12);
-      doc.text(`Datum voltooid: ${quiz.dateCompleted}`, margins.left, y);
-      y += lineHeight;
-      doc.text(`Score/Profiel: ${quiz.score}`, margins.left, y);
-      y += lineHeight * 2;
-
-      doc.setFontSize(14);
-      doc.text(`Samenvatting:`, margins.left, y);
-      y += lineHeight;
-      doc.setFontSize(10);
-      const summaryLines = doc.splitTextToSize(quiz.reportData.summary, usableWidth);
-      summaryLines.forEach((line: string) => {
-        if (y + lineHeight > pageHeight - margins.bottom) {
-          doc.addPage();
-          y = margins.top;
-        }
-        doc.text(line, margins.left, y);
-        y += lineHeight;
-      });
-      y += lineHeight;
-
-
-      doc.setFontSize(14);
-      doc.text(`Antwoorden (voorbeeld):`, margins.left, y);
-      y += lineHeight;
-      doc.setFontSize(10);
-      quiz.reportData.answers.forEach(ans => {
-         const answerLine = `- ${ans.question}: ${ans.answer}`;
-         const wrappedLines = doc.splitTextToSize(answerLine, usableWidth);
-         wrappedLines.forEach((line: string) => {
-            if (y + lineHeight > pageHeight - margins.bottom) {
-                doc.addPage();
-                y = margins.top;
-            }
-            doc.text(line, margins.left, y);
-            y += lineHeight;
-        });
-      });
-      y += lineHeight * 2;
-
-      doc.setFontSize(10);
-      doc.text(`--- Einde van het rapport ---`, margins.left, y);
-      y += lineHeight * 2;
-      
-      doc.setFontSize(8);
-      const disclaimerLines = doc.splitTextToSize(
-        `Disclaimer: Dit is een gesimuleerd rapport. Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.`, 
-        usableWidth
-      );
-       disclaimerLines.forEach((line: string) => {
-        if (y + lineHeight > pageHeight - margins.bottom) {
+      const addText = (text: string, x: number, currentY: number, options: any = {}) => {
+        const lines = doc.splitTextToSize(text, options.maxWidth || usableWidth);
+        lines.forEach((line: string) => {
+          if (currentY + (options.lineHeight || 7) > pageHeight - margins.bottom) {
             doc.addPage();
-            y = margins.top;
+            currentY = margins.top;
+          }
+          doc.text(line, x, currentY);
+          currentY += (options.lineHeight || 7);
+        });
+        return currentY;
+      };
+      
+      const addSectionTitle = (title: string, currentY: number) => {
+        if (currentY + 15 > pageHeight - margins.bottom) { // Check for space before adding title
+            doc.addPage();
+            currentY = margins.top;
         }
-        doc.text(line, margins.left, y);
-        y += lineHeight * 0.8; // Smaller line height for disclaimer
-      });
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        currentY = addText(title, margins.left, currentY, { lineHeight: 8 });
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        return currentY + 2; // Add a bit of space after section title
+      };
 
 
-      // Sanitize title for filename
+      // --- Document Header ---
+      doc.setFontSize(18);
+      doc.setFont(undefined, 'bold');
+      y = addText(`Rapport: ${quiz.title}`, margins.left, y, { lineHeight: 10 });
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(10);
+      y = addText(`Datum voltooid: ${quiz.dateCompleted}`, margins.left, y);
+      y = addText(`Score/Profiel: ${quiz.score}`, margins.left, y);
+      y += 7; // Extra space
+
+      // --- Samenvatting ---
+      y = addSectionTitle("Samenvatting", y);
+      y = addText(quiz.reportData.summary, margins.left, y, { lineHeight: 6 });
+      y += 7;
+
+      // --- Vragen en Antwoorden ---
+      if (quiz.reportData.answers && quiz.reportData.answers.length > 0) {
+        y = addSectionTitle("Vragen en Antwoorden", y);
+        quiz.reportData.answers.forEach((ans, index) => {
+          doc.setFont(undefined, 'bold');
+          y = addText(`Vraag ${index + 1}: ${ans.question}`, margins.left, y, { lineHeight: 6 });
+          doc.setFont(undefined, 'normal');
+          y = addText(`Antwoord: ${ans.answer}`, margins.left + 5, y, { lineHeight: 6 });
+          y += 3; // Space between Q&A pairs
+        });
+      }
+      y += 7;
+
+      // --- Tips ---
+      y = addSectionTitle("Tips en Strategieën", y);
+      if (quiz.id === 'teen-neurodiversity-quiz') {
+        const identifiedProfiles: string[] = [];
+        // Extract profiles from score string e.g. "Profiel: ADD & HSP"
+        const profileMatch = quiz.score.match(/Profiel: (.*)/);
+        if (profileMatch && profileMatch[1]) {
+          profileMatch[1].split(' & ').forEach(p => {
+            const profileKey = Object.keys(neurotypeDescriptionsTeen).find(
+              key => neurotypeDescriptionsTeen[key].title.toLowerCase().includes(p.trim().toLowerCase()) || key.toLowerCase() === p.trim().toLowerCase()
+            );
+            if (profileKey) identifiedProfiles.push(profileKey);
+          });
+        }
+        
+        if (identifiedProfiles.length > 0) {
+          identifiedProfiles.forEach(profileKey => {
+            const profileData = neurotypeDescriptionsTeen[profileKey];
+            if (profileData) {
+              doc.setFontSize(12);
+              doc.setFont(undefined, 'bold');
+              y = addText(profileData.title, margins.left, y, { lineHeight: 7 });
+              doc.setFontSize(10);
+              doc.setFont(undefined, 'normal');
+              
+              const tipCategories = profileData.tips;
+              y = addText(`School/Studie: ${tipCategories.school}`, margins.left + 5, y, { lineHeight: 6 });
+              y = addText(`Thuis: ${tipCategories.thuis}`, margins.left + 5, y, { lineHeight: 6 });
+              y = addText(`Sociaal: ${tipCategories.sociaal}`, margins.left + 5, y, { lineHeight: 6 });
+              y = addText(`Werk/Stage: ${tipCategories.werk}`, margins.left + 5, y, { lineHeight: 6 });
+              y += 5;
+            }
+          });
+        } else {
+          y = addText("Geen specifieke tips gevonden voor dit profiel. Overweeg algemene strategieën voor zelfreflectie en welzijn.", margins.left, y);
+        }
+      } else if (quiz.reportData.tips && quiz.reportData.tips.length > 0) {
+        quiz.reportData.tips.forEach(tip => {
+          y = addText(`- ${tip}`, margins.left, y, { lineHeight: 6 });
+        });
+      } else {
+        y = addText("Neem contact op met een professional voor gepersonaliseerde tips en strategieën.", margins.left, y, { lineHeight: 6 });
+      }
+      y += 7;
+      
+
+      // --- Disclaimer ---
+      y = addSectionTitle("Disclaimer", y);
+      doc.setFontSize(8);
+      const disclaimerText = "Dit rapport is gebaseerd op de antwoorden die zijn gegeven in de quiz en dient ter indicatie en zelfreflectie. Het is geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener of psycholoog voor een formele diagnose, persoonlijk advies of behandeling. NeuroDiversity Navigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.";
+      y = addText(disclaimerText, margins.left, y, { lineHeight: 5 });
+
+
       const fileName = `${quiz.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rapport.pdf`;
       doc.save(fileName);
 
       toast({
         title: "Rapport Gedownload (als PDF)",
-        description: `Het rapport voor "${quizTitle}" is gedownload als een PDF-bestand.`,
-        variant: "default",
+        description: `Het rapport voor "${quizTitle}" is gedownload als PDF.`,
       });
 
     } catch (error) {
       console.error("PDF Downloadfout:", error);
       toast({
         title: "PDF Download Mislukt",
-        description: "Er is een fout opgetreden bij het downloaden van het PDF rapport.",
+        description: "Er is een fout opgetreden bij het genereren van het PDF rapport.",
         variant: "destructive",
       });
     }
@@ -205,7 +254,6 @@ export default function ResultsHistoryPage() {
                     <TableCell>{quiz.score}</TableCell>
                     <TableCell className="text-right space-x-2">
                        <Button variant="outline" size="sm" asChild>
-                        {/* Link to in-app results page, ensuring teen quiz links correctly */}
                         <Link href={quiz.id === 'teen-neurodiversity-quiz' ? `/quiz/teen-neurodiversity-quiz` : `/quiz/${quiz.id}/results`}> 
                           <Eye className="mr-2 h-4 w-4" />
                           Bekijk
