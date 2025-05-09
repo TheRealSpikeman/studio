@@ -31,14 +31,14 @@ const features = [
 export function FeaturesSection() {
   return (
     <section className="flex flex-col items-center justify-center py-16 md:py-24 bg-background">
-      <div className="container flex flex-col items-center">
+      <div className="container flex flex-col items-center text-center">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Wat kun je verwachten?
         </h2>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 justify-center">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 justify-items-center">
           {features.map((feature, index) => (
             <Link key={index} href={feature.link} passHref legacyBehavior>
-              <a className="block h-full">
+              <a className="block h-full w-full"> {/* Removed max-w-sm */}
                 <Card 
                   className="flex flex-col items-center text-center shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-primary/30 h-full"
                 >

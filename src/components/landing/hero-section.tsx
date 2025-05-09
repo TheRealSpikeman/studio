@@ -13,10 +13,7 @@ export function HeroSection() {
             Ontdek je <span className="text-primary">unieke</span> sterktes en uitdagingen
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Heb je je ooit afgevraagd waarom jij anders denkt dan je vrienden? Deze test helpt je ontdekken waar jouw sterktes én uitdagingen liggen.
-          </p>
-          <p className="text-lg text-muted-foreground md:text-xl">
-            Je krijgt direct praktische tips voor school, vriendschappen en je dagelijks leven. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
+            Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
