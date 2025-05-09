@@ -1,4 +1,3 @@
-
 // src/app/dashboard/profile/page.tsx
 "use client";
 
@@ -8,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard } from 'lucide-react';
+import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import Image from 'next/image';
+import Link from 'next/link';
 
 
 // Dummy user data - in a real app, this would come from context/API
@@ -29,20 +29,6 @@ const initialUserData = {
     nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
   }
 };
-// Example for underage pending:
-// const initialUserData = {
-//   name: "Junior Tester",
-//   email: "junior.tester@example.com",
-//   age: 15 as number | undefined,
-//   socialMedia: [] as string[],
-//   profileImageUrl: null as string | null,
-//   subscription: {
-//     planName: "Coaching Jaarlijks" as string | null,
-//     status: 'pending_parental_approval' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
-//     nextBillingDate: null, // No billing date until parent approves
-//   }
-// };
-
 
 const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
@@ -68,6 +54,18 @@ const predefinedAvatars = [
   { id: 'avatar6', src: 'https://picsum.photos/seed/avatar6/200/200', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
+// This list should ideally come from a shared config or be fetched
+const allHomeworkSubjects = [
+  { id: 'nederlands', name: 'Nederlands', icon: Languages },
+  { id: 'wiskunde', name: 'Wiskunde', icon: Calculator },
+  { id: 'engels', name: 'Engels', icon: Languages },
+  { id: 'geschiedenis', name: 'Geschiedenis', icon: History },
+  { id: 'biologie', name: 'Biologie', icon: FlaskConical },
+  { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe },
+];
+const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
+
+
 export default function ProfilePage() {
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
@@ -86,15 +84,13 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-  // Subscription state
   const [subscriptionPlan, setSubscriptionPlan] = useState(initialUserData.subscription.planName);
   const [subscriptionStatus, setSubscriptionStatus] = useState(initialUserData.subscription.status);
   const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialUserData.subscription.nextBillingDate);
 
+  const [hiddenHomeworkSubjects, setHiddenHomeworkSubjects] = useState<string[]>([]);
 
   useEffect(() => {
-    // Reset form to initial data when not editing or when component mounts with initial data
-    // This is simplified; in a real app, you'd fetch user data and subscription data
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
@@ -104,10 +100,13 @@ export default function ProfilePage() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
-        // Reset subscription details
         setSubscriptionPlan(initialUserData.subscription.planName);
         setSubscriptionStatus(initialUserData.subscription.status);
         setSubscriptionNextBillingDate(initialUserData.subscription.nextBillingDate);
+    }
+    const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
+    if (storedHiddenSubjects) {
+      setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
     }
   }, [isEditing]);
 
@@ -145,7 +144,6 @@ export default function ProfilePage() {
       }
     }
     
-    // TODO: Implement actual backend save logic
     console.log("Profile saved:", { 
       name: userName, 
       email: userEmail, 
@@ -153,17 +151,21 @@ export default function ProfilePage() {
       socialMedia: selectedSocialMedia,
       profileImageUrl: profileImageUrl, 
     });
+    localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(hiddenHomeworkSubjects));
     toast({
       title: "Profiel Opgeslagen",
-      description: "Je profielgegevens zijn bijgewerkt.",
+      description: "Je profielgegevens en voorkeuren zijn bijgewerkt.",
       variant: "default",
     });
-    setIsEditing(false); // Exit editing mode after save
+    setIsEditing(false);
   };
 
   const handleCancelEdit = () => {
-    // useEffect will handle resetting fields to initialUserData
     setIsEditing(false);
+    const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
+    if (storedHiddenSubjects) {
+      setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
+    }
   };
 
   function generateStrongPassword(length = 12): string {
@@ -208,8 +210,6 @@ export default function ProfilePage() {
       toast({ title: "Fout", description: "Nieuwe wachtwoorden komen niet overeen.", variant: "destructive" });
       return;
     }
-
-    // TODO: Implement actual backend password change logic
     console.log("Password change attempted:", { currentPassword, newPassword });
     toast({
       title: "Wachtwoord Wijziging",
@@ -219,7 +219,6 @@ export default function ProfilePage() {
     setNewPassword('');
     setConfirmNewPassword('');
   };
-
 
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
@@ -234,6 +233,15 @@ export default function ProfilePage() {
     }
   };
 
+  const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
+    setHiddenHomeworkSubjects(prev => {
+      const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
+      // Note: Saving to localStorage happens on global profile save if in editing mode.
+      // If not in editing mode, this immediate change won't persist unless we add another save mechanism or auto-save.
+      // For simplicity, we will only persist on "Profiel Opslaan"
+      return newHidden;
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -552,6 +560,51 @@ export default function ProfilePage() {
             <p className="text-sm text-muted-foreground italic">Nog geen social media voorkeuren opgegeven. Klik op "Profiel Bewerken" om selecties te maken.</p>
           )}
         </CardContent>
+      </Card>
+
+      <Card className="shadow-lg" id="subject-visibility-settings">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpenCheck className="h-6 w-6 text-primary" />
+            Zichtbaarheid Vakken Huiswerkbegeleiding
+          </CardTitle>
+          <CardDescription>
+            Kies welke vakken je wilt zien in het huiswerkbegeleidingsoverzicht.
+            {isEditing ? '' : ' Klik op "Profiel Bewerken" om dit aan te passen.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {allHomeworkSubjects.map(subject => (
+            <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent hover:border-muted-foreground/20">
+              <Checkbox
+                id={`subject-visibility-${subject.id}`}
+                checked={!hiddenHomeworkSubjects.includes(subject.id)}
+                onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
+                disabled={!isEditing}
+              />
+              <Label 
+                htmlFor={`subject-visibility-${subject.id}`}
+                className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
+              >
+                <subject.icon className="h-5 w-5" />
+                {subject.name}
+              </Label>
+            </div>
+          ))}
+          {!isEditing && (
+            <p className="text-sm text-muted-foreground italic mt-2">
+              Ga naar <Link href="/dashboard/homework-assistance" className="text-primary hover:underline">Huiswerkbegeleiding</Link> om vakken direct te verbergen.
+            </p>
+          )}
+        </CardContent>
+         {isEditing && (
+          <CardFooter className="border-t pt-6">
+            <Button onClick={handleSaveProfile}>
+                <Save className="mr-2 h-4 w-4" />
+                Voorkeuren Opslaan
+            </Button>
+          </CardFooter>
+        )}
       </Card>
 
       <Card className="shadow-lg">

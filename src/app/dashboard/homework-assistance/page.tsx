@@ -8,10 +8,12 @@ import { PlannerSection } from '@/components/homework-assistance/PlannerSection'
 import { TodoSection } from '@/components/homework-assistance/TodoSection';
 import { PomodoroSection } from '@/components/homework-assistance/PomodoroSection';
 import { TemplatesSection } from '@/components/homework-assistance/TemplatesSection';
-import { BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Users2, AlertTriangle } from 'lucide-react';
+import { BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Users2, AlertTriangle, Settings } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
-const subjects = [
+const allSubjects = [
   { id: 'nederlands', name: 'Nederlands', icon: Languages, description: 'Hulp bij taal, lezen en schrijven.' },
   { id: 'wiskunde', name: 'Wiskunde', icon: Calculator, description: 'Uitleg over algebra, meetkunde en meer.' },
   { id: 'engels', name: 'Engels', icon: Languages, description: 'Verbeter je Engelse taalvaardigheden.' },
@@ -20,21 +22,57 @@ const subjects = [
   { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe, description: 'Verken de wereld en haar bewoners.' },
 ];
 
+const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
+
 export default function HomeworkAssistancePage() {
+  const [hiddenSubjects, setHiddenSubjects] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
+    if (storedHiddenSubjects) {
+      setHiddenSubjects(JSON.parse(storedHiddenSubjects));
+    }
+  }, []);
+
+  const handleDismissSubject = (subjectId: string) => {
+    setHiddenSubjects(prev => {
+      const newHiddenSubjects = [...prev, subjectId];
+      localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(newHiddenSubjects));
+      toast({
+        title: `Vak "${allSubjects.find(s => s.id === subjectId)?.name}" verborgen`,
+        description: "Je kunt dit beheren in je profielinstellingen.",
+        duration: 3000,
+      });
+      return newHiddenSubjects;
+    });
+  };
+
+  const visibleSubjects = useMemo(() => {
+    return allSubjects.filter(subject => !hiddenSubjects.includes(subject.id));
+  }, [hiddenSubjects]);
+
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-          <BookOpenCheck className="h-8 w-8 text-primary" />
-          Huiswerkbegeleiding & Tools
-        </h1>
-        <p className="text-muted-foreground">
-          Vind hier online tips, tools, planninghulpmiddelen en de mogelijkheid om 1-op-1 begeleiding te boeken.
-        </p>
+      <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <BookOpenCheck className="h-8 w-8 text-primary" />
+            Huiswerkbegeleiding & Tools
+          </h1>
+          <p className="text-muted-foreground">
+            Vind hier online tips, tools, planninghulpmiddelen en de mogelijkheid om 1-op-1 begeleiding te boeken.
+          </p>
+        </div>
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/profile#subject-visibility-settings">
+            <Settings className="mr-2 h-4 w-4" />
+            Beheer Zichtbare Vakken
+          </Link>
+        </Button>
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main content column (Subject cards, Tutor booking) */}
         <div className="lg:col-span-2 space-y-8">
           <Card className="shadow-lg">
             <CardHeader>
@@ -42,17 +80,29 @@ export default function HomeworkAssistancePage() {
               <CardDescription>Kies een vak om tips, oefeningen en handige tools te bekijken. Voeg direct taken toe aan je To-Do lijst voor dat vak.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {subjects.map((subject) => (
-                  <SubjectCard
-                    key={subject.id}
-                    subjectId={subject.id}
-                    subjectName={subject.name}
-                    icon={<subject.icon className="h-8 w-8 text-primary" />}
-                    description={subject.description}
-                  />
-                ))}
-              </div>
+              {visibleSubjects.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {visibleSubjects.map((subject) => (
+                    <SubjectCard
+                      key={subject.id}
+                      subjectId={subject.id}
+                      subjectName={subject.name}
+                      icon={<subject.icon className="h-8 w-8 text-primary" />}
+                      description={subject.description}
+                      onDismiss={handleDismissSubject}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-muted-foreground mb-2">Alle vakken zijn verborgen.</p>
+                  <Button asChild variant="link">
+                     <Link href="/dashboard/profile#subject-visibility-settings">
+                        Beheer zichtbare vakken om ze weer te tonen.
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -79,7 +129,6 @@ export default function HomeworkAssistancePage() {
           </Card>
         </div>
 
-        {/* Right sidebar column (Planner, To-Do, Pomodoro, Templates) */}
         <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-20 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-2">
           <PlannerSection />
           <TodoSection />
