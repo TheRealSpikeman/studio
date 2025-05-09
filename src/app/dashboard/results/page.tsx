@@ -1,8 +1,11 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Eye, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 // Dummy data for demonstration
 const completedQuizzes = [
@@ -12,6 +15,17 @@ const completedQuizzes = [
 ];
 
 export default function ResultsHistoryPage() {
+  const { toast } = useToast();
+
+  const handlePdfDownloadClick = (quizId: string, quizTitle: string) => {
+    console.log(`PDF download requested for quiz: ${quizTitle} (ID: ${quizId})`);
+    toast({
+      title: "Functie in ontwikkeling",
+      description: `Het downloaden van een PDF-rapport voor "${quizTitle}" is nog niet beschikbaar.`,
+      variant: "default",
+    });
+  };
+
   return (
     <div className="space-y-8">
       <section>
@@ -55,12 +69,13 @@ export default function ResultsHistoryPage() {
                           Bekijk
                         </Link>
                       </Button>
-                      <Button variant="outline" size="sm" asChild>
-                        {/* This should trigger a PDF download, for now links to a placeholder */}
-                        <Link href={quiz.reportLink} target="_blank" download> 
-                          <Download className="mr-2 h-4 w-4" />
-                          PDF
-                        </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePdfDownloadClick(quiz.id, quiz.title)}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        PDF
                       </Button>
                     </TableCell>
                   </TableRow>
