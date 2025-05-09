@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react'; // Added Fragment
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
@@ -58,9 +58,8 @@ function SidebarNavigationContent() {
             // The general check `pathname.startsWith(item.href)` handles parent active state well.
 
             return (
-              <>
+              <Fragment key={item.href}> {/* Use Fragment with key here */}
                 <Link
-                  key={item.href}
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
@@ -77,7 +76,7 @@ function SidebarNavigationContent() {
                   const isChildActive = pathname === child.href || pathname.startsWith(child.href);
                   return (
                     <Link
-                      key={child.href}
+                      key={child.href} // Each child Link also needs a key
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
@@ -90,7 +89,7 @@ function SidebarNavigationContent() {
                     </Link>
                   );
                 })}
-              </>
+              </Fragment>
             );
           })}
         </nav>
@@ -140,3 +139,4 @@ export function DashboardSidebar() {
     </aside>
   );
 }
+
