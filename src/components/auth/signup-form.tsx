@@ -1,3 +1,4 @@
+// src/components/auth/signup-form.tsx
 "use client";
 
 import Link from 'next/link';
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,14 +17,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User } from 'lucide-react'; // UserPlus icon might be more specific if available, User is general
+import { Mail, Lock, User, Cake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
+  age: z.coerce.number().int("Leeftijd moet een geheel getal zijn.").min(1, "Leeftijd is vereist.").max(120, "Ongeldige leeftijd."),
   agreeToTerms: z.boolean().refine(value => value === true, {
     message: "Je moet akkoord gaan met de voorwaarden.",
   }),
@@ -41,12 +41,13 @@ export function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      age: undefined,
       agreeToTerms: false,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: Implement actual signup logic
+    // TODO: Implement actual signup logic, including saving age
     console.log(values);
     // For now, redirect to email verification page
     router.push('/verify-email');
@@ -103,6 +104,24 @@ export function SignupForm() {
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <FormControl>
                       <Input type="password" placeholder="Herhaal wachtwoord" {...field} className="pl-10" />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="age"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Leeftijd</FormLabel>
+                  <div className="relative">
+                    <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <FormControl>
+                      <Input type="number" placeholder="Je leeftijd" {...field} className="pl-10" 
+                      onChange={event => field.onChange(+event.target.value)} // Ensure value is number
+                      />
                     </FormControl>
                   </div>
                   <FormMessage />
