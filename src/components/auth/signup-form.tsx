@@ -119,8 +119,20 @@ export function SignupForm() {
                   <div className="relative">
                     <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <FormControl>
-                      <Input type="number" placeholder="Je leeftijd" {...field} className="pl-10" 
-                      onChange={event => field.onChange(+event.target.value)} // Ensure value is number
+                      <Input
+                        type="number"
+                        placeholder="Je leeftijd"
+                        name={field.name}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        disabled={field.disabled}
+                        value={field.value ?? ''} // Ensures controlled input, maps undefined to empty string
+                        onChange={event => {
+                          // RHF's field.onChange expects the actual value type (number for age)
+                          // +event.target.value converts empty string to 0, string numbers to numbers
+                          field.onChange(+event.target.value);
+                        }}
+                        className="pl-10"
                       />
                     </FormControl>
                   </div>
