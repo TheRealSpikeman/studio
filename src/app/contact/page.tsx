@@ -1,3 +1,4 @@
+
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -54,7 +55,7 @@ export default function ContactPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 py-12 md:py-16 lg:py-20">
+      <main className="flex flex-1 flex-col items-center justify-center py-12 md:py-16 lg:py-20">
         <div className="container max-w-2xl">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
@@ -71,3 +72,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

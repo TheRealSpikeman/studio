@@ -1,3 +1,4 @@
+
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
@@ -70,7 +71,7 @@ export default function QuizzesOverviewPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 py-12 md:py-16 lg:py-20">
+      <main className="flex flex-1 flex-col items-center justify-center py-12 md:py-16 lg:py-20">
         <div className="container space-y-8">
           <section>
             <h1 className="text-3xl font-bold text-foreground">Alle Quizzen</h1>
@@ -103,3 +104,4 @@ export default function QuizzesOverviewPage() {
     </div>
   );
 }
+
