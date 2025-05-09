@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2 } from 'lucide-react';
+import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -48,11 +48,18 @@ const predefinedAvatars = [
   { id: 'avatar6', src: 'https://picsum.photos/seed/avatar6/200/200', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
+// Dummy subscription data
+const initialSubscriptionData = {
+  status: "Actief (Proefperiode)" as string,
+  nextBillingDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric'}),
+  plan: "Gratis Proefperiode" as string,
+};
+
 
 export default function ProfilePage() {
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
-  const [userAge, setUserAge] = useState<string>(initialUserData.age?.toString() || '');
+  const [userAge, setUserAge] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
   const [selectedSocialMedia, setSelectedSocialMedia] = useState<string[]>(initialUserData.socialMedia);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
   const [isEditing, setIsEditing] = useState(false);
@@ -67,18 +74,24 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
+  const [subscriptionStatus, setSubscriptionStatus] = useState(initialSubscriptionData.status);
+  const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialSubscriptionData.nextBillingDate);
+  const [subscriptionPlan, setSubscriptionPlan] = useState(initialSubscriptionData.plan);
+
 
   useEffect(() => {
-    // Reset fields if not editing (e.g. navigating away and back)
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
-        setUserAge(initialUserData.age?.toString() || ''); // If age is undefined, userAge becomes ""
+        setUserAge(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
         setSelectedSocialMedia(initialUserData.socialMedia);
         setProfileImageUrl(initialUserData.profileImageUrl);
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
+        setSubscriptionStatus(initialSubscriptionData.status);
+        setSubscriptionNextBillingDate(initialSubscriptionData.nextBillingDate);
+        setSubscriptionPlan(initialSubscriptionData.plan);
     }
   }, [isEditing]);
 
@@ -133,7 +146,7 @@ export default function ProfilePage() {
   const handleCancelEdit = () => {
     setUserName(initialUserData.name);
     setUserEmail(initialUserData.email);
-    setUserAge(initialUserData.age?.toString() || '');
+    setUserAge(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
     setSelectedSocialMedia(initialUserData.socialMedia);
     setProfileImageUrl(initialUserData.profileImageUrl);
     
@@ -141,6 +154,10 @@ export default function ProfilePage() {
     setNewPassword('');
     setConfirmNewPassword('');
     setIsEditing(false);
+
+    setSubscriptionStatus(initialSubscriptionData.status);
+    setSubscriptionNextBillingDate(initialSubscriptionData.nextBillingDate);
+    setSubscriptionPlan(initialSubscriptionData.plan);
   };
 
   function generateStrongPassword(length = 12): string {
@@ -361,9 +378,9 @@ export default function ProfilePage() {
             </Label>
             {isEditing ? (
               <Select
-                value={userAge} 
+                value={userAge === '' ? NO_AGE_SPECIFIED_VALUE : userAge} 
                 onValueChange={(value) => {
-                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? "" : value);
+                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? '' : value);
                 }}
                 disabled={!isEditing}
               >
@@ -421,7 +438,7 @@ export default function ProfilePage() {
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                   aria-label={showCurrentPassword ? "Verberg huidig wachtwoord" : "Toon huidig wachtwoord"}
                 >
-                  {showCurrentPassword ? <EyeOff /> : <Eye />}
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -444,7 +461,7 @@ export default function ProfilePage() {
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   aria-label={showNewPassword ? "Verberg nieuw wachtwoord" : "Toon nieuw wachtwoord"}
                 >
-                  {showNewPassword ? <EyeOff /> : <Eye />}
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -467,7 +484,7 @@ export default function ProfilePage() {
                   onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                   aria-label={showConfirmNewPassword ? "Verberg bevestig nieuw wachtwoord" : "Toon bevestig nieuw wachtwoord"}
                 >
-                  {showConfirmNewPassword ? <EyeOff /> : <Eye />}
+                  {showConfirmNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -484,7 +501,6 @@ export default function ProfilePage() {
           </CardFooter>
         </Card>
       )}
-
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -520,6 +536,42 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-6 w-6 text-primary" />
+            Abonnementsgegevens
+          </CardTitle>
+          <CardDescription>
+            Beheer hier je MindNavigator abonnement.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="subscriptionPlan">Huidig Plan</Label>
+            <Input id="subscriptionPlan" value={subscriptionPlan} disabled className="mt-1 bg-muted/30" />
+          </div>
+          <div>
+            <Label htmlFor="subscriptionStatus">Status</Label>
+            <Input id="subscriptionStatus" value={subscriptionStatus} disabled className="mt-1 bg-muted/30" />
+          </div>
+          {(subscriptionStatus.includes("Actief") || subscriptionStatus.includes("Proef")) && (
+            <div>
+              <Label htmlFor="subscriptionNextBillingDate">Volgende Factuurdatum / Verloopdatum Proef</Label>
+              <Input id="subscriptionNextBillingDate" value={subscriptionNextBillingDate} disabled className="mt-1 bg-muted/30" />
+            </div>
+          )}
+        </CardContent>
+        <CardFooter>
+          {subscriptionStatus.includes("Proef") || !subscriptionStatus.includes("Actief") ? (
+            <Button disabled className="w-full sm:w-auto">Upgrade naar volledig abonnement (binnenkort)</Button>
+          ) : (
+            <Button disabled className="w-full sm:w-auto">Beheer abonnement (binnenkort)</Button>
+          )}
+        </CardFooter>
+      </Card>
+
     </div>
   );
 }
