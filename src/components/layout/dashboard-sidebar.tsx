@@ -7,9 +7,9 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
-import { useState, useEffect, Fragment } from 'react'; // Added Fragment
+import { useState, useEffect, Fragment } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
@@ -23,7 +23,27 @@ const navItems = [
       { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
     ]
   },
-  { href: '/dashboard/homework-assistance', label: 'Huiswerkbegeleiding', icon: BookOpenCheck },
+  { 
+    href: '/dashboard/homework-assistance', // Parent links to "Online Tips & Tools"
+    label: 'Huiswerkbegeleiding', 
+    icon: BookOpenCheck,
+    children: [
+      { 
+        href: '/dashboard/homework-assistance', 
+        label: 'Online Tips & Tools', 
+        icon: Lightbulb, // Icon for Online Tips & Tools
+        isSubItem: true, 
+        parent: '/dashboard/homework-assistance' 
+      },
+      { 
+        href: '/dashboard/homework-assistance/tutors', // Placeholder link for 1-on-1
+        label: '1-op-1 Begeleiding', 
+        icon: Users2, // Icon for 1-on-1 Begeleiding
+        isSubItem: true, 
+        parent: '/dashboard/homework-assistance' 
+      },
+    ]
+  },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
 ];
@@ -46,37 +66,39 @@ function SidebarNavigationContent() {
               return null;
             }
             
-            let isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-            // For parent items, check if any child is active
+            let isActive = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/' && pathname.startsWith(item.href));
+            
+            // If it's a parent item, it's active if its own href matches or if any child is active
+            // Exception: if a child has the exact same href as the parent, parent active state is based on that child.
             if (item.children) {
-              if (item.children.some(child => pathname === child.href || pathname.startsWith(child.href))) {
+              const isAnyChildActive = item.children.some(child => pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href)));
+              if (isAnyChildActive) {
+                // If parent's own link is NOT the one active, but a DIFFERENT child is, parent is active.
+                // If parent's own link IS active (because a child shares it, or it's the direct target), isActive is already true.
                 isActive = true;
               }
             }
             
-            // If it's a sub-item, its parent should not be marked active just because the sub-item is active, unless the parent's own href matches.
-            // The general check `pathname.startsWith(item.href)` handles parent active state well.
-
             return (
-              <Fragment key={item.href}> {/* Use Fragment with key here */}
+              <Fragment key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    isActive && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                    isActive && !item.isSubItem && 'bg-primary/10 text-primary font-semibold' 
                   )}
                 >
                   <item.icon className="h-5 w-5" />
                   {item.label}
                 </Link>
-                {item.children && item.children.map(child => {
+                {isActive && item.children && item.children.map(child => { // Render children only if parent is active
                    if (child.adminOnly && userRole !== 'admin') {
                     return null;
                   }
-                  const isChildActive = pathname === child.href || pathname.startsWith(child.href);
+                  const isChildActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href));
                   return (
                     <Link
-                      key={child.href} // Each child Link also needs a key
+                      key={child.href} 
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
