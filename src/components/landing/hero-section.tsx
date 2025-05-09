@@ -22,17 +22,19 @@ export function HeroSection() {
             </Button>
           </div>
         </div>
-        <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-md">
+        <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-2xl">
           <Image
-            src="https://picsum.photos/seed/newHeroImage/800/450"
-            alt="Een inspirerende en abstracte afbeelding gerelateerd aan neurodiversiteit"
+            src="https://picsum.photos/seed/neurodiversityHero/800/450"
+            alt="Een creatieve en kleurrijke abstracte afbeelding die neurodiversiteit en verschillende manieren van denken symboliseert, met gestileerde hersenen en verbindingen."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="inspiring abstract"
+            data-ai-hint="neurodiversity brain"
+            priority
           />
-           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
         </div>
       </div>
     </section>
   );
 }
+
