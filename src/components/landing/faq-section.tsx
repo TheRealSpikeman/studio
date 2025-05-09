@@ -37,13 +37,17 @@ export function FaqSection() {
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Veelgestelde Vragen
         </h2>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left text-lg hover:no-underline">
+            <AccordionItem 
+              key={index} 
+              value={`item-${index}`} 
+              className="bg-card rounded-lg shadow-sm border-0"
+            >
+              <AccordionTrigger className="text-left text-lg hover:no-underline font-semibold text-foreground py-5 px-6">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
+              <AccordionContent className="text-muted-foreground leading-relaxed px-6">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
@@ -51,7 +55,7 @@ export function FaqSection() {
         </Accordion>
         <div className="mt-10 text-center">
             <p className="text-muted-foreground mb-4">Heb je nog andere vragen?</p>
-            <Button variant="outline" asChild>
+            <Button variant="default" asChild>
                 <Link href="/contact">Neem contact op</Link>
             </Button>
         </div>
