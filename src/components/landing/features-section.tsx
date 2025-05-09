@@ -22,8 +22,8 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-16 md:py-24 bg-background">
-      <div className="container">
+    <section className="flex flex-col items-center justify-center py-16 md:py-24 bg-background">
+      <div className="container flex flex-col items-center">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Wat kun je verwachten?
         </h2>
