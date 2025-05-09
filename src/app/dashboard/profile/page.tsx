@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, Share2, ImageUp } from 'lucide-react';
+import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,7 +21,7 @@ const initialUserData = {
   email: "alex.tester@example.com",
   age: undefined as number | undefined, 
   socialMedia: [] as string[],
-  profileImageUrl: null as string | null, // Added profileImageUrl
+  profileImageUrl: null as string | null,
 };
 
 const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
@@ -59,16 +59,27 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
 
-  // Simulate fetching user data on component mount
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+
+
   useEffect(() => {
-    // In a real app, fetch data here:
-    // const fetchedUser = await fetchUserData();
-    // setUserName(fetchedUser.name);
-    // setUserEmail(fetchedUser.email);
-    // setUserAge(fetchedUser.age ? fetchedUser.age.toString() : '');
-    // setSelectedSocialMedia(fetchedUser.socialMedia || []);
-    // setProfileImageUrl(fetchedUser.profileImageUrl || null);
-  }, []);
+    // Reset fields if not editing (e.g. navigating away and back)
+    if (!isEditing) {
+        setUserName(initialUserData.name);
+        setUserEmail(initialUserData.email);
+        setUserAge(initialUserData.age?.toString() || '');
+        setSelectedSocialMedia(initialUserData.socialMedia);
+        setProfileImageUrl(initialUserData.profileImageUrl);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+    }
+  }, [isEditing]);
 
   const handleSocialMediaChange = (socialMediaId: string) => {
     setSelectedSocialMedia(prev => 
@@ -84,7 +95,7 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImageUrl(reader.result as string);
-        setIsAvatarDialogOpen(false); // Close dialog after upload
+        setIsAvatarDialogOpen(false); 
       };
       reader.readAsDataURL(file);
     }
@@ -92,7 +103,7 @@ export default function ProfilePage() {
 
   const handleSelectAvatar = (avatarSrc: string) => {
     setProfileImageUrl(avatarSrc);
-    setIsAvatarDialogOpen(false); // Close dialog after selection
+    setIsAvatarDialogOpen(false); 
   };
 
   const handleSaveProfile = () => {
@@ -110,22 +121,109 @@ export default function ProfilePage() {
       description: "Je profielgegevens zijn bijgewerkt.",
       variant: "default",
     });
-    setIsEditing(false); // Exit editing mode after save
+    // Password change is handled separately, so don't set isEditing false here
+    // if password section is also being edited.
+    // For now, we assume saving profile doesn't automatically exit password edit.
+    // If we want a global "Save All" then logic would be different.
   };
+
+  const handleCancelEdit = () => {
+    setUserName(initialUserData.name);
+    setUserEmail(initialUserData.email);
+    setUserAge(initialUserData.age?.toString() || '');
+    setSelectedSocialMedia(initialUserData.socialMedia);
+    setProfileImageUrl(initialUserData.profileImageUrl);
+    
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setIsEditing(false);
+  };
+
+  function generateStrongPassword(length = 12): string {
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*()_+-=[]{};':\",./<>?";
+    const allChars = uppercase + lowercase + numbers + symbols;
+
+    let password = "";
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+
+    for (let i = password.length; i < length; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    return password.split('').sort(() => 0.5 - Math.random()).join('');
+  }
+
+  const handleSuggestPassword = () => {
+    const suggested = generateStrongPassword();
+    setNewPassword(suggested);
+    setConfirmNewPassword(suggested);
+    toast({
+      title: "Wachtwoord gesuggereerd",
+      description: "Een sterk wachtwoord is ingevuld. Kopieer en bewaar het op een veilige plek als je het wilt gebruiken.",
+    });
+  };
+
+  const handleChangePassword = () => {
+    if (!currentPassword) {
+      toast({ title: "Fout", description: "Huidig wachtwoord is vereist.", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast({ title: "Fout", description: "Nieuw wachtwoord moet minimaal 8 tekens lang zijn.", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast({ title: "Fout", description: "Nieuwe wachtwoorden komen niet overeen.", variant: "destructive" });
+      return;
+    }
+
+    // TODO: Implement actual backend password change logic
+    console.log("Password change attempted:", { currentPassword, newPassword });
+    toast({
+      title: "Wachtwoord Wijziging",
+      description: "Wachtwoordwijziging aangevraagd. (Dummy implementatie)",
+    });
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
+
 
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
 
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="text-3xl font-bold text-foreground">Mijn Profiel</h1>
-        <p className="text-muted-foreground">
-          Bekijk en bewerk hier je persoonlijke gegevens en voorkeuren.
-        </p>
+      <section className="flex justify-between items-center">
+        <div>
+            <h1 className="text-3xl font-bold text-foreground">Mijn Profiel</h1>
+            <p className="text-muted-foreground">
+            Bekijk en bewerk hier je persoonlijke gegevens en voorkeuren.
+            </p>
+        </div>
+        {!isEditing ? (
+            <Button onClick={() => setIsEditing(true)}>
+                Profiel Bewerken
+            </Button>
+        ) : (
+            <div className="flex gap-2">
+                 <Button onClick={handleSaveProfile}>
+                    <Save className="mr-2 h-4 w-4"/>
+                    Profiel Opslaan
+                </Button>
+                <Button variant="outline" onClick={handleCancelEdit}>
+                    Annuleren
+                </Button>
+            </div>
+        )}
       </section>
 
-      {/* Profile Picture Section */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -157,7 +255,6 @@ export default function ProfilePage() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-6 py-4">
-                    {/* Upload section */}
                     <div className="space-y-2">
                       <h4 className="font-semibold">Upload een foto</h4>
                       <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full">
@@ -171,20 +268,14 @@ export default function ProfilePage() {
                         className="hidden" 
                       />
                     </div>
-                    
-                    {/* Separator */}
                     <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                          Of
-                        </span>
+                        <span className="bg-background px-2 text-muted-foreground">Of</span>
                       </div>
                     </div>
-
-                    {/* Avatar selection section */}
                     <div className="space-y-2">
                         <h4 className="font-semibold">Kies een avatar</h4>
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
@@ -216,7 +307,6 @@ export default function ProfilePage() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-
               {profileImageUrl && (
                 <Button variant="destructive" onClick={() => setProfileImageUrl(null)}>
                   Verwijder Foto
@@ -226,7 +316,6 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
-
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -257,9 +346,10 @@ export default function ProfilePage() {
               type="email" 
               value={userEmail} 
               onChange={(e) => setUserEmail(e.target.value)}
-              disabled={!isEditing}
+              disabled // Email typically not editable for existing accounts
               className="mt-1"
             />
+             {!isEditing && <p className="text-xs text-muted-foreground mt-1">E-mailadres kan niet gewijzigd worden.</p>}
           </div>
           <div>
             <Label htmlFor="userAge" className="flex items-center gap-1">
@@ -268,7 +358,7 @@ export default function ProfilePage() {
             </Label>
             {isEditing ? (
               <Select
-                value={userAge}
+                value={userAge || ""} // Ensure value is not undefined for Select
                 onValueChange={setUserAge}
                 disabled={!isEditing}
               >
@@ -276,6 +366,7 @@ export default function ProfilePage() {
                   <SelectValue placeholder="Selecteer je leeftijd" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">Niet opgegeven</SelectItem>
                   {ageOptions.map(age => (
                     <SelectItem key={age} value={age}>{age}</SelectItem>
                   ))}
@@ -292,24 +383,103 @@ export default function ProfilePage() {
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-6">
-          {isEditing ? (
-            <div className="flex gap-2">
-              <Button onClick={handleSaveProfile}>
-                <Save className="mr-2 h-4 w-4"/>
-                Opslaan
-              </Button>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Annuleren
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>
-              Profiel Bewerken
-            </Button>
-          )}
-        </CardFooter>
       </Card>
+      
+      {isEditing && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <KeyRound className="h-6 w-6 text-primary" />
+              Wachtwoord Wijzigen
+            </CardTitle>
+            <CardDescription>
+              Werk hier je accountwachtwoord bij.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label htmlFor="currentPassword">Huidig Wachtwoord</Label>
+              <div className="relative mt-1">
+                <Input 
+                  id="currentPassword" 
+                  type={showCurrentPassword ? "text" : "password"} 
+                  value={currentPassword} 
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="pr-10"
+                  autoComplete="current-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  aria-label={showCurrentPassword ? "Verberg huidig wachtwoord" : "Toon huidig wachtwoord"}
+                >
+                  {showCurrentPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="newPassword">Nieuw Wachtwoord</Label>
+              <div className="relative mt-1">
+                <Input 
+                  id="newPassword" 
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword} 
+                  onChange={(e) => setNewPassword(e.target.value)} 
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  aria-label={showNewPassword ? "Verberg nieuw wachtwoord" : "Toon nieuw wachtwoord"}
+                >
+                  {showNewPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="confirmNewPassword">Bevestig Nieuw Wachtwoord</Label>
+              <div className="relative mt-1">
+                <Input 
+                  id="confirmNewPassword" 
+                  type={showConfirmNewPassword ? "text" : "password"} 
+                  value={confirmNewPassword} 
+                  onChange={(e) => setConfirmNewPassword(e.target.value)} 
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                 <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
+                  onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                  aria-label={showConfirmNewPassword ? "Verberg bevestig nieuw wachtwoord" : "Toon bevestig nieuw wachtwoord"}
+                >
+                  {showConfirmNewPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
+            </div>
+             <Button type="button" variant="outline" onClick={handleSuggestPassword} className="w-full sm:w-auto">
+                <Wand2 className="mr-2 h-4 w-4" />
+                Suggereer Sterk Wachtwoord
+            </Button>
+          </CardContent>
+          <CardFooter className="border-t pt-6">
+            <Button onClick={handleChangePassword}>
+                <Save className="mr-2 h-4 w-4" />
+                Wachtwoord Opslaan
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
 
       <Card className="shadow-lg">
         <CardHeader>
