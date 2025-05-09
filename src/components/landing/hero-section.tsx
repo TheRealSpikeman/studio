@@ -24,11 +24,11 @@ export function HeroSection() {
         </div>
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-md">
           <Image
-            src="https://picsum.photos/seed/heroUploadImageSeed/800/450"
-            alt="Een upload afbeelding concept"
+            src="https://picsum.photos/seed/newHeroImage/800/450"
+            alt="Een inspirerende en abstracte afbeelding gerelateerd aan neurodiversiteit"
             layout="fill"
             objectFit="cover"
-            data-ai-hint="upload image"
+            data-ai-hint="inspiring abstract"
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
         </div>
