@@ -4,11 +4,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Button } from '@/components/ui/button'; // Kept for potential future use, but not for logout here
+import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu } from 'lucide-react'; // Added Menu for mobile toggle
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // For mobile sidebar
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect } from 'react';
 
 const navItems = [
@@ -16,6 +16,7 @@ const navItems = [
   { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { href: '/dashboard/coaching', label: 'Coaching', icon: MessageSquare },
+  { href: '/dashboard/coaching/settings', label: 'Coaching Instellingen', icon: Settings },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   // TODO: Conditionally show admin items based on user role
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
@@ -38,13 +39,16 @@ function SidebarNavigationContent() {
             if (item.adminOnly && userRole !== 'admin') {
               return null;
             }
+            // Check for active parent for sub-items
+            const isActive = pathname === item.href || (item.href === '/dashboard/coaching' && pathname.startsWith('/dashboard/coaching/settings'));
+            
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                  pathname === item.href && 'bg-primary/10 text-primary font-semibold'
+                  isActive && 'bg-primary/10 text-primary font-semibold'
                 )}
               >
                 <item.icon className="h-5 w-5" />
@@ -54,13 +58,13 @@ function SidebarNavigationContent() {
           })}
         </nav>
       </ScrollArea>
-      {/* Logout button is removed from here, it's now in DashboardHeader user dropdown */}
     </>
   );
 }
 
 export function DashboardSidebar() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false); // Control Sheet visibility
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768); // md breakpoint
@@ -69,9 +73,18 @@ export function DashboardSidebar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Close sheet on navigation for mobile
+  const pathname = usePathname();
+  useEffect(() => {
+    if (isMobile) {
+      setIsSheetOpen(false);
+    }
+  }, [pathname, isMobile]);
+
+
   if (isMobile) {
     return (
-      <Sheet>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="fixed top-4 left-4 z-50 md:hidden">
             <Menu className="h-5 w-5" />

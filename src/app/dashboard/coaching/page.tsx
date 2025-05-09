@@ -2,21 +2,18 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Mail, MessageSquare, Zap, Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
-  CalendarPlus, PlaySquare, Headphones, Library, Rocket, Users, Bot, Trophy, Bell, Check, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff
+  Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
+  PlaySquare, Headphones, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap
 } from 'lucide-react'; 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Calendar } from '@/components/ui/calendar';
-import { format, differenceInDays, startOfDay, isEqual } from 'date-fns';
+import { format, startOfDay, isEqual } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
 interface CoachingMessage {
@@ -94,15 +91,9 @@ const getVideoSeedForDate = (date: Date): string => {
 
 export default function CoachingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [receiveDailyEmails, setReceiveDailyEmails] = useState(false);
-  
   const [journalEntries, setJournalEntries] = useState<Record<string, string>>({});
   const [tasksForSelectedDate, setTasksForSelectedDate] = useState<DailyTask[]>([]);
-  
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [affirmationTiming, setAffirmationTiming] = useState("08:00");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-
 
   const { toast } = useToast();
 
@@ -118,34 +109,13 @@ export default function CoachingPage() {
   useEffect(() => {
     if (selectedDate) {
       setTasksForSelectedDate(generateDailyTasks(selectedDate).map(task => ({...task, id: `${task.id}-${format(selectedDate, 'yyyy-MM-dd')}`})));
-      // Journal text for the new date is handled by `currentJournalText`
     }
   }, [selectedDate]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
-      setSelectedDate(startOfDay(date)); // Ensure we're using the start of the day for comparisons
+      setSelectedDate(startOfDay(date)); 
     }
-  };
-
-  const handleEmailPreferenceChange = (checked: boolean) => {
-    setReceiveDailyEmails(checked);
-    toast({
-      title: "E-mailvoorkeur bijgewerkt",
-      description: checked 
-        ? "Je ontvangt nu dagelijkse coaching tips per e-mail." 
-        : "Je ontvangt geen dagelijkse coaching tips meer per e-mail.",
-    });
-  };
-
-  const handlePushNotificationChange = (checked: boolean) => {
-    setPushNotifications(checked);
-    toast({
-      title: "Push Notificatie voorkeur bijgewerkt",
-      description: checked
-        ? "Push notificaties voor taken zijn ingeschakeld."
-        : "Push notificaties voor taken zijn uitgeschakeld.",
-    });
   };
   
   const handleJournalChange = (text: string) => {
@@ -194,7 +164,7 @@ export default function CoachingPage() {
           </Button>
         </CardHeader>
         {isCalendarOpen && (
-          <CardContent className="flex justify-center pt-4"> {/* Added pt-4 for spacing */}
+          <CardContent className="flex justify-center pt-4">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -208,7 +178,6 @@ export default function CoachingPage() {
         )}
       </Card>
 
-      {/* --- Row 1: Affirmation & Streaks --- */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="shadow-lg">
           <CardHeader>
@@ -235,7 +204,6 @@ export default function CoachingPage() {
         </Card>
       </div>
 
-      {/* --- Row 2: Journaling & Daily Tasks --- */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
           <CardHeader>
@@ -297,7 +265,6 @@ export default function CoachingPage() {
         </Card>
       </div>
       
-      {/* --- Row 3: Multimedia & Coaching Message --- */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
           <CardHeader>
@@ -315,7 +282,7 @@ export default function CoachingPage() {
                 height={225} 
                 className="rounded-md mb-2 mx-auto" 
                 data-ai-hint="coaching video"
-                key={videoSeedForSelectedDate} // Force re-render if seed changes
+                key={videoSeedForSelectedDate}
               />
             ) : (
               <div className="h-[225px] w-full max-w-[400px] mx-auto bg-muted rounded-md flex items-center justify-center text-muted-foreground mb-2">
@@ -353,65 +320,7 @@ export default function CoachingPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* --- Settings & Preferences --- */}
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">Instellingen & Voorkeuren</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between p-3 rounded-md border">
-            <div className="space-y-0.5">
-                <Label htmlFor="daily-email-toggle" className="text-base">Dagelijkse Tips per E-mail</Label>
-                <p className="text-xs text-muted-foreground">Ontvang elke dag een nieuwe coaching tip direct in je inbox.</p>
-            </div>
-            <Switch 
-              id="daily-email-toggle" 
-              checked={receiveDailyEmails}
-              onCheckedChange={handleEmailPreferenceChange}
-              aria-label="Ontvang dagelijkse coaching tips per e-mail"
-            />
-          </div>
-           <div className="flex items-center justify-between p-3 rounded-md border">
-            <div className="space-y-0.5">
-                <Label htmlFor="push-notification-toggle" className="text-base">Push Notificaties voor Taken</Label>
-                <p className="text-xs text-muted-foreground">Krijg reminders voor je dagelijkse microtaken.</p>
-            </div>
-            <Switch 
-              id="push-notification-toggle" 
-              checked={pushNotifications}
-              onCheckedChange={handlePushNotificationChange}
-              aria-label="Push notificaties voor taken"
-            />
-          </div>
-          <div className="p-3 rounded-md border space-y-2">
-            <Label htmlFor="affirmation-timing" className="text-base">Timing Ochtend Affirmatie</Label>
-            <Select value={affirmationTiming} onValueChange={setAffirmationTiming}>
-              <SelectTrigger id="affirmation-timing">
-                <SelectValue placeholder="Kies een tijd" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="07:00">07:00</SelectItem>
-                <SelectItem value="07:30">07:30</SelectItem>
-                <SelectItem value="08:00">08:00</SelectItem>
-                <SelectItem value="08:30">08:30</SelectItem>
-                <SelectItem value="09:00">09:00</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">Kies wanneer je je dagelijkse affirmatie wilt ontvangen.</p>
-          </div>
-           <div className="p-3 rounded-md border space-y-2">
-            <Label className="text-base">Synchroniseer Taken met Kalender</Label>
-            <div className="flex gap-2">
-                <Button variant="outline" disabled><CalendarPlus className="mr-2 h-4 w-4"/> Google Calendar (binnenkort)</Button>
-                <Button variant="outline" disabled><CalendarPlus className="mr-2 h-4 w-4"/> Outlook Agenda (binnenkort)</Button>
-            </div>
-             <p className="text-xs text-muted-foreground">Voeg je coaching-taken automatisch toe aan je favoriete agenda.</p>
-          </div>
-        </CardContent>
-      </Card>
       
-      {/* --- Community & AI (Placeholders) --- */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="shadow-lg">
           <CardHeader>
@@ -457,7 +366,6 @@ export default function CoachingPage() {
         </Card>
       </div>
 
-      {/* --- Library & Workshops (Placeholders) --- */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="shadow-lg">
             <CardHeader>
@@ -481,7 +389,6 @@ export default function CoachingPage() {
         </Card>
       </div>
 
-      {/* Placeholder for Graphs & Reports */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -503,4 +410,3 @@ export default function CoachingPage() {
     </div>
   );
 }
-
