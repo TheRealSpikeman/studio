@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
-import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; // Import the new flow
+import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; 
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
@@ -179,6 +179,10 @@ export default function QuizManagementPage() {
       };
       const aiResult = await generateAiQuiz(aiInput);
 
+      if (!aiResult || !aiResult.questions || aiResult.questions.length === 0) {
+        throw new Error("AI heeft geen vragen geretourneerd.");
+      }
+
       const newQuizId = `ai-${Date.now()}`;
       const newQuiz: QuizAdmin = {
         id: newQuizId,
@@ -188,7 +192,7 @@ export default function QuizManagementPage() {
         category: data.category as QuizCategory,
         status: 'concept',
         questions: aiResult.questions.map((q, i) => ({
-          id: `ai-q${i+1}-${Date.now()}`, // Ensure question IDs are unique enough
+          id: `ai-q${i+1}-${Date.now()}-${Math.random().toString(36).substring(7)}`, // Ensure question IDs are unique enough
           text: q.text,
           example: q.example,
           weight: q.weight
@@ -223,7 +227,7 @@ export default function QuizManagementPage() {
       console.error("Error generating AI quiz:", error);
       toast({
         title: "Fout bij AI Quiz Generatie",
-        description: "Er is iets misgegaan. Probeer het later opnieuw of pas je input aan.",
+        description: (error as Error).message || "Er is iets misgegaan. Probeer het later opnieuw of pas je input aan.",
         variant: "destructive",
       });
     } finally {
@@ -470,3 +474,4 @@ export default function QuizManagementPage() {
     </div>
   );
 }
+
