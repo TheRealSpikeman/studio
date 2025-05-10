@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase } from 'lucide-react'; // Added Briefcase for Tutor Dashboard
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap } from 'lucide-react'; // Added GraduationCap
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
@@ -46,7 +46,7 @@ const navItems = [
   },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
-  // Conceptually, this link would only be shown if the user has the 'tutor' role.
+  { href: '/dashboard/admin/student-management', label: 'Leerlingenoverzicht', icon: GraduationCap, adminOnly: true },
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true }, 
 ];
 
@@ -54,7 +54,7 @@ const navItems = [
 function SidebarNavigationContent() {
   const pathname = usePathname();
   // In a real app, userRole would come from an authentication context/hook.
-  const userRole: 'admin' | 'user' | 'tutor' = 'tutor'; // Example: set to 'tutor' to see the link
+  const userRole: 'admin' | 'user' | 'tutor' = 'admin'; // Example: set to 'admin' to see the admin links
 
   return (
     <>
@@ -86,8 +86,11 @@ function SidebarNavigationContent() {
 
               const activeChildSharesHrefWithParent = item.children.find(child => child.href === item.href && pathname === item.href);
               if (activeChildSharesHrefWithParent) {
-                isParentHighlighted = false;
+                isParentHighlighted = false; // Don't highlight parent if a child with the same href is active
+              } else if (isAnyChildActive && item.href !== pathname) {
+                 isParentHighlighted = false; // Don't highlight parent if a child is active but parent itself is not the current page
               }
+
             }
             
             return (
@@ -180,3 +183,4 @@ export function DashboardSidebar() {
     </aside>
   );
 }
+
