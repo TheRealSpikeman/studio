@@ -56,12 +56,13 @@ export function HeroSection() {
             https://firebasestorage.googleapis.com/v0/b/your-bucket-id/o/homepage.png?alt=media&token=your-access-token
           */}
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage.png?alt=media&token=9dbf40af-3f14-4b80-baa2-e5f23e2c1eaf" 
-            alt="Inspirerende afbeelding gerelateerd aan persoonlijke groei en ontdekking."
+            src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage-2.gif?alt=media&token=57902da7-73b1-4c01-828c-9de735ef9bf4" 
+            alt="Creatieve weergave van mensen die diep nadenken en enigszins paniekerig zijn, passend bij neurodiversiteit."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="inspiration discovery"
+            data-ai-hint="neurodiversity thinking"
             priority
+            unoptimized={true}
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>
         </div>
@@ -69,3 +70,4 @@ export function HeroSection() {
     </section>
   );
 }
+
