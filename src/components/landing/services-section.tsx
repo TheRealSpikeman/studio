@@ -14,6 +14,7 @@ interface Service {
   ctaText: string;
   link: string;
   colorClass: string; // Tailwind classes for card background and border
+  type: string; // Explicitly defines the type of service
 }
 
 const services: Service[] = [
@@ -25,6 +26,7 @@ const services: Service[] = [
     ctaText: 'Start gratis quiz',
     link: '/quizzes',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
+    type: 'Quiz',
   },
   {
     icon: <BookOpenText className="h-10 w-10 text-primary" />,
@@ -36,9 +38,10 @@ const services: Service[] = [
       'Houd een dagboek bij en meet je stemming',
       'Deel ervaringen in ons ondersteunende forum',
     ],
-    ctaText: 'Ontdek tools',
+    ctaText: 'Start met Coaching', // Updated CTA Text
     link: '/dashboard/coaching',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+    type: 'Coaching',
   },
   {
     icon: <Laptop className="h-10 w-10 text-primary" />,
@@ -50,9 +53,10 @@ const services: Service[] = [
       'Online groepssessies (max. 6 leerlingen)',
       'Sessies van 45 min, 5 dagen per week',
     ],
-    ctaText: 'Bekijk tools',
+    ctaText: 'Gebruik Studieplanner', // Updated CTA Text
     link: '/dashboard/homework-assistance',
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
+    type: 'Tools',
   },
   {
     icon: <Users2 className="h-10 w-10 text-primary" />,
@@ -66,6 +70,7 @@ const services: Service[] = [
     ctaText: 'Plan kennismaking',
     link: '/dashboard/homework-assistance/tutors',
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
+    type: '1-op-1',
   },
 ];
 
@@ -104,13 +109,14 @@ export function ServicesSection() {
               )}
             >
               <CardHeader className="items-center w-full">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{service.type}</div>
+                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                   {service.icon}
                 </div>
-                <CardTitle className="text-xl font-semibold text-primary">{service.title}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-primary">{service.title}</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow w-full space-y-3">
-                <p className="text-muted-foreground text-sm font-semibold">{service.tagline}</p>
+                <p className="text-foreground/80 text-sm font-medium">{service.tagline}</p>
                 {service.bullets && (
                   <ul className="mt-2 list-disc list-inside text-xs text-muted-foreground text-left space-y-0.5 pl-4">
                     {service.bullets.map((bullet, i) => (
@@ -133,7 +139,7 @@ export function ServicesSection() {
         {/* Social Proof Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="shadow-md text-left bg-card"> {/* Ensure card background contrasts */}
+            <Card key={index} className="shadow-md text-left bg-card">
               <CardHeader className="flex flex-row items-center gap-3 pb-2">
                 <Avatar className="h-11 w-11">
                   <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100/100`} alt={testimonial.name} data-ai-hint="person avatar" />
