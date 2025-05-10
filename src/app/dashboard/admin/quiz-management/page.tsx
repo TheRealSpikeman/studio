@@ -14,12 +14,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { format, parseISO } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell'; // Import the component
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
@@ -326,7 +325,9 @@ export default function QuizManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{quiz.questions.length}</TableCell>
-                    <TableCell>{format(parseISO(quiz.lastUpdatedAt), 'Pp', { locale: nl })}</TableCell>
+                    <TableCell>
+                        <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="Pp" />
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
