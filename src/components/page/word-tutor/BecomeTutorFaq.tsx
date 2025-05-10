@@ -5,14 +5,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 
 const tutorFaqs = [
   {
-    question: 'Wat is het aanmeldproces?',
+    question: 'Wat is het aanmeldproces als tutor?',
     answer:
-      'Nadat je het formulier hebt ingevuld, beoordelen we je aanmelding. We controleren je CV, VOG en motivatie. Bij een positieve beoordeling nemen we contact op voor een kort online kennismakingsgesprek. Daarna kun je je profiel voltooien en starten.',
+      'Het aanmeldproces bestaat uit een paar stappen. Eerst vul je op onze "Word Tutor" pagina je naam en e-mailadres in. Je ontvangt dan een e-mail met een tijdelijk wachtwoord en een link om in te loggen. Na je eerste login doorloop je een korte wizard waarin je je definitieve wachtwoord instelt, je vakken en uurtarief kiest, je CV en VOG uploadt, en je beschikbaarheid opgeeft. Zodra je profiel compleet is, wordt het door ons team beoordeeld. Dit duurt meestal 1-2 werkdagen. Na goedkeuring is je account actief en kun je starten met het geven van bijles!',
   },
   {
     question: 'Hoe werkt de 10% servicekost?',
@@ -32,7 +30,7 @@ const tutorFaqs = [
   {
     question: 'Kan ik mijn eigen uren en tarief bepalen?',
     answer:
-      'Ja, absoluut! Je bent volledig vrij in het bepalen van je uurtarief en de momenten waarop je beschikbaar bent. Dit kun je te allen tijde aanpassen in je tutor-profiel.',
+      'Ja, absoluut! Je bent volledig vrij in het bepalen van je uurtarief en de momenten waarop je beschikbaar bent. Dit kun je te allen tijde aanpassen in je tutor-profiel na goedkeuring.',
   }
 ];
 
@@ -66,3 +64,4 @@ export function BecomeTutorFaq() {
     </section>
   );
 }
+
