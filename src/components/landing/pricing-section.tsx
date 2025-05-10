@@ -134,7 +134,7 @@ export function PricingSection() {
 
 
   return (
-    <section id="pricing" className="py-16 md:py-24 bg-secondary/30">
+    <section id="pricing" className="py-16 md:py-24 bg-secondary/30 flex flex-col items-center">
       <div className="container">
         <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Kies jouw pad naar zelfinzicht
@@ -150,7 +150,7 @@ export function PricingSection() {
                 ${plan.isPopular ? 'border-2 border-primary ring-2 ring-primary/50' : 'border border-border hover:shadow-xl transition-shadow'}`}
             >
               {plan.isPopular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
                   <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
                     Meest gekozen
                   </span>
