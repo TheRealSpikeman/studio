@@ -7,21 +7,42 @@ import type { QuizAdmin } from '@/types/quiz-admin'; // Assuming this type exist
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// Updated dummy quizzes to match more closely with the main quiz list
+const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
+  { 
+    id: 'q1', title: 'Basis Neuroprofiel (15-18 jr)', description: 'Algemene neurodiversiteitstest voor oudere tieners.', 
+    audience: ['15-18'], category: 'Basis', status: 'published', 
+    questions: [{id:'q1a', text:'Vraag 1'}, {id:'q1b', text:'Vraag 2'}],
+    subtestConfigs: [{subtestId: 'ADD', threshold: 2.6}, {subtestId: 'HSP', threshold: 3.1}],
+    lastUpdatedAt: new Date().toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz voor 15-18 jaar', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.'
+  },
+  { 
+    id: 'q2', title: 'Examenvrees Check', description: 'Quiz over omgaan met examenstress.', 
+    audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', 
+    questions: [{id:'q2a', text:'Hoe voel je je vlak voor een belangrijk examen?'}],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    slug: 'examenvrees-check', metaTitle: 'Examenvrees Check Quiz', metaDescription: 'Test je niveau van examenstress.'
+  },
+  { 
+    id: 'q3', title: 'Focus Test (12-14 jr)', description: 'Concentratiecheck voor jongere tieners.', 
+    audience: ['12-14'], category: 'ADD', status: 'published', 
+    questions: [
+        {id:'q3a', text:'Raak je snel afgeleid tijdens het maken van huiswerk?'},
+        {id:'q3b', text:'Vergeet je vaak wat je net gelezen hebt?'}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 10).toISOString(), createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
+    slug: 'focus-test-12-14', metaTitle: 'Focus Test voor 12-14 Jaar', metaDescription: 'Doe de concentratiecheck.'
+  },
+];
+
+
 // Dummy function to simulate fetching quiz data
 async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) | null> {
   console.log("Fetching quiz data for ID:", id);
   // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 500));
-  const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [ // Use QuizAdmin here
-    { 
-      id: 'q1', title: 'Basis Neuroprofiel (15-18 jr) - Bewerkt', description: 'Algemene neurodiversiteitstest voor oudere tieners, bewerkte versie.', 
-      audience: ['15-18'], category: 'Basis', status: 'published', 
-      questions: [{id: 'q1a', text:'Vraag 1 - Aangepast'}, {id: 'q1b', text:'Vraag 2 - Herformulering'}],
-      subtestConfigs: [{subtestId: 'ADD', threshold: 2.6}, {subtestId: 'HSP', threshold: 3.1}],
-      lastUpdatedAt: new Date().toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-      slug: 'basis-neuro-15-18-edit', metaTitle: 'Bewerkte Quiz Titel', metaDescription: 'Dit is een bewerkte meta omschrijving.'
-    },
-  ];
+
   const quiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id);
   if (quiz) {
     // Map QuizAdmin to QuizFormData
@@ -67,3 +88,4 @@ export default function EditQuizPage() {
   
   return <NewQuizPage quizData={quizData} />;
 }
+
