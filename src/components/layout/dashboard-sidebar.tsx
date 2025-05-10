@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap } from 'lucide-react'; // Added GraduationCap
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
@@ -45,9 +45,16 @@ const navItems = [
     ]
   },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
+  // Admin specific section
+  { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
-  { href: '/dashboard/admin/student-management', label: 'Leerlingenoverzicht', icon: GraduationCap, adminOnly: true },
-  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true }, 
+  { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
+  { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
+  { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
+  { href: '/dashboard/admin/reporting', label: 'Rapportages', icon: FileBarChart, adminOnly: true },
+  { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
+  // Tutor specific
+  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true, sectionTitle: "Tutor Portaal" }, 
 ];
 
 
@@ -55,6 +62,7 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   // In a real app, userRole would come from an authentication context/hook.
   const userRole: 'admin' | 'user' | 'tutor' = 'admin'; // Example: set to 'admin' to see the admin links
+  let currentSectionTitle = "";
 
   return (
     <>
@@ -64,13 +72,16 @@ function SidebarNavigationContent() {
       <ScrollArea className="flex-1">
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
           {navItems.map((item) => {
+            let showItem = true;
             if (item.adminOnly && userRole !== 'admin') {
-              return null;
+              showItem = false;
             }
             // @ts-ignore - tutorOnly is a custom prop for this example
             if (item.tutorOnly && userRole !== 'tutor') {
-              return null;
+              showItem = false;
             }
+
+            if (!showItem) return null;
             
             const isItemDirectlyActive = pathname === item.href;
             let isParentHighlighted = isItemDirectlyActive;
@@ -84,17 +95,35 @@ function SidebarNavigationContent() {
                 isParentExpanded = true;
               }
 
-              const activeChildSharesHrefWithParent = item.children.find(child => child.href === item.href && pathname === item.href);
-              if (activeChildSharesHrefWithParent) {
-                isParentHighlighted = false; // Don't highlight parent if a child with the same href is active
-              } else if (isAnyChildActive && item.href !== pathname) {
-                 isParentHighlighted = false; // Don't highlight parent if a child is active but parent itself is not the current page
+              // If a child is active and its href is different from the parent's href,
+              // or if the parent itself is active but also has active children (meaning it's a section header),
+              // then the parent should not be highlighted as strongly.
+              if (isAnyChildActive && item.href !== pathname) {
+                 isParentHighlighted = false;
+              } else if (isItemDirectlyActive && isAnyChildActive) {
+                // This handles the case where the parent itself (e.g., /dashboard/homework-assistance) is active,
+                // AND it has children, and one of those children might also be active (e.g., the default child).
+                // In this scenario, if the active route is exactly the parent's route, we still want to highlight the parent.
+                // However, if an actual child *different* from the parent's default view is active, the parent gets less highlight.
+                const activeChildIsNotParentDefault = item.children.some(child => pathname === child.href && child.href !== item.href);
+                if (activeChildIsNotParentDefault) {
+                    isParentHighlighted = false;
+                }
               }
+            }
 
+            const sectionTitleChanged = item.sectionTitle && item.sectionTitle !== currentSectionTitle;
+            if (sectionTitleChanged) {
+                currentSectionTitle = item.sectionTitle!;
             }
             
             return (
               <Fragment key={item.href}>
+                {sectionTitleChanged && (
+                    <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mt-3">
+                        {currentSectionTitle}
+                    </div>
+                )}
                 <Link
                   href={item.href}
                   className={cn(
@@ -115,7 +144,7 @@ function SidebarNavigationContent() {
                   if (child.tutorOnly && userRole !== 'tutor') {
                     return null;
                   }
-                  const isChildDirectlyActive = pathname === child.href;
+                  const isChildDirectlyActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href === item.href && pathname === item.href);
                   
                   return (
                     <Link
@@ -183,4 +212,3 @@ export function DashboardSidebar() {
     </aside>
   );
 }
-

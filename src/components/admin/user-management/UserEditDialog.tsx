@@ -1,7 +1,7 @@
 // src/components/admin/user-management/UserEditDialog.tsx
 "use client";
 
-import type { User, UserRole, UserStatus } from '@/types/user';
+import type { User, UserRole, UserStatus, AgeGroup } from '@/types/user';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,24 +9,27 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CardTitle } from '@/components/ui/card'; // Added CardTitle import
+import { CardTitle } from '@/components/ui/card';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase } from 'lucide-react';
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+
+const ageGroupValues = ["12-14", "15-18", "adult"] as const;
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
   status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected']),
   role: z.enum(['admin', 'coach', 'deelnemer', 'tutor']),
+  ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
   coaching_startDate: z.date().optional(),
   coaching_interval: z.coerce.number().int().positive("Interval moet een positief getal zijn.").optional().or(z.literal(0)),
@@ -62,46 +65,52 @@ interface UserEditDialogProps {
 }
 
 export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, onSave }: UserEditDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors }, setValue } = useForm<UserFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors }, setValue, watch } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', avatarUrl: '',
+      name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', ageGroup: undefined, avatarUrl: '',
       coaching_interval: 0, coaching_currentDayInFlow: 0, password: '', confirmPassword: '',
       tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
       tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
     }
   });
 
+  const currentRole = watch("role");
+
   useEffect(() => {
-    if (user && !isAddingNewUser) {
-      reset({
-        name: user.name, email: user.email, status: user.status, role: user.role,
-        avatarUrl: user.avatarUrl || '',
-        coaching_startDate: user.coaching?.startDate ? parseISO(user.coaching.startDate) : undefined,
-        coaching_interval: user.coaching?.interval || 0,
-        coaching_currentDayInFlow: user.coaching?.currentDayInFlow || 0,
-        password: '', confirmPassword: '',
-        tutorDetails_bio: user.tutorDetails?.bio || '',
-        tutorDetails_subjects: user.tutorDetails?.subjects || [],
-        tutorDetails_hourlyRate: user.tutorDetails?.hourlyRate || undefined,
-        tutorDetails_availability: user.tutorDetails?.availability || '',
-        tutorDetails_cvUrl: user.tutorDetails?.cvUrl || '',
-        tutorDetails_vogUrl: user.tutorDetails?.vogUrl || '',
-      });
-    } else {
-      reset({
-        name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', avatarUrl: '',
-        coaching_startDate: undefined, coaching_interval: 0, coaching_currentDayInFlow: 0,
-        password: '', confirmPassword: '',
-        tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
-        tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
-      });
+    if (isOpen) { // Reset form when dialog opens or user changes
+      if (user && !isAddingNewUser) {
+        reset({
+          name: user.name, email: user.email, status: user.status, role: user.role,
+          ageGroup: user.ageGroup || undefined,
+          avatarUrl: user.avatarUrl || '',
+          coaching_startDate: user.coaching?.startDate ? parseISO(user.coaching.startDate) : undefined,
+          coaching_interval: user.coaching?.interval || 0,
+          coaching_currentDayInFlow: user.coaching?.currentDayInFlow || 0,
+          password: '', confirmPassword: '',
+          tutorDetails_bio: user.tutorDetails?.bio || '',
+          tutorDetails_subjects: user.tutorDetails?.subjects || [],
+          tutorDetails_hourlyRate: user.tutorDetails?.hourlyRate || undefined,
+          tutorDetails_availability: user.tutorDetails?.availability || '',
+          tutorDetails_cvUrl: user.tutorDetails?.cvUrl || '',
+          tutorDetails_vogUrl: user.tutorDetails?.vogUrl || '',
+        });
+      } else {
+        reset({
+          name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', ageGroup: undefined, avatarUrl: '',
+          coaching_startDate: undefined, coaching_interval: 0, coaching_currentDayInFlow: 0,
+          password: '', confirmPassword: '',
+          tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
+          tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
+        });
+      }
     }
   }, [user, isAddingNewUser, reset, isOpen]);
 
   const onSubmit = (data: UserFormData) => {
     const processedData: Partial<User> & Pick<User, 'name' | 'email' | 'status' | 'role'> = {
       name: data.name, email: data.email, status: data.status, role: data.role,
+      ageGroup: data.role === 'deelnemer' ? data.ageGroup : undefined,
       avatarUrl: data.avatarUrl || undefined,
       coaching: (data.coaching_startDate || data.coaching_interval || data.coaching_currentDayInFlow) ? {
         startDate: data.coaching_startDate ? data.coaching_startDate.toISOString() : undefined,
@@ -122,15 +131,15 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
 
   const handleApproveTutor = () => {
     if (user && user.role === 'tutor' && user.status === 'pending_approval') {
-      setValue('status', 'actief'); // Change status in form
-      handleSubmit(onSubmit)(); // Trigger form submission with new status
+      setValue('status', 'actief'); 
+      handleSubmit(onSubmit)(); 
     }
   };
   
   const handleRejectTutor = () => {
      if (user && user.role === 'tutor' && user.status === 'pending_approval') {
-      setValue('status', 'rejected'); // Change status in form
-      handleSubmit(onSubmit)(); // Trigger form submission with new status
+      setValue('status', 'rejected'); 
+      handleSubmit(onSubmit)(); 
     }
   };
 
@@ -146,11 +155,11 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className={cn("grid w-full grid-cols-3", currentRole === 'tutor' && "md:grid-cols-4")}>
               <TabsTrigger value="profile"><UserCircle className="mr-1 h-4 w-4 inline-block" />Profiel</TabsTrigger>
               <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen & Status</TabsTrigger>
               <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>
-              {user?.role === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
+              {currentRole === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="profile" className="space-y-4 pt-2">
@@ -179,6 +188,31 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
                 {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden.</p>}
               </div>
+              {currentRole === 'deelnemer' && (
+                 <div>
+                    <Label htmlFor="ageGroup" className="flex items-center gap-1">
+                        <Cake className="h-4 w-4 text-muted-foreground"/>
+                        Leeftijdsgroep
+                    </Label>
+                    <Controller
+                      name="ageGroup"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger id="ageGroup" className="mt-1">
+                            <SelectValue placeholder="Selecteer leeftijdsgroep" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="12-14">12-14 jaar</SelectItem>
+                            <SelectItem value="15-18">15-18 jaar</SelectItem>
+                            <SelectItem value="adult">Volwassene</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.ageGroup && <p className="text-sm text-destructive">{errors.ageGroup.message}</p>}
+                  </div>
+              )}
               {(isAddingNewUser || (user && (user.status !== 'actief' && user.status !== 'pending_approval'))) && (
                  <>
                     <div>
@@ -283,22 +317,22 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
               </div>
             </TabsContent>
             
-            {user?.role === 'tutor' && (
+            {currentRole === 'tutor' && (
               <TabsContent value="tutorSpecific" className="space-y-4 pt-2">
                 <CardTitle className="text-lg">Tutor Specifieke Informatie</CardTitle>
-                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} readOnly /></div>
-                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} readOnly /></div>
-                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} readOnly /></div>
-                <div><Label>Vakken:</Label><Input value={user.tutorDetails?.subjects?.join(', ') || 'N.v.t.'} readOnly /></div>
-                <div><Label>CV URL:</Label><Input {...register("tutorDetails_cvUrl")} readOnly /></div>
-                <div><Label>VOG URL:</Label><Input {...register("tutorDetails_vogUrl")} readOnly /></div>
-                 {user.status === 'pending_approval' && (
+                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} /></div>
+                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} /></div>
+                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} /></div>
+                <div><Label>Vakken (komma-gescheiden):</Label><Input {...register("tutorDetails_subjects", {setValueAs: v => v.split(',').map((s:string) => s.trim()).filter(Boolean)})} /></div>
+                <div><Label>CV URL:</Label><Input {...register("tutorDetails_cvUrl")} /></div>
+                <div><Label>VOG URL:</Label><Input {...register("tutorDetails_vogUrl")} /></div>
+                 {user?.status === 'pending_approval' && ( // Check original user status
                     <div className="flex gap-2 mt-4 pt-4 border-t">
                         <Button onClick={handleApproveTutor} className="bg-green-500 hover:bg-green-600">
-                            <CheckCircle className="mr-2 h-4 w-4"/> Goedkeuren
+                            <CheckCircle className="mr-2 h-4 w-4"/> Goedkeuren & Opslaan
                         </Button>
                         <Button onClick={handleRejectTutor} variant="destructive">
-                            <XCircle className="mr-2 h-4 w-4"/> Afwijzen
+                            <XCircle className="mr-2 h-4 w-4"/> Afwijzen & Opslaan
                         </Button>
                     </div>
                 )}
@@ -310,7 +344,6 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>
-          {/* Hide general save if it's a pending approval tutor, use specific buttons */}
           {!(user?.role === 'tutor' && user?.status === 'pending_approval') && (
             <Button type="submit" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
           )}
@@ -319,3 +352,5 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
     </Dialog>
   );
 }
+
+```

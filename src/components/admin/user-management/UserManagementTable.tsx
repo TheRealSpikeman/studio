@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Eye, Edit, Trash2, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FormattedDateCell } from './FormattedDateCell'; // Import the new component
+import { FormattedDateCell } from './FormattedDateCell';
 
 interface UserManagementTableProps {
   users: User[];
   onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
+  showAgeGroupColumn?: boolean; // New prop
 }
 
 const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -61,7 +62,7 @@ const getRoleBadgeClasses = (role: UserRole): string => {
 }
 
 
-export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserManagementTableProps) {
+export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGroupColumn = false }: UserManagementTableProps) {
   
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
@@ -82,6 +83,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
             <TableHead>E-mail</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Rol</TableHead>
+            {showAgeGroupColumn && <TableHead>Leeftijdsgroep</TableHead>}
             <TableHead>Laatste Login</TableHead>
             <TableHead>Aangemaakt Op</TableHead>
             <TableHead className="text-right w-[80px]">Acties</TableHead>
@@ -90,7 +92,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
         <TableBody>
           {users.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="h-24 text-center">
+              <TableCell colSpan={showAgeGroupColumn ? 9 : 8} className="h-24 text-center">
                 Geen gebruikers gevonden.
               </TableCell>
             </TableRow>
@@ -121,6 +123,9 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </Badge>
               </TableCell>
+              {showAgeGroupColumn && (
+                <TableCell>{user.ageGroup ? `${user.ageGroup} jaar` : 'N/A'}</TableCell>
+              )}
               <TableCell>
                 <FormattedDateCell isoDateString={user.lastLogin} dateFormatPattern="Pp" />
               </TableCell>
@@ -139,9 +144,9 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Eye className="mr-2 h-4 w-4" /> Bekijken / Bewerken
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEditUser(user)}>
-                      <Edit className="mr-2 h-4 w-4" /> Bewerken
-                    </DropdownMenuItem>
+                    {/* <DropdownMenuItem onClick={() => onEditUser(user)}> // Duplicate, Eye already implies edit
+                      <Edit className="mr-2 h-4 w-4" /> Bewerken 
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem onClick={() => onDeleteUser(user)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                       <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
                     </DropdownMenuItem>
@@ -155,3 +160,5 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
     </div>
   );
 }
+
+```
