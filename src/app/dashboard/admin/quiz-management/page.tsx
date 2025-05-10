@@ -34,7 +34,8 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     subtestConfigs: [{subtestId: 'ADD', threshold: 2.6}, {subtestId: 'HSP', threshold: 3.1}],
     lastUpdatedAt: new Date(Date.now() - 86400000 * 2).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.'
+    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.',
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1518/400/200'
   },
   { 
     id: 'teen-neuro-12-14', title: 'Basis Neuroprofiel (12-14 jr)', 
@@ -47,6 +48,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 3).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
     slug: 'basis-neuro-12-14',
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200'
   },
   { 
     id: 'exam-stress-planning', title: 'Examenvrees & Planning', 
@@ -59,6 +61,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
     slug: 'examenvrees-planning-quiz',
+    thumbnailUrl: 'https://picsum.photos/seed/examstress/400/200'
   },
   { 
     id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding', 
@@ -71,6 +74,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
     slug: 'focus-digitale-afleiding',
+    thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200'
   },
    { 
     id: 'social-anxiety-friendships', title: 'Sociale Angst & Vriendschap', 
@@ -83,6 +87,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 6).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
     slug: 'sociale-angst-vriendschap',
+    thumbnailUrl: 'https://picsum.photos/seed/socialanxiety/400/200'
   },
   { 
     id: 'motivation-goals', title: 'Motivatie & Doelen Stellen', 
@@ -95,6 +100,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 4).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
     slug: 'motivatie-doelen-quiz',
+    thumbnailUrl: 'https://picsum.photos/seed/motivationgoals/400/200'
   },
 ];
 
@@ -150,24 +156,33 @@ export default function QuizManagementPage() {
   const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
 
   useEffect(() => {
-    const loadedQuizzes: QuizAdmin[] = [...DUMMY_QUIZZES];
+    const loadedQuizzes: QuizAdmin[] = []; // Start with an empty array
     try {
+      const existingDummyIds = new Set(DUMMY_QUIZZES.map(q => q.id));
+      
+      // Add DUMMY_QUIZZES first
+      DUMMY_QUIZZES.forEach(q => loadedQuizzes.push(q));
+
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('ai-quiz-')) {
           const storedQuizData = localStorage.getItem(key);
           if (storedQuizData) {
             const storedQuiz = JSON.parse(storedQuizData) as QuizAdmin;
-             // Ensure questions have a default weight if not present (compatibility)
             const questionsWithWeight = storedQuiz.questions.map(q => ({...q, weight: q.weight ?? 1}));
             const quizToAdd = {...storedQuiz, questions: questionsWithWeight};
 
-            if (!loadedQuizzes.find(q => q.id === quizToAdd.id)) {
+            // Only add if ID is not already in DUMMY_QUIZZES or loadedQuizzes
+            if (!existingDummyIds.has(quizToAdd.id) && !loadedQuizzes.find(q => q.id === quizToAdd.id)) {
               loadedQuizzes.push(quizToAdd);
-            } else {
-              // Optionally, update existing dummy quiz if an AI quiz with same ID exists (though unlikely with ai- prefix)
-              // const index = loadedQuizzes.findIndex(q => q.id === quizToAdd.id);
-              // loadedQuizzes[index] = quizToAdd;
+            } else if (loadedQuizzes.find(q => q.id === quizToAdd.id)) {
+              // If an AI quiz from localStorage has the same ID as one already loaded (e.g. from DUMMY_QUIZZES),
+              // potentially update it, or decide on a conflict resolution strategy.
+              // For now, let's assume localStorage is more up-to-date for AI quizzes.
+              const index = loadedQuizzes.findIndex(q => q.id === quizToAdd.id);
+              if (index !== -1) {
+                loadedQuizzes[index] = quizToAdd;
+              }
             }
           }
         }
@@ -175,7 +190,12 @@ export default function QuizManagementPage() {
     } catch (error) {
         console.error("Error loading quizzes from localStorage:", error);
     }
-    setQuizzes(loadedQuizzes.map(q => ({...q, questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})) })));
+    // Ensure all quizzes (dummy or loaded) have default weights for questions if missing.
+    setQuizzes(loadedQuizzes.map(q => ({
+        ...q, 
+        questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
+        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200` // Fallback thumbnailUrl
+    })));
   }, []);
 
 
@@ -266,7 +286,8 @@ export default function QuizManagementPage() {
         createdAt: new Date().toISOString(),
         slug: `ai-${data.topic.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
         metaTitle: `AI Quiz: ${data.topic}`,
-        metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`
+        metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`,
+        thumbnailUrl: `https://picsum.photos/seed/ai-${newQuizId}/400/200`,
       };
 
       setQuizzes(prev => [newQuiz, ...prev]);

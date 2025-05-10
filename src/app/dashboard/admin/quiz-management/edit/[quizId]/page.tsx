@@ -22,7 +22,8 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     subtestConfigs: [{subtestId: 'ADD', threshold: 2.6}, {subtestId: 'HSP', threshold: 3.1}],
     lastUpdatedAt: new Date(Date.now() - 86400000 * 2).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.'
+    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.',
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1518/400/200'
   },
   { 
     id: 'teen-neuro-12-14', title: 'Basis Neuroprofiel (12-14 jr)', 
@@ -35,6 +36,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 3).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
     slug: 'basis-neuro-12-14',
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200'
   },
   { 
     id: 'exam-stress-planning', title: 'Examenvrees & Planning', 
@@ -47,6 +49,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
     slug: 'examenvrees-planning-quiz',
+    thumbnailUrl: 'https://picsum.photos/seed/examstress/400/200'
   },
   { 
     id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding', 
@@ -59,6 +62,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
     slug: 'focus-digitale-afleiding',
+    thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200'
   },
    { 
     id: 'social-anxiety-friendships', title: 'Sociale Angst & Vriendschap', 
@@ -71,6 +75,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 6).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
     slug: 'sociale-angst-vriendschap',
+    thumbnailUrl: 'https://picsum.photos/seed/socialanxiety/400/200'
   },
   { 
     id: 'motivation-goals', title: 'Motivatie & Doelen Stellen', 
@@ -83,6 +88,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 4).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
     slug: 'motivatie-doelen-quiz',
+    thumbnailUrl: 'https://picsum.photos/seed/motivationgoals/400/200'
   },
 ];
 
@@ -196,4 +202,3 @@ export default function EditQuizPage() {
   
   return <NewQuizPage quizData={quizData} />;
 }
-
