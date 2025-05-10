@@ -117,11 +117,44 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
   });
 
   const onSubmit = (data: QuizFormData) => {
-    // TODO: Implement actual save logic (create or update quiz)
-    console.log("Quiz data submitted:", data);
+    // TODO: Implement actual save logic (create or update quiz in backend/localStorage)
+    console.log("Quiz data submitted for saving:", data);
+
+    let toastTitle = "";
+    let toastDescriptionAction = "";
+
+    if (isEditMode) {
+      toastTitle = "Quiz Bijgewerkt";
+      toastDescriptionAction = data.status === 'published' ? 'succesvol bijgewerkt en gepubliceerd' : 'succesvol bijgewerkt en opgeslagen als concept';
+    } else {
+      if (data.status === 'published') {
+        toastTitle = "Quiz Gepubliceerd";
+        toastDescriptionAction = 'succesvol aangemaakt en gepubliceerd';
+      } else { // concept
+        toastTitle = "Quiz Opgeslagen als Concept";
+        toastDescriptionAction = 'succesvol aangemaakt als concept';
+      }
+    }
+    
+    // Simulate saving to localStorage for AI quizzes if in edit mode and it's an AI quiz
+    if (isEditMode && quizData?.id?.startsWith('ai-')) {
+        try {
+            const updatedQuizForStorage = {
+                ...quizData, // original ID and other non-form fields
+                ...data, // new form data
+                lastUpdatedAt: new Date().toISOString(),
+            };
+            localStorage.setItem(`ai-quiz-${quizData.id}`, JSON.stringify(updatedQuizForStorage));
+            console.log(`AI Quiz ${quizData.id} updated in localStorage`);
+        } catch (error) {
+            console.error("Error updating AI quiz in localStorage:", error);
+        }
+    }
+
+
     toast({
-      title: isEditMode ? "Quiz Bijgewerkt" : "Quiz Aangemaakt",
-      description: `De quiz "${data.title}" is ${isEditMode ? 'succesvol bijgewerkt' : 'aangemaakt'} (simulatie).`,
+      title: toastTitle,
+      description: `De quiz "${data.title}" is ${toastDescriptionAction} (simulatie).`,
     });
     router.push('/dashboard/admin/quiz-management');
   };
@@ -275,7 +308,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                     render={({ field: fld }) => (
                       <FormItem className="md:col-span-1">
                         <FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel>
-                        <FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} /></FormControl>
+                        <FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} defaultValue={1} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -339,7 +372,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                         render={({ field: fld }) => (
                         <FormItem>
                             <FormLabel className="text-xs">Drempelwaarde (0-4)</FormLabel>
-                            <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} /></FormControl>
+                            <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} defaultValue={2.5} /></FormControl>
                             <FormMessage />
                         </FormItem>
                         )}
@@ -373,10 +406,28 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
           <Button type="button" variant="outline" disabled>
             <Eye className="mr-2 h-4 w-4" /> Voorbeeld Bekijken (binnenkort)
           </Button>
-          <Button type="submit" variant="secondary" onClick={() => {form.setValue("status", "concept"); form.handleSubmit(onSubmit)()}}>
+          <Button 
+            type="button" 
+            variant="secondary" 
+            onClick={() => {
+              form.setValue("status", "concept"); 
+              form.handleSubmit(onSubmit)();
+            }}
+          >
             <Save className="mr-2 h-4 w-4" /> Opslaan als Concept
           </Button>
-          <Button type="submit">
+          <Button 
+            type="button"
+            onClick={() => {
+              if (!isEditMode) { // If creating new, force status to published
+                form.setValue("status", "published");
+              }
+              // For edit mode, the status from dropdown will be used or what was set before.
+              // If user selected 'published' in dropdown for edit, it will be published.
+              // If they selected 'concept', it will be saved as concept unless "Opslaan als Concept" is clicked (which also ensures concept).
+              form.handleSubmit(onSubmit)();
+            }}
+          >
             <Save className="mr-2 h-4 w-4" /> {isEditMode ? 'Quiz Bijwerken' : 'Publiceren'}
           </Button>
         </CardFooter>
@@ -384,3 +435,4 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
     </Form>
   );
 }
+
