@@ -60,6 +60,7 @@ interface ParsedProfileScore {
   score: string;
   comment: string;
   icon?: React.ElementType;
+  subScores?: ParsedProfileScore[]; // For "Score Inzichten per Thema"
 }
 
 interface AiAnalysisSection {
@@ -73,8 +74,10 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
   
   let cleanedText = analysisText;
+  // Remove markdown bolding like **text**
   cleanedText = cleanedText.replace(/\*\*(.*?)\*\*/g, '$1');
-  cleanedText = cleanedText.replace(/^(##\s*)/gm, '');
+  // Remove markdown headings like ## Heading
+  cleanedText = cleanedText.replace(/^##\s+/gm, '');
 
 
   const sections: AiAnalysisSection[] = [];
@@ -131,9 +134,22 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
         currentContent.split('\n').forEach(line => {
           line = line.replace(/^- |^\* /,'').trim();
           if (!line) return;
-          const scoreMatch = line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
+          // Regex to match "PROFILE NAME (Score: X.XX): Comment" or "PROFILE NAME: X.XX (Comment)"
+          const scoreMatch = line.match(/([^:(]+)(?:\s*\(Score:\s*([\d.]+)\))?:\s*(.+)/i) || line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
+
           if (scoreMatch) {
             const profileName = scoreMatch[1].trim();
+            const scoreValue = scoreMatch[2] ? scoreMatch[2].trim() : ""; // Score might be absent or part of comment
+            let commentText = scoreMatch[3] ? scoreMatch[3].trim() : "";
+
+            if (!commentText && !scoreValue && scoreMatch[0].includes(':')) { // If regex captured comment as score or vice versa
+                commentText = scoreMatch[0].substring(scoreMatch[0].indexOf(':') + 1).trim();
+            }
+            if (!scoreValue && commentText.match(/^([\d.]+)/)) { // If score is at the start of comment
+                // This case is tricky, needs careful parsing if score is embedded
+            }
+
+
             const profileKey = Object.keys(neurotypeIcons).find(key =>
               profileName.toLowerCase().includes(key.toLowerCase()) ||
               (neurotypeDescriptionsTeen[key] && neurotypeDescriptionsTeen[key].title.toLowerCase().includes(profileName.toLowerCase()))
@@ -143,8 +159,8 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
 
             profileScores.push({
               profileName: profileName,
-              score: scoreMatch[2].trim(),
-              comment: scoreMatch[3] ? scoreMatch[3].trim() : "Analyse volgt.",
+              score: scoreValue,
+              comment: commentText,
               icon: currentProfileIcon
             });
           } else {
@@ -156,28 +172,31 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
         if (generalOverviewContent.trim()) {
            sectionContent.push({ profileName: "Algemeen Overzicht", score: "", comment: generalOverviewContent.trim(), icon: neurotypeIcons["Algemeen Overzicht"] || MessageSquareHeart });
         }
-        sectionContent.push(...profileScores);
         
-        const mainOverviewCard = sectionContent.find(item => item.profileName === "Algemeen Overzicht");
-        const otherScores = sectionContent.filter(item => item.profileName !== "Algemeen Overzicht");
-        
-        const structuredContent = [];
-        if(mainOverviewCard) structuredContent.push(mainOverviewCard);
-        if(otherScores.length > 0) {
-           structuredContent.push({
-             profileName: "Score Inzichten per Thema", // This is a placeholder name for the group of scores
-             score: "", // No overall score for this group
-             comment: "", // No overall comment
-             icon: UsersIcon, // Or some other generic icon for "details"
-             // Store the actual scores in a sub-array or handle them differently in rendering
-             subScores: otherScores 
-           });
+        const groupedScores: ParsedProfileScore[] = [];
+        profileScores.forEach(ps => {
+            // Attempt to clean up score if it's part of the comment
+            const commentScoreMatch = ps.comment.match(/^\(([\d.]+)\)\s*(.*)/);
+            if (!ps.score && commentScoreMatch) {
+                ps.score = commentScoreMatch[1];
+                ps.comment = commentScoreMatch[2].trim();
+            }
+            groupedScores.push(ps);
+        });
+
+        if (groupedScores.length > 0) {
+            sectionContent.push({
+                profileName: "Score Inzichten per Thema",
+                score: "",
+                comment: "",
+                icon: UsersIcon,
+                subScores: groupedScores
+            });
         }
 
-
-        if (structuredContent.length > 0) {
-            sections.push({ title: currentSectionTitle, content: structuredContent, icon: IconComponent });
-        } else if (currentContent.trim() && !generalOverviewContent.trim()) { // Fallback if no scores but content exists
+        if (sectionContent.length > 0) {
+            sections.push({ title: currentSectionTitle, content: sectionContent, icon: IconComponent });
+        } else if (currentContent.trim() && !generalOverviewContent.trim()) { 
              sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: isListSection, icon: IconComponent });
         }
 
@@ -463,7 +482,7 @@ export default function TeenNeurodiversityQuizPage() {
       </div>
     );
   }
-
+  
   return (
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-10 md:pt-16 pb-16">
       <div className="absolute top-4 left-4 md:top-8 md:left-8">
@@ -637,11 +656,11 @@ export default function TeenNeurodiversityQuizPage() {
                 <CardHeader className="text-center pt-8 px-6">
                   <CardTitle className="text-teal-700 text-[1.75rem] font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-8 pt-4 px-6 pb-6 text-base leading-relaxed">
+                <CardContent className="space-y-6 pt-4 px-6 pb-6 text-base leading-relaxed">
                   
-                  <div className="bg-[#F0FAF9] border-l-4 border-teal-600 p-6 rounded-lg shadow-sm text-foreground">
+                  <div className="bg-[#F0FAF9] p-6 rounded-lg shadow-sm">
                     <h3 className="text-teal-700 text-[1.25rem] font-semibold mb-2 flex items-center gap-2"><Info className="h-5 w-5"/>Wat Betekenen Deze Scores?</h3>
-                    <AlertDescUi className="leading-relaxed text-base">
+                    <AlertDescUi className="leading-relaxed text-base text-foreground/90">
                       De scores (schaal 1-4) geven aan hoe sterk je de kenmerken van een profiel herkent.
                       <ul className="list-disc pl-5 mt-2 space-y-1 text-base">
                         <li><strong>Score 3.0 - 4.0:</strong> Kenmerken zijn duidelijk herkenbaar.</li>
@@ -652,60 +671,19 @@ export default function TeenNeurodiversityQuizPage() {
                     </AlertDescUi>
                   </div>
                   
-                  <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-lg shadow-sm">
+                  <div className="bg-primary/5 p-6 rounded-lg shadow-sm">
                       <h2 className="mb-2 text-primary text-[1.5rem] font-semibold">Jouw Neurodiversiteitsprofiel Samenvatting</h2>
                       <p className="text-foreground leading-relaxed text-base">{generateSummaryText(finalScores, relevantSubtests)}</p>
                   </div>
-
-                  {Object.keys(neurotypeDescriptionsTeen)
-                    .filter(key => finalScores[key] >= (currentThresholds[key] || 0) || (relevantSubtests.length === 0 && finalScores[key] > 0) )
-                    .sort((a,b) => finalScores[b] - finalScores[a])
-                    .map(key => {
-                      const profile = neurotypeDescriptionsTeen[key];
-                      const score = finalScores[key];
-                      if (!profile) return null;
-                      const IconForProfile = neurotypeIcons[key] || Brain;
-
-                      return (
-                        <Card key={key} className="bg-card overflow-hidden shadow-md rounded-lg my-6" style={{borderLeft: `6px solid ${profile.color || 'hsl(var(--primary))'}`}}>
-                           <CardHeader className="bg-muted/30 py-4 px-6">
-                            <h3 className="text-[1.25rem] font-semibold flex items-center gap-3" style={{color: profile.color || 'hsl(var(--primary))'}}>
-                              <IconForProfile className="h-6 w-6" />
-                              {profile.title}
-                              <span className="ml-auto text-base font-normal text-muted-foreground">(Score: {score?.toFixed(2) || 'N/A'})</span>
-                            </h3>
-                          </CardHeader>
-                          <CardContent className="p-6 space-y-4 text-base">
-                            <div>
-                              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">KENMERKEN</h4>
-                              <p className="italic leading-relaxed text-base">{profile.eigenschappen}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">KORTE UITLEG</h4>
-                              <p className="leading-relaxed text-base">{profile.detail}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">MEER OVER {profile.title.toUpperCase()}</h4>
-                              <p className="text-[0.95rem] text-muted-foreground leading-relaxed">{profile.uitleg}</p>
-                            </div>
-                            <div>
-                              <h4 className="mb-2 text-[1.125rem] font-semibold flex items-center gap-2 text-green-700"><ThumbsUp className="h-5 w-5"/>JOUW STERKE PUNTEN:</h4>
-                              <ul className="list-disc space-y-1 pl-6 text-base leading-relaxed">
-                                {profile.sterktepunten.map((p, i) => <li key={i} className="mb-1">{p}</li>)}
-                              </ul>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                  })}
                   
-                  <Card className="bg-card shadow-md rounded-lg mt-6 max-w-full mx-auto" style={{ borderLeft: '6px solid hsl(var(--accent))'}}>
-                    <CardHeader className="p-6 pb-3 bg-muted/30">
+                  {/* AI Analysis Section */}
+                  <div className="bg-card rounded-lg mt-6 max-w-full mx-auto">
+                    <CardHeader className="p-0 pb-3">
                       <h2 className="text-accent text-[1.5rem] font-semibold flex items-center gap-3">
                         <Brain className="h-7 w-7" /> Diepgaande Analyse door AI
                       </h2>
                     </CardHeader>
-                    <CardContent className="space-y-4 p-6 text-base leading-relaxed">
+                    <CardContent className="space-y-6 p-0 text-base leading-relaxed">
                     {isAnalysisLoading ? (
                         <div className="space-y-3 animate-pulse pt-2">
                             <div className="h-5 bg-muted rounded w-3/4"></div><div className="h-5 bg-muted rounded w-1/2"></div><div className="h-5 bg-muted rounded w-5/6"></div>
@@ -715,32 +693,31 @@ export default function TeenNeurodiversityQuizPage() {
                        parsedAiAnalysis.map((section, index) => {
                         let IconComponentForSection = section.icon || HelpCircle;
                         
-                        let sectionContainerClasses = "rounded-lg shadow-sm p-6";
-                        let titleClasses = "text-[1.25rem] font-semibold mb-3 flex items-center gap-3";
-                        let contentClasses = "text-base text-foreground leading-relaxed"; // Removed max-w-prose to allow wider text in this specific context
-                        let listClasses = "list-disc space-y-1 pl-7 text-base text-foreground leading-relaxed";
-                        let listItemClasses = "mb-1 flex items-start"; // Adjusted margin
+                        let sectionContainerClasses = "rounded-lg p-6";
+                        let titleClasses = "text-[1.25rem] font-semibold mb-3 flex items-center gap-3"; 
+                        let contentClasses = "text-base text-foreground/90 leading-relaxed";
+                        let listClasses = "list-disc space-y-1.5 pl-6 text-base text-foreground/90 leading-relaxed";
+                        let listItemClasses = "mb-1 flex items-start";
 
                         if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-6");
 
-                        // Specific styling for AI sections
                         if (section.title === "Jouw Profiel In Vogelvlucht") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#f3f6ff] border-l-4 border-blue-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#f0f6ff]");
                           titleClasses = cn(titleClasses, "text-blue-700");
                         } else if (section.title === "Sterke Kanten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50 border-l-4 border-green-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50");
                           titleClasses = cn(titleClasses, "text-green-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = ThumbsUp;
                         } else if (section.title === "Aandachtspunten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFF9F2] border-l-4 border-orange-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFF9F2]");
                           titleClasses = cn(titleClasses, "text-orange-600");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = Edit;
                         } else if (section.title === "Tips voor Jou") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFFDE7] border-l-4 border-yellow-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFFDE7]");
                           titleClasses = cn(titleClasses, "text-yellow-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = Lightbulb;
                         } else { 
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-muted/30 border-l-4 border-gray-400");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-muted/20");
                         }
 
                         return (
@@ -771,7 +748,7 @@ export default function TeenNeurodiversityQuizPage() {
                                 const ItemIcon = item.icon || HelpCircle;
                                 if (item.profileName === "Algemeen Overzicht") {
                                   return (
-                                    <div key={itemIdx} className="mb-4 p-4 rounded-md bg-blue-50 border border-blue-200">
+                                    <div key={itemIdx} className="mb-4 p-4 rounded-md bg-background/50">
                                       <div className="flex items-center gap-2 mb-2">
                                         <ItemIcon className="h-6 w-6 text-blue-700 flex-shrink-0" />
                                         <h4 className="text-[1.125rem] font-semibold text-blue-700">{item.profileName}</h4>
@@ -779,18 +756,18 @@ export default function TeenNeurodiversityQuizPage() {
                                       <p className={cn(contentClasses, "mb-0")}>{item.comment}</p>
                                     </div>
                                   );
-                                } else if (item.profileName === "Score Inzichten per Thema" && Array.isArray((item as any).subScores)) {
+                                } else if (item.profileName === "Score Inzichten per Thema" && Array.isArray(item.subScores)) {
                                     return (
-                                      <div key={itemIdx} className="mb-4 p-4 rounded-md bg-teal-50 border border-teal-200">
+                                      <div key={itemIdx} className="mb-4 p-4 rounded-md bg-background/50">
                                         <div className="flex items-center gap-2 mb-3">
                                           <ItemIcon className="h-6 w-6 text-teal-700 flex-shrink-0" />
                                           <h4 className="text-[1.125rem] font-semibold text-teal-700">{item.profileName}</h4>
                                         </div>
                                         <div className="space-y-2">
-                                          {(item as any).subScores.map((subScore: ParsedProfileScore, subIdx: number) => {
+                                          {item.subScores.map((subScore: ParsedProfileScore, subIdx: number) => {
                                             const SubScoreIcon = subScore.icon || Brain;
                                             return (
-                                                <div key={subIdx} className="bg-white p-3 rounded-md shadow-sm border border-gray-200">
+                                                <div key={subIdx} className="bg-background p-3 rounded-md">
                                                     <div className="flex items-center gap-2 mb-1">
                                                         <SubScoreIcon className="h-5 w-5 text-gray-600 flex-shrink-0" />
                                                         <p className="font-semibold text-gray-700">{subScore.profileName} (Score: {subScore.score})</p>
@@ -803,9 +780,8 @@ export default function TeenNeurodiversityQuizPage() {
                                       </div>
                                     );
                                 }
-                                // Fallback for other ParsedProfileScore items if any
                                 return (
-                                    <div key={itemIdx} className="bg-[#E6F4F1] border-l-4 border-[#009688] p-4 rounded-md shadow-sm mb-3">
+                                    <div key={itemIdx} className="bg-background/50 p-4 rounded-md mb-3">
                                       <div className="flex items-start gap-3 mb-1">
                                         <ItemIcon className="h-5 w-5 text-teal-700 flex-shrink-0 mt-0.5" />
                                         <div>
@@ -825,7 +801,7 @@ export default function TeenNeurodiversityQuizPage() {
                         <p className="text-muted-foreground text-center py-5 text-base">Geen AI analyse beschikbaar op dit moment.</p>
                     )}
                     </CardContent>
-                  </Card>
+                  </div>
 
                   <Alert variant="destructive" className="mt-8 text-base rounded-lg shadow-sm">
                       <AlertTriangle className="h-5 w-5" />
@@ -837,7 +813,7 @@ export default function TeenNeurodiversityQuizPage() {
                       </AlertDescUi>
                   </Alert>
 
-                  <div className="mt-10 p-6 bg-primary/10 border-l-4 border-primary rounded-lg shadow-md">
+                  <div className="mt-10 p-6 bg-primary/10 rounded-lg shadow-md">
                       <h3 className="text-[1.25rem] font-semibold text-primary flex items-center gap-2 mb-3">
                           <Sparkles className="h-6 w-6" />
                           Jouw Reis Gaat Verder!
