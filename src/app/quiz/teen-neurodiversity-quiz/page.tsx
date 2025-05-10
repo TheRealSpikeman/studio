@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, SearchHeart, Compass, ShieldAlert, Lightbulb, Target } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -41,9 +41,9 @@ interface Scores {
 const neurotypeIcons: Record<string, React.ElementType> = {
   ADD: Brain,
   ADHD: Zap,
-  HSP: SearchHeart, // Placeholder, consider a more fitting icon like Flower or Waves
-  ASS: Compass, // Placeholder, consider Puzzle or Settings2
-  AngstDepressie: ShieldAlert, // Placeholder, consider HeartOff or Frown
+  HSP: Sparkles, 
+  ASS: Compass, 
+  AngstDepressie: ShieldAlert,
 };
 
 
@@ -696,3 +696,6 @@ export default function TeenNeurodiversityQuizPage() {
   );
 }
 
+
+
+    
