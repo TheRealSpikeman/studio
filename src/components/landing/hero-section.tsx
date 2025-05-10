@@ -35,7 +35,7 @@ export function HeroSection() {
               <Link href="/quizzes">Start gratis quiz – ontvang persoonlijk rapport</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quizzes?ageGroup=teen-neurodiversity-quiz">Start Tienerquiz (zonder account)</Link>
+              <Link href="/quiz/teen-neurodiversity-quiz">Start Tienerquiz (zonder account)</Link>
             </Button>
           </div>
            <p className="text-xs text-muted-foreground mt-2">
@@ -47,8 +47,16 @@ export function HeroSection() {
         </div>
         {/* Image column */}
         <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl">
+          {/* 
+            IMPORTANT: The original src "gs://neurodiversity-navigator.firebasestorage.app/homepage.png"
+            is a Firebase Storage URI and not a public HTTPS URL. 
+            You need to replace the placeholder below with the actual public HTTPS URL 
+            for your image from Firebase Storage. You can get this URL from the Firebase Console.
+            It will look something like: 
+            https://firebasestorage.googleapis.com/v0/b/your-bucket-id/o/homepage.png?alt=media&token=your-access-token
+          */}
           <Image
-            src="https://picsum.photos/seed/newHeroImageMindNavigator/800/500"
+            src="https://picsum.photos/seed/neurodiversityHomepage/800/600" // Placeholder, replace with your Firebase Storage public URL
             alt="Inspirerende afbeelding gerelateerd aan persoonlijke groei en ontdekking."
             layout="fill"
             objectFit="cover"
