@@ -1,56 +1,71 @@
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BarChart3, Laptop, Users2, BookOpenText, Sparkles, Star, ThumbsUp } from 'lucide-react';
+import { BarChart3, Laptop, Users2, BookOpenText, Sparkles, Star } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 interface Service {
   icon: React.ReactNode;
   title: string;
-  description: string;
-  keyFacts?: string[];
+  tagline: string;
+  bullets: string[];
   ctaText: string;
   link: string;
-  extraBullets?: string[];
+  colorClass: string; // Tailwind classes for card background and border
 }
 
 const services: Service[] = [
   {
     icon: <BarChart3 className="h-10 w-10 text-primary" />,
-    title: 'Gratis Quiz',
-    description: 'Direct inzicht in je leerstijl en prikkelgevoeligheid.',
-    keyFacts: ['Duur: ±5 minuten', 'Direct PDF-rapport (beperkt)'],
+    title: 'Neurodiversiteit-Quiz',
+    tagline: 'Ontdek je leerstijl in 5 min.',
+    bullets: ['Leeftijd 12–18 jaar', 'Direct PDF-rapport (beperkt)'],
     ctaText: 'Start gratis quiz',
     link: '/quizzes',
-  },
-  {
-    icon: <Laptop className="h-10 w-10 text-primary" />,
-    title: 'Online Begeleiding',
-    description: 'Wekelijkse groepssessies voor structuur en motivatie.',
-    keyFacts: ['Max. 6 leerlingen per sessie', '45 minuten, 5 dagen per week'],
-    ctaText: 'Bekijk online aanbod',
-    link: '/dashboard/homework-assistance',
-  },
-  {
-    icon: <Users2 className="h-10 w-10 text-primary" />,
-    title: 'Privé Begeleiding',
-    description: 'Persoonlijke studieplanning en tips.',
-    keyFacts: ['Persoonlijke intake', 'Vrij plannen: 30–60 min per afspraak'],
-    ctaText: 'Plan kennismaking',
-    link: '/dashboard/homework-assistance/tutors',
+    colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
     icon: <BookOpenText className="h-10 w-10 text-primary" />,
-    title: 'Coaching Hub',
-    description: 'Dagboek, check-in, tips & forum voor je groei.',
-    keyFacts: ['3 korte vragen per dag', 'Wekelijkse voortgangsgrafiek'],
-    extraBullets: [
-      'Houd een kort dagboek bij en meet je stemming.',
-      'Ontvang elke dag gepersonaliseerde tips.',
-      'Deel ervaringen met leeftijdsgenoten in ons forum.',
+    title: 'Coaching Tools',
+    tagline: 'Handige oefeningen & tips.',
+    bullets: [
+      'Video’s en checklists voor dagelijkse groei',
+      'Toegang 24/7 tot alle coaching materialen',
+      'Houd een dagboek bij en meet je stemming',
+      'Deel ervaringen in ons ondersteunende forum',
     ],
-    ctaText: 'Ontdek coaching-hub',
+    ctaText: 'Ontdek tools',
     link: '/dashboard/coaching',
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+  },
+  {
+    icon: <Laptop className="h-10 w-10 text-primary" />,
+    title: 'Huiswerkbegeleiding Tools',
+    tagline: 'Structuur in je studie.',
+    bullets: [
+      'Planningssjablonen voor effectief leren',
+      'Motivatie-kaarten en studietechnieken',
+      'Online groepssessies (max. 6 leerlingen)',
+      'Sessies van 45 min, 5 dagen per week',
+    ],
+    ctaText: 'Bekijk tools',
+    link: '/dashboard/homework-assistance',
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
+  },
+  {
+    icon: <Users2 className="h-10 w-10 text-primary" />,
+    title: '1-op-1 Huiswerkbegeleiding',
+    tagline: 'Persoonlijke coachsessie.',
+    bullets: [
+      'Uitgebreide persoonlijke intake en plan op maat',
+      'Flexibele tijden: 30–60 min per afspraak',
+      'Directe hulp van gecertificeerde tutors',
+    ],
+    ctaText: 'Plan kennismaking',
+    link: '/dashboard/homework-assistance/tutors',
+    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
 ];
 
@@ -83,7 +98,10 @@ export function ServicesSection() {
           {services.map((service, index) => (
             <Card
               key={index}
-              className="group flex flex-col items-center text-center shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-transparent hover:border-primary/40 h-full"
+              className={cn(
+                "group flex flex-col items-center text-center shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 h-full",
+                service.colorClass
+              )}
             >
               <CardHeader className="items-center w-full">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -92,17 +110,10 @@ export function ServicesSection() {
                 <CardTitle className="text-xl font-semibold text-primary">{service.title}</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow w-full space-y-3">
-                <p className="text-muted-foreground text-sm">{service.description}</p>
-                {service.keyFacts && (
+                <p className="text-muted-foreground text-sm font-semibold">{service.tagline}</p>
+                {service.bullets && (
                   <ul className="mt-2 list-disc list-inside text-xs text-muted-foreground text-left space-y-0.5 pl-4">
-                    {service.keyFacts.map((fact, i) => (
-                      <li key={i}>{fact}</li>
-                    ))}
-                  </ul>
-                )}
-                 {service.extraBullets && (
-                  <ul className="mt-3 list-disc list-inside text-sm text-muted-foreground text-left space-y-1 pl-4">
-                    {service.extraBullets.map((bullet, i) => (
+                    {service.bullets.map((bullet, i) => (
                       <li key={i}>{bullet}</li>
                     ))}
                   </ul>
@@ -122,7 +133,7 @@ export function ServicesSection() {
         {/* Social Proof Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="shadow-md text-left">
+            <Card key={index} className="shadow-md text-left bg-card"> {/* Ensure card background contrasts */}
               <CardHeader className="flex flex-row items-center gap-3 pb-2">
                 <Avatar className="h-11 w-11">
                   <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100/100`} alt={testimonial.name} data-ai-hint="person avatar" />
