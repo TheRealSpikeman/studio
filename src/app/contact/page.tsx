@@ -1,3 +1,5 @@
+// src/app/contact/page.tsx
+"use client"; // Added 'use client' directive
 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
