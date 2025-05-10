@@ -22,12 +22,13 @@ import {
   NeurotypeDescription,
   answerOptions,
   calculateAverage,
-  QuizOption, 
+  QuizOption,
 } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 
 type QuizStep = 'intro' | 'baseQuestions' | 'subtestConfirmation' | 'subtestQuestions' | 'results';
@@ -37,21 +38,23 @@ interface Scores {
   [key: string]: number;
 }
 
-// Mapping neurotype keys to Lucide icons for the overview
 const neurotypeIcons: Record<string, React.ElementType> = {
   ADD: Brain,
   ADHD: Zap,
-  HSP: Sparkles, 
-  ASS: Compass, 
+  HSP: Sparkles,
+  ASS: Compass,
   AngstDepressie: ShieldAlert,
   'Jouw Profiel In Vogelvlucht': Users,
   'Sterke Kanten': ThumbsUp,
-  'Aandachtspunten': Edit, 
+  'Aandachtspunten': Edit,
   'Tips voor Jou': Lightbulb,
   'Overige Informatie': Info,
   'Default': HelpCircle,
   'Algemeen Overzicht': MessageSquareHeart,
 };
+
+const tipIcons = [Lightbulb, CheckSquare, Sparkles, Brain, ThumbsUp, Zap, Compass, ShieldAlert, Users, Info];
+
 
 interface ParsedProfileScore {
   profileName: string;
@@ -62,20 +65,20 @@ interface ParsedProfileScore {
 
 interface AiAnalysisSection {
   title: string;
-  content: string | ParsedProfileScore[]; 
-  isList?: boolean; 
+  content: string | ParsedProfileScore[];
+  isList?: boolean;
   icon?: React.ElementType;
 }
 
 const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
 
-  let cleanedText = analysisText.replace(/\*\*(.*?)\*\*/g, '$1'); 
-  cleanedText = cleanedText.replace(/^(##\s*)/gm, ''); 
+  let cleanedText = analysisText.replace(/\*\*(.*?)\*\*/g, '$1');
+  cleanedText = cleanedText.replace(/^(##\s*)/gm, '');
 
   const sections: AiAnalysisSection[] = [];
   const knownHeaders = ["Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
-  
+
   let textToProcess = cleanedText;
   let lastKnownHeaderEndIndex = 0;
 
@@ -85,21 +88,21 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
 
     if (match) {
       const contentBeforeThisHeader = textToProcess.substring(0, match.index).trim();
-      if (contentBeforeThisHeader && lastKnownHeaderEndIndex === 0) { 
+      if (contentBeforeThisHeader && lastKnownHeaderEndIndex === 0 && !sections.find(s => s.title === "Overige Informatie")) {
         sections.push({
           title: "Overige Informatie",
           content: contentBeforeThisHeader.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n'),
-          isList: false, 
+          isList: false,
           icon: neurotypeIcons["Overige Informatie"] || Info
         });
       }
-      
+
       const currentSectionTitle = header;
       const contentStartIndex = match.index + match[0].length;
-      
+
       let contentEndIndex = textToProcess.length;
       for (const nextKnownHeader of knownHeaders) {
-        if (nextKnownHeader === header) continue; 
+        if (nextKnownHeader === header) continue;
         const nextKnownHeaderRegex = new RegExp(`^${nextKnownHeader.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s*\\n)?`, 'im');
         const nextMatch = nextKnownHeaderRegex.exec(textToProcess.substring(contentStartIndex));
         if (nextMatch) {
@@ -109,16 +112,17 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
       }
 
       let currentContent = textToProcess.substring(contentStartIndex, contentEndIndex).trim();
-      textToProcess = textToProcess.substring(contentEndIndex); 
-      lastKnownHeaderEndIndex = 0; 
+      textToProcess = textToProcess.substring(contentEndIndex);
+      lastKnownHeaderEndIndex = contentEndIndex;
 
       const isListSection = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"].includes(currentSectionTitle);
       const IconComponent = neurotypeIcons[currentSectionTitle] || HelpCircle;
-      
+
       if (currentSectionTitle === "Jouw Profiel In Vogelvlucht") {
         const profileScores: ParsedProfileScore[] = [];
+        let generalOverviewContent = "";
         currentContent.split('\n').forEach(line => {
-          line = line.replace(/^- |^\* /,'').trim(); 
+          line = line.replace(/^- |^\* /,'').trim();
           if (!line) return;
           const scoreMatch = line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
           if (scoreMatch) {
@@ -130,22 +134,26 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
             profileScores.push({
               profileName: profileName,
               score: scoreMatch[2].trim(),
-              comment: scoreMatch[3] ? scoreMatch[3].trim() : "Nadere toelichting volgt.",
+              comment: scoreMatch[3] ? scoreMatch[3].trim() : "Analyse volgt.",
               icon: neurotypeIcons[profileKey] || HelpCircle
             });
-          } else { 
-             if (profileScores.length > 0 && profileScores[profileScores.length-1].profileName === "Algemeen Overzicht") {
-               profileScores[profileScores.length-1].comment += `\n${line}`;
-             } else {
-                 profileScores.push({ profileName: "Algemeen Overzicht", score: "", comment: line, icon: neurotypeIcons["Algemeen Overzicht"]});
-             }
+          } else {
+            generalOverviewContent += (generalOverviewContent ? '\n' : '') + line;
           }
         });
-        if (profileScores.length > 0) {
-            sections.push({ title: currentSectionTitle, content: profileScores, icon: IconComponent });
-        } else if (currentContent) { 
-            sections.push({ title: currentSectionTitle, content: currentContent, isList: isListSection, icon: IconComponent });
+        
+        const sectionContent: ParsedProfileScore[] = [];
+        if (generalOverviewContent) {
+           sectionContent.push({ profileName: "Algemeen Overzicht", score: "", comment: generalOverviewContent, icon: neurotypeIcons["Algemeen Overzicht"] || MessageSquareHeart });
         }
+        sectionContent.push(...profileScores);
+
+        if (sectionContent.length > 0) {
+            sections.push({ title: currentSectionTitle, content: sectionContent, icon: IconComponent });
+        } else if (currentContent && !generalOverviewContent) {
+             sections.push({ title: currentSectionTitle, content: currentContent, isList: isListSection, icon: IconComponent });
+        }
+
       } else if (currentContent) {
         sections.push({ title: currentSectionTitle, content: currentContent, isList: isListSection, icon: IconComponent });
       }
@@ -153,14 +161,20 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   }
 
   if (textToProcess.trim()) {
-    sections.push({
-      title: "Overige Informatie",
-      content: textToProcess.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n'),
-      isList: false, 
-      icon: neurotypeIcons["Overige Informatie"] || Info
-    });
+     if (!sections.find(s => s.title === "Overige Informatie")) {
+        sections.push({
+          title: "Overige Informatie",
+          content: textToProcess.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n'),
+          isList: false,
+          icon: neurotypeIcons["Overige Informatie"] || Info
+        });
+     } else {
+        const existingOtherInfo = sections.find(s => s.title === "Overige Informatie");
+        if (existingOtherInfo && typeof existingOtherInfo.content === 'string') {
+            existingOtherInfo.content += '\n' + textToProcess.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n');
+        }
+     }
   }
-  
   return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
 };
 
@@ -169,7 +183,7 @@ export default function TeenNeurodiversityQuizPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
-  
+
   const [currentStep, setCurrentStep] = useState<QuizStep>('intro');
   const [baseAnswers, setBaseAnswers] = useState<(number | undefined)[]>([]);
   const [subtestAnswers, setSubtestAnswers] = useState<Record<string, (number | undefined)[]>>({});
@@ -202,7 +216,7 @@ export default function TeenNeurodiversityQuizPage() {
         setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
       }
     } else {
-      router.push('/quizzes'); 
+      router.push('/quizzes');
     }
   }, [searchParams, router]);
 
@@ -210,10 +224,10 @@ export default function TeenNeurodiversityQuizPage() {
     if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
       const fetchAnalysis = async () => {
         setIsAnalysisLoading(true);
-        setParsedAiAnalysis([]); 
+        setParsedAiAnalysis([]);
         try {
           const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
-          
+
           currentBaseQuestions.forEach((qText, index) => {
             const answerValue = baseAnswers[index];
             if (answerValue !== undefined) {
@@ -293,10 +307,10 @@ export default function TeenNeurodiversityQuizPage() {
       return { ...prev, [subtestKey]: currentSubtestAns };
     });
   };
-  
+
   const calculateRelevantSubtests = (): string[] => {
     if (currentBaseQuestions.length === 0 || Object.keys(currentThresholds).length === 0) return [];
-    
+
     const scores: Scores = {};
     if (ageGroup === '15-18') {
         scores.ADD = calculateAverage(baseAnswers.slice(0, 3));
@@ -305,20 +319,20 @@ export default function TeenNeurodiversityQuizPage() {
         scores.ASS = calculateAverage(baseAnswers.slice(9, 12));
         scores.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
     } else if (ageGroup === '12-14') {
-        scores.ADD = calculateAverage(baseAnswers.slice(0, 2)); 
-        scores.ADHD = calculateAverage(baseAnswers.slice(2, 4)); 
+        scores.ADD = calculateAverage(baseAnswers.slice(0, 2));
+        scores.ADHD = calculateAverage(baseAnswers.slice(2, 4));
         scores.HSP = calculateAverage(baseAnswers.slice(4, 6));
         scores.ASS = calculateAverage(baseAnswers.slice(6, 8));
         scores.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
     }
-    
+
     return Object.keys(scores).filter(key => currentThresholds[key] && scores[key] >= currentThresholds[key] && !isNaN(scores[key]));
   };
 
   const calculateFinalScores = (currentRelevantSubtests: string[]): Scores => {
     if (Object.keys(currentThresholds).length === 0) return {};
     const scores: Scores = {};
-    
+
     let baseScoresCalc: Scores = {};
      if (ageGroup === '15-18') {
         baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 3));
@@ -340,11 +354,11 @@ export default function TeenNeurodiversityQuizPage() {
       } else {
          scores[key] = baseScoresCalc[key] || 0;
       }
-       scores[key] = Math.round(scores[key] * 100) / 100; 
+       scores[key] = Math.round(scores[key] * 100) / 100;
     });
     return scores;
   };
-  
+
   const proceedToBaseNext = () => {
     const relSubtests = calculateRelevantSubtests();
     setRelevantSubtests(relSubtests);
@@ -368,7 +382,7 @@ export default function TeenNeurodiversityQuizPage() {
     }
     proceedToBaseNext();
   };
-  
+
   const handleRestart = () => {
     setCurrentStep('intro');
     if (ageGroup === '12-14') {
@@ -381,29 +395,29 @@ export default function TeenNeurodiversityQuizPage() {
     setSubtestAnswers({});
     setRelevantSubtests([]);
     setFinalScores({});
-    setQuizAnalysis(null); 
+    setQuizAnalysis(null);
     setParsedAiAnalysis([]);
   };
 
   const generateSummaryText = (scores: Scores, shownSubtests: string[]): string => {
     const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && scores[key] >= currentThresholds[key]);
-    
+
     if (profilesToShow.length === 0) {
       return "Op basis van je antwoorden zie je geen opvallend sterke kenmerken van de verschillende neurodiversiteitsprofielen. Dit betekent niet dat je geen enkele eigenschap hebt - iedereen heeft in meer of mindere mate kenmerken die passen bij verschillende profielen.";
     }
-    
+
     if (profilesToShow.length === 1) {
       const profileKey = profilesToShow[0];
       const profile = neurotypeDescriptionsTeen[profileKey];
       return `Je antwoorden laten zien dat je vooral eigenschappen herkent die passen bij ${profile.title}. ${profile.detail} Denk eraan dat deze quiz geen diagnostisch instrument is maar je wel inzicht kan geven in je sterke punten en uitdagingen. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
     }
-    
+
     const profileTitles = profilesToShow.map(d => neurotypeDescriptionsTeen[d].title);
     const lastProfileTitle = profileTitles.pop();
-    
+
     return `Je antwoorden laten zien dat je eigenschappen herkent die passen bij meerdere profielen: ${profileTitles.join(', ')} en ${lastProfileTitle}. Deze combinatie is uniek en toont je persoonlijke neurodiversiteitsprofiel. De tips in dit rapport kunnen je helpen om je sterke punten te gebruiken en met je uitdagingen om te gaan. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
   };
-  
+
   const progressStepNames = ["Basisvragen", "Verdieping", "Resultaten"];
   let progressCurrentStepNumber = 1;
   if (currentStep === 'subtestConfirmation' || currentStep === 'subtestQuestions') progressCurrentStepNumber = 2;
@@ -423,6 +437,7 @@ export default function TeenNeurodiversityQuizPage() {
   }
 
   return (
+    <React.Fragment>
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-10 md:pt-16 pb-16">
       <div className="absolute top-4 left-4 md:top-8 md:left-8">
         <SiteLogo />
@@ -554,7 +569,7 @@ export default function TeenNeurodiversityQuizPage() {
             </CardFooter>
           </Card>
         )}
-        
+
         {currentStep === 'subtestQuestions' && (
           <Card className="shadow-xl">
             <CardHeader className="pt-8">
@@ -597,29 +612,29 @@ export default function TeenNeurodiversityQuizPage() {
               </CardHeader>
               <CardContent className="space-y-6 pt-4">
                 <Card className="shadow-md">
-                  <CardHeader>
-                    <h2 className="text-2xl font-semibold flex items-center gap-2">
-                      <User className="h-6 w-6 text-primary" />
-                      Jouw Neuroprofiel in een Oogopslag
+                  <CardHeader className="py-5 px-6">
+                    <h2 className="text-2xl font-semibold flex items-center gap-3">
+                      <User className="h-7 w-7 text-primary" />
+                      Jouw Neuroprofiel in Vogelvlucht
                     </h2>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-6">
                     {Object.keys(finalScores)
-                      .filter(key => neurotypeDescriptionsTeen[key]) 
-                      .sort((a,b) => finalScores[b] - finalScores[a]) 
+                      .filter(key => neurotypeDescriptionsTeen[key])
+                      .sort((a,b) => finalScores[b] - finalScores[a])
                       .map(key => {
                         const profile = neurotypeDescriptionsTeen[key];
                         const score = finalScores[key];
-                        const IconComponent = neurotypeIcons[key] || Brain; 
+                        const IconComponent = neurotypeIcons[key] || Brain;
                         const isProminent = score >= (currentThresholds[key] || 0);
 
                         return (
-                          <Card key={key} className={cn("p-4", isProminent ? "border-primary/50 bg-primary/5" : "bg-muted/50")}>
-                            <div className="flex items-center gap-3 mb-1.5">
-                              <IconComponent className={cn("h-8 w-8", isProminent ? "text-primary" : "text-muted-foreground")} />
+                          <Card key={key} className={cn("p-4 shadow-sm", isProminent ? "border-primary/60 bg-primary/5" : "bg-muted/40")}>
+                            <div className="flex items-start gap-3 mb-1.5">
+                              <IconComponent className={cn("h-8 w-8 mt-0.5", isProminent ? "text-primary" : "text-muted-foreground")} />
                               <div>
                                 <h3 className={cn("text-lg font-semibold", isProminent ? "text-primary" : "text-foreground")}>{profile.title}</h3>
-                                <p className="text-sm text-muted-foreground">Score: {score?.toFixed(2) || 'N/A'}</p>
+                                <p className="text-sm text-muted-foreground">Score: <span className="font-medium">{score?.toFixed(2) || 'N/A'}</span></p>
                               </div>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed">{profile.eigenschappen}</p>
@@ -629,10 +644,10 @@ export default function TeenNeurodiversityQuizPage() {
                   </CardContent>
                 </Card>
 
-                <Alert variant="default" className="bg-secondary/50 border-secondary">
-                   <Info className="h-5 w-5" />
-                  <AlertTitleUi className="font-semibold text-lg">Wat Betekenen Deze Scores?</AlertTitleUi>
-                  <AlertDescUi className="leading-relaxed">
+                <Alert variant="default" className="bg-blue-50/70 border-blue-400 border-l-4 rounded-r-md shadow-sm">
+                   <Info className="h-5 w-5 text-blue-600" />
+                  <AlertTitleUi className="font-semibold text-lg text-blue-700">Wat Betekenen Deze Scores?</AlertTitleUi>
+                  <AlertDescUi className="leading-relaxed text-blue-800/90">
                     De scores (schaal 1-4) geven aan hoe sterk je de kenmerken van een profiel herkent.
                     <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
                       <li><strong>Score 3.0 - 4.0:</strong> Kenmerken zijn duidelijk herkenbaar.</li>
@@ -647,24 +662,24 @@ export default function TeenNeurodiversityQuizPage() {
                     <h2 className="mb-2 text-2xl font-semibold text-primary">Jouw Neurodiversiteitsprofiel Samenvatting</h2>
                     <p className="text-foreground leading-relaxed">{generateSummaryText(finalScores, relevantSubtests)}</p>
                 </div>
-                
+
                 {Object.keys(finalScores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && finalScores[key] >= currentThresholds[key]).length > 0 && (
                     <Alert variant="default" className="bg-accent/5 border-accent/30 text-accent-foreground">
                         <ListChecks className="h-5 w-5 text-accent" />
                         <AlertTitleUi className="font-semibold text-lg text-accent">Algemene Toelichting</AlertTitleUi>
                         <AlertDescUi className="text-sm leading-relaxed">
-                        De scores hieronder geven aan waar jouw neurodiversiteitskenmerken het sterkst naar voren komen. 
+                        De scores hieronder geven aan waar jouw neurodiversiteitskenmerken het sterkst naar voren komen.
                         Hoe hoger de score (schaal 1-4), hoe meer je de eigenschappen van dit profiel herkent in jezelf.
                         <br />
-                        Neurodiversiteit is een spectrum. De meeste mensen hebben kenmerken van meerdere profielen. 
+                        Neurodiversiteit is een spectrum. De meeste mensen hebben kenmerken van meerdere profielen.
                         Dit rapport is bedoeld om je inzicht te geven en handvatten te bieden, niet als vervanging voor professioneel advies.
                         </AlertDescUi>
                     </Alert>
                 )}
 
                 {Object.keys(neurotypeDescriptionsTeen)
-                  .filter(key => finalScores[key] >= (currentThresholds[key] || 0) || (relevantSubtests.length === 0 && finalScores[key] > 0) ) 
-                  .sort((a,b) => finalScores[b] - finalScores[a]) 
+                  .filter(key => finalScores[key] >= (currentThresholds[key] || 0) || (relevantSubtests.length === 0 && finalScores[key] > 0) )
+                  .sort((a,b) => finalScores[b] - finalScores[a])
                   .map(key => {
                     const profile = neurotypeDescriptionsTeen[key];
                     const score = finalScores[key];
@@ -676,7 +691,7 @@ export default function TeenNeurodiversityQuizPage() {
                         <CardHeader className="bg-muted/30 py-4 px-5">
                           <h2 className="text-2xl font-semibold flex items-center gap-3" style={{color: profile.color || 'hsl(var(--primary))'}}>
                             <IconForProfile className="h-7 w-7" />
-                            {profile.title} 
+                            {profile.title}
                             <span className="ml-auto text-lg font-normal text-muted-foreground">(Score: {score?.toFixed(2) || 'N/A'})</span>
                           </h2>
                         </CardHeader>
@@ -693,7 +708,7 @@ export default function TeenNeurodiversityQuizPage() {
                             <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-wider mb-1">Meer Over {profile.title}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">{profile.uitleg}</p>
                           </div>
-                          
+
                           <div>
                             <h3 className="mb-2 text-lg font-semibold flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-green-600"/>Jouw Sterke Punten:</h3>
                             <ul className="list-disc space-y-1 pl-6 text-sm leading-relaxed">
@@ -714,7 +729,7 @@ export default function TeenNeurodiversityQuizPage() {
                       </Card>
                     );
                 })}
-                
+
                  <Card className="shadow-xl mt-8 bg-primary/5 border-primary/20">
                     <CardHeader className="py-5 px-6">
                       <h2 className="text-2xl font-semibold flex items-center gap-3 text-primary">
@@ -728,42 +743,69 @@ export default function TeenNeurodiversityQuizPage() {
                             <div className="h-5 bg-muted rounded w-2/3 mt-4"></div><div className="h-5 bg-muted rounded w-full"></div>
                         </div>
                     ) : parsedAiAnalysis.length > 0 ? (
-                       parsedAiAnalysis.map((section, index) => (
-                        <div 
-                          key={index} 
-                          className={cn(
-                            "py-3", 
-                            index > 0 && "border-t mt-4 pt-4",
-                             section.title === "Aandachtspunten" ? "bg-orange-50/70 border-l-4 border-orange-400 px-4 py-4 rounded-r-md shadow-sm" : "px-1"
-                          )}
-                        >
-                          <h3 className={cn("text-xl font-semibold text-foreground mb-3 flex items-center gap-2", section.title === "Aandachtspunten" && "text-orange-600")}>
-                            {section.icon && <section.icon className={cn("h-6 w-6", section.title === "Aandachtspunten" ? "text-orange-500" : "text-primary" )} />}
-                            {section.title}
-                          </h3>
-                          {typeof section.content === 'string' ? (
-                            section.isList ? (
-                                <ul className="list-disc space-y-2 pl-7 text-muted-foreground leading-relaxed">
-                                    {section.content.split('\n').map((item, i) => item.trim() && <li key={i} className="mb-1.5">{item.trim().replace(/^- |^\* /,'')}</li>)}
-                                </ul>
+                       parsedAiAnalysis.map((section, index) => {
+                        let IconToShow = section.icon || HelpCircle;
+                        let titleClasses = "text-xl font-semibold text-foreground mb-3 flex items-center gap-2";
+                        let contentClasses = "text-muted-foreground leading-relaxed whitespace-pre-wrap";
+                        let listClasses = "list-disc space-y-2 pl-7 text-muted-foreground leading-relaxed";
+                        let cardClasses = "py-3 px-1";
+
+                        if (section.title === "Aandachtspunten") {
+                           cardClasses = cn(cardClasses, "bg-orange-50/70 border-l-4 border-orange-400 px-4 py-4 rounded-r-md shadow-sm");
+                           titleClasses = cn(titleClasses, "text-orange-600");
+                           IconToShow = neurotypeIcons["Aandachtspunten"] || Edit;
+                        } else if (section.title === "Jouw Profiel In Vogelvlucht") {
+                           cardClasses = cn(cardClasses, "bg-blue-50/70 border-l-4 border-blue-400 px-4 py-4 rounded-r-md shadow-sm");
+                           titleClasses = cn(titleClasses, "text-blue-600");
+                           IconToShow = neurotypeIcons["Jouw Profiel In Vogelvlucht"] || Users;
+                        } else if (section.title === "Sterke Kanten") {
+                           cardClasses = cn(cardClasses, "bg-green-50/70 border-l-4 border-green-400 px-4 py-4 rounded-r-md shadow-sm");
+                           titleClasses = cn(titleClasses, "text-green-600");
+                           IconToShow = neurotypeIcons["Sterke Kanten"] || ThumbsUp;
+                        } else if (section.title === "Tips voor Jou") {
+                           cardClasses = cn(cardClasses, "bg-yellow-50/70 border-l-4 border-yellow-400 px-4 py-4 rounded-r-md shadow-sm");
+                           titleClasses = cn(titleClasses, "text-yellow-700");
+                           IconToShow = neurotypeIcons["Tips voor Jou"] || Lightbulb;
+                        }
+
+
+                        return (
+                          <div key={index} className={cn(cardClasses, index > 0 && "border-t mt-4 pt-4")}>
+                            <h3 className={titleClasses}>
+                              {IconToShow && <IconToShow className={cn(
+                                "h-6 w-6",
+                                section.title === "Aandachtspunten" ? "text-orange-500" :
+                                section.title === "Jouw Profiel In Vogelvlucht" ? "text-blue-500" :
+                                section.title === "Sterke Kanten" ? "text-green-500" :
+                                section.title === "Tips voor Jou" ? "text-yellow-600" :
+                                "text-primary"
+                               )} />}
+                              {section.title}
+                            </h3>
+                            {typeof section.content === 'string' ? (
+                              section.isList ? (
+                                  <ul className={listClasses}>
+                                      {section.content.split('\n').map((item, i) => item.trim() && <li key={i} className="mb-1.5 flex items-start"><ChevronRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-inherit"/><span>{item.trim().replace(/^- |^\* /,'')}</span></li>)}
+                                  </ul>
+                              ) : (
+                                  <p className={contentClasses}>{section.content}</p>
+                              )
                             ) : (
-                                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
-                            )
-                          ) : ( 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {(section.content as ParsedProfileScore[]).map((item, itemIdx) => (
-                                <Card key={itemIdx} className="p-4 bg-background shadow">
-                                  <div className="flex items-center gap-2 mb-1.5">
-                                    {item.icon && <item.icon className="h-5 w-5 text-primary" />}
-                                    <p className="font-semibold text-primary text-lg">{item.profileName}{item.score && ` (Score: ${item.score})`}</p>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{item.comment}</p>
-                                </Card>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                       ))
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {(section.content as ParsedProfileScore[]).map((item, itemIdx) => (
+                                  <Card key={itemIdx} className="p-4 bg-background shadow">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                      {item.icon && <item.icon className="h-5 w-5 text-primary" />}
+                                      <p className="font-semibold text-primary text-lg">{item.profileName}{item.score && ` (Score: ${item.score})`}</p>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{item.comment}</p>
+                                  </Card>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                       })
                     ) : (
                         <p className="text-muted-foreground">Geen AI analyse beschikbaar op dit moment.</p>
                     )}
@@ -775,8 +817,8 @@ export default function TeenNeurodiversityQuizPage() {
                     <AlertTriangle className="h-5 w-5" />
                     <AlertTitleUi className="font-semibold text-lg">Disclaimer</AlertTitleUi>
                     <AlertDescUi className="leading-relaxed">
-                        Deze quiz geeft inzicht in neurodiversiteitskenmerken, maar is geen diagnostisch instrument. 
-                        Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog. 
+                        Deze quiz geeft inzicht in neurodiversiteitskenmerken, maar is geen diagnostisch instrument.
+                        Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.
                         MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.
                     </AlertDescUi>
                 </Alert>
@@ -824,7 +866,7 @@ export default function TeenNeurodiversityQuizPage() {
                 </div>
                 </CardContent>
             </Card>
-             
+
              <Card className="w-full shadow-xl mt-8">
               <CardHeader className="py-5 px-6">
                 <h2 className="text-xl font-semibold flex items-center gap-2 text-foreground">
@@ -876,5 +918,6 @@ export default function TeenNeurodiversityQuizPage() {
         )}
       </div>
     </div>
+    </React.Fragment>
   );
 }
