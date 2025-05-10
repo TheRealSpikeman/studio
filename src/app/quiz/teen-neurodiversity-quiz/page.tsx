@@ -289,7 +289,7 @@ export default function TeenNeurodiversityQuizPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-10 md:pt-16">
+    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-10 md:pt-16 pb-16">
       <div className="absolute top-4 left-4 md:top-8 md:left-8">
         <SiteLogo />
       </div>
@@ -328,7 +328,7 @@ export default function TeenNeurodiversityQuizPage() {
                 </p>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center pt-6 pb-8">
               <Button size="lg" onClick={() => setCurrentStep('baseQuestions')} className="shadow-md">
                 Start de test <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -359,7 +359,7 @@ export default function TeenNeurodiversityQuizPage() {
                 Vraag {answeredBaseQuestionsCount} van {currentBaseQuestions.length} beantwoord
               </p>
             </CardContent>
-            <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-end pt-6 pb-8">
                <AlertDialog open={showUnansweredWarning} onOpenChange={setShowUnansweredWarning}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -410,7 +410,7 @@ export default function TeenNeurodiversityQuizPage() {
                 </>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row justify-end gap-2">
+            <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-6 pb-8">
               <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([])); setCurrentStep('results'); }}>
                 Direct naar resultaten <CheckSquare className="ml-2 h-4 w-4" />
               </Button>
@@ -447,7 +447,7 @@ export default function TeenNeurodiversityQuizPage() {
                 </div>
               ))}
             </CardContent>
-            <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-end pt-6 pb-8">
               <Button onClick={() => { setFinalScores(calculateFinalScores(relevantSubtests)); setCurrentStep('results'); }}>
                 Bekijk resultaten <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -603,7 +603,7 @@ export default function TeenNeurodiversityQuizPage() {
               </CardContent>
             </Card>
 
-            <CardFooter className="flex flex-col items-center gap-4 pt-6">
+            <CardFooter className="flex flex-col items-center gap-4 pt-6 pb-8">
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="outline"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>

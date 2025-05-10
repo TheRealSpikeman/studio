@@ -92,7 +92,7 @@ export default function TakeQuizPage() {
   const currentGlobalStep = 1; // Basisvragen
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24">
+    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24 pb-16">
       <div className="absolute top-8 left-8">
             <SiteLogo />
       </div>

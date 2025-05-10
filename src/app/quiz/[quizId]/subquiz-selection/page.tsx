@@ -56,7 +56,7 @@ export default function SubQuizSelectionPage() {
   const currentGlobalStep = 2; // Subquiz selectie
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24">
+    <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24 pb-16">
        <div className="absolute top-8 left-8">
             <SiteLogo />
       </div>
@@ -96,7 +96,7 @@ export default function SubQuizSelectionPage() {
             <p className="text-muted-foreground text-center">Geen specifieke subquizzen aanbevolen op basis van je antwoorden.</p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col gap-3">
+        <CardFooter className="flex flex-col gap-3 pt-6 pb-8">
           <Button onClick={handleSkipToResults} variant="secondary" className="w-full">
             <CheckSquare className="mr-2 h-4 w-4" />
             Direct naar resultaten (basisprofiel)
