@@ -57,7 +57,10 @@ Answer: {{{this.answer}}}
 {{/each}}
 
 Provide a comprehensive analysis covering:
-1.  Interpretation of the overall profile scores: What do these scores suggest about the user's neurodivergent traits? Highlight prominent areas. Explain what high or low scores in each category generally mean for this age group.
+1.  Interpretation of the overall profile scores under the heading "Jouw Profiel In Vogelvlucht":
+    For each neurodiversity profile (e.g., ADD, ADHD, HSP, ASS, AngstDepressie) from the 'Overall Profile Scores' section, provide its score and an interpretation.
+    Start each interpretation with the profile name and its score, for example: "ADD (Score: X.XX): [Your interpretation here]".
+    What do these scores suggest about the user's neurodivergent traits? Highlight prominent areas. Explain what high or low scores in each category generally mean for this age group.
 2.  Patterns in answers: Are there specific themes or types of questions where the user consistently answered in a particular way (e.g., consistently high scores on questions related to sensory sensitivity, or consistently low scores on impulsivity questions)?
 3.  Potential strengths indicated by the answers and scores. Connect these strengths to real-life examples relevant for a teenager.
 4.  Potential challenges or areas for self-awareness indicated by the answers and scores. Offer gentle and constructive framing.
@@ -84,3 +87,4 @@ const generateQuizAnalysisFlow = ai.defineFlow(
     return output;
   }
 );
+
