@@ -2,12 +2,13 @@
 "use client";
 
 import NewQuizPage from '@/app/dashboard/admin/quiz-management/new/page';
-import type { QuizFormData } from '@/app/dashboard/admin/quiz-management/new/page'; // Ensure QuizFormData is exported
-import type { QuizAdmin } from '@/types/quiz-admin'; // Assuming this type exists
+import type { QuizFormData } from '@/app/dashboard/admin/quiz-management/new/page'; 
+import type { QuizAdmin } from '@/types/quiz-admin'; 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// Updated dummy quizzes to match more closely with the main quiz list
+// This DUMMY_QUIZZES_FOR_EDIT is for pre-defined examples.
+// Dynamically created AI quizzes will be attempted to be loaded from localStorage.
 const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
   { 
     id: 'q1', title: 'Basis Neuroprofiel (15-18 jr)', description: 'Algemene neurodiversiteitstest voor oudere tieners.', 
@@ -17,91 +18,88 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     lastUpdatedAt: new Date().toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
     slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz voor 15-18 jaar', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.'
   },
-  { 
-    id: 'q2', title: 'Examenvrees Check', description: 'Quiz over omgaan met examenstress.', 
-    audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', 
-    questions: [{id:'q2a', text:'Hoe voel je je vlak voor een belangrijk examen?', weight: 2}],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    slug: 'examenvrees-check', metaTitle: 'Examenvrees Check Quiz', metaDescription: 'Test je niveau van examenstress.'
-  },
-  { 
-    id: 'q3', title: 'Focus Test (12-14 jr)', description: 'Concentratiecheck voor jongere tieners.', 
-    audience: ['12-14'], category: 'ADD', status: 'published', 
-    questions: [
-        {id:'q3a', text:'Raak je snel afgeleid tijdens het maken van huiswerk?', weight: 1},
-        {id:'q3b', text:'Vergeet je vaak wat je net gelezen hebt?', weight: 1}
-    ],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 10).toISOString(), createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-    slug: 'focus-test-12-14', metaTitle: 'Focus Test voor 12-14 Jaar', metaDescription: 'Doe de concentratiecheck.'
-  },
+  // ... other pre-defined quizzes
 ];
 
 
-// Dummy function to simulate fetching quiz data
 async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) | null> {
   console.log("Fetching quiz data for ID:", id);
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   if (id.startsWith('ai-')) {
-    // Return a generic AI-generated quiz structure for editing
-    // This is a placeholder as the actual generated content is not persisted across pages in this dummy setup
-    const aiQuizIdSuffix = id.substring(3); // Extract the part after 'ai-'
-    // Find the AI generated quiz from the DUMMY_QUIZZES list if it was added there by page.tsx
-    // This part is tricky because the main list is in another component. For now, we'll generate new dummy AI data.
-    const tempAiQuiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id) || 
-    {
-        id: id,
-        title: `AI Gegenereerde Quiz ${aiQuizIdSuffix.substring(0, 5)}... (Bewerk)`,
-        description: "Pas de details van deze AI-gegenereerde quiz aan. De oorspronkelijke AI-gegenereerde content is hier niet beschikbaar voor bewerking in deze demo-omgeving, tenzij eerder opgeslagen.",
-        audience: ['15-18'], 
-        category: 'Thema', 
-        status: 'concept',
-        questions: Array.from({ length: 5 }, (_, i) => ({ 
-            id: `ai-q${i+1}-${Date.now()}`,
-            text: `Voorbeeld AI Vraag ${i + 1}: Pas deze vraag aan.`, 
-            example: "Voeg hier een voorbeeld of toelichting toe.", 
-            weight: (i % 3) + 1 
-        })),
-        subtestConfigs: [],
-        slug: `ai-gegenereerde-quiz-${aiQuizIdSuffix}`,
-        metaTitle: `Bewerk AI Quiz ${aiQuizIdSuffix.substring(0,5)}`,
-        metaDescription: "Een door AI gegenereerde quiz, klaar om bewerkt te worden.",
-        thumbnailUrl: "https://picsum.photos/seed/aiquizthumb/400/200",
-    };
+    let quiz: QuizAdmin | null = null;
+    try {
+        const storedQuizData = localStorage.getItem(`ai-quiz-${id}`);
+        if (storedQuizData) {
+            console.log("Found AI quiz in localStorage:", id);
+            quiz = JSON.parse(storedQuizData) as QuizAdmin;
+        }
+    } catch (error) {
+        console.error("Error reading AI quiz from localStorage:", error);
+        // Quiz not found in localStorage or error parsing, will fallback
+    }
     
-    return {
-        id: tempAiQuiz.id,
-        title: tempAiQuiz.title,
-        description: tempAiQuiz.description,
-        audience: tempAiQuiz.audience,
-        category: tempAiQuiz.category,
-        status: tempAiQuiz.status,
-        questions: tempAiQuiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1 })),
-        subtestConfigs: tempAiQuiz.subtestConfigs?.map(sc => ({subtestId: sc.subtestId, threshold: sc.threshold})) || [],
-        slug: tempAiQuiz.slug || "",
-        metaTitle: tempAiQuiz.metaTitle || "",
-        metaDescription: tempAiQuiz.metaDescription || "",
-        thumbnailUrl: tempAiQuiz.thumbnailUrl || "",
-    };
-  }
+    if (!quiz) {
+        // Fallback to DUMMY_QUIZZES_FOR_EDIT if not in localStorage
+        quiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id) || null;
+        if (quiz) {
+            console.log("Found AI quiz in DUMMY_QUIZZES_FOR_EDIT:", id);
+        }
+    }
 
-  const quiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id);
-  if (quiz) {
-    // Map QuizAdmin to QuizFormData
-    return {
+    if (quiz) {
+      return {
         id: quiz.id,
         title: quiz.title,
         description: quiz.description,
         audience: quiz.audience,
         category: quiz.category,
         status: quiz.status,
-        questions: quiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1})), // Ensure weight is passed
+        questions: quiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1 })),
         subtestConfigs: quiz.subtestConfigs?.map(sc => ({subtestId: sc.subtestId, threshold: sc.threshold})) || [],
         slug: quiz.slug || "",
         metaTitle: quiz.metaTitle || "",
         metaDescription: quiz.metaDescription || "",
         thumbnailUrl: quiz.thumbnailUrl || "",
+      };
+    } else {
+      // AI quiz not found in localStorage or predefined dummies
+      console.warn(`AI quiz ${id} not found. Editing may not reflect actual generated content if it was dynamically created and not stored/found.`);
+      // Return a placeholder structure indicating that the specific AI questions are not available for editing
+      return {
+          id: id,
+          title: `AI Quiz ${id.substring(3, 8)} (Dynamisch gegenereerd)`,
+          description: "De specifieke, door AI gegenereerde vragen voor deze quiz zijn niet beschikbaar voor directe bewerking in deze demo. Je kunt de algemene details hieronder aanpassen. Om specifieke vragen te bewerken, genereer de quiz opnieuw of maak de vragen handmatig aan.",
+          audience: ['15-18'], 
+          category: 'Thema', 
+          status: 'concept',
+          questions: [{ text: "Bewerk de algemene details van deze AI-quiz. Specifieke vragen zijn hier placeholder.", example: "", weight: 1 }],
+          subtestConfigs: [],
+          slug: `ai-dynamic-${id.substring(3,8)}`,
+          metaTitle: `Bewerk AI Quiz ${id.substring(3,8)}`,
+          metaDescription: "Een dynamisch gegenereerde AI quiz.",
+          thumbnailUrl: "https://picsum.photos/seed/aidynamicedit/400/200",
+      };
+    }
+  }
+
+  // Handling for non-AI quizzes (original DUMMY_QUIZZES_FOR_EDIT)
+  const nonAiQuiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id);
+  if (nonAiQuiz) {
+    return {
+        id: nonAiQuiz.id,
+        title: nonAiQuiz.title,
+        description: nonAiQuiz.description,
+        audience: nonAiQuiz.audience,
+        category: nonAiQuiz.category,
+        status: nonAiQuiz.status,
+        questions: nonAiQuiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1})),
+        subtestConfigs: nonAiQuiz.subtestConfigs?.map(sc => ({subtestId: sc.subtestId, threshold: sc.threshold})) || [],
+        slug: nonAiQuiz.slug || "",
+        metaTitle: nonAiQuiz.metaTitle || "",
+        metaDescription: nonAiQuiz.metaDescription || "",
+        thumbnailUrl: nonAiQuiz.thumbnailUrl || "",
     };
   }
   return null;
@@ -111,7 +109,7 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
 export default function EditQuizPage() {
   const params = useParams();
   const quizId = params.quizId as string;
-  const [quizData, setQuizData] = useState<(QuizFormData & {id: string}) | null | undefined>(undefined); // undefined for loading state
+  const [quizData, setQuizData] = useState<(QuizFormData & {id: string}) | null | undefined>(undefined); 
 
   useEffect(() => {
     if (quizId) {
@@ -126,7 +124,7 @@ export default function EditQuizPage() {
   }
 
   if (quizData === null) {
-    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID.</div>;
+    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID of probeer de quiz opnieuw te genereren.</div>;
   }
   
   return <NewQuizPage quizData={quizData} />;

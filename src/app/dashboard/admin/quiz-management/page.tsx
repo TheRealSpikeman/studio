@@ -1,8 +1,7 @@
-
 // src/app/dashboard/admin/quiz-management/page.tsx
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { QuizAdmin, QuizAudience, QuizCategory, QuizStatusAdmin } from '@/types/quiz-admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,7 +82,7 @@ const aiQuizFormSchema = z.object({
 type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
 
 export default function QuizManagementPage() {
-  const [quizzes, setQuizzes] = useState<QuizAdmin[]>(DUMMY_QUIZZES);
+  const [quizzes, setQuizzes] = useState<QuizAdmin[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<QuizStatusAdmin | 'all'>('all');
   const [audienceFilter, setAudienceFilter] = useState<QuizAudience | 'all'>('all');
@@ -92,6 +91,28 @@ export default function QuizManagementPage() {
   const { toast } = useToast();
   const [isAiQuizDialogOpen, setIsAiQuizDialogOpen] = useState(false);
   const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
+
+  useEffect(() => {
+    // Load quizzes from localStorage on initial mount if any, merge with DUMMY_QUIZZES
+    // This is a demo-specific way to handle persistence.
+    const loadedQuizzes: QuizAdmin[] = [...DUMMY_QUIZZES];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('ai-quiz-')) {
+          const storedQuiz = JSON.parse(localStorage.getItem(key)!);
+          // Avoid duplicates if DUMMY_QUIZZES already has it (though unlikely with dynamic IDs)
+          if (!loadedQuizzes.find(q => q.id === storedQuiz.id)) {
+            loadedQuizzes.push(storedQuiz);
+          }
+        }
+      }
+    } catch (error) {
+        console.error("Error loading quizzes from localStorage:", error);
+    }
+    setQuizzes(loadedQuizzes);
+  }, []);
+
 
   const aiQuizForm = useForm<AiQuizFormData>({
     resolver: zodResolver(aiQuizFormSchema),
@@ -124,6 +145,11 @@ export default function QuizManagementPage() {
 
   const handleDeleteQuiz = (quizId: string) => {
     setQuizzes(prev => prev.filter(q => q.id !== quizId));
+    try {
+      localStorage.removeItem(`ai-quiz-${quizId}`); // Also remove from localStorage if it was an AI quiz
+    } catch (error) {
+      console.error("Error removing quiz from localStorage:", error);
+    }
     toast({ title: "Quiz verwijderd", description: `Quiz met ID ${quizId} is verwijderd (simulatie).` });
   };
   
@@ -153,15 +179,16 @@ export default function QuizManagementPage() {
       };
       const aiResult = await generateAiQuiz(aiInput);
 
+      const newQuizId = `ai-${Date.now()}`;
       const newQuiz: QuizAdmin = {
-        id: `ai-${Date.now()}`,
+        id: newQuizId,
         title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
         description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}). Pas de titel en beschrijving eventueel aan.`,
         audience: [data.audience as QuizAudience],
         category: data.category as QuizCategory,
         status: 'concept',
         questions: aiResult.questions.map((q, i) => ({
-          id: `ai-q${i+1}-${Date.now()}`,
+          id: `ai-q${i+1}-${Date.now()}`, // Ensure question IDs are unique enough
           text: q.text,
           example: q.example,
           weight: q.weight
@@ -174,6 +201,16 @@ export default function QuizManagementPage() {
       };
 
       setQuizzes(prev => [newQuiz, ...prev]);
+      try {
+        localStorage.setItem(`ai-quiz-${newQuiz.id}`, JSON.stringify(newQuiz));
+      } catch (error) {
+          console.error("Error saving AI quiz to localStorage:", error);
+          toast({
+              title: "Fout bij opslaan AI Quiz",
+              description: "De quiz is gegenereerd, maar kon niet lokaal worden opgeslagen voor bewerking.",
+              variant: "destructive"
+          });
+      }
       aiQuizForm.reset();
       setIsAiQuizDialogOpen(false);
       toast({
