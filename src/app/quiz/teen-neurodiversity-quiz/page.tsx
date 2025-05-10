@@ -52,7 +52,7 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   'Algemeen Overzicht': MessageSquareHeart,
 };
 
-const tipIcons = [FileText, Lightbulb, CheckSquare, Sparkles, Brain, ThumbsUp, Zap, Compass, ShieldAlert, UsersIcon, Info];
+const tipIcons: React.ElementType[] = [FileText, Lightbulb, CheckSquare, Sparkles, Brain, ThumbsUp, Zap, Compass, ShieldAlert, UsersIcon, Info];
 
 
 interface ParsedProfileScore {
@@ -73,9 +73,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
   
   let cleanedText = analysisText;
-  // Remove Markdown bold indicators as we'll use CSS for styling
   cleanedText = cleanedText.replace(/\*\*(.*?)\*\*/g, '$1');
-  // Remove Markdown heading indicators as we'll use HTML tags
   cleanedText = cleanedText.replace(/^(##\s*)/gm, '');
 
 
@@ -159,10 +157,27 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
            sectionContent.push({ profileName: "Algemeen Overzicht", score: "", comment: generalOverviewContent.trim(), icon: neurotypeIcons["Algemeen Overzicht"] || MessageSquareHeart });
         }
         sectionContent.push(...profileScores);
+        
+        const mainOverviewCard = sectionContent.find(item => item.profileName === "Algemeen Overzicht");
+        const otherScores = sectionContent.filter(item => item.profileName !== "Algemeen Overzicht");
+        
+        const structuredContent = [];
+        if(mainOverviewCard) structuredContent.push(mainOverviewCard);
+        if(otherScores.length > 0) {
+           structuredContent.push({
+             profileName: "Score Inzichten per Thema", // This is a placeholder name for the group of scores
+             score: "", // No overall score for this group
+             comment: "", // No overall comment
+             icon: UsersIcon, // Or some other generic icon for "details"
+             // Store the actual scores in a sub-array or handle them differently in rendering
+             subScores: otherScores 
+           });
+        }
 
-        if (sectionContent.length > 0) {
-            sections.push({ title: currentSectionTitle, content: sectionContent, icon: IconComponent });
-        } else if (currentContent.trim() && !generalOverviewContent.trim()) {
+
+        if (structuredContent.length > 0) {
+            sections.push({ title: currentSectionTitle, content: structuredContent, icon: IconComponent });
+        } else if (currentContent.trim() && !generalOverviewContent.trim()) { // Fallback if no scores but content exists
              sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: isListSection, icon: IconComponent });
         }
 
@@ -624,7 +639,7 @@ export default function TeenNeurodiversityQuizPage() {
                 </CardHeader>
                 <CardContent className="space-y-8 pt-4 px-6 pb-6 text-base leading-relaxed">
                   
-                  <div className="bg-[#F0FAF9] border-l-4 border-[#0A9396] p-6 rounded-lg shadow-sm text-foreground">
+                  <div className="bg-[#F0FAF9] border-l-4 border-teal-600 p-6 rounded-lg shadow-sm text-foreground">
                     <h3 className="text-teal-700 text-[1.25rem] font-semibold mb-2 flex items-center gap-2"><Info className="h-5 w-5"/>Wat Betekenen Deze Scores?</h3>
                     <AlertDescUi className="leading-relaxed text-base">
                       De scores (schaal 1-4) geven aan hoe sterk je de kenmerken van een profiel herkent.
@@ -676,26 +691,17 @@ export default function TeenNeurodiversityQuizPage() {
                             <div>
                               <h4 className="mb-2 text-[1.125rem] font-semibold flex items-center gap-2 text-green-700"><ThumbsUp className="h-5 w-5"/>JOUW STERKE PUNTEN:</h4>
                               <ul className="list-disc space-y-1 pl-6 text-base leading-relaxed">
-                                {profile.sterktepunten.map((p, i) => <li key={i} className="mb-2">{p}</li>)}
+                                {profile.sterktepunten.map((p, i) => <li key={i} className="mb-1">{p}</li>)}
                               </ul>
-                            </div>
-                            <div>
-                               <h4 className="mb-3 text-[1.125rem] font-semibold flex items-center gap-2 text-yellow-700"><Lightbulb className="h-5 w-5"/>TIPS EN STRATEGIEËN (VOOR {ageGroup} JAAR):</h4>
-                              <div className="space-y-3">
-                                <div className="rounded-md bg-green-50 p-4 border border-green-200 shadow-sm"><strong className="text-green-700 block mb-1 text-base">✏️ Op school/studie:</strong> <p className="leading-relaxed text-base">{profile.tips.school}</p></div>
-                                <div className="rounded-md bg-blue-50 p-4 border border-blue-200 shadow-sm"><strong className="text-blue-700 block mb-1 text-base">🏡 Thuis:</strong> <p className="leading-relaxed text-base">{profile.tips.thuis}</p></div>
-                                <div className="rounded-md bg-purple-50 p-4 border border-purple-200 shadow-sm"><strong className="text-purple-700 block mb-1 text-base">💬 In sociale situaties:</strong> <p className="leading-relaxed text-base">{profile.tips.sociaal}</p></div>
-                                <div className="rounded-md bg-orange-50 p-4 border border-orange-200 shadow-sm"><strong className="text-orange-700 block mb-1 text-base">💼 Op werk/stage:</strong> <p className="leading-relaxed text-base">{profile.tips.werk}</p></div>
-                              </div>
                             </div>
                           </CardContent>
                         </Card>
                       );
                   })}
                   
-                  <Card className="bg-card shadow-md rounded-lg mt-6 max-w-full mx-auto">
-                    <CardHeader className="p-6 pb-3">
-                      <h2 className="text-teal-700 text-[1.5rem] font-semibold flex items-center gap-3">
+                  <Card className="bg-card shadow-md rounded-lg mt-6 max-w-full mx-auto" style={{ borderLeft: '6px solid hsl(var(--accent))'}}>
+                    <CardHeader className="p-6 pb-3 bg-muted/30">
+                      <h2 className="text-accent text-[1.5rem] font-semibold flex items-center gap-3">
                         <Brain className="h-7 w-7" /> Diepgaande Analyse door AI
                       </h2>
                     </CardHeader>
@@ -711,24 +717,28 @@ export default function TeenNeurodiversityQuizPage() {
                         
                         let sectionContainerClasses = "rounded-lg shadow-sm p-6";
                         let titleClasses = "text-[1.25rem] font-semibold mb-3 flex items-center gap-3";
-                        let contentClasses = "text-base text-foreground leading-relaxed max-w-prose";
+                        let contentClasses = "text-base text-foreground leading-relaxed"; // Removed max-w-prose to allow wider text in this specific context
                         let listClasses = "list-disc space-y-1 pl-7 text-base text-foreground leading-relaxed";
-                        let listItemClasses = "mb-3 flex items-start";
+                        let listItemClasses = "mb-1 flex items-start"; // Adjusted margin
 
                         if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-6");
 
+                        // Specific styling for AI sections
                         if (section.title === "Jouw Profiel In Vogelvlucht") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#F0FAF9] border-l-4 border-blue-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#f3f6ff] border-l-4 border-blue-500");
                           titleClasses = cn(titleClasses, "text-blue-700");
                         } else if (section.title === "Sterke Kanten") {
                           sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50 border-l-4 border-green-500");
                           titleClasses = cn(titleClasses, "text-green-700");
+                           if(IconComponentForSection === HelpCircle) IconComponentForSection = ThumbsUp;
                         } else if (section.title === "Aandachtspunten") {
                           sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFF9F2] border-l-4 border-orange-500");
                           titleClasses = cn(titleClasses, "text-orange-600");
+                           if(IconComponentForSection === HelpCircle) IconComponentForSection = Edit;
                         } else if (section.title === "Tips voor Jou") {
                           sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFFDE7] border-l-4 border-yellow-500");
                           titleClasses = cn(titleClasses, "text-yellow-700");
+                           if(IconComponentForSection === HelpCircle) IconComponentForSection = Lightbulb;
                         } else { 
                           sectionContainerClasses = cn(sectionContainerClasses, "bg-muted/30 border-l-4 border-gray-400");
                         }
@@ -744,7 +754,7 @@ export default function TeenNeurodiversityQuizPage() {
                                   <ul className={cn(listClasses, "mt-2")}>
                                       {section.content.split('\n').map((item, i) => {
                                         if (!item.trim()) return null;
-                                        const ActualTipIcon = tipIcons[i % tipIcons.length];
+                                        const ActualTipIcon: React.ElementType = tipIcons[i % tipIcons.length] || Sparkles;
                                         return (
                                           <li key={i} className={listItemClasses}>
                                             <ActualTipIcon className="h-5 w-5 mr-2 mt-1 flex-shrink-0 text-yellow-600"/>
@@ -757,12 +767,11 @@ export default function TeenNeurodiversityQuizPage() {
                                   <p className={cn(contentClasses, "mt-1 mb-0")}>{section.content}</p>
                               )
                             ) : ( 
-                              // Handling for ParsedProfileScore[] (Jouw Profiel In Vogelvlucht)
-                              section.content.map((item, itemIdx) => {
+                               Array.isArray(section.content) && section.content.map((item, itemIdx) => {
                                 const ItemIcon = item.icon || HelpCircle;
                                 if (item.profileName === "Algemeen Overzicht") {
                                   return (
-                                    <div key={itemIdx} className="mb-4">
+                                    <div key={itemIdx} className="mb-4 p-4 rounded-md bg-blue-50 border border-blue-200">
                                       <div className="flex items-center gap-2 mb-2">
                                         <ItemIcon className="h-6 w-6 text-blue-700 flex-shrink-0" />
                                         <h4 className="text-[1.125rem] font-semibold text-blue-700">{item.profileName}</h4>
@@ -770,8 +779,32 @@ export default function TeenNeurodiversityQuizPage() {
                                       <p className={cn(contentClasses, "mb-0")}>{item.comment}</p>
                                     </div>
                                   );
-                                } else {
-                                  return (
+                                } else if (item.profileName === "Score Inzichten per Thema" && Array.isArray((item as any).subScores)) {
+                                    return (
+                                      <div key={itemIdx} className="mb-4 p-4 rounded-md bg-teal-50 border border-teal-200">
+                                        <div className="flex items-center gap-2 mb-3">
+                                          <ItemIcon className="h-6 w-6 text-teal-700 flex-shrink-0" />
+                                          <h4 className="text-[1.125rem] font-semibold text-teal-700">{item.profileName}</h4>
+                                        </div>
+                                        <div className="space-y-2">
+                                          {(item as any).subScores.map((subScore: ParsedProfileScore, subIdx: number) => {
+                                            const SubScoreIcon = subScore.icon || Brain;
+                                            return (
+                                                <div key={subIdx} className="bg-white p-3 rounded-md shadow-sm border border-gray-200">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <SubScoreIcon className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                                                        <p className="font-semibold text-gray-700">{subScore.profileName} (Score: {subScore.score})</p>
+                                                    </div>
+                                                    <p className={cn(contentClasses, "text-sm text-gray-600")}>{subScore.comment}</p>
+                                                </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    );
+                                }
+                                // Fallback for other ParsedProfileScore items if any
+                                return (
                                     <div key={itemIdx} className="bg-[#E6F4F1] border-l-4 border-[#009688] p-4 rounded-md shadow-sm mb-3">
                                       <div className="flex items-start gap-3 mb-1">
                                         <ItemIcon className="h-5 w-5 text-teal-700 flex-shrink-0 mt-0.5" />
@@ -783,7 +816,6 @@ export default function TeenNeurodiversityQuizPage() {
                                       <p className={cn(contentClasses, "text-[0.95rem] mb-0")}>{item.comment}</p>
                                     </div>
                                   );
-                                }
                               })
                             )}
                           </div>
