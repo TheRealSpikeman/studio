@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, PlusCircle, Users } from 'lucide-react';
+import { Search, PlusCircle, Users, CheckCircle, XCircle } from 'lucide-react';
 import { UserManagementTable } from '@/components/admin/user-management/UserManagementTable';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';
@@ -19,6 +19,9 @@ const DUMMY_USERS: User[] = [
   { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', status: 'geblokkeerd', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString(), avatarUrl: 'https://picsum.photos/seed/charlie/40/40', coaching: { startDate: new Date(Date.now() - 86400000 * 5).toISOString(), interval: 1, currentDayInFlow: 5 } },
   { id: '4', name: 'Diana Prince', email: 'diana@example.com', status: 'actief', role: 'deelnemer', lastLogin: new Date(Date.now() - 86400000 * 12).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString(), avatarUrl: 'https://picsum.photos/seed/diana/40/40' },
   { id: '5', name: 'Edward Scissorhands', email: 'edward@example.com', status: 'actief', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 15).toISOString() },
+  { id: '6', name: 'Fiona Tutor', email: 'fiona.tutor@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString(), avatarUrl: 'https://picsum.photos/seed/fiona/40/40' },
+  { id: '7', name: 'George TutorApp', email: 'george.app@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString() },
+  { id: '8', name: 'Hannah Onboarding', email: 'hannah.onboard@example.com', status: 'pending_onboarding', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString() },
 ];
 
 const ITEMS_PER_PAGE = 10;
@@ -81,6 +84,19 @@ export default function UserManagementPage() {
   };
 
   const handleSaveUser = (userData: User) => {
+    // Conceptual: If role is 'tutor' and status was 'pending_approval' and now 'actief', send approval email.
+    const originalUser = users.find(u => u.id === selectedUser?.id);
+    if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'actief') {
+      console.log(`Tutor ${userData.email} approved. Sending approval email.`);
+      toast({ title: "Tutor Goedgekeurd", description: `Tutor ${userData.name} is goedgekeurd en geactiveerd.`, className: "bg-green-100 text-green-700 border-green-300"});
+    }
+    // Conceptual: If role is 'tutor' and status was 'pending_approval' and now 'rejected', send rejection email.
+     if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'rejected') {
+      console.log(`Tutor ${userData.email} rejected. Sending rejection email.`);
+      toast({ title: "Tutor Afgewezen", description: `Tutor ${userData.name} is afgewezen.`, variant: "destructive"});
+    }
+
+
     if (isAddingNewUser) {
       setUsers(prevUsers => [...prevUsers, { ...userData, id: (Math.random() * 10000).toString(), createdAt: new Date().toISOString(), lastLogin: new Date().toISOString() }]);
       toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
@@ -133,6 +149,9 @@ export default function UserManagementPage() {
                 <SelectItem value="actief">Actief</SelectItem>
                 <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
                 <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
+                <SelectItem value="pending_onboarding">Wacht op Onboarding (Tutor)</SelectItem>
+                <SelectItem value="pending_approval">Wacht op Goedkeuring (Tutor)</SelectItem>
+                <SelectItem value="rejected">Afgewezen (Tutor)</SelectItem>
               </SelectContent>
             </Select>
             <Select value={roleFilter} onValueChange={(value) => {setRoleFilter(value as UserRole | 'all'); setCurrentPage(1);}}>
@@ -144,6 +163,7 @@ export default function UserManagementPage() {
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="coach">Coach</SelectItem>
                 <SelectItem value="deelnemer">Deelnemer</SelectItem>
+                <SelectItem value="tutor">Tutor</SelectItem>
               </SelectContent>
             </Select>
           </div>

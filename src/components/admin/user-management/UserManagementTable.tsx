@@ -16,32 +16,61 @@ interface UserManagementTableProps {
   users: User[];
   onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
-  // onViewUser could be added if different from onEditUser
 }
 
 const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
-    case 'actief': return 'default'; // Greenish, assuming default is somewhat positive or use custom
-    case 'niet geverifieerd': return 'secondary'; // Yellowish/Orange
-    case 'geblokkeerd': return 'destructive'; // Red
+    case 'actief': return 'default';
+    case 'niet geverifieerd': return 'secondary';
+    case 'geblokkeerd': return 'destructive';
+    case 'pending_onboarding': return 'outline'; // Neutral for pending
+    case 'pending_approval': return 'secondary'; // Use secondary for pending approval like "niet geverifieerd"
+    case 'rejected': return 'destructive'; // Use destructive for rejected
     default: return 'outline';
   }
 };
 
+const getStatusBadgeClasses = (status: UserStatus): string => {
+  switch (status) {
+    case 'actief': return 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200';
+    case 'niet geverifieerd': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
+    case 'geblokkeerd': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
+    case 'pending_onboarding': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
+    case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200'; // Orange for pending approval
+    case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300'; // Slightly different red for rejected
+    default: return '';
+  }
+}
+
 const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destructive" | "outline" => {
     switch (role) {
       case 'admin': return 'default'; 
-      case 'coach': return 'secondary'; // Using accent color conceptually via theming
+      case 'coach': return 'secondary';
       case 'deelnemer': return 'outline';
+      case 'tutor': return 'default'; // Using default for Tutor, can be changed.
       default: return 'outline';
     }
   };
+
+const getRoleBadgeClasses = (role: UserRole): string => {
+    switch (role) {
+      case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
+      case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
+      case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; // Purple for Tutor
+      default: return ''; // Default outline styling from Badge component
+    }
+}
 
 
 export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserManagementTableProps) {
   
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+  }
+
+  const formatStatusText = (status: UserStatus): string => {
+    const text = status.replace(/_/g, ' ');
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
   return (
@@ -80,23 +109,15 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
               <TableCell>
                 <Badge 
                     variant={getStatusBadgeVariant(user.status)}
-                    className={cn({
-                        'bg-green-100 text-green-700 border-green-300 hover:bg-green-200': user.status === 'actief',
-                        'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200': user.status === 'niet geverifieerd',
-                        'bg-red-100 text-red-700 border-red-300 hover:bg-red-200': user.status === 'geblokkeerd',
-                    })}
+                    className={cn(getStatusBadgeClasses(user.status))}
                 >
-                    {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                    {formatStatusText(user.status)}
                 </Badge>
               </TableCell>
               <TableCell>
                 <Badge 
                     variant={getRoleBadgeVariant(user.role)}
-                    className={cn({
-                        'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30': user.role === 'admin',
-                        'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30': user.role === 'coach',
-                         // default outline for deelnemer
-                    })}
+                    className={cn(getRoleBadgeClasses(user.role))}
                 >
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </Badge>
@@ -115,6 +136,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Eye className="mr-2 h-4 w-4" /> Bekijken / Bewerken
                     </DropdownMenuItem>
+                    {/* Edit and Delete can be conditional based on user status/role if needed */}
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Edit className="mr-2 h-4 w-4" /> Bewerken
                     </DropdownMenuItem>

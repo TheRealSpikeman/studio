@@ -14,25 +14,32 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
-import { nl } from 'date-fns/locale'; // Added import for nl locale
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp } from 'lucide-react'; // Added icons
+import { nl } from 'date-fns/locale';
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
-  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd']),
-  role: z.enum(['admin', 'coach', 'deelnemer']),
+  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected']),
+  role: z.enum(['admin', 'coach', 'deelnemer', 'tutor']),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
   coaching_startDate: z.date().optional(),
   coaching_interval: z.coerce.number().int().positive("Interval moet een positief getal zijn.").optional().or(z.literal(0)),
   coaching_currentDayInFlow: z.coerce.number().int().positive("Dag in flow moet een positief getal zijn.").optional().or(z.literal(0)),
-  password: z.string().optional().or(z.literal('')), // Keep optional for edit, empty if not changing
+  password: z.string().optional().or(z.literal('')),
   confirmPassword: z.string().optional().or(z.literal('')),
+  tutorDetails_bio: z.string().optional(),
+  tutorDetails_subjects: z.array(z.string()).optional(),
+  tutorDetails_hourlyRate: z.coerce.number().optional(),
+  tutorDetails_availability: z.string().optional(),
+  tutorDetails_cvUrl: z.string().url().optional().or(z.literal('')),
+  tutorDetails_vogUrl: z.string().url().optional().or(z.literal('')),
 }).refine(data => {
-    if (data.password && data.password.length > 0 && data.password.length < 8) return false; // Password must be at least 8 chars if provided
+    if (data.password && data.password.length > 0 && data.password.length < 8) return false;
     return true;
   }, {
     message: "Wachtwoord moet minimaal 8 tekens zijn.",
@@ -54,72 +61,79 @@ interface UserEditDialogProps {
 }
 
 export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, onSave }: UserEditDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<UserFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors }, setValue } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      status: 'niet geverifieerd',
-      role: 'deelnemer',
-      avatarUrl: '',
-      coaching_interval: 0,
-      coaching_currentDayInFlow: 0,
-      password: '',
-      confirmPassword: '',
+      name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', avatarUrl: '',
+      coaching_interval: 0, coaching_currentDayInFlow: 0, password: '', confirmPassword: '',
+      tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
+      tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
     }
   });
 
   useEffect(() => {
     if (user && !isAddingNewUser) {
       reset({
-        name: user.name,
-        email: user.email,
-        status: user.status,
-        role: user.role,
+        name: user.name, email: user.email, status: user.status, role: user.role,
         avatarUrl: user.avatarUrl || '',
         coaching_startDate: user.coaching?.startDate ? parseISO(user.coaching.startDate) : undefined,
         coaching_interval: user.coaching?.interval || 0,
         coaching_currentDayInFlow: user.coaching?.currentDayInFlow || 0,
-        password: '',
-        confirmPassword: '',
+        password: '', confirmPassword: '',
+        tutorDetails_bio: user.tutorDetails?.bio || '',
+        tutorDetails_subjects: user.tutorDetails?.subjects || [],
+        tutorDetails_hourlyRate: user.tutorDetails?.hourlyRate || undefined,
+        tutorDetails_availability: user.tutorDetails?.availability || '',
+        tutorDetails_cvUrl: user.tutorDetails?.cvUrl || '',
+        tutorDetails_vogUrl: user.tutorDetails?.vogUrl || '',
       });
     } else {
-      reset({ // Default for new user
-        name: '',
-        email: '',
-        status: 'niet geverifieerd',
-        role: 'deelnemer',
-        avatarUrl: '',
-        coaching_startDate: undefined,
-        coaching_interval: 0,
-        coaching_currentDayInFlow: 0,
-        password: '',
-        confirmPassword: '',
+      reset({
+        name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', avatarUrl: '',
+        coaching_startDate: undefined, coaching_interval: 0, coaching_currentDayInFlow: 0,
+        password: '', confirmPassword: '',
+        tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
+        tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
       });
     }
   }, [user, isAddingNewUser, reset, isOpen]);
 
   const onSubmit = (data: UserFormData) => {
     const processedData: Partial<User> & Pick<User, 'name' | 'email' | 'status' | 'role'> = {
-      name: data.name,
-      email: data.email,
-      status: data.status,
-      role: data.role,
+      name: data.name, email: data.email, status: data.status, role: data.role,
       avatarUrl: data.avatarUrl || undefined,
       coaching: {
         startDate: data.coaching_startDate ? data.coaching_startDate.toISOString() : undefined,
         interval: data.coaching_interval && data.coaching_interval > 0 ? data.coaching_interval : undefined,
         currentDayInFlow: data.coaching_currentDayInFlow && data.coaching_currentDayInFlow > 0 ? data.coaching_currentDayInFlow : undefined,
-      }
+      },
+      tutorDetails: data.role === 'tutor' ? {
+        bio: data.tutorDetails_bio,
+        subjects: data.tutorDetails_subjects,
+        hourlyRate: data.tutorDetails_hourlyRate,
+        availability: data.tutorDetails_availability,
+        cvUrl: data.tutorDetails_cvUrl,
+        vogUrl: data.tutorDetails_vogUrl,
+      } : undefined,
     };
-    // Password handling would be more complex, e.g. only send if changed
-    // For now, this simplified onSave expects a User-like object.
     onSave(processedData as User);
   };
 
-  const getInitials = (name?: string) => {
-    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
-  }
+  const handleApproveTutor = () => {
+    if (user && user.role === 'tutor' && user.status === 'pending_approval') {
+      setValue('status', 'actief'); // Change status in form
+      handleSubmit(onSubmit)(); // Trigger form submission with new status
+    }
+  };
+  
+  const handleRejectTutor = () => {
+     if (user && user.role === 'tutor' && user.status === 'pending_approval') {
+      setValue('status', 'rejected'); // Change status in form
+      handleSubmit(onSubmit)(); // Trigger form submission with new status
+    }
+  };
+
+  const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -133,8 +147,9 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           <Tabs defaultValue="profile" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile"><UserCircle className="mr-1 h-4 w-4 inline-block" />Profiel</TabsTrigger>
-              <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen</TabsTrigger>
+              <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen & Status</TabsTrigger>
               <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>
+              {user?.role === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="profile" className="space-y-4 pt-2">
@@ -143,7 +158,6 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                   <AvatarImage src={user?.avatarUrl || ''} data-ai-hint="user avatar"/>
                   <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
                 </Avatar>
-                {/* Basic avatar URL input for now. File upload would be more complex. */}
                  <div className="w-full space-y-1">
                     <Label htmlFor="avatarUrl">Avatar URL (optioneel)</Label>
                     <div className="relative">
@@ -162,9 +176,9 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 <Label htmlFor="email">E-mail</Label>
                 <Input id="email" type="email" {...register("email")} disabled={!isAddingNewUser} />
                 {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-                {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden voor bestaande gebruikers.</p>}
+                {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden.</p>}
               </div>
-              {(isAddingNewUser || (user && user.status !== 'actief')) && ( // Only show password for new users or if account is not active
+              {(isAddingNewUser || (user && (user.status !== 'actief' && user.status !== 'pending_approval'))) && (
                  <>
                     <div>
                         <Label htmlFor="password">Wachtwoord {isAddingNewUser ? '' : '(leeg laten om niet te wijzigen)'}</Label>
@@ -187,12 +201,15 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                   name="status"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={user?.role === 'tutor' && user?.status === 'pending_approval'}>
                       <SelectTrigger id="status"><SelectValue placeholder="Selecteer status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="actief">Actief</SelectItem>
                         <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
                         <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
+                        <SelectItem value="pending_onboarding">Wacht op Onboarding (Tutor)</SelectItem>
+                        <SelectItem value="pending_approval">Wacht op Goedkeuring (Tutor)</SelectItem>
+                        <SelectItem value="rejected">Afgewezen (Tutor)</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -211,6 +228,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="coach">Coach</SelectItem>
                         <SelectItem value="deelnemer">Deelnemer</SelectItem>
+                        <SelectItem value="tutor">Tutor</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -263,13 +281,38 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 {errors.coaching_currentDayInFlow && <p className="text-sm text-destructive">{errors.coaching_currentDayInFlow.message}</p>}
               </div>
             </TabsContent>
+            
+            {user?.role === 'tutor' && (
+              <TabsContent value="tutorSpecific" className="space-y-4 pt-2">
+                <CardTitle className="text-lg">Tutor Specifieke Informatie</CardTitle>
+                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} readOnly /></div>
+                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} readOnly /></div>
+                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} readOnly /></div>
+                <div><Label>Vakken:</Label><Input value={user.tutorDetails?.subjects?.join(', ') || 'N.v.t.'} readOnly /></div>
+                <div><Label>CV URL:</Label><Input {...register("tutorDetails_cvUrl")} readOnly /></div>
+                <div><Label>VOG URL:</Label><Input {...register("tutorDetails_vogUrl")} readOnly /></div>
+                 {user.status === 'pending_approval' && (
+                    <div className="flex gap-2 mt-4 pt-4 border-t">
+                        <Button onClick={handleApproveTutor} className="bg-green-500 hover:bg-green-600">
+                            <CheckCircle className="mr-2 h-4 w-4"/> Goedkeuren
+                        </Button>
+                        <Button onClick={handleRejectTutor} variant="destructive">
+                            <XCircle className="mr-2 h-4 w-4"/> Afwijzen
+                        </Button>
+                    </div>
+                )}
+              </TabsContent>
+            )}
           </Tabs>
         </form>
         <DialogFooter className="pt-4 border-t">
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>
-          <Button type="submit" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
+          {/* Hide general save if it's a pending approval tutor, use specific buttons */}
+          {!(user?.role === 'tutor' && user?.status === 'pending_approval') && (
+            <Button type="submit" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
