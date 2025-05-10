@@ -3,15 +3,9 @@
 
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function BecomeTutorHero() {
-  const scrollToForm = () => {
-    const formElement = document.getElementById('tutor-application-form');
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <section className="py-16 md:py-24 lg:py-32 bg-primary/5">
       <div className="container mx-auto grid grid-cols-1 items-center justify-items-center gap-12 md:grid-cols-2 md:gap-16 lg:gap-20">
@@ -23,8 +17,10 @@ export function BecomeTutorHero() {
             Help jongeren van 12–18 jaar succes te boeken op school, bepaal je eigen tarief en werk op tijden die jou uitkomen. Maak een positieve impact!
           </p>
           <div className="mt-10">
-            <Button size="lg" onClick={scrollToForm} className="shadow-md hover:shadow-lg transition-shadow px-8 py-6 text-lg">
-              Meld je nu aan
+            <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6 text-lg">
+              <Link href="/tutor-application">
+                Meld je nu aan
+              </Link>
             </Button>
           </div>
         </div>
