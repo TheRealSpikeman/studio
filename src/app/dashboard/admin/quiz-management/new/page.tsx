@@ -91,7 +91,11 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
 
   const form = useForm<QuizFormData>({
     resolver: zodResolver(quizFormSchema),
-    defaultValues: quizData || {
+    defaultValues: quizData ? {
+        ...quizData,
+        questions: quizData.questions.map(q => ({ ...q, weight: q.weight ?? 1})), // Ensure weight has a default for editing
+        subtestConfigs: quizData.subtestConfigs || [], // Ensure subtestConfigs is an array
+    } : {
       title: "",
       description: "",
       audience: [],
@@ -117,7 +121,6 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
   });
 
   const onSubmit = (data: QuizFormData) => {
-    // TODO: Implement actual save logic (create or update quiz in backend/localStorage)
     console.log("Quiz data submitted for saving:", data);
 
     let toastTitle = "";
@@ -136,19 +139,35 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
       }
     }
     
-    // Simulate saving to localStorage for AI quizzes if in edit mode and it's an AI quiz
     if (isEditMode && quizData?.id?.startsWith('ai-')) {
         try {
             const updatedQuizForStorage = {
-                ...quizData, // original ID and other non-form fields
-                ...data, // new form data
+                ...quizData, 
+                ...data, 
+                id: quizData.id, // Preserve the original AI ID
                 lastUpdatedAt: new Date().toISOString(),
+                 // Ensure questions have a default weight if not provided by AI/form
+                questions: data.questions.map(q => ({...q, weight: q.weight ?? 1})),
             };
             localStorage.setItem(`ai-quiz-${quizData.id}`, JSON.stringify(updatedQuizForStorage));
             console.log(`AI Quiz ${quizData.id} updated in localStorage`);
         } catch (error) {
             console.error("Error updating AI quiz in localStorage:", error);
         }
+    } else if (!isEditMode && data.title.toLowerCase().includes("ai gegenereerd")) {
+        // This is a fallback for newly AI-generated quizzes that don't have an ID yet
+        // However, the AI quiz generation flow in quiz-management/page.tsx should handle saving new AI quizzes directly.
+        // This part might be redundant or for a different flow.
+        const newAiQuizId = `ai-${Date.now()}`;
+         const newQuizForStorage = {
+            ...data,
+            id: newAiQuizId,
+            createdAt: new Date().toISOString(),
+            lastUpdatedAt: new Date().toISOString(),
+            questions: data.questions.map(q => ({...q, weight: q.weight ?? 1})),
+        };
+        localStorage.setItem(`ai-quiz-${newAiQuizId}`, JSON.stringify(newQuizForStorage));
+        console.log(`New AI Quiz ${newAiQuizId} saved to localStorage from new quiz page`);
     }
 
 
@@ -160,6 +179,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
   };
 
   const currentCategory = form.watch("category");
+  const currentStatus = form.watch("status");
 
   return (
     <Form {...form}>
@@ -267,7 +287,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Selecteer status" /></SelectTrigger></FormControl>
                     <SelectContent>
                       <SelectItem value="concept">Concept</SelectItem>
@@ -308,7 +328,15 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                     render={({ field: fld }) => (
                       <FormItem className="md:col-span-1">
                         <FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel>
-                        <FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} defaultValue={1} /></FormControl>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="1" 
+                            max="5" 
+                            placeholder="1-5" 
+                            {...fld}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -413,22 +441,29 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
               form.setValue("status", "concept"); 
               form.handleSubmit(onSubmit)();
             }}
+            disabled={form.formState.isSubmitting}
           >
             <Save className="mr-2 h-4 w-4" /> Opslaan als Concept
           </Button>
           <Button 
-            type="button"
-            onClick={() => {
-              if (!isEditMode) { // If creating new, force status to published
-                form.setValue("status", "published");
-              }
-              // For edit mode, the status from dropdown will be used or what was set before.
-              // If user selected 'published' in dropdown for edit, it will be published.
-              // If they selected 'concept', it will be saved as concept unless "Opslaan als Concept" is clicked (which also ensures concept).
-              form.handleSubmit(onSubmit)();
+            type="submit" // Changed to type="submit" to trigger main form submission
+            disabled={form.formState.isSubmitting}
+             onClick={(e) => {
+                // If it's not edit mode and the status is not already set to published, set it.
+                // Otherwise, let the form's current status value (from dropdown or initial data) be used.
+                if (!isEditMode && form.getValues("status") !== "published") {
+                    form.setValue("status", "published");
+                }
+                // handleSubmit will be called by the form's onSubmit
             }}
           >
-            <Save className="mr-2 h-4 w-4" /> {isEditMode ? 'Quiz Bijwerken' : 'Publiceren'}
+            <Save className="mr-2 h-4 w-4" /> 
+            {isEditMode && currentStatus === 'published' ? 'Quiz Bijwerken & Publiceren' : 
+             isEditMode && currentStatus === 'concept' ? 'Concept Bijwerken' :
+             !isEditMode && currentStatus === 'published' ? 'Publiceren' :
+             !isEditMode && currentStatus === 'concept' ? 'Publiceren als Concept' : // Should not happen with button logic
+             'Publiceren'
+            }
           </Button>
         </CardFooter>
       </form>
