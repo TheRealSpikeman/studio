@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { FileText, Puzzle, MessageSquareText } from 'lucide-react';
+import { FileText, Puzzle, MessageSquareText, BookOpenCheck } from 'lucide-react';
 
 export function HeroSection() {
   return (
@@ -28,6 +28,10 @@ export function HeroSection() {
             <li className="flex items-center gap-3">
               <MessageSquareText className="h-6 w-6 text-primary flex-shrink-0" />
               <span>Dagelijkse coaching & routines (premium)</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <BookOpenCheck className="h-6 w-6 text-primary flex-shrink-0" />
+              <span>Huiswerkbegeleiding op maat (binnen premium coaching)</span>
             </li>
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
