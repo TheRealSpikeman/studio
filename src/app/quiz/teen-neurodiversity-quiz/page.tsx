@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart, Settings, HelpCircle, ChevronRight, Users, Search, ListChecks, Check, MessageSquareHeart, Edit } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, HelpCircle, ChevronRight, Users, Search, ListChecks, Check, MessageSquareHeart, Edit } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -44,19 +44,14 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   HSP: Sparkles, 
   ASS: Compass, 
   AngstDepressie: ShieldAlert,
-  'Jouw Profiel In Vogelvlucht': Users, // For AI Analysis section
-  'Sterke Kanten': ThumbsUp, // For AI Analysis section
-  'Aandachtspunten': Edit, // For AI Analysis section (was Target, changed for clarity)
-  'Tips voor Jou': Lightbulb, // For AI Analysis section
-  'Overige Informatie': Info, // For AI Analysis section
+  'Jouw Profiel In Vogelvlucht': Users,
+  'Sterke Kanten': ThumbsUp,
+  'Aandachtspunten': Edit, 
+  'Tips voor Jou': Lightbulb,
+  'Overige Informatie': Info,
+  'Default': HelpCircle,
+  'Algemeen Overzicht': MessageSquareHeart,
 };
-
-interface AiAnalysisSection {
-  title: string;
-  content: string | ParsedProfileScore[]; // content can be a string or an array of ParsedProfileScore for "Jouw Profiel In Vogelvlucht"
-  isList?: boolean; // Indicates if content string should be treated as a list
-  icon?: React.ElementType;
-}
 
 interface ParsedProfileScore {
   profileName: string;
@@ -65,97 +60,105 @@ interface ParsedProfileScore {
   icon?: React.ElementType;
 }
 
+interface AiAnalysisSection {
+  title: string;
+  content: string | ParsedProfileScore[]; 
+  isList?: boolean; 
+  icon?: React.ElementType;
+}
+
 const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
 
+  let cleanedText = analysisText.replace(/\*\*(.*?)\*\*/g, '$1'); 
+  cleanedText = cleanedText.replace(/^(##\s*)/gm, ''); 
+
   const sections: AiAnalysisSection[] = [];
   const knownHeaders = ["Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
-  const listSections = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
   
-  let remainingText = analysisText;
+  let textToProcess = cleanedText;
+  let lastKnownHeaderEndIndex = 0;
 
-  // Function to clean header from text
-  const cleanHeader = (text: string, header: string) => {
-    const regex = new RegExp(`^${header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\n?`, 'i');
-    return text.replace(regex, '').trim();
-  };
-  
-  // Extract "Jouw Profiel In Vogelvlucht" first as it has a special list format
-  const vogelvluchtHeader = "Jouw Profiel In Vogelvlucht";
-  const vogelvluchtIndex = remainingText.toLowerCase().indexOf(vogelvluchtHeader.toLowerCase());
+  for (const header of knownHeaders) {
+    const headerRegex = new RegExp(`^${header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s*\\n)?`, 'im');
+    const match = headerRegex.exec(textToProcess);
 
-  if (vogelvluchtIndex !== -1) {
-    const nextHeaderIndexAfterVogelvlucht = knownHeaders.slice(1)
-      .map(h => remainingText.toLowerCase().indexOf(h.toLowerCase(), vogelvluchtIndex + vogelvluchtHeader.length))
-      .filter(idx => idx !== -1)
-      .sort((a, b) => a - b)[0] || remainingText.length;
-    
-    let vogelvluchtContentRaw = remainingText.substring(vogelvluchtIndex + vogelvluchtHeader.length, nextHeaderIndexAfterVogelvlucht).trim();
-    vogelvluchtContentRaw = cleanHeader(vogelvluchtContentRaw, vogelvluchtHeader); // Clean if header repeated in content
-
-    const profileScores: ParsedProfileScore[] = [];
-    vogelvluchtContentRaw.split('\n').forEach(line => {
-      line = line.trim();
-      if (line.startsWith('-')) {
-        const match = line.match(/-\s*([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
-        if (match) {
-          const profileName = match[1].trim();
-          const profileKey = Object.keys(neurotypeIcons).find(key => 
-            profileName.toLowerCase().includes(key.toLowerCase()) || 
-            key.toLowerCase().includes(profileName.toLowerCase())
-          ) || 'Default';
-          profileScores.push({
-            profileName: profileName,
-            score: match[2].trim(),
-            comment: match[3] ? match[3].trim() : "Nadere toelichting volgt.",
-            icon: neurotypeIcons[profileKey] || HelpCircle
-          });
-        } else {
-           // If it's a list item but not matching the score format, treat as general text for this section
-           if (profileScores.length === 0 || profileScores[profileScores.length-1].profileName !== "Algemeen") {
-            profileScores.push({profileName: "Algemeen", score: "", comment: line.substring(1).trim(), icon: Info});
-           } else {
-             profileScores[profileScores.length-1].comment += `\n${line.substring(1).trim()}`;
-           }
-        }
-      }
-    });
-    if (profileScores.length > 0) {
-       sections.push({ title: vogelvluchtHeader, content: profileScores, icon: neurotypeIcons[vogelvluchtHeader] || Users });
-    } else if (vogelvluchtContentRaw) {
-       // Fallback if no list items parsed but content exists
-       sections.push({ title: vogelvluchtHeader, content: vogelvluchtContentRaw, icon: neurotypeIcons[vogelvluchtHeader] || Users });
-    }
-    remainingText = remainingText.substring(nextHeaderIndexAfterVogelvlucht);
-  }
-
-  // Extract other sections
-  knownHeaders.slice(1).forEach(header => {
-    const headerIndex = remainingText.toLowerCase().indexOf(header.toLowerCase());
-    if (headerIndex !== -1) {
-      const nextHeaderIndex = knownHeaders
-        .filter(h => h !== header && remainingText.toLowerCase().indexOf(h.toLowerCase(), headerIndex + header.length) !== -1)
-        .map(h => remainingText.toLowerCase().indexOf(h.toLowerCase(), headerIndex + header.length))
-        .sort((a, b) => a - b)[0] || remainingText.length;
-      
-      let content = remainingText.substring(headerIndex + header.length, nextHeaderIndex).trim();
-      content = cleanHeader(content, header); // Clean if header repeated in content
-      
-      if (content) {
-        sections.push({ 
-          title: header, 
-          content, 
-          isList: listSections.includes(header), 
-          icon: neurotypeIcons[header] || HelpCircle 
+    if (match) {
+      const contentBeforeThisHeader = textToProcess.substring(0, match.index).trim();
+      if (contentBeforeThisHeader && lastKnownHeaderEndIndex === 0) { 
+        sections.push({
+          title: "Overige Informatie",
+          content: contentBeforeThisHeader.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n'),
+          isList: false, 
+          icon: neurotypeIcons["Overige Informatie"] || Info
         });
       }
-      remainingText = remainingText.substring(nextHeaderIndex);
-    }
-  });
+      
+      const currentSectionTitle = header;
+      const contentStartIndex = match.index + match[0].length;
+      
+      let contentEndIndex = textToProcess.length;
+      for (const nextKnownHeader of knownHeaders) {
+        if (nextKnownHeader === header) continue; 
+        const nextKnownHeaderRegex = new RegExp(`^${nextKnownHeader.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s*\\n)?`, 'im');
+        const nextMatch = nextKnownHeaderRegex.exec(textToProcess.substring(contentStartIndex));
+        if (nextMatch) {
+          contentEndIndex = contentStartIndex + nextMatch.index;
+          break;
+        }
+      }
 
-  // Add any remaining text as a generic section if it wasn't captured
-  if (remainingText.trim()) {
-    sections.push({ title: "Overige Informatie", content: remainingText.trim(), icon: neurotypeIcons["Overige Informatie"] || Info });
+      let currentContent = textToProcess.substring(contentStartIndex, contentEndIndex).trim();
+      textToProcess = textToProcess.substring(contentEndIndex); 
+      lastKnownHeaderEndIndex = 0; 
+
+      const isListSection = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"].includes(currentSectionTitle);
+      const IconComponent = neurotypeIcons[currentSectionTitle] || HelpCircle;
+      
+      if (currentSectionTitle === "Jouw Profiel In Vogelvlucht") {
+        const profileScores: ParsedProfileScore[] = [];
+        currentContent.split('\n').forEach(line => {
+          line = line.replace(/^- |^\* /,'').trim(); 
+          if (!line) return;
+          const scoreMatch = line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
+          if (scoreMatch) {
+            const profileName = scoreMatch[1].trim();
+            const profileKey = Object.keys(neurotypeIcons).find(key =>
+              profileName.toLowerCase().includes(key.toLowerCase()) ||
+              (neurotypeDescriptionsTeen[key] && neurotypeDescriptionsTeen[key].title.toLowerCase().includes(profileName.toLowerCase()))
+            ) || 'Default';
+            profileScores.push({
+              profileName: profileName,
+              score: scoreMatch[2].trim(),
+              comment: scoreMatch[3] ? scoreMatch[3].trim() : "Nadere toelichting volgt.",
+              icon: neurotypeIcons[profileKey] || HelpCircle
+            });
+          } else { 
+             if (profileScores.length > 0 && profileScores[profileScores.length-1].profileName === "Algemeen Overzicht") {
+               profileScores[profileScores.length-1].comment += `\n${line}`;
+             } else {
+                 profileScores.push({ profileName: "Algemeen Overzicht", score: "", comment: line, icon: neurotypeIcons["Algemeen Overzicht"]});
+             }
+          }
+        });
+        if (profileScores.length > 0) {
+            sections.push({ title: currentSectionTitle, content: profileScores, icon: IconComponent });
+        } else if (currentContent) { 
+            sections.push({ title: currentSectionTitle, content: currentContent, isList: isListSection, icon: IconComponent });
+        }
+      } else if (currentContent) {
+        sections.push({ title: currentSectionTitle, content: currentContent, isList: isListSection, icon: IconComponent });
+      }
+    }
+  }
+
+  if (textToProcess.trim()) {
+    sections.push({
+      title: "Overige Informatie",
+      content: textToProcess.split('\n').map(line => line.replace(/^- |^\* /,'').trim()).filter(Boolean).join('\n'),
+      isList: false, 
+      icon: neurotypeIcons["Overige Informatie"] || Info
+    });
   }
   
   return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
@@ -207,7 +210,7 @@ export default function TeenNeurodiversityQuizPage() {
     if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
       const fetchAnalysis = async () => {
         setIsAnalysisLoading(true);
-        setParsedAiAnalysis([]); // Clear previous parsed analysis
+        setParsedAiAnalysis([]); 
         try {
           const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
           
@@ -718,7 +721,7 @@ export default function TeenNeurodiversityQuizPage() {
                         <Brain className="h-7 w-7" /> Diepgaande Analyse door AI
                       </h2>
                     </CardHeader>
-                    <CardContent className="space-y-6 px-6 pb-6">
+                    <CardContent className="space-y-4 px-6 pb-6">
                     {isAnalysisLoading ? (
                         <div className="space-y-3 animate-pulse pt-2">
                             <div className="h-5 bg-muted rounded w-3/4"></div><div className="h-5 bg-muted rounded w-1/2"></div><div className="h-5 bg-muted rounded w-5/6"></div>
@@ -726,31 +729,35 @@ export default function TeenNeurodiversityQuizPage() {
                         </div>
                     ) : parsedAiAnalysis.length > 0 ? (
                        parsedAiAnalysis.map((section, index) => (
-                        <div key={index} className={cn(
-                            "py-3",
-                            section.title === "Aandachtspunten" && "bg-orange-50/70 border-l-4 border-orange-400 px-4 rounded-md shadow-sm"
-                        )}>
-                          <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <div 
+                          key={index} 
+                          className={cn(
+                            "py-3", 
+                            index > 0 && "border-t mt-4 pt-4",
+                             section.title === "Aandachtspunten" ? "bg-orange-50/70 border-l-4 border-orange-400 px-4 py-4 rounded-r-md shadow-sm" : "px-1"
+                          )}
+                        >
+                          <h3 className={cn("text-xl font-semibold text-foreground mb-3 flex items-center gap-2", section.title === "Aandachtspunten" && "text-orange-600")}>
                             {section.icon && <section.icon className={cn("h-6 w-6", section.title === "Aandachtspunten" ? "text-orange-500" : "text-primary" )} />}
                             {section.title}
                           </h3>
                           {typeof section.content === 'string' ? (
                             section.isList ? (
-                                <ul className="list-disc space-y-2 pl-6 text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                                    {section.content.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- |^\* /,'').trim()}</li>)}
+                                <ul className="list-disc space-y-2 pl-7 text-muted-foreground leading-relaxed">
+                                    {section.content.split('\n').map((item, i) => item.trim() && <li key={i} className="mb-1.5">{item.trim().replace(/^- |^\* /,'')}</li>)}
                                 </ul>
                             ) : (
                                 <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
                             )
-                          ) : (
+                          ) : ( 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {(section.content as ParsedProfileScore[]).map((item, itemIdx) => (
                                 <Card key={itemIdx} className="p-4 bg-background shadow">
                                   <div className="flex items-center gap-2 mb-1.5">
                                     {item.icon && <item.icon className="h-5 w-5 text-primary" />}
-                                    <p className="font-semibold text-primary text-lg">{item.profileName} (Score: {item.score})</p>
+                                    <p className="font-semibold text-primary text-lg">{item.profileName}{item.score && ` (Score: ${item.score})`}</p>
                                   </div>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">{item.comment}</p>
+                                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{item.comment}</p>
                                 </Card>
                               ))}
                             </div>
@@ -773,6 +780,16 @@ export default function TeenNeurodiversityQuizPage() {
                         MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.
                     </AlertDescUi>
                 </Alert>
+
+                 <div className="mt-10 p-6 bg-primary/10 border-l-4 border-primary rounded-md shadow-md">
+                    <h3 className="text-xl font-semibold text-primary flex items-center gap-2 mb-3">
+                        <Sparkles className="h-6 w-6" />
+                        Jouw Reis Gaat Verder!
+                    </h3>
+                    <p className="text-foreground leading-relaxed">
+                        Iedereen heeft unieke sterke kanten en uitdagingen. Dit rapport is een startpunt om jezelf beter te leren kennen. Onthoud dat je niet alleen bent op deze ontdekkingsreis. Er zijn altijd manieren om te groeien en je welzijn te verbeteren.
+                    </p>
+                </div>
 
               </CardContent>
             </Card>
@@ -861,4 +878,3 @@ export default function TeenNeurodiversityQuizPage() {
     </div>
   );
 }
-
