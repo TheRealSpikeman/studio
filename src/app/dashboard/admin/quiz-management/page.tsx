@@ -23,21 +23,78 @@ import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow';
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
-    id: 'q1', title: 'Basis Neuroprofiel (15-18 jr)', description: 'Algemene neurodiversiteitstest voor oudere tieners.', 
+    id: 'teen-neuro-15-18', title: 'Basis Neuroprofiel (15-18 jr)', 
+    description: 'Algemene neurodiversiteitstest voor oudere tieners, ontdek jouw unieke eigenschappen.', 
     audience: ['15-18'], category: 'Basis', status: 'published', 
-    questions: [{id:'q1a', text:'Vraag 1', weight: 1}, {id:'q1b', text:'Vraag 2', weight: 1}],
-    lastUpdatedAt: new Date().toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString()
+    questions: [
+        {id:'q_tn_1518_1', text:'Ik merk dat mijn gedachten afdwalen, zelfs als ik probeer te focussen op schoolwerk.', weight: 2}, 
+        {id:'q_tn_1518_2', text:'Na een lange schooldag heb ik echt tijd nodig om bij te komen.', weight: 1},
+        {id:'q_tn_1518_3', text:'Ik voel me snel overweldigd in drukke plekken zoals de kantine.', weight: 3}
+    ],
+    subtestConfigs: [{subtestId: 'ADD', threshold: 2.6}, {subtestId: 'HSP', threshold: 3.1}],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 2).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+    slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.'
   },
   { 
-    id: 'q2', title: 'Examenvrees Check', description: 'Quiz over omgaan met examenstress.', 
+    id: 'teen-neuro-12-14', title: 'Basis Neuroprofiel (12-14 jr)', 
+    description: 'Speciaal voor 12-14 jaar, ontdek jouw unieke eigenschappen.', 
+    audience: ['12-14'], category: 'Basis', status: 'published', 
+    questions: [
+      {id:'q_tn_1214_1', text:'Dwalen je gedachten makkelijk af als je je probeert te concentreren?', weight: 2},
+      {id:'q_tn_1214_2', text:'Heb je na een drukke schooldag tijd voor jezelf nodig om bij te komen?', weight: 1}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 3).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
+    slug: 'basis-neuro-12-14',
+  },
+  { 
+    id: 'exam-stress-planning', title: 'Examenvrees & Planning', 
+    description: 'Leer stress te beheersen en je planning scherp te houden voor examens.', 
     audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', 
-    questions: [{id:'q2a', text:'Vraag A', weight: 2}],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+    questions: [
+      {id:'q_esp_1', text:'Maak je je veel zorgen over toetsen, zelfs als je goed hebt geleerd?', weight: 3},
+      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met leren voor een examen?', weight: 2}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
+    slug: 'examenvrees-planning-quiz',
   },
   { 
-    id: 'q3', title: 'Focus Test (12-14 jr)', description: 'Concentratiecheck voor jongere tieners.', 
-    audience: ['12-14'], category: 'ADD', status: 'published', questions: [],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 10).toISOString(), createdAt: new Date(Date.now() - 86400000 * 12).toISOString()
+    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding', 
+    description: 'Ontdek hoe social media en andere digitale afleidingen je concentratie beïnvloeden.', 
+    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'published', 
+    questions: [
+      {id:'q_fdd_1', text:'Raak je snel afgeleid door meldingen op je telefoon tijdens het huiswerk?', weight: 1},
+      {id:'q_fdd_2', text:'Hoe vaak controleer je social media terwijl je eigenlijk zou moeten studeren?', weight: 2}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
+    slug: 'focus-digitale-afleiding',
+  },
+   { 
+    id: 'social-anxiety-friendships', title: 'Sociale Angst & Vriendschap', 
+    description: 'Verken hoe je je voelt in sociale situaties en bij het maken van vrienden.', 
+    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'concept', 
+    questions: [
+        {id:'q_saf_1', text:'Vind je het spannend om nieuwe mensen te ontmoeten?', weight: 2},
+        {id:'q_saf_2', text:'Maak je je zorgen over wat anderen van je denken in een groep?', weight: 3}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 6).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
+    slug: 'sociale-angst-vriendschap',
+  },
+  { 
+    id: 'motivation-goals', title: 'Motivatie & Doelen Stellen', 
+    description: 'Leer hoe je gemotiveerd blijft en effectieve doelen kunt stellen voor jezelf.', 
+    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'published', 
+    questions: [
+        {id:'q_md_1', text:'Vind je het moeilijk om gemotiveerd te blijven voor schoolwerk dat je niet leuk vindt?', weight: 1},
+        {id:'q_md_2', text:'Stel je vaak doelen voor jezelf, maar vind je het lastig om ze te bereiken?', weight: 2}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 4).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
+    slug: 'motivatie-doelen-quiz',
   },
 ];
 
@@ -93,24 +150,32 @@ export default function QuizManagementPage() {
   const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
 
   useEffect(() => {
-    // Load quizzes from localStorage on initial mount if any, merge with DUMMY_QUIZZES
-    // This is a demo-specific way to handle persistence.
     const loadedQuizzes: QuizAdmin[] = [...DUMMY_QUIZZES];
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('ai-quiz-')) {
-          const storedQuiz = JSON.parse(localStorage.getItem(key)!);
-          // Avoid duplicates if DUMMY_QUIZZES already has it (though unlikely with dynamic IDs)
-          if (!loadedQuizzes.find(q => q.id === storedQuiz.id)) {
-            loadedQuizzes.push(storedQuiz);
+          const storedQuizData = localStorage.getItem(key);
+          if (storedQuizData) {
+            const storedQuiz = JSON.parse(storedQuizData) as QuizAdmin;
+             // Ensure questions have a default weight if not present (compatibility)
+            const questionsWithWeight = storedQuiz.questions.map(q => ({...q, weight: q.weight ?? 1}));
+            const quizToAdd = {...storedQuiz, questions: questionsWithWeight};
+
+            if (!loadedQuizzes.find(q => q.id === quizToAdd.id)) {
+              loadedQuizzes.push(quizToAdd);
+            } else {
+              // Optionally, update existing dummy quiz if an AI quiz with same ID exists (though unlikely with ai- prefix)
+              // const index = loadedQuizzes.findIndex(q => q.id === quizToAdd.id);
+              // loadedQuizzes[index] = quizToAdd;
+            }
           }
         }
       }
     } catch (error) {
         console.error("Error loading quizzes from localStorage:", error);
     }
-    setQuizzes(loadedQuizzes);
+    setQuizzes(loadedQuizzes.map(q => ({...q, questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})) })));
   }, []);
 
 
@@ -146,11 +211,11 @@ export default function QuizManagementPage() {
   const handleDeleteQuiz = (quizId: string) => {
     setQuizzes(prev => prev.filter(q => q.id !== quizId));
     try {
-      localStorage.removeItem(`ai-quiz-${quizId}`); // Also remove from localStorage if it was an AI quiz
+      localStorage.removeItem(`ai-quiz-${quizId}`); 
     } catch (error) {
       console.error("Error removing quiz from localStorage:", error);
     }
-    toast({ title: "Quiz verwijderd", description: `Quiz met ID ${quizId} is verwijderd (simulatie).` });
+    toast({ title: "Quiz verwijderd", description: `Quiz met ID ${quizId} is verwijderd.` });
   };
   
   const getStatusBadgeVariant = (status: QuizStatusAdmin): "default" | "secondary" => {
@@ -192,10 +257,10 @@ export default function QuizManagementPage() {
         category: data.category as QuizCategory,
         status: 'concept',
         questions: aiResult.questions.map((q, i) => ({
-          id: `ai-q${i+1}-${Date.now()}-${Math.random().toString(36).substring(7)}`, // Ensure question IDs are unique enough
+          id: `ai-q${i+1}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`,
           text: q.text,
           example: q.example,
-          weight: q.weight
+          weight: q.weight ?? 1 // Ensure weight defaults to 1 if not provided by AI
         })),
         lastUpdatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -474,4 +539,3 @@ export default function QuizManagementPage() {
     </div>
   );
 }
-
