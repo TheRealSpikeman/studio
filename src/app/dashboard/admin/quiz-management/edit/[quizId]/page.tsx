@@ -43,6 +43,32 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
   // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 500));
 
+  if (id.startsWith('ai-')) {
+    // Return a generic AI-generated quiz structure for editing
+    // This is a placeholder as the actual generated content is not persisted across pages in this dummy setup
+    const aiQuizIdSuffix = id.substring(3); // Extract the part after 'ai-'
+    return {
+      id: id,
+      title: `AI Gegenereerde Quiz ${aiQuizIdSuffix.substring(0, 5)}... (Bewerk)`,
+      description: "Pas de details van deze AI-gegenereerde quiz aan. De oorspronkelijke AI-gegenereerde content is hier niet beschikbaar voor bewerking in deze demo-omgeving.",
+      audience: ['15-18'], // Default or make it dynamic if possible (not here)
+      category: 'Thema', // Default
+      status: 'concept',
+      questions: [
+        { text: "Voorbeeld AI Vraag 1: Pas deze vraag aan.", example: "Voeg hier een voorbeeld of toelichting toe." },
+        { text: "Voorbeeld AI Vraag 2: Pas deze vraag aan.", example: "" },
+        { text: "Voorbeeld AI Vraag 3: Pas deze vraag aan.", example: "" },
+        { text: "Voorbeeld AI Vraag 4: Pas deze vraag aan.", example: "" },
+        { text: "Voorbeeld AI Vraag 5: Pas deze vraag aan.", example: "" },
+      ],
+      subtestConfigs: [],
+      slug: `ai-gegenereerde-quiz-${aiQuizIdSuffix}`,
+      metaTitle: `Bewerk AI Quiz ${aiQuizIdSuffix.substring(0,5)}`,
+      metaDescription: "Een door AI gegenereerde quiz, klaar om bewerkt te worden.",
+      thumbnailUrl: "https://picsum.photos/seed/aiquizthumb/400/200", // Placeholder image
+    };
+  }
+
   const quiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id);
   if (quiz) {
     // Map QuizAdmin to QuizFormData
@@ -83,9 +109,8 @@ export default function EditQuizPage() {
   }
 
   if (quizData === null) {
-    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID.</div>;
+    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID of het is mogelijk een AI-gegenereerde quiz die niet correct wordt geladen voor bewerking in deze demo.</div>;
   }
   
   return <NewQuizPage quizData={quizData} />;
 }
-
