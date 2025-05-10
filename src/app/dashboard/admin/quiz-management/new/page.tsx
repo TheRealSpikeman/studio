@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info } from "lucide-react";
+import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -65,6 +65,7 @@ const quizFormSchema = z.object({
     z.object({
       text: z.string().min(5, { message: "Vraagtekst is te kort." }),
       example: z.string().optional(),
+      weight: z.coerce.number().min(1, {message: "Gewicht moet minimaal 1 zijn."}).max(5, {message: "Gewicht mag maximaal 5 zijn."}).optional(),
     })
   ).min(1, {message: "Voeg minimaal één vraag toe."}),
   subtestConfigs: z.array(
@@ -75,7 +76,7 @@ const quizFormSchema = z.object({
   ).optional(),
 });
 
-type QuizFormData = z.infer<typeof quizFormSchema>;
+export type QuizFormData = z.infer<typeof quizFormSchema>; // Exporting for EditQuizPage
 
 // This page is used for both creating new and editing existing quizzes.
 // If `quizData` prop is provided, it's in edit mode.
@@ -100,7 +101,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
       metaTitle: "",
       metaDescription: "",
       thumbnailUrl: "",
-      questions: [{ text: "", example: "" }],
+      questions: [{ text: "", example: "", weight: 1 }],
       subtestConfigs: [],
     },
   });
@@ -250,18 +251,18 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Vragen</CardTitle>
-            <CardDescription>Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd).</CardDescription>
+            <CardDescription>Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd). Stel een gewicht in voor de scoring.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {questionFields.map((field, index) => (
               <Card key={field.id} className="p-4 bg-muted/50">
                 <FormLabel className="font-semibold">Vraag {index + 1}</FormLabel>
-                <div className="grid grid-cols-1 gap-4 mt-2">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-2">
                   <FormField
                     control={form.control}
                     name={`questions.${index}.text`}
                     render={({ field: fld }) => (
-                      <FormItem>
+                      <FormItem className="md:col-span-4">
                         <FormLabel className="text-xs">Vraagtekst</FormLabel>
                         <FormControl><Textarea placeholder="Typ hier de vraag..." {...fld} rows={2} /></FormControl>
                         <FormMessage />
@@ -270,9 +271,20 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                   />
                   <FormField
                     control={form.control}
+                    name={`questions.${index}.weight`}
+                    render={({ field: fld }) => (
+                      <FormItem className="md:col-span-1">
+                        <FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel>
+                        <FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name={`questions.${index}.example`}
                     render={({ field: fld }) => (
-                      <FormItem>
+                      <FormItem className="md:col-span-6"> {/* Adjusted span for example to take full width below others */}
                         <FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel>
                         <FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl>
                         <FormMessage />
@@ -285,7 +297,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                 </Button>
               </Card>
             ))}
-            <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "" })}>
+            <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "", weight: 1 })}>
               <PlusCircle className="mr-2 h-4 w-4" /> Vraag Toevoegen
             </Button>
              {form.formState.errors.questions && typeof form.formState.errors.questions === 'object' && !Array.isArray(form.formState.errors.questions) && (

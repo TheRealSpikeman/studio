@@ -12,6 +12,7 @@ export interface QuizAdminQuestion {
   // For simplicity, assume fixed options for now (Nooit, Soms, Vaak, Altijd)
   // options?: QuizAdminQuestionOption[]; // If options can vary per question
   example?: string; // Optional example/clarification
+  weight?: number; // New: For weighted scoring (e.g., 1, 2, 3)
 }
 
 export type QuizAudience = '12-14' | '15-18' | 'adult' | 'all';
@@ -38,4 +39,8 @@ export interface QuizAdmin {
   thumbnailUrl?: string;
   lastUpdatedAt: string; // ISO date string
   createdAt: string; // ISO date string
+  // Conceptual fields for AI generation context, not directly stored yet unless needed for display
+  // difficultyLevel?: 'laag' | 'gemiddeld' | 'hoog';
+  // weightingScheme?: string; 
 }
+

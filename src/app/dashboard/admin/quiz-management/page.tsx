@@ -11,24 +11,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell'; // Import the component
+import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
     id: 'q1', title: 'Basis Neuroprofiel (15-18 jr)', description: 'Algemene neurodiversiteitstest voor oudere tieners.', 
-    audience: ['15-18'], category: 'Basis', status: 'published', questions: [{id:'q1a', text:'Vraag 1'}, {id:'q1b', text:'Vraag 2'}],
+    audience: ['15-18'], category: 'Basis', status: 'published', 
+    questions: [{id:'q1a', text:'Vraag 1', weight: 1}, {id:'q1b', text:'Vraag 2', weight: 1}],
     lastUpdatedAt: new Date().toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString()
   },
   { 
     id: 'q2', title: 'Examenvrees Check', description: 'Quiz over omgaan met examenstress.', 
-    audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', questions: [{id:'q2a', text:'Vraag A'}],
+    audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', 
+    questions: [{id:'q2a', text:'Vraag A', weight: 2}],
     lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
   },
   { 
@@ -63,11 +65,18 @@ const numQuestionsOptions = [
   { id: 15, label: '15 vragen' },
 ];
 
+const difficultyOptions = [
+    { id: 'laag', label: 'Laag' },
+    { id: 'gemiddeld', label: 'Gemiddeld' },
+    { id: 'hoog', label: 'Hoog' },
+];
+
 const aiQuizFormSchema = z.object({
   topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
   audience: z.string({ required_error: "Selecteer een doelgroep." }),
   category: z.string({ required_error: "Selecteer een domein/categorie." }),
   numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
+  difficulty: z.string({ required_error: "Selecteer een moeilijkheidsgraad."}),
 });
 type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
 
@@ -88,6 +97,7 @@ export default function QuizManagementPage() {
       audience: undefined,
       category: undefined,
       numQuestions: 10,
+      difficulty: "gemiddeld",
     },
   });
 
@@ -125,24 +135,30 @@ export default function QuizManagementPage() {
   const handleGenerateAiQuiz = async (data: AiQuizFormData) => {
     toast({
       title: "Quiz genereren met AI...",
-      description: "Een ogenblik geduld, dit kan even duren.",
+      description: `Onderwerp: ${data.topic}, Doelgroep: ${data.audience}, Categorie: ${data.category}, Aantal: ${data.numQuestions}, Moeilijkheid: ${data.difficulty}. Een ogenblik geduld.`,
     });
     setIsAiQuizDialogOpen(false);
 
     // Simulate AI generation
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // Simulate weights based on difficulty
+    let baseWeight = 1;
+    if (data.difficulty === 'gemiddeld') baseWeight = 2;
+    if (data.difficulty === 'hoog') baseWeight = 3;
+
     const newQuiz: QuizAdmin = {
       id: `ai-${Date.now()}`,
-      title: `${data.topic} (AI gegenereerd voor ${data.audience} - ${data.category})`,
-      description: `Automatisch gegenereerde quiz over ${data.topic} voor doelgroep ${data.audience} in de categorie ${data.category}.`,
+      title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
+      description: `AI quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijk. ${data.difficulty}).`,
       audience: [data.audience as QuizAudience],
       category: data.category as QuizCategory,
       status: 'concept',
       questions: Array.from({ length: data.numQuestions }, (_, i) => ({
         id: `ai-q${i+1}-${Date.now()}`,
         text: `AI Vraag ${i+1} over ${data.topic}?`,
-        example: "Dit is een AI gegenereerd voorbeeld."
+        example: "Dit is een AI gegenereerd voorbeeld.",
+        weight: baseWeight + (i % 2) // Example: vary weight slightly
       })),
       lastUpdatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -155,6 +171,12 @@ export default function QuizManagementPage() {
       description: `De quiz "${newQuiz.title}" is succesvol aangemaakt en aan de lijst toegevoegd.`,
       variant: "default", 
     });
+  };
+
+  const calculateAverageWeight = (quiz: QuizAdmin): string => {
+    if (!quiz.questions || quiz.questions.length === 0) return "N/A";
+    const totalWeight = quiz.questions.reduce((sum, q) => sum + (q.weight || 1), 0);
+    return (totalWeight / quiz.questions.length).toFixed(1);
   };
 
   return (
@@ -185,9 +207,9 @@ export default function QuizManagementPage() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>Genereer Quiz met AI</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2"><Zap className="text-primary h-5 w-5"/>Genereer Quiz met AI</DialogTitle>
                     <DialogDescription>
-                      Geef de AI instructies om een nieuwe quiz te genereren.
+                      Geef de AI instructies om een nieuwe quiz te genereren, inclusief moeilijkheidsgraad en weging.
                     </DialogDescription>
                   </DialogHeader>
                   <Form {...aiQuizForm}>
@@ -251,6 +273,23 @@ export default function QuizManagementPage() {
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={aiQuizForm.control}
+                        name="difficulty"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Moeilijkheid / Weging</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                {difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <DialogFooter className="pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)}>Annuleren</Button>
                         <Button type="submit">Vraag AI om quiz te genereren</Button>
@@ -306,17 +345,21 @@ export default function QuizManagementPage() {
                   <TableHead>Categorie</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="min-w-[80px]">Vragen</TableHead>
+                  <TableHead className="min-w-[100px]">Gem. Weging</TableHead>
                   <TableHead className="min-w-[130px]">Laatst Bijgewerkt</TableHead>
                   <TableHead className="text-right w-[80px]">Acties</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedQuizzes.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="h-24 text-center">Geen quizzen gevonden.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="h-24 text-center">Geen quizzen gevonden.</TableCell></TableRow>
                 )}
                 {paginatedQuizzes.map((quiz) => (
                   <TableRow key={quiz.id}>
-                    <TableCell className="font-medium">{quiz.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {quiz.title}
+                      {quiz.id.startsWith('ai-') && <Bot className="inline-block ml-2 h-4 w-4 text-primary" title="AI Gegenereerd"/>}
+                    </TableCell>
                     <TableCell>{quiz.audience.join(', ')}</TableCell>
                     <TableCell>{quiz.category}</TableCell>
                     <TableCell>
@@ -325,8 +368,9 @@ export default function QuizManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{quiz.questions.length}</TableCell>
+                    <TableCell>{quiz.id.startsWith('ai-') ? calculateAverageWeight(quiz) : 'N/A'}</TableCell>
                     <TableCell>
-                        <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="Pp" />
+                        <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="P" />
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
