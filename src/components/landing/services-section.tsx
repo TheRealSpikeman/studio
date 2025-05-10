@@ -13,64 +13,64 @@ interface Service {
   bullets: string[];
   ctaText: string;
   link: string;
-  colorClass: string; // Tailwind classes for card background and border
-  type: string; // Explicitly defines the type of service
+  colorClass: string;
+  type: string;
 }
 
 const services: Service[] = [
   {
     icon: <BarChart3 className="h-10 w-10 text-primary" />,
-    title: 'Neurodiversiteit-Quiz',
-    tagline: 'Ontdek je leerstijl in 5 min.',
-    bullets: ['Leeftijd 12–18 jaar', 'Direct PDF-rapport (beperkt)'],
-    ctaText: 'Start gratis quiz',
+    title: 'Ontdek Jouw Leerstijl',
+    tagline: 'Krijg direct inzicht in je leerstijl en prikkelgevoeligheid via onze quiz.',
+    bullets: ['Leeftijd 12–18 jaar', 'Direct PDF-rapport (beperkt)', 'Duur: ±5 minuten'],
+    ctaText: 'Ik wil starten met de quiz',
     link: '/quizzes',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
     type: 'Quiz',
   },
   {
     icon: <BookOpenText className="h-10 w-10 text-primary" />,
-    title: 'Coaching Tools',
-    tagline: 'Handige oefeningen & tips.',
+    title: 'Dagelijkse Groei-oefeningen',
+    tagline: 'Versterk je focus en zelfvertrouwen met praktische coaching tools en video\'s.',
     bullets: [
-      'Video’s en checklists voor dagelijkse groei',
       'Toegang 24/7 tot alle coaching materialen',
       'Houd een dagboek bij en meet je stemming',
       'Deel ervaringen in ons ondersteunende forum',
+      '3 korte vragen per dag & wekelijkse voortgang',
     ],
-    ctaText: 'Start met Coaching', // Updated CTA Text
+    ctaText: 'Start mijn coaching',
     link: '/dashboard/coaching',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
     type: 'Coaching',
   },
   {
     icon: <Laptop className="h-10 w-10 text-primary" />,
-    title: 'Huiswerkbegeleiding Tools',
-    tagline: 'Structuur in je studie.',
+    title: 'Leer Plannen & Focussen',
+    tagline: 'Krijg grip op je schoolwerk met slimme huiswerkbegeleiding tools.',
     bullets: [
       'Planningssjablonen voor effectief leren',
       'Motivatie-kaarten en studietechnieken',
-      'Online groepssessies (max. 6 leerlingen)',
-      'Sessies van 45 min, 5 dagen per week',
+      'Max. 6 leerlingen per online groepssessie',
+      'Sessies van 45 min, meerdere keren per week',
     ],
-    ctaText: 'Gebruik Studieplanner', // Updated CTA Text
+    ctaText: 'Gebruik mijn studieplanner',
     link: '/dashboard/homework-assistance',
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
-    type: 'Tools',
+    type: 'Huiswerk Tools',
   },
   {
     icon: <Users2 className="h-10 w-10 text-primary" />,
-    title: '1-op-1 Huiswerkbegeleiding',
-    tagline: 'Persoonlijke coachsessie.',
+    title: 'Persoonlijke Leercoaching',
+    tagline: 'Krijg 1-op-1 hulp van ervaren tutors, afgestemd op jouw behoeften.',
     bullets: [
-      'Uitgebreide persoonlijke intake en plan op maat',
-      'Flexibele tijden: 30–60 min per afspraak',
+      'Persoonlijke intake en plan op maat',
+      'Flexibel plannen: 30–60 min per afspraak',
       'Directe hulp van gecertificeerde tutors',
     ],
-    ctaText: 'Plan kennismaking',
+    ctaText: 'Plan mijn intake',
     link: '/dashboard/homework-assistance/tutors',
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
-    type: '1-op-1',
+    type: '1-op-1 Begeleiding',
   },
 ];
 
@@ -108,24 +108,24 @@ export function ServicesSection() {
                 service.colorClass
               )}
             >
-              <CardHeader className="items-center w-full">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{service.type}</div>
+              <CardHeader className="items-center w-full pb-2">
+                <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider">{service.type}</div>
                 <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                   {service.icon}
                 </div>
-                <CardTitle className="text-2xl font-bold text-primary">{service.title}</CardTitle>
+                <CardTitle className="text-xl font-bold text-primary">{service.title}</CardTitle>
               </CardHeader>
-              <CardContent className="flex-grow w-full space-y-3">
-                <p className="text-foreground/80 text-sm font-medium">{service.tagline}</p>
+              <CardContent className="flex-grow w-full space-y-2 px-4 pb-3">
+                <p className="text-foreground/80 text-sm font-medium leading-snug">{service.tagline}</p>
                 {service.bullets && (
-                  <ul className="mt-2 list-disc list-inside text-xs text-muted-foreground text-left space-y-0.5 pl-4">
+                  <ul className="mt-3 list-disc list-inside text-xs text-muted-foreground text-left space-y-1 pl-4">
                     {service.bullets.map((bullet, i) => (
                       <li key={i}>{bullet}</li>
                     ))}
                   </ul>
                 )}
               </CardContent>
-              <CardFooter className="w-full pt-4 mt-auto">
+              <CardFooter className="w-full pt-4 pb-5 px-4 mt-auto">
                 <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-md transition-shadow">
                   <Link href={service.link}>
                     {service.ctaText}
@@ -136,7 +136,6 @@ export function ServicesSection() {
           ))}
         </div>
         
-        {/* Social Proof Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <Card key={index} className="shadow-md text-left bg-card">
@@ -177,7 +176,6 @@ export function ServicesSection() {
           </p>
         </div>
 
-        {/* Final CTA Section */}
         <div className="mt-16 border-t border-border pt-12 w-full max-w-3xl mx-auto">
             <h3 className="mb-4 text-2xl font-bold tracking-tight text-foreground">
                 <span className="text-primary">🔶</span> Klaar om te starten? <span className="text-primary">🔶</span>
@@ -199,3 +197,4 @@ export function ServicesSection() {
     </section>
   );
 }
+
