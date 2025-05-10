@@ -71,7 +71,7 @@ function SidebarNavigationContent() {
       </div>
       <ScrollArea className="flex-1">
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => { // Added index for unique key
             let showItem = true;
             if (item.adminOnly && userRole !== 'admin') {
               showItem = false;
@@ -95,16 +95,9 @@ function SidebarNavigationContent() {
                 isParentExpanded = true;
               }
 
-              // If a child is active and its href is different from the parent's href,
-              // or if the parent itself is active but also has active children (meaning it's a section header),
-              // then the parent should not be highlighted as strongly.
               if (isAnyChildActive && item.href !== pathname) {
                  isParentHighlighted = false;
               } else if (isItemDirectlyActive && isAnyChildActive) {
-                // This handles the case where the parent itself (e.g., /dashboard/homework-assistance) is active,
-                // AND it has children, and one of those children might also be active (e.g., the default child).
-                // In this scenario, if the active route is exactly the parent's route, we still want to highlight the parent.
-                // However, if an actual child *different* from the parent's default view is active, the parent gets less highlight.
                 const activeChildIsNotParentDefault = item.children.some(child => pathname === child.href && child.href !== item.href);
                 if (activeChildIsNotParentDefault) {
                     isParentHighlighted = false;
@@ -118,7 +111,7 @@ function SidebarNavigationContent() {
             }
             
             return (
-              <Fragment key={item.href}>
+              <Fragment key={`${item.href}-${index}`}>
                 {sectionTitleChanged && (
                     <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mt-3">
                         {currentSectionTitle}
@@ -135,7 +128,7 @@ function SidebarNavigationContent() {
                   <item.icon className="h-5 w-5" />
                   {item.label}
                 </Link>
-                {isParentExpanded && item.children && item.children.map(child => { 
+                {isParentExpanded && item.children && item.children.map((child, childIndex) => { // Added childIndex for unique key
                    // @ts-ignore
                    if (child.adminOnly && userRole !== 'admin') {
                     return null;
@@ -148,7 +141,7 @@ function SidebarNavigationContent() {
                   
                   return (
                     <Link
-                      key={child.href} 
+                      key={`${child.href}-${childIndex}`} 
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
