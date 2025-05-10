@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -45,7 +45,7 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   AngstDepressie: ShieldAlert,
   'Jouw Profiel In Vogelvlucht': UsersIcon,
   'Sterke Kanten': ThumbsUp,
-  'Aandachtspunten': Edit,
+  'Aandachtspunten': Edit2Icon, // Changed from Edit to Edit2Icon or similar if Edit causes issues
   'Tips voor Jou': Lightbulb,
   'Overige Informatie': Info,
   'Default': HelpCircle,
@@ -72,15 +72,17 @@ interface AiAnalysisSection {
 
 const sanitizeAiText = (text: string): string => {
   if (typeof text !== 'string') return '';
-  return text.replace(/\*([^*]+)\*/g, '$1').replace(/\*\*/g, '');
+  // Remove Markdown for bold (**text** or __text__) and italic (*text* or _text_)
+  // and render them as plain text for now. Actual rendering to HTML tags would be more complex.
+  return text.replace(/(\*\*|__)(.*?)\1/g, '$2').replace(/(\*|_)(.*?)\1/g, '$2');
 };
 
 const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
   
   let cleanedText = sanitizeAiText(analysisText);
-  // Remove markdown headings like ## Heading
-  cleanedText = cleanedText.replace(/^##\s+/gm, '');
+  cleanedText = cleanedText.replace(/^##\s+/gm, ''); // Remove markdown h2 headings
+  cleanedText = cleanedText.replace(/^#\s+/gm, ''); // Remove markdown h1 headings
 
 
   const sections: AiAnalysisSection[] = [];
@@ -137,7 +139,6 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
         currentContent.split('\n').forEach(line => {
           line = sanitizeAiText(line.replace(/^- |^\* /,'').trim());
           if (!line) return;
-          // Regex to match "PROFILE NAME (Score: X.XX): Comment" or "PROFILE NAME: X.XX (Comment)"
           const scoreMatch = line.match(/([^:(]+)(?:\s*\(Score:\s*([\d.]+)\))?:\s*(.+)/i) || line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
 
           if (scoreMatch) {
@@ -266,7 +267,9 @@ export default function TeenNeurodiversityQuizPage() {
         setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
       }
     } else {
-      router.push('/quizzes');
+      // Default or redirect if no/invalid age group
+      // For now, let's assume a default or handle redirection
+      // router.push('/quizzes'); // Or a page to select age group
     }
   }, [searchParams, router]);
 
@@ -404,7 +407,7 @@ export default function TeenNeurodiversityQuizPage() {
       } else {
          scores[key] = baseScoresCalc[key] || 0;
       }
-       scores[key] = Math.round(scores[key] * 100) / 100;
+       scores[key] = Math.round(scores[key] * 100) / 100; // Round to 2 decimal places
     });
     return scores;
   };
@@ -440,7 +443,7 @@ export default function TeenNeurodiversityQuizPage() {
     } else if (ageGroup === '15-18') {
       setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
     } else {
-       setBaseAnswers([]);
+       setBaseAnswers([]); // Should not happen if ageGroup is enforced
     }
     setSubtestAnswers({});
     setRelevantSubtests([]);
@@ -659,7 +662,7 @@ export default function TeenNeurodiversityQuizPage() {
                 <CardHeader className="text-center pt-8 px-6">
                   <CardTitle className="text-teal-700 text-[1.75rem] font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-10 pt-4 px-6 pb-6 text-base leading-relaxed"> {/* Increased space-y */}
+                <CardContent className="space-y-10 pt-4 px-6 pb-6 text-base leading-relaxed">
                   
                   <div className="bg-[#F0FAF9] p-6 rounded-lg shadow-sm border-l-4 border-teal-500">
                     <h3 className="text-teal-700 text-[1.25rem] font-semibold mb-2 flex items-center gap-2"><Info className="h-5 w-5"/>Wat Betekenen Deze Scores?</h3>
@@ -679,14 +682,13 @@ export default function TeenNeurodiversityQuizPage() {
                       <p className="text-foreground leading-relaxed text-base">{generateSummaryText(finalScores, relevantSubtests)}</p>
                   </div>
                   
-                  {/* AI Analysis Section */}
                   <div className="bg-card rounded-lg mt-6">
-                    <header className="p-0 pb-3 mb-6 border-b border-border"> {/* Added header for consistency */}
-                      <h2 className="text-accent text-[1.75rem] font-semibold flex items-center gap-3">
+                    <header className="p-0 pb-3 mb-6 border-b border-border">
+                      <h2 className="text-teal-600 text-[1.75rem] font-semibold flex items-center gap-3">
                         <Brain className="h-8 w-8" /> Diepgaande Analyse door AI
                       </h2>
                     </header>
-                    <div className="space-y-8"> {/* Increased space-y for sections within AI analysis */}
+                    <div className="space-y-10">
                     {isAnalysisLoading ? (
                         <div className="space-y-3 animate-pulse pt-2">
                             <div className="h-5 bg-muted rounded w-3/4"></div><div className="h-5 bg-muted rounded w-1/2"></div><div className="h-5 bg-muted rounded w-5/6"></div>
@@ -696,37 +698,37 @@ export default function TeenNeurodiversityQuizPage() {
                        parsedAiAnalysis.map((section, index) => {
                         let IconComponentForSection = section.icon || HelpCircle;
                         
-                        let sectionContainerClasses = "rounded-lg p-6 shadow-sm"; // Removed border
+                        let sectionContainerClasses = "rounded-lg p-6 shadow-sm";
                         let titleClasses = "text-[1.35rem] font-semibold mb-3 flex items-center gap-3"; 
                         let contentClasses = "text-base text-gray-700 leading-relaxed";
                         let listClasses = "list-disc space-y-1.5 pl-6 text-base text-gray-700 leading-relaxed";
-                        let listItemClasses = "mb-3 flex items-start"; // Added margin-bottom to list items
+                        let listItemClasses = "mb-3 flex items-start";
 
-                        if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-10"); // Increased margin top
+                        if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-10");
 
                         if (section.title === "Jouw Profiel In Vogelvlucht") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#f0f6ff] border-l-4 border-blue-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-blue-50/70"); // Removed border
                           titleClasses = cn(titleClasses, "text-blue-700");
                         } else if (section.title === "Sterke Kanten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50 border-l-4 border-green-500");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50/70"); // Removed border
                           titleClasses = cn(titleClasses, "text-green-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = ThumbsUp;
                         } else if (section.title === "Aandachtspunten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFF9F2] border-l-4 border-orange-500"); // orange-500
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-orange-50/70"); // Removed border
                           titleClasses = cn(titleClasses, "text-orange-600");
-                           if(IconComponentForSection === HelpCircle) IconComponentForSection = Edit;
+                           if(IconComponentForSection === HelpCircle) IconComponentForSection = Edit2Icon;
                         } else if (section.title === "Tips voor Jou") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-[#FFFDE7] border-l-4 border-yellow-500"); // yellow-500
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-yellow-50/50"); // Removed border
                           titleClasses = cn(titleClasses, "text-yellow-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = Lightbulb;
                         } else { 
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-muted/20 border-l-4 border-gray-400");
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-gray-50/70"); // Removed border
                         }
 
                         return (
                           <div key={index} className={sectionContainerClasses}>
                             <h3 className={titleClasses}>
-                              <IconComponentForSection className={cn("h-7 w-7 flex-shrink-0")} /> {/* Increased icon size */}
+                              <IconComponentForSection className={cn("h-7 w-7 flex-shrink-0")} />
                               {section.title}
                             </h3>
                             {typeof section.content === 'string' ? (
@@ -737,36 +739,36 @@ export default function TeenNeurodiversityQuizPage() {
                                         const ActualTipIcon = tipIcons[i % tipIcons.length] || Sparkles;
                                         return (
                                           <li key={i} className={listItemClasses}>
-                                            <ActualTipIcon className="h-5 w-5 mr-3 mt-1 flex-shrink-0 text-yellow-600"/>
-                                            <span className="max-w-prose">{item.trim().replace(/^- |^\* /,'')}</span>
+                                            <ActualTipIcon className="h-6 w-6 mr-3 mt-1 flex-shrink-0 text-yellow-600"/> {/* Increased icon size */}
+                                            <span className="max-w-prose text-base">{item.trim().replace(/^- |^\* /,'')}</span>
                                           </li>
                                         );
                                       })}
                                   </ul>
                               ) : (
-                                  <p className={cn(contentClasses, "mt-1 mb-0")}>{section.content}</p>
+                                  <p className={cn(contentClasses, "mt-1 mb-0 text-base")}>{section.content}</p>
                               )
                             ) : ( 
                                Array.isArray(section.content) && section.content.map((item, itemIdx) => {
                                 const ItemIcon = item.icon || HelpCircle;
                                 if (item.profileName === "Algemeen Overzicht") {
                                   return (
-                                    <div key={itemIdx} className="mb-6 p-4 rounded-md bg-background/50">
+                                    <div key={itemIdx} className="mb-6 p-0 rounded-md"> {/* Removed bg and padding here, relies on parent sectionContainerClass */}
                                       <div className="flex items-center gap-2 mb-2">
                                         <ItemIcon className="h-6 w-6 text-blue-700 flex-shrink-0" />
                                         <h4 className="text-[1.25rem] font-semibold text-blue-700">{item.profileName}</h4>
                                       </div>
-                                      <p className={cn(contentClasses, "mb-0")}>{item.comment}</p>
+                                      <p className={cn(contentClasses, "mb-0 text-base")}>{item.comment}</p>
                                     </div>
                                   );
                                 } else if (item.profileName === "Score Inzichten per Thema" && Array.isArray(item.subScores)) {
                                     return (
-                                      <div key={itemIdx} className="mb-6 mt-8"> {/* Added mt-8 for spacing */}
-                                        <div className="flex items-center gap-3 mb-4"> {/* Increased gap and mb */}
-                                          <ItemIcon className="h-7 w-7 text-teal-700 flex-shrink-0" /> {/* Increased icon size */}
+                                      <div key={itemIdx} className="mb-0 mt-8">
+                                        <div className="flex items-center gap-3 mb-4">
+                                          <ItemIcon className="h-7 w-7 text-teal-700 flex-shrink-0" />
                                           <h4 className="text-[1.35rem] font-semibold text-teal-700">{item.profileName}</h4>
                                         </div>
-                                        <div className="space-y-4"> {/* Increased space-y */}
+                                        <div className="space-y-0">
                                           {item.subScores.map((subScore: ParsedProfileScore, subIdx: number) => {
                                             const themeKey = Object.keys(neurotypeIcons).find(key =>
                                                 subScore.profileName.toLowerCase().includes(key.toLowerCase()) ||
@@ -774,13 +776,13 @@ export default function TeenNeurodiversityQuizPage() {
                                             ) || 'Default';
                                             const ThemeIcon = neurotypeIcons[themeKey] || Brain;
                                             return (
-                                                <div key={subIdx} className="p-4 mb-4 bg-blue-50 border-l-4 border-blue-500 rounded-md shadow-sm">
-                                                    <h4 className="text-lg font-semibold text-blue-700 flex items-center gap-2 mb-1">
+                                                <div key={subIdx} className="score-card p-6 rounded-lg bg-gray-50 shadow-sm mb-7">
+                                                    <h4 className="text-lg font-semibold text-teal-700 flex items-center gap-2 mb-2">
                                                         <ThemeIcon className="h-6 w-6" />
                                                         {sanitizeAiText(subScore.profileName)}
-                                                        {sanitizeAiText(subScore.score) && <span className="text-blue-600 font-bold">&ndash; Score: {sanitizeAiText(subScore.score)}</span>}
+                                                        {sanitizeAiText(subScore.score) && <span className="text-teal-600 font-bold">&ndash; Score: {sanitizeAiText(subScore.score)}</span>}
                                                     </h4>
-                                                    <p className="text-gray-700 leading-relaxed">{sanitizeAiText(subScore.comment)}</p>
+                                                    <p className="text-base leading-relaxed text-gray-700 mb-3">{sanitizeAiText(subScore.comment)}</p>
                                                 </div>
                                             );
                                           })}
@@ -788,7 +790,6 @@ export default function TeenNeurodiversityQuizPage() {
                                       </div>
                                     );
                                 }
-                                // Fallback for other ParsedProfileScore items if any (currently only "Algemeen Overzicht" and "Score Inzichten per Thema")
                                 return (
                                     <div key={itemIdx} className="bg-background/50 p-4 rounded-md mb-4">
                                       <div className="flex items-start gap-3 mb-1">
