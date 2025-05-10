@@ -11,10 +11,11 @@ import { useRouter } from 'next/navigation';
 import { ParentalApprovalDialog } from '@/components/auth/parental-approval-dialog';
 
 interface PlanFeature {
-  basisvragen: boolean;
-  subquizzen: boolean;
-  dagelijkseTips: boolean;
-  pdfRapport: 'beperkt' | 'volledig';
+  basisQuiz: boolean;             // "Basis Neurodiversiteit Quiz"
+  alleQuizzen: boolean;           // "Alle Quizzen (Basis + Subtests)"
+  coachingHubToegang: boolean;    // "Volledige Toegang Coaching Hub"
+  huiswerkToolsToegang: boolean;  // "Toegang tot Huiswerk Tools"
+  pdfRapport: 'geen' | 'beperkt' | 'volledig'; // "PDF Rapportage"
 }
 
 interface Plan {
@@ -35,9 +36,10 @@ const plans: Plan[] = [
     price: 'Gratis',
     priceDetail: '',
     features: {
-      basisvragen: true,
-      subquizzen: false,
-      dagelijkseTips: false,
+      basisQuiz: true,
+      alleQuizzen: false,
+      coachingHubToegang: false,
+      huiswerkToolsToegang: false,
       pdfRapport: 'beperkt',
     },
     ctaText: 'Start gratis quiz',
@@ -50,9 +52,10 @@ const plans: Plan[] = [
     price: '€2,50',
     priceDetail: 'p/m',
     features: {
-      basisvragen: true,
-      subquizzen: true,
-      dagelijkseTips: true,
+      basisQuiz: true, // Included in 'alleQuizzen'
+      alleQuizzen: true,
+      coachingHubToegang: true,
+      huiswerkToolsToegang: true,
       pdfRapport: 'volledig',
     },
     ctaText: 'Kies Maandelijks',
@@ -65,9 +68,10 @@ const plans: Plan[] = [
     price: '€25',
     priceDetail: 'per jaar',
     features: {
-      basisvragen: true,
-      subquizzen: true,
-      dagelijkseTips: true,
+      basisQuiz: true, // Included in 'alleQuizzen'
+      alleQuizzen: true,
+      coachingHubToegang: true,
+      huiswerkToolsToegang: true,
       pdfRapport: 'volledig',
     },
     ctaText: 'Kies Jaarlijks',
@@ -79,10 +83,11 @@ const plans: Plan[] = [
 ];
 
 const featureLabels: Record<keyof PlanFeature, string> = {
-  basisvragen: 'Basisvragen',
-  subquizzen: 'Verdiepende Subquizzen',
-  dagelijkseTips: 'Dagelijkse Coaching Tips',
-  pdfRapport: 'PDF Rapportage',
+  basisQuiz: "Basis Neurodiversiteit Quiz",
+  alleQuizzen: "Alle Quizzen (Basis + Subtests)",
+  coachingHubToegang: "Volledige Toegang Coaching Hub (Tips, Dagboek, Forum etc.)",
+  huiswerkToolsToegang: "Toegang tot Huiswerk Tools (Planning, Pomodoro etc.)",
+  pdfRapport: "PDF Rapportage",
 };
 
 // Simulate user data. In a real app, this would come from an auth context.
@@ -158,37 +163,47 @@ export function PricingSection() {
               </CardHeader>
               <CardContent className="flex-grow space-y-4 mt-2">
                 <ul className="space-y-3" style={{ lineHeight: '1.6' }}>
-                  {Object.entries(plan.features).map(([key, value]) => (
-                    <li key={key} className="flex items-center">
-                      {typeof value === 'boolean' ? (
-                        value ? (
+                  {Object.entries(plan.features).map(([key, value]) => {
+                    const featureKey = key as keyof PlanFeature;
+                    // Conditional rendering for basisQuiz on paid plans if alleQuizzen is true
+                    if (featureKey === 'basisQuiz' && plan.features.alleQuizzen && plan.planId !== 'free') {
+                      return null; 
+                    }
+
+                    return (
+                      <li key={featureKey} className="flex items-center">
+                        {typeof value === 'boolean' ? (
+                          value ? (
+                            <CheckCircle2 className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
+                          ) : (
+                            <XCircle className="mr-2 h-5 w-5 text-red-500 flex-shrink-0" />
+                          )
+                        ) : ( // For pdfRapport which can be 'geen', 'beperkt', 'volledig'
+                          value !== 'geen' ? 
                           <CheckCircle2 className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="mr-2 h-5 w-5 text-red-500 flex-shrink-0" />
-                        )
-                      ) : (
-                        <CheckCircle2 className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                      )}
-                      <span className="text-muted-foreground">
-                        {featureLabels[key as keyof PlanFeature]}
-                        {typeof value === 'string' && ` (${value})`}
-                      </span>
-                      {key === 'pdfRapport' && value === 'beperkt' && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="ml-1 h-5 w-5">
-                                <Info className="h-4 w-4 text-muted-foreground" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Alleen een samenvatting, geen volledige tips & strategieën.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </li>
-                  ))}
+                          : <XCircle className="mr-2 h-5 w-5 text-red-500 flex-shrink-0" />
+                        )}
+                        <span className="text-muted-foreground">
+                          {featureLabels[featureKey]}
+                          {featureKey === 'pdfRapport' && typeof value === 'string' && value !== 'geen' && ` (${value})`}
+                        </span>
+                        {featureKey === 'pdfRapport' && value === 'beperkt' && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="ml-1 h-5 w-5">
+                                  <Info className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Samenvatting van je resultaten. Volledige tips & strategieën in betaalde plannen.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </CardContent>
               <CardFooter className="mt-auto pt-4">
