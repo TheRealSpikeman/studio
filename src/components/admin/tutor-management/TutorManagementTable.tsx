@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Eye, Edit, UserX, MoreVertical, CheckCircle, AlertTriangle, KeyRound, MessageSquareWarning } from 'lucide-react';
+import { Eye, Edit, UserX, MoreVertical, CheckCircle, AlertTriangle, KeyRound, MessageSquareWarning, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormattedDateCell } from '../user-management/FormattedDateCell'; // Reusing from general user management
 
