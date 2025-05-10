@@ -1,11 +1,12 @@
 // src/app/dashboard/admin/reporting/page.tsx
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileBarChart, Users, Briefcase, CalendarClock, Download, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/common/date-picker-with-range'; // Assume this component exists or will be created
+import { Input } from '@/components/ui/input'; // Added Input import
 
 export default function AdminReportingPage() {
   // State for filters would go here
@@ -93,4 +94,3 @@ export default function AdminReportingPage() {
     </div>
   );
 }
-```
