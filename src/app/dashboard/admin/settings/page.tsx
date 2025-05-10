@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Settings, Users, Shield, Bell, Mail, KeyRound } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from 'react';
 
 export default function AdminSettingsPage() {
   // Dummy state for example purposes
@@ -115,4 +116,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-```
