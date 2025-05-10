@@ -9,12 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
@@ -36,6 +41,37 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
 
 const ITEMS_PER_PAGE = 10;
 
+const audienceOptions: { id: QuizAudience; label: string }[] = [
+  { id: '12-14', label: '12-14 jaar' },
+  { id: '15-18', label: '15-18 jaar' },
+  { id: 'adult', label: 'Volwassene' },
+  { id: 'all', label: 'Algemeen (alle leeftijden)' },
+];
+
+const categoryOptions: { id: QuizCategory; label: string }[] = [
+  { id: 'Basis', label: 'Basis Quiz' },
+  { id: 'ADD', label: 'ADD' },
+  { id: 'ADHD', label: 'ADHD' },
+  { id: 'HSP', label: 'HSP' },
+  { id: 'ASS', label: 'ASS' },
+  { id: 'AngstDepressie', label: 'Angst/Depressie' },
+  { id: 'Thema', label: 'Thema (algemeen)' },
+];
+
+const numQuestionsOptions = [
+  { id: 5, label: '5 vragen' },
+  { id: 10, label: '10 vragen' },
+  { id: 15, label: '15 vragen' },
+];
+
+const aiQuizFormSchema = z.object({
+  topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
+  audience: z.string({ required_error: "Selecteer een doelgroep." }),
+  category: z.string({ required_error: "Selecteer een domein/categorie." }),
+  numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
+});
+type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
+
 export default function QuizManagementPage() {
   const [quizzes, setQuizzes] = useState<QuizAdmin[]>(DUMMY_QUIZZES);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,6 +80,17 @@ export default function QuizManagementPage() {
   const [categoryFilter, setCategoryFilter] = useState<QuizCategory | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+  const [isAiQuizDialogOpen, setIsAiQuizDialogOpen] = useState(false);
+
+  const aiQuizForm = useForm<AiQuizFormData>({
+    resolver: zodResolver(aiQuizFormSchema),
+    defaultValues: {
+      topic: "",
+      audience: undefined,
+      category: undefined,
+      numQuestions: 10,
+    },
+  });
 
   const filteredQuizzes = useMemo(() => {
     return quizzes.filter(quiz => {
@@ -64,7 +111,6 @@ export default function QuizManagementPage() {
   const totalPages = Math.ceil(filteredQuizzes.length / ITEMS_PER_PAGE);
 
   const handleDeleteQuiz = (quizId: string) => {
-    // TODO: Implement actual delete logic with confirmation
     setQuizzes(prev => prev.filter(q => q.id !== quizId));
     toast({ title: "Quiz verwijderd", description: `Quiz met ID ${quizId} is verwijderd (simulatie).` });
   };
@@ -75,6 +121,41 @@ export default function QuizManagementPage() {
   
   const getStatusBadgeClass = (status: QuizStatusAdmin): string => {
     return status === 'published' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+  };
+
+  const handleGenerateAiQuiz = async (data: AiQuizFormData) => {
+    toast({
+      title: "Quiz genereren met AI...",
+      description: "Een ogenblik geduld, dit kan even duren.",
+    });
+    setIsAiQuizDialogOpen(false);
+
+    // Simulate AI generation
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const newQuiz: QuizAdmin = {
+      id: `ai-${Date.now()}`,
+      title: `${data.topic} (AI gegenereerd voor ${data.audience} - ${data.category})`,
+      description: `Automatisch gegenereerde quiz over ${data.topic} voor doelgroep ${data.audience} in de categorie ${data.category}.`,
+      audience: [data.audience as QuizAudience],
+      category: data.category as QuizCategory,
+      status: 'concept',
+      questions: Array.from({ length: data.numQuestions }, (_, i) => ({
+        id: `ai-q${i+1}-${Date.now()}`,
+        text: `AI Vraag ${i+1} over ${data.topic}?`,
+        example: "Dit is een AI gegenereerd voorbeeld."
+      })),
+      lastUpdatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    };
+
+    setQuizzes(prev => [newQuiz, ...prev]);
+    aiQuizForm.reset();
+    toast({
+      title: "AI Quiz gegenereerd!",
+      description: `De quiz "${newQuiz.title}" is succesvol aangemaakt en aan de lijst toegevoegd.`,
+      variant: "default", 
+    });
   };
 
   return (
@@ -91,11 +172,95 @@ export default function QuizManagementPage() {
                 Beheer alle quizzen, vragen en instellingen. Totaal {filteredQuizzes.length} quizzen gevonden.
               </CardDescription>
             </div>
-            <Button asChild className="w-full sm:w-auto">
-              <Link href="/dashboard/admin/quiz-management/new">
-                <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
-              </Link>
-            </Button>
+            <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
+              <Button asChild className="w-full sm:w-auto">
+                <Link href="/dashboard/admin/quiz-management/new">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
+                </Link>
+              </Button>
+              <Dialog open={isAiQuizDialogOpen} onOpenChange={setIsAiQuizDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    <Bot className="mr-2 h-4 w-4" /> Genereer met AI
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Genereer Quiz met AI</DialogTitle>
+                    <DialogDescription>
+                      Geef de AI instructies om een nieuwe quiz te genereren.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...aiQuizForm}>
+                    <form onSubmit={aiQuizForm.handleSubmit(handleGenerateAiQuiz)} className="space-y-4 py-4">
+                      <FormField
+                        control={aiQuizForm.control}
+                        name="topic"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Onderwerp / Thema</FormLabel>
+                            <FormControl><Input placeholder="Bijv. Sociale Vaardigheden" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={aiQuizForm.control}
+                        name="audience"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Doelgroep</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                {audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={aiQuizForm.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Domein / Categorie</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={aiQuizForm.control}
+                        name="numQuestions"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Aantal Vragen</FormLabel>
+                            <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}>
+                              <FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                {numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter className="pt-4">
+                        <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)}>Annuleren</Button>
+                        <Button type="submit">Vraag AI om quiz te genereren</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -121,23 +286,14 @@ export default function QuizManagementPage() {
               <SelectTrigger><SelectValue placeholder="Filter op doelgroep" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle Doelgroepen</SelectItem>
-                <SelectItem value="12-14">12-14 jaar</SelectItem>
-                <SelectItem value="15-18">15-18 jaar</SelectItem>
-                <SelectItem value="adult">Volwassene</SelectItem>
-                <SelectItem value="all">Algemeen</SelectItem>
+                {audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={(value) => {setCategoryFilter(value as QuizCategory | 'all'); setCurrentPage(1);}}>
               <SelectTrigger><SelectValue placeholder="Filter op categorie" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle Categorieën</SelectItem>
-                <SelectItem value="Basis">Basis</SelectItem>
-                <SelectItem value="ADD">ADD</SelectItem>
-                <SelectItem value="ADHD">ADHD</SelectItem>
-                <SelectItem value="HSP">HSP</SelectItem>
-                <SelectItem value="ASS">ASS</SelectItem>
-                <SelectItem value="AngstDepressie">Angst/Depressie</SelectItem>
-                <SelectItem value="Thema">Thema</SelectItem>
+                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
