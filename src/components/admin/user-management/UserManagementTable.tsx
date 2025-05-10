@@ -8,9 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Eye, Edit, Trash2, MoreVertical } from 'lucide-react';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { FormattedDateCell } from './FormattedDateCell'; // Import the new component
 
 interface UserManagementTableProps {
   users: User[];
@@ -23,9 +22,9 @@ const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "d
     case 'actief': return 'default';
     case 'niet geverifieerd': return 'secondary';
     case 'geblokkeerd': return 'destructive';
-    case 'pending_onboarding': return 'outline'; // Neutral for pending
-    case 'pending_approval': return 'secondary'; // Use secondary for pending approval like "niet geverifieerd"
-    case 'rejected': return 'destructive'; // Use destructive for rejected
+    case 'pending_onboarding': return 'outline'; 
+    case 'pending_approval': return 'secondary'; 
+    case 'rejected': return 'destructive'; 
     default: return 'outline';
   }
 };
@@ -36,8 +35,8 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
     case 'niet geverifieerd': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
     case 'geblokkeerd': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
     case 'pending_onboarding': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
-    case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200'; // Orange for pending approval
-    case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300'; // Slightly different red for rejected
+    case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
+    case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300'; 
     default: return '';
   }
 }
@@ -47,7 +46,7 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
       case 'admin': return 'default'; 
       case 'coach': return 'secondary';
       case 'deelnemer': return 'outline';
-      case 'tutor': return 'default'; // Using default for Tutor, can be changed.
+      case 'tutor': return 'default'; 
       default: return 'outline';
     }
   };
@@ -56,8 +55,8 @@ const getRoleBadgeClasses = (role: UserRole): string => {
     switch (role) {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
       case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
-      case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; // Purple for Tutor
-      default: return ''; // Default outline styling from Badge component
+      case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
+      default: return ''; 
     }
 }
 
@@ -122,8 +121,12 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </Badge>
               </TableCell>
-              <TableCell>{format(new Date(user.lastLogin), 'Pp', { locale: nl })}</TableCell>
-              <TableCell>{format(new Date(user.createdAt), 'P', { locale: nl })}</TableCell>
+              <TableCell>
+                <FormattedDateCell isoDateString={user.lastLogin} dateFormatPattern="Pp" />
+              </TableCell>
+              <TableCell>
+                <FormattedDateCell isoDateString={user.createdAt} dateFormatPattern="P" />
+              </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -136,7 +139,6 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser }: UserMan
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Eye className="mr-2 h-4 w-4" /> Bekijken / Bewerken
                     </DropdownMenuItem>
-                    {/* Edit and Delete can be conditional based on user status/role if needed */}
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Edit className="mr-2 h-4 w-4" /> Bewerken
                     </DropdownMenuItem>
