@@ -16,6 +16,7 @@ interface PlanFeature {
   coachingHubToegang: boolean;    // "Volledige Toegang Coaching Hub"
   huiswerkToolsToegang: boolean;  // "Toegang tot Huiswerk Tools"
   pdfRapport: 'geen' | 'beperkt' | 'volledig'; // "PDF Rapportage"
+  oneOnOneTutorPremium: boolean; // New feature
 }
 
 interface Plan {
@@ -41,6 +42,7 @@ const plans: Plan[] = [
       coachingHubToegang: false,
       huiswerkToolsToegang: false,
       pdfRapport: 'beperkt',
+      oneOnOneTutorPremium: false,
     },
     ctaText: 'Start gratis quiz',
     ctaBaseLink: '/quizzes',
@@ -57,6 +59,7 @@ const plans: Plan[] = [
       coachingHubToegang: true,
       huiswerkToolsToegang: true,
       pdfRapport: 'volledig',
+      oneOnOneTutorPremium: true,
     },
     ctaText: 'Kies Maandelijks',
     ctaBaseLink: '/signup', // Will append ?plan=monthly
@@ -73,6 +76,7 @@ const plans: Plan[] = [
       coachingHubToegang: true,
       huiswerkToolsToegang: true,
       pdfRapport: 'volledig',
+      oneOnOneTutorPremium: true,
     },
     ctaText: 'Kies Jaarlijks',
     ctaBaseLink: '/signup', // Will append ?plan=annual
@@ -88,6 +92,7 @@ const featureLabels: Record<keyof PlanFeature, string> = {
   coachingHubToegang: "Volledige Toegang Coaching Hub (Tips, Dagboek, Forum etc.)",
   huiswerkToolsToegang: "Toegang tot Huiswerk Tools (Planning, Pomodoro etc.)",
   pdfRapport: "PDF Rapportage",
+  oneOnOneTutorPremium: "1-op-1 Tutor Premium Sessies (korting/extra's)",
 };
 
 // Simulate user data. In a real app, this would come from an auth context.
@@ -229,3 +234,4 @@ export function PricingSection() {
     </section>
   );
 }
+
