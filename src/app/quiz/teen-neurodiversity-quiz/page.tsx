@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart, Settings, HelpCircle, ChevronRight, Users } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -44,6 +44,91 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   HSP: Sparkles, 
   ASS: Compass, 
   AngstDepressie: ShieldAlert,
+  // Add more if new profiles emerge from AI analysis or data
+  'Jouw Profiel In Vogelvlucht': Users,
+  'Sterke Kanten': ThumbsUp,
+  'Aandachtspunten': Target,
+  'Tips voor Jou': Lightbulb,
+};
+
+interface AiAnalysisSection {
+  title: string;
+  content: string | ParsedProfileScore[];
+  icon?: React.ElementType;
+}
+
+interface ParsedProfileScore {
+  profileName: string;
+  score: string;
+  comment: string;
+  icon?: React.ElementType;
+}
+
+const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
+  if (!analysisText) return [];
+
+  const sections: AiAnalysisSection[] = [];
+  const knownHeaders = ["Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
+  
+  let remainingText = analysisText;
+
+  // Extract "Jouw Profiel In Vogelvlucht" first as it has a special list format
+  const vogelvluchtHeader = "Jouw Profiel In Vogelvlucht";
+  const vogelvluchtIndex = remainingText.indexOf(vogelvluchtHeader);
+
+  if (vogelvluchtIndex !== -1) {
+    const nextHeaderIndexAfterVogelvlucht = knownHeaders.slice(1)
+      .map(h => remainingText.indexOf(h, vogelvluchtIndex + vogelvluchtHeader.length))
+      .filter(idx => idx !== -1)
+      .sort((a, b) => a - b)[0] || remainingText.length;
+    
+    const vogelvluchtContentRaw = remainingText.substring(vogelvluchtIndex + vogelvluchtHeader.length, nextHeaderIndexAfterVogelvlucht).trim();
+    const profileScores: ParsedProfileScore[] = [];
+    vogelvluchtContentRaw.split('\n').forEach(line => {
+      line = line.trim();
+      if (line.startsWith('-')) {
+        const match = line.match(/-\s*([A-Z\s\/]+):\s*([\d.]+)\s*\((.+)\)/i);
+        if (match) {
+          const profileKey = Object.keys(neurotypeIcons).find(key => 
+            match[1].trim().toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(match[1].trim().toLowerCase())
+          ) || 'Default';
+          profileScores.push({
+            profileName: match[1].trim(),
+            score: match[2].trim(),
+            comment: match[3].trim(),
+            icon: neurotypeIcons[profileKey] || HelpCircle
+          });
+        }
+      }
+    });
+    sections.push({ title: vogelvluchtHeader, content: profileScores, icon: neurotypeIcons[vogelvluchtHeader] || Users });
+    remainingText = remainingText.substring(nextHeaderIndexAfterVogelvlucht);
+  }
+
+  // Extract other sections
+  knownHeaders.slice(1).forEach(header => {
+    const headerIndex = remainingText.indexOf(header);
+    if (headerIndex !== -1) {
+      const nextHeaderIndex = knownHeaders
+        .filter(h => h !== header && remainingText.indexOf(h, headerIndex + header.length) !== -1)
+        .map(h => remainingText.indexOf(h, headerIndex + header.length))
+        .sort((a, b) => a - b)[0] || remainingText.length;
+      
+      const content = remainingText.substring(headerIndex + header.length, nextHeaderIndex).trim();
+      if (content) {
+        sections.push({ title: header, content, icon: neurotypeIcons[header] || HelpCircle });
+      }
+      remainingText = remainingText.substring(nextHeaderIndex);
+    }
+  });
+
+  // Add any remaining text as a generic section if it wasn't captured
+  if (remainingText.trim()) {
+    sections.push({ title: "Overige Informatie", content: remainingText.trim(), icon: Info });
+  }
+  
+  return sections;
 };
 
 
@@ -64,6 +149,7 @@ export default function TeenNeurodiversityQuizPage() {
   const [currentThresholds, setCurrentThresholds] = useState<Record<string, number>>({});
 
   const [quizAnalysis, setQuizAnalysis] = useState<string | null>(null);
+  const [parsedAiAnalysis, setParsedAiAnalysis] = useState<AiAnalysisSection[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(false);
 
 
@@ -88,9 +174,10 @@ export default function TeenNeurodiversityQuizPage() {
   }, [searchParams, router]);
 
   useEffect(() => {
-    if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis) {
+    if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
       const fetchAnalysis = async () => {
         setIsAnalysisLoading(true);
+        setParsedAiAnalysis([]); // Clear previous parsed analysis
         try {
           const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
           
@@ -98,7 +185,6 @@ export default function TeenNeurodiversityQuizPage() {
             const answerValue = baseAnswers[index];
             if (answerValue !== undefined) {
               const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
-              // Simplified profileKey mapping - needs robust logic based on question-to-profile mapping
               let profileKeyForQuestion: string | undefined = undefined;
               if (ageGroup === '15-18') {
                 if (index < 3) profileKeyForQuestion = 'ADD';
@@ -144,16 +230,19 @@ export default function TeenNeurodiversityQuizPage() {
           };
           const result = await generateQuizAnalysis(analysisInput);
           setQuizAnalysis(result.analysis);
+          setParsedAiAnalysis(parseAiAnalysis(result.analysis));
         } catch (error) {
           console.error("Failed to generate quiz analysis:", error);
-          setQuizAnalysis("Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.");
+          const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
+          setQuizAnalysis(errorMsg);
+          setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
         } finally {
           setIsAnalysisLoading(false);
         }
       };
       fetchAnalysis();
     }
-  }, [currentStep, finalScores, ageGroup, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests, quizAnalysis]);
+  }, [currentStep, finalScores, ageGroup, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests, quizAnalysis, isAnalysisLoading]);
 
 
   const answeredBaseQuestionsCount = useMemo(() => baseAnswers.filter(ans => ans !== undefined).length, [baseAnswers]);
@@ -259,7 +348,8 @@ export default function TeenNeurodiversityQuizPage() {
     setSubtestAnswers({});
     setRelevantSubtests([]);
     setFinalScores({});
-    setQuizAnalysis(null); // Reset analysis on restart
+    setQuizAnalysis(null); 
+    setParsedAiAnalysis([]);
   };
 
   const generateSummaryText = (scores: Scores, shownSubtests: string[]): string => {
@@ -473,7 +563,6 @@ export default function TeenNeurodiversityQuizPage() {
                 <CardTitle className="text-3xl font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Overall Score Overview */}
                 <Card className="shadow-md">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
@@ -483,8 +572,8 @@ export default function TeenNeurodiversityQuizPage() {
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.keys(finalScores)
-                      .filter(key => neurotypeDescriptionsTeen[key]) // Only show if description exists
-                      .sort((a,b) => finalScores[b] - finalScores[a]) // Sort by score descending
+                      .filter(key => neurotypeDescriptionsTeen[key]) 
+                      .sort((a,b) => finalScores[b] - finalScores[a]) 
                       .map(key => {
                         const profile = neurotypeDescriptionsTeen[key];
                         const score = finalScores[key];
@@ -507,7 +596,6 @@ export default function TeenNeurodiversityQuizPage() {
                   </CardContent>
                 </Card>
 
-                {/* Score Explanation Block */}
                 <Alert variant="default" className="bg-secondary/50 border-secondary">
                    <Info className="h-5 w-5" />
                   <AlertTitleUi className="font-semibold">Wat Betekenen Deze Scores?</AlertTitleUi>
@@ -522,7 +610,6 @@ export default function TeenNeurodiversityQuizPage() {
                   </AlertDescUi>
                 </Alert>
 
-                {/* Original Summary (Consider if still needed or if AI analysis replaces it) */}
                 <div className="rounded-md border border-primary/30 bg-primary/5 p-4">
                     <h3 className="mb-2 text-xl font-semibold text-primary">Jouw Neurodiversiteitsprofiel Samenvatting</h3>
                     <p className="text-foreground">{generateSummaryText(finalScores, relevantSubtests)}</p>
@@ -538,7 +625,6 @@ export default function TeenNeurodiversityQuizPage() {
                     </div>
                 )}
 
-                {/* Detailed Profile Sections */}
                 {Object.keys(neurotypeDescriptionsTeen)
                   .filter(key => finalScores[key] >= (currentThresholds[key] || 0) || (relevantSubtests.length === 0 && finalScores[key] > 0) ) 
                   .sort((a,b) => finalScores[b] - finalScores[a]) 
@@ -583,20 +669,42 @@ export default function TeenNeurodiversityQuizPage() {
                     );
                 })}
                 
-                {/* AI Generated Analysis Section */}
-                 <Card className="shadow-xl mt-6">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Brain className="h-6 w-6 text-primary"/>Diepgaande Analyse door AI</CardTitle></CardHeader>
-                    <CardContent>
+                 <Card className="shadow-xl mt-6 bg-primary/5 border border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-xl text-primary">
+                        <Brain className="h-6 w-6" /> Diepgaande Analyse door AI
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                     {isAnalysisLoading ? (
                         <div className="space-y-2 animate-pulse">
-                            <div className="h-4 bg-muted rounded w-3/4"></div>
-                            <div className="h-4 bg-muted rounded w-1/2"></div>
-                            <div className="h-4 bg-muted rounded w-5/6"></div>
-                            <div className="h-4 bg-muted rounded w-2/3 mt-3"></div>
-                            <div className="h-4 bg-muted rounded w-full"></div>
+                            <div className="h-4 bg-muted rounded w-3/4"></div><div className="h-4 bg-muted rounded w-1/2"></div><div className="h-4 bg-muted rounded w-5/6"></div>
+                            <div className="h-4 bg-muted rounded w-2/3 mt-3"></div><div className="h-4 bg-muted rounded w-full"></div>
                         </div>
-                    ) : quizAnalysis ? (
-                        <p className="text-muted-foreground whitespace-pre-wrap">{quizAnalysis}</p>
+                    ) : parsedAiAnalysis.length > 0 ? (
+                       parsedAiAnalysis.map((section, index) => (
+                        <div key={index} className="mb-4">
+                          <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                            {section.icon && <section.icon className="h-5 w-5 text-primary" />}
+                            {section.title}
+                          </h3>
+                          {typeof section.content === 'string' ? (
+                            <p className="text-muted-foreground whitespace-pre-wrap">{section.content}</p>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {(section.content as ParsedProfileScore[]).map((item, itemIdx) => (
+                                <Card key={itemIdx} className="p-3 bg-background shadow-sm">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {item.icon && <item.icon className="h-5 w-5 text-primary" />}
+                                    <p className="font-semibold text-primary">{item.profileName} ({item.score})</p>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{item.comment}</p>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                       ))
                     ) : (
                         <p className="text-muted-foreground">Geen AI analyse beschikbaar op dit moment.</p>
                     )}
