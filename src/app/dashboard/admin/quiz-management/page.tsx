@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/quiz-management/page.tsx
 "use client";
 
@@ -11,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; // Import the new flow
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
@@ -89,6 +91,7 @@ export default function QuizManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const [isAiQuizDialogOpen, setIsAiQuizDialogOpen] = useState(false);
+  const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
 
   const aiQuizForm = useForm<AiQuizFormData>({
     resolver: zodResolver(aiQuizFormSchema),
@@ -133,50 +136,69 @@ export default function QuizManagementPage() {
   };
 
   const handleGenerateAiQuiz = async (data: AiQuizFormData) => {
+    setIsGeneratingAiQuiz(true);
     toast({
       title: "Quiz genereren met AI...",
-      description: `Onderwerp: ${data.topic}, Doelgroep: ${data.audience}, Categorie: ${data.category}, Aantal: ${data.numQuestions}, Moeilijkheid: ${data.difficulty}. Een ogenblik geduld.`,
+      description: `Onderwerp: ${data.topic}. Een ogenblik geduld.`,
     });
-    setIsAiQuizDialogOpen(false);
+    
 
-    // Simulate AI generation
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const aiInput = {
+        topic: data.topic,
+        audience: audienceOptions.find(opt => opt.id === data.audience)?.label || data.audience,
+        category: categoryOptions.find(opt => opt.id === data.category)?.label || data.category,
+        numQuestions: data.numQuestions,
+        difficulty: data.difficulty,
+      };
+      const aiResult = await generateAiQuiz(aiInput);
 
-    // Simulate weights based on difficulty
-    let baseWeight = 1;
-    if (data.difficulty === 'gemiddeld') baseWeight = 2;
-    if (data.difficulty === 'hoog') baseWeight = 3;
+      const newQuiz: QuizAdmin = {
+        id: `ai-${Date.now()}`,
+        title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
+        description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}). Pas de titel en beschrijving eventueel aan.`,
+        audience: [data.audience as QuizAudience],
+        category: data.category as QuizCategory,
+        status: 'concept',
+        questions: aiResult.questions.map((q, i) => ({
+          id: `ai-q${i+1}-${Date.now()}`,
+          text: q.text,
+          example: q.example,
+          weight: q.weight
+        })),
+        lastUpdatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        slug: `ai-${data.topic.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
+        metaTitle: `AI Quiz: ${data.topic}`,
+        metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`
+      };
 
-    const newQuiz: QuizAdmin = {
-      id: `ai-${Date.now()}`,
-      title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
-      description: `AI quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijk. ${data.difficulty}).`,
-      audience: [data.audience as QuizAudience],
-      category: data.category as QuizCategory,
-      status: 'concept',
-      questions: Array.from({ length: data.numQuestions }, (_, i) => ({
-        id: `ai-q${i+1}-${Date.now()}`,
-        text: `AI Vraag ${i+1} over ${data.topic}?`,
-        example: "Dit is een AI gegenereerd voorbeeld.",
-        weight: baseWeight + (i % 2) // Example: vary weight slightly
-      })),
-      lastUpdatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
+      setQuizzes(prev => [newQuiz, ...prev]);
+      aiQuizForm.reset();
+      setIsAiQuizDialogOpen(false);
+      toast({
+        title: "AI Quiz gegenereerd!",
+        description: `De quiz "${newQuiz.title}" is aangemaakt. Bewerk deze om details te verfijnen.`,
+        variant: "default", 
+      });
 
-    setQuizzes(prev => [newQuiz, ...prev]);
-    aiQuizForm.reset();
-    toast({
-      title: "AI Quiz gegenereerd!",
-      description: `De quiz "${newQuiz.title}" is succesvol aangemaakt en aan de lijst toegevoegd.`,
-      variant: "default", 
-    });
+    } catch (error) {
+      console.error("Error generating AI quiz:", error);
+      toast({
+        title: "Fout bij AI Quiz Generatie",
+        description: "Er is iets misgegaan. Probeer het later opnieuw of pas je input aan.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingAiQuiz(false);
+    }
   };
 
   const calculateAverageWeight = (quiz: QuizAdmin): string => {
     if (!quiz.questions || quiz.questions.length === 0) return "N/A";
     const totalWeight = quiz.questions.reduce((sum, q) => sum + (q.weight || 1), 0);
-    return (totalWeight / quiz.questions.length).toFixed(1);
+    const avg = totalWeight / quiz.questions.length;
+    return isNaN(avg) ? "N/A" : avg.toFixed(1);
   };
 
   return (
@@ -291,8 +313,11 @@ export default function QuizManagementPage() {
                         )}
                       />
                       <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)}>Annuleren</Button>
-                        <Button type="submit">Vraag AI om quiz te genereren</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)} disabled={isGeneratingAiQuiz}>Annuleren</Button>
+                        <Button type="submit" disabled={isGeneratingAiQuiz}>
+                          {isGeneratingAiQuiz && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {isGeneratingAiQuiz ? "Bezig met genereren..." : "Vraag AI om quiz te genereren"}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>
@@ -368,7 +393,7 @@ export default function QuizManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{quiz.questions.length}</TableCell>
-                    <TableCell>{quiz.id.startsWith('ai-') ? calculateAverageWeight(quiz) : 'N/A'}</TableCell>
+                    <TableCell>{calculateAverageWeight(quiz)}</TableCell>
                     <TableCell>
                         <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="P" />
                     </TableCell>
