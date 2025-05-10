@@ -7,13 +7,13 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart } from 'lucide-react'; 
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList },
+  { href: '/quizzes', label: 'Quizzen (Deelnemer)', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
   { 
     href: '/dashboard/coaching', 
@@ -50,8 +50,19 @@ const navItems = [
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
   { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
   { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
+  { 
+    href: '/dashboard/admin/quiz-management', 
+    label: 'Quizzen Beheer', 
+    icon: ListChecks, 
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzen', icon: ListChecks, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
+      { href: '/dashboard/admin/quiz-management/new', label: 'Nieuwe Quiz', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
+      { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
+    ]
+  },
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
-  { href: '/dashboard/admin/reporting', label: 'Rapportages', icon: FileBarChart, adminOnly: true },
+  { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
   // Tutor specific
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true, sectionTitle: "Tutor Portaal" }, 
@@ -71,12 +82,12 @@ function SidebarNavigationContent() {
       </div>
       <ScrollArea className="flex-1">
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
-          {navItems.map((item, index) => { // Added index for unique key
+          {navItems.map((item, index) => { 
             let showItem = true;
             if (item.adminOnly && userRole !== 'admin') {
               showItem = false;
             }
-            // @ts-ignore - tutorOnly is a custom prop for this example
+            // @ts-ignore 
             if (item.tutorOnly && userRole !== 'tutor') {
               showItem = false;
             }
@@ -89,20 +100,26 @@ function SidebarNavigationContent() {
 
             if (item.children) {
               const isAnyChildActive = item.children.some(child => 
-                pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href !== item.href)
+                pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
               );
+
               if (isAnyChildActive) {
                 isParentExpanded = true;
               }
-
-              if (isAnyChildActive && item.href !== pathname) {
-                 isParentHighlighted = false;
-              } else if (isItemDirectlyActive && isAnyChildActive) {
-                const activeChildIsNotParentDefault = item.children.some(child => pathname === child.href && child.href !== item.href);
-                if (activeChildIsNotParentDefault) {
+              
+              // Logic to highlight parent only if no child is active OR if parent's own page is active.
+              // If a child is active and it's not the parent's default page, parent should not be highlighted.
+              if (isItemDirectlyActive) {
+                 // If parent is active, and any child is also active, and that child's href is different from parent's href
+                 // then parent should not be highlighted (child takes precedence).
+                 const activeChildIsNotParentDefault = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href);
+                 if (activeChildIsNotParentDefault) {
                     isParentHighlighted = false;
-                }
+                 }
+              } else if (isAnyChildActive) {
+                isParentHighlighted = false; // Parent is not active itself, but a child is, so parent not highlighted
               }
+
             }
 
             const sectionTitleChanged = item.sectionTitle && item.sectionTitle !== currentSectionTitle;
@@ -128,16 +145,16 @@ function SidebarNavigationContent() {
                   <item.icon className="h-5 w-5" />
                   {item.label}
                 </Link>
-                {isParentExpanded && item.children && item.children.map((child, childIndex) => { // Added childIndex for unique key
-                   // @ts-ignore
+                {isParentExpanded && item.children && item.children.map((child, childIndex) => { 
+                   // @ts-ignore 
                    if (child.adminOnly && userRole !== 'admin') {
                     return null;
                   }
-                  // @ts-ignore
+                  // @ts-ignore 
                   if (child.tutorOnly && userRole !== 'tutor') {
                     return null;
                   }
-                  const isChildDirectlyActive = pathname === child.href || (child.href !== '/' && pathname.startsWith(child.href) && child.href === item.href && pathname === item.href);
+                  const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   
                   return (
                     <Link
@@ -145,7 +162,7 @@ function SidebarNavigationContent() {
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isChildDirectlyActive && 'bg-primary/10 text-primary font-semibold',
+                        isChildActive && 'bg-primary/10 text-primary font-semibold',
                         // @ts-ignore
                         child.isSubItem && 'ml-4 text-sm py-2' 
                       )}
