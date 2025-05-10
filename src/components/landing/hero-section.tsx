@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -10,10 +11,10 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Ontdek je leerprofiel, krijg hulp <span className="text-primary">wanneer jij het nodig hebt</span>
+            Ontdek je <span className="text-primary">unieke</span> sterktes
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Van de gratis neurodiversiteit-quiz tot online en 1-op-1 huiswerkbegeleiding én een dagelijkse coaching-hub: bij MindNavigator vind je alles voor betere focus, planning en welzijn.
+             Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
@@ -31,27 +32,27 @@ export function HeroSection() {
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quizzes">Start gratis quiz</Link>
+              <Link href="/quizzes">Start gratis quiz – ontvang persoonlijk rapport</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/#pricing">Bekijk prijzen</Link>
+              <Link href="/quizzes?ageGroup=teen-neurodiversity-quiz">Start Tienerquiz (zonder account)</Link>
             </Button>
           </div>
            <p className="text-xs text-muted-foreground mt-2">
             Upgrade daarna voor €2,50 p/m voor dagelijkse coaching & alle subquizzen.
           </p>
-          <p className="text-sm text-muted-foreground mt-3">
-            ★ 4.8 (1.200+ jongeren gingen je voor)
+           <p className="text-sm text-muted-foreground mt-3">
+            ★ 4.8 (1.200+ jongeren gingen je voor!)
           </p>
         </div>
         {/* Image column */}
         <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl">
           <Image
-            src="https://picsum.photos/seed/teenagerOnlineDiscovery/600/750"
-            alt="Tiener die een neurodiversiteit-quiz invult op een laptop, een moment van ontdekking en inzicht."
+            src="https://picsum.photos/seed/newHeroImageMindNavigator/800/500"
+            alt="Inspirerende afbeelding gerelateerd aan persoonlijke groei en ontdekking."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="teenager laptop discovery"
+            data-ai-hint="inspiration discovery"
             priority
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>
