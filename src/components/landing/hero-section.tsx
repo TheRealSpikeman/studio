@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { FileText, Puzzle, MessageSquareText, ArrowRight } from 'lucide-react';
+import { FileText, Puzzle, MessageSquareText } from 'lucide-react';
 
 export function HeroSection() {
   return (
@@ -10,10 +10,10 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Ontdek je <span className="text-primary">unieke</span> sterktes en uitdagingen
+            Ontdek je leerprofiel, krijg hulp <span className="text-primary">wanneer jij het nodig hebt</span>
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
+            Van de gratis neurodiversiteit-quiz tot online en 1-op-1 huiswerkbegeleiding én een dagelijkse coaching-hub: bij MindNavigator vind je alles voor betere focus, planning en welzijn.
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
@@ -47,11 +47,11 @@ export function HeroSection() {
         {/* Image column */}
         <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl">
           <Image
-            src="https://picsum.photos/seed/teenagerOnlineQuiz/600/750"
-            alt="Tiener die een neurodiversiteit-quiz invult op een laptop, gefocust en geïnteresseerd."
+            src="https://picsum.photos/seed/teenagerOnlineDiscovery/600/750"
+            alt="Tiener die een neurodiversiteit-quiz invult op een laptop, een moment van ontdekking en inzicht."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="teenager laptop quiz"
+            data-ai-hint="teenager laptop discovery"
             priority
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>

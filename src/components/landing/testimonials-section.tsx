@@ -29,14 +29,14 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section className="py-16 md:py-24 bg-secondary/30"> {/* Changed background to secondary/30 for variation */}
       <div className="container mx-auto px-4">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Wat anderen zeggen
         </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="flex flex-col shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <Card key={index} className="flex flex-col shadow-lg transform hover:scale-105 transition-transform duration-300 bg-card"> {/* Ensure card background contrasts */}
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100/100`} alt={testimonial.name} data-ai-hint="person avatar" />
