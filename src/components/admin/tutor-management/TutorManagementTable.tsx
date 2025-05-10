@@ -161,4 +161,3 @@ export function TutorManagementTable({ tutors, onEditTutor, onDeactivateTutor }:
     </div>
   );
 }
-```
