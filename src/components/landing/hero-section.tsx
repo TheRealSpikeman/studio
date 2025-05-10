@@ -56,7 +56,7 @@ export function HeroSection() {
             https://firebasestorage.googleapis.com/v0/b/your-bucket-id/o/homepage.png?alt=media&token=your-access-token
           */}
           <Image
-            src="https://picsum.photos/seed/neurodiversityHomepage/800/600" // Placeholder, replace with your Firebase Storage public URL
+            src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage.png?alt=media&token=9dbf40af-3f14-4b80-baa2-e5f23e2c1eaf" 
             alt="Inspirerende afbeelding gerelateerd aan persoonlijke groei en ontdekking."
             layout="fill"
             objectFit="cover"
