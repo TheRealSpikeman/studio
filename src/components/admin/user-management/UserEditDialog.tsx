@@ -165,8 +165,8 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
             <TabsContent value="profile" className="space-y-4 pt-2">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={user?.avatarUrl || ''} data-ai-hint="user avatar"/>
-                  <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
+                  <AvatarImage src={watch("avatarUrl") || undefined} data-ai-hint="user avatar"/>
+                  <AvatarFallback>{getInitials(watch("name"))}</AvatarFallback>
                 </Avatar>
                  <div className="w-full space-y-1">
                     <Label htmlFor="avatarUrl">Avatar URL (optioneel)</Label>
@@ -320,13 +320,24 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
             {currentRole === 'tutor' && (
               <TabsContent value="tutorSpecific" className="space-y-4 pt-2">
                 <CardTitle className="text-lg">Tutor Specifieke Informatie</CardTitle>
-                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} /></div>
-                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} /></div>
-                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} /></div>
-                <div><Label>Vakken (komma-gescheiden):</Label><Input {...register("tutorDetails_subjects", {setValueAs: v => v.split(',').map((s:string) => s.trim()).filter(Boolean)})} /></div>
-                <div><Label>CV URL:</Label><Input {...register("tutorDetails_cvUrl")} /></div>
-                <div><Label>VOG URL:</Label><Input {...register("tutorDetails_vogUrl")} /></div>
-                 {user?.status === 'pending_approval' && ( // Check original user status
+                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} readOnly={user?.status === 'pending_approval'} /></div>
+                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} readOnly={user?.status === 'pending_approval'} /></div>
+                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} readOnly={user?.status === 'pending_approval'} /></div>
+                <div>
+                    <Label>Vakken (komma-gescheiden):</Label>
+                    <Input {...register("tutorDetails_subjects", {setValueAs: v => typeof v === 'string' ? v.split(',').map((s:string) => s.trim()).filter(Boolean) : v})} readOnly={user?.status === 'pending_approval'} />
+                </div>
+                <div>
+                    <Label>CV URL:</Label>
+                    <Input {...register("tutorDetails_cvUrl")} readOnly={user?.status === 'pending_approval'} />
+                    {user?.tutorDetails?.cvUrl && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={user.tutorDetails.cvUrl} target="_blank" rel="noopener noreferrer">Bekijk CV</a></Button>}
+                </div>
+                <div>
+                    <Label>VOG URL:</Label>
+                    <Input {...register("tutorDetails_vogUrl")} readOnly={user?.status === 'pending_approval'} />
+                    {user?.tutorDetails?.vogUrl && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={user.tutorDetails.vogUrl} target="_blank" rel="noopener noreferrer">Bekijk VOG</a></Button>}
+                </div>
+                 {user?.status === 'pending_approval' && ( 
                     <div className="flex gap-2 mt-4 pt-4 border-t">
                         <Button onClick={handleApproveTutor} className="bg-green-500 hover:bg-green-600">
                             <CheckCircle className="mr-2 h-4 w-4"/> Goedkeuren & Opslaan
@@ -352,5 +363,3 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
     </Dialog>
   );
 }
-
-```
