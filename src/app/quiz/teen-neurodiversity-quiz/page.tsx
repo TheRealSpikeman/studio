@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart, Settings, HelpCircle, ChevronRight, Users } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Heart, Settings, HelpCircle, ChevronRight, Users, Search, ListChecks, Check, MessageSquareHeart, Edit } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -44,16 +44,17 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   HSP: Sparkles, 
   ASS: Compass, 
   AngstDepressie: ShieldAlert,
-  // Add more if new profiles emerge from AI analysis or data
-  'Jouw Profiel In Vogelvlucht': Users,
-  'Sterke Kanten': ThumbsUp,
-  'Aandachtspunten': Target,
-  'Tips voor Jou': Lightbulb,
+  'Jouw Profiel In Vogelvlucht': Users, // For AI Analysis section
+  'Sterke Kanten': ThumbsUp, // For AI Analysis section
+  'Aandachtspunten': Edit, // For AI Analysis section (was Target, changed for clarity)
+  'Tips voor Jou': Lightbulb, // For AI Analysis section
+  'Overige Informatie': Info, // For AI Analysis section
 };
 
 interface AiAnalysisSection {
   title: string;
-  content: string | ParsedProfileScore[];
+  content: string | ParsedProfileScore[]; // content can be a string or an array of ParsedProfileScore for "Jouw Profiel In Vogelvlucht"
+  isList?: boolean; // Indicates if content string should be treated as a list
   icon?: React.ElementType;
 }
 
@@ -65,59 +66,88 @@ interface ParsedProfileScore {
 }
 
 const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
-  if (!analysisText) return [];
+  if (!analysisText || typeof analysisText !== 'string') return [];
 
   const sections: AiAnalysisSection[] = [];
   const knownHeaders = ["Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
+  const listSections = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
   
   let remainingText = analysisText;
 
+  // Function to clean header from text
+  const cleanHeader = (text: string, header: string) => {
+    const regex = new RegExp(`^${header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\n?`, 'i');
+    return text.replace(regex, '').trim();
+  };
+  
   // Extract "Jouw Profiel In Vogelvlucht" first as it has a special list format
   const vogelvluchtHeader = "Jouw Profiel In Vogelvlucht";
-  const vogelvluchtIndex = remainingText.indexOf(vogelvluchtHeader);
+  const vogelvluchtIndex = remainingText.toLowerCase().indexOf(vogelvluchtHeader.toLowerCase());
 
   if (vogelvluchtIndex !== -1) {
     const nextHeaderIndexAfterVogelvlucht = knownHeaders.slice(1)
-      .map(h => remainingText.indexOf(h, vogelvluchtIndex + vogelvluchtHeader.length))
+      .map(h => remainingText.toLowerCase().indexOf(h.toLowerCase(), vogelvluchtIndex + vogelvluchtHeader.length))
       .filter(idx => idx !== -1)
       .sort((a, b) => a - b)[0] || remainingText.length;
     
-    const vogelvluchtContentRaw = remainingText.substring(vogelvluchtIndex + vogelvluchtHeader.length, nextHeaderIndexAfterVogelvlucht).trim();
+    let vogelvluchtContentRaw = remainingText.substring(vogelvluchtIndex + vogelvluchtHeader.length, nextHeaderIndexAfterVogelvlucht).trim();
+    vogelvluchtContentRaw = cleanHeader(vogelvluchtContentRaw, vogelvluchtHeader); // Clean if header repeated in content
+
     const profileScores: ParsedProfileScore[] = [];
     vogelvluchtContentRaw.split('\n').forEach(line => {
       line = line.trim();
       if (line.startsWith('-')) {
-        const match = line.match(/-\s*([A-Z\s\/]+):\s*([\d.]+)\s*\((.+)\)/i);
+        const match = line.match(/-\s*([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
         if (match) {
+          const profileName = match[1].trim();
           const profileKey = Object.keys(neurotypeIcons).find(key => 
-            match[1].trim().toLowerCase().includes(key.toLowerCase()) || 
-            key.toLowerCase().includes(match[1].trim().toLowerCase())
+            profileName.toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(profileName.toLowerCase())
           ) || 'Default';
           profileScores.push({
-            profileName: match[1].trim(),
+            profileName: profileName,
             score: match[2].trim(),
-            comment: match[3].trim(),
+            comment: match[3] ? match[3].trim() : "Nadere toelichting volgt.",
             icon: neurotypeIcons[profileKey] || HelpCircle
           });
+        } else {
+           // If it's a list item but not matching the score format, treat as general text for this section
+           if (profileScores.length === 0 || profileScores[profileScores.length-1].profileName !== "Algemeen") {
+            profileScores.push({profileName: "Algemeen", score: "", comment: line.substring(1).trim(), icon: Info});
+           } else {
+             profileScores[profileScores.length-1].comment += `\n${line.substring(1).trim()}`;
+           }
         }
       }
     });
-    sections.push({ title: vogelvluchtHeader, content: profileScores, icon: neurotypeIcons[vogelvluchtHeader] || Users });
+    if (profileScores.length > 0) {
+       sections.push({ title: vogelvluchtHeader, content: profileScores, icon: neurotypeIcons[vogelvluchtHeader] || Users });
+    } else if (vogelvluchtContentRaw) {
+       // Fallback if no list items parsed but content exists
+       sections.push({ title: vogelvluchtHeader, content: vogelvluchtContentRaw, icon: neurotypeIcons[vogelvluchtHeader] || Users });
+    }
     remainingText = remainingText.substring(nextHeaderIndexAfterVogelvlucht);
   }
 
   // Extract other sections
   knownHeaders.slice(1).forEach(header => {
-    const headerIndex = remainingText.indexOf(header);
+    const headerIndex = remainingText.toLowerCase().indexOf(header.toLowerCase());
     if (headerIndex !== -1) {
       const nextHeaderIndex = knownHeaders
-        .filter(h => h !== header && remainingText.indexOf(h, headerIndex + header.length) !== -1)
-        .map(h => remainingText.indexOf(h, headerIndex + header.length))
+        .filter(h => h !== header && remainingText.toLowerCase().indexOf(h.toLowerCase(), headerIndex + header.length) !== -1)
+        .map(h => remainingText.toLowerCase().indexOf(h.toLowerCase(), headerIndex + header.length))
         .sort((a, b) => a - b)[0] || remainingText.length;
       
-      const content = remainingText.substring(headerIndex + header.length, nextHeaderIndex).trim();
+      let content = remainingText.substring(headerIndex + header.length, nextHeaderIndex).trim();
+      content = cleanHeader(content, header); // Clean if header repeated in content
+      
       if (content) {
-        sections.push({ title: header, content, icon: neurotypeIcons[header] || HelpCircle });
+        sections.push({ 
+          title: header, 
+          content, 
+          isList: listSections.includes(header), 
+          icon: neurotypeIcons[header] || HelpCircle 
+        });
       }
       remainingText = remainingText.substring(nextHeaderIndex);
     }
@@ -125,10 +155,10 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
 
   // Add any remaining text as a generic section if it wasn't captured
   if (remainingText.trim()) {
-    sections.push({ title: "Overige Informatie", content: remainingText.trim(), icon: Info });
+    sections.push({ title: "Overige Informatie", content: remainingText.trim(), icon: neurotypeIcons["Overige Informatie"] || Info });
   }
   
-  return sections;
+  return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
 };
 
 
@@ -412,10 +442,10 @@ export default function TeenNeurodiversityQuizPage() {
 
         {currentStep === 'intro' && (
           <Card className="shadow-xl">
-            <CardHeader>
+            <CardHeader className="pt-8">
               <CardTitle className="text-3xl font-bold text-center">Welkom bij de Neurodiversiteit Quiz ({ageGroup} jaar)</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-center">
+            <CardContent className="space-y-4 text-center pt-4">
               <p className="text-muted-foreground">
                 Deze test geeft inzicht in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn {currentBaseQuestions.length} basisvragen; op basis van je antwoorden kun je één of meerdere subtests doen voor verdieping.
               </p>
@@ -439,13 +469,13 @@ export default function TeenNeurodiversityQuizPage() {
 
         {currentStep === 'baseQuestions' && (
           <Card className="shadow-xl">
-            <CardHeader>
+            <CardHeader className="pt-8">
               <CardTitle className="text-2xl">Basisvragen ({ageGroup} jaar)</CardTitle>
-              <CardDescription>
+              <CardDescription className="pt-1">
                 Deze eerste {currentBaseQuestions.length} vragen helpen om te bepalen welke eigenschappen bij jou het sterkst aanwezig zijn. Kies bij elke vraag het antwoord dat het beste bij jou past.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {currentBaseQuestions.map((q, index) => (
                 <TeenQuestion
                   key={index}
@@ -484,13 +514,13 @@ export default function TeenNeurodiversityQuizPage() {
 
         {currentStep === 'subtestConfirmation' && (
           <Card className="shadow-xl">
-            <CardHeader>
+            <CardHeader className="pt-8">
               <CardTitle className="text-2xl">Verdiepende vragen ({ageGroup} jaar)</CardTitle>
-              <CardDescription>
+              <CardDescription className="pt-1">
                 Op basis van je antwoorden willen we je graag meer vragen stellen over specifieke gebieden.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-2">
               {relevantSubtests.length === 1 ? (
                 <>
                   <p>Op basis van je antwoorden lijkt het zinvol om verder te kijken naar <strong>{neurotypeDescriptionsTeen[relevantSubtests[0]].title}</strong>.</p>
@@ -524,13 +554,13 @@ export default function TeenNeurodiversityQuizPage() {
         
         {currentStep === 'subtestQuestions' && (
           <Card className="shadow-xl">
-            <CardHeader>
+            <CardHeader className="pt-8">
               <CardTitle className="text-2xl">Vervolgvragen ({ageGroup} jaar)</CardTitle>
-              <CardDescription>
+              <CardDescription className="pt-1">
                  Deze vragen helpen om een beter beeld te krijgen van de gebieden die bij jou het sterkst naar voren komen.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {relevantSubtests.map(subtestKey => (
                 <div key={subtestKey} className="mb-6">
                   <h3 className="mb-3 text-xl font-semibold text-primary">{neurotypeDescriptionsTeen[subtestKey].title}</h3>
@@ -559,16 +589,16 @@ export default function TeenNeurodiversityQuizPage() {
         {currentStep === 'results' && (
           <div className="space-y-6">
             <Card className="shadow-xl">
-              <CardHeader className="text-center">
+              <CardHeader className="text-center pt-8">
                 <CardTitle className="text-3xl font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6 pt-4">
                 <Card className="shadow-md">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-xl">
+                    <h2 className="text-2xl font-semibold flex items-center gap-2">
                       <User className="h-6 w-6 text-primary" />
                       Jouw Neuroprofiel in een Oogopslag
-                    </CardTitle>
+                    </h2>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.keys(finalScores)
@@ -581,15 +611,15 @@ export default function TeenNeurodiversityQuizPage() {
                         const isProminent = score >= (currentThresholds[key] || 0);
 
                         return (
-                          <Card key={key} className={cn("p-3", isProminent ? "border-primary/50 bg-primary/5" : "bg-muted/50")}>
-                            <div className="flex items-center gap-3 mb-1">
-                              <IconComponent className={cn("h-7 w-7", isProminent ? "text-primary" : "text-muted-foreground")} />
+                          <Card key={key} className={cn("p-4", isProminent ? "border-primary/50 bg-primary/5" : "bg-muted/50")}>
+                            <div className="flex items-center gap-3 mb-1.5">
+                              <IconComponent className={cn("h-8 w-8", isProminent ? "text-primary" : "text-muted-foreground")} />
                               <div>
-                                <h4 className={cn("font-semibold", isProminent ? "text-primary" : "text-foreground")}>{profile.title}</h4>
-                                <p className="text-xs text-muted-foreground">Score: {score?.toFixed(2) || 'N/A'}</p>
+                                <h3 className={cn("text-lg font-semibold", isProminent ? "text-primary" : "text-foreground")}>{profile.title}</h3>
+                                <p className="text-sm text-muted-foreground">Score: {score?.toFixed(2) || 'N/A'}</p>
                               </div>
                             </div>
-                            <p className="text-xs text-muted-foreground">{profile.eigenschappen}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{profile.eigenschappen}</p>
                           </Card>
                         );
                     })}
@@ -598,10 +628,10 @@ export default function TeenNeurodiversityQuizPage() {
 
                 <Alert variant="default" className="bg-secondary/50 border-secondary">
                    <Info className="h-5 w-5" />
-                  <AlertTitleUi className="font-semibold">Wat Betekenen Deze Scores?</AlertTitleUi>
-                  <AlertDescUi>
+                  <AlertTitleUi className="font-semibold text-lg">Wat Betekenen Deze Scores?</AlertTitleUi>
+                  <AlertDescUi className="leading-relaxed">
                     De scores (schaal 1-4) geven aan hoe sterk je de kenmerken van een profiel herkent.
-                    <ul className="list-disc pl-5 mt-1 text-xs">
+                    <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
                       <li><strong>Score 3.0 - 4.0:</strong> Kenmerken zijn duidelijk herkenbaar.</li>
                       <li><strong>Score 2.0 - 2.9:</strong> Kenmerken zijn soms herkenbaar.</li>
                       <li><strong>Score 1.0 - 1.9:</strong> Kenmerken zijn minder herkenbaar.</li>
@@ -610,19 +640,23 @@ export default function TeenNeurodiversityQuizPage() {
                   </AlertDescUi>
                 </Alert>
 
-                <div className="rounded-md border border-primary/30 bg-primary/5 p-4">
-                    <h3 className="mb-2 text-xl font-semibold text-primary">Jouw Neurodiversiteitsprofiel Samenvatting</h3>
-                    <p className="text-foreground">{generateSummaryText(finalScores, relevantSubtests)}</p>
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-6 shadow-sm">
+                    <h2 className="mb-2 text-2xl font-semibold text-primary">Jouw Neurodiversiteitsprofiel Samenvatting</h2>
+                    <p className="text-foreground leading-relaxed">{generateSummaryText(finalScores, relevantSubtests)}</p>
                 </div>
                 
                 {Object.keys(finalScores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && finalScores[key] >= currentThresholds[key]).length > 0 && (
-                    <div className="rounded-md border border-accent/30 bg-accent/5 p-4 text-sm">
-                        <h3 className="mb-2 flex items-center text-lg font-semibold text-accent"><Info className="mr-2 h-5 w-5" />Algemene Toelichting</h3>
-                        <p>De scores hieronder geven aan waar jouw neurodiversiteitskenmerken het sterkst naar voren komen. 
-                        Hoe hoger de score (schaal 1-4), hoe meer je de eigenschappen van dit profiel herkent in jezelf.</p>
-                        <p className="mt-1">Neurodiversiteit is een spectrum. De meeste mensen hebben kenmerken van meerdere profielen. 
-                        Dit rapport is bedoeld om je inzicht te geven en handvatten te bieden, niet als vervanging voor professioneel advies.</p>
-                    </div>
+                    <Alert variant="default" className="bg-accent/5 border-accent/30 text-accent-foreground">
+                        <ListChecks className="h-5 w-5 text-accent" />
+                        <AlertTitleUi className="font-semibold text-lg text-accent">Algemene Toelichting</AlertTitleUi>
+                        <AlertDescUi className="text-sm leading-relaxed">
+                        De scores hieronder geven aan waar jouw neurodiversiteitskenmerken het sterkst naar voren komen. 
+                        Hoe hoger de score (schaal 1-4), hoe meer je de eigenschappen van dit profiel herkent in jezelf.
+                        <br />
+                        Neurodiversiteit is een spectrum. De meeste mensen hebben kenmerken van meerdere profielen. 
+                        Dit rapport is bedoeld om je inzicht te geven en handvatten te bieden, niet als vervanging voor professioneel advies.
+                        </AlertDescUi>
+                    </Alert>
                 )}
 
                 {Object.keys(neurotypeDescriptionsTeen)
@@ -635,33 +669,42 @@ export default function TeenNeurodiversityQuizPage() {
                     const IconForProfile = neurotypeIcons[key] || Brain;
 
                     return (
-                      <Card key={key} className="overflow-hidden shadow-md" style={{borderLeft: `5px solid ${profile.color || 'hsl(var(--primary))'}`}}>
-                        <CardHeader className="bg-muted/30">
-                          <CardTitle className="text-2xl flex items-center gap-2" style={{color: profile.color || 'hsl(var(--primary))'}}>
+                      <Card key={key} className="overflow-hidden shadow-md my-6" style={{borderLeft: `6px solid ${profile.color || 'hsl(var(--primary))'}`}}>
+                        <CardHeader className="bg-muted/30 py-4 px-5">
+                          <h2 className="text-2xl font-semibold flex items-center gap-3" style={{color: profile.color || 'hsl(var(--primary))'}}>
                             <IconForProfile className="h-7 w-7" />
                             {profile.title} 
-                            <span className="ml-2 text-lg font-normal text-muted-foreground">(Score: {score?.toFixed(2) || 'N/A'})</span>
-                          </CardTitle>
+                            <span className="ml-auto text-lg font-normal text-muted-foreground">(Score: {score?.toFixed(2) || 'N/A'})</span>
+                          </h2>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                          <p><em>Eigenschappen:</em> {profile.eigenschappen}</p>
-                          <p>{profile.detail}</p>
-                          <p className="text-sm text-muted-foreground">{profile.uitleg}</p>
+                        <CardContent className="space-y-5 pt-5 px-5 pb-6">
+                          <div>
+                            <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-wider mb-1">Kenmerken</h3>
+                            <p className="italic leading-relaxed">{profile.eigenschappen}</p>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-wider mb-1">Korte Uitleg</h3>
+                            <p className="leading-relaxed">{profile.detail}</p>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-wider mb-1">Meer Over {profile.title}</h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed">{profile.uitleg}</p>
+                          </div>
                           
                           <div>
-                            <h4 className="mb-2 text-md font-semibold flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-green-600"/>Sterke punten:</h4>
-                            <ul className="list-disc space-y-0.5 pl-5 text-sm">
+                            <h3 className="mb-2 text-lg font-semibold flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-green-600"/>Jouw Sterke Punten:</h3>
+                            <ul className="list-disc space-y-1 pl-6 text-sm leading-relaxed">
                               {profile.sterktepunten.map((p, i) => <li key={i}>{p}</li>)}
                             </ul>
                           </div>
 
                           <div>
-                            <h4 className="mb-2 text-md font-semibold flex items-center gap-2"><Lightbulb className="h-5 w-5 text-yellow-500"/>Tips en strategieën (voor {ageGroup} jaar):</h4>
-                            <div className="space-y-3 text-sm">
-                              <div className="rounded-md bg-green-50 p-3 border border-green-200 shadow-sm"><strong className="text-green-700 block mb-1">Op school/studie:</strong> {profile.tips.school}</div>
-                              <div className="rounded-md bg-blue-50 p-3 border border-blue-200 shadow-sm"><strong className="text-blue-700 block mb-1">Thuis:</strong> {profile.tips.thuis}</div>
-                              <div className="rounded-md bg-purple-50 p-3 border border-purple-200 shadow-sm"><strong className="text-purple-700 block mb-1">In sociale situaties:</strong> {profile.tips.sociaal}</div>
-                              <div className="rounded-md bg-yellow-50 p-3 border border-yellow-200 shadow-sm"><strong className="text-yellow-700 block mb-1">Op werk/stage:</strong> {profile.tips.werk}</div>
+                            <h3 className="mb-3 text-lg font-semibold flex items-center gap-2"><Lightbulb className="h-5 w-5 text-yellow-500"/>Tips en Strategieën (voor {ageGroup} jaar):</h3>
+                            <div className="space-y-4 text-sm">
+                              <div className="rounded-md bg-green-50 p-4 border border-green-200 shadow-sm"><strong className="text-green-700 block mb-1.5 text-base">✏️ Op school/studie:</strong> <p className="leading-relaxed">{profile.tips.school}</p></div>
+                              <div className="rounded-md bg-blue-50 p-4 border border-blue-200 shadow-sm"><strong className="text-blue-700 block mb-1.5 text-base">🏡 Thuis:</strong> <p className="leading-relaxed">{profile.tips.thuis}</p></div>
+                              <div className="rounded-md bg-purple-50 p-4 border border-purple-200 shadow-sm"><strong className="text-purple-700 block mb-1.5 text-base">💬 In sociale situaties:</strong> <p className="leading-relaxed">{profile.tips.sociaal}</p></div>
+                              <div className="rounded-md bg-orange-50 p-4 border border-orange-200 shadow-sm"><strong className="text-orange-700 block mb-1.5 text-base">💼 Op werk/stage:</strong> <p className="leading-relaxed">{profile.tips.werk}</p></div>
                             </div>
                           </div>
                         </CardContent>
@@ -669,36 +712,45 @@ export default function TeenNeurodiversityQuizPage() {
                     );
                 })}
                 
-                 <Card className="shadow-xl mt-6 bg-primary/5 border border-primary/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-xl text-primary">
-                        <Brain className="h-6 w-6" /> Diepgaande Analyse door AI
-                      </CardTitle>
+                 <Card className="shadow-xl mt-8 bg-primary/5 border-primary/20">
+                    <CardHeader className="py-5 px-6">
+                      <h2 className="text-2xl font-semibold flex items-center gap-3 text-primary">
+                        <Brain className="h-7 w-7" /> Diepgaande Analyse door AI
+                      </h2>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6 px-6 pb-6">
                     {isAnalysisLoading ? (
-                        <div className="space-y-2 animate-pulse">
-                            <div className="h-4 bg-muted rounded w-3/4"></div><div className="h-4 bg-muted rounded w-1/2"></div><div className="h-4 bg-muted rounded w-5/6"></div>
-                            <div className="h-4 bg-muted rounded w-2/3 mt-3"></div><div className="h-4 bg-muted rounded w-full"></div>
+                        <div className="space-y-3 animate-pulse pt-2">
+                            <div className="h-5 bg-muted rounded w-3/4"></div><div className="h-5 bg-muted rounded w-1/2"></div><div className="h-5 bg-muted rounded w-5/6"></div>
+                            <div className="h-5 bg-muted rounded w-2/3 mt-4"></div><div className="h-5 bg-muted rounded w-full"></div>
                         </div>
                     ) : parsedAiAnalysis.length > 0 ? (
                        parsedAiAnalysis.map((section, index) => (
-                        <div key={index} className="mb-4">
-                          <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
-                            {section.icon && <section.icon className="h-5 w-5 text-primary" />}
+                        <div key={index} className={cn(
+                            "py-3",
+                            section.title === "Aandachtspunten" && "bg-orange-50/70 border-l-4 border-orange-400 px-4 rounded-md shadow-sm"
+                        )}>
+                          <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+                            {section.icon && <section.icon className={cn("h-6 w-6", section.title === "Aandachtspunten" ? "text-orange-500" : "text-primary" )} />}
                             {section.title}
                           </h3>
                           {typeof section.content === 'string' ? (
-                            <p className="text-muted-foreground whitespace-pre-wrap">{section.content}</p>
+                            section.isList ? (
+                                <ul className="list-disc space-y-2 pl-6 text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                    {section.content.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- |^\* /,'').trim()}</li>)}
+                                </ul>
+                            ) : (
+                                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
+                            )
                           ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {(section.content as ParsedProfileScore[]).map((item, itemIdx) => (
-                                <Card key={itemIdx} className="p-3 bg-background shadow-sm">
-                                  <div className="flex items-center gap-2 mb-1">
+                                <Card key={itemIdx} className="p-4 bg-background shadow">
+                                  <div className="flex items-center gap-2 mb-1.5">
                                     {item.icon && <item.icon className="h-5 w-5 text-primary" />}
-                                    <p className="font-semibold text-primary">{item.profileName} ({item.score})</p>
+                                    <p className="font-semibold text-primary text-lg">{item.profileName} (Score: {item.score})</p>
                                   </div>
-                                  <p className="text-xs text-muted-foreground">{item.comment}</p>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">{item.comment}</p>
                                 </Card>
                               ))}
                             </div>
@@ -712,32 +764,38 @@ export default function TeenNeurodiversityQuizPage() {
                   </Card>
 
 
-                <div className="mt-6 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm">
-                    <h3 className="mb-2 flex items-center text-lg font-semibold text-destructive"><AlertTriangle className="mr-2 h-5 w-5" />Disclaimer</h3>
-                    <p>Deze quiz geeft inzicht in neurodiversiteitskenmerken, maar is geen diagnostisch instrument. Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.</p>
-                </div>
+                <Alert variant="destructive" className="mt-8 text-sm">
+                    <AlertTriangle className="h-5 w-5" />
+                    <AlertTitleUi className="font-semibold text-lg">Disclaimer</AlertTitleUi>
+                    <AlertDescUi className="leading-relaxed">
+                        Deze quiz geeft inzicht in neurodiversiteitskenmerken, maar is geen diagnostisch instrument. 
+                        Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog. 
+                        MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.
+                    </AlertDescUi>
+                </Alert>
 
               </CardContent>
             </Card>
 
-            <Card className="w-full shadow-xl mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary">
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl text-primary">
-                    <Sparkles className="h-6 w-6" />
-                    Wil je nog dieper duiken & dagelijkse ondersteuning?
-                </CardTitle>
+            <Card className="w-full shadow-xl mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30">
+                <CardHeader className="py-5 px-6">
+                <h2 className="text-2xl font-semibold flex items-center gap-3 text-primary">
+                    <Sparkles className="h-7 w-7" />
+                    Ontgrendel je volledige potentieel!
+                </h2>
                 </CardHeader>
-                <CardContent>
-                <p className="text-muted-foreground mb-4">
-                    Dit rapport is een geweldige start! Met een MindNavigator account krijg je toegang tot:
+                <CardContent className="px-6 pb-6">
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                    Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met verdiepende subquizzen en dagelijkse, persoonlijke coaching ontvangen?
                 </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-4 pl-5">
-                    <li>Dagelijkse, gepersonaliseerde coaching tips & routines</li>
-                    <li>Mogelijkheid om alle verdiepende subquizzen te doen</li>
-                    <li>Je voortgang opslaan en bijhouden</li>
-                    <li>Downloadbare PDF rapportages</li>
+                <p className="text-lg font-semibold mb-2 text-foreground">Krijg toegang tot premium functies:</p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-1.5 mb-5 pl-5 leading-relaxed">
+                    <li>Alle verdiepende subquizzen</li>
+                    <li>Dagelijkse coaching tips & routines</li>
+                    <li>Uitgebreide PDF rapportages</li>
+                    <li>Voortgangstracking en meer!</li>
                 </ul>
-                <p className="text-center text-lg font-semibold text-primary mb-4">
+                <p className="text-center text-xl font-bold text-primary mb-5">
                     Vanaf slechts €2,50 per maand!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -751,13 +809,13 @@ export default function TeenNeurodiversityQuizPage() {
             </Card>
              
              <Card className="w-full shadow-xl mt-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
+              <CardHeader className="py-5 px-6">
+                <h2 className="text-xl font-semibold flex items-center gap-2 text-foreground">
                    Sla je resultaten op (zonder coaching)
-                </CardTitle>
+                </h2>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
+              <CardContent className="px-6 pb-6">
+                <p className="text-muted-foreground mb-4 leading-relaxed">
                   Wil je alleen dit resultaat opslaan en je voortgang bijhouden zonder direct te abonneren op coaching? Maak een gratis account aan.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -775,10 +833,10 @@ export default function TeenNeurodiversityQuizPage() {
               </CardContent>
             </Card>
 
-            <CardFooter className="flex flex-col items-center gap-4 pt-6 pb-8">
+            <CardFooter className="flex flex-col items-center gap-4 pt-8 pb-8">
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="outline"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
+                        <Button variant="outline" size="lg"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -793,7 +851,7 @@ export default function TeenNeurodiversityQuizPage() {
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-                 <Button variant="link" asChild>
+                 <Button variant="link" asChild className="mt-2">
                     <Link href="/quizzes">Terug naar quiz overzicht</Link>
                 </Button>
             </CardFooter>
@@ -804,6 +862,3 @@ export default function TeenNeurodiversityQuizPage() {
   );
 }
 
-
-
-    
