@@ -19,11 +19,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight } from "lucide-react";
+import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight, ImageUp } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { QuizAudience, QuizCategory, QuizStatusAdmin } from '@/types/quiz-admin';
+import React from "react"; // Import React for useRef
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
   { id: '12-14', label: '12-14 jaar' },
@@ -61,6 +62,7 @@ const quizFormSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   thumbnailUrl: z.string().url({ message: "Ongeldige URL voor thumbnail." }).optional().or(z.literal('')),
+  uploadedImage: z.any().optional(), // For file upload
   questions: z.array(
     z.object({
       text: z.string().min(5, { message: "Vraagtekst is te kort." }),
@@ -78,23 +80,23 @@ const quizFormSchema = z.object({
 
 export type QuizFormData = z.infer<typeof quizFormSchema>; // Exporting for EditQuizPage
 
-// This page is used for both creating new and editing existing quizzes.
-// If `quizData` prop is provided, it's in edit mode.
 interface QuizFormPageProps {
-  quizData?: QuizFormData & { id?: string }; // For editing
+  quizData?: QuizFormData & { id?: string }; 
 }
 
 export default function NewQuizPage({ quizData }: QuizFormPageProps) {
   const { toast } = useToast();
   const router = useRouter();
   const isEditMode = !!quizData?.id;
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(quizData?.thumbnailUrl || null);
 
   const form = useForm<QuizFormData>({
     resolver: zodResolver(quizFormSchema),
     defaultValues: quizData ? {
         ...quizData,
-        questions: quizData.questions.map(q => ({ ...q, weight: q.weight ?? 1})), // Ensure weight has a default for editing
-        subtestConfigs: quizData.subtestConfigs || [], // Ensure subtestConfigs is an array
+        questions: quizData.questions.map(q => ({ ...q, weight: q.weight ?? 1})), 
+        subtestConfigs: quizData.subtestConfigs || [], 
     } : {
       title: "",
       description: "",
@@ -120,60 +122,81 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
     name: "subtestConfigs",
   });
 
-  const onSubmit = (data: QuizFormData) => {
-    console.log("Quiz data submitted for saving:", data);
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      form.setValue("uploadedImage", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        form.setValue("thumbnailUrl", ""); // Clear URL if file is uploaded
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data: QuizFormData) => {
+    let finalThumbnailUrl = data.thumbnailUrl;
+
+    if (data.uploadedImage) {
+      // Simulate image upload and get URL
+      // In a real app, you would upload to Firebase Storage or similar
+      // For now, we'll use a placeholder logic or simply use the data URI for preview
+      console.log("Simulating image upload for:", data.uploadedImage.name);
+      // This is where you'd get the actual URL after upload
+      // For demo, we'll use the preview if no URL is manually entered.
+      // If you had an upload service:
+      // finalThumbnailUrl = await uploadImageToCloudService(data.uploadedImage);
+      // For this example, if a file is uploaded, and thumbnailUrl is empty, we might clear it
+      // or expect the backend to handle the uploaded file.
+      // Let's assume for now the `imagePreview` (data URI) could be used or a real URL is obtained.
+      // If `thumbnailUrl` is manually set, it takes precedence.
+      // If an image was uploaded and `thumbnailUrl` is empty, use the preview.
+      if (imagePreview && !data.thumbnailUrl) {
+         // This is tricky. For a real app, `finalThumbnailUrl` should be the result of an upload.
+         // For this demo, we'll just use a placeholder if an image was selected and no URL given.
+         // Or let the localStorage save the imagePreview (Data URI)
+         finalThumbnailUrl = imagePreview; // This could be a data URI
+      }
+    }
+    
+    const saveData = { ...data, thumbnailUrl: finalThumbnailUrl };
+    delete saveData.uploadedImage; // Don't save the file object directly
+
+    console.log("Quiz data submitted for saving:", saveData);
 
     let toastTitle = "";
     let toastDescriptionAction = "";
 
     if (isEditMode) {
       toastTitle = "Quiz Bijgewerkt";
-      toastDescriptionAction = data.status === 'published' ? 'succesvol bijgewerkt en gepubliceerd' : 'succesvol bijgewerkt en opgeslagen als concept';
+      toastDescriptionAction = saveData.status === 'published' ? 'succesvol bijgewerkt en gepubliceerd' : 'succesvol bijgewerkt en opgeslagen als concept';
     } else {
-      if (data.status === 'published') {
-        toastTitle = "Quiz Gepubliceerd";
-        toastDescriptionAction = 'succesvol aangemaakt en gepubliceerd';
-      } else { // concept
-        toastTitle = "Quiz Opgeslagen als Concept";
-        toastDescriptionAction = 'succesvol aangemaakt als concept';
-      }
+      toastTitle = saveData.status === 'published' ? "Quiz Gepubliceerd" : "Quiz Opgeslagen als Concept";
+      toastDescriptionAction = saveData.status === 'published' ? 'succesvol aangemaakt en gepubliceerd' : 'succesvol aangemaakt als concept';
     }
     
-    if (isEditMode && quizData?.id?.startsWith('ai-')) {
+    if (quizData?.id?.startsWith('ai-') || (!isEditMode && data.title.toLowerCase().includes("ai gegenereerd"))) {
+        const quizIdToUse = quizData?.id || `ai-${Date.now()}`;
         try {
-            const updatedQuizForStorage = {
-                ...quizData, 
-                ...data, 
-                id: quizData.id, // Preserve the original AI ID
+            const quizForStorage = {
+                ...quizData, // existing data if editing
+                ...saveData, 
+                id: quizIdToUse,
                 lastUpdatedAt: new Date().toISOString(),
-                 // Ensure questions have a default weight if not provided by AI/form
-                questions: data.questions.map(q => ({...q, weight: q.weight ?? 1})),
+                createdAt: quizData?.createdAt || new Date().toISOString(),
+                questions: saveData.questions.map(q => ({...q, weight: q.weight ?? 1})),
             };
-            localStorage.setItem(`ai-quiz-${quizData.id}`, JSON.stringify(updatedQuizForStorage));
-            console.log(`AI Quiz ${quizData.id} updated in localStorage`);
+            localStorage.setItem(`ai-quiz-${quizIdToUse}`, JSON.stringify(quizForStorage));
+            console.log(`AI Quiz ${quizIdToUse} ${isEditMode ? 'updated' : 'saved'} in localStorage`);
         } catch (error) {
-            console.error("Error updating AI quiz in localStorage:", error);
+            console.error("Error saving/updating AI quiz in localStorage:", error);
         }
-    } else if (!isEditMode && data.title.toLowerCase().includes("ai gegenereerd")) {
-        // This is a fallback for newly AI-generated quizzes that don't have an ID yet
-        // However, the AI quiz generation flow in quiz-management/page.tsx should handle saving new AI quizzes directly.
-        // This part might be redundant or for a different flow.
-        const newAiQuizId = `ai-${Date.now()}`;
-         const newQuizForStorage = {
-            ...data,
-            id: newAiQuizId,
-            createdAt: new Date().toISOString(),
-            lastUpdatedAt: new Date().toISOString(),
-            questions: data.questions.map(q => ({...q, weight: q.weight ?? 1})),
-        };
-        localStorage.setItem(`ai-quiz-${newAiQuizId}`, JSON.stringify(newQuizForStorage));
-        console.log(`New AI Quiz ${newAiQuizId} saved to localStorage from new quiz page`);
     }
-
 
     toast({
       title: toastTitle,
-      description: `De quiz "${data.title}" is ${toastDescriptionAction} (simulatie).`,
+      description: `De quiz "${saveData.title}" is ${toastDescriptionAction} (simulatie).`,
     });
     router.push('/dashboard/admin/quiz-management');
   };
@@ -302,6 +325,52 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
         </Card>
 
         <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><ImageUp className="h-5 w-5 text-primary"/>Quiz Afbeelding</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="thumbnailUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Thumbnail URL (optioneel)</FormLabel>
+                            <FormControl><Input placeholder="https://example.com/image.jpg" {...field} onChange={(e) => { field.onChange(e); if (e.target.value) {setImagePreview(e.target.value); form.setValue("uploadedImage", null);}}} /></FormControl>
+                            <FormDescription>Plak een URL of upload hieronder een afbeelding.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="uploadedImage"
+                    render={({ field }) => ( // field is not directly used for input type file by react-hook-form in the same way
+                        <FormItem>
+                            <FormLabel>Of upload een afbeelding</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    ref={imageInputRef}
+                                    onChange={handleImageChange}
+                                    className="pt-1.5"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {imagePreview && (
+                    <div className="mt-2">
+                        <FormLabel>Voorbeeld:</FormLabel>
+                        <img src={imagePreview} alt="Quiz thumbnail preview" className="mt-1 max-h-40 rounded-md border" />
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+
+
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Vragen</CardTitle>
             <CardDescription>Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd). Stel een gewicht in voor de scoring.</CardDescription>
@@ -345,7 +414,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                     control={form.control}
                     name={`questions.${index}.example`}
                     render={({ field: fld }) => (
-                      <FormItem className="md:col-span-6"> {/* Adjusted span for example to take full width below others */}
+                      <FormItem className="md:col-span-6"> 
                         <FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel>
                         <FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl>
                         <FormMessage />
@@ -397,10 +466,10 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                     <FormField
                         control={form.control}
                         name={`subtestConfigs.${index}.threshold`}
-                        render={({ field: fld }) => (
+                        render={({ field: fld }) => ( // Removed defaultValue from here
                         <FormItem>
                             <FormLabel className="text-xs">Drempelwaarde (0-4)</FormLabel>
-                            <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} defaultValue={2.5} /></FormControl>
+                            <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} /></FormControl>
                             <FormMessage />
                         </FormItem>
                         )}
@@ -426,7 +495,6 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Slug (URL)</FormLabel><FormControl><Input placeholder="bijv. basis-neuroprofiel-12-14" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="metaTitle" render={({ field }) => (<FormItem><FormLabel>Meta Titel</FormLabel><FormControl><Input placeholder="Titel voor zoekmachines" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="metaDescription" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Meta Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte beschrijving voor zoekmachines" {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Thumbnail URL</FormLabel><FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
 
@@ -446,22 +514,19 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             <Save className="mr-2 h-4 w-4" /> Opslaan als Concept
           </Button>
           <Button 
-            type="submit" // Changed to type="submit" to trigger main form submission
+            type="submit" 
             disabled={form.formState.isSubmitting}
-             onClick={(e) => {
-                // If it's not edit mode and the status is not already set to published, set it.
-                // Otherwise, let the form's current status value (from dropdown or initial data) be used.
+             onClick={() => {
                 if (!isEditMode && form.getValues("status") !== "published") {
                     form.setValue("status", "published");
                 }
-                // handleSubmit will be called by the form's onSubmit
             }}
           >
             <Save className="mr-2 h-4 w-4" /> 
             {isEditMode && currentStatus === 'published' ? 'Quiz Bijwerken & Publiceren' : 
              isEditMode && currentStatus === 'concept' ? 'Concept Bijwerken' :
-             !isEditMode && currentStatus === 'published' ? 'Publiceren' :
-             !isEditMode && currentStatus === 'concept' ? 'Publiceren als Concept' : // Should not happen with button logic
+             !isEditMode && form.getValues("status") === 'published' ? 'Publiceren' : // Check current value for new quiz
+             !isEditMode && form.getValues("status") === 'concept' ? 'Publiceren' : // Check current value for new quiz (button will set to published)
              'Publiceren'
             }
           </Button>
@@ -470,4 +535,3 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
     </Form>
   );
 }
-
