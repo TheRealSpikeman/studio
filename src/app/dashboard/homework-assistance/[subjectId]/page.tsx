@@ -7,17 +7,17 @@ import { ToolPlaceholderCard } from '@/components/homework-assistance/ToolPlaceh
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, FileText, Youtube, BookOpenCheck, Timer, Brain, Layers3, FileQuestion } from 'lucide-react';
+import { ArrowLeft, FileText, Youtube, BookOpenCheck, Timer, Brain, Layers3, FileQuestion, Calculator, Languages, History, FlaskConical, Globe } from 'lucide-react';
 import Link from 'next/link';
 
 // Dummy data - in a real app, this would come from a CMS or database
 const subjectDetails: Record<string, { name: string; icon: React.ElementType }> = {
-  nederlands: { name: 'Nederlands', icon: FileText },
-  wiskunde: { name: 'Wiskunde', icon: FileText }, // Replace with Calculator if available or an SVG
-  engels: { name: 'Engels', icon: FileText }, // Replace with Languages if available or an SVG
-  geschiedenis: { name: 'Geschiedenis', icon: FileText }, // Replace with History if available or an SVG
-  biologie: { name: 'Biologie', icon: FileText }, // Replace with FlaskConical if available or an SVG
-  aardrijkskunde: { name: 'Aardrijkskunde', icon: FileText }, // Replace with Globe if available or an SVG
+  nederlands: { name: 'Nederlands', icon: Languages },
+  wiskunde: { name: 'Wiskunde', icon: Calculator }, 
+  engels: { name: 'Engels', icon: Languages }, 
+  geschiedenis: { name: 'Geschiedenis', icon: History }, 
+  biologie: { name: 'Biologie', icon: FlaskConical }, 
+  aardrijkskunde: { name: 'Aardrijkskunde', icon: Globe }, 
 };
 
 const subjectTips: Record<string, Array<{ title: string; description: string; type: 'article' | 'video' }>> = {
@@ -29,6 +29,54 @@ const subjectTips: Record<string, Array<{ title: string; description: string; ty
   wiskunde: [
     { title: 'Stappenplan voor vergelijkingen oplossen', description: 'Een systematische aanpak voor algebraïsche problemen.', type: 'article' },
     { title: 'De stelling van Pythagoras (video)', description: 'Visuele uitleg en voorbeelden van de beroemde stelling.', type: 'video' },
+    // VWO 1
+    { 
+      title: 'Haakjes wegwerken en herleiden (VWO 1)', 
+      description: 'Niveau: 1 HAVO/VWO & 1 VWO. Kanaal: Math with Menno. Views: 22K. Link: Zoek op YouTube "Haakjes wegwerken en herleiden Math with Menno"',
+      type: 'video' 
+    },
+    { 
+      title: 'Hoeken meten (VWO 1)', 
+      description: 'Niveau: 1 HAVO/VWO & 1 VWO. Kanaal: Math with Menno. Views: Onbekend. Link: Zoek op YouTube "Hoeken meten Math with Menno"',
+      type: 'video' 
+    },
+    { 
+      title: 'Z-hoeken (VWO 1)', 
+      description: 'Niveau: 1 HAVO/VWO & 1 VWO. Kanaal: Math with Menno. Views: Onbekend. Link: Zoek op YouTube "Z-hoeken Math with Menno"',
+      type: 'video' 
+    },
+    // VWO 2
+    { 
+      title: 'Statistiek - Hoofdstuk 2 (VWO 2)', 
+      description: 'Niveau: VWO wiskunde A/C, 12e editie. Kanaal: Math with Menno. Views: Onbekend. Link: Zoek op YouTube "Math with Menno Statistiek Hoofdstuk 2"',
+      type: 'video' 
+    },
+    { 
+      title: 'Oefenen met stelselsvergelijkingen (VWO 2)', 
+      description: 'Kanaal: Wiskunde Academie. Views: N.v.t. Link: https://www.wiskundeacademie.nl (zoek naar "stelselsvergelijkingen vwo 2")',
+      type: 'video' 
+    },
+    { 
+      title: 'Exponentiële groei & groeifactoren (VWO 2)', 
+      description: 'Kanaal: Wiskunde Academie. Views: N.v.t. Link: https://www.wiskundeacademie.nl (zoek naar "exponentiële groei vwo 2")',
+      type: 'video' 
+    },
+    // VWO 3
+    { 
+      title: 'H3 – Kwadratische problemen (VWO 3)', 
+      description: 'Niveau: 3 VWO, 12e editie. Kanaal: YouTube-playlist (divers). Views: N.v.t. Link: Zoek op YouTube "Kwadratische problemen 3 VWO 12e editie playlist"',
+      type: 'video' 
+    },
+    { 
+      title: 'Redeneren met allerlei formules (VWO 3)', 
+      description: 'Niveau: VWO wiskunde A. Kanaal: Math with Menno. Views: 98K. Link: Zoek op YouTube "Redeneren met allerlei formules Math with Menno"',
+      type: 'video' 
+    },
+    { 
+      title: 'Examenspreekuur wiskunde B (VWO 3)', 
+      description: 'Kanaal: Meester Mo & Menno. Views: Onbekend. Link: Zoek op YouTube "Examenspreekuur wiskunde B Meester Mo Menno"',
+      type: 'video' 
+    },
   ],
   engels: [
     { title: 'Veelgemaakte grammaticafouten', description: 'Tips om je Engelse grammatica te perfectioneren.', type: 'article'},
@@ -62,7 +110,7 @@ export default function SubjectDetailPage() {
   const subjectInfo = subjectDetails[subjectId] || { name: 'Onbekend Vak', icon: FileQuestion };
   const tips = subjectTips[subjectId] || [];
   const exercises = subjectExercises[subjectId] || [];
-  const SubjectIcon = subjectInfo.icon;
+  const SubjectIconComponent = subjectInfo.icon;
 
   return (
     <div className="space-y-6">
@@ -74,7 +122,7 @@ export default function SubjectDetailPage() {
 
       <section className="flex items-center gap-3 mb-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <SubjectIcon className="h-7 w-7" />
+            <SubjectIconComponent className="h-7 w-7" />
         </div>
         <div>
             <h1 className="text-3xl font-bold text-foreground">{subjectInfo.name}</h1>
