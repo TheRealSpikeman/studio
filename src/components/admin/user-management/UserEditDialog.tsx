@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CardTitle } from '@/components/ui/card'; // Added CardTitle import
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -102,11 +103,11 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
     const processedData: Partial<User> & Pick<User, 'name' | 'email' | 'status' | 'role'> = {
       name: data.name, email: data.email, status: data.status, role: data.role,
       avatarUrl: data.avatarUrl || undefined,
-      coaching: {
+      coaching: (data.coaching_startDate || data.coaching_interval || data.coaching_currentDayInFlow) ? {
         startDate: data.coaching_startDate ? data.coaching_startDate.toISOString() : undefined,
         interval: data.coaching_interval && data.coaching_interval > 0 ? data.coaching_interval : undefined,
         currentDayInFlow: data.coaching_currentDayInFlow && data.coaching_currentDayInFlow > 0 ? data.coaching_currentDayInFlow : undefined,
-      },
+      } : undefined,
       tutorDetails: data.role === 'tutor' ? {
         bio: data.tutorDetails_bio,
         subjects: data.tutorDetails_subjects,
@@ -140,7 +141,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
       <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{isAddingNewUser ? 'Nieuwe Gebruiker Toevoegen' : 'Gebruiker Bewerken'}</DialogTitle>
-          {!isAddingNewUser && user && <DialogDescription>ID: {user.id} | Aangemaakt: {user.createdAt ? format(new Date(user.createdAt), 'Pp', { locale: nl }) : 'N/A'}</DialogDescription>}
+          {!isAddingNewUser && user && <DialogDescription>ID: {user.id} | Aangemaakt: {user.createdAt ? format(parseISO(user.createdAt), 'Pp', { locale: nl }) : 'N/A'}</DialogDescription>}
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
