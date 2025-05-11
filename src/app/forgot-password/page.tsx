@@ -1,3 +1,5 @@
+'use client'; // <--- Add this line at the very top
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +13,7 @@ function ForgotPasswordForm() {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         // TODO: Implement forgot password logic (e.g., send reset link)
+        // We'll hook this up to Firebase Authentication's sendPasswordResetEmail later!
         alert("Als dit e-mailadres in ons systeem voorkomt, is er een link voor het opnieuw instellen van het wachtwoord verzonden.");
         // event.target.reset(); // Optionally reset form
     };
@@ -44,6 +47,7 @@ export default function ForgotPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* ForgotPasswordForm is now a client component */}
           <ForgotPasswordForm />
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Weet u het weer?{' '}

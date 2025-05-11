@@ -102,6 +102,7 @@ body {
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box; /* Apply box-sizing globally */
   }
   body {
     @apply bg-background text-foreground;
@@ -111,5 +112,26 @@ body {
   }
   main {
     flex-grow: 1;
+  }
+  
+  /* Global container class for consistent padding */
+  .container {
+    @apply w-full mx-auto; /* Tailwind's default container behavior for centering and max-width */
+    padding-left: 1rem;  /* 16px */
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 768px) { /* md breakpoint */
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+   /* Example for larger screens if needed, adjust breakpoint as per Tailwind config (e.g., lg, xl) */
+  @media (min-width: 1024px) { /* lg breakpoint */
+    .container {
+       /* padding-left: 3rem; */ /* Uncomment and adjust if more padding is needed for larger screens */
+       /* padding-right: 3rem; */
+    }
   }
 }

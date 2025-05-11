@@ -37,7 +37,7 @@ export default function ForParentsPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <Card className="shadow-xl max-w-4xl mx-auto">
             <CardHeader className="text-center pb-8">
               <Users className="mx-auto h-16 w-16 text-primary mb-4" />
