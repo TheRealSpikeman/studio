@@ -116,9 +116,13 @@ body {
   
   /* Global container class for consistent padding */
   .container {
-    @apply w-full mx-auto; /* Tailwind's default container behavior for centering and max-width */
+    /* @apply w-full mx-auto; /* Tailwind's default container behavior for centering and max-width, removed to strictly follow user's CSS for padding only */
     padding-left: 1rem;  /* 16px */
     padding-right: 1rem;
+    /* Ensure it still behaves like a block and can be centered if mx-auto is applied on the element itself or a parent */
+    width: 100%; 
+    margin-left: auto;
+    margin-right: auto;
   }
 
   @media (min-width: 768px) { /* md breakpoint */
