@@ -7,7 +7,7 @@ import { FileText, Puzzle, MessageSquareText, BookOpenCheck } from 'lucide-react
 export function HeroSection() {
   return (
     <section className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background to-secondary/30">
-      <div className="container mx-auto grid grid-cols-1 items-center justify-items-center gap-12 md:grid-cols-2 md:gap-16 lg:gap-20">
+      <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-[minmax(0,_1.2fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(0,_1.5fr)_minmax(0,_1fr)] md:gap-x-12 lg:gap-x-16">
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
@@ -50,7 +50,7 @@ export function HeroSection() {
           </p>
         </div>
         {/* Image column */}
-        <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl">
+        <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl hidden md:block">
           {/* 
             IMPORTANT: The original src "gs://neurodiversity-navigator.firebasestorage.app/homepage.png"
             is a Firebase Storage URI and not a public HTTPS URL. 
@@ -74,4 +74,3 @@ export function HeroSection() {
     </section>
   );
 }
-
