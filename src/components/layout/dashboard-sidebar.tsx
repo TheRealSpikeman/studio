@@ -16,7 +16,19 @@ import { Label } from '@/components/ui/label';
 
 type UserRoleType = 'admin' | 'user' | 'tutor';
 
-const navItems = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  adminOnly?: boolean;
+  tutorOnly?: boolean;
+  sectionTitle?: string;
+  isSubItem?: boolean;
+  parent?: string;
+  children?: NavItem[];
+}
+
+const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
   { href: '/quizzes', label: 'Quizzen (Deelnemer)', icon: ClipboardList },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
@@ -87,10 +99,8 @@ const navItems = [
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  // In a real app, userRole would come from an authentication context/hook.
-  // For testing, we use a state variable.
   const [userRole, setUserRole] = useState<UserRoleType>('admin');
-  let currentSectionTitle = "";
+  let currentSectionTitleDisplayed: string | null = null;
 
   return (
     <>
@@ -119,90 +129,88 @@ function SidebarNavigationContent() {
       <ScrollArea className="flex-1">
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
           {navItems.map((item, index) => {
-            let showItem = true;
-            if (item.adminOnly && userRole !== 'admin') {
-              showItem = false;
+            let showItem = false;
+            if (userRole === 'admin') {
+              showItem = !item.tutorOnly;
+            } else if (userRole === 'tutor') {
+              showItem = !!item.tutorOnly || item.href === '/dashboard/profile';
+            } else if (userRole === 'user') {
+              showItem = !item.adminOnly && !item.tutorOnly;
             }
-            // @ts-ignore
-            if (item.tutorOnly && userRole !== 'tutor') {
-              showItem = false;
-            }
-            // Non-admin and non-tutor roles should not see adminOnly or tutorOnly items
-            if (userRole === 'user' && (item.adminOnly || item.tutorOnly)) {
-                showItem = false;
-            }
-
 
             if (!showItem) return null;
 
-            const isItemDirectlyActive = pathname === item.href;
-            let isParentHighlighted = isItemDirectlyActive;
-            let isParentExpanded = isItemDirectlyActive;
+            let displaySectionHeader = false;
+            if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
+              const sectionHasVisibleItemsForRole = navItems.some(innerItem => {
+                if (innerItem.sectionTitle !== item.sectionTitle) return false;
+                let isInnerItemVisible = false;
+                if (userRole === 'admin') isInnerItemVisible = !innerItem.tutorOnly;
+                else if (userRole === 'tutor') isInnerItemVisible = !!innerItem.tutorOnly || innerItem.href === '/dashboard/profile';
+                else if (userRole === 'user') isInnerItemVisible = !innerItem.adminOnly && !innerItem.tutorOnly;
+                return isInnerItemVisible;
+              });
 
-            if (item.children) {
-              const isAnyChildActive = item.children.some(child =>
-                pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
-              );
-
-              if (isAnyChildActive) {
-                isParentExpanded = true;
+              if (sectionHasVisibleItemsForRole) {
+                if (userRole === 'admin') displaySectionHeader = true;
+                else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") displaySectionHeader = true;
+                else if (userRole === 'user' && item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") displaySectionHeader = true;
               }
+            }
+            
+            if (displaySectionHeader) {
+                currentSectionTitleDisplayed = item.sectionTitle!;
+            }
 
-              if (isItemDirectlyActive) {
-                 const activeChildIsNotParentDefault = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href);
+            const isItemDirectlyActive = pathname === item.href;
+            
+            const visibleChildren = item.children?.filter(child => {
+                if (userRole === 'admin') return !child.tutorOnly;
+                if (userRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly ;
+                if (userRole === 'user') return !child.adminOnly && !child.tutorOnly;
+                return false;
+            }) || [];
+
+            let isParentExpanded = isItemDirectlyActive;
+            if(item.children && item.children.length > 0){
+                 isParentExpanded = item.children.some(child =>
+                    pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
+                ) || isItemDirectlyActive;
+            }
+
+
+            let isParentHighlighted = isItemDirectlyActive;
+            if(isParentExpanded && item.children && visibleChildren.length > 0){
+                 const activeChildIsNotParentDefault = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== item.href);
                  if (activeChildIsNotParentDefault) {
                     isParentHighlighted = false;
+                 } else if(isItemDirectlyActive) {
+                    isParentHighlighted = true;
+                 } else {
+                    isParentHighlighted = false; // Parent itself is not active, but a child is
                  }
-              } else if (isAnyChildActive) {
-                isParentHighlighted = false;
-              }
-
             }
-
-            const sectionTitleChanged = item.sectionTitle && item.sectionTitle !== currentSectionTitle;
-            if (sectionTitleChanged) {
-                currentSectionTitle = item.sectionTitle!;
-            }
-
-            // Ensure regular users don't see section titles for admin/tutor sections if they don't have access to any items in them
-            const sectionHasVisibleItems = item.sectionTitle ? navItems.some(navItem => 
-                navItem.sectionTitle === item.sectionTitle &&
-                !(navItem.adminOnly && userRole !== 'admin') &&
-                // @ts-ignore
-                !(navItem.tutorOnly && userRole !== 'tutor') &&
-                !(userRole === 'user' && (navItem.adminOnly || navItem.tutorOnly))
-            ) : true;
 
 
             return (
               <Fragment key={`${item.href}-${index}`}>
-                {sectionTitleChanged && sectionHasVisibleItems && (
+                {displaySectionHeader && (
                     <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mt-3">
-                        {currentSectionTitle}
+                        {currentSectionTitleDisplayed}
                     </div>
                 )}
                 <Link
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    // @ts-ignore
                     isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
                   )}
                 >
                   <item.icon className="h-5 w-5" />
                   {item.label}
                 </Link>
-                {isParentExpanded && item.children && item.children.map((child, childIndex) => {
-                   // @ts-ignore
-                   if (child.adminOnly && userRole !== 'admin') {
-                    return null;
-                  }
-                  // @ts-ignore
-                  if (child.tutorOnly && userRole !== 'tutor') {
-                    return null;
-                  }
+                {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
-
                   return (
                     <Link
                       key={`${child.href}-${childIndex}`}
@@ -210,7 +218,6 @@ function SidebarNavigationContent() {
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
                         isChildActive && 'bg-primary/10 text-primary font-semibold',
-                        // @ts-ignore
                         child.isSubItem && 'ml-4 text-sm py-2'
                       )}
                     >
@@ -269,3 +276,4 @@ export function DashboardSidebar() {
     </aside>
   );
 }
+
