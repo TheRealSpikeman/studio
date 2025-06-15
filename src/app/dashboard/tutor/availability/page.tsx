@@ -384,7 +384,7 @@ export default function TutorAvailabilityPage() {
                      if (!dateForTab) return null;
                      const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                      return (
-                        <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-0">
+                        <TabsContent key={dateKeyForTab} value={dateKeyForTab}>
                             <div className="space-y-3 p-4 border rounded-md bg-muted/30">
                             <h4 className="font-semibold">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
