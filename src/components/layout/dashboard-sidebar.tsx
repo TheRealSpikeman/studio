@@ -131,7 +131,7 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (userRole === 'admin') {
-              showItem = !item.tutorOnly; // Admins see everything except tutor-only sections *not* explicitly for admin
+              showItem = !item.tutorOnly; 
             } else if (userRole === 'tutor') {
               showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly;
             } else if (userRole === 'user') {
@@ -139,36 +139,24 @@ function SidebarNavigationContent() {
             }
 
             if (!showItem) return null;
-
-            let displaySectionHeader = false;
-            if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
-              const sectionHasVisibleItemsForRole = navItems.some(innerItem => {
-                if (innerItem.sectionTitle !== item.sectionTitle) return false;
-                let isInnerItemVisible = false;
-                if (userRole === 'admin') isInnerItemVisible = !innerItem.tutorOnly;
-                else if (userRole === 'tutor') isInnerItemVisible = (!!innerItem.tutorOnly || innerItem.href === '/dashboard/profile') && !innerItem.adminOnly;
-                else if (userRole === 'user') isInnerItemVisible = !innerItem.adminOnly && !innerItem.tutorOnly;
-                return isInnerItemVisible;
-              });
-
-              if (sectionHasVisibleItemsForRole) {
-                 if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") displaySectionHeader = true;
-                 else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") displaySectionHeader = true;
-                 else if (userRole === 'user' && item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") displaySectionHeader = true;
-              }
-            }
             
-            if (displaySectionHeader) {
-                currentSectionTitleDisplayed = item.sectionTitle!;
-            } else if (!item.sectionTitle && currentSectionTitleDisplayed && userRole !== 'admin' && userRole !== 'tutor') {
-                // Reset if we move out of a titled section for user role, unless it's admin/tutor specific sections
-                if (currentSectionTitleDisplayed === "Admin Dashboard" || currentSectionTitleDisplayed === "Tutor Portaal") {
-                    // do nothing, allow general items after admin/tutor sections
-                } else {
-                     currentSectionTitleDisplayed = null;
+            let renderSectionHeader = false;
+            if (item.sectionTitle) { 
+                if (item.sectionTitle !== currentSectionTitleDisplayed) { 
+                    if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
+                        renderSectionHeader = true;
+                    } else if (userRole === 'user') {
+                        if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
+                            renderSectionHeader = true;
+                        }
+                    }
+                    // For 'tutor' role, "Tutor Portaal" title is explicitly not rendered here.
+                    // Any other sectionTitle would not have visible items for a tutor due to `showItem` filtering.
+                    currentSectionTitleDisplayed = item.sectionTitle;
                 }
+            } else {
+                currentSectionTitleDisplayed = null;
             }
-
 
             const isItemDirectlyActive = pathname === item.href;
             
@@ -202,9 +190,9 @@ function SidebarNavigationContent() {
 
             return (
               <Fragment key={`${item.href}-${index}`}>
-                {displaySectionHeader && (
+                {renderSectionHeader && item.sectionTitle && (
                     <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mt-3">
-                        {currentSectionTitleDisplayed}
+                        {item.sectionTitle}
                     </div>
                 )}
                 <Link
