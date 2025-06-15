@@ -138,4 +138,13 @@ body {
        /* padding-right: 3rem; */
     }
   }
+
+  /* Fix for calendar day_today + day_selected color conflict */
+  /* Ensures that if a day is 'today' and also 'selected', the 'selected' (primary) styles win */
+  .rdp-button.rdp-day_today[aria-selected="true"],
+  .rdp-button.rdp-day_today[aria-selected="true"]:hover,
+  .rdp-button.rdp-day_today[aria-selected="true"]:focus {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
 }

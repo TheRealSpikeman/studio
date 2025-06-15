@@ -335,7 +335,7 @@ export default function TutorAvailabilityPage() {
           <CardTitle>Afwijkende Beschikbaarheid per Week</CardTitle>
           <CardDescription>Selecteer een datum in de kalender om de beschikbaarheid voor die specifieke week aan te passen. Deze tijden overschrijven je standaard rooster en "hele dag niet beschikbaar" voor die dagen.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             <div className="w-[280px] flex-shrink-0 self-start"> 
               <Label>Kies een datum om de week te selecteren:</Label>
