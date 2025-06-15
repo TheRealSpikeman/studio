@@ -9,12 +9,54 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Settings, Users, Shield, Bell, Mail, KeyRound } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+
+const platformRoles = ['Admin', 'Coach', 'Deelnemer', 'Tutor'];
+const platformPermissions = [
+  { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het algemene gebruikersdashboard.' },
+  { id: 'take_quizzes', label: 'Quizzen maken', description: 'Mogelijkheid om quizzen te starten en te voltooien.' },
+  { id: 'view_results', label: 'Eigen resultaten bekijken', description: 'Toegang tot persoonlijke quizresultaten en rapporten.' },
+  { id: 'access_coaching', label: 'Toegang tot Coaching Hub', description: 'Gebruik van dagelijkse coaching, dagboek, etc.' },
+  { id: 'manage_users', label: 'Gebruikers beheren (Admin)', description: 'Aanmaken, bewerken, verwijderen van alle gebruikers.' },
+  { id: 'manage_quizzes_admin', label: 'Quiz content beheren (Admin)', description: 'Maken en aanpassen van alle quizzen.' },
+  { id: 'manage_site_content', label: 'Website content beheren (Admin)', description: 'Aanpassen van statische pagina\'s via CMS.' },
+  { id: 'view_platform_analytics', label: 'Platform analytics bekijken (Admin)', description: 'Toegang tot algemene site statistieken.' },
+  { id: 'manage_tutor_profile', label: 'Eigen tutorprofiel beheren (Tutor)', description: 'Bijwerken van vakken, tarief, beschikbaarheid.' },
+  { id: 'view_student_progress', label: 'Voortgang leerlingen bekijken (Tutor/Coach)', description: 'Inzicht in de resultaten van gekoppelde leerlingen.' },
+];
+
+// Dummy initial permissions state - in a real app, this comes from a DB
+const initialPermissionsState: Record<string, Record<string, boolean>> = {
+  'view_dashboard': { 'Admin': true, 'Coach': true, 'Deelnemer': true, 'Tutor': true },
+  'take_quizzes': { 'Admin': false, 'Coach': false, 'Deelnemer': true, 'Tutor': false },
+  'view_results': { 'Admin': false, 'Coach': false, 'Deelnemer': true, 'Tutor': false },
+  'access_coaching': { 'Admin': true, 'Coach': true, 'Deelnemer': true, 'Tutor': true }, // Assuming all roles can access some form of coaching info or their specific tools
+  'manage_users': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
+  'manage_quizzes_admin': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
+  'manage_site_content': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
+  'view_platform_analytics': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
+  'manage_tutor_profile': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': true },
+  'view_student_progress': { 'Admin': true, 'Coach': true, 'Deelnemer': false, 'Tutor': true },
+};
+
 
 export default function AdminSettingsPage() {
   // Dummy state for example purposes
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [platformName, setPlatformName] = useState("MindNavigator");
+  const [permissions, setPermissions] = useState(initialPermissionsState);
+
+  // const handlePermissionChange = (permissionId: string, role: string, checked: boolean) => {
+  //   setPermissions(prev => ({
+  //     ...prev,
+  //     [permissionId]: {
+  //       ...prev[permissionId],
+  //       [role]: checked,
+  //     }
+  //   }));
+  // };
 
   return (
     <div className="space-y-8">
@@ -64,13 +106,45 @@ export default function AdminSettingsPage() {
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Rollen &amp; Permissies Beheer</CardTitle>
-              <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen.</CardDescription>
+              <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen. (Momenteel alleen weergave)</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground italic">Interface voor rollenbeheer (placeholder)</p>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[300px]">Permissie / Feature</TableHead>
+                      {platformRoles.map(role => (
+                        <TableHead key={role} className="text-center">{role}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {platformPermissions.map(permission => (
+                      <TableRow key={permission.id}>
+                        <TableCell>
+                          <p className="font-medium">{permission.label}</p>
+                          <p className="text-xs text-muted-foreground">{permission.description}</p>
+                        </TableCell>
+                        {platformRoles.map(role => (
+                          <TableCell key={`${permission.id}-${role}`} className="text-center">
+                            <Checkbox 
+                              checked={permissions[permission.id]?.[role] || false}
+                              // onCheckedChange={(checked) => handlePermissionChange(permission.id, role, !!checked)} // Enable for actual editing
+                              disabled // Disabled for now as it's a placeholder
+                              aria-label={`Permissie ${permission.label} voor rol ${role}`}
+                            />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
+             <CardFooter className="border-t pt-6">
+              <Button disabled>Permissies Opslaan (binnenkort)</Button>
+            </CardFooter>
           </Card>
         </TabsContent>
 
