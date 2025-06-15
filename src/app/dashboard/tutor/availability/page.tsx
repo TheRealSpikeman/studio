@@ -1,16 +1,18 @@
+
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
-import { ArrowLeft, Clock, Euro, Save, XCircle, PlusCircle, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Clock, Euro, Save, XCircle, PlusCircle, Trash2, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { format, isEqual, startOfDay } from 'date-fns';
+import { format, isEqual, startOfDay, addDays, startOfWeek, getDay } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -54,6 +56,8 @@ const dayLabels: Record<keyof WeeklyAvailability, string> = {
   saturday: 'Zaterdag',
   sunday: 'Zondag',
 };
+const dayKeys = Object.keys(dayLabels) as Array<keyof WeeklyAvailability>;
+
 
 export default function TutorAvailabilityPage() {
   const { toast } = useToast();
@@ -64,22 +68,38 @@ export default function TutorAvailabilityPage() {
 
   // State for specific date overrides
   const [specificDateAvailability, setSpecificDateAvailability] = useState<SpecificDateAvailability>({});
-  const [selectedDateForOverride, setSelectedDateForOverride] = useState<Date | undefined>(undefined);
-  const [currentSpecificSlots, setCurrentSpecificSlots] = useState<TimeSlot[]>([]);
+  const [selectedDateForWeekEditing, setSelectedDateForWeekEditing] = useState<Date | undefined>(undefined);
+  const [currentEditingWeekMonday, setCurrentEditingWeekMonday] = useState<Date | null>(null);
+  const [activeTabDateKey, setActiveTabDateKey] = useState<string | null>(null);
+  const [slotsForActiveTab, setSlotsForActiveTab] = useState<TimeSlot[]>([]);
+
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Load slots for selected override date
   useEffect(() => {
-    if (selectedDateForOverride) {
-      const dateKey = format(selectedDateForOverride, 'yyyy-MM-dd');
-      setCurrentSpecificSlots(specificDateAvailability[dateKey]?.map(slot => ({...slot, id: slot.id || Date.now().toString() + Math.random() })) || []);
+    if (selectedDateForWeekEditing) {
+      const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
+      setCurrentEditingWeekMonday(monday);
+      // Set the initial active tab to the selected day, or Monday if not directly applicable
+      const dayIndex = (getDay(selectedDateForWeekEditing) + 6) % 7; // Monday is 0
+      const initialTabDate = addDays(monday, dayIndex);
+      setActiveTabDateKey(format(initialTabDate, 'yyyy-MM-dd'));
     } else {
-      setCurrentSpecificSlots([]);
+      setCurrentEditingWeekMonday(null);
+      setActiveTabDateKey(null);
     }
-  }, [selectedDateForOverride, specificDateAvailability]);
+  }, [selectedDateForWeekEditing]);
+
+  useEffect(() => {
+    if (activeTabDateKey) {
+      setSlotsForActiveTab(specificDateAvailability[activeTabDateKey]?.map(slot => ({...slot, id: slot.id || Date.now().toString() + Math.random()})) || []);
+    } else {
+      setSlotsForActiveTab([]);
+    }
+  }, [activeTabDateKey, specificDateAvailability]);
+
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
     setWeeklyAvailability(prev => {
@@ -115,64 +135,76 @@ export default function TutorAvailabilityPage() {
     });
   };
 
-  // Functions for specific date overrides
-  const handleSpecificSlotChange = (index: number, field: 'start' | 'end', value: string) => {
-    setCurrentSpecificSlots(prev => {
+  // Functions for specific date overrides (now per tab/day)
+  const handleSpecificSlotChangeForTab = (index: number, field: 'start' | 'end', value: string) => {
+    setSlotsForActiveTab(prev => {
       const newSlots = [...prev];
       newSlots[index] = { ...newSlots[index], [field]: value };
       return newSlots;
     });
   };
 
-  const addSpecificSlot = () => {
-    setCurrentSpecificSlots(prev => [...prev, { id: Date.now().toString(), start: '09:00', end: '17:00' }]);
+  const addSpecificSlotForTab = () => {
+    setSlotsForActiveTab(prev => [...prev, { id: Date.now().toString(), start: '09:00', end: '17:00' }]);
   };
 
-  const removeSpecificSlot = (index: number) => {
-    setCurrentSpecificSlots(prev => prev.filter((_, i) => i !== index));
+  const removeSpecificSlotForTab = (index: number) => {
+    setSlotsForActiveTab(prev => prev.filter((_, i) => i !== index));
   };
 
-  const saveSpecificDateSlots = () => {
-    if (selectedDateForOverride) {
-      const dateKey = format(selectedDateForOverride, 'yyyy-MM-dd');
-      // Filter out slots where start or end might be empty if user cleared them
-      const validSlots = currentSpecificSlots.filter(slot => slot.start && slot.end);
+  const saveSlotsForActiveTab = () => {
+    if (activeTabDateKey) {
+      const validSlots = slotsForActiveTab.filter(slot => slot.start && slot.end);
       setSpecificDateAvailability(prev => ({
         ...prev,
-        [dateKey]: validSlots,
+        [activeTabDateKey as string]: validSlots,
       }));
       toast({
         title: "Specifieke tijden opgeslagen",
-        description: `Beschikbaarheid voor ${format(selectedDateForOverride, 'PPP', { locale: nl })} is bijgewerkt.`,
+        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string), 'PPP', { locale: nl })} is bijgewerkt.`,
       });
     }
   };
   
-  const clearSpecificDateSlots = () => {
-    if (selectedDateForOverride) {
-        const dateKey = format(selectedDateForOverride, 'yyyy-MM-dd');
+  const clearSlotsForActiveTab = () => {
+    if (activeTabDateKey) {
         setSpecificDateAvailability(prev => {
             const newState = {...prev};
-            delete newState[dateKey];
+            delete newState[activeTabDateKey as string];
             return newState;
         });
-        setCurrentSpecificSlots([]);
+        setSlotsForActiveTab([]); // Clear UI for current tab
         toast({
             title: "Specifieke tijden gewist",
-            description: `Alle afwijkende tijden voor ${format(selectedDateForOverride, 'PPP', { locale: nl })} zijn verwijderd.`,
+            description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string), 'PPP', { locale: nl })} zijn verwijderd.`,
         });
     }
   };
 
-
   const handleSaveAvailability = () => {
-    // Here you would also save specificDateAvailability
     console.log("Saving availability:", { hourlyRate, weeklyAvailability, unavailableDates, specificDateAvailability });
     toast({
       title: "Beschikbaarheid Opgeslagen",
       description: "Je uurtarief, wekelijkse beschikbaarheid en specifieke datum aanpassingen zijn bijgewerkt (simulatie).",
     });
   };
+  
+  const getDayLabelForTabIndex = (index: number) : string => {
+    return dayLabels[dayKeys[index]];
+  }
+
+  const getDateForTabIndex = (index: number): Date | null => {
+    if (!currentEditingWeekMonday) return null;
+    return addDays(currentEditingWeekMonday, index);
+  }
+  
+  const getDefaultActiveTabKey = (): string | undefined => {
+    if (!selectedDateForWeekEditing || !currentEditingWeekMonday) return undefined;
+    const dayIndexInWeek = (getDay(selectedDateForWeekEditing) + 6) % 7; // Monday = 0
+    const dateForTab = addDays(currentEditingWeekMonday, dayIndexInWeek);
+    return format(dateForTab, 'yyyy-MM-dd');
+  }
+
 
   return (
     <div className="space-y-8">
@@ -214,11 +246,11 @@ export default function TutorAvailabilityPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Wekelijkse Beschikbaarheid</CardTitle>
+          <CardTitle>Wekelijkse Standaard Beschikbaarheid</CardTitle>
           <CardDescription>Stel je reguliere wekelijkse beschikbaarheid in. Leerlingen kunnen binnen deze tijden sessies boeken.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(Object.keys(weeklyAvailability) as Array<keyof WeeklyAvailability>).map((day) => (
+          {dayKeys.map((day) => (
             <div key={day} className="p-4 border rounded-md">
               <Label className="text-md font-semibold">{dayLabels[day]}</Label>
               {weeklyAvailability[day].length === 0 && (
@@ -245,7 +277,7 @@ export default function TutorAvailabilityPage() {
       <Card>
         <CardHeader>
             <CardTitle>Uitzonderingen: Hele Dagen Niet Beschikbaar</CardTitle>
-            <CardDescription>Markeer specifieke datums waarop je de <span className="font-semibold">gehele dag niet</span> beschikbaar bent, ondanks je wekelijkse schema.</CardDescription>
+            <CardDescription>Markeer specifieke datums waarop je de <span className="font-semibold">gehele dag niet</span> beschikbaar bent, ondanks je standaard wekelijkse schema. Deze instelling wordt overschreven als je voor diezelfde dag afwijkende tijden instelt in de sectie hieronder.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
@@ -258,7 +290,7 @@ export default function TutorAvailabilityPage() {
                     onSelect={(dates) => setUnavailableDates(dates || [])} 
                     locale={nl}
                     className="rounded-md border self-start shadow-sm"
-                    disabled={{ before: new Date() }} // Only disable past dates
+                    disabled={{ before: startOfDay(new Date()) }} 
                 />
               )}
                 <div className="flex-1">
@@ -287,84 +319,121 @@ export default function TutorAvailabilityPage() {
                     )}
                 </div>
             </div>
-             <p className="text-xs text-muted-foreground mt-2">Tip: Klik op een datum in de kalender om deze te selecteren/deselecteren als een volledig niet-beschikbare dag.</p>
         </CardContent>
       </Card>
       
       <Card>
         <CardHeader>
-          <CardTitle>Specifieke Beschikbaarheid per Datum</CardTitle>
-          <CardDescription>Stel afwijkende beschikbare tijden in voor specifieke datums. Deze overschrijven je wekelijkse rooster en "hele dag niet beschikbaar" voor die dag.</CardDescription>
+          <CardTitle>Afwijkende Beschikbaarheid per Week</CardTitle>
+          <CardDescription>Selecteer een datum in de kalender om de beschikbaarheid voor die specifieke week aan te passen. Deze tijden overschrijven je standaard rooster en "hele dag niet beschikbaar" voor die dagen.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-1/2">
-              <Label>Kies een datum om aan te passen:</Label>
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="md:w-auto"> {/* Calendar takes its own width */}
+              <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
-                <Skeleton className="h-[290px] w-full rounded-md border mt-1" />
+                <Skeleton className="h-[290px] w-[280px] rounded-md border mt-1" />
               ) : (
                 <Calendar
                   mode="single"
-                  selected={selectedDateForOverride}
-                  onSelect={setSelectedDateForOverride}
+                  selected={selectedDateForWeekEditing}
+                  onSelect={setSelectedDateForWeekEditing}
                   locale={nl}
                   className="rounded-md border mt-1 shadow-sm"
-                  disabled={{ before: new Date() }}
+                  disabled={{ before: startOfDay(new Date()) }}
+                  footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
                 />
               )}
             </div>
-            {selectedDateForOverride && (
-              <div className="md:w-1/2 space-y-4">
-                <h4 className="font-semibold text-lg">
-                  Beschikbare tijden voor: {format(selectedDateForOverride, 'PPP', { locale: nl })}
-                </h4>
-                {currentSpecificSlots.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Nog geen specifieke tijden ingesteld voor deze datum.</p>
-                )}
-                {currentSpecificSlots.map((slot, index) => (
-                  <div key={slot.id || index} className="flex items-center gap-2">
-                    <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChange(index, 'start', e.target.value)} className="w-2/5" />
-                    <span>-</span>
-                    <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChange(index, 'end', e.target.value)} className="w-2/5" />
-                    <Button variant="ghost" size="icon" onClick={() => removeSpecificSlot(index)} aria-label="Verwijder tijdslot">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={addSpecificSlot}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
-                  </Button>
-                  <Button size="sm" onClick={saveSpecificDateSlots}>
-                    Tijden Opslaan
-                  </Button>
-                </div>
-                {specificDateAvailability[format(selectedDateForOverride, 'yyyy-MM-dd')] && (
-                    <Button variant="link" size="sm" onClick={clearSpecificDateSlots} className="text-destructive p-0 h-auto">
-                        Wis specifieke tijden voor deze datum
-                    </Button>
-                )}
+            
+            {currentEditingWeekMonday && (
+              <div className="flex-1 min-w-0"> {/* Ensure this div can shrink and grow */}
+                <Tabs 
+                  defaultValue={getDefaultActiveTabKey()} 
+                  onValueChange={setActiveTabDateKey}
+                  className="w-full"
+                >
+                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 mb-4">
+                    {dayKeys.map((dayKey, index) => {
+                      const dateForTab = getDateForTabIndex(index);
+                      if (!dateForTab) return null;
+                      const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
+                      return (
+                        <TabsTrigger key={dateKeyForTab} value={dateKeyForTab} className="text-xs px-2 sm:px-3">
+                          {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd MMM')})
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+
+                  {dayKeys.map((dayKey, index) => {
+                     const dateForTab = getDateForTabIndex(index);
+                     if (!dateForTab) return null;
+                     const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
+                     return (
+                        <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-0">
+                            <div className="space-y-3 p-4 border rounded-md bg-muted/30">
+                            <h4 className="font-semibold">
+                                Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
+                            </h4>
+                            {slotsForActiveTab.length === 0 && activeTabDateKey === dateKeyForTab && (
+                                <p className="text-sm text-muted-foreground">Geen specifieke tijden ingesteld voor deze dag. Standaard weekrooster is van toepassing.</p>
+                            )}
+                            {activeTabDateKey === dateKeyForTab && slotsForActiveTab.map((slot, slotIndex) => (
+                                <div key={slot.id || slotIndex} className="flex items-center gap-2">
+                                <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'start', e.target.value)} className="w-2/5" />
+                                <span>-</span>
+                                <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'end', e.target.value)} className="w-2/5" />
+                                <Button variant="ghost" size="icon" onClick={() => removeSpecificSlotForTab(slotIndex)} aria-label="Verwijder tijdslot">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                                </div>
+                            ))}
+                            {activeTabDateKey === dateKeyForTab && (
+                                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                                    <Button variant="outline" size="sm" onClick={addSpecificSlotForTab}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
+                                    </Button>
+                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey]}>
+                                        Tijden Opslaan
+                                    </Button>
+                                    {specificDateAvailability[activeTabDateKey] && specificDateAvailability[activeTabDateKey]!.length > 0 && (
+                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto">
+                                            Wis specifieke tijden voor deze dag
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                            </div>
+                        </TabsContent>
+                     );
+                  })}
+                </Tabs>
               </div>
             )}
           </div>
-           <div className="mt-4 pt-4 border-t">
-            <h4 className="font-semibold mb-2">Datums met afwijkende beschikbaarheid:</h4>
-            {Object.keys(specificDateAvailability).filter(key => specificDateAvailability[key].length > 0).length > 0 ? (
-                <ul className="list-disc list-inside text-sm space-y-1">
+
+           <div className="mt-6 pt-6 border-t">
+            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <CalendarDays className="h-5 w-5 text-primary" />
+                Overzicht: Datums met Afwijkende Beschikbaarheid
+            </h4>
+            {Object.keys(specificDateAvailability).filter(key => specificDateAvailability[key] && specificDateAvailability[key]!.length > 0).length > 0 ? (
+                <ul className="list-disc list-inside text-sm space-y-1 bg-muted/50 p-3 rounded-md max-h-48 overflow-y-auto">
                     {Object.entries(specificDateAvailability)
-                        .filter(([_, slots]) => slots.length > 0)
+                        .filter(([_, slots]) => slots && slots.length > 0)
                         .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime())
                         .map(([dateKey, slots]) => (
                             <li key={dateKey}>
-                                {format(new Date(dateKey + 'T00:00:00'), 'PPP', { locale: nl })}: {slots.map(s => `${s.start}-${s.end}`).join(', ')}
-                                <Button variant="link" size="sm" onClick={() => setSelectedDateForOverride(new Date(dateKey + 'T00:00:00'))} className="ml-2 p-0 h-auto text-xs">
-                                    (Bewerk)
+                                <strong>{format(new Date(dateKey + 'T00:00:00'), 'PPP', { locale: nl })}:</strong> {slots!.map(s => `${s.start}-${s.end}`).join(', ')}
+                                <Button variant="link" size="sm" onClick={() => setSelectedDateForWeekEditing(new Date(dateKey + 'T00:00:00'))} className="ml-2 p-0 h-auto text-xs">
+                                    (Bewerk week)
                                 </Button>
                             </li>
                     ))}
                 </ul>
             ) : (
-                <p className="text-sm text-muted-foreground">Nog geen datums met specifieke tijden ingesteld.</p>
+                <p className="text-sm text-muted-foreground">Nog geen datums met specifieke afwijkende tijden ingesteld.</p>
             )}
           </div>
         </CardContent>
@@ -379,3 +448,4 @@ export default function TutorAvailabilityPage() {
     </div>
   );
 }
+
