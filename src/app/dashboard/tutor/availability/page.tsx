@@ -78,17 +78,16 @@ export default function TutorAvailabilityPage() {
   }, []);
 
   useEffect(() => {
-    if (isClient && !selectedDateForWeekEditing) { // Initialize on client if not already set
+    if (isClient && !selectedDateForWeekEditing) { 
         const today = startOfDay(new Date());
         setSelectedDateForWeekEditing(today);
         const monday = startOfWeek(today, { weekStartsOn: 1 });
         setCurrentEditingWeekMonday(monday);
-        setActiveTabDateKey(format(today, 'yyyy-MM-dd')); // Set active tab to today initially
+        setActiveTabDateKey(format(today, 'yyyy-MM-dd')); 
     } else if (selectedDateForWeekEditing) {
       const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
       setCurrentEditingWeekMonday(monday);
-      // Set the initial active tab to the selected day, or Monday if not directly applicable
-      const dayIndex = (getDay(selectedDateForWeekEditing) + 6) % 7; // Monday is 0
+      const dayIndex = (getDay(selectedDateForWeekEditing) + 6) % 7; 
       const initialTabDate = addDays(monday, dayIndex);
       setActiveTabDateKey(format(initialTabDate, 'yyyy-MM-dd'));
     } else {
@@ -140,7 +139,6 @@ export default function TutorAvailabilityPage() {
     });
   };
 
-  // Functions for specific date overrides (now per tab/day)
   const handleSpecificSlotChangeForTab = (index: number, field: 'start' | 'end', value: string) => {
     setSlotsForActiveTab(prev => {
       const newSlots = [...prev];
@@ -178,7 +176,7 @@ export default function TutorAvailabilityPage() {
             delete newState[activeTabDateKey as string];
             return newState;
         });
-        setSlotsForActiveTab([]); // Clear UI for current tab
+        setSlotsForActiveTab([]); 
         toast({
             title: "Specifieke tijden gewist",
             description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string), 'PPP', { locale: nl })} zijn verwijderd.`,
@@ -385,7 +383,7 @@ export default function TutorAvailabilityPage() {
                      const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                      return (
                         <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2">
-                            <div className="space-y-3 p-4 border rounded-md bg-muted/30">
+                            <div className="mt-1 space-y-3 p-4 border rounded-md bg-muted/30">
                             <h4 className="font-semibold">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                             </h4>
@@ -407,10 +405,10 @@ export default function TutorAvailabilityPage() {
                                     <Button variant="outline" size="sm" onClick={addSpecificSlotForTab}>
                                         <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
                                     </Button>
-                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey]}>
+                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]}>
                                         Tijden Opslaan
                                     </Button>
-                                    {specificDateAvailability[activeTabDateKey] && specificDateAvailability[activeTabDateKey]!.length > 0 && (
+                                    {specificDateAvailability[activeTabDateKey!] && specificDateAvailability[activeTabDateKey!]!.length > 0 && (
                                         <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto">
                                             Wis specifieke tijden voor deze dag
                                         </Button>
