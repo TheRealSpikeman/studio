@@ -5,7 +5,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle } from 'lucide-react';
+import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle, Briefcase } from 'lucide-react';
+import Link from 'next/link';
 
 // Simulate user data and role for redirection logic
 // In a real app, this would come from an authentication context
@@ -95,8 +96,10 @@ export default function TutorDashboardPage() {
             <p className="text-muted-foreground">Stel je werkuren en uurtarief in.</p>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Beheer Beschikbaarheid (binnenkort)
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/tutor/availability">
+                Beheer Beschikbaarheid
+              </Link>
             </Button>
           </CardFooter>
         </Card>
@@ -165,6 +168,25 @@ export default function TutorDashboardPage() {
           <CardFooter>
             <Button variant="outline" className="w-full" disabled>
               Bekijk Beoordelingen (binnenkort)
+            </Button>
+          </CardFooter>
+        </Card>
+
+         <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-6 w-6 text-primary" />
+              Profiel Instellingen
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Werk je persoonlijke gegevens en documenten bij.</p>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/dashboard/profile">
+                    Ga naar Profiel
+                </Link>
             </Button>
           </CardFooter>
         </Card>

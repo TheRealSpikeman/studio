@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -8,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,6 +21,7 @@ interface NavItem {
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
+  userOnly?: boolean; // To specifically mark items for 'user' role if needed
   sectionTitle?: string;
   isSubItem?: boolean;
   parent?: string;
@@ -29,39 +29,52 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard },
-  { href: '/quizzes', label: 'Quizzen (Deelnemer)', icon: ClipboardList },
-  { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3 },
+  // General User Items
+  { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard, userOnly: true },
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, userOnly: true }, // Simplified, was "Quizzen (Deelnemer)"
+  { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, userOnly: true },
   {
     href: '/dashboard/coaching',
     label: 'Coaching',
     icon: MessageSquare,
+    userOnly: true,
     children: [
-      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching', userOnly: true },
     ]
   },
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
     icon: BookOpenCheck,
+    userOnly: true,
     children: [
       {
-        href: '/dashboard/homework-assistance',
+        href: '/dashboard/homework-assistance', // Main page of section
         label: 'Online Tips & Tools',
         icon: Lightbulb,
         isSubItem: true,
-        parent: '/dashboard/homework-assistance'
+        parent: '/dashboard/homework-assistance',
+        userOnly: true,
       },
       {
         href: '/dashboard/homework-assistance/tutors',
         label: '1-op-1 Begeleiding',
         icon: Users2,
         isSubItem: true,
-        parent: '/dashboard/homework-assistance'
+        parent: '/dashboard/homework-assistance',
+        userOnly: true,
       },
     ]
   },
-  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare },
+  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, userOnly: true },
+  
+  // Tutor specific section
+  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" }, // Changed icon
+  { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' }, // Added new item
+  // { href: '/dashboard/tutor/lessons', label: 'Mijn Lessen', icon: BookOpen, tutorOnly: true, isSubItem: true, parent: '/dashboard/tutor' }, // Example sub-item
+  // { href: '/dashboard/tutor/earnings', label: 'Mijn Verdiensten', icon: DollarSign, tutorOnly: true, isSubItem: true, parent: '/dashboard/tutor' }, // Example sub-item
+
+
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
@@ -91,17 +104,15 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
-  // Tutor specific - Tutor Dashboard now before Profile
-  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true, sectionTitle: "Tutor Portaal" },
-  // Profile link moved after Tutor Dashboard for general order. It will still be filtered by role logic.
+  
+  // Profile link (visible to all authenticated roles, appears after role-specific sections)
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
 ];
 
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  // In a real app, userRole would come from an authentication context/hook.
-  const [userRole, setUserRole] = useState<UserRoleType>('admin'); // Default to admin for initial load
+  const [userRole, setUserRole] = useState<UserRoleType>('admin'); 
   let currentSectionTitleDisplayed: string | null = null;
 
   return (
@@ -133,12 +144,11 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (userRole === 'admin') {
-              showItem = !item.tutorOnly; 
+              showItem = !item.tutorOnly && !item.userOnly; // Admins see admin items and general items (like profile)
             } else if (userRole === 'tutor') {
-              // Tutor only sees their specific items and profile
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly;
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.userOnly;
             } else if (userRole === 'user') {
-              showItem = !item.adminOnly && !item.tutorOnly;
+              showItem = (!!item.userOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly;
             }
 
             if (!showItem) return null;
@@ -148,37 +158,33 @@ function SidebarNavigationContent() {
                 if (item.sectionTitle !== currentSectionTitleDisplayed) { 
                     if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
                         renderSectionHeader = true;
+                    } else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
+                        // Do not render "TUTOR PORTAAL" header for tutor role itself
+                        renderSectionHeader = false; 
                     } else if (userRole === 'user') {
-                        // Users don't see "Admin Dashboard" or "Tutor Portaal" titles
-                        if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
-                            renderSectionHeader = true; // For potential future user-specific section titles
+                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
+                            renderSectionHeader = true; 
                         }
                     }
-                    // For 'tutor' role, "Tutor Portaal" title is explicitly NOT rendered here.
                     currentSectionTitleDisplayed = item.sectionTitle;
                 }
-            } else {
-                // If an item does not have a sectionTitle, we consider the "section" to have ended for title display purposes.
-                // This helps if general items follow a titled section.
-                // currentSectionTitleDisplayed = null; // Reset if no title on current item
             }
 
             const isItemDirectlyActive = pathname === item.href;
             
             const visibleChildren = item.children?.filter(child => {
-                if (userRole === 'admin') return !child.tutorOnly;
-                if (userRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly ;
-                if (userRole === 'user') return !child.adminOnly && !child.tutorOnly;
+                if (userRole === 'admin') return !child.tutorOnly && !child.userOnly;
+                if (userRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.userOnly;
+                if (userRole === 'user') return (!!child.userOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly;
                 return false;
             }) || [];
 
             let isParentExpanded = isItemDirectlyActive;
-            if(item.children && visibleChildren.length > 0){ // Check visibleChildren
-                 isParentExpanded = visibleChildren.some(child => // Check against visibleChildren
+            if(item.children && visibleChildren.length > 0){ 
+                 isParentExpanded = visibleChildren.some(child => 
                     pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
                 ) || isItemDirectlyActive;
             }
-
 
             let isParentHighlighted = isItemDirectlyActive;
             if(isParentExpanded && item.children && visibleChildren.length > 0){
@@ -192,6 +198,9 @@ function SidebarNavigationContent() {
                  }
             }
 
+            const isProfileLinkForTutor = userRole === 'tutor' && item.href === '/dashboard/profile';
+            const isTutorDashboardLinkForTutor = userRole === 'tutor' && item.href === '/dashboard/tutor';
+
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -200,17 +209,59 @@ function SidebarNavigationContent() {
                         {item.sectionTitle}
                     </div>
                 )}
-                <Link
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </Link>
+                {/* Specific ordering for Tutor: Dashboard first, then Availability, then Profile */}
+                {userRole === 'tutor' && item.href === '/dashboard/tutor' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                    </Link>
+                )}
+                 {userRole === 'tutor' && item.href === '/dashboard/tutor/availability' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10 ml-4 text-sm py-2', // Indent for sub-like appearance
+                        pathname.startsWith(item.href) && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                    </Link>
+                )}
+                 {userRole === 'tutor' && item.href === '/dashboard/profile' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                    </Link>
+                )}
+                {/* General rendering for other roles or non-specific tutor items */}
+                {!(userRole === 'tutor' && (item.href === '/dashboard/tutor' || item.href === '/dashboard/tutor/availability' || item.href === '/dashboard/profile')) && (
+                    <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                    </Link>
+                )}
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
+                  if (userRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/tutor/availability' || child.href === '/dashboard/profile')) return null; // Already handled
+                  
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (
                     <Link
