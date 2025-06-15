@@ -371,7 +371,7 @@ export default function TutorAvailabilityPage() {
                         <TabsTrigger 
                           key={dateKeyForTab} 
                           value={dateKeyForTab} 
-                          className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                         >
                           {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd MMM')})
                         </TabsTrigger>
@@ -384,7 +384,7 @@ export default function TutorAvailabilityPage() {
                      if (!dateForTab) return null;
                      const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                      return (
-                        <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-4">
+                        <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2">
                             <div className="space-y-3 p-4 border rounded-md bg-muted/30">
                             <h4 className="font-semibold">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
