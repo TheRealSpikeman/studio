@@ -62,7 +62,6 @@ const navItems: NavItem[] = [
     ]
   },
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare },
-  { href: '/dashboard/profile', label: 'Profiel', icon: User },
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
@@ -92,14 +91,17 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
-  // Tutor specific
+  // Tutor specific - Tutor Dashboard now before Profile
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: Briefcase, tutorOnly: true, sectionTitle: "Tutor Portaal" },
+  // Profile link moved after Tutor Dashboard for general order. It will still be filtered by role logic.
+  { href: '/dashboard/profile', label: 'Profiel', icon: User },
 ];
 
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRoleType>('admin');
+  // In a real app, userRole would come from an authentication context/hook.
+  const [userRole, setUserRole] = useState<UserRoleType>('admin'); // Default to admin for initial load
   let currentSectionTitleDisplayed: string | null = null;
 
   return (
@@ -133,6 +135,7 @@ function SidebarNavigationContent() {
             if (userRole === 'admin') {
               showItem = !item.tutorOnly; 
             } else if (userRole === 'tutor') {
+              // Tutor only sees their specific items and profile
               showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly;
             } else if (userRole === 'user') {
               showItem = !item.adminOnly && !item.tutorOnly;
@@ -146,16 +149,18 @@ function SidebarNavigationContent() {
                     if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
                         renderSectionHeader = true;
                     } else if (userRole === 'user') {
+                        // Users don't see "Admin Dashboard" or "Tutor Portaal" titles
                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
-                            renderSectionHeader = true;
+                            renderSectionHeader = true; // For potential future user-specific section titles
                         }
                     }
-                    // For 'tutor' role, "Tutor Portaal" title is explicitly not rendered here.
-                    // Any other sectionTitle would not have visible items for a tutor due to `showItem` filtering.
+                    // For 'tutor' role, "Tutor Portaal" title is explicitly NOT rendered here.
                     currentSectionTitleDisplayed = item.sectionTitle;
                 }
             } else {
-                currentSectionTitleDisplayed = null;
+                // If an item does not have a sectionTitle, we consider the "section" to have ended for title display purposes.
+                // This helps if general items follow a titled section.
+                // currentSectionTitleDisplayed = null; // Reset if no title on current item
             }
 
             const isItemDirectlyActive = pathname === item.href;
@@ -168,8 +173,8 @@ function SidebarNavigationContent() {
             }) || [];
 
             let isParentExpanded = isItemDirectlyActive;
-            if(item.children && item.children.length > 0){
-                 isParentExpanded = item.children.some(child =>
+            if(item.children && visibleChildren.length > 0){ // Check visibleChildren
+                 isParentExpanded = visibleChildren.some(child => // Check against visibleChildren
                     pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
                 ) || isItemDirectlyActive;
             }
@@ -272,4 +277,3 @@ export function DashboardSidebar() {
     </aside>
   );
 }
-

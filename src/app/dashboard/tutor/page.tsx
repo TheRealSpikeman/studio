@@ -134,23 +134,6 @@ export default function TutorDashboardPage() {
             </Button>
           </CardFooter>
         </Card>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-6 w-6 text-primary" />
-              Profiel & Documenten
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Update je CV, VOG en betaalgegevens.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Beheer Profiel (binnenkort)
-            </Button>
-          </CardFooter>
-        </Card>
         
         <Card className="shadow-lg">
           <CardHeader>

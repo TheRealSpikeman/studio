@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History } from 'lucide-react';
+import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +27,9 @@ const initialUserData = {
     planName: "Coaching Maandelijks" as string | null,
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
     nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
-  }
+  },
+  // Simulate role for conditional rendering on this page
+  role: 'tutor' as 'user' | 'tutor' | 'admin', 
 };
 
 const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
@@ -89,6 +91,10 @@ export default function ProfilePage() {
   const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialUserData.subscription.nextBillingDate);
 
   const [hiddenHomeworkSubjects, setHiddenHomeworkSubjects] = useState<string[]>([]);
+  
+  // Simulate user role for this page - in a real app, this comes from auth context
+  const [userRole, setUserRole] = useState<'user' | 'tutor' | 'admin'>(initialUserData.role);
+
 
   useEffect(() => {
     if (!isEditing) {
@@ -103,6 +109,7 @@ export default function ProfilePage() {
         setSubscriptionPlan(initialUserData.subscription.planName);
         setSubscriptionStatus(initialUserData.subscription.status);
         setSubscriptionNextBillingDate(initialUserData.subscription.nextBillingDate);
+        setUserRole(initialUserData.role);
     }
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
@@ -150,6 +157,7 @@ export default function ProfilePage() {
       age: ageToSave,
       socialMedia: selectedSocialMedia,
       profileImageUrl: profileImageUrl, 
+      role: userRole, // Include role if it's editable or part of the save
     });
     localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(hiddenHomeworkSubjects));
     toast({
@@ -172,7 +180,7 @@ export default function ProfilePage() {
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
-    const symbols = "!@#$%^&*()_+-=[]{};':\",./<>?";
+    const symbols = "!@#$%^&amp;*()_+-=[]{};':\",./&lt;&gt;?";
     const allChars = uppercase + lowercase + numbers + symbols;
 
     let password = "";
@@ -236,9 +244,6 @@ export default function ProfilePage() {
   const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
     setHiddenHomeworkSubjects(prev => {
       const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
-      // Note: Saving to localStorage happens on global profile save if in editing mode.
-      // If not in editing mode, this immediate change won't persist unless we add another save mechanism or auto-save.
-      // For simplicity, we will only persist on "Profiel Opslaan"
       return newHidden;
     });
   };
@@ -522,6 +527,30 @@ export default function ProfilePage() {
             <Button onClick={handleChangePassword}>
                 <Save className="mr-2 h-4 w-4" />
                 Wachtwoord Opslaan
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      {userRole === 'tutor' && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-6 w-6 text-primary" />
+              Profiel & Documenten (Tutor)
+            </CardTitle>
+            <CardDescription>
+              Beheer hier je tutor-specifieke documenten en betaalgegevens.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Update je CV, VOG en betaalgegevens. (Functionaliteit binnenkort beschikbaar)
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" disabled>
+              Beheer Tutor Documenten
             </Button>
           </CardFooter>
         </Card>
