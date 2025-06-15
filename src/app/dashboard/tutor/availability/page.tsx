@@ -1,4 +1,3 @@
-
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -289,8 +288,9 @@ export default function TutorAvailabilityPage() {
                     selected={unavailableDates}
                     onSelect={(dates) => setUnavailableDates(dates || [])} 
                     locale={nl}
-                    className="rounded-md border self-start shadow-sm" // Added self-start for consistency
-                    disabled={{ before: startOfDay(new Date()) }} 
+                    className="rounded-md border self-start shadow-sm w-max" 
+                    disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
+                    initialFocus={isClient} 
                 />
               )}
                 <div className="flex-1">
@@ -329,7 +329,7 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="self-start"> {/* Ensure this div aligns like the top calendar's direct parent */}
+            <div className="self-start flex-shrink-0"> 
               <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
                 <Skeleton className="h-[290px] w-[280px] rounded-md border mt-1" />
@@ -339,8 +339,8 @@ export default function TutorAvailabilityPage() {
                   selected={selectedDateForWeekEditing}
                   onSelect={setSelectedDateForWeekEditing}
                   locale={nl}
-                  className="rounded-md border mt-1 shadow-sm"
-                  disabled={{ before: startOfDay(new Date()) }}
+                  className="rounded-md border mt-1 shadow-sm w-max"
+                  disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
                   footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
                   initialFocus={isClient} // Only set initialFocus on client
                 />
@@ -449,4 +449,3 @@ export default function TutorAvailabilityPage() {
     </div>
   );
 }
-
