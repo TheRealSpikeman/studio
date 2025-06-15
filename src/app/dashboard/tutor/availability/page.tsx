@@ -89,12 +89,15 @@ export default function TutorAvailabilityPage() {
       setCurrentEditingWeekMonday(monday);
       const dayIndex = (getDay(selectedDateForWeekEditing) + 6) % 7; 
       const initialTabDate = addDays(monday, dayIndex);
-      setActiveTabDateKey(format(initialTabDate, 'yyyy-MM-dd'));
+      // Set activeTabDateKey only if it's different or null to avoid unnecessary re-renders
+      if (activeTabDateKey !== format(initialTabDate, 'yyyy-MM-dd')) {
+        setActiveTabDateKey(format(initialTabDate, 'yyyy-MM-dd'));
+      }
     } else {
       setCurrentEditingWeekMonday(null);
       setActiveTabDateKey(null);
     }
-  }, [selectedDateForWeekEditing, isClient]);
+  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependencies
 
   useEffect(() => {
     if (activeTabDateKey) {
@@ -164,7 +167,7 @@ export default function TutorAvailabilityPage() {
       }));
       toast({
         title: "Specifieke tijden opgeslagen",
-        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string), 'PPP', { locale: nl })} is bijgewerkt.`,
+        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} is bijgewerkt.`,
       });
     }
   };
@@ -179,7 +182,7 @@ export default function TutorAvailabilityPage() {
         setSlotsForActiveTab([]); 
         toast({
             title: "Specifieke tijden gewist",
-            description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string), 'PPP', { locale: nl })} zijn verwijderd.`,
+            description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} zijn verwijderd.`,
         });
     }
   };
@@ -357,7 +360,7 @@ export default function TutorAvailabilityPage() {
               <Card className="flex-1 min-w-0">
                 <CardContent className="p-4">
                   <Tabs 
-                    defaultValue={getDefaultActiveTabKey()} 
+                    value={activeTabDateKey || undefined} // Use value prop to control active tab
                     onValueChange={setActiveTabDateKey}
                     className="w-full"
                   >
@@ -383,8 +386,8 @@ export default function TutorAvailabilityPage() {
                       if (!dateForTab) return null;
                       const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                       return (
-                          <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2">
-                              <div className="space-y-3">
+                          <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> {/* Standard mt-2 from ShadCN */}
+                              <div className="space-y-3 pt-4"> {/* Added pt-4 here */}
                                 <h4 className="font-semibold text-lg">
                                     Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                                 </h4>
