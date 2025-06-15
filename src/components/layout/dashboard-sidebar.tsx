@@ -131,9 +131,9 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (userRole === 'admin') {
-              showItem = !item.tutorOnly;
+              showItem = !item.tutorOnly; // Admins see everything except tutor-only sections *not* explicitly for admin
             } else if (userRole === 'tutor') {
-              showItem = !!item.tutorOnly || item.href === '/dashboard/profile';
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly;
             } else if (userRole === 'user') {
               showItem = !item.adminOnly && !item.tutorOnly;
             }
@@ -146,21 +146,29 @@ function SidebarNavigationContent() {
                 if (innerItem.sectionTitle !== item.sectionTitle) return false;
                 let isInnerItemVisible = false;
                 if (userRole === 'admin') isInnerItemVisible = !innerItem.tutorOnly;
-                else if (userRole === 'tutor') isInnerItemVisible = !!innerItem.tutorOnly || innerItem.href === '/dashboard/profile';
+                else if (userRole === 'tutor') isInnerItemVisible = (!!innerItem.tutorOnly || innerItem.href === '/dashboard/profile') && !innerItem.adminOnly;
                 else if (userRole === 'user') isInnerItemVisible = !innerItem.adminOnly && !innerItem.tutorOnly;
                 return isInnerItemVisible;
               });
 
               if (sectionHasVisibleItemsForRole) {
-                if (userRole === 'admin') displaySectionHeader = true;
-                else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") displaySectionHeader = true;
-                else if (userRole === 'user' && item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") displaySectionHeader = true;
+                 if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") displaySectionHeader = true;
+                 else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") displaySectionHeader = true;
+                 else if (userRole === 'user' && item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") displaySectionHeader = true;
               }
             }
             
             if (displaySectionHeader) {
                 currentSectionTitleDisplayed = item.sectionTitle!;
+            } else if (!item.sectionTitle && currentSectionTitleDisplayed && userRole !== 'admin' && userRole !== 'tutor') {
+                // Reset if we move out of a titled section for user role, unless it's admin/tutor specific sections
+                if (currentSectionTitleDisplayed === "Admin Dashboard" || currentSectionTitleDisplayed === "Tutor Portaal") {
+                    // do nothing, allow general items after admin/tutor sections
+                } else {
+                     currentSectionTitleDisplayed = null;
+                }
             }
+
 
             const isItemDirectlyActive = pathname === item.href;
             
@@ -187,7 +195,7 @@ function SidebarNavigationContent() {
                  } else if(isItemDirectlyActive) {
                     isParentHighlighted = true;
                  } else {
-                    isParentHighlighted = false; // Parent itself is not active, but a child is
+                    isParentHighlighted = false; 
                  }
             }
 

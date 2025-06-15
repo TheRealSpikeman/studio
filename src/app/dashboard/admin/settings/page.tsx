@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/settings/page.tsx
 "use client";
 
@@ -27,7 +28,7 @@ export default function AdminSettingsPage() {
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 mb-6">
           <TabsTrigger value="general"><Settings className="mr-2 h-4 w-4" />Algemeen</TabsTrigger>
-          <TabsTrigger value="roles"><Users className="mr-2 h-4 w-4" />Rollen & Permissies</TabsTrigger>
+          <TabsTrigger value="roles"><Users className="mr-2 h-4 w-4" />Rollen &amp; Permissies</TabsTrigger>
           <TabsTrigger value="notifications"><Bell className="mr-2 h-4 w-4" />Notificaties</TabsTrigger>
           <TabsTrigger value="security"><Shield className="mr-2 h-4 w-4" />Beveiliging</TabsTrigger>
         </TabsList>
@@ -62,7 +63,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="roles">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Rollen & Permissies Beheer</CardTitle>
+              <CardTitle>Rollen &amp; Permissies Beheer</CardTitle>
               <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -76,7 +77,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="notifications">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Notificatie & E-mail Templates</CardTitle>
+              <CardTitle>Notificatie &amp; E-mail Templates</CardTitle>
               <CardDescription>Beheer de inhoud van automatische e-mails en notificaties.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -116,3 +117,4 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
