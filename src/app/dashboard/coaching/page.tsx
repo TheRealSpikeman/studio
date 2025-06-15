@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label'; // Added import
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, isEqual } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CoachingMessage {
   day: number;
@@ -91,12 +92,19 @@ const getVideoSeedForDate = (date: Date): string => {
 
 
 export default function CoachingPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined); // Initialize to undefined
   const [journalEntries, setJournalEntries] = useState<Record<string, string>>({});
   const [tasksForSelectedDate, setTasksForSelectedDate] = useState<DailyTask[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsClient(true);
+    setSelectedDate(startOfDay(new Date())); // Set initial selected date on client
+  }, []);
+
 
   const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
   
@@ -166,15 +174,19 @@ export default function CoachingPage() {
         </CardHeader>
         {isCalendarOpen && (
           <CardContent className="flex justify-center pt-4">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              className="rounded-md border"
-              locale={nl}
-              disabled={(date) => date > new Date() || date < COACHING_START_DATE}
-              initialFocus
-            />
+            {!isClient ? (
+              <Skeleton className="h-[290px] w-[280px] rounded-md border" />
+            ) : (
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                className="rounded-md border"
+                locale={nl}
+                disabled={(date) => date > new Date() || date < COACHING_START_DATE}
+                initialFocus
+              />
+            )}
           </CardContent>
         )}
       </Card>
@@ -184,7 +196,7 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-primary" />
-              Affirmatie voor {selectedDate ? format(selectedDate, 'PPP', { locale: nl }) : 'vandaag'}
+              Affirmatie voor {selectedDate && isClient ? format(selectedDate, 'PPP', { locale: nl }) : 'vandaag'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -210,7 +222,7 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <NotebookPen className="h-6 w-6 text-primary" />
-              Dagboek Reflectie {selectedDate ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
+              Dagboek Reflectie {selectedDate && isClient ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -238,7 +250,7 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ListTodo className="h-6 w-6 text-accent" />
-              Jouw Microtaken {selectedDate ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
+              Jouw Microtaken {selectedDate && isClient ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -271,19 +283,19 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PlaySquare className="h-6 w-6 text-primary" />
-              Video Tip {selectedDate ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
+              Video Tip {selectedDate && isClient ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            {selectedDate ? (
+            {selectedDate && isClient ? (
               <Image 
-                src={`https://picsum.photos/seed/${videoSeedForSelectedDate}/400/225`} 
+                src={`https://placehold.co/400x225.png?seed=${videoSeedForSelectedDate}`} 
                 alt="Video tip thumbnail" 
                 width={400} 
                 height={225} 
                 className="rounded-md mb-2 mx-auto" 
                 data-ai-hint="coaching video"
-                key={videoSeedForSelectedDate}
+                key={videoSeedForSelectedDate} // Ensures image re-renders if seed changes
               />
             ) : (
               <div className="h-[225px] w-full max-w-[400px] mx-auto bg-muted rounded-md flex items-center justify-center text-muted-foreground mb-2">
@@ -301,7 +313,7 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-6 w-6 text-accent" />
-              Coaching Tip {selectedDate ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
+              Coaching Tip {selectedDate && isClient ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
             </CardTitle>
             <CardDescription>
               Jouw persoonlijke tip voor de geselecteerde dag.
@@ -315,7 +327,7 @@ export default function CoachingPage() {
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-10">
-                {selectedDate ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum om een coaching bericht te zien."}
+                {selectedDate && isClient ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum om een coaching bericht te zien."}
               </p>
             )}
           </CardContent>

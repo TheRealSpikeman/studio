@@ -1,21 +1,20 @@
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// Removed Checkbox as we're using a full calendar for exceptions
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { ArrowLeft, Clock, Euro, Save, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-// Removed Popover components as Calendar will be directly visible
-import { format } from 'date-fns'; // Removed addDays and startOfWeek as they are not directly used in the new logic
+import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TimeSlot {
   start: string;
@@ -57,7 +56,11 @@ export default function TutorAvailabilityPage() {
   const [hourlyRate, setHourlyRate] = useState<number | string>(25);
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability>(initialWeeklyAvailability);
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
-  // Removed selectedDateForException as the calendar now handles multiple selections directly
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
     setWeeklyAvailability(prev => {
@@ -82,7 +85,6 @@ export default function TutorAvailabilityPage() {
   };
   
   const handleToggleUnavailableDate = (date: Date) => {
-    // date-fns startOfDay might be useful here if timezones become an issue
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     setUnavailableDates(prev => {
       const isAlreadySelected = prev.some(d => d.getTime() === dateOnly.getTime());
@@ -96,7 +98,6 @@ export default function TutorAvailabilityPage() {
 
 
   const handleSaveAvailability = () => {
-    // TODO: Implement actual save logic to backend
     console.log("Saving availability:", { hourlyRate, weeklyAvailability, unavailableDates });
     toast({
       title: "Beschikbaarheid Opgeslagen",
@@ -179,20 +180,24 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
+              {!isClient ? (
+                  <Skeleton className="h-[290px] w-[280px] rounded-md border self-start shadow-sm" />
+              ) : (
                 <Calendar
-                    mode="multiple" // Allow multiple dates to be selected
+                    mode="multiple"
                     selected={unavailableDates}
-                    onSelect={(dates) => setUnavailableDates(dates || [])} // Update state with array of selected dates
+                    onSelect={(dates) => setUnavailableDates(dates || [])} 
                     locale={nl}
                     className="rounded-md border self-start shadow-sm"
-                    disabled={{ before: new Date() }} // Optionally disable past dates
+                    disabled={{ before: new Date() }}
                 />
+              )}
                 <div className="flex-1">
                     <h4 className="font-semibold mb-2">Geselecteerde niet-beschikbare datums:</h4>
                     {unavailableDates.length > 0 ? (
                         <ul className="list-disc list-inside text-sm space-y-1 bg-muted p-3 rounded-md max-h-60 overflow-y-auto">
                             {unavailableDates
-                              .sort((a,b) => a.getTime() - b.getTime()) // Sort dates for consistent display
+                              .sort((a,b) => a.getTime() - b.getTime())
                               .map(date => (
                                 <li key={date.toISOString()} className="flex justify-between items-center py-0.5">
                                     {format(date, 'PPP', { locale: nl })}
@@ -200,7 +205,7 @@ export default function TutorAvailabilityPage() {
                                       variant="ghost" 
                                       size="icon" 
                                       className="h-6 w-6" 
-                                      onClick={() => handleToggleUnavailableDate(date)} // Use a general toggle function
+                                      onClick={() => handleToggleUnavailableDate(date)}
                                       aria-label={`Verwijder ${format(date, 'PPP', { locale: nl })} van uitzonderingen`}
                                     >
                                         <XCircle className="h-4 w-4 text-destructive"/>
