@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+// Removed Checkbox as we're using a full calendar for exceptions
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar'; // Assuming a Calendar component exists
+import { Calendar } from '@/components/ui/calendar';
 import { ArrowLeft, Clock, Euro, Save, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format, addDays, startOfWeek } from 'date-fns';
+// Removed Popover components as Calendar will be directly visible
+import { format } from 'date-fns'; // Removed addDays and startOfWeek as they are not directly used in the new logic
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
@@ -57,7 +57,7 @@ export default function TutorAvailabilityPage() {
   const [hourlyRate, setHourlyRate] = useState<number | string>(25);
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability>(initialWeeklyAvailability);
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
-  const [selectedDateForException, setSelectedDateForException] = useState<Date | undefined>(undefined);
+  // Removed selectedDateForException as the calendar now handles multiple selections directly
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
     setWeeklyAvailability(prev => {
@@ -81,16 +81,19 @@ export default function TutorAvailabilityPage() {
     }));
   };
   
-  const handleToggleUnavailableDate = (date: Date | undefined) => {
-    if (!date) return;
+  const handleToggleUnavailableDate = (date: Date) => {
+    // date-fns startOfDay might be useful here if timezones become an issue
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    setUnavailableDates(prev => 
-      prev.some(d => d.getTime() === dateOnly.getTime())
-        ? prev.filter(d => d.getTime() !== dateOnly.getTime())
-        : [...prev, dateOnly]
-    );
-    setSelectedDateForException(undefined); // Close popover
+    setUnavailableDates(prev => {
+      const isAlreadySelected = prev.some(d => d.getTime() === dateOnly.getTime());
+      if (isAlreadySelected) {
+        return prev.filter(d => d.getTime() !== dateOnly.getTime());
+      } else {
+        return [...prev, dateOnly];
+      }
+    });
   };
+
 
   const handleSaveAvailability = () => {
     // TODO: Implement actual save logic to backend
@@ -177,28 +180,36 @@ export default function TutorAvailabilityPage() {
         <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
                 <Calendar
-                    mode="multiple"
+                    mode="multiple" // Allow multiple dates to be selected
                     selected={unavailableDates}
-                    onSelect={(dates) => setUnavailableDates(dates || [])}
+                    onSelect={(dates) => setUnavailableDates(dates || [])} // Update state with array of selected dates
                     locale={nl}
-                    className="rounded-md border self-start"
-                    disabled={{ before: new Date() }}
+                    className="rounded-md border self-start shadow-sm"
+                    disabled={{ before: new Date() }} // Optionally disable past dates
                 />
                 <div className="flex-1">
                     <h4 className="font-semibold mb-2">Geselecteerde niet-beschikbare datums:</h4>
                     {unavailableDates.length > 0 ? (
-                        <ul className="list-disc list-inside text-sm space-y-1 bg-muted p-3 rounded-md">
-                            {unavailableDates.sort((a,b) => a.getTime() - b.getTime()).map(date => (
-                                <li key={date.toISOString()} className="flex justify-between items-center">
+                        <ul className="list-disc list-inside text-sm space-y-1 bg-muted p-3 rounded-md max-h-60 overflow-y-auto">
+                            {unavailableDates
+                              .sort((a,b) => a.getTime() - b.getTime()) // Sort dates for consistent display
+                              .map(date => (
+                                <li key={date.toISOString()} className="flex justify-between items-center py-0.5">
                                     {format(date, 'PPP', { locale: nl })}
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleToggleUnavailableDate(date)}>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-6 w-6" 
+                                      onClick={() => handleToggleUnavailableDate(date)} // Use a general toggle function
+                                      aria-label={`Verwijder ${format(date, 'PPP', { locale: nl })} van uitzonderingen`}
+                                    >
                                         <XCircle className="h-4 w-4 text-destructive"/>
                                     </Button>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-sm text-muted-foreground">Geen uitzonderingen geselecteerd.</p>
+                        <p className="text-sm text-muted-foreground">Geen uitzonderingen geselecteerd. Klik op de kalender om datums toe te voegen.</p>
                     )}
                 </div>
             </div>
