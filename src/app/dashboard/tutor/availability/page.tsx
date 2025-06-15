@@ -78,7 +78,13 @@ export default function TutorAvailabilityPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedDateForWeekEditing) {
+    if (isClient && !selectedDateForWeekEditing) { // Initialize on client if not already set
+        const today = startOfDay(new Date());
+        setSelectedDateForWeekEditing(today);
+        const monday = startOfWeek(today, { weekStartsOn: 1 });
+        setCurrentEditingWeekMonday(monday);
+        setActiveTabDateKey(format(today, 'yyyy-MM-dd')); // Set active tab to today initially
+    } else if (selectedDateForWeekEditing) {
       const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
       setCurrentEditingWeekMonday(monday);
       // Set the initial active tab to the selected day, or Monday if not directly applicable
@@ -89,7 +95,7 @@ export default function TutorAvailabilityPage() {
       setCurrentEditingWeekMonday(null);
       setActiveTabDateKey(null);
     }
-  }, [selectedDateForWeekEditing]);
+  }, [selectedDateForWeekEditing, isClient]);
 
   useEffect(() => {
     if (activeTabDateKey) {
@@ -330,8 +336,8 @@ export default function TutorAvailabilityPage() {
           <CardDescription>Selecteer een datum in de kalender om de beschikbaarheid voor die specifieke week aan te passen. Deze tijden overschrijven je standaard rooster en "hele dag niet beschikbaar" voor die dagen.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="w-[280px] flex-shrink-0"> 
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            <div className="w-[280px] flex-shrink-0 self-start"> 
               <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
                 <Skeleton className="h-[290px] w-full rounded-md border mt-1" />
@@ -344,19 +350,19 @@ export default function TutorAvailabilityPage() {
                   className="rounded-md border mt-1 shadow-sm w-full"
                   disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
                   footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
-                  initialFocus={isClient} // Only set initialFocus on client
+                  initialFocus={isClient} 
                 />
               )}
             </div>
             
             {currentEditingWeekMonday && (
-              <div className="flex-1 min-w-0"> {/* Ensure this div can shrink and grow */}
+              <div className="flex-1 min-w-0"> 
                 <Tabs 
                   defaultValue={getDefaultActiveTabKey()} 
                   onValueChange={setActiveTabDateKey}
                   className="w-full"
                 >
-                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 mb-4">
+                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4">
                     {dayKeys.map((dayKey, index) => {
                       const dateForTab = getDateForTabIndex(index);
                       if (!dateForTab) return null;
