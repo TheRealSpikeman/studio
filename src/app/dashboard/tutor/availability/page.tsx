@@ -288,7 +288,7 @@ export default function TutorAvailabilityPage() {
                     selected={unavailableDates}
                     onSelect={(dates) => setUnavailableDates(dates || [])} 
                     locale={nl}
-                    className="rounded-md border self-start shadow-sm w-max" 
+                    className="rounded-md border self-start shadow-sm w-[280px]" 
                     disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
                     initialFocus={isClient} 
                 />
@@ -339,7 +339,7 @@ export default function TutorAvailabilityPage() {
                   selected={selectedDateForWeekEditing}
                   onSelect={setSelectedDateForWeekEditing}
                   locale={nl}
-                  className="rounded-md border mt-1 shadow-sm w-max"
+                  className="rounded-md border mt-1 shadow-sm w-[280px]"
                   disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
                   footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
                   initialFocus={isClient} // Only set initialFocus on client
@@ -449,3 +449,4 @@ export default function TutorAvailabilityPage() {
     </div>
   );
 }
+
