@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal } from 'lucide-react'; 
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
@@ -61,6 +61,16 @@ const navItems = [
       { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
     ]
   },
+  { 
+    href: '/dashboard/admin/content-management', 
+    label: 'Content Management', 
+    icon: FileEdit, 
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/content-management', label: 'Pagina Overzicht', icon: FileText, isSubItem: true, parent: '/dashboard/admin/content-management' },
+      { href: '/dashboard/admin/content-management/new', label: 'Nieuwe Pagina', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/content-management' },
+    ]
+  },
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
@@ -107,17 +117,13 @@ function SidebarNavigationContent() {
                 isParentExpanded = true;
               }
               
-              // Logic to highlight parent only if no child is active OR if parent's own page is active.
-              // If a child is active and it's not the parent's default page, parent should not be highlighted.
               if (isItemDirectlyActive) {
-                 // If parent is active, and any child is also active, and that child's href is different from parent's href
-                 // then parent should not be highlighted (child takes precedence).
                  const activeChildIsNotParentDefault = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href);
                  if (activeChildIsNotParentDefault) {
                     isParentHighlighted = false;
                  }
               } else if (isAnyChildActive) {
-                isParentHighlighted = false; // Parent is not active itself, but a child is, so parent not highlighted
+                isParentHighlighted = false; 
               }
 
             }
