@@ -354,73 +354,75 @@ export default function TutorAvailabilityPage() {
             </div>
             
             {currentEditingWeekMonday && (
-              <div className="flex-1 min-w-0"> 
-                <Tabs 
-                  defaultValue={getDefaultActiveTabKey()} 
-                  onValueChange={setActiveTabDateKey}
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
+              <Card className="flex-1 min-w-0">
+                <CardContent className="p-4">
+                  <Tabs 
+                    defaultValue={getDefaultActiveTabKey()} 
+                    onValueChange={setActiveTabDateKey}
+                    className="w-full"
+                  >
+                    <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
+                      {dayKeys.map((dayKey, index) => {
+                        const dateForTab = getDateForTabIndex(index);
+                        if (!dateForTab) return null;
+                        const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
+                        return (
+                          <TabsTrigger 
+                            key={dateKeyForTab} 
+                            value={dateKeyForTab} 
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                          >
+                            {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd MMM')})
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+
                     {dayKeys.map((dayKey, index) => {
                       const dateForTab = getDateForTabIndex(index);
                       if (!dateForTab) return null;
                       const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                       return (
-                        <TabsTrigger 
-                          key={dateKeyForTab} 
-                          value={dateKeyForTab} 
-                          className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
-                        >
-                          {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd MMM')})
-                        </TabsTrigger>
+                          <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2">
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-lg">
+                                    Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
+                                </h4>
+                                {slotsForActiveTab.length === 0 && activeTabDateKey === dateKeyForTab && (
+                                    <p className="text-sm text-muted-foreground">Geen specifieke tijden ingesteld voor deze dag. Standaard weekrooster is van toepassing.</p>
+                                )}
+                                {activeTabDateKey === dateKeyForTab && slotsForActiveTab.map((slot, slotIndex) => (
+                                    <div key={slot.id || slotIndex} className="flex items-center gap-2">
+                                    <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'start', e.target.value)} className="w-2/5" />
+                                    <span>-</span>
+                                    <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'end', e.target.value)} className="w-2/5" />
+                                    <Button variant="ghost" size="icon" onClick={() => removeSpecificSlotForTab(slotIndex)} aria-label="Verwijder tijdslot">
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                    </div>
+                                ))}
+                                {activeTabDateKey === dateKeyForTab && (
+                                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                                        <Button variant="outline" size="sm" onClick={addSpecificSlotForTab}>
+                                            <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
+                                        </Button>
+                                        <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]}>
+                                            Tijden Opslaan
+                                        </Button>
+                                        {specificDateAvailability[activeTabDateKey!] && specificDateAvailability[activeTabDateKey!]!.length > 0 && (
+                                            <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto">
+                                                Wis specifieke tijden voor deze dag
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                              </div>
+                          </TabsContent>
                       );
                     })}
-                  </TabsList>
-
-                  {dayKeys.map((dayKey, index) => {
-                     const dateForTab = getDateForTabIndex(index);
-                     if (!dateForTab) return null;
-                     const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
-                     return (
-                        <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2">
-                            <div className="mt-1 space-y-3 p-4 border rounded-md bg-muted/30">
-                            <h4 className="font-semibold">
-                                Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
-                            </h4>
-                            {slotsForActiveTab.length === 0 && activeTabDateKey === dateKeyForTab && (
-                                <p className="text-sm text-muted-foreground">Geen specifieke tijden ingesteld voor deze dag. Standaard weekrooster is van toepassing.</p>
-                            )}
-                            {activeTabDateKey === dateKeyForTab && slotsForActiveTab.map((slot, slotIndex) => (
-                                <div key={slot.id || slotIndex} className="flex items-center gap-2">
-                                <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'start', e.target.value)} className="w-2/5" />
-                                <span>-</span>
-                                <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'end', e.target.value)} className="w-2/5" />
-                                <Button variant="ghost" size="icon" onClick={() => removeSpecificSlotForTab(slotIndex)} aria-label="Verwijder tijdslot">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                                </div>
-                            ))}
-                            {activeTabDateKey === dateKeyForTab && (
-                                <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                                    <Button variant="outline" size="sm" onClick={addSpecificSlotForTab}>
-                                        <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
-                                    </Button>
-                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]}>
-                                        Tijden Opslaan
-                                    </Button>
-                                    {specificDateAvailability[activeTabDateKey!] && specificDateAvailability[activeTabDateKey!]!.length > 0 && (
-                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto">
-                                            Wis specifieke tijden voor deze dag
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                            </div>
-                        </TabsContent>
-                     );
-                  })}
-                </Tabs>
-              </div>
+                  </Tabs>
+                </CardContent>
+              </Card>
             )}
           </div>
 
