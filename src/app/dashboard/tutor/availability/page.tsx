@@ -280,44 +280,46 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
-              {!isClient ? (
-                  <Skeleton className="h-[290px] w-[280px] rounded-md border self-start shadow-sm" />
-              ) : (
-                <Calendar
-                    mode="multiple"
-                    selected={unavailableDates}
-                    onSelect={(dates) => setUnavailableDates(dates || [])} 
-                    locale={nl}
-                    className="rounded-md border self-start shadow-sm w-[280px]" 
-                    disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
-                    initialFocus={isClient} 
-                />
-              )}
-                <div className="flex-1">
-                    <h4 className="font-semibold mb-2">Geselecteerde niet-beschikbare datums:</h4>
-                    {unavailableDates.length > 0 ? (
-                        <ul className="list-disc list-inside text-sm space-y-1 bg-muted p-3 rounded-md max-h-60 overflow-y-auto">
-                            {unavailableDates
-                              .sort((a,b) => a.getTime() - b.getTime())
-                              .map(date => (
-                                <li key={date.toISOString()} className="flex justify-between items-center py-0.5">
-                                    {format(date, 'PPP', { locale: nl })}
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className="h-6 w-6" 
-                                      onClick={() => handleToggleUnavailableDate(date)}
-                                      aria-label={`Verwijder ${format(date, 'PPP', { locale: nl })} van uitzonderingen`}
-                                    >
-                                        <XCircle className="h-4 w-4 text-destructive"/>
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-muted-foreground">Geen hele dagen als niet-beschikbaar gemarkeerd.</p>
-                    )}
-                </div>
+              <div className="w-[280px] flex-shrink-0">
+                {!isClient ? (
+                    <Skeleton className="h-[290px] w-full rounded-md border shadow-sm" />
+                ) : (
+                  <Calendar
+                      mode="multiple"
+                      selected={unavailableDates}
+                      onSelect={(dates) => setUnavailableDates(dates || [])} 
+                      locale={nl}
+                      className="rounded-md border shadow-sm w-full" 
+                      disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
+                      initialFocus={isClient} 
+                  />
+                )}
+              </div>
+              <div className="flex-1">
+                  <h4 className="font-semibold mb-2">Geselecteerde niet-beschikbare datums:</h4>
+                  {unavailableDates.length > 0 ? (
+                      <ul className="list-disc list-inside text-sm space-y-1 bg-muted p-3 rounded-md max-h-60 overflow-y-auto">
+                          {unavailableDates
+                            .sort((a,b) => a.getTime() - b.getTime())
+                            .map(date => (
+                              <li key={date.toISOString()} className="flex justify-between items-center py-0.5">
+                                  {format(date, 'PPP', { locale: nl })}
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-6 w-6" 
+                                    onClick={() => handleToggleUnavailableDate(date)}
+                                    aria-label={`Verwijder ${format(date, 'PPP', { locale: nl })} van uitzonderingen`}
+                                  >
+                                      <XCircle className="h-4 w-4 text-destructive"/>
+                                  </Button>
+                              </li>
+                          ))}
+                      </ul>
+                  ) : (
+                      <p className="text-sm text-muted-foreground">Geen hele dagen als niet-beschikbaar gemarkeerd.</p>
+                  )}
+              </div>
             </div>
         </CardContent>
       </Card>
@@ -329,17 +331,17 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="self-start flex-shrink-0"> 
+            <div className="w-[280px] flex-shrink-0"> 
               <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
-                <Skeleton className="h-[290px] w-[280px] rounded-md border mt-1" />
+                <Skeleton className="h-[290px] w-full rounded-md border mt-1" />
               ) : (
                 <Calendar
                   mode="single"
                   selected={selectedDateForWeekEditing}
                   onSelect={setSelectedDateForWeekEditing}
                   locale={nl}
-                  className="rounded-md border mt-1 shadow-sm w-[280px]"
+                  className="rounded-md border mt-1 shadow-sm w-full"
                   disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
                   footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
                   initialFocus={isClient} // Only set initialFocus on client
@@ -449,4 +451,3 @@ export default function TutorAvailabilityPage() {
     </div>
   );
 }
-
