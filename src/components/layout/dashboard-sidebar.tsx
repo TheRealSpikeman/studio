@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit } from 'lucide-react'; 
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
 import { useState, useEffect, Fragment } from 'react';
 
@@ -44,6 +44,7 @@ const navItems = [
       },
     ]
   },
+  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare },
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
