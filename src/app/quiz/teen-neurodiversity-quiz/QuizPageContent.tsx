@@ -244,7 +244,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
 //
 //  KOPIEER ALLES WAT BINNEN de "export default function TeenNeurodiversityQuizPage() { ... }"
 //  functie stond
-export default function TeenNeurodiversityQuizPage() {
+export default function QuizPageContent() { // Changed function name
   const router = useRouter();
   const searchParams = useSearchParams();
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
