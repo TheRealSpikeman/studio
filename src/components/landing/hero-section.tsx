@@ -42,9 +42,6 @@ export function HeroSection() {
               <Link href="/for-parents">Meer informatie voor ouders</Link>
             </Button>
           </div>
-           <p className="text-xs text-muted-foreground mt-2">
-            Vanaf €2,50 p/m voor dagelijkse coaching & alle subquizzen voor uw kind.
-          </p>
            <p className="text-sm text-muted-foreground mt-3">
             ★ 4.8 – Ouders waarderen onze aanpak!
           </p>
