@@ -535,7 +535,21 @@ export default function QuizManagementPage() {
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/admin/quiz-management/edit/${quiz.id}`}><Edit className="mr-2 h-4 w-4" />Bewerken</Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem disabled><Eye className="mr-2 h-4 w-4" />Voorbeeld</DropdownMenuItem>
+                          <DropdownMenuItem 
+                             disabled={quiz.status === 'concept'}
+                             asChild={quiz.status !== 'concept'}
+                          >
+                            <Link 
+                              href={quiz.slug && quiz.slug.startsWith('teen-neurodiversity-quiz') // Special case for the generic teen quiz
+                                      ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || '15-18'}` 
+                                      : `/quiz/${quiz.slug || quiz.id}`
+                                    }
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                            >
+                                <Eye className="mr-2 h-4 w-4" />Voorbeeld
+                            </Link>
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDeleteQuiz(quiz.id)} className="text-destructive focus:text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />Verwijderen
                           </DropdownMenuItem>
