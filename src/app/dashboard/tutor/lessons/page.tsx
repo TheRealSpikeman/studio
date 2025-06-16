@@ -9,16 +9,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, CalendarDays, BookOpen, Video, MoreVertical, FileText, AlertTriangle, CheckCircle, XCircle, Hourglass } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, CalendarDays, BookOpen, Video, MoreVertical, FileText, AlertTriangle, CheckCircle, XCircle, Hourglass, MessageSquarePlus, Edit3 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell'; // Re-using for consistency
+import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
 
 type LessonStatus = 'Gepland' | 'Voltooid' | 'Geannuleerd' | 'Bezig';
 
 interface Lesson {
   id: string;
+  studentId: string; // Added studentId for linking
   studentName: string;
   studentAvatar?: string;
   subject: string;
@@ -26,27 +32,28 @@ interface Lesson {
   durationMinutes: number;
   status: LessonStatus;
   meetingLink?: string;
-  notes?: string;
+  notes?: string; // General notes from tutor (pre-lesson or general)
+  report?: string; // Post-lesson report
 }
 
 const dummyUpcomingLessons: Lesson[] = [
-  { id: 'l1', studentName: 'Eva de Vries', studentAvatar: 'https://picsum.photos/seed/evavries/40/40', subject: 'Wiskunde A', dateTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Gepland', meetingLink: '#' },
-  { id: 'l2', studentName: 'Tom Bakker', subject: 'Engels Spreken', dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Gepland' },
-  { id: 'l3', studentName: 'Sara El Idrissi', studentAvatar: 'https://picsum.photos/seed/saraidrissi/40/40', subject: 'Natuurkunde H.5', dateTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Gepland' },
+  { id: 'l1', studentId: 's1', studentName: 'Eva de Vries', studentAvatar: 'https://picsum.photos/seed/evavries/40/40', subject: 'Wiskunde A', dateTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Gepland', meetingLink: '#' },
+  { id: 'l2', studentId: 's2', studentName: 'Tom Bakker', subject: 'Engels Spreken', dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Gepland' },
+  { id: 'l3', studentId: 's3', studentName: 'Sara El Idrissi', studentAvatar: 'https://picsum.photos/seed/saraidrissi/40/40', subject: 'Natuurkunde H.5', dateTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Gepland' },
 ];
 
 const dummyPastLessons: Lesson[] = [
-  { id: 'p1', studentName: 'Jan Janssen', subject: 'Wiskunde B', dateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Voltooid' },
-  { id: 'p2', studentName: 'Pien de Wit', studentAvatar: 'https://picsum.photos/seed/piendewit/40/40', subject: 'Nederlands Grammatica', dateTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Voltooid' },
-  { id: 'p3', studentName: 'Mo El Hamdaoui', subject: 'Scheikunde', dateTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Geannuleerd' },
+  { id: 'p1', studentId: 's1', studentName: 'Jan Janssen', subject: 'Wiskunde B', dateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Voltooid', report: "Jan heeft goed gewerkt aan de stelling van Pythagoras. Oefenen met toepassingen is nog nodig." },
+  { id: 'p2', studentId: 's2', studentName: 'Pien de Wit', studentAvatar: 'https://picsum.photos/seed/piendewit/40/40', subject: 'Nederlands Grammatica', dateTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Voltooid' },
+  { id: 'p3', studentId: 's3', studentName: 'Mo El Hamdaoui', subject: 'Scheikunde', dateTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Geannuleerd', report: "Les geannuleerd door student." },
 ];
 
 const getStatusBadgeVariant = (status: LessonStatus): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
-    case 'Gepland': return 'default'; // Blue/Primary
-    case 'Bezig': return 'default'; // Green (like 'actief' users)
-    case 'Voltooid': return 'secondary'; // Grayish/Muted
-    case 'Geannuleerd': return 'destructive'; // Red
+    case 'Gepland': return 'default';
+    case 'Bezig': return 'default';
+    case 'Voltooid': return 'secondary';
+    case 'Geannuleerd': return 'destructive';
     default: return 'outline';
   }
 };
@@ -61,7 +68,7 @@ const getStatusBadgeClasses = (status: LessonStatus): string => {
 };
 
 
-function LessonTable({ lessons }: { lessons: Lesson[] }) {
+function LessonTable({ lessons, onOpenReportDialog }: { lessons: Lesson[], onOpenReportDialog: (lesson: Lesson) => void }) {
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   return (
@@ -126,11 +133,21 @@ function LessonTable({ lessons }: { lessons: Lesson[] }) {
                             <CheckCircle className="mr-2 h-4 w-4" />Markeer als Voltooid
                         </DropdownMenuItem>
                     )}
+                    {(lesson.status === 'Voltooid' || lesson.status === 'Bezig') && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => onOpenReportDialog(lesson)}>
+                          {lesson.report ? <Edit3 className="mr-2 h-4 w-4" /> : <MessageSquarePlus className="mr-2 h-4 w-4" />}
+                          {lesson.report ? 'Verslag Bekijken/Bewerken' : 'Verslag Schrijven'}
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     {lesson.status === 'Gepland' && (
                       <DropdownMenuItem className="text-destructive focus:text-destructive">
                         <XCircle className="mr-2 h-4 w-4" />Annuleer Les
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem disabled>
                       <AlertTriangle className="mr-2 h-4 w-4" />Rapporteer Probleem
                     </DropdownMenuItem>
@@ -147,6 +164,43 @@ function LessonTable({ lessons }: { lessons: Lesson[] }) {
 
 
 export default function TutorLessonsPage() {
+  const { toast } = useToast();
+  const [lessons, setLessons] = useState<{upcoming: Lesson[], past: Lesson[]}>({upcoming: dummyUpcomingLessons, past: dummyPastLessons});
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [selectedLessonForReport, setSelectedLessonForReport] = useState<Lesson | null>(null);
+  const [reportText, setReportText] = useState('');
+  const [sendCopyToParent, setSendCopyToParent] = useState(false);
+
+  const handleOpenReportDialog = (lesson: Lesson) => {
+    setSelectedLessonForReport(lesson);
+    setReportText(lesson.report || '');
+    setSendCopyToParent(false); // Reset checkbox
+    setIsReportDialogOpen(true);
+  };
+
+  const handleSaveReport = () => {
+    if (selectedLessonForReport) {
+      // Simulate saving the report
+      const lessonType = lessons.upcoming.find(l => l.id === selectedLessonForReport.id) ? 'upcoming' : 'past';
+      
+      setLessons(prev => ({
+        ...prev,
+        [lessonType]: prev[lessonType].map(l => 
+          l.id === selectedLessonForReport.id ? { ...l, report: reportText } : l
+        )
+      }));
+
+      toast({
+        title: "Lesverslag Opgeslagen",
+        description: `Verslag voor de les "${selectedLessonForReport.subject}" met ${selectedLessonForReport.studentName} is opgeslagen. ${sendCopyToParent ? "Een kopie wordt (gesimuleerd) naar de ouders gestuurd." : ""}`,
+      });
+      console.log("Report to save:", reportText, "For lesson:", selectedLessonForReport.id, "Send to parent:", sendCopyToParent);
+      setIsReportDialogOpen(false);
+      setSelectedLessonForReport(null);
+      setReportText('');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -173,14 +227,51 @@ export default function TutorLessonsPage() {
               <TabsTrigger value="past">Afgelopen</TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming" className="mt-4">
-              <LessonTable lessons={dummyUpcomingLessons} />
+              <LessonTable lessons={lessons.upcoming} onOpenReportDialog={handleOpenReportDialog} />
             </TabsContent>
             <TabsContent value="past" className="mt-4">
-              <LessonTable lessons={dummyPastLessons} />
+              <LessonTable lessons={lessons.past} onOpenReportDialog={handleOpenReportDialog} />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
+
+      <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+        <DialogContent className="sm:max-w-[525px]">
+          <DialogHeader>
+            <DialogTitle>
+              Lesverslag voor {selectedLessonForReport?.subject} met {selectedLessonForReport?.studentName}
+            </DialogTitle>
+            <DialogDescription>
+              Schrijf hier een kort verslag van de les. Wat is er behandeld? Hoe ging het? Wat zijn aandachtspunten?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <Textarea 
+              placeholder="Typ hier je verslag..." 
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              rows={8}
+            />
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="sendCopyToParent" 
+                checked={sendCopyToParent}
+                onCheckedChange={(checked) => setSendCopyToParent(Boolean(checked))}
+              />
+              <Label htmlFor="sendCopyToParent" className="text-sm font-normal cursor-pointer">
+                Stuur een kopie van dit verslag naar de ouder(s) (gesimuleerd).
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Annuleren</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleSaveReport}>Verslag Opslaan</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

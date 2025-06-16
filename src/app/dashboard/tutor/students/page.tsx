@@ -9,24 +9,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle, History } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
 interface StudentEntry {
   id: string;
   name: string;
   avatarUrl?: string;
-  subjects: string[]; // Subjects the tutor teaches this student
+  subjectsTaughtByTutor: string[]; 
   lastLessonDate?: string; // ISO string
-  totalLessons?: number;
-  // Link to a more detailed progress page (future)
+  totalLessonsWithTutor?: number;
 }
 
 const dummyStudents: StudentEntry[] = [
-  { id: 's1', name: 'Eva de Vries', avatarUrl: 'https://picsum.photos/seed/evavries/40/40', subjects: ['Wiskunde A', 'Natuurkunde'], lastLessonDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), totalLessons: 5 },
-  { id: 's2', name: 'Tom Bakker', subjects: ['Engels Spreken'], lastLessonDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), totalLessons: 8 },
-  { id: 's3', name: 'Sara El Idrissi', avatarUrl: 'https://picsum.photos/seed/saraidrissi/40/40', subjects: ['Scheikunde'], totalLessons: 2 },
-  { id: 'p1', name: 'Jan Janssen', subjects: ['Wiskunde B'], lastLessonDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), totalLessons: 12 },
+  { id: 's1', name: 'Eva de Vries', avatarUrl: 'https://picsum.photos/seed/evavries/40/40', subjectsTaughtByTutor: ['Wiskunde A', 'Natuurkunde'], lastLessonDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 5 },
+  { id: 's2', name: 'Tom Bakker', subjectsTaughtByTutor: ['Engels Spreken'], lastLessonDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 8 },
+  { id: 's3', name: 'Sara El Idrissi', avatarUrl: 'https://picsum.photos/seed/saraidrissi/40/40', subjectsTaughtByTutor: ['Scheikunde'], totalLessonsWithTutor: 2 },
+  { id: 'p1', name: 'Jan Janssen', subjectsTaughtByTutor: ['Wiskunde B'], lastLessonDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 12 },
 ];
 
 function StudentTable({ students }: { students: StudentEntry[] }) {
@@ -38,9 +37,9 @@ function StudentTable({ students }: { students: StudentEntry[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Leerling</TableHead>
-            <TableHead>Vak(ken)</TableHead>
-            <TableHead>Totaal Lessen</TableHead>
-            <TableHead>Laatste Les</TableHead>
+            <TableHead>Vak(ken) (met deze tutor)</TableHead>
+            <TableHead>Totaal Lessen (met deze tutor)</TableHead>
+            <TableHead>Laatste Les (met deze tutor)</TableHead>
             <TableHead className="text-right">Acties</TableHead>
           </TableRow>
         </TableHeader>
@@ -58,11 +57,11 @@ function StudentTable({ students }: { students: StudentEntry[] }) {
                 {student.name}
               </TableCell>
               <TableCell>
-                {student.subjects.map(subject => (
+                {student.subjectsTaughtByTutor.map(subject => (
                   <Badge key={subject} variant="secondary" className="mr-1 mb-1">{subject}</Badge>
                 ))}
               </TableCell>
-              <TableCell>{student.totalLessons || 'N/A'}</TableCell>
+              <TableCell>{student.totalLessonsWithTutor || 'N/A'}</TableCell>
               <TableCell>
                 {student.lastLessonDate ? <FormattedDateCell isoDateString={student.lastLessonDate} dateFormatPattern="P" /> : 'N/A'}
               </TableCell>
@@ -74,8 +73,13 @@ function StudentTable({ students }: { students: StudentEntry[] }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                     <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/tutor/students/${student.id}`}>
+                           <History className="mr-2 h-4 w-4" />Bekijk Leshistorie
+                        </Link>
+                     </DropdownMenuItem>
                      <DropdownMenuItem disabled>
-                        <FileText className="mr-2 h-4 w-4" />Bekijk Voortgang (binnenkort)
+                        <FileText className="mr-2 h-4 w-4" />Voortgangsrapport (binnenkort)
                      </DropdownMenuItem>
                      <DropdownMenuItem disabled>
                         <MessageSquare className="mr-2 h-4 w-4" />Stuur Bericht (binnenkort)
