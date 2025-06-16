@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle, Briefcase } from 'lucide-react';
+import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle, Briefcase, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 // Simulate user data and role for redirection logic
@@ -14,9 +14,88 @@ const MOCKED_CURRENT_TUTOR = {
   isLoggedIn: true, // Assume logged in to reach this page
   role: 'tutor' as 'tutor' | 'admin', // Role must be tutor or admin
   status: 'actief' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Current status of the tutor
-  // status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Test onboarding
-  // status: 'pending_approval' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Test pending
 };
+
+interface DashboardItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  link: string;
+  buttonText: string;
+  buttonVariant: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+  disabled: boolean;
+  isLink: boolean;
+}
+
+const dashboardItems: DashboardItem[] = [
+  {
+    id: 'availability',
+    title: 'Beschikbaarheid Beheren',
+    description: 'Stel je werkuren en uurtarief in.',
+    icon: Clock, // Updated icon
+    link: '/dashboard/tutor/availability',
+    buttonText: 'Beheer Beschikbaarheid',
+    buttonVariant: 'outline',
+    disabled: false,
+    isLink: true,
+  },
+  {
+    id: 'lessons',
+    title: 'Geplande Online Lessen',
+    description: 'Bekijk je agenda met geboekte sessies.',
+    icon: BookOpen,
+    link: '#', // Placeholder
+    buttonText: 'Bekijk Lessen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+  },
+  {
+    id: 'students',
+    title: 'Leerlingvoortgang',
+    description: 'Houd notities en voortgang per leerling bij.',
+    icon: Users,
+    link: '#', // Placeholder
+    buttonText: 'Bekijk Leerlingen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+  },
+  {
+    id: 'earnings',
+    title: 'Verdiensten & Uitbetalingen',
+    description: 'Bekijk je factuurhistorie en verdiende bedragen.',
+    icon: DollarSign,
+    link: '#', // Placeholder
+    buttonText: 'Bekijk Verdiensten (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+  },
+  {
+    id: 'reviews',
+    title: 'Mijn Beoordelingen',
+    description: 'Lees feedback van leerlingen die je hebt geholpen.',
+    icon: FileText,
+    link: '#', // Placeholder
+    buttonText: 'Bekijk Beoordelingen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+  },
+  {
+    id: 'profileSettings',
+    title: 'Profiel Instellingen',
+    description: 'Werk je persoonlijke gegevens en documenten bij.',
+    icon: Settings,
+    link: '/dashboard/profile',
+    buttonText: 'Ga naar Profiel',
+    buttonVariant: 'default', // Primary action button
+    disabled: false,
+    isLink: true,
+  },
+];
 
 
 export default function TutorDashboardPage() {
@@ -34,7 +113,6 @@ export default function TutorDashboardPage() {
   }, [router]);
 
   if (MOCKED_CURRENT_TUTOR.status === 'pending_onboarding' || MOCKED_CURRENT_TUTOR.status === 'pending_approval') {
-    // Show a loading/redirecting state or null while redirect happens
     return (
         <div className="flex min-h-[calc(100vh-theme(space.16))] flex-col items-center justify-center p-8">
             <Card className="w-full max-w-md text-center">
@@ -74,7 +152,6 @@ export default function TutorDashboardPage() {
   }
 
 
-  // Render actual dashboard content if status is 'actief'
   return (
     <div className="space-y-8">
       <section>
@@ -85,111 +162,31 @@ export default function TutorDashboardPage() {
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarDays className="h-6 w-6 text-primary" />
-              Beschikbaarheid Beheren
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Stel je werkuren en uurtarief in.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/dashboard/tutor/availability">
-                Beheer Beschikbaarheid
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-primary" />
-              Geplande Online Lessen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Bekijk je agenda met geboekte sessies.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Bekijk Lessen (binnenkort)
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-6 w-6 text-primary" />
-              Leerlingvoortgang
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Houd notities en voortgang per leerling bij.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Bekijk Leerlingen (binnenkort)
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-6 w-6 text-primary" />
-              Verdiensten & Uitbetalingen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Bekijk je factuurhistorie en verdiende bedragen.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Bekijk Verdiensten (binnenkort)
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-6 w-6 text-primary" />
-              Mijn Beoordelingen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Lees feedback van leerlingen die je hebt geholpen.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Bekijk Beoordelingen (binnenkort)
-            </Button>
-          </CardFooter>
-        </Card>
-
-         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-6 w-6 text-primary" />
-              Profiel Instellingen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Werk je persoonlijke gegevens en documenten bij.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/profile">
-                    Ga naar Profiel
-                </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        {dashboardItems.map((item) => (
+          <Card key={item.id} className="group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground">{item.description}</p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                variant={item.buttonVariant} 
+                className="w-full" 
+                asChild={item.isLink} 
+                disabled={item.disabled}
+              >
+                {item.isLink ? <Link href={item.link}>{item.buttonText}</Link> : item.buttonText}
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     </div>
   );
