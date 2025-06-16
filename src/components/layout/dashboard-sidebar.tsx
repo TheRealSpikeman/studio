@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, TrendingUp, Link2 } from 'lucide-react'; // Added Link2
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -98,6 +98,7 @@ const navItems: NavItem[] = [
         { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
     ]
   },
+  { href: '/dashboard/ouder/tutor-koppelen', label: 'Tutor Koppelen', icon: Link2, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' }, // New item
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
@@ -148,8 +149,8 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   let currentSectionTitleDisplayed: string | null = null;
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); // Demo state for messages
-  const [hasBillingAction, setHasBillingAction] = useState(true); // Demo state for billing
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
+  const [hasBillingAction, setHasBillingAction] = useState(true); 
 
   return (
     <>
@@ -349,4 +350,3 @@ export function DashboardSidebar() {
     </aside>
   );
 }
-

@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/kinderen/page.tsx
 "use client";
 
@@ -7,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2 } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react'; // Added Link2
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -52,7 +51,7 @@ const dummyChildren: Child[] = [
     age: 16,
     ageGroup: '15-18', 
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
-    subscriptionStatus: 'geen',
+    subscriptionStatus: 'actief', // Changed to 'actief' for demo purposes for tutor linking
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
@@ -275,6 +274,17 @@ export default function BeheerKinderenPage() {
                    </Link>
                 </Button>
                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="col-span-2" 
+                    disabled={child.subscriptionStatus === 'uitgenodigd'}
+                    asChild
+                >
+                  <Link href={`/dashboard/ouder/tutor-koppelen?kindId=${child.id}`}>
+                    <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek/Koppel Tutor
+                  </Link>
+                </Button>
+                 <Button 
                     variant="destructive" 
                     size="sm" 
                     className="col-span-2"
@@ -325,4 +335,3 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
-
