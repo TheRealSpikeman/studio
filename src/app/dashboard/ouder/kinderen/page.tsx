@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; 
 import type { User } from '@/types/user'; 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 
 interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
@@ -80,6 +82,7 @@ export default function BeheerKinderenPage() {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState<Child | null>(null);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
@@ -117,11 +120,12 @@ export default function BeheerKinderenPage() {
   
   const openDeleteDialog = (child: Child) => {
     setChildToDelete(child);
+    setDeleteConfirmationText(''); // Reset confirmation text
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDeleteChild = () => {
-    if (childToDelete) {
+    if (childToDelete && deleteConfirmationText === "VERWIJDER") {
       setChildren(prev => prev.filter(c => c.id !== childToDelete.id));
       toast({
         title: "Kind Verwijderd",
@@ -129,8 +133,15 @@ export default function BeheerKinderenPage() {
         variant: "default"
       });
       setChildToDelete(null);
+      setIsDeleteDialogOpen(false);
+      setDeleteConfirmationText(''); // Reset confirmation text
+    } else {
+      toast({
+        title: "Verwijdering mislukt",
+        description: 'Typ "VERWIJDER" correct in om te bevestigen.',
+        variant: "destructive"
+      });
     }
-    setIsDeleteDialogOpen(false);
   };
 
 
@@ -251,18 +262,34 @@ export default function BeheerKinderenPage() {
         </div>
       )}
       
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) setDeleteConfirmationText(''); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Kind Verwijderen?</AlertDialogTitle>
               <AlertDialogDescription>
                 Weet u zeker dat u <strong>{childToDelete?.firstName} {childToDelete?.lastName}</strong> wilt verwijderen?
                 Alle gekoppelde gegevens en eventuele abonnementen worden (gesimuleerd) beëindigd. Deze actie kan niet ongedaan worden gemaakt.
+                <br /><br />
+                Typ "<strong>VERWIJDER</strong>" in het onderstaande veld om te bevestigen.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="py-2">
+              <Label htmlFor="deleteConfirmInput" className="sr-only">Typ VERWIJDER</Label>
+              <Input
+                id="deleteConfirmInput"
+                value={deleteConfirmationText}
+                onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                placeholder='Typ hier "VERWIJDER"'
+                className="border-destructive focus-visible:ring-destructive"
+              />
+            </div>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setChildToDelete(null)}>Annuleren</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDeleteChild} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogCancel onClick={() => setDeleteConfirmationText('')}>Annuleren</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDeleteChild} 
+                disabled={deleteConfirmationText !== "VERWIJDER"}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
                 Ja, verwijder kind
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -272,3 +299,4 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
+
