@@ -71,18 +71,14 @@ function KoppelTutorContent() {
     let tutorsSource = dummyTutors;
     let tempFilteredTutors = tutorsSource;
 
-    // Apply child's helpSubjects filter if vakFilter is 'all' and child is selected
     if (vakFilter === 'all' && selectedChildDetails && selectedChildDetails.helpSubjects && selectedChildDetails.helpSubjects.length > 0) {
       tempFilteredTutors = tempFilteredTutors.filter(tutor =>
         selectedChildDetails.helpSubjects!.some(childSub => tutor.specializations.includes(childSub))
       );
     } else if (vakFilter !== 'all') {
-      // Apply specific vakFilter if chosen
       tempFilteredTutors = tempFilteredTutors.filter(t => t.specializations.includes(vakFilter));
     }
-    // If vakFilter is 'all' and no child selected or child has no helpSubjects, no subject filtering happens here.
 
-    // Apply experience filter
     if (ervaringFilter !== 'all') {
         const [minExp, maxExpStr] = ervaringFilter.split('-');
         const min = parseInt(minExp);
@@ -242,7 +238,7 @@ function KoppelTutorContent() {
                             <MessageSquare className="mr-2 h-4 w-4"/> Stuur bericht (binnenkort)
                         </Button>
                         <Button size="sm" className="w-full" onClick={() => handleKoppelTutor(tutor)}>
-                            <UserCheck className="mr-2 h-4 w-4"/> Koppelen aan {selectedChildDetails?.name}
+                            <UserCheck className="mr-2 h-4 w-4"/> Koppel deze Tutor
                         </Button>
                     </CardFooter>
                   </Card>
@@ -261,7 +257,7 @@ function KoppelTutorContent() {
               <p>1. Selecteer het kind voor wie u een tutor zoekt.</p>
               <p>2. De lijst met tutors wordt automatisch gefilterd op basis van de vakken waar uw kind hulp bij nodig heeft (uit hun profiel). U kunt dit verder verfijnen met de filters.</p>
               <p>3. Bekijk de profielen van de tutors. Let op specialisaties, ervaring, tarief en beschikbaarheid.</p>
-              <p>4. Klik op "Koppelen aan [Kindnaam]" om de tutor direct aan uw kind te koppelen. De tutor ontvangt een notificatie.</p>
+              <p>4. Klik op "Koppel deze Tutor" om de tutor direct aan uw kind te koppelen. De tutor ontvangt een notificatie.</p>
               <p>5. (Binnenkort) Stuur eerst een bericht om kennis te maken of vragen te stellen voordat u koppelt.</p>
               <p>6. Na koppeling kunt u lessen plannen via de "Les Plannen" pagina.</p>
           </CardContent>
