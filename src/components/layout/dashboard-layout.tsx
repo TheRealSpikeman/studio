@@ -55,7 +55,7 @@ function DashboardHeader() {
   
   const handleRemoveAvatar = () => {
     setCurrentHeaderAvatarUrl(null);
-    // Potentially close modal or keep it open for other selections
+    // Optionally close modal or keep it open for other selections
     // setIsAvatarModalOpen(false); // Optional: close modal after removal
   };
 
