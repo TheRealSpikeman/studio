@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2 } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp } from 'lucide-react'; // Added TrendingUp
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -156,11 +156,7 @@ export default function BeheerKinderenPage() {
         </div>
         {!isAddingChildMode && (
             <div className="flex gap-2 w-full sm:w-auto">
-                <Button variant="outline" asChild className="w-full sm:w-auto">
-                    <Link href="/dashboard/ouder">
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
-                    </Link>
-                </Button>
+                {/* Terug naar Ouder Dashboard knop is verwijderd */}
                 <Button className="w-full sm:w-auto" onClick={() => setIsAddingChildMode(true)}>
                     <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
                 </Button>
@@ -240,8 +236,10 @@ export default function BeheerKinderenPage() {
                 <Button variant="outline" size="sm" disabled>
                   <Edit className="mr-2 h-3.5 w-3.5" /> Profiel
                 </Button>
-                <Button variant="outline" size="sm" disabled={child.subscriptionStatus === 'uitgenodigd'}>
-                  <BarChart3 className="mr-2 h-3.5 w-3.5" /> Resultaten
+                <Button variant="outline" size="sm" disabled={child.subscriptionStatus === 'uitgenodigd'} asChild>
+                   <Link href={`/dashboard/ouder/kinderen/${child.id}/voortgang`}>
+                     <TrendingUp className="mr-2 h-3.5 w-3.5" /> Voortgang
+                   </Link>
                 </Button>
                  <Button variant="outline" size="sm" className="col-span-2" asChild>
                     <Link href="/dashboard/ouder/abonnementen">
