@@ -1,3 +1,4 @@
+
 // src/app/dashboard/profile/page.tsx
 "use client";
 
@@ -15,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
-import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data'; // Import from new location
+import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data'; 
 
 const initialUserData = {
   name: "Alex de Tester",
@@ -102,16 +103,17 @@ export default function ProfilePage() {
   }, [isEditing, currentDashboardRole]);
 
   useEffect(() => {
-    // Derive ageGroup whenever userAgeString changes
     if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
       const ageNum = parseInt(userAgeString, 10);
       if (!isNaN(ageNum)) {
-        if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
+        if (ageNum >= 10 && ageNum <= 11) setUserAgeGroup('adult'); // Of een specifieke '10-11' groep indien nodig
+        else if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
         else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-        else setUserAgeGroup('adult'); // Catches 10, 11, 19, 20 and others
+        else if (ageNum >= 19 && ageNum <= 20) setUserAgeGroup('adult'); // Of een specifieke '19-20' groep
+        else setUserAgeGroup('adult'); 
       }
     } else {
-      setUserAgeGroup(initialUserData.ageGroup); // Reset to default or handle as "not specified"
+      setUserAgeGroup(initialUserData.ageGroup); 
     }
   }, [userAgeString]);
 
@@ -624,7 +626,7 @@ export default function ProfilePage() {
               Kinderen Beheren (Ouder)
             </CardTitle>
             <CardDescription>
-              Voeg kinderen toe aan uw account en beheer hun instellingen.
+              Voeg kinderen toe aan uw account en beheer hun instellingen, abonnementen en voortgang.
             </CardDescription>
           </CardHeader>
           <CardContent>
