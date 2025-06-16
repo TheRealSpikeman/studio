@@ -178,7 +178,7 @@ export default function ProfilePage() {
         profileDataToSave.schoolName = schoolName;
         profileDataToSave.className = className;
         profileDataToSave.schoolType = schoolType;
-        profileDataToSave.helpSubjects = helpSubjects;
+        profileDataToSave.helpSubjects = helpSubjects; // Wordt alleen opgeslagen als de ouder dit wijzigt, leerling kan het niet veranderen.
     } else if (currentDashboardRole === 'ouder') {
         profileDataToSave.street = street;
         profileDataToSave.houseNumber = houseNumber;
@@ -284,9 +284,13 @@ export default function ProfilePage() {
   };
 
   const handleHelpSubjectChange = (subjectId: string, checked: boolean) => {
-    setHelpSubjects(prev =>
-      checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
-    );
+    // This function is only relevant if the parent is editing.
+    // For a student, the checkboxes are disabled.
+    if (currentDashboardRole !== 'leerling' && isEditing) {
+        setHelpSubjects(prev =>
+        checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
+        );
+    }
   };
 
   return (
@@ -532,7 +536,9 @@ export default function ProfilePage() {
                 <GraduationCap className="h-6 w-6 text-primary" />
                 Hulp bij Vakken
               </CardTitle>
-              <CardDescription>Geef aan voor welke vakken je extra ondersteuning of tips kunt gebruiken.</CardDescription>
+              <CardDescription>
+                Je ouder(s) hebben aangegeven dat je voor deze vakken mogelijk hulp kunt gebruiken. Deze instelling wordt beheerd via het ouder-dashboard.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
@@ -541,12 +547,12 @@ export default function ProfilePage() {
                     <Checkbox
                       id={`help-${subject.id}`}
                       checked={helpSubjects.includes(subject.id)}
-                      onCheckedChange={(checked) => isEditing && handleHelpSubjectChange(subject.id, !!checked)}
-                      disabled={!isEditing}
+                      onCheckedChange={(checked) => isEditing && currentDashboardRole !== 'leerling' && handleHelpSubjectChange(subject.id, !!checked)}
+                      disabled={!isEditing || currentDashboardRole === 'leerling'}
                     />
                     <Label
                       htmlFor={`help-${subject.id}`}
-                      className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
+                      className={`font-normal flex items-center gap-2 ${(!isEditing || currentDashboardRole === 'leerling') ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
                     >
                       <subject.icon className="h-5 w-5" /> {subject.name}
                     </Label>
@@ -685,8 +691,7 @@ export default function ProfilePage() {
                 Zichtbaarheid Vakken Huiswerkbegeleiding
               </CardTitle>
               <CardDescription>
-                Kies welke vakken je wilt zien in het huiswerkbegeleidingsoverzicht.
-                {isEditing ? '' : ' Klik op "Profiel Bewerken" om dit aan te passen.'}
+                Kies welke vakken je wilt zien in het huiswerkbegeleidingsoverzicht. Deze voorkeur kun je hier aanpassen.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -715,16 +720,11 @@ export default function ProfilePage() {
                 </p>
               )}
             </CardContent>
-            {isEditing && (
-              <CardFooter className="border-t pt-6">
-                <Button onClick={handleSaveProfile}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Voorkeuren Opslaan
-                </Button>
-              </CardFooter>
-            )}
           </Card>
       )}
     </div>
   );
 }
+
+
+    
