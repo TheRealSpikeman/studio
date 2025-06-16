@@ -33,7 +33,7 @@ const dashboardItems: DashboardItem[] = [
     id: 'availability',
     title: 'Beschikbaarheid Beheren',
     description: 'Stel je werkuren en uurtarief in.',
-    icon: Clock, // Updated icon
+    icon: Clock, 
     link: '/dashboard/tutor/availability',
     buttonText: 'Beheer Beschikbaarheid',
     buttonVariant: 'outline',
@@ -45,11 +45,11 @@ const dashboardItems: DashboardItem[] = [
     title: 'Geplande Online Lessen',
     description: 'Bekijk je agenda met geboekte sessies.',
     icon: BookOpen,
-    link: '#', // Placeholder
-    buttonText: 'Bekijk Lessen (binnenkort)',
+    link: '/dashboard/tutor/lessons', // Updated link
+    buttonText: 'Bekijk Lessen', // Updated text
     buttonVariant: 'outline',
-    disabled: true,
-    isLink: false,
+    disabled: false, // Enabled button
+    isLink: true,
   },
   {
     id: 'students',
@@ -91,7 +91,7 @@ const dashboardItems: DashboardItem[] = [
     icon: Settings,
     link: '/dashboard/profile',
     buttonText: 'Ga naar Profiel',
-    buttonVariant: 'default', // Primary action button
+    buttonVariant: 'default', 
     disabled: false,
     isLink: true,
   },
