@@ -150,7 +150,23 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
             />
             <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
+            <FormField 
+                control={form.control} 
+                name="price" 
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Prijs</FormLabel>
+                        <div className="relative">
+                            <Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl>
+                        </div>
+                        <FormDescription className="text-xs">
+                            Voor maandelijkse plannen, voer de maandprijs in. Voor jaarlijkse plannen, voer de totale jaarprijs in (na eventuele korting).
+                        </FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                )} 
+            />
             <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Valuta</FormLabel><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="billingInterval" render={({ field }) => (
                 <FormItem>

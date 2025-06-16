@@ -20,8 +20,8 @@ export interface SubscriptionPlan {
   description: string;
   features: string[];
   active: boolean;
-  maxChildren?: number; // Nieuw veld
-  isPopular?: boolean;  // Nieuw veld
+  maxChildren?: number; 
+  isPopular?: boolean;  
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
@@ -34,7 +34,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Basis neurodiversiteit quiz en PDF rapport.',
     features: ['Basis Neurodiversiteit Quiz', 'Uitgebreid PDF Rapport'],
     active: true,
-    maxChildren: 1, // Voorbeeld, relevantie kan variëren
+    maxChildren: 1, 
     isPopular: false,
   },
   {
@@ -52,7 +52,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_yearly',
     name: 'Coaching & Tools - Jaarlijks',
-    price: 40.70, 
+    price: 40.70, // Corrected yearly price with 15% discount (3.99 * 12 * 0.85)
     currency: 'EUR',
     billingInterval: 'year',
     description: 'Alle quizzen, coaching hub & huiswerk tools met 15% korting.',
@@ -76,7 +76,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'family_guide_yearly',
     name: 'Gezins Gids - Jaarlijks',
-    price: 101.90,
+    price: 101.90, // Corrected yearly price with 15% discount (9.99 * 12 * 0.85)
     currency: 'EUR',
     billingInterval: 'year',
     description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools met 15% korting.',
@@ -99,7 +99,7 @@ export default function SubscriptionManagementPage() {
         // Voeg default waarden toe voor nieuwe velden als ze ontbreken
         const migratedPlans = parsedPlans.map(plan => ({
           ...plan,
-          maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : 1), // Default voor gezinsplannen
+          maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)), // Default voor gezinsplannen of gratis
           isPopular: plan.isPopular ?? false,
         }));
         setPlans(migratedPlans);
