@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock } from 'lucide-react'; // Added CalendarClock
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -78,7 +78,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder', label: 'Ouder Overzicht', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
-    href: '/dashboard/ouder/lessen/overzicht', // Default to overview
+    href: '/dashboard/ouder/lessen/overzicht', 
     label: 'Lessen Kinderen', 
     icon: BookOpenCheck, 
     ouderOnly: true, 
@@ -86,6 +86,7 @@ const navItems: NavItem[] = [
     parent: '/dashboard/ouder',
     children: [
         { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
+        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
         { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
     ]
   },
