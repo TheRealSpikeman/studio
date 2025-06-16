@@ -11,16 +11,16 @@ import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
 import Image from 'next/image'; // Added Image
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog'; // Added Dialog components
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'; // Changed DialogTrigger to DialogClose
 import { Input } from '@/components/ui/input'; // Added Input
 
 const predefinedAvatars = [
-  { id: 'avatar1', src: 'https://placehold.co/200x200.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
-  { id: 'avatar2', src: 'https://placehold.co/200x200.png?text=A2', alt: 'Natuur landschap', hint: 'nature landscape' },
-  { id: 'avatar3', src: 'https://placehold.co/200x200.png?text=A3', alt: 'Dieren portret', hint: 'animal portrait' },
-  { id: 'avatar4', src: 'https://placehold.co/200x200.png?text=A4', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
-  { id: 'avatar5', src: 'https://placehold.co/200x200.png?text=A5', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
-  { id: 'avatar6', src: 'https://placehold.co/200x200.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
+  { id: 'avatar1', src: 'https://placehold.co/80x80.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
+  { id: 'avatar2', src: 'https://placehold.co/80x80.png?text=A2', alt: 'Natuur landschap', hint: 'nature landscape' },
+  { id: 'avatar3', src: 'https://placehold.co/80x80.png?text=A3', alt: 'Dieren portret', hint: 'animal portrait' },
+  { id: 'avatar4', src: 'https://placehold.co/80x80.png?text=A4', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
+  { id: 'avatar5', src: 'https://placehold.co/80x80.png?text=A5', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
+  { id: 'avatar6', src: 'https://placehold.co/80x80.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
 
@@ -55,7 +55,6 @@ function DashboardHeader() {
   
   const handleRemoveAvatar = () => {
     setCurrentHeaderAvatarUrl(null);
-    // Optionally close modal or keep it open for other selections
     // setIsAvatarModalOpen(false); // Optional: close modal after removal
   };
 
@@ -71,15 +70,12 @@ function DashboardHeader() {
         <Dialog open={isAvatarModalOpen} onOpenChange={setIsAvatarModalOpen}>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    {/* Wrap the DialogTrigger around the Button that contains the Avatar */}
-                    <DialogTrigger asChild> 
-                        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                            <Avatar className="h-9 w-9">
-                            <AvatarImage src={currentHeaderAvatarUrl || undefined} alt={userName || "User Avatar"} data-ai-hint="person avatar" />
-                            <AvatarFallback>{userInitials}</AvatarFallback>
-                            </Avatar>
-                        </Button>
-                    </DialogTrigger>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-9 w-9">
+                      <AvatarImage src={currentHeaderAvatarUrl || undefined} alt={userName || "User Avatar"} data-ai-hint="person avatar" />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
+                      </Avatar>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
@@ -91,8 +87,7 @@ function DashboardHeader() {
                     </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {/* Avatar change is now triggered by clicking the Avatar itself via DialogTrigger */}
-                    <DropdownMenuItem onSelect={() => setIsAvatarModalOpen(true)}>
+                    <DropdownMenuItem onSelect={() => setIsAvatarModalOpen(true)}> {/* Correctly trigger dialog */}
                         <ImageUp className="mr-2 h-4 w-4" />
                         Profielfoto wijzigen
                     </DropdownMenuItem>
@@ -170,9 +165,8 @@ function DashboardHeader() {
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Annuleren</Button>
+                  <Button variant="outline">Sluiten</Button>
                 </DialogClose>
-                {/* De save knop is niet per se nodig hier, de selectie is direct */}
               </DialogFooter>
             </DialogContent>
         </Dialog>
