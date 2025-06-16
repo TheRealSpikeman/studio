@@ -46,8 +46,9 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
     switch (role) {
       case 'admin': return 'default'; 
       case 'coach': return 'secondary';
-      case 'leerling': return 'outline'; // Changed from deelnemer
-      case 'tutor': return 'default'; 
+      case 'leerling': return 'outline';
+      case 'tutor': return 'default';
+      case 'ouder': return 'secondary'; // Added 'ouder'
       default: return 'outline';
     }
   };
@@ -57,6 +58,7 @@ const getRoleBadgeClasses = (role: UserRole): string => {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
       case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
       case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
+      case 'ouder': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; // Added 'ouder' styling
       default: return ''; // Leerling gets default outline styling
     }
 }
@@ -74,7 +76,8 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
   }
   
   const formatRoleText = (role: UserRole): string => {
-    if (role === 'leerling') return 'Leerling'; // Explicitly set display text
+    if (role === 'leerling') return 'Leerling';
+    if (role === 'ouder') return 'Ouder'; // Added 'ouder'
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
 

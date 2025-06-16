@@ -11,6 +11,7 @@ import { useDashboardRole } from '@/contexts/DashboardRoleContext';
 
 import AdminDashboardOverviewPage from './admin/page'; 
 import TutorDashboardPage from './tutor/page';
+import OuderDashboardPage from './ouder/page'; // Import the new parent dashboard
 
 const currentUserData = { 
   name: "Alex", 
@@ -76,7 +77,7 @@ const resultsData = [
   { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' },
 ];
 
-function LeerlingDashboardContent() { // Renamed from UserDashboardContent
+function LeerlingDashboardContent() {
   const quizzesForUser = allDashboardQuizzes.filter(quiz => 
     quiz.ageGroup === currentUserData.ageGroup || quiz.ageGroup === 'all'
   );
@@ -186,6 +187,10 @@ export default function DashboardPage() {
 
   if (currentDashboardRole === 'tutor') {
     return <TutorDashboardPage />;
+  }
+
+  if (currentDashboardRole === 'ouder') {
+    return <OuderDashboardPage />; // Render Parent Dashboard
   }
 
   // Default naar leerling dashboard

@@ -7,20 +7,20 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users, GraduationCap } from 'lucide-react'; // Added School, Users icons
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users, GraduationCap, Contact } from 'lucide-react'; // Added Contact
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; // Import context
+import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
   age: undefined as number | undefined, 
-  ageGroup: '15-18' as '12-14' | '15-18' | 'adult', // For quiz filtering, keep as default
+  ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
   profileImageUrl: null as string | null,
   subscription: {
     planName: "Coaching Maandelijks" as string | null,
@@ -28,7 +28,7 @@ const initialUserData = {
     nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
   },
   schoolName: '',
-  className: '', // For klas
+  className: '',
   schoolType: '',
   helpSubjects: [] as string[],
 };
@@ -63,11 +63,11 @@ const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", 
 
 
 export default function ProfilePage() {
-  const { currentDashboardRole } = useDashboardRole(); // Get current role from context
+  const { currentDashboardRole } = useDashboardRole(); 
 
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
-  const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE); // For Select
+  const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE); 
   const [userAgeGroup, setUserAgeGroup] = useState<'12-14' | '15-18' | 'adult'>(initialUserData.ageGroup);
 
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
@@ -85,9 +85,8 @@ export default function ProfilePage() {
 
   const [hiddenHomeworkSubjects, setHiddenHomeworkSubjects] = useState<string[]>([]);
   
-  // Leerling-specifieke state
   const [schoolName, setSchoolName] = useState(initialUserData.schoolName);
-  const [className, setClassName] = useState(initialUserData.className); // Klas
+  const [className, setClassName] = useState(initialUserData.className); 
   const [schoolType, setSchoolType] = useState(initialUserData.schoolType);
   const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
 
@@ -101,16 +100,18 @@ export default function ProfilePage() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
-        setSchoolName(initialUserData.schoolName);
-        setClassName(initialUserData.className);
-        setSchoolType(initialUserData.schoolType);
-        setHelpSubjects(initialUserData.helpSubjects);
+        if (currentDashboardRole === 'leerling') {
+            setSchoolName(initialUserData.schoolName);
+            setClassName(initialUserData.className);
+            setSchoolType(initialUserData.schoolType);
+            setHelpSubjects(initialUserData.helpSubjects);
+        }
     }
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
     }
-  }, [isEditing, currentDashboardRole]); // Add currentDashboardRole to reset form if role changes (though unlikely on this page itself)
+  }, [isEditing, currentDashboardRole]);
 
   const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,20 +139,22 @@ export default function ProfilePage() {
       }
     }
     
-    const profileDataToSave = { 
+    const profileDataToSave: any = { 
       name: userName, 
       email: userEmail, 
-      age: ageToSave,
-      ageGroup: userAgeGroup,
       profileImageUrl: profileImageUrl, 
       role: currentDashboardRole, 
-      ...(currentDashboardRole === 'leerling' && {
-        schoolName,
-        className,
-        schoolType,
-        helpSubjects,
-      }),
     };
+
+    if (currentDashboardRole === 'leerling') {
+        profileDataToSave.age = ageToSave;
+        profileDataToSave.ageGroup = userAgeGroup;
+        profileDataToSave.schoolName = schoolName;
+        profileDataToSave.className = className;
+        profileDataToSave.schoolType = schoolType;
+        profileDataToSave.helpSubjects = helpSubjects;
+    }
+    
     console.log("Profiel opgeslagen:", profileDataToSave);
     localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(hiddenHomeworkSubjects));
     toast({
@@ -174,7 +177,7 @@ export default function ProfilePage() {
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
-    const symbols = "!@#$%^&*()_+-=[]{};':\",./<>?"; // Corrected HTML entities
+    const symbols = "!@#$%^&*()_+-=[]{};':\",./<>?";
     const allChars = uppercase + lowercase + numbers + symbols;
 
     let password = "";
@@ -241,7 +244,7 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <section className="flex justify-between items-center">
         <div>
-            <h1 className="text-3xl font-bold text-foreground">Mijn Profiel ({currentDashboardRole})</h1>
+            <h1 className="text-3xl font-bold text-foreground capitalize">Mijn Profiel ({currentDashboardRole})</h1>
             <p className="text-muted-foreground">
             Bekijk en bewerk hier je persoonlijke gegevens en voorkeuren.
             </p>
@@ -390,47 +393,49 @@ export default function ProfilePage() {
             />
              {!isEditing && <p className="text-xs text-muted-foreground mt-1">E-mailadres kan niet gewijzigd worden.</p>}
           </div>
-          <div>
-            <Label htmlFor="userAgeString" className="flex items-center gap-1">
-                <Cake className="h-4 w-4 text-muted-foreground"/>
-                Leeftijd (voor quiz afstemming)
-            </Label>
-            {isEditing ? (
-              <Select
-                value={userAgeString} 
-                onValueChange={(value) => {
-                    setUserAgeString(value);
-                    if (value !== NO_AGE_SPECIFIED_VALUE) {
-                        const ageNum = parseInt(value, 10);
-                        if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
-                        else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-                        else setUserAgeGroup('adult');
-                    } else {
-                        setUserAgeGroup(initialUserData.ageGroup); // Reset to default or initial
-                    }
-                }}
-                disabled={!isEditing}
-              >
-                <SelectTrigger id="userAgeString" className="mt-1">
-                  <SelectValue placeholder="Selecteer je leeftijd" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
-                  {ageOptions.map(ageOpt => (
-                    <SelectItem key={ageOpt} value={ageOpt}>{ageOpt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                id="userAgeDisplay"
-                type="text"
-                value={userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE ? `${userAgeString} jaar (groep: ${userAgeGroup})` : "Niet opgegeven"}
-                disabled
-                className="mt-1"
-              />
-            )}
-          </div>
+          {currentDashboardRole === 'leerling' && (
+            <div>
+                <Label htmlFor="userAgeString" className="flex items-center gap-1">
+                    <Cake className="h-4 w-4 text-muted-foreground"/>
+                    Leeftijd (voor quiz afstemming)
+                </Label>
+                {isEditing ? (
+                <Select
+                    value={userAgeString} 
+                    onValueChange={(value) => {
+                        setUserAgeString(value);
+                        if (value !== NO_AGE_SPECIFIED_VALUE) {
+                            const ageNum = parseInt(value, 10);
+                            if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
+                            else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
+                            else setUserAgeGroup('adult'); // Should not happen for leerling, but as fallback
+                        } else {
+                            setUserAgeGroup(initialUserData.ageGroup); 
+                        }
+                    }}
+                    disabled={!isEditing}
+                >
+                    <SelectTrigger id="userAgeString" className="mt-1">
+                    <SelectValue placeholder="Selecteer je leeftijd" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
+                    {ageOptions.map(ageOpt => (
+                        <SelectItem key={ageOpt} value={ageOpt}>{ageOpt}</SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+                ) : (
+                <Input
+                    id="userAgeDisplay"
+                    type="text"
+                    value={userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE ? `${userAgeString} jaar (groep: ${userAgeGroup})` : "Niet opgegeven"}
+                    disabled
+                    className="mt-1"
+                />
+                )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -618,6 +623,30 @@ export default function ProfilePage() {
         </Card>
       )}
 
+      {currentDashboardRole === 'ouder' && (
+         <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Contact className="h-6 w-6 text-primary" />
+              Kinderen Beheren (Ouder)
+            </CardTitle>
+            <CardDescription>
+              Voeg kinderen toe aan uw account en beheer hun instellingen.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Functionaliteit voor het beheren van kindprofielen komt hier binnenkort.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" disabled>
+              Beheer Kinderen
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
       <Card className="shadow-lg" id="subject-visibility-settings">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -649,7 +678,7 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
-          {!isEditing && (
+          {!isEditing && currentDashboardRole === 'leerling' && (
             <p className="text-sm text-muted-foreground italic mt-2">
               Ga naar <Link href="/dashboard/homework-assistance" className="text-primary hover:underline">Huiswerkbegeleiding</Link> om vakken direct te verbergen.
             </p>

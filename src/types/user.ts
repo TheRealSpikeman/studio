@@ -1,6 +1,6 @@
 // src/types/user.ts
 export type UserStatus = 'actief' | 'niet geverifieerd' | 'geblokkeerd' | 'pending_onboarding' | 'pending_approval' | 'rejected';
-export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor'; // Changed 'deelnemer' to 'leerling'
+export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor' | 'ouder'; // Added 'ouder'
 export type AgeGroup = "12-14" | "15-18" | "adult";
 
 export interface User {
@@ -28,4 +28,6 @@ export interface User {
     totalRevenue?: number; 
     averageRating?: number;
   };
+  // Placeholder for future parent-child relationship
+  children?: string[]; // Array of child User IDs
 }

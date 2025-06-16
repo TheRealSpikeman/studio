@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact } from 'lucide-react'; // Added Contact icon
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,7 +20,8 @@ interface NavItem {
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
-  leerlingOnly?: boolean; // Changed from userOnly
+  leerlingOnly?: boolean;
+  ouderOnly?: boolean; // Added ouderOnly
   sectionTitle?: string;
   isSubItem?: boolean;
   parent?: string;
@@ -42,7 +43,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '/dashboard/leerling/lessons', // New link for leerling lessons
+    href: '/dashboard/leerling/lessons',
     label: 'Mijn Lessen',
     icon: BookOpenCheck,
     leerlingOnly: true,
@@ -50,7 +51,7 @@ const navItems: NavItem[] = [
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
-    icon: BookOpenCheck, // Re-using icon, can be changed
+    icon: BookOpenCheck,
     leerlingOnly: true,
     children: [
       {
@@ -73,6 +74,13 @@ const navItems: NavItem[] = [
   },
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, leerlingOnly: true },
   
+  // Ouder Items
+  { href: '/dashboard/ouder', label: 'Ouder Overzicht', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/lessen', label: 'Lessen Kinderen', icon: BookOpenCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: DollarSign, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+
+
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
@@ -110,7 +118,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
   
-  { href: '/dashboard/profile', label: 'Profiel', icon: User },
+  { href: '/dashboard/profile', label: 'Profiel', icon: User }, // Common for all roles
 ];
 
 function SidebarNavigationContent() {
@@ -133,7 +141,8 @@ function SidebarNavigationContent() {
             <SelectValue placeholder="Selecteer een rol" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="leerling">Leerling</SelectItem> {/* Changed from user */}
+            <SelectItem value="leerling">Leerling</SelectItem>
+            <SelectItem value="ouder">Ouder</SelectItem>
             <SelectItem value="tutor">Tutor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
@@ -147,12 +156,15 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (currentDashboardRole === 'admin') {
-              showItem = !item.tutorOnly && !item.leerlingOnly;
+              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly;
             } else if (currentDashboardRole === 'tutor') {
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly;
-            } else if (currentDashboardRole === 'leerling') { // Changed from user
-              showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly;
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly;
+            } else if (currentDashboardRole === 'leerling') {
+              showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+            } else if (currentDashboardRole === 'ouder') {
+              showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly;
             }
+
 
             if (!showItem) return null;
             
@@ -163,8 +175,10 @@ function SidebarNavigationContent() {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
                         renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'leerling') { // Changed from user
-                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
+                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "Ouder Portaal") {
+                        renderSectionHeader = true;
+                    } else if (currentDashboardRole === 'leerling') {
+                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "Ouder Portaal") {
                             renderSectionHeader = true; 
                         }
                     }
@@ -175,9 +189,10 @@ function SidebarNavigationContent() {
             const isItemDirectlyActive = pathname === item.href;
             
             const visibleChildren = item.children?.filter(child => {
-                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly;
-                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly;
-                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly; // Changed from user
+                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly;
+                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly;
+                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.ouderOnly;
+                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.leerlingOnly;
                 return false;
             }) || [];
 
@@ -200,7 +215,9 @@ function SidebarNavigationContent() {
                  }
             }
             
-            const skipRenderingMainLink = currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor';
+            const skipRenderingMainLink = (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor') ||
+                                          (currentDashboardRole === 'ouder' && item.sectionTitle === "Ouder Portaal" && item.href === '/dashboard/ouder');
+
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -225,6 +242,7 @@ function SidebarNavigationContent() {
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
                   if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/profile')) return null;
+                  if (currentDashboardRole === 'ouder' && (child.href === '/dashboard/ouder' || child.href === '/dashboard/profile')) return null;
                   
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (

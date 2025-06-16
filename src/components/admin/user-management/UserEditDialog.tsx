@@ -16,19 +16,20 @@ import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake } from 'lucide-react';
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact } from 'lucide-react'; // Added Contact
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 const ageGroupValues = ["12-14", "15-18", "adult"] as const;
+const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; // Added 'ouder'
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
   status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected']),
-  role: z.enum(['admin', 'coach', 'leerling', 'tutor']), // Changed 'deelnemer' to 'leerling'
+  role: z.enum(userRoleValues),
   ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
   coaching_startDate: z.date().optional(),
@@ -68,7 +69,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   const { register, handleSubmit, control, reset, formState: { errors }, setValue, watch } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '', // Default role to leerling
+      name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '',
       coaching_interval: 0, coaching_currentDayInFlow: 0, password: '', confirmPassword: '',
       tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
       tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
@@ -97,7 +98,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         });
       } else {
         reset({
-          name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '', // Default role to leerling
+          name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '',
           coaching_startDate: undefined, coaching_interval: 0, coaching_currentDayInFlow: 0,
           password: '', confirmPassword: '',
           tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
@@ -110,7 +111,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   const onSubmit = (data: UserFormData) => {
     const processedData: Partial<User> & Pick<User, 'name' | 'email' | 'status' | 'role'> = {
       name: data.name, email: data.email, status: data.status, role: data.role,
-      ageGroup: data.role === 'leerling' ? data.ageGroup : undefined, // Changed from 'deelnemer'
+      ageGroup: data.role === 'leerling' ? data.ageGroup : undefined,
       avatarUrl: data.avatarUrl || undefined,
       coaching: (data.coaching_startDate || data.coaching_interval || data.coaching_currentDayInFlow) ? {
         startDate: data.coaching_startDate ? data.coaching_startDate.toISOString() : undefined,
@@ -155,11 +156,12 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className={cn("grid w-full grid-cols-3", currentRole === 'tutor' && "md:grid-cols-4")}>
+            <TabsList className={cn("grid w-full grid-cols-3", (currentRole === 'tutor' || currentRole === 'ouder') && "md:grid-cols-4")}>
               <TabsTrigger value="profile"><UserCircle className="mr-1 h-4 w-4 inline-block" />Profiel</TabsTrigger>
               <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen & Status</TabsTrigger>
               <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>
               {currentRole === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
+              {currentRole === 'ouder' && <TabsTrigger value="parentSpecific"><Contact className="mr-1 h-4 w-4 inline-block" />Kinderen</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="profile" className="space-y-4 pt-2">
@@ -188,7 +190,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
                 {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden.</p>}
               </div>
-              {currentRole === 'leerling' && ( // Changed from 'deelnemer'
+              {currentRole === 'leerling' && (
                  <div>
                     <Label htmlFor="ageGroup" className="flex items-center gap-1">
                         <Cake className="h-4 w-4 text-muted-foreground"/>
@@ -262,8 +264,9 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="coach">Coach</SelectItem>
-                        <SelectItem value="leerling">Leerling</SelectItem> {/* Changed from deelnemer */}
+                        <SelectItem value="leerling">Leerling</SelectItem>
                         <SelectItem value="tutor">Tutor</SelectItem>
+                        <SelectItem value="ouder">Ouder</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -349,9 +352,17 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 )}
               </TabsContent>
             )}
+             {currentRole === 'ouder' && (
+              <TabsContent value="parentSpecific" className="space-y-4 pt-2">
+                <CardTitle className="text-lg">Kinderen Beheren (Ouder)</CardTitle>
+                <p className="text-sm text-muted-foreground">Deze functionaliteit is nog in ontwikkeling. Hier kunt u binnenkort de profielen en lessen van uw kinderen beheren.</p>
+                {/* Placeholder voor toekomstige kinderbeheer UI */}
+                <Button variant="outline" disabled>Kind Toevoegen (binnenkort)</Button>
+              </TabsContent>
+            )}
           </Tabs>
         </form>
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 border-t mt-auto"> {/* Added mt-auto for sticky footer */}
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>
