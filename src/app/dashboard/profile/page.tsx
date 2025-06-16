@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone, ImageUp, Trash2 } from 'lucide-react';
+import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone, ImageUp, Trash2, ListChecks } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
@@ -16,6 +16,8 @@ import { useDashboardRole } from '@/contexts/DashboardRoleContext';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
+
+const LOCAL_STORAGE_STUDENT_FOCUS_SUBJECTS_KEY = 'mindnavigator_student_focus_subjects';
 
 const initialUserData = {
   name: "Alex de Tester",
@@ -31,7 +33,9 @@ const initialUserData = {
   schoolName: 'Voorbeeld School',
   className: 'Klas 3B',
   schoolType: 'HAVO',
-  helpSubjects: ['nederlands', 'wiskunde', 'engels', 'geschiedenis', 'biologie', 'aardrijkskunde', 'natuurkunde', 'scheikunde', 'economie', 'frans', 'duits'] as string[], // Ouder stelt dit in
+  // This `helpSubjects` can still represent what the parent might have set or a general default.
+  // The student's own preferences for tests/content will be in `studentFocusSubjects`.
+  helpSubjectsFromParent: ['nederlands', 'wiskunde', 'engels'] as string[], 
   street: 'Voorbeeldstraat',
   houseNumber: '123',
   postalCode: '1234 AB',
@@ -74,9 +78,7 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-  // helpSubjects wordt nu direct van initialUserData gelezen en is niet meer 'hiddenHomeworkSubjects'
-  // De leerling kan dit niet meer zelf aanpassen.
-  const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
+  const [studentFocusSubjects, setStudentFocusSubjects] = useState<string[]>([]);
 
   const [schoolName, setSchoolName] = useState(initialUserData.schoolName);
   const [className, setClassName] = useState(initialUserData.className);
@@ -90,6 +92,15 @@ export default function ProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState(initialUserData.phoneNumber);
 
   useEffect(() => {
+    if (currentDashboardRole === 'leerling') {
+      const storedFocusSubjects = localStorage.getItem(LOCAL_STORAGE_STUDENT_FOCUS_SUBJECTS_KEY);
+      if (storedFocusSubjects) {
+        setStudentFocusSubjects(JSON.parse(storedFocusSubjects));
+      } else {
+        // Default to parent-set subjects if no student preference exists yet
+        setStudentFocusSubjects(initialUserData.helpSubjectsFromParent || []);
+      }
+    }
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
@@ -99,7 +110,6 @@ export default function ProfilePage() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
-        setHelpSubjects(initialUserData.helpSubjects); // Reset naar wat de ouder heeft ingesteld
         if (currentDashboardRole === 'leerling') {
             setSchoolName(initialUserData.schoolName);
             setClassName(initialUserData.className);
@@ -113,8 +123,6 @@ export default function ProfilePage() {
             setPhoneNumber(initialUserData.phoneNumber);
         }
     }
-    // De logica voor het laden van 'hiddenHomeworkSubjects' uit localStorage is verwijderd,
-    // omdat de leerling dit niet meer zelf beheert.
   }, [isEditing, currentDashboardRole]);
 
   useEffect(() => {
@@ -153,6 +161,11 @@ export default function ProfilePage() {
     setProfileImageUrl(null);
   };
 
+  const handleStudentFocusSubjectChange = (subjectId: string, checked: boolean) => {
+    setStudentFocusSubjects(prev =>
+      checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
+    );
+  };
 
   const handleSaveProfile = () => {
     let ageToSave: number | undefined = undefined;
@@ -176,7 +189,8 @@ export default function ProfilePage() {
         profileDataToSave.schoolName = schoolName;
         profileDataToSave.className = className;
         profileDataToSave.schoolType = schoolType;
-        profileDataToSave.helpSubjects = helpSubjects; // Dit veld wordt alleen getoond, niet bewerkt door leerling
+        profileDataToSave.studentFocusSubjects = studentFocusSubjects; 
+        localStorage.setItem(LOCAL_STORAGE_STUDENT_FOCUS_SUBJECTS_KEY, JSON.stringify(studentFocusSubjects));
     } else if (currentDashboardRole === 'ouder') {
         profileDataToSave.street = street;
         profileDataToSave.houseNumber = houseNumber;
@@ -184,11 +198,23 @@ export default function ProfilePage() {
         profileDataToSave.city = city;
         profileDataToSave.country = country;
         profileDataToSave.phoneNumber = phoneNumber;
-        // Als een ouder het profiel van een kind zou bewerken (niet deze pagina),
-        // dan zou hier de logica komen om `helpSubjects` voor dat kind op te slaan.
     }
 
     console.log("Profiel opgeslagen:", profileDataToSave);
+    // Simulate updating initialUserData for next edit session, in a real app this would refetch or update a store
+    initialUserData.name = userName;
+    initialUserData.email = userEmail; // Not really editable, but for consistency
+    initialUserData.profileImageUrl = profileImageUrl;
+    if (currentDashboardRole === 'leerling') {
+      initialUserData.age = ageToSave;
+      initialUserData.ageGroup = userAgeGroup;
+      initialUserData.schoolName = schoolName;
+      initialUserData.className = className;
+      initialUserData.schoolType = schoolType;
+      // The `helpSubjectsFromParent` remains unchanged by student editing their focus subjects
+    }
+    // ... update other initialUserData fields if they were edited by other roles
+
     toast({
       title: "Profiel Opgeslagen",
       description: "Je profielgegevens en voorkeuren zijn bijgewerkt.",
@@ -207,10 +233,14 @@ export default function ProfilePage() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
-    setHelpSubjects(initialUserData.helpSubjects);
-    setSchoolName(initialUserData.schoolName);
-    setClassName(initialUserData.className);
-    setSchoolType(initialUserData.schoolType);
+    
+    if (currentDashboardRole === 'leerling') {
+      const storedFocusSubjects = localStorage.getItem(LOCAL_STORAGE_STUDENT_FOCUS_SUBJECTS_KEY);
+      setStudentFocusSubjects(storedFocusSubjects ? JSON.parse(storedFocusSubjects) : (initialUserData.helpSubjectsFromParent || []));
+      setSchoolName(initialUserData.schoolName);
+      setClassName(initialUserData.className);
+      setSchoolType(initialUserData.schoolType);
+    }
     setStreet(initialUserData.street);
     setHouseNumber(initialUserData.houseNumber);
     setPostalCode(initialUserData.postalCode);
@@ -508,35 +538,38 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg" id="subject-focus-settings">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-6 w-6 text-primary" />
-                Hulp bij Vakken
+                <ListChecks className="h-6 w-6 text-primary" />
+                Mijn Focus Vakken (voor Tests & Oefeningen)
               </CardTitle>
               <CardDescription>
-                Je ouder(s) hebben aangegeven dat je voor deze vakken mogelijk hulp kunt gebruiken. Deze instelling wordt beheerd via het ouder-dashboard en bepaalt ook welke vakken je ziet in de Huiswerkbegeleiding.
+                Selecteer hier de vakken waarvoor je extra oefeningen, tips of tests wilt zien. Jouw selectie is persoonlijk en helpt ons relevante content aan te bieden.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                 {allHomeworkSubjects.map(subject => (
-                  <div key={subject.id} className="flex items-center space-x-2">
+                  <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent">
                     <Checkbox
-                      id={`help-${subject.id}`}
-                      checked={helpSubjects.includes(subject.id)}
-                      disabled // Leerling kan dit niet aanpassen
+                      id={`focus-subject-${subject.id}`}
+                      checked={studentFocusSubjects.includes(subject.id)}
+                      onCheckedChange={(checked) => handleStudentFocusSubjectChange(subject.id, !!checked)}
+                      disabled={!isEditing}
                     />
                     <Label
-                      htmlFor={`help-${subject.id}`}
-                      className="font-normal flex items-center gap-2 cursor-not-allowed text-muted-foreground"
+                      htmlFor={`focus-subject-${subject.id}`}
+                      className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
                     >
-                      <subject.icon className="h-5 w-5" /> {subject.name}
+                      <subject.icon className="h-5 w-5" />
+                      {subject.name}
                     </Label>
                   </div>
                 ))}
               </div>
             </CardContent>
+             {/* De "Voorkeuren Opslaan" knop hier is verwijderd. De algemene "Profiel Opslaan" knop bovenaan handelt dit af. */}
           </Card>
         </>
       )}
@@ -658,40 +691,6 @@ export default function ProfilePage() {
             </Button>
           </CardFooter>
         </Card>
-      )}
-      
-      {currentDashboardRole === 'leerling' && (
-          <Card className="shadow-lg" id="subject-visibility-settings">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpenCheck className="h-6 w-6 text-primary" />
-                Zichtbaarheid Vakken Huiswerkbegeleiding
-              </CardTitle>
-              <CardDescription>
-                Deze vakken zijn door je ouder(s) geselecteerd voor huiswerkbegeleiding. Je ziet deze terug in het huiswerkbegeleidingsoverzicht.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                {allHomeworkSubjects.map(subject => (
-                  <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent">
-                    <Checkbox
-                      id={`subject-visibility-${subject.id}`}
-                      checked={helpSubjects.includes(subject.id)} // Toon de selectie van de ouder
-                      disabled // Leerling kan dit niet aanpassen
-                    />
-                    <Label
-                      htmlFor={`subject-visibility-${subject.id}`}
-                      className="font-normal flex items-center gap-2 cursor-not-allowed text-muted-foreground"
-                    >
-                      <subject.icon className="h-5 w-5" />
-                      {subject.name}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
       )}
     </div>
   );
