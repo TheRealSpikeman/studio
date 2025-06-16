@@ -113,14 +113,14 @@ const audienceOptions: { id: QuizAudience; label: string }[] = [
   { id: 'all', label: 'Algemeen (alle leeftijden)' },
 ];
 
-const categoryOptions: { id: QuizCategory; label: string }[] = [
+const categoryOptions: { id: QuizCategory | string; label: string }[] = [
   { id: 'Basis', label: 'Basis Quiz' },
   { id: 'ADD', label: 'ADD' },
   { id: 'ADHD', label: 'ADHD' },
   { id: 'HSP', label: 'HSP' },
   { id: 'ASS', label: 'ASS' },
   { id: 'AngstDepressie', label: 'Angst/Depressie' },
-  { id: 'Thema', label: 'Thema (algemeen)' },
+  { id: 'Thema', label: 'Thema (bijv. Pers. Groei, Sociale Vaardigheden)' },
 ];
 
 const numQuestionsOptions = [
@@ -399,7 +399,7 @@ export default function QuizManagementPage() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl>
                               <SelectContent>
-                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id.toString()}>{opt.label}</SelectItem>)}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -483,7 +483,7 @@ export default function QuizManagementPage() {
               <SelectTrigger><SelectValue placeholder="Filter op categorie" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle Categorieën</SelectItem>
-                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id.toString()}>{opt.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
