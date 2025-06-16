@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
-import type { User as UserType } from '@/types/user'; // Using existing User type for child data structure consistency
+import type { User as UserType } from '@/types/user'; 
 
 // Re-using the Child interface definition from de-ouder/kinderen page for consistency
 interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
@@ -47,7 +47,7 @@ const dummyChildren: Child[] = [
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
-    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: lemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor1'],
   },
@@ -100,6 +100,16 @@ const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): strin
   return 'bg-red-100 text-red-700 border-red-300'; // verlopen
 };
 
+const parseMultiPartString = (str: string | undefined): { geselecteerd: string; overig: string } => {
+  if (!str) return { geselecteerd: 'Niet opgegeven.', overig: '' };
+  const geselecteerdMatch = str.match(/Geselecteerd:\s*(.*?)(?=\s*\.\s*Overig:|$)/i);
+  const overigMatch = str.match(/Overig:\s*(.*)/i);
+  return {
+    geselecteerd: geselecteerdMatch ? geselecteerdMatch[1].trim() : (overigMatch ? '' : str),
+    overig: overigMatch ? overigMatch[1].trim() : '',
+  };
+};
+
 export default function KindProfielPage() {
   const params = useParams();
   const router = useRouter();
@@ -120,6 +130,9 @@ export default function KindProfielPage() {
 
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
   const getSubjectName = (subjectId: string) => allHomeworkSubjects.find(s => s.id === subjectId)?.name || subjectId;
+  
+  const leerdoelenParsed = parseMultiPartString(childData?.leerdoelen);
+  const tutorVoorkeurenParsed = parseMultiPartString(childData?.voorkeurTutor);
 
   if (isLoading) {
     return <div className="p-8 text-center">Profielgegevens laden...</div>;
@@ -205,8 +218,16 @@ export default function KindProfielPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Target className="h-6 w-6 text-primary"/>Leerdoelen & Aandachtspunten</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm">
-              <p className="text-muted-foreground whitespace-pre-line">{childData.leerdoelen || 'Niet opgegeven.'}</p>
+            <CardContent className="text-sm space-y-2">
+              {leerdoelenParsed.geselecteerd && (
+                <p><strong className="text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{leerdoelenParsed.geselecteerd}</span></p>
+              )}
+              {leerdoelenParsed.overig && (
+                <p><strong className="text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.overig}</span></p>
+              )}
+              {!leerdoelenParsed.geselecteerd && !leerdoelenParsed.overig && (
+                <p className="text-muted-foreground">Niet opgegeven.</p>
+              )}
             </CardContent>
           </Card>
 
@@ -214,8 +235,16 @@ export default function KindProfielPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Users className="h-6 w-6 text-primary"/>Tutor Voorkeuren</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm">
-              <p className="text-muted-foreground whitespace-pre-line">{childData.voorkeurTutor || 'Geen specifieke voorkeuren opgegeven.'}</p>
+            <CardContent className="text-sm space-y-2">
+              {tutorVoorkeurenParsed.geselecteerd && (
+                <p><strong className="text-foreground/80">Geselecteerde voorkeuren:</strong> <span className="text-muted-foreground">{tutorVoorkeurenParsed.geselecteerd}</span></p>
+              )}
+              {tutorVoorkeurenParsed.overig && (
+                <p><strong className="text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.overig}</span></p>
+              )}
+               {!tutorVoorkeurenParsed.geselecteerd && !tutorVoorkeurenParsed.overig && (
+                <p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>
+              )}
             </CardContent>
           </Card>
 
