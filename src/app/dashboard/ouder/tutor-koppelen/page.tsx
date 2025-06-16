@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/tutor-koppelen/page.tsx
 "use client";
 
@@ -18,8 +19,8 @@ import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 // Dummy data for children - in a real app, this would come from user's profile
 const dummyChildren = [
   { id: 'child1', name: 'Sofie de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/sofiechild/40/40', helpSubjects: ['wiskunde', 'nederlands'], leerdoelen: 'Beter leren plannen, Omgaan met faalangst', voorkeurTutor: 'Ervaring met HSP, Geduldig' },
-  { id: 'child2', name: 'Max de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/maxchild/40/40', helpSubjects: ['engels'], leerdoelen: 'Concentratie verbeteren', voorkeurTutor: 'Man, ervaring met motivatie' },
-  { id: 'child3', name: 'Lisa Voorbeeld (inactief)', active: false, helpSubjects: [] }, // Example of inactive child
+  { id: 'child2', name: 'Max de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/maxchild/40/40', helpSubjects: ['engels', 'geschiedenis'], leerdoelen: 'Concentratie verbeteren', voorkeurTutor: 'Man, ervaring met motivatie' },
+  { id: 'child3', name: 'Lisa Voorbeeld (inactief)', active: false, helpSubjects: [] },
 ];
 
 interface Tutor {
@@ -31,7 +32,7 @@ interface Tutor {
   hourlyRate: number;
   shortBio: string;
   rating: number;
-  availableSlots?: string[]; // e.g., "Ma 14:00-16:00", "Wo ochtend"
+  availableSlots?: string[]; 
   reviewsCount?: number;
 }
 
@@ -40,6 +41,7 @@ const dummyTutors: Tutor[] = [
   { id: 'tutor2', name: 'Dhr. B. de Vries', avatarUrl: 'https://picsum.photos/seed/tutorDeVries/80/80', specializations: ['nederlands', 'engels'], experienceYears: 8, hourlyRate: 40, shortBio: 'Ervaren taaldocent, helpt met grammatica, spelling en schrijfvaardigheid.', rating: 4.9, reviewsCount: 31, availableSlots: ['Di 10:00-12:00', 'Do 15:00-18:00'] },
   { id: 'tutor3', name: 'Dr. C. El Amrani', avatarUrl: 'https://picsum.photos/seed/tutorElAmrani/80/80', specializations: ['biologie', 'scheikunde'], experienceYears: 3, hourlyRate: 38, shortBio: 'Bioloog met passie voor exacte vakken en wetenschappelijk denken.', rating: 4.6, reviewsCount: 15, availableSlots: ['Vr 13:00-16:00'] },
   { id: 'tutor4', name: 'Mw. D. Pieters', avatarUrl: 'https://picsum.photos/seed/tutorPieters/80/80', specializations: ['geschiedenis', 'aardrijkskunde', 'maatschappijleer'], experienceYears: 6, hourlyRate: 32, shortBio: 'Enthousiaste docent die context en overzicht biedt.', rating: 4.7, reviewsCount: 19 },
+  { id: 'tutor5', name: 'Dhr. E. Willems', avatarUrl: 'https://picsum.photos/seed/tutorWillems/80/80', specializations: ['wiskunde', 'engels'], experienceYears: 2, hourlyRate: 30, shortBio: 'Jonge, energieke tutor, goed met basis wiskunde en Engels.', rating: 4.5, reviewsCount: 10 },
 ];
 
 function KoppelTutorContent() {
@@ -52,33 +54,43 @@ function KoppelTutorContent() {
   const [filteredTutors, setFilteredTutors] = useState<Tutor[]>(dummyTutors);
   const [selectedTutor, setSelectedTutor] = useState<Tutor | null>(null);
 
-  // Filter states
   const [vakFilter, setVakFilter] = useState<string>('all');
-  const [ervaringFilter, setErvaringFilter] = useState<string>('all'); // e.g., '0-2', '3-5', '5+'
+  const [ervaringFilter, setErvaringFilter] = useState<string>('all');
   
   const activeChildren = dummyChildren.filter(c => c.active);
+  const selectedChildDetails = selectedChildId ? dummyChildren.find(c => c.id === selectedChildId) : null;
 
   useEffect(() => {
     if (initialKindId && !activeChildren.find(c => c.id === initialKindId)) {
         toast({ title: "Kind niet gevonden", description: "Het geselecteerde kind is niet actief of bestaat niet.", variant: "destructive"});
-        setSelectedChildId(undefined); // Reset if invalid initial child
+        setSelectedChildId(undefined); 
     }
   }, [initialKindId, activeChildren, toast]);
 
-
   useEffect(() => {
-    let tutors = dummyTutors;
-    if (vakFilter !== 'all') {
-      tutors = tutors.filter(t => t.specializations.includes(vakFilter));
+    let tutorsSource = dummyTutors;
+    let tempFilteredTutors = tutorsSource;
+
+    // Apply child's helpSubjects filter if vakFilter is 'all' and child is selected
+    if (vakFilter === 'all' && selectedChildDetails && selectedChildDetails.helpSubjects && selectedChildDetails.helpSubjects.length > 0) {
+      tempFilteredTutors = tempFilteredTutors.filter(tutor =>
+        selectedChildDetails.helpSubjects!.some(childSub => tutor.specializations.includes(childSub))
+      );
+    } else if (vakFilter !== 'all') {
+      // Apply specific vakFilter if chosen
+      tempFilteredTutors = tempFilteredTutors.filter(t => t.specializations.includes(vakFilter));
     }
+    // If vakFilter is 'all' and no child selected or child has no helpSubjects, no subject filtering happens here.
+
+    // Apply experience filter
     if (ervaringFilter !== 'all') {
         const [minExp, maxExpStr] = ervaringFilter.split('-');
         const min = parseInt(minExp);
         const max = maxExpStr === '+' ? Infinity : parseInt(maxExpStr);
-        tutors = tutors.filter(t => t.experienceYears >= min && (maxExpStr === '+' || t.experienceYears <= max));
+        tempFilteredTutors = tempFilteredTutors.filter(t => t.experienceYears >= min && (maxExpStr === '+' || t.experienceYears <= max));
     }
-    setFilteredTutors(tutors);
-  }, [vakFilter, ervaringFilter]);
+    setFilteredTutors(tempFilteredTutors);
+  }, [vakFilter, ervaringFilter, selectedChildDetails]);
   
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
@@ -92,13 +104,10 @@ function KoppelTutorContent() {
         title: "Tutor Gekoppeld (Simulatie)",
         description: `${tutor.name} is succesvol gekoppeld aan ${child?.name} voor ${tutor.specializations.join(', ')}. U kunt nu lessen plannen.`,
     });
-    // In een echte app: API call om de koppeling op te slaan
     console.log(`Koppelen: Kind ${child?.name} (ID: ${selectedChildId}) aan Tutor ${tutor.name} (ID: ${tutor.id})`);
     setSelectedTutor(null); 
   };
   
-  const selectedChildDetails = selectedChildId ? dummyChildren.find(c => c.id === selectedChildId) : null;
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -151,7 +160,7 @@ function KoppelTutorContent() {
             <Card className="mt-4 p-4 bg-primary/5 border-primary/20">
                 <CardTitle className="text-md font-semibold text-primary flex items-center gap-2 mb-1">
                     <User className="h-5 w-5"/>
-                    {selectedChildDetails.name} - Voorkeuren
+                    {selectedChildDetails.name} - Voorkeuren & Hulpvragen
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
                     <strong>Hulp nodig bij:</strong> {selectedChildDetails.helpSubjects?.join(', ') || 'N.v.t.'} <br/>
@@ -170,17 +179,17 @@ function KoppelTutorContent() {
         <section className="mt-8 space-y-6">
             <div className="flex items-center gap-2">
                 <Search className="h-5 w-5 text-primary"/>
-                <h2 className="text-xl font-semibold text-foreground">Vind Beschikbare Tutors</h2>
+                <h2 className="text-xl font-semibold text-foreground">2. Vind Beschikbare Tutors</h2>
             </div>
-            <p className="text-muted-foreground">Filter op vak en ervaring om de beste match te vinden.</p>
+            <p className="text-muted-foreground">Filter op vak en ervaring om de beste match te vinden. De lijst toont automatisch tutors die passen bij de "Hulp nodig bij" vakken van {selectedChildDetails?.name || 'het geselecteerde kind'}, tenzij u een specifiek vak filtert.</p>
           
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="vak-filter">Filter op Vak</Label>
+                <Label htmlFor="vak-filter">Filter op Specifiek Vak</Label>
                 <Select value={vakFilter} onValueChange={setVakFilter}>
-                    <SelectTrigger id="vak-filter"><SelectValue placeholder="Alle vakken"/></SelectTrigger>
+                    <SelectTrigger id="vak-filter"><SelectValue placeholder="Alle passende vakken"/></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">Alle Vakken</SelectItem>
+                        <SelectItem value="all">Alle Passende Vakken (o.b.v. kind)</SelectItem>
                         {allHomeworkSubjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                     </SelectContent>
                 </Select>
@@ -240,7 +249,7 @@ function KoppelTutorContent() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-6">Geen tutors gevonden die voldoen aan de criteria. Probeer andere filters.</p>
+              <p className="text-muted-foreground text-center py-6">Geen tutors gevonden die voldoen aan de criteria. Probeer andere filters of pas de "Hulp nodig bij" vakken van {selectedChildDetails?.name} aan.</p>
             )}
         </section>
       )}
@@ -250,7 +259,7 @@ function KoppelTutorContent() {
           </CardHeader>
           <CardContent className="text-sm text-blue-600 space-y-1">
               <p>1. Selecteer het kind voor wie u een tutor zoekt.</p>
-              <p>2. Gebruik de filters om de lijst met tutors te verfijnen op basis van vak en ervaring.</p>
+              <p>2. De lijst met tutors wordt automatisch gefilterd op basis van de vakken waar uw kind hulp bij nodig heeft (uit hun profiel). U kunt dit verder verfijnen met de filters.</p>
               <p>3. Bekijk de profielen van de tutors. Let op specialisaties, ervaring, tarief en beschikbaarheid.</p>
               <p>4. Klik op "Koppelen aan [Kindnaam]" om de tutor direct aan uw kind te koppelen. De tutor ontvangt een notificatie.</p>
               <p>5. (Binnenkort) Stuur eerst een bericht om kennis te maken of vragen te stellen voordat u koppelt.</p>
