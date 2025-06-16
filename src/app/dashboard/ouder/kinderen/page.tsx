@@ -281,7 +281,7 @@ export default function BeheerKinderenPage() {
                     asChild
                 >
                   <Link href={`/dashboard/ouder/tutor-koppelen?kindId=${child.id}`}>
-                    <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek/Koppel Tutor
+                    <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek Tutor
                   </Link>
                 </Button>
                  <Button 
@@ -335,3 +335,4 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
+
