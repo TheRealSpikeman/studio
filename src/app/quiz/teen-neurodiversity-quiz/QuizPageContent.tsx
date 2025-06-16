@@ -138,7 +138,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
       currentContent = currentContent.replace(/^##\s*/gm, '').trim();
 
 
-      const isListSection = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"].includes(currentSectionTitle);
+      const isExpectedListSection = ["Sterke Kanten", "Aandachtspunten", "Tips voor Jou"].includes(currentSectionTitle);
       let IconComponent = neurotypeIcons[currentSectionTitle] || HelpCircle;
 
       if (currentSectionTitle === "Jouw Profiel In Vogelvlucht") {
@@ -149,7 +149,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
           if (!line) return;
           const scoreMatch = line.match(/([^:(]+)(?:\s*\(Score:\s*([\d.]+)\))?:\s*(.+)/i) || line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
 
-          if (scoreMatch) {
+          if (scoreMatch && (scoreMatch[2] || scoreMatch[3])) { // Ensure there's a score or a comment part to the regex
             const profileName = sanitizeAiText(scoreMatch[1].trim());
             const scoreValue = scoreMatch[2] ? sanitizeAiText(scoreMatch[2].trim()) : "";
             let commentText = scoreMatch[3] ? sanitizeAiText(scoreMatch[3].trim()) : "";
@@ -172,7 +172,11 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
               icon: currentProfileIcon
             });
           } else {
-            generalOverviewContent += (generalOverviewContent ? '\n' : '') + line;
+            // If it doesn't match the score pattern, add to general overview.
+            // Avoid adding lines that are just prefixes or look like empty list items
+            if (line.trim() && !line.trim().match(/^[-*]\s*$/) && line.length > 3) { // Add length check
+                 generalOverviewContent += (generalOverviewContent ? '\n' : '') + line;
+            }
           }
         });
 
@@ -209,11 +213,14 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
         if (sectionContent.length > 0) {
             sections.push({ title: currentSectionTitle, content: sectionContent, icon: IconComponent });
         } else if (currentContent.trim() && !generalOverviewContent.trim()) {
-             sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: isListSection, icon: IconComponent });
+             sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: isExpectedListSection, icon: IconComponent });
         }
-
+      } else if (isExpectedListSection) {
+         if (currentContent.trim()) {
+            sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: true, icon: IconComponent });
+        }
       } else if (currentContent.trim()) {
-        sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: isListSection, icon: IconComponent });
+        sections.push({ title: currentSectionTitle, content: currentContent.trim(), isList: false, icon: IconComponent });
       }
     }
   }
@@ -716,27 +723,27 @@ export default function QuizPageContent() { // Changed function name
                         let titleClasses = "text-[1.35rem] font-semibold mb-3 flex items-center gap-3"; 
                         let contentClasses = "text-base text-gray-700 leading-relaxed";
                         let listClasses = "list-disc space-y-1.5 pl-6 text-base text-gray-700 leading-relaxed";
-                        let listItemClasses = "mb-3 flex items-start";
+                        let listItemClasses = "mb-3 flex items-start"; // Consistent base class
 
                         if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-10");
 
                         if (section.title === "Jouw Profiel In Vogelvlucht") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-blue-50/70"); // Removed border
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-blue-50/70"); 
                           titleClasses = cn(titleClasses, "text-blue-700");
                         } else if (section.title === "Sterke Kanten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50/70"); // Removed border
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-green-50/70"); 
                           titleClasses = cn(titleClasses, "text-green-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = ThumbsUp;
                         } else if (section.title === "Aandachtspunten") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-orange-50/70"); // Removed border
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-orange-50/70"); 
                           titleClasses = cn(titleClasses, "text-orange-600");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = Edit2Icon;
                         } else if (section.title === "Tips voor Jou") {
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-yellow-50/50"); // Removed border
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-yellow-50/50"); 
                           titleClasses = cn(titleClasses, "text-yellow-700");
                            if(IconComponentForSection === HelpCircle) IconComponentForSection = Lightbulb;
                         } else { 
-                          sectionContainerClasses = cn(sectionContainerClasses, "bg-gray-50/70"); // Removed border
+                          sectionContainerClasses = cn(sectionContainerClasses, "bg-gray-50/70"); 
                         }
 
                         return (
@@ -745,29 +752,45 @@ export default function QuizPageContent() { // Changed function name
                               <IconComponentForSection className={cn("h-7 w-7 flex-shrink-0")} />
                               {section.title}
                             </h3>
-                            {typeof section.content === 'string' ? (
-                              section.isList ? (
-                                  <ul className={cn(listClasses, "mt-2")}>
-                                      {section.content.split('\n').map((item, i) => {
-                                        if (!item.trim()) return null;
-                                        const ActualTipIcon = tipIcons[i % tipIcons.length] || Sparkles;
+                            {typeof section.content === 'string' && section.isList ? (
+                                <ul className={cn(listClasses, "mt-2")}>
+                                    {section.content.split('\n').map((item, i) => {
+                                        const cleanedItem = item.trim().replace(/^- |^\* /,'');
+                                        if (!cleanedItem) return null;
+
+                                        let ListItemIconToUse: React.ElementType;
+                                        let currentItemIconColor = "";
+
+                                        if (section.title === "Sterke Kanten") {
+                                            ListItemIconToUse = ThumbsUp;
+                                            currentItemIconColor = "text-green-600";
+                                        } else if (section.title === "Aandachtspunten") {
+                                            ListItemIconToUse = Edit2Icon;
+                                            currentItemIconColor = "text-orange-600";
+                                        } else if (section.title === "Tips voor Jou") {
+                                            ListItemIconToUse = tipIcons[i % tipIcons.length] || Sparkles;
+                                            currentItemIconColor = "text-yellow-600";
+                                        } else {
+                                            ListItemIconToUse = CheckSquare; 
+                                            currentItemIconColor = "text-gray-600";
+                                        }
+                                        
                                         return (
-                                          <li key={i} className={listItemClasses}>
-                                            <ActualTipIcon className="h-6 w-6 mr-3 mt-1 flex-shrink-0 text-yellow-600"/> {/* Increased icon size */}
-                                            <span className="max-w-prose text-base">{item.trim().replace(/^- |^\* /,'')}</span>
-                                          </li>
+                                            <li key={i} className={listItemClasses}>
+                                                <ListItemIconToUse className={cn("h-6 w-6 mr-3 mt-1 flex-shrink-0", currentItemIconColor)}/>
+                                                <span className="max-w-prose text-base">{cleanedItem}</span>
+                                            </li>
                                         );
-                                      })}
-                                  </ul>
-                              ) : (
+                                    })}
+                                </ul>
+                            ) : typeof section.content === 'string' && !section.isList ? (
                                   <p className={cn(contentClasses, "mt-1 mb-0 text-base")}>{section.content}</p>
-                              )
                             ) : ( 
                                Array.isArray(section.content) && section.content.map((item, itemIdx) => {
                                 const ItemIcon = item.icon || HelpCircle;
                                 if (item.profileName === "Algemeen Overzicht") {
                                   return (
-                                    <div key={itemIdx} className="mb-6 p-0 rounded-md"> {/* Removed bg and padding here, relies on parent sectionContainerClass */}
+                                    <div key={itemIdx} className="mb-6 p-0 rounded-md">
                                       <div className="flex items-center gap-2 mb-2">
                                         <ItemIcon className="h-6 w-6 text-blue-700 flex-shrink-0" />
                                         <h4 className="text-[1.25rem] font-semibold text-blue-700">{item.profileName}</h4>
@@ -804,7 +827,7 @@ export default function QuizPageContent() { // Changed function name
                                       </div>
                                     );
                                 }
-                                return (
+                                return ( // Fallback for ParsedProfileScore items not matching "Algemeen Overzicht" or "Score Inzichten"
                                     <div key={itemIdx} className="bg-background/50 p-4 rounded-md mb-4">
                                       <div className="flex items-start gap-3 mb-1">
                                         <ItemIcon className="h-6 w-6 text-teal-700 flex-shrink-0 mt-0.5" />
