@@ -167,13 +167,14 @@ function KoppelTutorContent() {
       </Card>
 
       {selectedChildId && (
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Search className="h-5 w-5 text-primary"/> 2. Vind Beschikbare Tutors</CardTitle>
-            <CardDescription>Filter op vak en ervaring om de beste match te vinden.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <section className="mt-8 space-y-6">
+            <div className="flex items-center gap-2">
+                <Search className="h-5 w-5 text-primary"/>
+                <h2 className="text-xl font-semibold text-foreground">Vind Beschikbare Tutors</h2>
+            </div>
+            <p className="text-muted-foreground">Filter op vak en ervaring om de beste match te vinden.</p>
+          
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="vak-filter">Filter op Vak</Label>
                 <Select value={vakFilter} onValueChange={setVakFilter}>
@@ -199,7 +200,7 @@ function KoppelTutorContent() {
             </div>
 
             {filteredTutors.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
                 {filteredTutors.map(tutor => (
                   <Card key={tutor.id} className={`flex flex-col ${selectedTutor?.id === tutor.id ? 'border-2 border-primary ring-2 ring-primary/30' : 'hover:shadow-md'}`}>
                     <CardHeader className="items-center text-center">
@@ -241,8 +242,7 @@ function KoppelTutorContent() {
             ) : (
               <p className="text-muted-foreground text-center py-6">Geen tutors gevonden die voldoen aan de criteria. Probeer andere filters.</p>
             )}
-          </CardContent>
-        </Card>
+        </section>
       )}
        <Card className="shadow-md bg-blue-50 border-blue-200">
           <CardHeader>
@@ -263,9 +263,9 @@ function KoppelTutorContent() {
 
 export default function KoppelTutorPage() {
   return (
-    // Suspense is needed because useSearchParams is used in KoppelTutorContent
     <Suspense fallback={<div>Pagina laden...</div>}>
       <KoppelTutorContent />
     </Suspense>
   );
 }
+
