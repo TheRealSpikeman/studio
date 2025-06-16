@@ -185,14 +185,18 @@ export default function OuderLessenPage() {
     const lessonDateTime = parseISO(lesson.dateTime);
     const hoursUntilLesson = differenceInHours(lessonDateTime, now);
 
-    let msg = `Weet u zeker dat u de les ${lesson.subject} voor ${lesson.childName} op ${format(lessonDateTime, 'PPPp', {locale: nl})} wilt annuleren?`;
+    let msg = `Weet u zeker dat u de les ${lesson.subject} voor ${lesson.childName} op ${format(lessonDateTime, 'PPPp', {locale: nl})} wilt annuleren?\n\nAnnuleringsvoorwaarden:\n`;
 
-    if (hoursUntilLesson < 6) {
-      msg += " Omdat dit minder dan 6 uur voor aanvang is, wordt 100% van de leskosten in rekening gebracht.";
-    } else if (hoursUntilLesson < 24) {
-      msg += " Omdat dit binnen 24 uur voor aanvang is, wordt 50% van de leskosten in rekening gebracht.";
+    if (hoursUntilLesson >= 24) {
+      msg += "• Kosteloos annuleren (meer dan 24 uur van tevoren).";
+    } else if (hoursUntilLesson >= 6 && hoursUntilLesson < 24) {
+      msg += "• 25% van de leskosten wordt in rekening gebracht (annulering tussen 6 en 24 uur van tevoren).";
+    } else if (hoursUntilLesson >= 0 && hoursUntilLesson < 6) { // Consider >= 0 for very short notice
+      msg += "• 50% van de leskosten wordt in rekening gebracht (annulering minder dan 6 uur van tevoren).\nLet op: dit is geen no-show. Bij een no-show (niet komen opdagen zonder annulering) kan 100% in rekening worden gebracht.";
     } else {
-      msg += " Dit is meer dan 24 uur van tevoren en is kosteloos.";
+      // Lesson is in the past or too close to call it a standard cancellation for cost calculation through this dialog
+      msg = `De les ${lesson.subject} voor ${lesson.childName} op ${format(lessonDateTime, 'PPPp', {locale: nl})} kan niet meer via deze weg geannuleerd worden omdat deze al gestart is of in het verleden ligt. Neem contact op met support als dit niet correct is.`;
+      // Optionally disable confirmation button if lesson is in the past
     }
     
     setCancelationMessage(msg);
@@ -202,8 +206,15 @@ export default function OuderLessenPage() {
 
   const confirmCancelLesson = () => {
     if (lessonToCancel) {
-      setScheduledLessons(prev => prev.map(l => l.id === lessonToCancel.id ? {...l, status: 'Geannuleerd'} : l));
-      toast({ title: "Les geannuleerd", description: `De les ${lessonToCancel.subject} is geannuleerd.`, variant: "default"});
+      // Check if lesson is in the past again before actually cancelling, if needed
+      const now = new Date();
+      const lessonDateTime = parseISO(lessonToCancel.dateTime);
+      if (isBefore(lessonDateTime, now) && differenceInHours(lessonDateTime, now) < -lessonToCancel.durationMinutes/60) { // Check if lesson end time is past
+          toast({ title: "Annulering mislukt", description: "Deze les is al afgelopen en kan niet meer geannuleerd worden.", variant: "destructive"});
+      } else {
+        setScheduledLessons(prev => prev.map(l => l.id === lessonToCancel!.id ? {...l, status: 'Geannuleerd'} : l));
+        toast({ title: "Les geannuleerd", description: `De les ${lessonToCancel.subject} is geannuleerd. Eventuele kosten worden verrekend.`, variant: "default"});
+      }
       setIsCancelDialogOpen(false);
       setLessonToCancel(null);
     }
@@ -496,7 +507,11 @@ export default function OuderLessenPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setLessonToCancel(null)}>Nee, niet annuleren</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmCancelLesson} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction 
+                onClick={confirmCancelLesson} 
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={lessonToCancel ? isBefore(parseISO(lessonToCancel.dateTime), new Date()) && differenceInHours(parseISO(lessonToCancel.dateTime), new Date()) < -lessonToCancel.durationMinutes/60 : false}
+            >
               Ja, bevestig annulering
             </AlertDialogAction>
           </AlertDialogFooter>
