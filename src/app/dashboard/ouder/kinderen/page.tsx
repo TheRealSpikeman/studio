@@ -8,21 +8,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
+import { useToast } from '@/hooks/use-toast';
 
 interface Child {
   id: string;
-  name: string;
-  ageGroup: string;
+  firstName: string;
+  lastName: string;
+  ageGroup: '12-14 jaar' | '15-18 jaar';
   avatarUrl?: string;
   subscriptionStatus: 'actief' | 'geen' | 'verlopen';
-  lastActivity?: string; // e.g., "Quiz 'Focus' voltooid" or "Laatste les: Wiskunde"
+  lastActivity?: string; 
 }
 
 // Dummy data - in a real app, this would be fetched based on the logged-in parent
 const dummyChildren: Child[] = [
   {
     id: 'child1',
-    name: 'Sofie de Tester',
+    firstName: 'Sofie',
+    lastName: 'de Tester',
     ageGroup: '12-14 jaar',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
@@ -30,7 +35,8 @@ const dummyChildren: Child[] = [
   },
   {
     id: 'child2',
-    name: 'Max de Tester',
+    firstName: 'Max',
+    lastName: 'de Tester',
     ageGroup: '15-18 jaar',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'geen',
@@ -38,7 +44,8 @@ const dummyChildren: Child[] = [
   },
   {
     id: 'child3',
-    name: 'Lisa Voorbeeld',
+    firstName: 'Lisa',
+    lastName: 'Voorbeeld',
     ageGroup: '12-14 jaar',
     // No avatar to test fallback
     subscriptionStatus: 'verlopen',
@@ -60,8 +67,27 @@ const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): strin
 
 export default function BeheerKinderenPage() {
   const [children, setChildren] = useState<Child[]>(dummyChildren);
+  const [isAddChildDialogOpen, setIsAddChildDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+
+  const handleSaveChild = (data: AddChildFormData) => {
+    const newChild: Child = {
+      id: `child-${Date.now()}`,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      ageGroup: data.ageGroup,
+      subscriptionStatus: 'geen', // Default status for a new child
+      avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`, // Placeholder avatar
+    };
+    setChildren(prev => [newChild, ...prev]);
+    setIsAddChildDialogOpen(false);
+    toast({
+      title: "Kind Toegevoegd",
+      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd aan uw gezin.`,
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -78,7 +104,7 @@ export default function BeheerKinderenPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
                 </Link>
             </Button>
-            <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={() => setIsAddChildDialogOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
             </Button>
         </div>
@@ -88,7 +114,7 @@ export default function BeheerKinderenPage() {
         <Card className="text-center py-10">
           <CardContent>
             <p className="text-muted-foreground">U heeft nog geen kinderen toegevoegd aan uw account.</p>
-            <Button className="mt-4">Nieuw Kind Toevoegen</Button>
+            <Button className="mt-4" onClick={() => setIsAddChildDialogOpen(true)}>Nieuw Kind Toevoegen</Button>
           </CardContent>
         </Card>
       ) : (
@@ -97,11 +123,11 @@ export default function BeheerKinderenPage() {
             <Card key={child.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader className="flex flex-row items-center gap-4 pb-3">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-                  <AvatarFallback className="text-2xl bg-muted">{getInitials(child.name)}</AvatarFallback>
+                  <AvatarImage src={child.avatarUrl} alt={`${child.firstName} ${child.lastName}`} data-ai-hint="child person" />
+                  <AvatarFallback className="text-2xl bg-muted">{getInitials(`${child.firstName} ${child.lastName}`)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle className="text-xl font-semibold">{child.name}</CardTitle>
+                  <CardTitle className="text-xl font-semibold">{`${child.firstName} ${child.lastName}`}</CardTitle>
                   <CardDescription>{child.ageGroup}</CardDescription>
                 </div>
               </CardHeader>
@@ -136,6 +162,22 @@ export default function BeheerKinderenPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={isAddChildDialogOpen} onOpenChange={setIsAddChildDialogOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Nieuw Kind Toevoegen</DialogTitle>
+            <DialogDescription>
+              Voer de gegevens van uw kind in. U kunt later een abonnement koppelen.
+            </DialogDescription>
+          </DialogHeader>
+          <AddChildForm 
+            onSave={handleSaveChild} 
+            onCancel={() => setIsAddChildDialogOpen(false)} 
+          />
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
