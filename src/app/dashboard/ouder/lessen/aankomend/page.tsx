@@ -169,7 +169,15 @@ export default function AankomendeLessenPage() {
   const [cancelationMessage, setCancelationMessage] = useState('');
 
   const upcomingLessons = useMemo(() => 
-    scheduledLessons.filter(l => l.status === 'Gepland' || l.status === 'Bezig').sort((a,b) => parseISO(a.dateTime).getTime() - parseISO(b.dateTime).getTime()), 
+    scheduledLessons
+      .filter(l => l.status === 'Gepland' || l.status === 'Bezig')
+      .sort((a,b) => {
+        // Prioritize 'Bezig' status
+        if (a.status === 'Bezig' && b.status !== 'Bezig') return -1;
+        if (a.status !== 'Bezig' && b.status === 'Bezig') return 1;
+        // Then sort by date
+        return parseISO(a.dateTime).getTime() - parseISO(b.dateTime).getTime();
+      }), 
     [scheduledLessons]
   );
 
