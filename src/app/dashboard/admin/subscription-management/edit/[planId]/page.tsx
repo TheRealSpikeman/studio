@@ -21,7 +21,17 @@ export default function EditSubscriptionPlanPage() {
       if (storedPlansRaw) {
         const storedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         const foundPlan = storedPlans.find(p => p.id === planId);
-        setPlanData(foundPlan || null);
+        // Zorg ervoor dat nieuwe velden een default waarde hebben als ze niet bestaan in oude localStorage data
+        if (foundPlan) {
+            const planWithDefaults: SubscriptionPlan = {
+                ...foundPlan,
+                maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
+                isPopular: foundPlan.isPopular ?? false,
+            };
+            setPlanData(planWithDefaults);
+        } else {
+            setPlanData(null);
+        }
       } else {
         setPlanData(null); // No plans in localStorage
       }

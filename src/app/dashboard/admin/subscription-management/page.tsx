@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
+import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +20,8 @@ export interface SubscriptionPlan {
   description: string;
   features: string[];
   active: boolean;
+  maxChildren?: number; // Nieuw veld
+  isPopular?: boolean;  // Nieuw veld
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
@@ -32,6 +34,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Basis neurodiversiteit quiz en PDF rapport.',
     features: ['Basis Neurodiversiteit Quiz', 'Uitgebreid PDF Rapport'],
     active: true,
+    maxChildren: 1, // Voorbeeld, relevantie kan variëren
+    isPopular: false,
   },
   {
     id: 'coaching_tools_monthly',
@@ -42,6 +46,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Alle quizzen, coaching hub & huiswerk tools.',
     features: ['Alle Quizzen', 'Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
     active: true,
+    maxChildren: 1,
+    isPopular: true,
   },
   {
     id: 'coaching_tools_yearly',
@@ -52,6 +58,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Alle quizzen, coaching hub & huiswerk tools met 15% korting.',
     features: ['Alle Quizzen (15% korting)', 'Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
     active: true,
+    maxChildren: 1,
+    isPopular: false,
   },
   {
     id: 'family_guide_monthly',
@@ -62,6 +70,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools.',
     features: ['Alles van Coaching & Tools (3 kinderen)', 'Toegang tot Coaches & Tutors', 'Uitgebreid Ouder Dashboard'],
     active: true,
+    maxChildren: 3,
+    isPopular: true,
   },
   {
     id: 'family_guide_yearly',
@@ -72,6 +82,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools met 15% korting.',
     features: ['Alles van Coaching & Tools (3 kinderen, 15% korting)', 'Toegang tot Coaches & Tutors', 'Uitgebreid Ouder Dashboard'],
     active: true,
+    maxChildren: 3,
+    isPopular: false,
   },
 ];
 
@@ -82,7 +94,21 @@ export default function SubscriptionManagementPage() {
   useEffect(() => {
     const storedPlans = localStorage.getItem('subscriptionPlans');
     if (storedPlans) {
-      setPlans(JSON.parse(storedPlans));
+      try {
+        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlans);
+        // Voeg default waarden toe voor nieuwe velden als ze ontbreken
+        const migratedPlans = parsedPlans.map(plan => ({
+          ...plan,
+          maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : 1), // Default voor gezinsplannen
+          isPopular: plan.isPopular ?? false,
+        }));
+        setPlans(migratedPlans);
+      } catch (error) {
+        console.error("Error parsing subscription plans from localStorage:", error);
+        // Fallback to initial if parsing fails
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
+        setPlans(initialSubscriptionPlans);
+      }
     } else {
       localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
       setPlans(initialSubscriptionPlans);
@@ -97,7 +123,7 @@ export default function SubscriptionManagementPage() {
   };
   
   const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0) return 'Gratis';
+    if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2)}${intervalText}`;
   };
@@ -133,12 +159,13 @@ export default function SubscriptionManagementPage() {
                   <TableHead>Prijs</TableHead>
                   <TableHead>Interval</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Populair</TableHead>
                   <TableHead className="text-right">Acties</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {plans.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
                 )}
                 {plans.map((plan) => (
                   <TableRow key={plan.id}>
@@ -150,6 +177,9 @@ export default function SubscriptionManagementPage() {
                       <Badge variant={plan.active ? 'default' : 'secondary'} className={plan.active ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
                         {plan.active ? 'Actief' : 'Inactief'}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {plan.isPopular && <Star className="h-5 w-5 text-yellow-500 fill-yellow-400" />}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

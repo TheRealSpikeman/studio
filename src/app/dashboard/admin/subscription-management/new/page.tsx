@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -34,6 +34,8 @@ const planFormSchema = z.object({
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
   features: z.string().min(1, { message: "Voeg minimaal één feature toe (één per regel)." }),
   active: z.boolean().default(true),
+  maxChildren: z.coerce.number().int().min(0, "Aantal kinderen mag niet negatief zijn.").optional(),
+  isPopular: z.boolean().default(false),
 });
 
 export type PlanFormData = z.infer<typeof planFormSchema>;
@@ -52,6 +54,8 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     defaultValues: isEditMode && planData ? {
       ...planData,
       features: planData.features.join('\n'),
+      maxChildren: planData.maxChildren ?? 0,
+      isPopular: planData.isPopular ?? false,
     } : {
       id: "",
       name: "",
@@ -61,6 +65,8 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
       billingInterval: undefined,
       features: "",
       active: true,
+      maxChildren: 0,
+      isPopular: false,
     },
   });
 
@@ -68,6 +74,8 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     const planToSave: SubscriptionPlan = {
       ...data,
       features: data.features.split('\n').map(f => f.trim()).filter(f => f.length > 0),
+      maxChildren: data.maxChildren,
+      isPopular: data.isPopular,
     };
 
     try {
@@ -159,6 +167,18 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 </FormItem>
               )}
             />
+             <FormField
+              control={form.control}
+              name="maxChildren"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximum Aantal Kinderen</FormLabel>
+                  <FormControl><Input type="number" min="0" placeholder="0 voor geen limiet" {...field} /></FormControl>
+                  <FormDescription className="text-xs">Typisch 1 voor individuele plannen, of 3-5 voor gezinsplannen. 0 betekent geen specifieke limiet (bijv. voor gratis plan).</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="features" render={({ field }) => (
                 <FormItem className="md:col-span-2">
                   <FormLabel>Features (één per regel)</FormLabel>
@@ -168,11 +188,21 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
               )}
             />
             <FormField control={form.control} name="active" render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 md:col-span-2">
+                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Plan Actief?</FormLabel>
+                    <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
                     <FormDescription>Is dit abonnement momenteel selecteerbaar voor nieuwe gebruikers?</FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField control={form.control} name="isPopular" render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">Markeer als 'Populair' / 'Meest Gekozen'?</FormLabel>
+                    <FormDescription>Dit plan wordt uitgelicht op de prijspagina.</FormDescription>
                   </div>
                 </FormItem>
               )}
