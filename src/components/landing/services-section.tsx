@@ -31,21 +31,21 @@ const servicePackages: ServicePackage[] = [
     icon: <MessageSquare className="h-10 w-10 text-primary" />,
     title: 'Coaching & Tools',
     description: 'Krijg volledige toegang tot alle quizzen, de virtuele coaching hub, dagboek en handige huiswerk tools.',
-    features: ['Alle Quizzen (Basis + Subtests)', 'Volledige Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
+    features: ['Alle Quizzen (Basis + Subtests)', 'Volledige Coaching Hub', 'Huiswerk Tools'],
     ctaText: 'Ontdek Coaching',
     link: '/#pricing', 
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
-    typeLabel: 'Vanaf €3,39 p/m', // Updated to reflect yearly equivalent
+    typeLabel: 'Vanaf €3,39 P/M',
   },
   {
     icon: <Users2 className="h-10 w-10 text-primary" />,
-    title: 'Gezins Gids', // New name
+    title: 'Gezins Gids',
     description: 'Alles van Coaching & Tools, plus toegang tot persoonlijke coaches en huiswerktutors, en een uitgebreid ouder-dashboard.',
     features: ['Alles van Coaching & Tools', 'Pool Persoonlijke Coaches', 'Pool Huiswerktutors', 'Uitgebreid Ouder Dashboard'],
     ctaText: 'Kies Gezins Gids',
     link: '/#pricing', 
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
-    typeLabel: 'Vanaf €8,49 p/m', // Updated to reflect yearly equivalent
+    typeLabel: 'Vanaf €8,49 P/M',
   },
 ];
 
@@ -108,3 +108,4 @@ export function ServicesSection() {
     </section>
   );
 }
+
