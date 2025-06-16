@@ -78,8 +78,8 @@ export default function BeheerKinderenPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
                 </Link>
             </Button>
-            <Button className="w-full sm:w-auto" disabled>
-                <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen (binnenkort)
+            <Button className="w-full sm:w-auto">
+                <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
             </Button>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function BeheerKinderenPage() {
         <Card className="text-center py-10">
           <CardContent>
             <p className="text-muted-foreground">U heeft nog geen kinderen toegevoegd aan uw account.</p>
-            <Button className="mt-4" disabled>Nieuw Kind Toevoegen (binnenkort)</Button>
+            <Button className="mt-4">Nieuw Kind Toevoegen</Button>
           </CardContent>
         </Card>
       ) : (
