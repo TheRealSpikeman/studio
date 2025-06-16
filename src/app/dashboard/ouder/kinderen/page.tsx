@@ -6,26 +6,27 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; // Renamed AlertTitle
-import type { User } from '@/types/user'; // Import the main User type
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; 
+import type { User } from '@/types/user'; 
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
   lastActivity?: string; 
 }
 
 
-// Dummy data - in a real app, this would be fetched based on the logged-in parent
 const dummyChildren: Child[] = [
   {
     id: 'child1',
     firstName: 'Sofie',
     lastName: 'de Tester',
     age: 13,
-    ageGroup: '12-14', // Using new age logic, this would be derived or explicitly set.
+    ageGroup: '12-14', 
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
@@ -39,7 +40,7 @@ const dummyChildren: Child[] = [
     firstName: 'Max',
     lastName: 'de Tester',
     age: 16,
-    ageGroup: '15-18', // Using new age logic
+    ageGroup: '15-18', 
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'geen',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
@@ -52,7 +53,7 @@ const dummyChildren: Child[] = [
     firstName: 'Lisa',
     lastName: 'Voorbeeld',
     age: 12,
-    ageGroup: '12-14', // Using new age logic
+    ageGroup: '12-14', 
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
     helpSubjects: [],
@@ -77,19 +78,19 @@ export default function BeheerKinderenPage() {
   const [children, setChildren] = useState<Child[]>(dummyChildren);
   const [isAddingChildMode, setIsAddingChildMode] = useState(false);
   const { toast } = useToast();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [childToDelete, setChildToDelete] = useState<Child | null>(null);
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
-    let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14'; // Default
-    if (childAge >= 12 && childAge <= 14) {
-        derivedAgeGroup = '12-14';
-    } else if (childAge >= 15 && childAge <= 18) {
-        derivedAgeGroup = '15-18';
-    } else if (childAge >= 10) { // Adjusted for new age range 10-20
-        derivedAgeGroup = 'adult'; // Or a more specific group like '10-11', '19-20' if needed
-    }
+    let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14';
+    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult';
+    else if (childAge >= 12 && childAge <= 14) derivedAgeGroup = '12-14';
+    else if (childAge >= 15 && childAge <= 18) derivedAgeGroup = '15-18';
+    else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult';
+    else derivedAgeGroup = 'adult';
 
 
     const newChild: Child = {
@@ -101,7 +102,7 @@ export default function BeheerKinderenPage() {
       childEmail: data.childEmail,
       schoolType: data.schoolType,
       className: data.className,
-      subscriptionStatus: 'uitgenodigd', // New children start as 'uitgenodigd'
+      subscriptionStatus: 'uitgenodigd', 
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
     };
@@ -109,10 +110,29 @@ export default function BeheerKinderenPage() {
     setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
-      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. U kunt nu een abonnement voor dit kind beheren.`,
+      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. U kunt nu een abonnement voor dit kind beheren via de 'Abonnementen' pagina.`,
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
   };
+  
+  const openDeleteDialog = (child: Child) => {
+    setChildToDelete(child);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteChild = () => {
+    if (childToDelete) {
+      setChildren(prev => prev.filter(c => c.id !== childToDelete.id));
+      toast({
+        title: "Kind Verwijderd",
+        description: `${childToDelete.firstName} ${childToDelete.lastName} is succesvol verwijderd (simulatie).`,
+        variant: "default"
+      });
+      setChildToDelete(null);
+    }
+    setIsDeleteDialogOpen(false);
+  };
+
 
   return (
     <div className="space-y-8">
@@ -212,14 +232,43 @@ export default function BeheerKinderenPage() {
                 <Button variant="outline" size="sm" disabled={child.subscriptionStatus === 'uitgenodigd'}>
                   <BarChart3 className="mr-2 h-3.5 w-3.5" /> Resultaten
                 </Button>
-                <Button variant="outline" size="sm" disabled className="col-span-2">
-                  <CreditCard className="mr-2 h-3.5 w-3.5" /> Beheer Abonnement
+                 <Button variant="outline" size="sm" className="col-span-2" asChild>
+                    <Link href="/dashboard/ouder/abonnementen">
+                        <CreditCard className="mr-2 h-3.5 w-3.5" /> Beheer Abonnement
+                    </Link>
+                </Button>
+                 <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="col-span-2"
+                    onClick={() => openDeleteDialog(child)}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5" /> Kind Verwijderen
                 </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
       )}
+      
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Kind Verwijderen?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Weet u zeker dat u <strong>{childToDelete?.firstName} {childToDelete?.lastName}</strong> wilt verwijderen?
+                Alle gekoppelde gegevens en eventuele abonnementen worden (gesimuleerd) beëindigd. Deze actie kan niet ongedaan worden gemaakt.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setChildToDelete(null)}>Annuleren</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDeleteChild} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Ja, verwijder kind
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
     </div>
   );
 }
