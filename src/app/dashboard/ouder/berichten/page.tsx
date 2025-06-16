@@ -40,14 +40,14 @@ const dummyConversations: Conversation[] = [
     tutorName: 'Mevr. Jansen',
     tutorAvatar: 'https://picsum.photos/seed/jansen/40/40',
     childName: 'Sofie de Tester',
-    lastMessage: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00.',
+    lastMessage: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00. We gaan dan verder met de voorbereiding voor de toets.',
     lastMessageTimestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     unreadCount: 0,
     messages: [
       { id: 'm1a', sender: 'ouder', text: 'Hoi Mevr. Jansen, zou de les van Sofie aanstaande dinsdag een half uurtje later kunnen?', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
       { id: 'm1b', sender: 'tutor', text: 'Hallo! Ja hoor, dat is geen probleem. Zullen we dan 15:00 uur afspreken?', timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString() },
       { id: 'm1c', sender: 'ouder', text: 'Perfect, dank u wel!', timestamp: new Date(Date.now() - 1.2 * 60 * 60 * 1000).toISOString() },
-      { id: 'm1d', sender: 'tutor', text: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00.', timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
+      { id: 'm1d', sender: 'tutor', text: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00. We gaan dan verder met de voorbereiding voor de toets.', timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
     ],
   },
   {
@@ -56,19 +56,19 @@ const dummyConversations: Conversation[] = [
     tutorName: 'Dhr. Pietersen',
     tutorAvatar: 'https://picsum.photos/seed/pietersen/40/40',
     childName: 'Max de Tester',
-    lastMessage: 'Dank voor het lesverslag, Dhr. Pietersen!',
+    lastMessage: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig.',
     lastMessageTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     unreadCount: 1,
     messages: [
       { id: 'm2a', sender: 'tutor', text: 'Max heeft vandaag goed gewerkt aan de onregelmatige werkwoorden. Zie lesverslag.', timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), isRead: false },
-      { id: 'm2b', sender: 'ouder', text: 'Dank voor het lesverslag, Dhr. Pietersen!', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), isRead: true },
+      { id: 'm2b', sender: 'ouder', text: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig.', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), isRead: true },
     ],
   },
   {
     id: 'conv3',
     tutorId: 'tutor3',
     tutorName: 'Juf Anja',
-    tutorAvatar: 'https://placehold.co/40x40.png?text=JA',
+    tutorAvatar: `https://placehold.co/40x40.png?text=JA`,
     childName: 'Lisa Voorbeeld',
     lastMessage: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden?',
     lastMessageTimestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -92,6 +92,7 @@ export default function BerichtencentrumPage() {
   useEffect(scrollToBottom, [selectedConversation?.messages]);
   useEffect(() => { 
     if (selectedConversation) {
+        // Ensure scroll happens after DOM updates from selecting new conversation
         setTimeout(scrollToBottom, 0); 
     }
   }, [selectedConversation]);
@@ -101,6 +102,7 @@ export default function BerichtencentrumPage() {
     const newSelectedConv = conversations.find(c => c.id === convId);
     if (newSelectedConv) {
         setSelectedConversation(newSelectedConv);
+        // Mark messages as read and clear unread count for this conversation
         setConversations(prev => prev.map(c => 
             c.id === convId ? {...c, unreadCount: 0, messages: c.messages.map(m => ({...m, isRead: true}))} : c
         ));
@@ -116,16 +118,16 @@ export default function BerichtencentrumPage() {
       sender: 'ouder',
       text: newMessage,
       timestamp: new Date().toISOString(),
-      isRead: true,
+      isRead: true, // Own messages are always read
     };
     
     const updatedConversation = {
         ...selectedConversation,
         messages: [...selectedConversation.messages, newMsg],
-        lastMessage: newMessage,
-        lastMessageTimestamp: newMsg.timestamp,
+        lastMessage: newMessage, // Update last message preview
+        lastMessageTimestamp: newMsg.timestamp, // Update timestamp for sorting
     };
-    setSelectedConversation(updatedConversation);
+    setSelectedConversation(updatedConversation); // Update the view immediately
 
     setConversations(prev => prev.map(c => 
       c.id === selectedConversation.id ? updatedConversation : c
@@ -174,15 +176,17 @@ export default function BerichtencentrumPage() {
         </CardHeader>
         <div className="flex flex-1 overflow-hidden">
           {/* Conversations List */}
-          <ScrollArea className="w-full md:w-1/3 border-r bg-muted/30">
-            <div className="p-2 space-y-1.5"> {/* Increased space-y for conversation list items */}
+          <ScrollArea className="w-full md:w-1/3 border-r">
+            <div className="p-2 space-y-1.5 bg-muted/30 h-full"> {/* Added bg-muted/30 here */}
               {conversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()).map(conv => (
                 <Button
                   key={conv.id}
                   variant="ghost"
                   className={cn(
-                    "w-full h-auto justify-start p-3 text-left rounded-md hover:bg-background/80",
-                    selectedConversation?.id === conv.id && "bg-background shadow-sm font-semibold"
+                    "w-full h-auto justify-start p-3 text-left rounded-md",
+                    selectedConversation?.id === conv.id 
+                      ? "bg-card shadow-sm font-semibold" 
+                      : "hover:bg-muted/20" // Changed hover for non-selected items
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
@@ -190,7 +194,7 @@ export default function BerichtencentrumPage() {
                     <AvatarImage src={conv.tutorAvatar} alt={conv.tutorName} data-ai-hint="person avatar" />
                     <AvatarFallback>{getInitials(conv.tutorName)}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 overflow-hidden space-y-0.5"> {/* Added space-y here */}
+                  <div className="flex-1 overflow-hidden space-y-0.5"> {/* Added space-y here for internal text lines */}
                     <div className="flex justify-between items-center">
                         <p className="truncate font-medium text-sm">{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
@@ -198,7 +202,7 @@ export default function BerichtencentrumPage() {
                         )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate">Kind: {conv.childName}</p>
-                    <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{conv.lastMessage}</p> {/* Changed truncate to line-clamp-2 */}
                      <p className="text-[10px] text-muted-foreground/80 mt-0.5">
                         <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="p" />
                     </p>
@@ -232,7 +236,7 @@ export default function BerichtencentrumPage() {
                     <div 
                       key={msg.id} 
                       className={cn(
-                        "w-full flex mb-6", // Added mb-6 for spacing between messages
+                        "w-full flex mb-6", // This provides spacing between messages
                         msg.sender === 'ouder' ? 'justify-end' : 'justify-start'
                       )}
                     >
