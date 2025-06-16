@@ -17,11 +17,21 @@ function VerifyEmailContent() {
   const planParam = searchParams.get("plan");
   const isNewRegistration = searchParams.get("newRegistration") === "true";
 
+  const planNames: { [key: string]: string } = {
+    coaching_tools_monthly: "Coaching & Tools - Maandelijks",
+    coaching_tools_yearly: "Coaching & Tools - Jaarlijks",
+    family_guide_monthly: "Gezins Gids - Maandelijks",
+    family_guide_yearly: "Gezins Gids - Jaarlijks",
+    // Legacy plan IDs for backward compatibility if needed, or remove if old links are not a concern
+    monthly: "Coaching Maandelijks",
+    annual: "Coaching Jaarlijks",
+  };
+
   let descriptionText = "We hebben een verificatielink naar uw e-mailadres gestuurd. Klik op de link in de e-mail om uw account te activeren.";
   if (isNewRegistration) {
     descriptionText += " Na verificatie kunt u inloggen op uw ouder-dashboard om uw gezinsprofiel in te stellen en kinderen toe te voegen.";
     if (planParam) {
-        const planName = planParam === 'monthly' ? 'Coaching Maandelijks' : planParam === 'annual' ? 'Coaching Jaarlijks' : 'Geselecteerd Plan';
+        const planName = planNames[planParam] || "Geselecteerd Plan";
       descriptionText += ` Vervolgens kunt u het "${planName}" abonnement voor uw gezin activeren.`;
     }
   }

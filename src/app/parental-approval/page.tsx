@@ -14,8 +14,10 @@ function ApprovalContent() {
   const planId = searchParams.get("plan");
 
   const planNames: { [key: string]: string } = {
-    monthly: "Coaching Maandelijks",
-    annual: "Coaching Jaarlijks",
+    coaching_tools_monthly: "Coaching & Tools - Maandelijks",
+    coaching_tools_yearly: "Coaching & Tools - Jaarlijks",
+    family_guide_monthly: "Gezins Gids - Maandelijks",
+    family_guide_yearly: "Gezins Gids - Jaarlijks",
   };
   const planName = planId ? (planNames[planId] || "Geselecteerd Plan") : null;
 

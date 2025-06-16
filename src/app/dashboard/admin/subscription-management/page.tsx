@@ -50,9 +50,9 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     isPopular: true,
   },
   {
-    id: 'coaching_tools_yearly',
+    id: 'coaching_tools_yearly', // Uniek ID voor jaarplan
     name: 'Coaching & Tools - Jaarlijks',
-    price: 40.70, // Corrected yearly price with 15% discount (3.99 * 12 * 0.85)
+    price: 40.70, // Jaarprijs met 15% korting
     currency: 'EUR',
     billingInterval: 'year',
     description: 'Alle quizzen, coaching hub & huiswerk tools met 15% korting.',
@@ -74,9 +74,9 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     isPopular: true,
   },
   {
-    id: 'family_guide_yearly',
+    id: 'family_guide_yearly', // Uniek ID voor jaarplan
     name: 'Gezins Gids - Jaarlijks',
-    price: 101.90, // Corrected yearly price with 15% discount (9.99 * 12 * 0.85)
+    price: 101.90, // Jaarprijs met 15% korting
     currency: 'EUR',
     billingInterval: 'year',
     description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools met 15% korting.',

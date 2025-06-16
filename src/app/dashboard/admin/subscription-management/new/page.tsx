@@ -143,7 +143,9 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 <FormItem>
                   <FormLabel>Uniek Plan ID</FormLabel>
                   <FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} disabled={isEditMode} /></FormControl>
-                  <FormDescription className="text-xs">{isEditMode ? 'ID kan niet gewijzigd worden.' : 'Gebruik kleine letters, cijfers, underscores.'}</FormDescription>
+                  <FormDescription className="text-xs">
+                    Gebruik kleine letters, cijfers, underscores. {isEditMode ? 'ID kan niet gewijzigd worden na aanmaken.' : 'Dit ID wordt gebruikt in de URL en kan later niet meer gewijzigd worden.'}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )} 
@@ -161,7 +163,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                             <FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl>
                         </div>
                         <FormDescription className="text-xs">
-                            Voor maandelijkse plannen, voer de maandprijs in. Voor jaarlijkse plannen, voer de totale jaarprijs in (na eventuele korting).
+                            Voor maandelijkse plannen, voer de maandprijs in. Voor jaarlijkse plannen, voer de totale jaarprijs in (incl. eventuele korting).
                         </FormDescription>
                         <FormMessage />
                     </FormItem>

@@ -52,7 +52,7 @@ const plansData: Plan[] = [
     ctaText: 'Start gratis quiz voor uw kind',
     ctaBaseLink: '/quizzes',
     isPopular: false,
-    planId: 'free',
+    planId: 'free_start', // Consistent with initial plans
   },
   {
     name: 'Coaching & Tools',
@@ -67,11 +67,11 @@ const plansData: Plan[] = [
       { text: 'Toegang tot Tutors & Coaches', included: false },
       { text: 'Uitgebreid Ouder Dashboard', included: false },
     ],
-    ctaText: 'Kies Coaching & Tools',
+    ctaText: 'Kies Coaching & Tools (Maandelijks)',
     ctaBaseLink: '/signup',
     isPopular: true,
-    planId: 'coaching_monthly',
-    savingsText: `Of €${yearlyCoachingPrice}/jaar (gelijk aan €${monthlyEquivalentForYearlyCoaching}/mnd - bespaar €${yearlySavingsCoaching})`,
+    planId: 'coaching_tools_monthly',
+    savingsText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (omgerekend €${monthlyEquivalentForYearlyCoaching}/mnd - bespaar €${yearlySavingsCoaching})`,
     highlightClass: "border-primary ring-2 ring-primary/50",
   },
   {
@@ -84,22 +84,28 @@ const plansData: Plan[] = [
       { text: 'Toegang tot Pool Huiswerktutors', included: true, tooltip: "Koppel uw kind aan gekwalificeerde tutors voor vakspecifieke ondersteuning." },
       { text: 'Uitgebreid Ouder Dashboard', included: true, tooltip: "Volg de voortgang van uw kinderen, beheer abonnementen en communiceer eenvoudig." },
     ],
-    ctaText: 'Kies Gezins Gids',
+    ctaText: 'Kies Gezins Gids (Maandelijks)',
     ctaBaseLink: '/signup',
     isPopular: false,
     planId: 'family_guide_monthly',
-    savingsText: `Of €${yearlyFamilyGuidePrice}/jaar (gelijk aan €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`,
+    savingsText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`,
   },
 ];
 
 export function PricingSection() {
   const router = useRouter();
 
-  const handlePlanSelection = (plan: Plan) => {
-    if (plan.planId === 'free') {
+  const handlePlanSelection = (plan: Plan, isYearlySelected?: boolean) => {
+    let targetPlanId = plan.planId;
+    if (isYearlySelected) {
+      if (plan.planId === 'coaching_tools_monthly') targetPlanId = 'coaching_tools_yearly';
+      if (plan.planId === 'family_guide_monthly') targetPlanId = 'family_guide_yearly';
+    }
+
+    if (targetPlanId === 'free_start') { // Adjusted to match the unique ID
       router.push(plan.ctaBaseLink);
     } else {
-      router.push(`${plan.ctaBaseLink}?plan=${plan.planId}`);
+      router.push(`${plan.ctaBaseLink}?plan=${targetPlanId}`);
     }
   };
 
@@ -118,7 +124,7 @@ export function PricingSection() {
               key={plan.planId}
               className={`flex flex-col shadow-lg relative border border-border hover:shadow-xl transition-shadow ${plan.highlightClass || ''}`}
             >
-              {plan.isPopular && (
+              {plan.isPopular && plan.planId.includes('monthly') && ( // Show popular only on monthly if yearly option exists
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
                   <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
                     Meest gekozen
@@ -131,9 +137,6 @@ export function PricingSection() {
                   {plan.price}
                   {plan.priceDetail && <span className="text-lg font-normal text-muted-foreground"> {plan.priceDetail}</span>}
                 </p>
-                {plan.savingsText && (
-                  <p className="text-xs text-muted-foreground mt-1">{plan.savingsText}</p>
-                )}
               </CardHeader>
               <CardContent className="flex-grow space-y-4 mt-2">
                 <ul className="space-y-3" style={{ lineHeight: '1.6' }}>
@@ -165,14 +168,23 @@ export function PricingSection() {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter className="mt-auto pt-4 pb-6">
+              <CardFooter className="mt-auto pt-4 pb-6 flex flex-col gap-2">
                 <Button
                   onClick={() => handlePlanSelection(plan)}
                   className="w-full h-11 text-base"
-                  variant={plan.planId === 'free' ? 'outline' : (plan.isPopular ? 'default' : 'secondary')}
+                  variant={plan.planId === 'free_start' ? 'outline' : (plan.isPopular ? 'default' : 'secondary')}
                 >
                   {plan.ctaText}
                 </Button>
+                 {plan.savingsText && (
+                  <Button
+                    onClick={() => handlePlanSelection(plan, true)}
+                    variant="link"
+                    className="w-full h-auto text-xs text-primary p-0"
+                  >
+                    {plan.savingsText}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}
