@@ -2,11 +2,11 @@
 "use client"; 
 
 import type { ElementType } from 'react';
-import { useState, useMemo } from 'react'; 
+import { useState, useMemo, useEffect } from 'react'; 
+import { useSearchParams } from 'next/navigation';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-// import { Checkbox } from '@/components/ui/checkbox'; // Keep for potential future theme checkboxes
 import { Label } from '@/components/ui/label';
 import { Search, AlertTriangle, BookOpen, Sparkles, User, Clock, List, Brain, Zap, Award } from 'lucide-react';
 import { Header } from '@/components/layout/header';
@@ -15,25 +15,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-// Define Quiz interface more comprehensively
 export interface Quiz {
   id: string; 
   title: string;
-  description: string; // Short summary for the card
+  description: string; 
   status: QuizStatus;
   progress?: number;
   imageUrl?: string;
   dataAiHint?: string;
   ageGroup: '12-14' | '15-18' | 'all';
-  duration?: string; // e.g., "5-10 min"
-  questionCount?: number; // e.g., 15
+  duration?: string; 
+  questionCount?: number; 
   difficulty?: 'makkelijk' | 'gemiddeld' | 'moeilijk';
-  icon?: ElementType; // For a specific icon per quiz/theme
-  badgeText?: string; // e.g., "Nieuw", "Populair!"
-  badgeClass?: string; // Tailwind classes for badge styling e.g., "bg-primary text-primary-foreground"
+  icon?: ElementType; 
+  badgeText?: string; 
+  badgeClass?: string; 
 }
 
-// Dummy Data for Quizzes
 const recommendedQuizzes: Quiz[] = [
     { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
@@ -159,11 +157,26 @@ const thematicTeenQuizzes: Quiz[] = [
   },
 ];
 
+type AgeFilterType = 'all' | '12-14' | '15-18';
+
 export default function QuizzesOverviewPage() {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [ageFilter, setAgeFilter] = useState('all');
+  const [ageFilter, setAgeFilter] = useState<AgeFilterType>('all');
   const [durationFilter, setDurationFilter] = useState('all');
-  const [themeFilter, setThemeFilter] = useState(''); // For text-based theme search
+  const [themeFilter, setThemeFilter] = useState('');
+
+  useEffect(() => {
+    const ageGroupFromQuery = searchParams.get('ageGroup');
+    if (ageGroupFromQuery) {
+      if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
+        setAgeFilter(ageGroupFromQuery as '12-14' | '15-18');
+      } else if (ageGroupFromQuery === 'adult') {
+        setAgeFilter('all'); // Adults see 'all' by default if coming from dashboard
+      }
+    }
+  }, [searchParams]);
+
 
   const filterQuizzes = (quizzesToFilter: Quiz[], isRecommendedSection: boolean = false) => {
     return quizzesToFilter.filter(quiz => {
@@ -173,7 +186,7 @@ export default function QuizzesOverviewPage() {
         (quiz.badgeText && quiz.badgeText.toLowerCase().includes(searchTerm.toLowerCase()));
       
       let matchesAge = true;
-      if (!isRecommendedSection) { // Age filter only applies to non-recommended sections
+      if (!isRecommendedSection) { 
         matchesAge = ageFilter === 'all' || quiz.ageGroup === ageFilter || quiz.ageGroup === 'all';
       }
       
@@ -237,7 +250,7 @@ export default function QuizzesOverviewPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:flex-none">
                 <div>
                     <Label htmlFor="age-filter" className="text-xs font-medium text-muted-foreground">Leeftijd</Label>
-                    <Select value={ageFilter} onValueChange={setAgeFilter}>
+                    <Select value={ageFilter} onValueChange={(value) => setAgeFilter(value as AgeFilterType)}>
                     <SelectTrigger id="age-filter"><SelectValue placeholder="Alle leeftijden" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Alle leeftijden</SelectItem>
@@ -333,7 +346,6 @@ export default function QuizzesOverviewPage() {
             </>
           )}
 
-          {/* Final CTA Section */}
           <section className="mt-16 border-t pt-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-4">
               Klaar om te ontdekken wat <span className="text-primary">jouw brein uniek</span> maakt?

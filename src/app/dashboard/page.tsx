@@ -4,8 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from 'lucide-react'; // Updated icons
-// import { ResultsChart } from '@/components/dashboard/results-chart'; // ResultsChart is removed from main dashboard
+import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from 'lucide-react';
 import { useDashboardRole } from '@/contexts/DashboardRoleContext'; 
 
 import AdminDashboardOverviewPage from './admin/page'; 
@@ -21,11 +20,6 @@ const latestCoachingTip = {
   title: "Tip van de dag: Structuur en Routine",
   message: "Een voorspelbare dagstructuur kan helpen om overprikkeling te verminderen en focus te verbeteren. Probeer vandaag één vast rustmoment in te plannen.",
 };
-
-// const resultsData = [
-//   { name: 'Basis Neuroprofiel (15-18 jr)', score: 75, date: '2024-03-15' },
-//   { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' },
-// ];
 
 interface DashboardActionItem {
   id: string;
@@ -43,7 +37,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     title: 'Ontdek Jezelf',
     description: 'Start een nieuwe quiz, ga verder waar je gebleven was, of bekijk alle beschikbare quizzen.',
     icon: ClipboardList,
-    link: '/quizzes',
+    link: currentUserData.ageGroup === 'adult' ? '/quizzes' : `/quizzes?ageGroup=${currentUserData.ageGroup}`,
     buttonText: 'Naar Mijn Quizzen',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
@@ -114,7 +108,6 @@ function LeerlingDashboardContent() {
       </section>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        {/* Removed ResultsChart section from here */}
         <section className="lg:col-span-2">
           <Card className="shadow-lg">
             <CardHeader>
@@ -182,4 +175,3 @@ export default function DashboardPage() {
 
   return <LeerlingDashboardContent />;
 }
-
