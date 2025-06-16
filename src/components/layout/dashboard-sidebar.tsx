@@ -148,7 +148,8 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   let currentSectionTitleDisplayed: string | null = null;
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); // Demo state
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); // Demo state for messages
+  const [hasBillingAction, setHasBillingAction] = useState(true); // Demo state for billing
 
   return (
     <>
@@ -246,7 +247,6 @@ function SidebarNavigationContent() {
             if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
                isParentHighlighted = true;
             }
-             // Specifieke highlight voor "Voortgang Kinderen" als de huidige pagina een subpagina is van /dashboard/ouder/kinderen/
             if (item.label === "Voortgang Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
               isParentHighlighted = true;
             }
@@ -269,8 +269,13 @@ function SidebarNavigationContent() {
                     <item.icon className="h-5 w-5" />
                     {item.label}
                     {item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && (
-                        <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full bg-primary" title="Nieuwe berichten">
+                        <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" title="Nieuwe berichten">
                             <span className="sr-only">Nieuwe berichten</span>
+                        </span>
+                    )}
+                    {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
+                        <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-destructive animate-pulse" title="Facturatie actie vereist">
+                            <span className="sr-only">Facturatie actie vereist</span>
                         </span>
                     )}
                 </Link>
@@ -344,3 +349,4 @@ export function DashboardSidebar() {
     </aside>
   );
 }
+
