@@ -92,7 +92,6 @@ export default function BerichtencentrumPage() {
   useEffect(scrollToBottom, [selectedConversation?.messages]);
   useEffect(() => { 
     if (selectedConversation) {
-        // Ensure scroll happens after DOM updates from selecting new conversation
         setTimeout(scrollToBottom, 0); 
     }
   }, [selectedConversation]);
@@ -102,7 +101,6 @@ export default function BerichtencentrumPage() {
     const newSelectedConv = conversations.find(c => c.id === convId);
     if (newSelectedConv) {
         setSelectedConversation(newSelectedConv);
-        // Mark messages as read and clear unread count for this conversation
         setConversations(prev => prev.map(c => 
             c.id === convId ? {...c, unreadCount: 0, messages: c.messages.map(m => ({...m, isRead: true}))} : c
         ));
@@ -118,16 +116,16 @@ export default function BerichtencentrumPage() {
       sender: 'ouder',
       text: newMessage,
       timestamp: new Date().toISOString(),
-      isRead: true, // Own messages are always read
+      isRead: true,
     };
     
     const updatedConversation = {
         ...selectedConversation,
         messages: [...selectedConversation.messages, newMsg],
-        lastMessage: newMessage, // Update last message preview
-        lastMessageTimestamp: newMsg.timestamp, // Update timestamp for sorting
+        lastMessage: newMessage, 
+        lastMessageTimestamp: newMsg.timestamp, 
     };
-    setSelectedConversation(updatedConversation); // Update the view immediately
+    setSelectedConversation(updatedConversation);
 
     setConversations(prev => prev.map(c => 
       c.id === selectedConversation.id ? updatedConversation : c
@@ -176,8 +174,8 @@ export default function BerichtencentrumPage() {
         </CardHeader>
         <div className="flex flex-1 overflow-hidden">
           {/* Conversations List */}
-          <ScrollArea className="w-full md:w-1/3 border-r">
-            <div className="p-2 space-y-1.5 bg-muted/30 h-full"> {/* Added bg-muted/30 here */}
+          <ScrollArea className="w-full md:w-1/3 border-r bg-muted/30">
+            <div className="p-2 space-y-1.5">
               {conversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()).map(conv => (
                 <Button
                   key={conv.id}
@@ -185,8 +183,8 @@ export default function BerichtencentrumPage() {
                   className={cn(
                     "w-full h-auto justify-start p-3 text-left rounded-md",
                     selectedConversation?.id === conv.id 
-                      ? "bg-card shadow-sm font-semibold" 
-                      : "hover:bg-muted/20" // Changed hover for non-selected items
+                      ? "bg-accent text-accent-foreground shadow-sm font-semibold" 
+                      : "bg-card hover:bg-muted/50 text-card-foreground"
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
@@ -194,16 +192,16 @@ export default function BerichtencentrumPage() {
                     <AvatarImage src={conv.tutorAvatar} alt={conv.tutorName} data-ai-hint="person avatar" />
                     <AvatarFallback>{getInitials(conv.tutorName)}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 overflow-hidden space-y-0.5"> {/* Added space-y here for internal text lines */}
+                  <div className="flex-1 overflow-hidden space-y-0.5">
                     <div className="flex justify-between items-center">
-                        <p className="truncate font-medium text-sm">{conv.tutorName}</p>
+                        <p className={cn("truncate font-medium text-sm", selectedConversation?.id === conv.id ? "text-accent-foreground" : "text-foreground")}>{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
-                            <Badge variant="default" className="h-5 px-1.5 text-xs">{conv.unreadCount}</Badge>
+                            <Badge variant={selectedConversation?.id === conv.id ? "default" : "secondary"} className={cn(selectedConversation?.id === conv.id ? "bg-background text-foreground" : "", "h-5 px-1.5 text-xs")}>{conv.unreadCount}</Badge>
                         )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">Kind: {conv.childName}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{conv.lastMessage}</p> {/* Changed truncate to line-clamp-2 */}
-                     <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                    <p className={cn("text-xs truncate", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>Kind: {conv.childName}</p>
+                    <p className={cn("text-xs line-clamp-2", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>{conv.lastMessage}</p>
+                     <p className={cn("text-[10px] mt-0.5", selectedConversation?.id === conv.id ? "text-accent-foreground/70" : "text-muted-foreground/80")}>
                         <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="p" />
                     </p>
                   </div>
@@ -231,17 +229,16 @@ export default function BerichtencentrumPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-4 bg-muted/10"> {/* Removed space-y from here */}
+                <ScrollArea className="flex-1 p-4 bg-muted/10">
                   {selectedConversation.messages.map(msg => (
                     <div 
                       key={msg.id} 
                       className={cn(
-                        "w-full flex mb-6", // This provides spacing between messages
+                        "w-full flex mb-6", 
                         msg.sender === 'ouder' ? 'justify-end' : 'justify-start'
                       )}
                     >
                       <div className={cn("max-w-[85%] sm:max-w-[75%]", msg.sender === 'ouder' ? 'ml-auto' : 'mr-auto')}>
-                        {/* Bubble */}
                         <div className={cn(
                           "p-3 rounded-xl text-sm shadow",
                           msg.sender === 'ouder' 
@@ -250,7 +247,6 @@ export default function BerichtencentrumPage() {
                         )}>
                           <p className="whitespace-pre-wrap">{msg.text}</p>
                         </div>
-                        {/* Timestamp, aligned based on sender */}
                         <p className={cn(
                           "text-[10px] text-muted-foreground/70 mt-1",
                           msg.sender === 'ouder' ? 'text-right pr-1' : 'text-left pl-1'
