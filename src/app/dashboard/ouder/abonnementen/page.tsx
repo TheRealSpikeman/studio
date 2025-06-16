@@ -60,11 +60,7 @@ export default function AbonnementenPage() {
             Beheer hier de abonnementen en betalingsgegevens voor uw gezin.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard/ouder">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
-          </Link>
-        </Button>
+        {/* Removed "Terug naar Ouder Dashboard" button */}
       </div>
 
       <Card className="shadow-lg">
