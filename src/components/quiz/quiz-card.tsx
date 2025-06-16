@@ -24,6 +24,7 @@ interface QuizCardProps {
   icon?: ElementType;
   badgeText?: string;
   badgeClass?: string;
+  isNeuroIntake?: boolean;
 }
 
 export function QuizCard({ 
@@ -41,17 +42,23 @@ export function QuizCard({
   icon: QuizIcon, // Renamed to avoid conflict with statusIcon
   badgeText,
   badgeClass,
+  isNeuroIntake
 }: QuizCardProps) {
   let statusIcon;
   let actionButtonText;
   let actionButtonVariant: "default" | "outline" | "secondary" = "default";
-  let href = id.startsWith('teen-neurodiversity-quiz') ? `/quiz/${id}` : `/quiz/${id}`;
+  
+  // Construct the correct href for the quiz link
+  let href = `/quiz/${id}`; // Default link structure
+  if (id.startsWith('neuro-intake-')) { // Handle new neuro-intake IDs
+    href = `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroup}`; // Point to the generic teen quiz page with ageGroup
+  }
 
 
   switch (status) {
     case 'Nog niet gestart':
       statusIcon = <PlayCircle className="h-5 w-5 text-primary" />;
-      actionButtonText = 'Start Quiz';
+      actionButtonText = isNeuroIntake ? 'Start Intake Test' : 'Start Quiz';
       break;
     case 'In progress':
       statusIcon = <Clock className="h-5 w-5 text-yellow-500" />;
@@ -62,7 +69,11 @@ export function QuizCard({
       statusIcon = <CheckCircle className="h-5 w-5 text-green-500" />;
       actionButtonText = 'Bekijk Resultaten';
       actionButtonVariant = "outline";
-      href = id.startsWith('teen-neurodiversity-quiz') ? `/quiz/${id.split('?')[0]}/results` : `/quiz/${id}/results`;
+      if (id.startsWith('neuro-intake-')) {
+         href = `/quiz/teen-neurodiversity-quiz/results?ageGroup=${ageGroup}`; // Ensure results link for intake is also correct
+      } else {
+        href = `/quiz/${id}/results`;
+      }
       break;
     default:
       statusIcon = null;
@@ -140,7 +151,7 @@ export function QuizCard({
           <p className="text-sm text-green-600 font-medium flex items-center gap-1 pt-1"><CheckCircle className="h-4 w-4"/>Quiz afgerond!</p>
         )}
          {status === 'Nog niet gestart' && !progress && (
-          <p className="text-sm text-muted-foreground pt-1">Klaar om te beginnen?</p>
+          <p className="text-sm text-muted-foreground pt-1">{isNeuroIntake ? "Start hier je ontdekkingsreis!" : "Klaar om te beginnen?"}</p>
         )}
       </CardContent>
       <CardFooter className="mt-auto pt-2 pb-4">
