@@ -1,9 +1,74 @@
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, DollarSign, Contact } from 'lucide-react'; // Added Contact and DollarSign
+import { Users, Settings, BookOpenCheck, DollarSign, Contact } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils'; // Import cn utility
+
+interface DashboardItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  link: string;
+  buttonText: string;
+  buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+  disabled?: boolean;
+  isLink: boolean;
+  colorClass?: string;
+}
+
+const ouderDashboardItems: DashboardItem[] = [
+  {
+    id: 'kinderen',
+    title: 'Mijn Kinderen',
+    description: 'Bekijk en beheer de profielen en voortgang van uw kinderen.',
+    icon: Contact,
+    link: '/dashboard/ouder/kinderen', 
+    buttonText: 'Beheer Kinderen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false, 
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+  },
+  {
+    id: 'lessen',
+    title: 'Lessen Kinderen',
+    description: 'Plan en beheer de bijlessen voor uw kinderen.',
+    icon: BookOpenCheck,
+    link: '/dashboard/ouder/lessen',
+    buttonText: 'Plan Lessen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
+  },
+  {
+    id: 'abonnementen',
+    title: 'Abonnementen & Betaling',
+    description: 'Beheer de abonnementen voor de coaching-hub en bijlessen.',
+    icon: DollarSign,
+    link: '/dashboard/ouder/abonnementen',
+    buttonText: 'Beheer Abonnementen (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+    colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
+  },
+  {
+    id: 'accountinstellingen',
+    title: 'Mijn Accountinstellingen',
+    description: 'Beheer uw eigen accountgegevens en voorkeuren.',
+    icon: Settings,
+    link: '/dashboard/profile',
+    buttonText: 'Ga naar Instellingen',
+    buttonVariant: 'default',
+    isLink: true,
+    colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
+  },
+];
+
 
 export default function OuderDashboardPage() {
   return (
@@ -16,54 +81,37 @@ export default function OuderDashboardPage() {
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Contact className="h-5 w-5 text-primary"/>Mijn Kinderen</CardTitle>
-            <CardDescription>Bekijk en beheer de profielen en voortgang van uw kinderen.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Voeg kinderen toe, bewerk hun gegevens en volg hun quizresultaten en coachingstrajecten.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>Beheer Kinderen (binnenkort)</Button>
-          </CardFooter>
-        </Card>
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-primary"/>Lessen Plannen & Beheren</CardTitle>
-            <CardDescription>Plan en beheer de bijlessen voor uw kinderen.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Zoek en boek sessies bij gekwalificeerde tutors, bekijk de leshistorie en geef feedback.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>Plan Lessen (binnenkort)</Button>
-          </CardFooter>
-        </Card>
-         <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><DollarSign className="h-5 w-5 text-primary"/>Abonnementen & Betaling</CardTitle>
-            <CardDescription>Beheer de abonnementen voor de coaching-hub en bijlessen.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Bekijk actieve abonnementen, betaalgeschiedenis en pas betaalmethoden aan.</p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>Beheer Abonnementen (binnenkort)</Button>
-          </CardFooter>
-        </Card>
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Accountinstellingen</CardTitle>
-            <CardDescription>Beheer uw eigen accountgegevens.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Update uw profiel, wijzig uw wachtwoord en beheer communicatievoorkeuren.</p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" className="w-full"><Link href="/dashboard/profile">Mijn Instellingen</Link></Button>
-          </CardFooter>
-        </Card>
+        {ouderDashboardItems.map((item) => (
+          <Card
+            key={item.id}
+            className={cn(
+              "group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full",
+              item.colorClass || "bg-card"
+            )}
+          >
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground">{item.description}</p>
+            </CardContent>
+            <CardFooter>
+              <Button
+                variant={item.buttonVariant || 'outline'}
+                className="w-full"
+                asChild={item.isLink && !item.disabled}
+                disabled={item.disabled}
+              >
+                {item.isLink && !item.disabled ? <Link href={item.link}>{item.buttonText}</Link> : item.buttonText}
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     </div>
   );
