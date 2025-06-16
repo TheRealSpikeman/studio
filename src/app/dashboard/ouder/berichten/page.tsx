@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/berichten/page.tsx
 "use client";
 
@@ -129,7 +130,8 @@ export default function BerichtencentrumPage() {
 
     setConversations(prev => prev.map(c => 
       c.id === selectedConversation.id ? updatedConversation : c
-    ));
+    ).sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime())
+    );
     setNewMessage('');
   };
   
@@ -146,8 +148,15 @@ export default function BerichtencentrumPage() {
       unreadCount: 0,
       messages: [{id: 'init', sender: 'ouder', text: 'Hallo, ik wil graag een vraag stellen over...', timestamp: new Date().toISOString(), isRead: true}],
     };
-    setConversations(prev => [newConv, ...prev]);
+    setConversations(prev => [newConv, ...prev.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime())]);
     setSelectedConversation(newConv);
+  };
+
+  const truncateMessage = (message: string, maxLength: number = 20): string => {
+    if (message.length > maxLength + 2) { // +2 to account for ".."
+      return message.substring(0, maxLength) + "..";
+    }
+    return message;
   };
 
   return (
@@ -176,14 +185,14 @@ export default function BerichtencentrumPage() {
           {/* Conversations List */}
           <ScrollArea className="w-full md:w-1/3 border-r bg-muted/30">
             <div className="p-2 space-y-1.5">
-              {conversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()).map(conv => (
+              {conversations.map(conv => (
                 <Button
                   key={conv.id}
                   variant="ghost"
                   className={cn(
                     "w-full h-auto justify-start p-3 text-left rounded-md",
                     selectedConversation?.id === conv.id 
-                      ? "bg-accent text-accent-foreground shadow-sm font-semibold" 
+                      ? "bg-accent text-accent-foreground shadow-sm" 
                       : "bg-card hover:bg-muted/50 text-card-foreground"
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
@@ -194,13 +203,15 @@ export default function BerichtencentrumPage() {
                   </Avatar>
                   <div className="flex-1 overflow-hidden space-y-0.5">
                     <div className="flex justify-between items-center">
-                        <p className={cn("truncate font-medium text-sm", selectedConversation?.id === conv.id ? "text-accent-foreground" : "text-foreground")}>{conv.tutorName}</p>
+                        <p className={cn("truncate text-sm", selectedConversation?.id === conv.id ? "text-accent-foreground font-semibold" : "text-foreground font-medium")}>{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
                             <Badge variant={selectedConversation?.id === conv.id ? "default" : "secondary"} className={cn(selectedConversation?.id === conv.id ? "bg-background text-foreground" : "", "h-5 px-1.5 text-xs")}>{conv.unreadCount}</Badge>
                         )}
                     </div>
                     <p className={cn("text-xs truncate", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>Kind: {conv.childName}</p>
-                    <p className={cn("text-xs line-clamp-2", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>{conv.lastMessage}</p>
+                    <p className={cn("text-xs truncate", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>
+                      {truncateMessage(conv.lastMessage, 30)}
+                    </p>
                      <p className={cn("text-[10px] mt-0.5", selectedConversation?.id === conv.id ? "text-accent-foreground/70" : "text-muted-foreground/80")}>
                         <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="p" />
                     </p>
@@ -233,10 +244,7 @@ export default function BerichtencentrumPage() {
                   {selectedConversation.messages.map(msg => (
                     <div 
                       key={msg.id} 
-                      className={cn(
-                        "w-full flex mb-6", 
-                        msg.sender === 'ouder' ? 'justify-end' : 'justify-start'
-                      )}
+                      className="w-full flex mb-6" // Increased mb for more space
                     >
                       <div className={cn("max-w-[85%] sm:max-w-[75%]", msg.sender === 'ouder' ? 'ml-auto' : 'mr-auto')}>
                         <div className={cn(
@@ -288,3 +296,4 @@ export default function BerichtencentrumPage() {
     </div>
   );
 }
+
