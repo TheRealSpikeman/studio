@@ -8,9 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessagesSquare, Send, PlusCircle, Search, Users, FileText, MessageCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { MessagesSquare, Send, PlusCircle, Search, User, FileText, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell'; // Assuming this can be reused for time formatting
+import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
 interface Message {
   id: string;
@@ -67,6 +68,7 @@ const dummyConversations: Conversation[] = [
     id: 'conv3',
     tutorId: 'tutor3',
     tutorName: 'Juf Anja',
+    tutorAvatar: 'https://placehold.co/40x40.png?text=JA',
     childName: 'Lisa Voorbeeld',
     lastMessage: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden?',
     lastMessageTimestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -88,12 +90,17 @@ export default function BerichtencentrumPage() {
   };
 
   useEffect(scrollToBottom, [selectedConversation?.messages]);
+  useEffect(() => { // Scroll on conversation change
+    if (selectedConversation) {
+        setTimeout(scrollToBottom, 0); // Timeout ensures DOM is updated
+    }
+  }, [selectedConversation]);
+
 
   const handleSelectConversation = (convId: string) => {
     const newSelectedConv = conversations.find(c => c.id === convId);
     if (newSelectedConv) {
         setSelectedConversation(newSelectedConv);
-        // Mark messages as read (simulation)
         setConversations(prev => prev.map(c => 
             c.id === convId ? {...c, unreadCount: 0, messages: c.messages.map(m => ({...m, isRead: true}))} : c
         ));
@@ -111,33 +118,29 @@ export default function BerichtencentrumPage() {
       timestamp: new Date().toISOString(),
       isRead: true,
     };
-    setSelectedConversation(prev => prev ? ({
-      ...prev,
-      messages: [...prev.messages, newMsg],
-      lastMessage: newMessage,
-      lastMessageTimestamp: newMsg.timestamp,
-    }) : null);
-    setConversations(prev => prev.map(c => 
-      c.id === selectedConversation.id ? {
-        ...c, 
-        messages: [...c.messages, newMsg],
+    
+    const updatedConversation = {
+        ...selectedConversation,
+        messages: [...selectedConversation.messages, newMsg],
         lastMessage: newMessage,
         lastMessageTimestamp: newMsg.timestamp,
-      } : c
+    };
+    setSelectedConversation(updatedConversation);
+
+    setConversations(prev => prev.map(c => 
+      c.id === selectedConversation.id ? updatedConversation : c
     ));
     setNewMessage('');
   };
   
   const handleNewConversation = () => {
-    // Simulate starting a new conversation - in a real app, a modal would appear
-    // to select child and tutor.
-    alert("Nieuw gesprek starten (gesimuleerd). Selecteer een kind en tutor.");
+    alert("Nieuw gesprek starten (gesimuleerd). In een echte app kunt u hier een kind en tutor selecteren waarvan het kind les heeft gehad.");
     const newConv: Conversation = {
       id: `conv-${Date.now()}`,
-      tutorId: 'new-tutor',
-      tutorName: 'Nieuwe Tutor',
+      tutorId: 'new-tutor-id',
+      tutorName: 'Nieuwe Tutor (Voorbeeld)',
       tutorAvatar: `https://placehold.co/40x40.png?text=${getInitials('Nieuwe Tutor')}`,
-      childName: 'Kind X',
+      childName: 'Selecteer Kind',
       lastMessage: 'Start van nieuw gesprek...',
       lastMessageTimestamp: new Date().toISOString(),
       unreadCount: 0,
@@ -159,7 +162,7 @@ export default function BerichtencentrumPage() {
         </p>
       </div>
 
-      <Card className="shadow-lg h-[calc(100vh-200px)] flex flex-col">
+      <Card className="shadow-lg h-[calc(100vh-230px)] flex flex-col"> {/* Adjusted height */}
         <CardHeader className="flex-row items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
             <Input placeholder="Zoek gesprekken..." className="max-w-xs h-9 hidden sm:block" />
@@ -171,15 +174,15 @@ export default function BerichtencentrumPage() {
         </CardHeader>
         <div className="flex flex-1 overflow-hidden">
           {/* Conversations List */}
-          <ScrollArea className="w-full md:w-1/3 border-r">
-            <div className="p-3 space-y-2">
+          <ScrollArea className="w-full md:w-1/3 border-r bg-muted/30">
+            <div className="p-2 space-y-1">
               {conversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()).map(conv => (
                 <Button
                   key={conv.id}
                   variant="ghost"
                   className={cn(
-                    "w-full h-auto justify-start p-3 text-left hover:bg-muted",
-                    selectedConversation?.id === conv.id && "bg-muted font-semibold"
+                    "w-full h-auto justify-start p-3 text-left rounded-md hover:bg-background/80", // bg-background for hover to stand out
+                    selectedConversation?.id === conv.id && "bg-background shadow-sm font-semibold"
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
@@ -189,14 +192,15 @@ export default function BerichtencentrumPage() {
                   </Avatar>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex justify-between items-center">
-                        <p className="truncate font-medium">{conv.tutorName} <span className="text-xs text-muted-foreground"> (Kind: {conv.childName})</span></p>
+                        <p className="truncate font-medium text-sm">{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
-                            <span className="ml-2 text-xs bg-primary text-primary-foreground rounded-full px-1.5 py-0.5">{conv.unreadCount}</span>
+                            <Badge variant="default" className="h-5 px-1.5 text-xs">{conv.unreadCount}</Badge>
                         )}
                     </div>
+                    <p className="text-xs text-muted-foreground truncate">Kind: {conv.childName}</p>
                     <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>
-                     <p className="text-xs text-muted-foreground/70 mt-0.5">
-                        <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="Pp" />
+                     <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                        <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="p" />
                     </p>
                   </div>
                 </Button>
@@ -208,46 +212,48 @@ export default function BerichtencentrumPage() {
           </ScrollArea>
 
           {/* Message View */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-background">
             {selectedConversation ? (
               <>
-                <CardHeader className="border-b p-4">
+                <CardHeader className="border-b p-3 bg-card">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                          <AvatarImage src={selectedConversation.tutorAvatar} alt={selectedConversation.tutorName} data-ai-hint="person avatar" />
                         <AvatarFallback>{getInitials(selectedConversation.tutorName)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <CardTitle className="text-lg">{selectedConversation.tutorName}</CardTitle>
-                        <CardDescription>Gesprek over {selectedConversation.childName}</CardDescription>
+                        <CardTitle className="text-md font-semibold">{selectedConversation.tutorName}</CardTitle>
+                        <CardDescription className="text-xs">Gesprek over {selectedConversation.childName}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-4 space-y-4 bg-slate-50">
+                <ScrollArea className="flex-1 p-4 space-y-4 bg-muted/10">
                   {selectedConversation.messages.map(msg => (
                     <div
                       key={msg.id}
                       className={cn(
-                        "flex items-end gap-2 max-w-[80%]",
+                        "flex items-end gap-2 max-w-[85%] sm:max-w-[75%]",
                         msg.sender === 'ouder' ? 'ml-auto flex-row-reverse' : 'mr-auto'
                       )}
                     >
                       <div
                         className={cn(
-                          "p-3 rounded-xl text-sm shadow-sm",
-                          msg.sender === 'ouder' ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-card text-card-foreground rounded-bl-none border'
+                          "p-3 rounded-xl text-sm shadow",
+                          msg.sender === 'ouder' 
+                            ? 'bg-primary text-primary-foreground rounded-br-none' 
+                            : 'bg-card text-card-foreground border rounded-bl-none'
                         )}
                       >
-                        {msg.text}
+                        <p className="whitespace-pre-wrap">{msg.text}</p>
                       </div>
-                      <p className="text-[10px] text-muted-foreground/70 mb-0.5">
+                      <p className="text-[10px] text-muted-foreground/70 mb-1">
                         <FormattedDateCell isoDateString={msg.timestamp} dateFormatPattern="p" />
                       </p>
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
                 </ScrollArea>
-                <CardFooter className="p-4 border-t">
+                <CardFooter className="p-3 border-t bg-card">
                   <div className="flex w-full items-center gap-2">
                     <Textarea
                       placeholder="Typ een bericht..."
@@ -255,18 +261,18 @@ export default function BerichtencentrumPage() {
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyPress={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage();}}}
                       rows={1}
-                      className="min-h-[40px] max-h-[120px] resize-none"
+                      className="min-h-[40px] max-h-[100px] resize-none text-sm"
                     />
-                    <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
-                      <Send className="h-4 w-4" />
+                    <Button onClick={handleSendMessage} disabled={!newMessage.trim()} size="icon" className="h-10 w-10">
+                      <Send className="h-5 w-5" />
                       <span className="sr-only">Verstuur</span>
                     </Button>
                   </div>
                 </CardFooter>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-muted/30">
-                <MessageCircle className="h-16 w-16 text-muted-foreground/50 mb-4" />
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-muted/20">
+                <MessageCircle className="h-16 w-16 text-muted-foreground/40 mb-4" />
                 <h3 className="text-xl font-semibold text-muted-foreground">Selecteer een gesprek</h3>
                 <p className="text-sm text-muted-foreground">Of start een nieuw gesprek met een tutor.</p>
               </div>
