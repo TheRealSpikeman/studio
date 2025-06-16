@@ -36,6 +36,21 @@ const predefinedLeerdoelen = [
   { id: 'structuur', label: "Structuur aanbrengen in huiswerk" },
 ];
 
+const predefinedTutorPreferences = [
+  { id: 'ervaring-add-adhd', label: "Ervaring met ADD/ADHD" },
+  { id: 'ervaring-ass', label: "Ervaring met ASS" },
+  { id: 'ervaring-hsp', label: "Ervaring met HSP" },
+  { id: 'ervaring-faalangst', label: "Ervaring met faalangst" },
+  { id: 'man', label: "Man" },
+  { id: 'vrouw', label: "Vrouw" },
+  { id: 'geduldig', label: "Geduldig" },
+  { id: 'streng-doch-rechtvaardig', label: "Streng doch rechtvaardig" },
+  { id: 'resultaatgericht', label: "Resultaatgericht" },
+  { id: 'uitleg-beelddenkers', label: "Kan goed uitleggen aan beelddenkers" },
+  { id: 'flexibel-avond', label: "Flexibel (ook 's avonds)" },
+  { id: 'flexibel-weekend', label: "Flexibel (ook weekend)" },
+];
+
 const addChildFormSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
   lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 tekens bevatten." }),
@@ -46,7 +61,8 @@ const addChildFormSchema = z.object({
   helpSubjects: z.array(z.string()).optional(),
   selectedLeerdoelen: z.array(z.string()).optional(),
   otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
-  voorkeurTutor: z.string().optional(),
+  selectedTutorPreferences: z.array(z.string()).optional(),
+  otherTutorPreference: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
   deelResultatenMetTutor: z.boolean().optional(),
 });
 
@@ -70,7 +86,8 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       helpSubjects: [],
       selectedLeerdoelen: [],
       otherLeerdoelen: "",
-      voorkeurTutor: "",
+      selectedTutorPreferences: [],
+      otherTutorPreference: "",
       deelResultatenMetTutor: false,
     },
   });
@@ -349,16 +366,69 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                 
                 <FormField
                   control={form.control}
-                  name="voorkeurTutor"
+                  name="selectedTutorPreferences"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-2">
+                        <FormLabel className="text-base font-semibold flex items-center gap-2">
+                          <Users className="h-5 w-5 text-primary" />
+                          Voorkeuren voor type tutor (optioneel)
+                        </FormLabel>
+                        <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                           <Info className="h-3 w-3"/> Selecteer voorkeuren voor het type tutor.
+                        </FormDescription>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+                        {predefinedTutorPreferences.map((pref) => (
+                          <FormField
+                            key={pref.id}
+                            control={form.control}
+                            name="selectedTutorPreferences"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={pref.id}
+                                  className="flex flex-row items-center space-x-2 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(pref.label)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...(field.value || []), pref.label])
+                                          : field.onChange(
+                                              (field.value || []).filter(
+                                                (value) => value !== pref.label
+                                              )
+                                            );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer text-sm">
+                                    {pref.label}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="otherTutorPreference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-semibold flex items-center gap-2">
-                        <Users className="h-5 w-5 text-primary" />
-                        Voorkeuren voor type tutor (optioneel)
+                      <FormLabel className="flex items-center gap-2 text-sm">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                        Andere tutorvoorkeuren of specifieke toelichting (optioneel)
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Bijv. 'Iemand met ervaring met HSP', 'Een mannelijke tutor', 'Iemand die goed kan uitleggen aan beelddenkers'."
+                          placeholder="Bijv. 'Iemand die ook 's avonds laat kan', 'Een tutor die ervaring heeft met topsport'."
                           {...field}
                           rows={2}
                         />
@@ -367,6 +437,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                     </FormItem>
                   )}
                 />
+
 
                 <FormField
                   control={form.control}
@@ -410,4 +481,3 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     </Card>
   );
 }
-

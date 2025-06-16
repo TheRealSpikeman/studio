@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 
 interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
   lastActivity?: string; 
-  leerdoelen?: string; // This will store the combined string
+  leerdoelen?: string; 
   voorkeurTutor?: string;
   deelResultatenMetTutor?: boolean;
 }
@@ -41,7 +41,7 @@ const dummyChildren: Child[] = [
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
-    voorkeurTutor: 'Iemand met ervaring met HSP en geduld.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
   },
   {
@@ -57,7 +57,7 @@ const dummyChildren: Child[] = [
     schoolType: 'VWO',
     helpSubjects: ['engels'],
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
-    voorkeurTutor: '',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
   },
   {
@@ -70,7 +70,7 @@ const dummyChildren: Child[] = [
     lastActivity: 'Coaching tip van gisteren bekeken',
     helpSubjects: [],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
-    voorkeurTutor: 'Een vrouwelijke tutor indien mogelijk.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
   },
 ];
@@ -102,7 +102,7 @@ export default function BeheerKinderenPage() {
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
     let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14';
-    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; // Assuming 10-11 falls into a general category for now
+    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; 
     else if (childAge >= 12 && childAge <= 14) derivedAgeGroup = '12-14';
     else if (childAge >= 15 && childAge <= 18) derivedAgeGroup = '15-18';
     else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult';
@@ -114,6 +114,14 @@ export default function BeheerKinderenPage() {
     }
     if (data.otherLeerdoelen) {
       leerdoelenString += `Overig: ${data.otherLeerdoelen}`;
+    }
+
+    let tutorPreferencesString = "";
+    if (data.selectedTutorPreferences && data.selectedTutorPreferences.length > 0) {
+      tutorPreferencesString += `Geselecteerde voorkeuren: ${data.selectedTutorPreferences.join(', ')}. `;
+    }
+    if (data.otherTutorPreference) {
+      tutorPreferencesString += `Overig: ${data.otherTutorPreference}`;
     }
 
 
@@ -130,7 +138,7 @@ export default function BeheerKinderenPage() {
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
       leerdoelen: leerdoelenString.trim() || undefined,
-      voorkeurTutor: data.voorkeurTutor,
+      voorkeurTutor: tutorPreferencesString.trim() || undefined,
       deelResultatenMetTutor: data.deelResultatenMetTutor,
     };
     setChildren(prev => [newChild, ...prev]);
@@ -144,7 +152,7 @@ export default function BeheerKinderenPage() {
   
   const openDeleteDialog = (child: Child) => {
     setChildToDelete(child);
-    setDeleteConfirmationText(''); // Reset confirmation text
+    setDeleteConfirmationText(''); 
     setIsDeleteDialogOpen(true);
   };
 
@@ -158,7 +166,7 @@ export default function BeheerKinderenPage() {
       });
       setChildToDelete(null);
       setIsDeleteDialogOpen(false);
-      setDeleteConfirmationText(''); // Reset confirmation text
+      setDeleteConfirmationText(''); 
     } else {
       toast({
         title: "Verwijdering mislukt",
@@ -315,4 +323,3 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
-
