@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass, Repeat } from 'lucide-react';
+import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass, Repeat, FileText, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO, addHours, setHours, setMinutes, startOfDay, isEqual, addWeeks, isBefore } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -25,6 +25,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+
 
 // Dummy data for children - in a real app, this would come from a user's profile
 const dummyChildren = [
@@ -46,12 +48,15 @@ interface ScheduledLesson {
   tutorName: string;
   status: LessonStatus;
   recurringGroupId?: string; // Optional: to group recurring lessons
+  report?: string; // Nieuw veld voor het lesverslag
 }
 
 const initialScheduledLessons: ScheduledLesson[] = [
   { id: 'sl1', childId: 'child1', childName: 'Sofie de Tester', subject: 'Wiskunde', subjectId: 'wiskunde', dateTime: addHours(new Date(), 2).toISOString(), durationMinutes: 60, tutorName: 'Mevr. Jansen', status: 'Gepland' },
   { id: 'sl2', childId: 'child2', childName: 'Max de Tester', subject: 'Engels', subjectId: 'engels', dateTime: addHours(new Date(), 26).toISOString(), durationMinutes: 45, tutorName: 'Dhr. Pietersen', status: 'Gepland' },
-  { id: 'sl3', childId: 'child1', childName: 'Sofie de Tester', subject: 'Nederlands', subjectId: 'nederlands', dateTime: addHours(new Date(), -48).toISOString(), durationMinutes: 60, tutorName: 'Mevr. de Wit', status: 'Voltooid' },
+  { id: 'sl3', childId: 'child1', childName: 'Sofie de Tester', subject: 'Nederlands', subjectId: 'nederlands', dateTime: addHours(new Date(), -48).toISOString(), durationMinutes: 60, tutorName: 'Mevr. de Wit', status: 'Voltooid', report: "Sofie heeft goed geoefend met werkwoordspelling. De d/t regels zijn nog een aandachtspunt. Tip: extra oefeningen maken op www.voorbeeld.nl/dt. Volgende les focussen op onregelmatige werkwoorden." },
+  { id: 'sl4', childId: 'child2', childName: 'Max de Tester', subject: 'Geschiedenis', subjectId: 'geschiedenis', dateTime: addHours(new Date(), -72).toISOString(), durationMinutes: 45, tutorName: 'Dhr. Bakker', status: 'Voltooid' },
+  { id: 'sl5', childId: 'child1', childName: 'Sofie de Tester', subject: 'Biologie', subjectId: 'biologie', dateTime: addHours(new Date(), -120).toISOString(), durationMinutes: 60, tutorName: 'Mevr. Groen', status: 'Voltooid', report: "De celbiologie is goed doorgenomen. Sofie stelde gerichte vragen en toonde begrip. Het practicum volgende week zal helpen de theorie verder te verankeren." },
 ];
 
 const getStatusBadgeVariant = (status: LessonStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -81,12 +86,17 @@ export default function OuderLessenPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('14:00');
   const [duration, setDuration] = useState<number>(60);
-  const [selectedTutor, setSelectedTutor] = useState<string>(''); // Placeholder
+  const [selectedTutor, setSelectedTutor] = useState<string>('');
 
   const [isRecurring, setIsRecurring] = useState(false);
   const [repeatUntilDate, setRepeatUntilDate] = useState<Date | undefined>(undefined);
 
   const [scheduledLessons, setScheduledLessons] = useState<ScheduledLesson[]>(initialScheduledLessons);
+  
+  const [isReportViewOpen, setIsReportViewOpen] = useState(false);
+  const [selectedReportText, setSelectedReportText] = useState<string | null>(null);
+  const [selectedLessonForReportView, setSelectedLessonForReportView] = useState<ScheduledLesson | null>(null);
+
 
   const handleScheduleLesson = () => {
     if (!selectedChild || !selectedSubject || !selectedDate || !selectedTime) {
@@ -124,7 +134,7 @@ export default function OuderLessenPage() {
         while (isBefore(currentLessonStartDate, repeatUntilDate) || isEqual(currentLessonStartDate, repeatUntilDate)) {
             const lessonDateTime = setMinutes(setHours(currentLessonStartDate, hours), minutes);
             lessonsToSchedule.push({
-                id: `sl-${Date.now()}-${lessonsToSchedule.length}`, // Unique ID for each instance
+                id: `sl-${Date.now()}-${lessonsToSchedule.length}`, 
                 childId: child.id,
                 childName: child.name,
                 subject: subjectInfo.name,
@@ -161,9 +171,6 @@ export default function OuderLessenPage() {
             : `Les ${subjectInfo.name} voor ${child.name} op ${format(parseISO(lessonsToSchedule[0].dateTime), 'PPPp', { locale: nl })} is succesvol ingepland.`,
         });
     }
-    
-    // Reset form fields (optional)
-    // setSelectedChild(''); setSelectedSubject(''); setSelectedDate(new Date()); setSelectedTime('14:00'); setDuration(60); setSelectedTutor(''); setIsRecurring(false); setRepeatUntilDate(undefined);
   };
   
   const cancelLesson = (lessonId: string) => {
@@ -174,7 +181,17 @@ export default function OuderLessenPage() {
   const markAsCompleted = (lessonId: string) => {
      setScheduledLessons(prev => prev.map(l => l.id === lessonId ? {...l, status: 'Voltooid'} : l));
      toast({ title: "Les gemarkeerd als voltooid", variant: "default"});
-  }
+  };
+
+  const handleViewReport = (lesson: ScheduledLesson) => {
+    if (lesson.report) {
+      setSelectedLessonForReportView(lesson);
+      setSelectedReportText(lesson.report);
+      setIsReportViewOpen(true);
+    } else {
+      toast({ title: "Geen verslag", description: "Er is geen verslag beschikbaar voor deze les.", variant: "default"});
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -198,7 +215,7 @@ export default function OuderLessenPage() {
       <Tabs defaultValue="plan">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="plan">Les Plannen</TabsTrigger>
-          <TabsTrigger value="overview">Overzicht Geplande Lessen ({scheduledLessons.filter(l => l.status === 'Gepland' || l.status === 'Bezig').length})</TabsTrigger>
+          <TabsTrigger value="overview">Overzicht Lessen ({scheduledLessons.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plan" className="mt-6">
@@ -262,7 +279,7 @@ export default function OuderLessenPage() {
                             type="time" 
                             value={selectedTime} 
                             onChange={e => setSelectedTime(e.target.value)} 
-                            step="1800" // 30 min intervals
+                            step="1800"
                         />
                     </div>
                     <div>
@@ -318,7 +335,7 @@ export default function OuderLessenPage() {
                     placeholder="Naam van tutor (binnenkort lijst)" 
                     value={selectedTutor} 
                     onChange={e => setSelectedTutor(e.target.value)} 
-                    disabled // Placeholder
+                    disabled
                 />
               </div>
             </CardContent>
@@ -333,11 +350,10 @@ export default function OuderLessenPage() {
         <TabsContent value="overview" className="mt-6">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Overzicht van alle geplande lessen</CardTitle>
-              <CardDescription>Bekijk, wijzig of annuleer lessen. Filter op kind of status.</CardDescription>
+              <CardTitle>Overzicht van alle lessen</CardTitle>
+              <CardDescription>Bekijk, wijzig of annuleer lessen. Hier kunt u ook de verslagen van voltooide lessen inzien.</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Add filters here later */}
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -348,12 +364,13 @@ export default function OuderLessenPage() {
                       <TableHead>Datum & Tijd</TableHead>
                       <TableHead>Duur</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Verslag</TableHead>
                       <TableHead className="text-right">Acties</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {scheduledLessons.length === 0 && (
-                      <TableRow><TableCell colSpan={7} className="h-24 text-center">Nog geen lessen gepland.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={8} className="h-24 text-center">Nog geen lessen gepland.</TableCell></TableRow>
                     )}
                     {scheduledLessons.map((lesson) => (
                       <TableRow key={lesson.id}>
@@ -369,6 +386,15 @@ export default function OuderLessenPage() {
                             {lesson.status}
                             {lesson.recurringGroupId && <Repeat className="ml-1.5 h-3 w-3 inline-block" title="Herhalende les"/>}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {lesson.status === 'Voltooid' && lesson.report ? (
+                            <Button variant="outline" size="sm" onClick={() => handleViewReport(lesson)}>
+                              <FileText className="mr-2 h-4 w-4"/> Bekijk
+                            </Button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">N.v.t.</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
                            <DropdownMenu>
@@ -407,6 +433,26 @@ export default function OuderLessenPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isReportViewOpen} onOpenChange={setIsReportViewOpen}>
+        <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+                <DialogTitle>Lesverslag: {selectedLessonForReportView?.subject} - {selectedLessonForReportView?.childName}</DialogTitle>
+                <DialogDescription>
+                    Les gegeven door {selectedLessonForReportView?.tutorName} op <FormattedDateCell isoDateString={selectedLessonForReportView?.dateTime || ''} dateFormatPattern="PPPp" />.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 max-h-[60vh] overflow-y-auto">
+                <p className="text-sm text-foreground whitespace-pre-wrap">{selectedReportText || "Geen verslag beschikbaar."}</p>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Sluiten</Button>
+                </DialogClose>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
