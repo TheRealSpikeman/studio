@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Clock, Euro, Save, XCircle, PlusCircle, Trash2, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Clock, Euro, Save, XCircle, PlusCircle, Trash2, CalendarDays, SaveIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { format, isEqual, startOfDay, addDays, startOfWeek, getDay, endOfWeek } from 'date-fns';
@@ -75,14 +75,11 @@ export default function TutorAvailabilityPage() {
 
  useEffect(() => {
     setIsClient(true);
-    // Initialize selectedDateForWeekEditing only if it's undefined
     if (typeof window !== 'undefined' && !selectedDateForWeekEditing) {
       const today = startOfDay(new Date());
       setSelectedDateForWeekEditing(today);
-      // setCurrentEditingWeekMonday(startOfWeek(today, { weekStartsOn: 1 }));
-      // setActiveTabDateKey(format(today, 'yyyy-MM-dd'));
     }
-  }, [selectedDateForWeekEditing]); // Only re-run if selectedDateForWeekEditing changes from undefined to defined
+  }, [selectedDateForWeekEditing]);
 
   useEffect(() => {
     if (!isClient || !selectedDateForWeekEditing) return;
@@ -90,12 +87,12 @@ export default function TutorAvailabilityPage() {
     const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
     setCurrentEditingWeekMonday(newMonday);
     
-    // When selectedDateForWeekEditing changes (e.g., user clicks calendar),
-    // update activeTabDateKey to this newly selected date.
-    const newActiveTabKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-    setActiveTabDateKey(newActiveTabKey);
+    const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
+    if (activeTabDateKey !== newlySelectedDateKey) {
+        setActiveTabDateKey(newlySelectedDateKey);
+    }
 
-  }, [selectedDateForWeekEditing, isClient]);
+  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]);
 
 
   useEffect(() => {
@@ -278,7 +275,7 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col lg:flex-row gap-4 items-start">
-               <div className="w-[280px] flex-shrink-0">
+               <div className="w-full lg:w-[280px] flex-shrink-0">
                 {!isClient ? (
                     <Skeleton className="h-[290px] w-full rounded-md border shadow-sm" />
                 ) : (
@@ -363,8 +360,8 @@ export default function TutorAvailabilityPage() {
                         key={dateKeyForTab} 
                         value={dateKeyForTab} 
                         className={cn(
-                            "flex items-center justify-center w-full h-auto min-h-[44px] text-center whitespace-normal rounded-sm transition-colors duration-150",
-                            "text-xs px-2 py-2 leading-tight sm:text-sm sm:px-2 sm:py-2",
+                            "flex items-center justify-center w-full h-[56px] text-center whitespace-normal rounded-sm transition-colors duration-150", // Fixed height, flex centering
+                            "text-xs p-1 leading-tight sm:text-sm sm:p-2", // Responsive text and padding
                             "bg-background hover:bg-muted/80",
                             "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                           )}
@@ -381,7 +378,7 @@ export default function TutorAvailabilityPage() {
                   const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                   return (
                       <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
-                          <div className="space-y-3 pt-5">
+                          <div className="space-y-3 pt-5"> {/* Added pt-5 here for more space */}
                             <h4 className="font-semibold text-lg">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                             </h4>
@@ -406,12 +403,12 @@ export default function TutorAvailabilityPage() {
                                         <span className="sm:hidden">Nieuw Slot</span>
                                     </Button>
                                     <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]} className="w-full sm:w-auto">
-                                        <Save className="mr-0 sm:mr-2 h-4 w-4"/>
+                                        <SaveIcon className="mr-0 sm:mr-2 h-4 w-4"/> {/* Changed to SaveIcon from lucide for consistency */}
                                         <span className="hidden sm:inline">Tijden Opslaan</span>
                                         <span className="sm:hidden">Opslaan</span>
                                     </Button>
                                     {specificDateAvailability[activeTabDateKey!] && specificDateAvailability[activeTabDateKey!]!.length > 0 && (
-                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto">
+                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto w-full sm:w-auto text-center sm:text-right block sm:inline-block">
                                             Wis specifieke tijden voor deze dag
                                         </Button>
                                     )}
