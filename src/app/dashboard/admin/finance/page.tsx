@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, CreditCard, TrendingUp, Download } from 'lucide-react';
+import { Euro, CreditCard, TrendingUp, Download } from 'lucide-react'; // Changed DollarSign to Euro
 import { Button } from '@/components/ui/button';
 
 export default function AdminFinancePage() {
@@ -19,7 +19,7 @@ export default function AdminFinancePage() {
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totale Omzet (Platform)</CardTitle>
-            <DollarSign className="h-5 w-5 text-primary" />
+            <Euro className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">€ 75.230,50</div>

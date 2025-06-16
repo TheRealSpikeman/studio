@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact } from 'lucide-react'; // Added Contact icon
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact } from 'lucide-react'; // Changed DollarSign to Euro
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -78,7 +78,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder', label: 'Ouder Overzicht', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/lessen', label: 'Lessen Kinderen', icon: BookOpenCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: DollarSign, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
 
   // Tutor specific section
@@ -114,7 +114,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/content-management/new', label: 'Nieuwe Pagina', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/content-management' },
     ]
   },
-  { href: '/dashboard/admin/finance', label: 'Financiën', icon: DollarSign, adminOnly: true },
+  { href: '/dashboard/admin/finance', label: 'Financiën', icon: Euro, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
   

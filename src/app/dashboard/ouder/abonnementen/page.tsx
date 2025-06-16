@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, DollarSign, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Euro, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 // Dummy data - in a real app, this would be fetched
@@ -53,7 +53,7 @@ export default function AbonnementenPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <DollarSign className="h-8 w-8 text-primary" />
+            <Euro className="h-8 w-8 text-primary" />
             Mijn Abonnementen
           </h1>
           <p className="text-muted-foreground">

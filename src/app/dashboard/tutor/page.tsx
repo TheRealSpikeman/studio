@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle, Briefcase, Clock } from 'lucide-react';
+import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock } from 'lucide-react'; // Changed DollarSign to Euro
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -68,7 +68,7 @@ const dashboardItems: DashboardItem[] = [
     id: 'earnings',
     title: 'Verdiensten & Uitbetalingen',
     description: 'Bekijk je factuurhistorie en verdiende bedragen.',
-    icon: DollarSign,
+    icon: Euro, // Changed DollarSign to Euro
     link: '#', // Placeholder
     buttonText: 'Bekijk Verdiensten (binnenkort)',
     buttonVariant: 'outline',

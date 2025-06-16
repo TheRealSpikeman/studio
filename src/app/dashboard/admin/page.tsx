@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, DollarSign, CalendarClock, LineChart, PieChart, BarChart } from 'lucide-react';
+import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from 'lucide-react'; // Changed DollarSign to Euro
 
 // Dummy data for KPIs - replace with actual data fetching
 const kpiData = {
@@ -47,7 +47,7 @@ export default function AdminDashboardOverviewPage() {
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totale Omzet (laatste 30d)</CardTitle>
-            <DollarSign className="h-5 w-5 text-primary" />
+            <Euro className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">€{kpiData.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</div>

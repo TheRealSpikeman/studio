@@ -1,7 +1,7 @@
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, DollarSign, Contact } from 'lucide-react';
+import { Users, Settings, BookOpenCheck, Euro, Contact } from 'lucide-react'; // Changed DollarSign to Euro
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils'; // Import cn utility
@@ -48,11 +48,11 @@ const ouderDashboardItems: DashboardItem[] = [
     id: 'abonnementen',
     title: 'Abonnementen & Betaling',
     description: 'Beheer de abonnementen voor de coaching-hub en bijlessen.',
-    icon: DollarSign,
-    link: '/dashboard/ouder/abonnementen', // Updated link
-    buttonText: 'Beheer Abonnementen', // Updated text
+    icon: Euro, // Changed DollarSign to Euro
+    link: '/dashboard/ouder/abonnementen', 
+    buttonText: 'Beheer Abonnementen', 
     buttonVariant: 'outline',
-    disabled: false, // Enabled button
+    disabled: false, 
     isLink: true,
     colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
   },
