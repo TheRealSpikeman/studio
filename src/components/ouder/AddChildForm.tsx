@@ -69,8 +69,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
         <CardHeader>
             <CardTitle>Kindgegevens Invoeren</CardTitle>
             <CardDescription>
-                Voer de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen.
-                Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
+                Voer de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen. Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -110,48 +109,50 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                         )}
                     />
                 </div>
-                <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Leeftijd kind</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger className="pl-10">
-                            <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <SelectValue placeholder="Selecteer leeftijd" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        {childAgeOptions.map(age => (
-                            <SelectItem key={age} value={age}>{age} jaar</SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="childEmail"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>E-mailadres kind (voor account activatie)</FormLabel>
-                    <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <FormControl>
-                        <Input type="email" placeholder="kind@email.com" {...field} className="pl-10" />
-                        </FormControl>
-                    </div>
-                    <FormDescription className="flex items-center gap-1 text-xs pt-1">
-                        <Info className="h-3 w-3"/> Het kind ontvangt hierop een uitnodiging om het account te activeren.
-                    </FormDescription>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Leeftijd kind</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger className="pl-10">
+                                <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <SelectValue placeholder="Selecteer leeftijd" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {childAgeOptions.map(age => (
+                                <SelectItem key={age} value={age}>{age} jaar</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="childEmail"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>E-mailadres kind (voor account activatie)</FormLabel>
+                        <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <FormControl>
+                            <Input type="email" placeholder="kind@email.com" {...field} className="pl-10" />
+                            </FormControl>
+                        </div>
+                        <FormDescription className="flex items-center gap-1 text-xs pt-1">
+                            <Info className="h-3 w-3"/> Het kind ontvangt hierop een uitnodiging om het account te activeren.
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                     control={form.control}
