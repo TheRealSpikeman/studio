@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react';
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,6 +33,13 @@ const initialUserData = {
   className: 'Klas 3B',
   schoolType: 'HAVO',
   helpSubjects: ['wiskunde', 'nederlands'] as string[],
+  // New fields for parent address
+  street: '',
+  houseNumber: '',
+  postalCode: '',
+  city: '',
+  country: 'Nederland',
+  phoneNumber: '',
 };
 
 const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
@@ -79,6 +86,14 @@ export default function ProfilePage() {
   const [schoolType, setSchoolType] = useState(initialUserData.schoolType);
   const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
 
+  // New state for parent address and phone
+  const [street, setStreet] = useState(initialUserData.street);
+  const [houseNumber, setHouseNumber] = useState(initialUserData.houseNumber);
+  const [postalCode, setPostalCode] = useState(initialUserData.postalCode);
+  const [city, setCity] = useState(initialUserData.city);
+  const [country, setCountry] = useState(initialUserData.country);
+  const [phoneNumber, setPhoneNumber] = useState(initialUserData.phoneNumber);
+
   useEffect(() => {
     if (!isEditing) {
         setUserName(initialUserData.name);
@@ -95,6 +110,14 @@ export default function ProfilePage() {
             setSchoolType(initialUserData.schoolType);
             setHelpSubjects(initialUserData.helpSubjects);
         }
+        if (currentDashboardRole === 'ouder') {
+            setStreet(initialUserData.street);
+            setHouseNumber(initialUserData.houseNumber);
+            setPostalCode(initialUserData.postalCode);
+            setCity(initialUserData.city);
+            setCountry(initialUserData.country);
+            setPhoneNumber(initialUserData.phoneNumber);
+        }
     }
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
@@ -106,10 +129,10 @@ export default function ProfilePage() {
     if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
       const ageNum = parseInt(userAgeString, 10);
       if (!isNaN(ageNum)) {
-        if (ageNum >= 10 && ageNum <= 11) setUserAgeGroup('adult'); // Of een specifieke '10-11' groep indien nodig
+        if (ageNum >= 10 && ageNum <= 11) setUserAgeGroup('adult'); 
         else if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
         else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-        else if (ageNum >= 19 && ageNum <= 20) setUserAgeGroup('adult'); // Of een specifieke '19-20' groep
+        else if (ageNum >= 19 && ageNum <= 20) setUserAgeGroup('adult'); 
         else setUserAgeGroup('adult'); 
       }
     } else {
@@ -158,6 +181,15 @@ export default function ProfilePage() {
         profileDataToSave.className = className;
         profileDataToSave.schoolType = schoolType;
         profileDataToSave.helpSubjects = helpSubjects;
+    }
+    
+    if (currentDashboardRole === 'ouder') {
+        profileDataToSave.street = street;
+        profileDataToSave.houseNumber = houseNumber;
+        profileDataToSave.postalCode = postalCode;
+        profileDataToSave.city = city;
+        profileDataToSave.country = country;
+        profileDataToSave.phoneNumber = phoneNumber;
     }
 
     console.log("Profiel opgeslagen:", profileDataToSave);
@@ -329,7 +361,7 @@ export default function ProfilePage() {
                           {predefinedAvatars.map(avatar => (
                             <button
                               key={avatar.id}
-                              onClick={() => handleSelectAvatar(avatar.src)}
+                              onClick={()={() => handleSelectAvatar(avatar.src)}
                               className={`rounded-full overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
                                 ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
                               title={avatar.alt}
@@ -433,6 +465,52 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {currentDashboardRole === 'ouder' && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-primary" />
+              Contact- &amp; Adresgegevens
+            </CardTitle>
+            <CardDescription>
+              Deze gegevens worden gebruikt voor communicatie en eventuele facturatie.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2">
+                <Label htmlFor="street">Straat</Label>
+                <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="houseNumber">Huisnummer</Label>
+                <Input id="houseNumber" value={houseNumber} onChange={(e) => setHouseNumber(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <Label htmlFor="postalCode">Postcode</Label>
+                <Input id="postalCode" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="city">Plaats</Label>
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="country">Land</Label>
+              <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} disabled={!isEditing} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="phoneNumber" className="flex items-center gap-1">
+                <Phone className="h-4 w-4 text-muted-foreground" /> Telefoonnummer
+              </Label>
+              <Input id="phoneNumber" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isEditing} className="mt-1" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {currentDashboardRole === 'leerling' && (
         <>
@@ -550,7 +628,7 @@ export default function ProfilePage() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  onClick={()={() => setShowNewPassword(!showNewPassword)}
                   aria-label={showNewPassword ? "Verberg nieuw wachtwoord" : "Toon nieuw wachtwoord"}
                 >
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -573,7 +651,7 @@ export default function ProfilePage() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                  onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                  onClick={()={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                   aria-label={showConfirmNewPassword ? "Verberg bevestig nieuw wachtwoord" : "Toon bevestig nieuw wachtwoord"}
                 >
                   {showConfirmNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -599,7 +677,7 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-6 w-6 text-primary" />
-              Profiel & Documenten (Tutor)
+              Profiel &amp; Documenten (Tutor)
             </CardTitle>
             <CardDescription>
               Beheer hier je tutor-specifieke documenten en betaalgegevens.
