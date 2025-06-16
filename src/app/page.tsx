@@ -5,7 +5,6 @@ import { ParentBenefitsSection } from '@/components/landing/parent-benefits-sect
 import { TestimonialsSection } from '@/components/landing/testimonials-section';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { QuizPreviewSection } from '@/components/landing/quiz-preview-section';
-import { FaqSection } from '@/components/landing/faq-section';
 import { FinalCtaSection } from '@/components/landing/final-cta-section';
 
 export default function LandingPage() {
@@ -19,7 +18,6 @@ export default function LandingPage() {
         <TestimonialsSection />
         <QuizPreviewSection />
         <FinalCtaSection />
-        <FaqSection />
       </main>
       <Footer />
     </div>
