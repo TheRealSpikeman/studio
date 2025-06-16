@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { User, Users, School, Mail } from "lucide-react";
 
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
+const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_"; // Define a constant for clarity
 
 const addChildFormSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
@@ -45,13 +46,18 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       lastName: "",
       ageGroup: undefined,
       childEmail: "",
-      schoolType: "",
+      schoolType: "", // Default to empty string, placeholder will show
       className: "",
     },
   });
 
   function onSubmit(values: AddChildFormData) {
-    onSave(values);
+    // If schoolType is our special "not specified" value, convert it back to empty or undefined
+    const dataToSave = {
+      ...values,
+      schoolType: values.schoolType === NOT_SPECIFIED_VALUE ? "" : values.schoolType,
+    };
+    onSave(dataToSave);
   }
 
   return (
@@ -133,7 +139,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type school (optioneel)</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ""} > {/* Ensure value is not undefined for Select */}
                 <FormControl>
                   <SelectTrigger className="pl-10">
                     <School className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -142,7 +148,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                 </FormControl>
                 <SelectContent>
                   {schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                  <SelectItem value="">Niet opgegeven</SelectItem>
+                  <SelectItem value={NOT_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
