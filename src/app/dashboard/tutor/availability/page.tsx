@@ -1,3 +1,4 @@
+
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -74,24 +75,23 @@ export default function TutorAvailabilityPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // Initialize selectedDateForWeekEditing on client mount if not already set
     if (!selectedDateForWeekEditing) {
-      setSelectedDateForWeekEditing(startOfDay(new Date()));
+        setSelectedDateForWeekEditing(startOfDay(new Date()));
     }
-  }, []); // Runs once on mount
+  }, []);
 
   useEffect(() => {
     if (!isClient || !selectedDateForWeekEditing) return;
 
-    const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-    setCurrentEditingWeekMonday(monday);
+    const mondayOfSelectedWeek = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
+    setCurrentEditingWeekMonday(mondayOfSelectedWeek);
     
-    // Set active tab to the initially selected date, or the Monday if selected date is outside current week view
-    if (!activeTabDateKey || !isDateInWeek(new Date(activeTabDateKey + 'T00:00:00'), monday)) {
+    // If the activeTabDateKey is not set, or it's not in the newly selected week,
+    // set it to the currently selectedDateForWeekEditing.
+    if (!activeTabDateKey || !isDateInWeek(new Date(activeTabDateKey + 'T00:00:00'), mondayOfSelectedWeek)) {
         setActiveTabDateKey(format(selectedDateForWeekEditing, 'yyyy-MM-dd'));
     }
-
-  }, [selectedDateForWeekEditing, isClient]);
+  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependency
 
 
   useEffect(() => {
@@ -330,7 +330,7 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-6 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-             <div className="w-[280px] flex-shrink-0 self-start"> 
+            <div className="w-[280px] flex-shrink-0 self-start">
               <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
                 <Skeleton className="h-[290px] w-full rounded-md border mt-1" />
@@ -349,14 +349,14 @@ export default function TutorAvailabilityPage() {
             </div>
             
             {currentEditingWeekMonday && (
-              <Card className="flex-1 min-w-0"> {/* Main card for Tabs */}
-                <CardContent className="p-4"> {/* Padding for the Tabs component inside the card */}
+              <Card className="flex-1 min-w-0">
+                <CardContent className="p-4">
                   <Tabs 
                     value={activeTabDateKey || undefined}
                     onValueChange={setActiveTabDateKey}
                     className="w-full"
                   >
-                    <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
+                    <TabsList className="grid h-auto w-full grid-cols-3 gap-1 sm:grid-cols-4 md:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
                       {dayKeys.map((dayKey, index) => {
                         const dateForTab = getDateForTabIndex(index);
                         if (!dateForTab) return null;
@@ -379,7 +379,7 @@ export default function TutorAvailabilityPage() {
                       const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                       return (
                           <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
-                              <div className="space-y-3 pt-5"> 
+                              <div className="space-y-3 pt-5">
                                 <h4 className="font-semibold text-lg">
                                     Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                                 </h4>
