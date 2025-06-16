@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -91,6 +91,7 @@ const navItems: NavItem[] = [
     ]
   },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
 
@@ -219,14 +220,11 @@ function SidebarNavigationContent() {
 
             let isParentHighlighted = false;
             if (isItemDirectlyActive) {
-                if (item.children && visibleChildren.length > 0) {
-                    const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
-                    if (!childWithIdenticalHrefIsActive) {
-                        isParentHighlighted = true; 
-                    }
-                } else {
-                    isParentHighlighted = true; 
-                }
+                 // Only highlight parent if no child with the exact same href is also active
+                 const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
+                 if (!childWithIdenticalHrefIsActive) {
+                     isParentHighlighted = true;
+                 }
             } else if (item.children && visibleChildren.length > 0 && isParentExpanded) {
                 const noChildIsMoreSpecificOrExactMatch = !visibleChildren.some(child =>
                     child.href === pathname || 
@@ -236,7 +234,6 @@ function SidebarNavigationContent() {
                     isParentHighlighted = true;
                 }
             }
-             // Special case for 'Lessen Kinderen' when its own page '/dashboard/ouder/lessen/overzicht' is active
             if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
                isParentHighlighted = true;
             }
@@ -261,7 +258,6 @@ function SidebarNavigationContent() {
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
-                  // Specific highlight for the exact match of Lessen Overzicht sub-item
                   const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
 
                   return (
