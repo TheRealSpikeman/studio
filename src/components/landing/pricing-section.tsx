@@ -22,7 +22,8 @@ interface Plan {
   ctaText: string;
   ctaBaseLink: string;
   isPopular: boolean;
-  savingsText?: string;
+  yearlyOptionText?: string; // Nieuw: "Of kies jaarlijks: €XX.XX/jaar (omgerekend €Y.YY/mnd)"
+  yearlySavingsHighlight?: string; // Nieuw: "bespaar €Z.ZZ"
   planId: string;
   highlightClass?: string;
 }
@@ -52,7 +53,7 @@ const plansData: Plan[] = [
     ctaText: 'Start gratis quiz voor uw kind',
     ctaBaseLink: '/quizzes',
     isPopular: false,
-    planId: 'free_start', // Consistent with initial plans
+    planId: 'free_start', 
   },
   {
     name: 'Coaching & Tools',
@@ -71,7 +72,8 @@ const plansData: Plan[] = [
     ctaBaseLink: '/signup',
     isPopular: true,
     planId: 'coaching_tools_monthly',
-    savingsText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (omgerekend €${monthlyEquivalentForYearlyCoaching}/mnd - bespaar €${yearlySavingsCoaching})`,
+    yearlyOptionText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (omgerekend €${monthlyEquivalentForYearlyCoaching}/mnd)`,
+    yearlySavingsHighlight: `bespaar €${yearlySavingsCoaching}`,
     highlightClass: "border-primary ring-2 ring-primary/50",
   },
   {
@@ -88,7 +90,8 @@ const plansData: Plan[] = [
     ctaBaseLink: '/signup',
     isPopular: false,
     planId: 'family_guide_monthly',
-    savingsText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`,
+    yearlyOptionText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForFamilyGuide}/mnd)`,
+    yearlySavingsHighlight: `bespaar €${yearlySavingsFamilyGuide}`,
   },
 ];
 
@@ -102,7 +105,7 @@ export function PricingSection() {
       if (plan.planId === 'family_guide_monthly') targetPlanId = 'family_guide_yearly';
     }
 
-    if (targetPlanId === 'free_start') { // Adjusted to match the unique ID
+    if (targetPlanId === 'free_start') {
       router.push(plan.ctaBaseLink);
     } else {
       router.push(`${plan.ctaBaseLink}?plan=${targetPlanId}`);
@@ -124,7 +127,7 @@ export function PricingSection() {
               key={plan.planId}
               className={`flex flex-col shadow-lg relative border border-border hover:shadow-xl transition-shadow ${plan.highlightClass || ''}`}
             >
-              {plan.isPopular && plan.planId.includes('monthly') && ( // Show popular only on monthly if yearly option exists
+              {plan.isPopular && plan.planId.includes('monthly') && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">
                   <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
                     Meest gekozen
@@ -176,14 +179,19 @@ export function PricingSection() {
                 >
                   {plan.ctaText}
                 </Button>
-                 {plan.savingsText && (
-                  <Button
-                    onClick={() => handlePlanSelection(plan, true)}
-                    variant="link"
-                    className="w-full h-auto text-xs text-primary p-0"
-                  >
-                    {plan.savingsText}
-                  </Button>
+                 {plan.yearlyOptionText && (
+                  <div className="text-center mt-1">
+                    <Button
+                      onClick={() => handlePlanSelection(plan, true)}
+                      variant="link"
+                      className="h-auto text-xs text-primary py-1 px-2 text-center flex-wrap justify-center items-baseline leading-tight"
+                    >
+                      <span>{plan.yearlyOptionText}</span>
+                      {plan.yearlySavingsHighlight && (
+                        <span className="text-accent font-semibold ml-1">- {plan.yearlySavingsHighlight}</span>
+                      )}
+                    </Button>
+                  </div>
                 )}
               </CardFooter>
             </Card>
