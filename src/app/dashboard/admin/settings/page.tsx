@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 
-const platformRoles = ['Admin', 'Coach', 'Deelnemer', 'Tutor'];
+const platformRoles = ['Admin', 'Coach', 'Leerling', 'Tutor']; // Changed Deelnemer to Leerling
 const platformPermissions = [
   { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het algemene gebruikersdashboard.' },
   { id: 'take_quizzes', label: 'Quizzen maken', description: 'Mogelijkheid om quizzen te starten en te voltooien.' },
@@ -29,34 +29,23 @@ const platformPermissions = [
 
 // Dummy initial permissions state - in a real app, this comes from a DB
 const initialPermissionsState: Record<string, Record<string, boolean>> = {
-  'view_dashboard': { 'Admin': true, 'Coach': true, 'Deelnemer': true, 'Tutor': true },
-  'take_quizzes': { 'Admin': false, 'Coach': false, 'Deelnemer': true, 'Tutor': false },
-  'view_results': { 'Admin': false, 'Coach': false, 'Deelnemer': true, 'Tutor': false },
-  'access_coaching': { 'Admin': true, 'Coach': true, 'Deelnemer': true, 'Tutor': true }, // Assuming all roles can access some form of coaching info or their specific tools
-  'manage_users': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
-  'manage_quizzes_admin': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
-  'manage_site_content': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
-  'view_platform_analytics': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': false },
-  'manage_tutor_profile': { 'Admin': true, 'Coach': false, 'Deelnemer': false, 'Tutor': true },
-  'view_student_progress': { 'Admin': true, 'Coach': true, 'Deelnemer': false, 'Tutor': true },
+  'view_dashboard': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true },
+  'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false },
+  'view_results': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false },
+  'access_coaching': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true }, 
+  'manage_users': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false },
+  'manage_quizzes_admin': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false },
+  'manage_site_content': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false },
+  'view_platform_analytics': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false },
+  'manage_tutor_profile': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': true },
+  'view_student_progress': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true },
 };
 
 
 export default function AdminSettingsPage() {
-  // Dummy state for example purposes
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [platformName, setPlatformName] = useState("MindNavigator");
   const [permissions, setPermissions] = useState(initialPermissionsState);
-
-  // const handlePermissionChange = (permissionId: string, role: string, checked: boolean) => {
-  //   setPermissions(prev => ({
-  //     ...prev,
-  //     [permissionId]: {
-  //       ...prev[permissionId],
-  //       [role]: checked,
-  //     }
-  //   }));
-  // };
 
   return (
     <div className="space-y-8">
@@ -130,8 +119,7 @@ export default function AdminSettingsPage() {
                           <TableCell key={`${permission.id}-${role}`} className="text-center">
                             <Checkbox 
                               checked={permissions[permission.id]?.[role] || false}
-                              // onCheckedChange={(checked) => handlePermissionChange(permission.id, role, !!checked)} // Enable for actual editing
-                              disabled // Disabled for now as it's a placeholder
+                              disabled 
                               aria-label={`Permissie ${permission.label} voor rol ${role}`}
                             />
                           </TableCell>
@@ -191,4 +179,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-

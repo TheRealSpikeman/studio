@@ -1,6 +1,6 @@
 // src/types/user.ts
 export type UserStatus = 'actief' | 'niet geverifieerd' | 'geblokkeerd' | 'pending_onboarding' | 'pending_approval' | 'rejected';
-export type UserRole = 'admin' | 'coach' | 'deelnemer' | 'tutor'; // Added 'tutor' role
+export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor'; // Changed 'deelnemer' to 'leerling'
 export type AgeGroup = "12-14" | "15-18" | "adult";
 
 export interface User {
@@ -10,7 +10,7 @@ export interface User {
   avatarUrl?: string;
   status: UserStatus;
   role: UserRole;
-  ageGroup?: AgeGroup; // Added age group
+  ageGroup?: AgeGroup; 
   lastLogin: string; // ISO date string
   createdAt: string; // ISO date string
   coaching?: {
@@ -25,10 +25,7 @@ export interface User {
     availability?: string;
     cvUrl?: string; // URL to CV
     vogUrl?: string; // URL to VOG
-    // For display in admin tutor management, might be derived elsewhere in a real app
     totalRevenue?: number; 
     averageRating?: number;
   };
 }
-
-```

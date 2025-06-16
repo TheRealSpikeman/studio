@@ -15,7 +15,7 @@ interface UserManagementTableProps {
   users: User[];
   onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
-  showAgeGroupColumn?: boolean; // New prop
+  showAgeGroupColumn?: boolean; 
 }
 
 const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -46,7 +46,7 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
     switch (role) {
       case 'admin': return 'default'; 
       case 'coach': return 'secondary';
-      case 'deelnemer': return 'outline';
+      case 'leerling': return 'outline'; // Changed from deelnemer
       case 'tutor': return 'default'; 
       default: return 'outline';
     }
@@ -57,7 +57,7 @@ const getRoleBadgeClasses = (role: UserRole): string => {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
       case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
       case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
-      default: return ''; 
+      default: return ''; // Leerling gets default outline styling
     }
 }
 
@@ -72,6 +72,12 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
     const text = status.replace(/_/g, ' ');
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
+  
+  const formatRoleText = (role: UserRole): string => {
+    if (role === 'leerling') return 'Leerling'; // Explicitly set display text
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  }
+
 
   return (
     <div className="overflow-x-auto">
@@ -120,7 +126,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
                     variant={getRoleBadgeVariant(user.role)}
                     className={cn(getRoleBadgeClasses(user.role))}
                 >
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    {formatRoleText(user.role)}
                 </Badge>
               </TableCell>
               {showAgeGroupColumn && (
@@ -144,9 +150,6 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
                     <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Eye className="mr-2 h-4 w-4" /> Bekijken / Bewerken
                     </DropdownMenuItem>
-                    {/* <DropdownMenuItem onClick={() => onEditUser(user)}> // Duplicate, Eye already implies edit
-                      <Edit className="mr-2 h-4 w-4" /> Bewerken 
-                    </DropdownMenuItem> */}
                     <DropdownMenuItem onClick={() => onDeleteUser(user)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                       <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
                     </DropdownMenuItem>

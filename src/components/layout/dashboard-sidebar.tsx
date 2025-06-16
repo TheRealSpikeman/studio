@@ -12,16 +12,15 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; // Importeer de hook en type
+import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 
-// NavItem interface blijft hetzelfde
 interface NavItem {
   href: string;
   label: string;
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
-  userOnly?: boolean;
+  leerlingOnly?: boolean; // Changed from userOnly
   sectionTitle?: string;
   isSubItem?: boolean;
   parent?: string;
@@ -29,24 +28,30 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  // General User Items
-  { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard, userOnly: true },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, userOnly: true },
-  { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, userOnly: true },
+  // Leerling Items
+  { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard, leerlingOnly: true },
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, leerlingOnly: true },
+  { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, leerlingOnly: true },
   {
     href: '/dashboard/coaching',
     label: 'Coaching',
     icon: MessageSquare,
-    userOnly: true,
+    leerlingOnly: true,
     children: [
-      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching', userOnly: true },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching', leerlingOnly: true },
     ]
+  },
+  {
+    href: '/dashboard/leerling/lessons', // New link for leerling lessons
+    label: 'Mijn Lessen',
+    icon: BookOpenCheck,
+    leerlingOnly: true,
   },
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
-    icon: BookOpenCheck,
-    userOnly: true,
+    icon: BookOpenCheck, // Re-using icon, can be changed
+    leerlingOnly: true,
     children: [
       {
         href: '/dashboard/homework-assistance', 
@@ -54,7 +59,7 @@ const navItems: NavItem[] = [
         icon: Lightbulb,
         isSubItem: true,
         parent: '/dashboard/homework-assistance',
-        userOnly: true,
+        leerlingOnly: true,
       },
       {
         href: '/dashboard/homework-assistance/tutors',
@@ -62,16 +67,16 @@ const navItems: NavItem[] = [
         icon: Users2,
         isSubItem: true,
         parent: '/dashboard/homework-assistance',
-        userOnly: true,
+        leerlingOnly: true,
       },
     ]
   },
-  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, userOnly: true },
+  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, leerlingOnly: true },
   
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
-  { href: '/dashboard/tutor/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+  { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
 
 
@@ -110,7 +115,7 @@ const navItems: NavItem[] = [
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); // Gebruik de context
+  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   let currentSectionTitleDisplayed: string | null = null;
 
   return (
@@ -128,7 +133,7 @@ function SidebarNavigationContent() {
             <SelectValue placeholder="Selecteer een rol" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="user">Deelnemer (User)</SelectItem>
+            <SelectItem value="leerling">Leerling</SelectItem> {/* Changed from user */}
             <SelectItem value="tutor">Tutor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
@@ -142,11 +147,11 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (currentDashboardRole === 'admin') {
-              showItem = !item.tutorOnly && !item.userOnly;
+              showItem = !item.tutorOnly && !item.leerlingOnly;
             } else if (currentDashboardRole === 'tutor') {
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.userOnly;
-            } else if (currentDashboardRole === 'user') {
-              showItem = (!!item.userOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly;
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly;
+            } else if (currentDashboardRole === 'leerling') { // Changed from user
+              showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly;
             }
 
             if (!showItem) return null;
@@ -157,8 +162,8 @@ function SidebarNavigationContent() {
                     if (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
-                        renderSectionHeader = true; // Always render for Tutor Portaal title
-                    } else if (currentDashboardRole === 'user') {
+                        renderSectionHeader = true; 
+                    } else if (currentDashboardRole === 'leerling') { // Changed from user
                          if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
                             renderSectionHeader = true; 
                         }
@@ -170,9 +175,9 @@ function SidebarNavigationContent() {
             const isItemDirectlyActive = pathname === item.href;
             
             const visibleChildren = item.children?.filter(child => {
-                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.userOnly;
-                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.userOnly;
-                if (currentDashboardRole === 'user') return (!!child.userOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly;
+                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly;
+                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly;
+                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly; // Changed from user
                 return false;
             }) || [];
 
@@ -195,7 +200,6 @@ function SidebarNavigationContent() {
                  }
             }
             
-            // Special handling for Tutor Portaal: don't render the main link if it's the section title itself
             const skipRenderingMainLink = currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor';
 
             return (

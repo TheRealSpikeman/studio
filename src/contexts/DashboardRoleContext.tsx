@@ -4,9 +4,7 @@
 import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { createContext, useContext, useState } from 'react';
 
-// Definieer UserRoleType hier als het niet gemakkelijk geëxporteerd kan worden
-// of als het nog niet bestaat in een gedeeld types bestand.
-export type UserRoleType = 'admin' | 'user' | 'tutor';
+export type UserRoleType = 'admin' | 'leerling' | 'tutor'; // Changed 'user' to 'leerling'
 
 interface DashboardRoleContextType {
   currentDashboardRole: UserRoleType;
@@ -16,7 +14,7 @@ interface DashboardRoleContextType {
 const DashboardRoleContext = createContext<DashboardRoleContextType | undefined>(undefined);
 
 export function DashboardRoleProvider({ children }: { children: ReactNode }) {
-  const [currentDashboardRole, setCurrentDashboardRole] = useState<UserRoleType>('user'); // Default naar 'user'
+  const [currentDashboardRole, setCurrentDashboardRole] = useState<UserRoleType>('leerling'); // Default naar 'leerling'
   return (
     <DashboardRoleContext.Provider value={{ currentDashboardRole, setCurrentDashboardRole }}>
       {children}

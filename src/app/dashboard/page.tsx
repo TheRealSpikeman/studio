@@ -1,5 +1,5 @@
 // src/app/dashboard/page.tsx
-"use client"; // Deze pagina moet nu een client component zijn om de context te gebruiken
+"use client"; 
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,13 +7,12 @@ import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import Link from 'next/link';
 import { MessageSquare, TrendingUp, AlertTriangle, Download } from 'lucide-react';
 import { ResultsChart } from '@/components/dashboard/results-chart';
-import { useDashboardRole } from '@/contexts/DashboardRoleContext'; // Importeer de hook
+import { useDashboardRole } from '@/contexts/DashboardRoleContext'; 
 
-// Importeer de specifieke dashboard componenten
 import AdminDashboardOverviewPage from './admin/page'; 
 import TutorDashboardPage from './tutor/page';
 
-const currentUserData = { // Huidige dummy data, kan worden verfijnd of uit context gehaald
+const currentUserData = { 
   name: "Alex", 
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult'
 };
@@ -77,8 +76,7 @@ const resultsData = [
   { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' },
 ];
 
-// Functie om de content voor de "deelnemer" rol te renderen
-function UserDashboardContent() {
+function LeerlingDashboardContent() { // Renamed from UserDashboardContent
   const quizzesForUser = allDashboardQuizzes.filter(quiz => 
     quiz.ageGroup === currentUserData.ageGroup || quiz.ageGroup === 'all'
   );
@@ -190,6 +188,6 @@ export default function DashboardPage() {
     return <TutorDashboardPage />;
   }
 
-  // Default naar user/deelnemer dashboard
-  return <UserDashboardContent />;
+  // Default naar leerling dashboard
+  return <LeerlingDashboardContent />;
 }

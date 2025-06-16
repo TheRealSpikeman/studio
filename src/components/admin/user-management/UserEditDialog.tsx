@@ -28,7 +28,7 @@ const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
   status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected']),
-  role: z.enum(['admin', 'coach', 'deelnemer', 'tutor']),
+  role: z.enum(['admin', 'coach', 'leerling', 'tutor']), // Changed 'deelnemer' to 'leerling'
   ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
   coaching_startDate: z.date().optional(),
@@ -68,7 +68,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   const { register, handleSubmit, control, reset, formState: { errors }, setValue, watch } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', ageGroup: undefined, avatarUrl: '',
+      name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '', // Default role to leerling
       coaching_interval: 0, coaching_currentDayInFlow: 0, password: '', confirmPassword: '',
       tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
       tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
@@ -78,7 +78,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   const currentRole = watch("role");
 
   useEffect(() => {
-    if (isOpen) { // Reset form when dialog opens or user changes
+    if (isOpen) { 
       if (user && !isAddingNewUser) {
         reset({
           name: user.name, email: user.email, status: user.status, role: user.role,
@@ -97,7 +97,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         });
       } else {
         reset({
-          name: '', email: '', status: 'niet geverifieerd', role: 'deelnemer', ageGroup: undefined, avatarUrl: '',
+          name: '', email: '', status: 'niet geverifieerd', role: 'leerling', ageGroup: undefined, avatarUrl: '', // Default role to leerling
           coaching_startDate: undefined, coaching_interval: 0, coaching_currentDayInFlow: 0,
           password: '', confirmPassword: '',
           tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
@@ -110,7 +110,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   const onSubmit = (data: UserFormData) => {
     const processedData: Partial<User> & Pick<User, 'name' | 'email' | 'status' | 'role'> = {
       name: data.name, email: data.email, status: data.status, role: data.role,
-      ageGroup: data.role === 'deelnemer' ? data.ageGroup : undefined,
+      ageGroup: data.role === 'leerling' ? data.ageGroup : undefined, // Changed from 'deelnemer'
       avatarUrl: data.avatarUrl || undefined,
       coaching: (data.coaching_startDate || data.coaching_interval || data.coaching_currentDayInFlow) ? {
         startDate: data.coaching_startDate ? data.coaching_startDate.toISOString() : undefined,
@@ -188,7 +188,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
                 {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden.</p>}
               </div>
-              {currentRole === 'deelnemer' && (
+              {currentRole === 'leerling' && ( // Changed from 'deelnemer'
                  <div>
                     <Label htmlFor="ageGroup" className="flex items-center gap-1">
                         <Cake className="h-4 w-4 text-muted-foreground"/>
@@ -262,7 +262,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="coach">Coach</SelectItem>
-                        <SelectItem value="deelnemer">Deelnemer</SelectItem>
+                        <SelectItem value="leerling">Leerling</SelectItem> {/* Changed from deelnemer */}
                         <SelectItem value="tutor">Tutor</SelectItem>
                       </SelectContent>
                     </Select>
