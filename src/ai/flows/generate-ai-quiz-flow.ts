@@ -86,7 +86,7 @@ For each question:
    - For 'gemiddeld' (medium) difficulty, weights should mostly be 2 or 3, but can range from 1 to 4.
    - For 'hoog' (high) difficulty, weights should mostly be 3 or 4, but can range from 2 to 5.
 
-The questions should help users reflect on the given topic and domain in the context of their neurodiversity.
+The questions should help users reflect on the given topic and domain in the context of their neurodiversity and personal growth. When the category is 'Thema (algemeen)' or the topic is about personal development, the questions should explicitly guide the user towards self-discovery, understanding their behaviors, and identifying opportunities for personal growth.
 The answer options for all questions will be fixed and provided separately in the application (Nooit, Soms, Vaak, Altijd). You DO NOT need to generate answer options.
 Focus on creating thoughtful questions that encourage self-reflection relevant to the {{{audience}}} on the {{{topic}}} within the {{{category}}}.
 Make sure the language used is appropriate for the specified {{{audience}}}.
@@ -113,3 +113,4 @@ const generateAiQuizFlow = ai.defineFlow(
     return output;
   }
 );
+
