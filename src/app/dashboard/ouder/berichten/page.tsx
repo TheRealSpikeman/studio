@@ -227,7 +227,7 @@ export default function BerichtencentrumPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-4 space-y-4 bg-muted/10">
+                <ScrollArea className="flex-1 p-4 space-y-6 bg-muted/10"> {/* Increased space-y from 4 to 6 */}
                   {selectedConversation.messages.map(msg => (
                     <div
                       key={msg.id}
