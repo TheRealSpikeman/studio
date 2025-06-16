@@ -9,12 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass } from 'lucide-react';
+import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass, Repeat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format, parseISO, addHours, setHours, setMinutes, startOfDay, isEqual } from 'date-fns';
+import { format, parseISO, addHours, setHours, setMinutes, startOfDay, isEqual, addWeeks, isBefore } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
@@ -24,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormDescription } from '@/components/ui/form'; // Added FormDescription for better context
 
 // Dummy data for children - in a real app, this would come from a user's profile
 const dummyChildren = [
@@ -44,6 +46,7 @@ interface ScheduledLesson {
   durationMinutes: number;
   tutorName: string;
   status: LessonStatus;
+  recurringGroupId?: string; // Optional: to group recurring lessons
 }
 
 const initialScheduledLessons: ScheduledLesson[] = [
@@ -81,6 +84,9 @@ export default function OuderLessenPage() {
   const [duration, setDuration] = useState<number>(60);
   const [selectedTutor, setSelectedTutor] = useState<string>(''); // Placeholder
 
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [repeatUntilDate, setRepeatUntilDate] = useState<Date | undefined>(undefined);
+
   const [scheduledLessons, setScheduledLessons] = useState<ScheduledLesson[]>(initialScheduledLessons);
 
   const handleScheduleLesson = () => {
@@ -93,6 +99,15 @@ export default function OuderLessenPage() {
       return;
     }
 
+    if (isRecurring && (!repeatUntilDate || isBefore(repeatUntilDate, selectedDate))) {
+        toast({
+            title: "Ongeldige herhaalperiode",
+            description: "De 'herhaal tot' datum moet na de startdatum van de les liggen.",
+            variant: "destructive",
+        });
+        return;
+    }
+
     const child = dummyChildren.find(c => c.id === selectedChild);
     const subjectInfo = allHomeworkSubjects.find(s => s.id === selectedSubject);
     
@@ -102,28 +117,54 @@ export default function OuderLessenPage() {
     }
 
     const [hours, minutes] = selectedTime.split(':').map(Number);
-    const lessonDateTime = setMinutes(setHours(startOfDay(selectedDate), hours), minutes);
+    const lessonsToSchedule: ScheduledLesson[] = [];
+    const recurringGroupId = isRecurring ? `recur-${Date.now()}` : undefined;
 
-    const newLesson: ScheduledLesson = {
-      id: `sl${Date.now()}`,
-      childId: child.id,
-      childName: child.name,
-      subject: subjectInfo.name,
-      subjectId: subjectInfo.id,
-      dateTime: lessonDateTime.toISOString(),
-      durationMinutes: duration,
-      tutorName: selectedTutor || 'Nog te bepalen',
-      status: 'Gepland',
-    };
-
-    setScheduledLessons(prev => [newLesson, ...prev].sort((a,b) => parseISO(b.dateTime).getTime() - parseISO(a.dateTime).getTime() ));
-    toast({
-      title: "Les Ingepland!",
-      description: `Les ${subjectInfo.name} voor ${child.name} op ${format(lessonDateTime, 'PPPp', { locale: nl })} is succesvol ingepland.`,
-    });
+    if (isRecurring && repeatUntilDate) {
+        let currentLessonStartDate = startOfDay(selectedDate);
+        while (isBefore(currentLessonStartDate, repeatUntilDate) || isEqual(currentLessonStartDate, repeatUntilDate)) {
+            const lessonDateTime = setMinutes(setHours(currentLessonStartDate, hours), minutes);
+            lessonsToSchedule.push({
+                id: `sl-${Date.now()}-${lessonsToSchedule.length}`, // Unique ID for each instance
+                childId: child.id,
+                childName: child.name,
+                subject: subjectInfo.name,
+                subjectId: subjectInfo.id,
+                dateTime: lessonDateTime.toISOString(),
+                durationMinutes: duration,
+                tutorName: selectedTutor || 'Nog te bepalen',
+                status: 'Gepland',
+                recurringGroupId: recurringGroupId,
+            });
+            currentLessonStartDate = addWeeks(currentLessonStartDate, 1);
+        }
+    } else {
+        const lessonDateTime = setMinutes(setHours(startOfDay(selectedDate), hours), minutes);
+        lessonsToSchedule.push({
+            id: `sl-${Date.now()}`,
+            childId: child.id,
+            childName: child.name,
+            subject: subjectInfo.name,
+            subjectId: subjectInfo.id,
+            dateTime: lessonDateTime.toISOString(),
+            durationMinutes: duration,
+            tutorName: selectedTutor || 'Nog te bepalen',
+            status: 'Gepland',
+        });
+    }
+    
+    if (lessonsToSchedule.length > 0) {
+        setScheduledLessons(prev => [...lessonsToSchedule, ...prev].sort((a,b) => parseISO(b.dateTime).getTime() - parseISO(a.dateTime).getTime() ));
+        toast({
+          title: isRecurring ? "Reeks Lessen Ingepland!" : "Les Ingepland!",
+          description: isRecurring 
+            ? `${lessonsToSchedule.length} lessen (${subjectInfo.name}) voor ${child.name} wekelijks ingepland tot ${format(repeatUntilDate!, 'PPP', { locale: nl })}.`
+            : `Les ${subjectInfo.name} voor ${child.name} op ${format(parseISO(lessonsToSchedule[0].dateTime), 'PPPp', { locale: nl })} is succesvol ingepland.`,
+        });
+    }
     
     // Reset form fields (optional)
-    // setSelectedChild(''); setSelectedSubject(''); setSelectedDate(new Date()); setSelectedTime('14:00'); setDuration(60); setSelectedTutor('');
+    // setSelectedChild(''); setSelectedSubject(''); setSelectedDate(new Date()); setSelectedTime('14:00'); setDuration(60); setSelectedTutor(''); setIsRecurring(false); setRepeatUntilDate(undefined);
   };
   
   const cancelLesson = (lessonId: string) => {
@@ -158,14 +199,14 @@ export default function OuderLessenPage() {
       <Tabs defaultValue="plan">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="plan">Les Plannen</TabsTrigger>
-          <TabsTrigger value="overview">Overzicht Geplande Lessen</TabsTrigger>
+          <TabsTrigger value="overview">Overzicht Geplande Lessen ({scheduledLessons.filter(l => l.status === 'Gepland' || l.status === 'Bezig').length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plan" className="mt-6">
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Nieuwe Les Inplannen</CardTitle>
-              <CardDescription>Selecteer een kind, vak, datum, tijd en eventueel een voorkeurstutor.</CardDescription>
+              <CardDescription>Selecteer een kind, vak, datum, tijd en eventueel een voorkeurstutor. Je kunt ook wekelijks herhalende lessen inplannen.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -204,7 +245,7 @@ export default function OuderLessenPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                  <div>
-                    <Label>Datum</Label>
+                    <Label>Startdatum Les</Label>
                     <Calendar
                         mode="single"
                         selected={selectedDate}
@@ -216,7 +257,7 @@ export default function OuderLessenPage() {
                  </div>
                  <div className="space-y-6">
                     <div>
-                        <Label htmlFor="select-time">Tijd (bijv. 14:00)</Label>
+                        <Label htmlFor="select-time">Starttijd (bijv. 14:00)</Label>
                         <Input 
                             id="select-time" 
                             type="time" 
@@ -239,21 +280,53 @@ export default function OuderLessenPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div>
-                        <Label htmlFor="select-tutor">Voorkeurstutor (optioneel)</Label>
-                        <Input 
-                            id="select-tutor" 
-                            placeholder="Naam van tutor (binnenkort lijst)" 
-                            value={selectedTutor} 
-                            onChange={e => setSelectedTutor(e.target.value)} 
-                            disabled // Placeholder
-                        />
-                    </div>
                  </div>
+              </div>
+              
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center space-x-2">
+                    <Checkbox
+                        id="recurring-lesson"
+                        checked={isRecurring}
+                        onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
+                    />
+                    <Label htmlFor="recurring-lesson" className="text-base font-medium cursor-pointer flex items-center gap-1">
+                        <Repeat className="h-4 w-4 text-primary"/> Wekelijks herhalen
+                    </Label>
+                </div>
+                {isRecurring && (
+                    <div className="ml-6 space-y-2">
+                        <Label htmlFor="repeat-until-date">Herhaal tot en met</Label>
+                         <Calendar
+                            mode="single"
+                            selected={repeatUntilDate}
+                            onSelect={setRepeatUntilDate}
+                            className="rounded-md border"
+                            locale={nl}
+                            disabled={{ before: selectedDate || new Date() }}
+                        />
+                        <FormDescription className="text-xs">
+                            De les wordt wekelijks op dezelfde dag en tijd ingepland tot en met de hier geselecteerde datum.
+                        </FormDescription>
+                    </div>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="select-tutor">Voorkeurstutor (optioneel)</Label>
+                <Input 
+                    id="select-tutor" 
+                    placeholder="Naam van tutor (binnenkort lijst)" 
+                    value={selectedTutor} 
+                    onChange={e => setSelectedTutor(e.target.value)} 
+                    disabled // Placeholder
+                />
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleScheduleLesson} className="w-full md:w-auto">Les Inplannen</Button>
+              <Button onClick={handleScheduleLesson} className="w-full md:w-auto">
+                {isRecurring ? 'Reeks Lessen Inplannen' : 'Les Inplannen'}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -295,6 +368,7 @@ export default function OuderLessenPage() {
                         <TableCell>
                           <Badge variant={getStatusBadgeVariant(lesson.status)} className={getStatusBadgeClasses(lesson.status)}>
                             {lesson.status}
+                            {lesson.recurringGroupId && <Repeat className="ml-1.5 h-3 w-3 inline-block" title="Herhalende les"/>}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
