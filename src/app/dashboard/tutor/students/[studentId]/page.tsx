@@ -14,30 +14,29 @@ import { FormattedDateCell } from '@/components/admin/user-management/FormattedD
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from '@/hooks/use-toast';
 
-// Duplicating Lesson interface and related types for simplicity in this example
-// In a real app, these would be in a shared types file.
 type LessonStatus = 'Gepland' | 'Voltooid' | 'Geannuleerd' | 'Bezig';
+type ReportRecipient = 'student' | 'parent' | 'both';
+
 interface LessonForHistory {
   id: string;
   subject: string;
   dateTime: string; // ISO string
   durationMinutes: number;
   status: LessonStatus;
-  report?: string; // Post-lesson report
+  report?: string; 
 }
 
 interface StudentDetails {
   id: string;
   name: string;
   avatarUrl?: string;
-  email?: string; // Optional: could be fetched or part of student data
+  email?: string; 
   lessonHistory: LessonForHistory[];
 }
 
-// Dummy data source - replace with actual data fetching
 const allStudentDetails: Record<string, StudentDetails> = {
   s1: {
     id: 's1',
@@ -59,7 +58,6 @@ const allStudentDetails: Record<string, StudentDetails> = {
       { id: 'p2s2', subject: 'Engels Grammatica', dateTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Voltooid' },
     ],
   },
-  // Add more student details as needed
 };
 
 const getStatusBadgeVariant = (status: LessonStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -90,17 +88,15 @@ export default function StudentDetailPage() {
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [selectedLessonForReport, setSelectedLessonForReport] = useState<LessonForHistory | null>(null);
   const [reportText, setReportText] = useState('');
-  const [sendCopyToParent, setSendCopyToParent] = useState(false);
+  const [reportRecipient, setReportRecipient] = useState<ReportRecipient>('student');
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate data fetching
     setIsLoading(true);
     const fetchedStudent = allStudentDetails[studentId];
     if (fetchedStudent) {
       setStudent(fetchedStudent);
     } else {
-      // Handle student not found, e.g., redirect or show error
       console.error("Student not found with ID:", studentId);
     }
     setIsLoading(false);
@@ -111,27 +107,29 @@ export default function StudentDetailPage() {
   const handleOpenReportDialog = (lesson: LessonForHistory) => {
     setSelectedLessonForReport(lesson);
     setReportText(lesson.report || '');
-    setSendCopyToParent(false);
+    setReportRecipient('student');
     setIsReportDialogOpen(true);
   };
 
   const handleSaveReport = () => {
     if (selectedLessonForReport && student) {
-      // Simulate saving the report for this student's lesson
       const updatedLessonHistory = student.lessonHistory.map(l =>
         l.id === selectedLessonForReport.id ? { ...l, report: reportText } : l
       );
       setStudent(prev => prev ? { ...prev, lessonHistory: updatedLessonHistory } : null);
       
-      // Also update the global dummy data (if this page were to affect it directly)
-      // This is a hack for demo; in real app, data comes from backend.
       if(allStudentDetails[student.id]) {
           allStudentDetails[student.id].lessonHistory = updatedLessonHistory;
       }
+      
+      let recipientText = "onbekend";
+      if (reportRecipient === 'student') recipientText = "de leerling";
+      if (reportRecipient === 'parent') recipientText = "de ouder(s)";
+      if (reportRecipient === 'both') recipientText = "de leerling en ouder(s)";
 
       toast({
         title: "Lesverslag Opgeslagen",
-        description: `Verslag voor les ${selectedLessonForReport.subject} is opgeslagen. ${sendCopyToParent ? "Kopie (gesimuleerd) naar ouders." : ""}`,
+        description: `Verslag voor les ${selectedLessonForReport.subject} is opgeslagen. Kopie (gesimuleerd) naar ${recipientText}.`,
       });
       setIsReportDialogOpen(false);
     }
@@ -230,7 +228,6 @@ export default function StudentDetailPage() {
         </CardContent>
       </Card>
       
-      {/* Placeholder for future sections like communication log, goals, etc. */}
       <Card className="shadow-md">
         <CardHeader><CardTitle>Communicatie & Notities (Binnenkort)</CardTitle></CardHeader>
         <CardContent><p className="text-muted-foreground">Hier komt ruimte voor communicatielogboeken en algemene notities over de leerling.</p></CardContent>
@@ -253,22 +250,29 @@ export default function StudentDetailPage() {
               onChange={(e) => setReportText(e.target.value)}
               rows={8}
             />
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="sendCopyToParentDialog" 
-                checked={sendCopyToParent}
-                onCheckedChange={(checked) => setSendCopyToParent(Boolean(checked))}
-              />
-              <Label htmlFor="sendCopyToParentDialog" className="text-sm font-normal cursor-pointer">
-                Stuur een kopie van dit verslag naar de ouder(s) (gesimuleerd).
-              </Label>
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Verstuur verslag naar (gesimuleerd):</Label>
+              <RadioGroup value={reportRecipient} onValueChange={(value) => setReportRecipient(value as ReportRecipient)} className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="student" id="s-r-student" />
+                  <Label htmlFor="s-r-student" className="font-normal cursor-pointer">Alleen naar leerling</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="parent" id="s-r-parent" />
+                  <Label htmlFor="s-r-parent" className="font-normal cursor-pointer">Alleen naar ouder(s)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="both" id="s-r-both" />
+                  <Label htmlFor="s-r-both" className="font-normal cursor-pointer">Naar leerling én ouder(s)</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">Annuleren</Button>
             </DialogClose>
-            <Button type="button" onClick={handleSaveReport}>Verslag Opslaan</Button>
+            <Button type="button" onClick={handleSaveReport}>Verslag Opslaan & Versturen</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -11,20 +11,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { ArrowLeft, CalendarDays, BookOpen, Video, MoreVertical, FileText, AlertTriangle, CheckCircle, XCircle, Hourglass, MessageSquarePlus, Edit3 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from '@/hooks/use-toast';
 
 type LessonStatus = 'Gepland' | 'Voltooid' | 'Geannuleerd' | 'Bezig';
+type ReportRecipient = 'student' | 'parent' | 'both';
 
 interface Lesson {
   id: string;
-  studentId: string; // Added studentId for linking
+  studentId: string; 
   studentName: string;
   studentAvatar?: string;
   subject: string;
@@ -32,8 +31,8 @@ interface Lesson {
   durationMinutes: number;
   status: LessonStatus;
   meetingLink?: string;
-  notes?: string; // General notes from tutor (pre-lesson or general)
-  report?: string; // Post-lesson report
+  notes?: string; 
+  report?: string; 
 }
 
 const dummyUpcomingLessons: Lesson[] = [
@@ -169,18 +168,17 @@ export default function TutorLessonsPage() {
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [selectedLessonForReport, setSelectedLessonForReport] = useState<Lesson | null>(null);
   const [reportText, setReportText] = useState('');
-  const [sendCopyToParent, setSendCopyToParent] = useState(false);
+  const [reportRecipient, setReportRecipient] = useState<ReportRecipient>('student');
 
   const handleOpenReportDialog = (lesson: Lesson) => {
     setSelectedLessonForReport(lesson);
     setReportText(lesson.report || '');
-    setSendCopyToParent(false); // Reset checkbox
+    setReportRecipient('student'); // Reset to default when opening
     setIsReportDialogOpen(true);
   };
 
   const handleSaveReport = () => {
     if (selectedLessonForReport) {
-      // Simulate saving the report
       const lessonType = lessons.upcoming.find(l => l.id === selectedLessonForReport.id) ? 'upcoming' : 'past';
       
       setLessons(prev => ({
@@ -190,11 +188,16 @@ export default function TutorLessonsPage() {
         )
       }));
 
+      let recipientText = "onbekend";
+      if (reportRecipient === 'student') recipientText = "de leerling";
+      if (reportRecipient === 'parent') recipientText = "de ouder(s)";
+      if (reportRecipient === 'both') recipientText = "de leerling en ouder(s)";
+
       toast({
         title: "Lesverslag Opgeslagen",
-        description: `Verslag voor de les "${selectedLessonForReport.subject}" met ${selectedLessonForReport.studentName} is opgeslagen. ${sendCopyToParent ? "Een kopie wordt (gesimuleerd) naar de ouders gestuurd." : ""}`,
+        description: `Verslag voor les "${selectedLessonForReport.subject}" met ${selectedLessonForReport.studentName} is opgeslagen. Een kopie wordt (gesimuleerd) gestuurd naar ${recipientText}.`,
       });
-      console.log("Report to save:", reportText, "For lesson:", selectedLessonForReport.id, "Send to parent:", sendCopyToParent);
+      console.log("Report to save:", reportText, "For lesson:", selectedLessonForReport.id, "Send to:", reportRecipient);
       setIsReportDialogOpen(false);
       setSelectedLessonForReport(null);
       setReportText('');
@@ -253,22 +256,29 @@ export default function TutorLessonsPage() {
               onChange={(e) => setReportText(e.target.value)}
               rows={8}
             />
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="sendCopyToParent" 
-                checked={sendCopyToParent}
-                onCheckedChange={(checked) => setSendCopyToParent(Boolean(checked))}
-              />
-              <Label htmlFor="sendCopyToParent" className="text-sm font-normal cursor-pointer">
-                Stuur een kopie van dit verslag naar de ouder(s) (gesimuleerd).
-              </Label>
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Verstuur verslag naar (gesimuleerd):</Label>
+              <RadioGroup value={reportRecipient} onValueChange={(value) => setReportRecipient(value as ReportRecipient)} className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="student" id="r-student" />
+                  <Label htmlFor="r-student" className="font-normal cursor-pointer">Alleen naar leerling</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="parent" id="r-parent" />
+                  <Label htmlFor="r-parent" className="font-normal cursor-pointer">Alleen naar ouder(s)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="both" id="r-both" />
+                  <Label htmlFor="r-both" className="font-normal cursor-pointer">Naar leerling én ouder(s)</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">Annuleren</Button>
             </DialogClose>
-            <Button type="button" onClick={handleSaveReport}>Verslag Opslaan</Button>
+            <Button type="button" onClick={handleSaveReport}>Verslag Opslaan & Versturen</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
