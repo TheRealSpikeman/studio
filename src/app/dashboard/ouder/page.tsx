@@ -1,10 +1,10 @@
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, Euro, Contact } from 'lucide-react'; // Changed DollarSign to Euro
+import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils'; // Import cn utility
+import { cn } from '@/lib/utils';
 
 interface DashboardItem {
   id: string;
@@ -14,57 +14,78 @@ interface DashboardItem {
   link: string;
   buttonText: string;
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
-  disabled?: boolean;
-  isLink: boolean;
+  statistic?: string; // For displaying a quick stat
   colorClass?: string;
 }
+
+// Dummy data for statistics - replace with actual data fetching later
+const dummyFamilyLessonStats = {
+  geplandeLessenDezeWeek: 5,
+  voltooideLessenTotaal: 23,
+  recenteActiviteit: "Sofie heeft de 'Focus Quiz' voltooid.",
+};
 
 const ouderDashboardItems: DashboardItem[] = [
   {
     id: 'kinderen',
     title: 'Mijn Kinderen',
-    description: 'Voeg uw kinderen toe en beheer hun profielen en voortgang.',
-    icon: Contact,
+    description: 'Voeg kinderen toe, beheer hun profielen en bekijk hun individuele voortgang en resultaten.',
+    icon: Users,
     link: '/dashboard/ouder/kinderen', 
     buttonText: 'Kinderen Toevoegen & Beheren',
     buttonVariant: 'default', 
-    disabled: false,
-    isLink: true, 
-    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-primary/20', 
+    colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100', 
   },
   {
-    id: 'lessen',
-    title: 'Lessen Kinderen',
-    description: 'Plan en beheer de bijlessen voor uw kinderen.',
-    icon: BookOpenCheck,
-    link: '/dashboard/ouder/lessen/overzicht', // Updated link
-    buttonText: 'Plan & Bekijk Lessen',
+    id: 'aankomende-lessen',
+    title: 'Aankomende Lessen',
+    description: 'Snel overzicht van alle geplande bijlessen voor uw gezin.',
+    icon: CalendarClock,
+    link: '/dashboard/ouder/lessen/aankomend',
+    buttonText: 'Bekijk Aankomende Lessen',
     buttonVariant: 'outline',
-    disabled: false,
-    isLink: true,
+    statistic: `Totaal ${dummyFamilyLessonStats.geplandeLessenDezeWeek} lessen gepland deze week.`,
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+  },
+  {
+    id: 'plan-les',
+    title: 'Nieuwe Les Plannen',
+    description: 'Plan eenvoudig een nieuwe bijles of een lessenreeks in voor een van uw kinderen.',
+    icon: CalendarPlus,
+    link: '/dashboard/ouder/lessen/plannen',
+    buttonText: 'Plan een Nieuwe Les',
+    buttonVariant: 'default',
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
     id: 'abonnementen',
     title: 'Abonnementen & Betaling',
-    description: 'Beheer de abonnementen voor de coaching-hub en bijlessen.',
-    icon: Euro, // Changed DollarSign to Euro
+    description: 'Beheer de abonnementen voor de coaching-hub en bijlessen. Bekijk factuurhistorie en pas betaalmethoden aan.',
+    icon: Euro,
     link: '/dashboard/ouder/abonnementen', 
     buttonText: 'Beheer Abonnementen', 
     buttonVariant: 'outline',
-    disabled: false, 
-    isLink: true,
     colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
+  },
+  {
+    id: 'resultaten',
+    title: 'Resultaten & Voortgang',
+    description: 'Krijg inzicht in de quizresultaten en lesverslagen van uw kinderen.',
+    icon: BarChart3,
+    link: '/dashboard/ouder/lessen/overzicht', // Overzicht toont voltooide lessen met rapporten
+    buttonText: 'Bekijk Resultaten & Verslagen',
+    buttonVariant: 'outline',
+    statistic: dummyFamilyLessonStats.recenteActiviteit,
+    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
   {
     id: 'accountinstellingen',
     title: 'Mijn Accountinstellingen',
-    description: 'Beheer uw eigen accountgegevens en voorkeuren.',
+    description: 'Pas uw persoonlijke gegevens, wachtwoord en communicatievoorkeuren aan.',
     icon: Settings,
     link: '/dashboard/profile',
     buttonText: 'Ga naar Instellingen',
     buttonVariant: 'outline', 
-    isLink: true,
     colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
   },
 ];
@@ -76,7 +97,7 @@ export default function OuderDashboardPage() {
       <section>
         <h1 className="text-3xl font-bold text-foreground">Ouder Dashboard</h1>
         <p className="text-muted-foreground">
-          Welkom! Start hier met het toevoegen van uw kinderen. Beheer vervolgens hun profielen, lessen en abonnementen.
+          Welkom! Beheer hier alles rondom de MindNavigator ervaring van uw kinderen.
         </p>
       </section>
 
@@ -89,25 +110,32 @@ export default function OuderDashboardPage() {
               item.colorClass || "bg-card"
             )}
           >
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CardHeader className="pb-3">
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                     item.id === 'kinderen' || item.id === 'plan-les' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'
+                )}>
                   <item.icon className="h-5 w-5" />
                 </div>
-                <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+                <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold leading-tight">{item.title}</CardTitle>
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground">{item.description}</p>
+            <CardContent className="flex-grow space-y-2">
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+              {item.statistic && (
+                <p className="text-sm font-medium text-primary pt-1">{item.statistic}</p>
+              )}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="pt-3">
               <Button
-                variant={item.buttonVariant || 'outline'}
+                variant={item.buttonVariant || 'default'}
                 className="w-full"
-                asChild={item.isLink && !item.disabled}
-                disabled={item.disabled}
+                asChild
               >
-                {item.isLink && !item.disabled ? <Link href={item.link}>{item.buttonText}</Link> : item.buttonText}
+                <Link href={item.link}>{item.buttonText}</Link>
               </Button>
             </CardFooter>
           </Card>
