@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, HelpCircle, MessageCircleQuestion } from 'lucide-react';
+import { HelpCircle, MessageCircleQuestion } from 'lucide-react';
 
 const parentDashboardFaqs = [
   {
@@ -53,11 +53,7 @@ export default function OuderFaqPage() {
             Antwoorden op veelvoorkomende vragen over het MindNavigator platform voor ouders.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard/ouder">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
-          </Link>
-        </Button>
+        {/* "Terug naar Ouder Dashboard" button removed from here */}
       </div>
 
       <Card className="shadow-lg">
