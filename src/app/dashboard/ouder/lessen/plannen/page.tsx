@@ -237,7 +237,7 @@ export default function PlanLesPage() {
               <div>
                 <Label htmlFor="select-child" className="font-medium">Kind</Label>
                 <Select value={selectedChild} onValueChange={setSelectedChild}>
-                  <SelectTrigger id="select-child" className="mt-1">
+                  <SelectTrigger id="select-child" className="mt-1 w-full">
                     <SelectValue placeholder="Selecteer een kind" />
                   </SelectTrigger>
                   <SelectContent>
@@ -250,7 +250,7 @@ export default function PlanLesPage() {
               <div>
                 <Label htmlFor="select-subject" className="font-medium">Vak</Label>
                 <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                  <SelectTrigger id="select-subject" className="mt-1">
+                  <SelectTrigger id="select-subject" className="mt-1 w-full">
                     <SelectValue placeholder="Selecteer een vak" />
                   </SelectTrigger>
                   <SelectContent>
@@ -274,8 +274,8 @@ export default function PlanLesPage() {
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <ClockIcon className="h-5 w-5"/> Wanneer? (Eerste Les)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-              <div className="md:col-span-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <div className="lg:col-span-1">
                   <Label className="font-medium block mb-1">Startdatum</Label>
                   <Calendar
                       mode="single"
@@ -286,11 +286,11 @@ export default function PlanLesPage() {
                       disabled={{ before: startOfDay(new Date()) }}
                   />
               </div>
-              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                       <Label htmlFor="select-time" className="font-medium">Starttijd</Label>
                        <Select value={selectedTime} onValueChange={setSelectedTime}>
-                          <SelectTrigger id="select-time" className="mt-1">
+                          <SelectTrigger id="select-time" className="mt-1 w-full">
                               <SelectValue placeholder="Kies starttijd" />
                           </SelectTrigger>
                           <SelectContent>
@@ -303,7 +303,7 @@ export default function PlanLesPage() {
                   <div>
                       <Label htmlFor="select-duration" className="font-medium">Duur</Label>
                       <Select value={String(duration)} onValueChange={val => setDuration(Number(val))}>
-                          <SelectTrigger id="select-duration" className="mt-1">
+                          <SelectTrigger id="select-duration" className="mt-1 w-full">
                               <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -405,4 +405,3 @@ export default function PlanLesPage() {
     </div>
   );
 }
-
