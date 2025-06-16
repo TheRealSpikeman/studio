@@ -156,7 +156,6 @@ export default function BeheerKinderenPage() {
         </div>
         {!isAddingChildMode && (
             <div className="flex gap-2 w-full sm:w-auto">
-                {/* Terug naar Ouder Dashboard knop is verwijderd */}
                 <Button className="w-full sm:w-auto" onClick={() => setIsAddingChildMode(true)}>
                     <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
                 </Button>
@@ -240,11 +239,6 @@ export default function BeheerKinderenPage() {
                    <Link href={`/dashboard/ouder/kinderen/${child.id}/voortgang`}>
                      <TrendingUp className="mr-2 h-3.5 w-3.5" /> Voortgang
                    </Link>
-                </Button>
-                 <Button variant="outline" size="sm" className="col-span-2" asChild>
-                    <Link href="/dashboard/ouder/abonnementen">
-                        <CreditCard className="mr-2 h-3.5 w-3.5" /> Beheer Abonnement
-                    </Link>
                 </Button>
                  <Button 
                     variant="destructive" 
