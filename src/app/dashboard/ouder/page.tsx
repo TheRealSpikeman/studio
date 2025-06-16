@@ -27,10 +27,10 @@ const ouderDashboardItems: DashboardItem[] = [
     icon: Contact,
     link: '/dashboard/ouder/kinderen', 
     buttonText: 'Kinderen Toevoegen & Beheren',
-    buttonVariant: 'default', // Changed to default for emphasis
+    buttonVariant: 'default', 
     disabled: false,
     isLink: true, 
-    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-primary/20', // Emphasized color
+    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-primary/20', 
   },
   {
     id: 'lessen',
@@ -49,11 +49,11 @@ const ouderDashboardItems: DashboardItem[] = [
     title: 'Abonnementen & Betaling',
     description: 'Beheer de abonnementen voor de coaching-hub en bijlessen.',
     icon: DollarSign,
-    link: '/dashboard/ouder/abonnementen',
-    buttonText: 'Beheer Abonnementen (binnenkort)',
+    link: '/dashboard/ouder/abonnementen', // Updated link
+    buttonText: 'Beheer Abonnementen', // Updated text
     buttonVariant: 'outline',
-    disabled: true,
-    isLink: false,
+    disabled: false, // Enabled button
+    isLink: true,
     colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
   },
   {
@@ -63,7 +63,7 @@ const ouderDashboardItems: DashboardItem[] = [
     icon: Settings,
     link: '/dashboard/profile',
     buttonText: 'Ga naar Instellingen',
-    buttonVariant: 'outline', // Changed to outline, as "Mijn Kinderen" is now primary
+    buttonVariant: 'outline', 
     isLink: true,
     colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
   },
