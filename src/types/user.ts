@@ -1,6 +1,6 @@
 // src/types/user.ts
 export type UserStatus = 'actief' | 'niet geverifieerd' | 'geblokkeerd' | 'pending_onboarding' | 'pending_approval' | 'rejected';
-export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor' | 'ouder'; // Added 'ouder'
+export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor' | 'ouder';
 export type AgeGroup = "12-14" | "15-18" | "adult";
 
 export interface User {
@@ -30,4 +30,10 @@ export interface User {
   };
   // Placeholder for future parent-child relationship
   children?: string[]; // Array of child User IDs
+
+  // School and study related information, primarily for leerling role
+  schoolName?: string;
+  className?: string;
+  schoolType?: string;
+  helpSubjects?: string[]; // Array of subject IDs the student needs help with
 }

@@ -17,7 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { User, Users, School, Mail, Info, Cake } from "lucide-react"; // Added Cake
+import { User, School, Mail, Info, Cake, GraduationCap } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { allHomeworkSubjects, type SubjectOption } from "@/lib/quiz-data/subject-data";
 
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_";
@@ -30,6 +32,7 @@ const addChildFormSchema = z.object({
   childEmail: z.string().email({ message: "Voer een geldig e-mailadres voor het kind in." }),
   schoolType: z.string().optional(),
   className: z.string().optional(),
+  helpSubjects: z.array(z.string()).optional(),
 });
 
 export type AddChildFormData = z.infer<typeof addChildFormSchema>;
@@ -49,6 +52,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       childEmail: "",
       schoolType: "",
       className: "",
+      helpSubjects: [],
     },
   });
 
@@ -167,8 +171,8 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                             <SelectItem value={NOT_SPECIFIED_VALUE}>Niet opgegeven / Anders</SelectItem>
                             </SelectContent>
                         </Select>
-                        <FormDescription className="text-xs pt-1">
-                            Helpt ons bij het vinden van passende tutors.
+                        <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                            <Info className="h-3 w-3"/> Helpt ons bij het vinden van passende tutors.
                         </FormDescription>
                         <FormMessage />
                         </FormItem>
@@ -186,14 +190,70 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                             <Input placeholder="Bijv. 3A, VWO 5" {...field} className="pl-10" />
                             </FormControl>
                         </div>
-                         <FormDescription className="text-xs pt-1">
-                           Optioneel, voor specifieke tutor matching.
+                         <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                           <Info className="h-3 w-3"/> Optioneel, voor specifieke tutor matching.
                         </FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
                     />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="helpSubjects"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-2">
+                        <FormLabel className="text-base font-semibold flex items-center gap-2">
+                            <GraduationCap className="h-5 w-5 text-primary"/>
+                            Voor welke vakken heeft dit kind hulp nodig?
+                        </FormLabel>
+                        <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                           <Info className="h-3 w-3"/> Selecteer de vakken. Dit helpt bij het aanbevelen van content en tutors.
+                        </FormDescription>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                        {allHomeworkSubjects.map((subject) => (
+                          <FormField
+                            key={subject.id}
+                            control={form.control}
+                            name="helpSubjects"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={subject.id}
+                                  className="flex flex-row items-start space-x-2 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(subject.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...(field.value || []), subject.id])
+                                          : field.onChange(
+                                              (field.value || []).filter(
+                                                (value) => value !== subject.id
+                                              )
+                                            );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal flex items-center gap-1.5 cursor-pointer">
+                                    <subject.icon className="h-4 w-4"/> {subject.name}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+
                 <CardFooter className="flex justify-end gap-2 pt-8 px-0 pb-0">
                     <Button type="button" variant="outline" onClick={onCancel}>
                         Annuleren

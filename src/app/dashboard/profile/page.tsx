@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react';
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,11 +15,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
+import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data'; // Import from new location
 
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
-  age: 16 as number | undefined, // Example age
+  age: 16 as number | undefined,
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
   profileImageUrl: null as string | null,
   subscription: {
@@ -45,19 +46,6 @@ const predefinedAvatars = [
   { id: 'avatar6', src: 'https://placehold.co/200x200.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
-const allHomeworkSubjects = [
-  { id: 'nederlands', name: 'Nederlands', icon: Languages },
-  { id: 'wiskunde', name: 'Wiskunde', icon: Calculator },
-  { id: 'engels', name: 'Engels', icon: Languages },
-  { id: 'geschiedenis', name: 'Geschiedenis', icon: History },
-  { id: 'biologie', name: 'Biologie', icon: FlaskConical },
-  { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe },
-  { id: 'natuurkunde', name: 'Natuurkunde', icon: FlaskConical },
-  { id: 'scheikunde', name: 'Scheikunde', icon: FlaskConical },
-  { id: 'economie', name: 'Economie', icon: UsersLucide },
-  { id: 'frans', name: 'Frans', icon: Languages },
-  { id: 'duits', name: 'Duits', icon: Languages },
-];
 const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 
@@ -163,7 +151,6 @@ export default function ProfilePage() {
 
     if (currentDashboardRole === 'leerling') {
         profileDataToSave.age = ageToSave;
-        // ageGroup is already updated via useEffect from userAgeString
         profileDataToSave.ageGroup = userAgeGroup;
         profileDataToSave.schoolName = schoolName;
         profileDataToSave.className = className;

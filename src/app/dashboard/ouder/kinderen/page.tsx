@@ -6,25 +6,18 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake } from 'lucide-react'; // Added Cake
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import type { User } from '@/types/user'; // Import the main User type
 
-interface Child {
-  id: string;
-  firstName: string;
-  lastName: string;
-  age?: number; // Store specific age
-  ageGroup?: '12-14 jaar' | '15-18 jaar'; // Can be derived or also stored
-  avatarUrl?: string;
-  subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
-  lastActivity?: string;
-  childEmail?: string;
-  schoolType?: string;
-  className?: string;
+interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
+  // Specific Child fields if any, otherwise it's a subset of User
+  lastActivity?: string; // Example of a child-specific field not on User
 }
+
 
 // Dummy data - in a real app, this would be fetched based on the logged-in parent
 const dummyChildren: Child[] = [
@@ -40,6 +33,7 @@ const dummyChildren: Child[] = [
     childEmail: 'sofie.tester@example.com',
     schoolType: 'HAVO',
     className: '2B',
+    helpSubjects: ['wiskunde', 'nederlands'],
   },
   {
     id: 'child2',
@@ -52,6 +46,7 @@ const dummyChildren: Child[] = [
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
+    helpSubjects: ['engels'],
   },
   {
     id: 'child3',
@@ -61,6 +56,7 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14 jaar',
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
+    helpSubjects: [],
   },
 ];
 
@@ -103,8 +99,9 @@ export default function BeheerKinderenPage() {
       childEmail: data.childEmail,
       schoolType: data.schoolType,
       className: data.className,
-      subscriptionStatus: 'uitgenodigd',
+      subscriptionStatus: 'uitgenodigd', // New children start as 'uitgenodigd'
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
+      helpSubjects: data.helpSubjects || [],
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddingChildMode(false);
@@ -112,7 +109,7 @@ export default function BeheerKinderenPage() {
       title: "Kind Toegevoegd & Uitgenodigd",
       description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren.`,
     });
-    console.log("Simulating invitation email to:", data.childEmail);
+    console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
   };
 
   return (
@@ -186,6 +183,11 @@ export default function BeheerKinderenPage() {
                         <School className="h-3.5 w-3.5"/>
                         {child.schoolType}{child.schoolType && child.className ? ', ' : ''}{child.className}
                     </p>
+                )}
+                {child.helpSubjects && child.helpSubjects.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                      <span className="font-medium flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5"/> Hulp nodig bij:</span> {child.helpSubjects.join(', ')}
+                  </p>
                 )}
                 {child.lastActivity && child.subscriptionStatus !== 'uitgenodigd' && (
                   <p className="text-xs text-muted-foreground">
