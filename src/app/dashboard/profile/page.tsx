@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
-import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data'; 
+import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
 
 const initialUserData = {
   name: "Alex de Tester",
@@ -33,13 +33,12 @@ const initialUserData = {
   className: 'Klas 3B',
   schoolType: 'HAVO',
   helpSubjects: ['wiskunde', 'nederlands'] as string[],
-  // New fields for parent address
-  street: '',
-  houseNumber: '',
-  postalCode: '',
-  city: '',
+  street: 'Voorbeeldstraat',
+  houseNumber: '123',
+  postalCode: '1234 AB',
+  city: 'Voorbeeldstad',
   country: 'Nederland',
-  phoneNumber: '',
+  phoneNumber: '0612345678',
 };
 
 const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
@@ -86,7 +85,6 @@ export default function ProfilePage() {
   const [schoolType, setSchoolType] = useState(initialUserData.schoolType);
   const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
 
-  // New state for parent address and phone
   const [street, setStreet] = useState(initialUserData.street);
   const [houseNumber, setHouseNumber] = useState(initialUserData.houseNumber);
   const [postalCode, setPostalCode] = useState(initialUserData.postalCode);
@@ -109,8 +107,7 @@ export default function ProfilePage() {
             setClassName(initialUserData.className);
             setSchoolType(initialUserData.schoolType);
             setHelpSubjects(initialUserData.helpSubjects);
-        }
-        if (currentDashboardRole === 'ouder') {
+        } else if (currentDashboardRole === 'ouder') {
             setStreet(initialUserData.street);
             setHouseNumber(initialUserData.houseNumber);
             setPostalCode(initialUserData.postalCode);
@@ -129,14 +126,14 @@ export default function ProfilePage() {
     if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
       const ageNum = parseInt(userAgeString, 10);
       if (!isNaN(ageNum)) {
-        if (ageNum >= 10 && ageNum <= 11) setUserAgeGroup('adult'); 
+        if (ageNum >= 10 && ageNum <= 11) setUserAgeGroup('adult');
         else if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
         else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-        else if (ageNum >= 19 && ageNum <= 20) setUserAgeGroup('adult'); 
-        else setUserAgeGroup('adult'); 
+        else if (ageNum >= 19 && ageNum <= 20) setUserAgeGroup('adult');
+        else setUserAgeGroup('adult');
       }
     } else {
-      setUserAgeGroup(initialUserData.ageGroup); 
+      setUserAgeGroup(initialUserData.ageGroup);
     }
   }, [userAgeString]);
 
@@ -181,9 +178,7 @@ export default function ProfilePage() {
         profileDataToSave.className = className;
         profileDataToSave.schoolType = schoolType;
         profileDataToSave.helpSubjects = helpSubjects;
-    }
-    
-    if (currentDashboardRole === 'ouder') {
+    } else if (currentDashboardRole === 'ouder') {
         profileDataToSave.street = street;
         profileDataToSave.houseNumber = houseNumber;
         profileDataToSave.postalCode = postalCode;
@@ -208,6 +203,25 @@ export default function ProfilePage() {
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
     }
+    // Reset all fields to initialUserData or previously saved data
+    setUserName(initialUserData.name);
+    setUserEmail(initialUserData.email);
+    setUserAgeString(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
+    setUserAgeGroup(initialUserData.ageGroup);
+    setProfileImageUrl(initialUserData.profileImageUrl);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setSchoolName(initialUserData.schoolName);
+    setClassName(initialUserData.className);
+    setSchoolType(initialUserData.schoolType);
+    setHelpSubjects(initialUserData.helpSubjects);
+    setStreet(initialUserData.street);
+    setHouseNumber(initialUserData.houseNumber);
+    setPostalCode(initialUserData.postalCode);
+    setCity(initialUserData.city);
+    setCountry(initialUserData.country);
+    setPhoneNumber(initialUserData.phoneNumber);
   };
 
   function generateStrongPassword(length = 12): string {
@@ -262,8 +276,6 @@ export default function ProfilePage() {
     setConfirmNewPassword('');
   };
 
-  const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
-
   const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
     setHiddenHomeworkSubjects(prev => {
       const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
@@ -276,6 +288,8 @@ export default function ProfilePage() {
       checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
     );
   };
+
+  const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   return (
     <div className="space-y-8">
@@ -361,7 +375,7 @@ export default function ProfilePage() {
                           {predefinedAvatars.map(avatar => (
                             <button
                               key={avatar.id}
-                              onClick={()={() => handleSelectAvatar(avatar.src)}
+                              onClick={() => handleSelectAvatar(avatar.src)}
                               className={`rounded-full overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
                                 ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
                               title={avatar.alt}
@@ -628,7 +642,7 @@ export default function ProfilePage() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                  onClick={()={() => setShowNewPassword(!showNewPassword)}
+                  onClick={() => setShowNewPassword(!showNewPassword)}
                   aria-label={showNewPassword ? "Verberg nieuw wachtwoord" : "Toon nieuw wachtwoord"}
                 >
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -651,7 +665,7 @@ export default function ProfilePage() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                  onClick={()={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                  onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                   aria-label={showConfirmNewPassword ? "Verberg bevestig nieuw wachtwoord" : "Toon bevestig nieuw wachtwoord"}
                 >
                   {showConfirmNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -700,7 +714,7 @@ export default function ProfilePage() {
          <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Contact className="h-6 w-6 text-primary" />
+              <UsersLucide className="h-6 w-6 text-primary" />
               Kinderen Beheren (Ouder)
             </CardTitle>
             <CardDescription>
@@ -765,7 +779,6 @@ export default function ProfilePage() {
             )}
           </Card>
       )}
-
     </div>
   );
 }
