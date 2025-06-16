@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Added Accordion imports
 
 interface QuizResult {
   quizId: string;
@@ -157,43 +158,54 @@ export default function KindVoortgangPage() {
 
       {/* Recente Quizresultaten */}
       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><FileText className="h-6 w-6 text-primary"/>Recente Quizresultaten</CardTitle>
-          <CardDescription>Een samenvatting van de laatst gemaakte quizzen.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {childData.recentQuizzes.length > 0 ? childData.recentQuizzes.map(quiz => (
-            <Card key={quiz.quizId} className="p-4 bg-muted/30">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-semibold text-primary">{quiz.title}</h4>
-                  <p className="text-xs text-muted-foreground">Voltooid op: <FormattedDateCell isoDateString={quiz.dateCompleted} dateFormatPattern="P" /></p>
+        <Accordion type="single" collapsible className="w-full" defaultValue="quiz-results-section">
+          <AccordionItem value="quiz-results-section" className="border-b-0">
+            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg">
+              <CardHeader className="flex flex-row justify-between items-center w-full data-[state=open]:border-b">
+                <div className="text-left">
+                  <CardTitle className="flex items-center gap-2"><FileText className="h-6 w-6 text-primary"/>Recente Quizresultaten</CardTitle>
+                  <CardDescription>Een samenvatting van de laatst gemaakte quizzen.</CardDescription>
                 </div>
-                <Badge variant={quiz.isShared ? "default" : "secondary"} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
-                  {quiz.isShared ? <ShieldCheck className="mr-1.5 h-3.5 w-3.5"/> : <ShieldAlert className="mr-1.5 h-3.5 w-3.5"/>}
-                  {quiz.isShared ? 'Gedeeld' : 'Niet Gedeeld'}
-                </Badge>
-              </div>
-              {quiz.isShared ? (
-                <p className="text-sm text-foreground/80 mt-2">{quiz.summary}</p>
-              ) : (
-                <Alert variant="default" className="mt-2 p-3 text-xs bg-yellow-50/80 border-yellow-200">
-                    <ShieldAlert className="h-4 w-4 !text-yellow-600"/>
-                    <AlertDescUi className="!text-yellow-700 pl-1">
-                        De details van deze quiz zijn niet met u gedeeld door {childData.name}.
-                    </AlertDescUi>
-                </Alert>
-              )}
-              {quiz.isShared && quiz.reportLink && (
-                <Button variant="link" size="sm" className="p-0 h-auto mt-1" asChild>
-                  <Link href={quiz.reportLink} target="_blank">Bekijk volledig rapport (voorbeeld)</Link>
-                </Button>
-              )}
-            </Card>
-          )) : (
-            <p className="text-muted-foreground text-center py-3">Nog geen quizresultaten beschikbaar.</p>
-          )}
-        </CardContent>
+                {/* ChevronDown is automatically part of AccordionTrigger */}
+              </CardHeader>
+            </AccordionTrigger>
+            <AccordionContent>
+              <CardContent className="space-y-4 pt-6">
+                {childData.recentQuizzes.length > 0 ? childData.recentQuizzes.map(quiz => (
+                  <Card key={quiz.quizId} className="p-4 bg-muted/30">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-primary">{quiz.title}</h4>
+                        <p className="text-xs text-muted-foreground">Voltooid op: <FormattedDateCell isoDateString={quiz.dateCompleted} dateFormatPattern="P" /></p>
+                      </div>
+                      <Badge variant={quiz.isShared ? "default" : "secondary"} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                        {quiz.isShared ? <ShieldCheck className="mr-1.5 h-3.5 w-3.5"/> : <ShieldAlert className="mr-1.5 h-3.5 w-3.5"/>}
+                        {quiz.isShared ? 'Gedeeld' : 'Niet Gedeeld'}
+                      </Badge>
+                    </div>
+                    {quiz.isShared ? (
+                      <p className="text-sm text-foreground/80 mt-2">{quiz.summary}</p>
+                    ) : (
+                      <Alert variant="default" className="mt-2 p-3 text-xs bg-yellow-50/80 border-yellow-200">
+                          <ShieldAlert className="h-4 w-4 !text-yellow-600"/>
+                          <AlertDescUi className="!text-yellow-700 pl-1">
+                              De details van deze quiz zijn niet met u gedeeld door {childData.name}.
+                          </AlertDescUi>
+                      </Alert>
+                    )}
+                    {quiz.isShared && quiz.reportLink && (
+                      <Button variant="link" size="sm" className="p-0 h-auto mt-1" asChild>
+                        <Link href={quiz.reportLink} target="_blank">Bekijk volledig rapport (voorbeeld)</Link>
+                      </Button>
+                    )}
+                  </Card>
+                )) : (
+                  <p className="text-muted-foreground text-center py-3">Nog geen quizresultaten beschikbaar.</p>
+                )}
+              </CardContent>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </Card>
 
       {/* Tutor Feedback Logboek */}
@@ -252,3 +264,4 @@ export default function KindVoortgangPage() {
     </div>
   );
 }
+
