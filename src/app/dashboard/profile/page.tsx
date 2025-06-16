@@ -33,7 +33,7 @@ const initialUserData = {
   helpSubjects: ['wiskunde', 'nederlands'] as string[],
 };
 
-const profileAgeOptions = Array.from({ length: (80 - 12) + 1 }, (_, i) => (i + 12).toString());
+const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 
 const predefinedAvatars = [
@@ -120,7 +120,7 @@ export default function ProfilePage() {
       if (!isNaN(ageNum)) {
         if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
         else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-        else setUserAgeGroup('adult');
+        else setUserAgeGroup('adult'); // Catches 10, 11, 19, 20 and others
       }
     } else {
       setUserAgeGroup(initialUserData.ageGroup); // Reset to default or handle as "not specified"

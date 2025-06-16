@@ -21,7 +21,7 @@ import { User, Users, School, Mail, Info, Cake } from "lucide-react"; // Added C
 
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_";
-const childAgeOptions = Array.from({ length: (18 - 12) + 1 }, (_, i) => (i + 12).toString());
+const childAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
 
 const addChildFormSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
