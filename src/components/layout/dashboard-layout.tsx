@@ -7,58 +7,21 @@ import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, ImageUp } from 'lucide-react';
+import { LogOut, UserCircle } from 'lucide-react'; // Removed ImageUp
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import Image from 'next/image';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 
-const predefinedAvatars = [
-  { id: 'avatar1', src: 'https://placehold.co/80x80.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
-  { id: 'avatar2', src: 'https://placehold.co/80x80.png?text=A2', alt: 'Natuur landschap', hint: 'nature landscape' },
-  { id: 'avatar3', src: 'https://placehold.co/80x80.png?text=A3', alt: 'Dieren portret', hint: 'animal portrait' },
-  { id: 'avatar4', src: 'https://placehold.co/80x80.png?text=A4', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
-  { id: 'avatar5', src: 'https://placehold.co/80x80.png?text=A5', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
-  { id: 'avatar6', src: 'https://placehold.co/80x80.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
-];
-
+// Removed Dialog, Image related imports as they are no longer used here for avatar editing.
+// Removed predefinedAvatars, and avatar editing state/functions from header.
 
 function DashboardHeader() {
   const { currentDashboardRole } = useDashboardRole(); 
   const userName = "Alex"; // Placeholder
   const userEmail = "alex.tester@example.com"; // Placeholder
-  const initialUserAvatarUrl = "https://picsum.photos/seed/alex-avatar/40/40"; // Placeholder
-
-  const [currentHeaderAvatarUrl, setCurrentHeaderAvatarUrl] = useState<string | null>(initialUserAvatarUrl);
-  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
-  const avatarFileInputRef = useRef<HTMLInputElement>(null);
+  const userAvatarUrl = "https://picsum.photos/seed/alex-avatar/40/40"; // Placeholder - simple direct URL
 
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
-
-  const handleHeaderAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCurrentHeaderAvatarUrl(reader.result as string);
-        setIsAvatarModalOpen(false); 
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleHeaderSelectAvatar = (avatarSrc: string) => {
-    setCurrentHeaderAvatarUrl(avatarSrc);
-    setIsAvatarModalOpen(false);
-  };
-  
-  const handleRemoveAvatar = () => {
-    setCurrentHeaderAvatarUrl(null);
-    // setIsAvatarModalOpen(false); // Optional: close modal after removal
-  };
-
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -68,110 +31,40 @@ function DashboardHeader() {
             <p className="text-xs text-muted-foreground">{userEmail} (Rol: {currentDashboardRole})</p>
         </div>
         
-        <Dialog open={isAvatarModalOpen} onOpenChange={setIsAvatarModalOpen}>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar className="h-9 w-9">
-                      <AvatarImage src={currentHeaderAvatarUrl || undefined} alt={userName || "User Avatar"} data-ai-hint="person avatar" />
-                      <AvatarFallback>{userInitials}</AvatarFallback>
-                      </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                        {userEmail}
-                        </p>
-                    </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => setIsAvatarModalOpen(true)}>
-                        <ImageUp className="mr-2 h-4 w-4" />
-                        Profielfoto wijzigen
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile">
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        Profiel
-                    </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Uitloggen
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                <DialogTitle>Profielfoto Wijzigen</DialogTitle>
-                <DialogDescription>
-                  Upload een nieuwe foto of kies een van onze avatars. Deze wijziging is direct zichtbaar in de header.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-6 py-4">
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Upload een foto</h4>
-                  <Button onClick={() => avatarFileInputRef.current?.click()} variant="outline" className="w-full">
-                    <ImageUp className="mr-2 h-4 w-4" /> Blader door bestanden
-                  </Button>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    ref={avatarFileInputRef}
-                    onChange={handleHeaderAvatarUpload}
-                    className="hidden"
-                  />
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-9 w-9">
+                  {/* AvatarImage now uses a simple, direct URL. Logic for changing it is moved to profile page. */}
+                  <AvatarImage src={userAvatarUrl || undefined} alt={userName || "User Avatar"} data-ai-hint="person avatar" />
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                  </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                    {userEmail}
+                    </p>
                 </div>
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Of</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                    <h4 className="font-semibold">Kies een avatar</h4>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                      {predefinedAvatars.map(avatar => (
-                        <button
-                          key={avatar.id}
-                          onClick={() => handleHeaderSelectAvatar(avatar.src)}
-                          className={`rounded-full overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
-                            ${currentHeaderAvatarUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
-                          title={avatar.alt}
-                        >
-                          <Image
-                            src={avatar.src}
-                            alt={avatar.alt}
-                            width={80}
-                            height={80}
-                            className="aspect-square object-cover"
-                            data-ai-hint={avatar.hint}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                </div>
-                 {currentHeaderAvatarUrl && (
-                    <Button variant="link" className="text-destructive p-0 h-auto justify-start" onClick={handleRemoveAvatar}>
-                        Verwijder huidige foto/avatar
-                    </Button>
-                )}
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Sluiten</Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-        </Dialog>
-
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {/* Removed "Profielfoto wijzigen" DropdownMenuItem */}
+                <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    Profiel
+                </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                <LogOut className="mr-2 h-4 w-4" />
+                Uitloggen
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

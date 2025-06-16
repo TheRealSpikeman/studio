@@ -1,25 +1,28 @@
+
 // src/app/dashboard/profile/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Added useRef
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone } from 'lucide-react';
+import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone, ImageUp, Trash2 } from 'lucide-react'; // Added ImageUp, Trash2
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
-import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
-import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
+import { useDashboardRole } from '@/contexts/DashboardRoleContext';
+import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Added Avatar components
+import Image from 'next/image'; // Added Next Image
 
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
   age: 16 as number | undefined,
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
-  profileImageUrl: null as string | null, 
+  profileImageUrl: "https://picsum.photos/seed/alex-avatar/128/128" as string | null, // Initial avatar
   subscription: {
     planName: "Coaching Maandelijks" as string | null,
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
@@ -43,6 +46,15 @@ const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 
+const predefinedAvatarsForProfile = [
+  { id: 'profile_avatar1', src: 'https://placehold.co/80x80.png?text=P1', alt: 'Abstract Geometrisch', hint: 'abstract geometric' },
+  { id: 'profile_avatar2', src: 'https://placehold.co/80x80.png?text=P2', alt: 'Natuur', hint: 'nature landscape' },
+  { id: 'profile_avatar3', src: 'https://placehold.co/80x80.png?text=P3', alt: 'Dier', hint: 'animal portrait' },
+  { id: 'profile_avatar4', src: 'https://placehold.co/80x80.png?text=P4', alt: 'Ruimte', hint: 'space galaxy' },
+  { id: 'profile_avatar5', src: 'https://placehold.co/80x80.png?text=P5', alt: 'Stad', hint: 'city skyline' },
+  { id: 'profile_avatar6', src: 'https://placehold.co/80x80.png?text=P6', alt: 'Eten', hint: 'food delicious' },
+];
+
 
 export default function ProfilePage() {
   const { currentDashboardRole } = useDashboardRole();
@@ -54,6 +66,7 @@ export default function ProfilePage() {
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -120,6 +133,28 @@ export default function ProfilePage() {
       setUserAgeGroup(initialUserData.ageGroup);
     }
   }, [userAgeString]);
+  
+  const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSelectPredefinedAvatar = (avatarSrc: string) => {
+    setProfileImageUrl(avatarSrc);
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImageUrl(null);
+  };
+
 
   const handleSaveProfile = () => {
     let ageToSave: number | undefined = undefined;
@@ -395,6 +430,68 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       )}
+      
+      {isEditing && (
+        <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                <ImageUp className="h-6 w-6 text-primary" />
+                Profielfoto
+                </CardTitle>
+                <CardDescription>Upload een nieuwe foto of kies een standaard avatar.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                 <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <Avatar className="h-24 w-24 text-2xl">
+                        <AvatarImage src={profileImageUrl || undefined} alt={userName} data-ai-hint="person avatar profile" />
+                        <AvatarFallback className="bg-muted">{getInitials(userName)}</AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-3 w-full sm:w-auto">
+                        <Button onClick={() => profileImageInputRef.current?.click()} variant="outline" className="w-full">
+                            <ImageUp className="mr-2 h-4 w-4" /> Upload Foto
+                        </Button>
+                        <Input 
+                            type="file" 
+                            accept="image/*" 
+                            ref={profileImageInputRef} 
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
+                        {profileImageUrl && (
+                            <Button onClick={handleRemoveImage} variant="destructive" className="w-full">
+                            <Trash2 className="mr-2 h-4 w-4" /> Verwijder Foto
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <Label>Of kies een avatar:</Label>
+                    <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        {predefinedAvatarsForProfile.map(avatar => (
+                        <button
+                            key={avatar.id}
+                            onClick={() => handleSelectPredefinedAvatar(avatar.src)}
+                            className={`rounded-md overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
+                                ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
+                            title={avatar.alt}
+                        >
+                            <Image
+                            src={avatar.src}
+                            alt={avatar.alt}
+                            width={80}
+                            height={80}
+                            className="aspect-square object-cover"
+                            data-ai-hint={avatar.hint}
+                            />
+                        </button>
+                        ))}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+      )}
+
 
       {currentDashboardRole === 'leerling' && (
         <>
