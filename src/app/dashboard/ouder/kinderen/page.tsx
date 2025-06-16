@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 interface Child {
   id: string;
@@ -77,7 +77,7 @@ const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): strin
 
 export default function BeheerKinderenPage() {
   const [children, setChildren] = useState<Child[]>(dummyChildren);
-  const [isAddChildDialogOpen, setIsAddChildDialogOpen] = useState(false);
+  const [isAddingChildMode, setIsAddingChildMode] = useState(false);
   const { toast } = useToast();
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
@@ -95,13 +95,30 @@ export default function BeheerKinderenPage() {
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`, 
     };
     setChildren(prev => [newChild, ...prev]);
-    setIsAddChildDialogOpen(false);
+    setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
       description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren.`,
     });
     console.log("Simulating invitation email to:", data.childEmail);
   };
+
+  if (isAddingChildMode) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-foreground">Nieuw Kind Toevoegen</h1>
+           <Button variant="outline" onClick={() => setIsAddingChildMode(false)}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Overzicht
+          </Button>
+        </div>
+        <AddChildForm 
+            onSave={handleSaveChild} 
+            onCancel={() => setIsAddingChildMode(false)} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -118,17 +135,17 @@ export default function BeheerKinderenPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
                 </Link>
             </Button>
-            <Button className="w-full sm:w-auto" onClick={() => setIsAddChildDialogOpen(true)}>
+            <Button className="w-full sm:w-auto" onClick={() => setIsAddingChildMode(true)}>
                 <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
             </Button>
         </div>
       </div>
 
-      {children.length === 0 ? (
+      {children.length === 0 && !isAddingChildMode ? (
         <Card className="text-center py-10">
           <CardContent>
             <p className="text-muted-foreground">U heeft nog geen kinderen toegevoegd aan uw account.</p>
-            <Button className="mt-4" onClick={() => setIsAddChildDialogOpen(true)}>Nieuw Kind Toevoegen</Button>
+            <Button className="mt-4" onClick={() => setIsAddingChildMode(true)}>Nieuw Kind Toevoegen</Button>
           </CardContent>
         </Card>
       ) : (
@@ -172,9 +189,12 @@ export default function BeheerKinderenPage() {
                   </p>
                 )}
                  {child.subscriptionStatus === 'uitgenodigd' && (
-                  <p className="text-xs text-blue-600 font-medium">
-                    Wacht op account activatie door kind.
-                  </p>
+                   <Alert variant="default" className="mt-2 p-3 text-xs bg-blue-50 border-blue-200">
+                      <Info className="h-4 w-4 !text-blue-600" />
+                      <AlertDescUi className="!text-blue-700 pl-0">
+                        Wacht op account activatie door kind.
+                      </AlertDescUi>
+                    </Alert>
                 )}
               </CardContent>
               <CardFooter className="grid grid-cols-2 gap-2 pt-4 border-t">
@@ -192,22 +212,6 @@ export default function BeheerKinderenPage() {
           ))}
         </div>
       )}
-
-      <Dialog open={isAddChildDialogOpen} onOpenChange={setIsAddChildDialogOpen}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Nieuw Kind Toevoegen & Uitnodigen</DialogTitle>
-            <DialogDescription>
-              Voer de gegevens van uw kind in. Het kind ontvangt een e-mail om het account te activeren.
-            </DialogDescription>
-          </DialogHeader>
-          <AddChildForm 
-            onSave={handleSaveChild} 
-            onCancel={() => setIsAddChildDialogOpen(false)} 
-          />
-        </DialogContent>
-      </Dialog>
-
     </div>
   );
 }
