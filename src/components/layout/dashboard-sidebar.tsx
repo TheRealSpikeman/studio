@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, TrendingUp } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -77,6 +77,14 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  {
+    href: '/dashboard/ouder/kinderen', // Linkt naar het overzicht waar men kan doorklikken
+    label: 'Voortgang Kinderen',
+    icon: TrendingUp,
+    ouderOnly: true,
+    isSubItem: false,
+    parent: '/dashboard/ouder'
+  },
   { 
     href: '/dashboard/ouder/lessen/overzicht', 
     label: 'Lessen Kinderen', 
@@ -220,7 +228,6 @@ function SidebarNavigationContent() {
 
             let isParentHighlighted = false;
             if (isItemDirectlyActive) {
-                 // Only highlight parent if no child with the exact same href is also active
                  const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
                  if (!childWithIdenticalHrefIsActive) {
                      isParentHighlighted = true;
@@ -237,7 +244,12 @@ function SidebarNavigationContent() {
             if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
                isParentHighlighted = true;
             }
-            
+             // Specifieke highlight voor "Voortgang Kinderen" als de huidige pagina een subpagina is van /dashboard/ouder/kinderen/
+            if (item.label === "Voortgang Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
+              isParentHighlighted = true;
+            }
+
+
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && item.sectionTitle && (
