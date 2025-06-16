@@ -2,7 +2,7 @@
 "use client"; 
 
 import type { ElementType } from 'react';
-import { useState, useMemo, useEffect } from 'react'; 
+import { useState, useMemo, useEffect, Suspense } from 'react'; // Added Suspense
 import { useSearchParams } from 'next/navigation';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
@@ -159,7 +159,8 @@ const thematicTeenQuizzes: Quiz[] = [
 
 type AgeFilterType = 'all' | '12-14' | '15-18';
 
-export default function QuizzesOverviewPage() {
+// This is the content component that uses client-side hooks
+function PublicQuizzesContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [ageFilter, setAgeFilter] = useState<AgeFilterType>('all');
@@ -223,10 +224,9 @@ export default function QuizzesOverviewPage() {
         <div className="container space-y-12">
           <section className="text-center">
             <BookOpen className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">Alle Quizzen</h1>
+            <h1 className="text-4xl font-bold text-foreground">Alle Quizzen (Openbaar)</h1>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Verken alle beschikbare quizzen en verdiep je inzicht in neurodiversiteit. 
-              Kies de quiz die het beste bij jouw leeftijdscategorie en interesses past.
+              Dit is de openbare quizzenpagina. Ingelogde leerlingen zien dit overzicht binnen hun dashboard.
             </p>
              <p className="text-md text-accent mt-3 flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" />
@@ -366,5 +366,15 @@ export default function QuizzesOverviewPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+
+// New wrapper component to handle Suspense for useSearchParams
+export default function QuizzesOverviewPage() {
+  return (
+    <Suspense fallback={<div>Pagina laden...</div>}>
+      <PublicQuizzesContent />
+    </Suspense>
   );
 }

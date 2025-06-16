@@ -37,7 +37,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     title: 'Ontdek Jezelf',
     description: 'Start een nieuwe quiz, ga verder waar je gebleven was, of bekijk alle beschikbare quizzen.',
     icon: ClipboardList,
-    link: currentUserData.ageGroup === 'adult' ? '/quizzes' : `/quizzes?ageGroup=${currentUserData.ageGroup}`,
+    link: currentUserData.ageGroup === 'adult' ? '/dashboard/leerling/quizzes' : `/dashboard/leerling/quizzes?ageGroup=${currentUserData.ageGroup}`,
     buttonText: 'Naar Mijn Quizzen',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },

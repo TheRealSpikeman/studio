@@ -31,7 +31,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, leerlingOnly: true },
+  { href: '/dashboard/leerling/quizzes', label: 'Quizzen', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, leerlingOnly: true },
   {
     href: '/dashboard/coaching',
