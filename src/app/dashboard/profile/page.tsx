@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users, GraduationCap, Contact } from 'lucide-react'; // Added Contact
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -54,7 +54,7 @@ const allHomeworkSubjects = [
   { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe },
   { id: 'natuurkunde', name: 'Natuurkunde', icon: FlaskConical },
   { id: 'scheikunde', name: 'Scheikunde', icon: FlaskConical },
-  { id: 'economie', name: 'Economie', icon: Users }, 
+  { id: 'economie', name: 'Economie', icon: UsersLucide }, 
   { id: 'frans', name: 'Frans', icon: Languages },
   { id: 'duits', name: 'Duits', icon: Languages },
 ];
@@ -167,6 +167,7 @@ export default function ProfilePage() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
+    // Reset to originally loaded hidden subjects if cancel
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
@@ -230,6 +231,7 @@ export default function ProfilePage() {
   const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
     setHiddenHomeworkSubjects(prev => {
       const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
+      // Do not save to localStorage immediately here, only on main save
       return newHidden;
     });
   };
@@ -408,7 +410,7 @@ export default function ProfilePage() {
                             const ageNum = parseInt(value, 10);
                             if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
                             else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-                            else setUserAgeGroup('adult'); // Should not happen for leerling, but as fallback
+                            else setUserAgeGroup('adult'); 
                         } else {
                             setUserAgeGroup(initialUserData.ageGroup); 
                         }
@@ -635,64 +637,63 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              Functionaliteit voor het beheren van kindprofielen komt hier binnenkort.
-            </p>
+             <Link href="/dashboard/ouder/kinderen" passHref>
+                <Button variant="outline" className="w-full">
+                 Naar Mijn Kinderen Overzicht
+                </Button>
+            </Link>
           </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Beheer Kinderen
-            </Button>
-          </CardFooter>
         </Card>
       )}
 
-      <Card className="shadow-lg" id="subject-visibility-settings">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpenCheck className="h-6 w-6 text-primary" />
-            Zichtbaarheid Vakken Huiswerkbegeleiding
-          </CardTitle>
-          <CardDescription>
-            Kies welke vakken je wilt zien in het huiswerkbegeleidingsoverzicht.
-            {isEditing ? '' : ' Klik op "Profiel Bewerken" om dit aan te passen.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-            {allHomeworkSubjects.map(subject => (
-              <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent hover:border-muted-foreground/20">
-                <Checkbox
-                  id={`subject-visibility-${subject.id}`}
-                  checked={!hiddenHomeworkSubjects.includes(subject.id)}
-                  onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
-                  disabled={!isEditing}
-                />
-                <Label 
-                  htmlFor={`subject-visibility-${subject.id}`}
-                  className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
-                >
-                  <subject.icon className="h-5 w-5" />
-                  {subject.name}
-                </Label>
+      {currentDashboardRole !== 'tutor' && currentDashboardRole !== 'ouder' && ( // Show only if not tutor or parent
+          <Card className="shadow-lg" id="subject-visibility-settings">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpenCheck className="h-6 w-6 text-primary" />
+                Zichtbaarheid Vakken Huiswerkbegeleiding
+              </CardTitle>
+              <CardDescription>
+                Kies welke vakken je wilt zien in het huiswerkbegeleidingsoverzicht.
+                {isEditing ? '' : ' Klik op "Profiel Bewerken" om dit aan te passen.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                {allHomeworkSubjects.map(subject => (
+                  <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent hover:border-muted-foreground/20">
+                    <Checkbox
+                      id={`subject-visibility-${subject.id}`}
+                      checked={!hiddenHomeworkSubjects.includes(subject.id)}
+                      onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
+                      disabled={!isEditing}
+                    />
+                    <Label 
+                      htmlFor={`subject-visibility-${subject.id}`}
+                      className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
+                    >
+                      <subject.icon className="h-5 w-5" />
+                      {subject.name}
+                    </Label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {!isEditing && currentDashboardRole === 'leerling' && (
-            <p className="text-sm text-muted-foreground italic mt-2">
-              Ga naar <Link href="/dashboard/homework-assistance" className="text-primary hover:underline">Huiswerkbegeleiding</Link> om vakken direct te verbergen.
-            </p>
-          )}
-        </CardContent>
-         {isEditing && (
-          <CardFooter className="border-t pt-6">
-            <Button onClick={handleSaveProfile}>
-                <Save className="mr-2 h-4 w-4" />
-                Voorkeuren Opslaan
-            </Button>
-          </CardFooter>
-        )}
-      </Card>
+              {!isEditing && currentDashboardRole === 'leerling' && (
+                <p className="text-sm text-muted-foreground italic mt-2">
+                  Ga naar <Link href="/dashboard/homework-assistance" className="text-primary hover:underline">Huiswerkbegeleiding</Link> om vakken direct te verbergen.
+                </p>
+              )}
+            </CardContent>
+            {isEditing && (
+              <CardFooter className="border-t pt-6">
+                <Button onClick={handleSaveProfile}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Voorkeuren Opslaan
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
+      )}
 
     </div>
   );

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
@@ -18,8 +18,11 @@ interface Child {
   lastName: string;
   ageGroup: '12-14 jaar' | '15-18 jaar';
   avatarUrl?: string;
-  subscriptionStatus: 'actief' | 'geen' | 'verlopen';
+  subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   lastActivity?: string; 
+  childEmail?: string;
+  schoolType?: string;
+  className?: string;
 }
 
 // Dummy data - in a real app, this would be fetched based on the logged-in parent
@@ -32,6 +35,9 @@ const dummyChildren: Child[] = [
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
+    childEmail: 'sofie.tester@example.com',
+    schoolType: 'HAVO',
+    className: '2B',
   },
   {
     id: 'child2',
@@ -41,6 +47,8 @@ const dummyChildren: Child[] = [
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'geen',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
+    childEmail: 'max.tester@example.com',
+    schoolType: 'VWO',
   },
   {
     id: 'child3',
@@ -53,15 +61,17 @@ const dummyChildren: Child[] = [
   },
 ];
 
-const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "default" | "secondary" | "destructive" => {
+const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "default" | "secondary" | "destructive" | "outline" => {
   if (status === 'actief') return 'default';
   if (status === 'geen') return 'secondary';
-  return 'destructive';
+  if (status === 'uitgenodigd') return 'outline';
+  return 'destructive'; // verlopen
 };
 const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): string => {
   if (status === 'actief') return 'bg-green-100 text-green-700 border-green-300';
   if (status === 'geen') return 'bg-gray-100 text-gray-700 border-gray-300';
-  return 'bg-red-100 text-red-700 border-red-300';
+  if (status === 'uitgenodigd') return 'bg-blue-100 text-blue-700 border-blue-300';
+  return 'bg-red-100 text-red-700 border-red-300'; // verlopen
 };
 
 
@@ -78,15 +88,19 @@ export default function BeheerKinderenPage() {
       firstName: data.firstName,
       lastName: data.lastName,
       ageGroup: data.ageGroup,
-      subscriptionStatus: 'geen', // Default status for a new child
-      avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`, // Placeholder avatar
+      childEmail: data.childEmail,
+      schoolType: data.schoolType,
+      className: data.className,
+      subscriptionStatus: 'uitgenodigd', 
+      avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`, 
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddChildDialogOpen(false);
     toast({
-      title: "Kind Toegevoegd",
-      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd aan uw gezin.`,
+      title: "Kind Toegevoegd & Uitgenodigd",
+      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren.`,
     });
+    console.log("Simulating invitation email to:", data.childEmail);
   };
 
   return (
@@ -133,7 +147,7 @@ export default function BeheerKinderenPage() {
               </CardHeader>
               <CardContent className="flex-grow space-y-3">
                 <div>
-                  <span className="text-xs font-medium text-muted-foreground">Abonnement: </span>
+                  <span className="text-xs font-medium text-muted-foreground">Status: </span>
                   <Badge 
                     variant={getSubscriptionBadgeVariant(child.subscriptionStatus)}
                     className={getSubscriptionBadgeClasses(child.subscriptionStatus)}
@@ -141,9 +155,25 @@ export default function BeheerKinderenPage() {
                     {child.subscriptionStatus.charAt(0).toUpperCase() + child.subscriptionStatus.slice(1)}
                   </Badge>
                 </div>
-                {child.lastActivity && (
+                {child.childEmail && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Mail className="h-3.5 w-3.5"/> {child.childEmail}
+                    </p>
+                )}
+                {(child.schoolType || child.className) && (
+                     <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <School className="h-3.5 w-3.5"/>
+                        {child.schoolType}{child.schoolType && child.className ? ', ' : ''}{child.className}
+                    </p>
+                )}
+                {child.lastActivity && child.subscriptionStatus !== 'uitgenodigd' && (
                   <p className="text-xs text-muted-foreground">
                     <span className="font-medium">Laatste activiteit:</span> {child.lastActivity}
+                  </p>
+                )}
+                 {child.subscriptionStatus === 'uitgenodigd' && (
+                  <p className="text-xs text-blue-600 font-medium">
+                    Wacht op account activatie door kind.
                   </p>
                 )}
               </CardContent>
@@ -151,7 +181,7 @@ export default function BeheerKinderenPage() {
                 <Button variant="outline" size="sm" disabled>
                   <Edit className="mr-2 h-3.5 w-3.5" /> Profiel
                 </Button>
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled={child.subscriptionStatus === 'uitgenodigd'}>
                   <BarChart3 className="mr-2 h-3.5 w-3.5" /> Resultaten
                 </Button>
                 <Button variant="outline" size="sm" disabled className="col-span-2">
@@ -166,9 +196,9 @@ export default function BeheerKinderenPage() {
       <Dialog open={isAddChildDialogOpen} onOpenChange={setIsAddChildDialogOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Nieuw Kind Toevoegen</DialogTitle>
+            <DialogTitle>Nieuw Kind Toevoegen & Uitnodigen</DialogTitle>
             <DialogDescription>
-              Voer de gegevens van uw kind in. U kunt later een abonnement koppelen.
+              Voer de gegevens van uw kind in. Het kind ontvangt een e-mail om het account te activeren.
             </DialogDescription>
           </DialogHeader>
           <AddChildForm 
