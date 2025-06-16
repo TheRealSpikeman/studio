@@ -71,10 +71,9 @@ const getStatusBadgeClasses = (status: LessonStatus): string => {
   }
 };
 
-function LessonTable({ lessons, onCancelLesson, onMarkAsCompleted, onViewReport }: { 
+function LessonTable({ lessons, onCancelLesson, onViewReport }: { 
     lessons: ScheduledLesson[], 
     onCancelLesson: (lesson: ScheduledLesson) => void,
-    onMarkAsCompleted: (lessonId: string) => void,
     onViewReport: (lesson: ScheduledLesson) => void
 }) {
   return (
@@ -130,18 +129,8 @@ function LessonTable({ lessons, onCancelLesson, onMarkAsCompleted, onViewReport 
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {lesson.status === 'Gepland' && (
-                      <>
                       <DropdownMenuItem onClick={() => onCancelLesson(lesson)} className="text-destructive focus:text-destructive">
                           <XCircle className="mr-2 h-4 w-4" />Les Annuleren
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onMarkAsCompleted(lesson.id)} className="text-green-600 focus:text-green-700">
-                          <CheckCircle className="mr-2 h-4 w-4" />Markeer als Voltooid
-                      </DropdownMenuItem>
-                      </>
-                    )}
-                    {lesson.status === 'Bezig' && (
-                       <DropdownMenuItem onClick={() => onMarkAsCompleted(lesson.id)} className="text-green-600 focus:text-green-700">
-                          <CheckCircle className="mr-2 h-4 w-4" />Markeer als Voltooid
                       </DropdownMenuItem>
                     )}
                      <DropdownMenuItem disabled><Hourglass className="mr-2 h-4 w-4" />Les Verzetten (binnenkort)</DropdownMenuItem>
@@ -220,11 +209,6 @@ export default function AankomendeLessenPage() {
     }
   };
   
-  const markAsCompleted = (lessonId: string) => {
-     setScheduledLessons(prev => prev.map(l => l.id === lessonId ? {...l, status: 'Voltooid'} : l));
-     toast({ title: "Les gemarkeerd als voltooid", variant: "default"});
-  };
-
   const handleViewReport = (lesson: ScheduledLesson) => {
     if (lesson.report) {
       setSelectedLessonForReportView(lesson);
@@ -260,7 +244,7 @@ export default function AankomendeLessenPage() {
           <CardDescription>Bekijk, wijzig of annuleer aankomende lessen. Voltooide lessen en verslagen vindt u in het 'Lessen Overzicht'.</CardDescription>
         </CardHeader>
         <CardContent>
-          <LessonTable lessons={upcomingLessons} onCancelLesson={handleCancelLessonClick} onMarkAsCompleted={markAsCompleted} onViewReport={handleViewReport} />
+          <LessonTable lessons={upcomingLessons} onCancelLesson={handleCancelLessonClick} onViewReport={handleViewReport} />
         </CardContent>
       </Card>
 
