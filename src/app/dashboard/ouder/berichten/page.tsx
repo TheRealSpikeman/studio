@@ -57,12 +57,12 @@ const dummyConversations: Conversation[] = [
     tutorName: 'Dhr. Pietersen',
     tutorAvatar: 'https://picsum.photos/seed/pietersen/40/40',
     childName: 'Max de Tester',
-    lastMessage: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig.',
+    lastMessage: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig en kijkt uit naar de volgende.',
     lastMessageTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     unreadCount: 1,
     messages: [
       { id: 'm2a', sender: 'tutor', text: 'Max heeft vandaag goed gewerkt aan de onregelmatige werkwoorden. Zie lesverslag.', timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), isRead: false },
-      { id: 'm2b', sender: 'ouder', text: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig.', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), isRead: true },
+      { id: 'm2b', sender: 'ouder', text: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig en kijkt uit naar de volgende.', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), isRead: true },
     ],
   },
   {
@@ -71,17 +71,45 @@ const dummyConversations: Conversation[] = [
     tutorName: 'Juf Anja',
     tutorAvatar: `https://placehold.co/40x40.png?text=JA`,
     childName: 'Lisa Voorbeeld',
-    lastMessage: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden?',
+    lastMessage: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden? Dat zou enorm helpen.',
     lastMessageTimestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     unreadCount: 0,
     messages: [
-      { id: 'm3a', sender: 'tutor', text: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden?', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+      { id: 'm3a', sender: 'tutor', text: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden? Dat zou enorm helpen.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+    ],
+  },
+  {
+    id: 'conv4',
+    tutorId: 'tutor4',
+    tutorName: 'Meneer de Boer',
+    tutorAvatar: 'https://picsum.photos/seed/deboer/40/40',
+    childName: 'Sofie de Tester',
+    lastMessage: 'De betaling voor de extra les van vorige week is nog niet verwerkt, kunt u daar naar kijken?',
+    lastMessageTimestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    unreadCount: 2,
+    messages: [
+      { id: 'm4a', sender: 'tutor', text: 'Hallo, kleine herinnering over de openstaande betaling.', timestamp: new Date(Date.now() - 3.1 * 24 * 60 * 60 * 1000).toISOString(), isRead: false },
+      { id: 'm4b', sender: 'tutor', text: 'De betaling voor de extra les van vorige week is nog niet verwerkt, kunt u daar naar kijken?', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), isRead: false },
+    ],
+  },
+  {
+    id: 'conv5',
+    tutorId: 'tutor5',
+    tutorName: 'Dr. El Massih',
+    tutorAvatar: `https://placehold.co/40x40.png?text=EM`,
+    childName: 'Max de Tester',
+    lastMessage: 'Absoluut, we kunnen volgende week maandag om 16:00 beginnen met de extra sessie over React Hooks.',
+    lastMessageTimestamp: new Date(Date.now() - 0.5 * 60 * 60 * 1000).toISOString(),
+    unreadCount: 0,
+    messages: [
+      { id: 'm5a', sender: 'ouder', text: 'Zou Max een extra les kunnen krijgen over React Hooks?', timestamp: new Date(Date.now() - 0.8 * 60 * 60 * 1000).toISOString() },
+      { id: 'm5b', sender: 'tutor', text: 'Absoluut, we kunnen volgende week maandag om 16:00 beginnen met de extra sessie over React Hooks.', timestamp: new Date(Date.now() - 0.5 * 60 * 60 * 1000).toISOString() },
     ],
   },
 ];
 
 export default function BerichtencentrumPage() {
-  const [conversations, setConversations] = useState<Conversation[]>(dummyConversations);
+  const [conversations, setConversations] = useState<Conversation[]>(dummyConversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()));
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversations[0] || null);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -205,12 +233,12 @@ export default function BerichtencentrumPage() {
                     <div className="flex justify-between items-center">
                         <p className={cn("truncate text-sm", selectedConversation?.id === conv.id ? "text-accent-foreground font-semibold" : "text-foreground font-medium")}>{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
-                            <Badge variant={selectedConversation?.id === conv.id ? "default" : "secondary"} className={cn(selectedConversation?.id === conv.id ? "bg-background text-foreground" : "", "h-5 px-1.5 text-xs")}>{conv.unreadCount}</Badge>
+                            <Badge variant={selectedConversation?.id === conv.id ? "default" : "secondary"} className={cn(selectedConversation?.id === conv.id ? "bg-background text-foreground" : "bg-primary/20 text-primary", "h-5 px-1.5 text-xs")}>{conv.unreadCount}</Badge>
                         )}
                     </div>
                     <p className={cn("text-xs truncate", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>Kind: {conv.childName}</p>
-                    <p className={cn("text-xs truncate", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>
-                      {truncateMessage(conv.lastMessage, 30)}
+                    <p className={cn("text-xs", selectedConversation?.id === conv.id ? "text-accent-foreground/80" : "text-muted-foreground")}>
+                      {truncateMessage(conv.lastMessage, 22)}
                     </p>
                      <p className={cn("text-[10px] mt-0.5", selectedConversation?.id === conv.id ? "text-accent-foreground/70" : "text-muted-foreground/80")}>
                         <FormattedDateCell isoDateString={conv.lastMessageTimestamp} dateFormatPattern="p" />
@@ -244,7 +272,7 @@ export default function BerichtencentrumPage() {
                   {selectedConversation.messages.map(msg => (
                     <div 
                       key={msg.id} 
-                      className="w-full flex mb-6" // Increased mb for more space
+                      className="w-full flex mb-6"
                     >
                       <div className={cn("max-w-[85%] sm:max-w-[75%]", msg.sender === 'ouder' ? 'ml-auto' : 'mr-auto')}>
                         <div className={cn(
