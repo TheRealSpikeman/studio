@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/kinderen/page.tsx
 "use client";
 
@@ -17,13 +18,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
+interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > { // Simplified for this page initially
+  firstName: string;
+  lastName: string;
+  age?: number; // Made optional to align with form data where it's a string initially
+  childEmail?: string;
+  schoolType?: string;
+  className?: string;
+  helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   lastActivity?: string; 
   leerdoelen?: string; 
   voorkeurTutor?: string;
   deelResultatenMetTutor?: boolean;
-  linkedTutorIds?: string[]; // Nieuw veld voor gekoppelde tutor IDs
+  linkedTutorIds?: string[];
 }
 
 
@@ -44,7 +52,7 @@ const dummyChildren: Child[] = [
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
-    linkedTutorIds: ['tutor1'], // Voorbeeld: Sofie is gekoppeld aan Mevr. Jansen
+    linkedTutorIds: ['tutor1'], 
   },
   {
     id: 'child2',
@@ -61,7 +69,7 @@ const dummyChildren: Child[] = [
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
-    linkedTutorIds: [], // Max heeft nog geen gekoppelde tutors
+    linkedTutorIds: [], 
   },
   {
     id: 'child3',
@@ -69,14 +77,14 @@ const dummyChildren: Child[] = [
     lastName: 'Voorbeeld',
     age: 12,
     ageGroup: '12-14', 
-    subscriptionStatus: 'uitgenodigd', // Status aangepast voor demo
+    subscriptionStatus: 'uitgenodigd', 
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
-    linkedTutorIds: ['tutor2', 'tutor3'], // Lisa is gekoppeld aan twee tutors
+    linkedTutorIds: ['tutor2', 'tutor3'], 
   },
 ];
 
@@ -131,6 +139,7 @@ export default function BeheerKinderenPage() {
 
     const newChild: Child = {
       id: `child-${Date.now()}`,
+      name: `${data.firstName} ${data.lastName}`, // Combined name for simplicity here
       firstName: data.firstName,
       lastName: data.lastName,
       age: childAge,
@@ -144,7 +153,7 @@ export default function BeheerKinderenPage() {
       leerdoelen: leerdoelenString.trim() || undefined,
       voorkeurTutor: tutorPreferencesString.trim() || undefined,
       deelResultatenMetTutor: data.deelResultatenMetTutor,
-      linkedTutorIds: [], // Nieuw kind heeft nog geen gekoppelde tutors
+      linkedTutorIds: [],
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddingChildMode(false);
@@ -165,9 +174,6 @@ export default function BeheerKinderenPage() {
   const confirmDeleteChild = () => {
     if (childToDelete && deleteConfirmationText === "VERWIJDER") {
       setChildren(prev => prev.filter(c => c.id !== childToDelete.id));
-      // Optioneel: ook uit localStorage verwijderen als daar kind-specifieke data staat
-      // localStorage.removeItem(`linkedTutors_${childToDelete.id}`); // Als je per kind opslaat
-      // Of update een algemeen 'linkedTutorsByChild' object.
       toast({
         title: "Kind Verwijderd",
         description: `${childToDelete.firstName} ${childToDelete.lastName} is succesvol verwijderd (simulatie).`,
@@ -344,17 +350,4 @@ export default function BeheerKinderenPage() {
   );
 }
 
-// Dummy User type for reference (can be expanded)
-// interface User {
-//   id: string;
-//   firstName: string;
-//   lastName: string;
-//   age?: number;
-//   ageGroup?: '12-14' | '15-18' | 'adult';
-//   childEmail?: string;
-//   schoolType?: string;
-//   className?: string;
-//   avatarUrl?: string;
-//   helpSubjects?: string[];
-// }
-```
+    
