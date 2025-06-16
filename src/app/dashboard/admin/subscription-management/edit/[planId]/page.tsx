@@ -1,0 +1,51 @@
+// src/app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
+"use client";
+
+import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
+import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { AlertTriangle } from 'lucide-react';
+
+export default function EditSubscriptionPlanPage() {
+  const params = useParams();
+  const router = useRouter();
+  const planId = params.planId as string;
+  const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined); // undefined for loading, null for not found
+
+  useEffect(() => {
+    if (planId) {
+      const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+      if (storedPlansRaw) {
+        const storedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+        const foundPlan = storedPlans.find(p => p.id === planId);
+        setPlanData(foundPlan || null);
+      } else {
+        setPlanData(null); // No plans in localStorage
+      }
+    }
+  }, [planId]);
+
+  if (planData === undefined) {
+    return <div className="p-8 text-center">Abonnementsgegevens laden...</div>;
+  }
+
+  if (planData === null) {
+    return (
+      <div className="p-8 text-center">
+        <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+        <h1 className="text-2xl font-bold text-destructive">Abonnement niet gevonden</h1>
+        <p className="text-muted-foreground mb-6">Het abonnement met ID "{planId}" kon niet worden geladen.</p>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/admin/subscription-management">
+            Terug naar Overzicht
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+  
+  return <NewSubscriptionPlanPage planData={planData} />;
+}

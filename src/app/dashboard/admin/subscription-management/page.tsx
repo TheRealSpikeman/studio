@@ -77,15 +77,13 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
 
 export default function SubscriptionManagementPage() {
   const { toast } = useToast();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(initialSubscriptionPlans);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
-  // In a real app, fetch plans from a backend
   useEffect(() => {
     const storedPlans = localStorage.getItem('subscriptionPlans');
     if (storedPlans) {
       setPlans(JSON.parse(storedPlans));
     } else {
-      // Initialize with initial plans if nothing is in localStorage
       localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
       setPlans(initialSubscriptionPlans);
     }
@@ -95,7 +93,7 @@ export default function SubscriptionManagementPage() {
     const updatedPlans = plans.filter(plan => plan.id !== planId);
     setPlans(updatedPlans);
     localStorage.setItem('subscriptionPlans', JSON.stringify(updatedPlans));
-    toast({ title: "Abonnement Verwijderd", description: `Abonnement met ID ${planId} is verwijderd (simulatie).` });
+    toast({ title: "Abonnement Verwijderd", description: `Abonnement met ID ${planId} is verwijderd.` });
   };
   
   const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,11 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import type { SubscriptionPlan } from "../page"; // Import the interface
+import type { SubscriptionPlan } from "../page"; 
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
@@ -37,13 +38,21 @@ const planFormSchema = z.object({
 
 export type PlanFormData = z.infer<typeof planFormSchema>;
 
-export default function NewSubscriptionPlanPage() {
+interface NewSubscriptionPlanPageProps {
+  planData?: SubscriptionPlan; // Optional for editing
+}
+
+export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPlanPageProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const isEditMode = !!planData;
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: {
+    defaultValues: isEditMode && planData ? {
+      ...planData,
+      features: planData.features.join('\n'),
+    } : {
       id: "",
       name: "",
       description: "",
@@ -56,26 +65,46 @@ export default function NewSubscriptionPlanPage() {
   });
 
   const onSubmit = (data: PlanFormData) => {
-    const newPlan: SubscriptionPlan = {
+    const planToSave: SubscriptionPlan = {
       ...data,
       features: data.features.split('\n').map(f => f.trim()).filter(f => f.length > 0),
     };
-    console.log("Nieuw abonnement opslaan (simulatie):", newPlan);
 
-    // Simulate saving to localStorage
     try {
       const existingPlansRaw = localStorage.getItem('subscriptionPlans');
-      const existingPlans: SubscriptionPlan[] = existingPlansRaw ? JSON.parse(existingPlansRaw) : [];
-      const updatedPlans = [...existingPlans, newPlan];
-      localStorage.setItem('subscriptionPlans', JSON.stringify(updatedPlans));
+      let existingPlans: SubscriptionPlan[] = existingPlansRaw ? JSON.parse(existingPlansRaw) : [];
+      
+      if (isEditMode && planData) {
+        existingPlans = existingPlans.map(p => p.id === planData.id ? planToSave : p);
+         toast({
+          title: "Abonnement Bijgewerkt",
+          description: `Het abonnement "${planToSave.name}" is bijgewerkt.`,
+        });
+      } else {
+        if (existingPlans.some(p => p.id === planToSave.id)) {
+          toast({
+            title: "Fout bij opslaan",
+            description: `Een abonnement met ID "${planToSave.id}" bestaat al. Kies een uniek ID.`,
+            variant: "destructive",
+          });
+          return;
+        }
+        existingPlans.push(planToSave);
+        toast({
+          title: "Abonnement Aangemaakt",
+          description: `Het abonnement "${planToSave.name}" is aangemaakt.`,
+        });
+      }
+      localStorage.setItem('subscriptionPlans', JSON.stringify(existingPlans));
     } catch (error) {
-      console.error("Failed to save subscription plan to localStorage:", error);
+      console.error("Failed to save/update subscription plan in localStorage:", error);
+       toast({
+          title: "Opslagfout",
+          description: "Kon het abonnement niet lokaal opslaan.",
+          variant: "destructive",
+        });
+      return;
     }
-
-    toast({
-      title: "Abonnement Opgeslagen (Simulatie)",
-      description: `Het abonnement "${newPlan.name}" is aangemaakt.`,
-    });
     router.push('/dashboard/admin/subscription-management');
   };
 
@@ -84,8 +113,8 @@ export default function NewSubscriptionPlanPage() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-                <PlusCircle className="h-8 w-8 text-primary" />
-                Nieuw Abonnementsplan Toevoegen
+                {isEditMode ? <Edit className="h-8 w-8 text-primary" /> : <PlusCircle className="h-8 w-8 text-primary" />}
+                {isEditMode ? 'Abonnement Bewerken' : 'Nieuw Abonnementsplan Toevoegen'}
             </h1>
             <Button type="button" variant="outline" asChild>
                 <Link href="/dashboard/admin/subscription-management">
@@ -99,7 +128,18 @@ export default function NewSubscriptionPlanPage() {
             <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5 text-primary"/>Plan Details</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="id" render={({ field }) => (<FormItem><FormLabel>Uniek Plan ID</FormLabel><FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} /></FormControl><FormDescription className="text-xs">Gebruik kleine letters, cijfers, underscores.</FormDescription><FormMessage /></FormItem>)} />
+            <FormField 
+              control={form.control} 
+              name="id" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Uniek Plan ID</FormLabel>
+                  <FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} disabled={isEditMode} /></FormControl>
+                  <FormDescription className="text-xs">{isEditMode ? 'ID kan niet gewijzigd worden.' : 'Gebruik kleine letters, cijfers, underscores.'}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
             <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
@@ -142,7 +182,7 @@ export default function NewSubscriptionPlanPage() {
 
         <CardFooter className="flex justify-end gap-3 pt-8 border-t">
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            <Save className="mr-2 h-4 w-4" /> Abonnement Opslaan
+            <Save className="mr-2 h-4 w-4" /> {isEditMode ? 'Abonnement Bijwerken' : 'Abonnement Opslaan'}
           </Button>
         </CardFooter>
       </form>
