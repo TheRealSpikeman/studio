@@ -12,16 +12,16 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; // Importeer de hook en type
 
-type UserRoleType = 'admin' | 'user' | 'tutor';
-
+// NavItem interface blijft hetzelfde
 interface NavItem {
   href: string;
   label: string;
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
-  userOnly?: boolean; // To specifically mark items for 'user' role if needed
+  userOnly?: boolean;
   sectionTitle?: string;
   isSubItem?: boolean;
   parent?: string;
@@ -31,7 +31,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   // General User Items
   { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard, userOnly: true },
-  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, userOnly: true }, // Simplified, was "Quizzen (Deelnemer)"
+  { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, userOnly: true },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, userOnly: true },
   {
     href: '/dashboard/coaching',
@@ -49,7 +49,7 @@ const navItems: NavItem[] = [
     userOnly: true,
     children: [
       {
-        href: '/dashboard/homework-assistance', // Main page of section
+        href: '/dashboard/homework-assistance', 
         label: 'Online Tips & Tools',
         icon: Lightbulb,
         isSubItem: true,
@@ -69,11 +69,8 @@ const navItems: NavItem[] = [
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, userOnly: true },
   
   // Tutor specific section
-  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" }, // Changed icon
-  { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' }, // Added new item
-  // { href: '/dashboard/tutor/lessons', label: 'Mijn Lessen', icon: BookOpen, tutorOnly: true, isSubItem: true, parent: '/dashboard/tutor' }, // Example sub-item
-  // { href: '/dashboard/tutor/earnings', label: 'Mijn Verdiensten', icon: DollarSign, tutorOnly: true, isSubItem: true, parent: '/dashboard/tutor' }, // Example sub-item
-
+  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
+  { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
 
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
@@ -105,14 +102,12 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
   
-  // Profile link (visible to all authenticated roles, appears after role-specific sections)
   { href: '/dashboard/profile', label: 'Profiel', icon: User },
 ];
 
-
 function SidebarNavigationContent() {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRoleType>('admin'); 
+  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); // Gebruik de context
   let currentSectionTitleDisplayed: string | null = null;
 
   return (
@@ -125,14 +120,14 @@ function SidebarNavigationContent() {
           <Shuffle className="h-3 w-3"/>
           Testrol Wisselaar
         </Label>
-        <Select value={userRole} onValueChange={(value: UserRoleType) => setUserRole(value)}>
+        <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
           <SelectTrigger id="role-switcher" className="h-9">
             <SelectValue placeholder="Selecteer een rol" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="user">Deelnemer (User)</SelectItem>
             <SelectItem value="tutor">Tutor</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
          <p className="text-xs text-muted-foreground mt-1">
@@ -143,11 +138,11 @@ function SidebarNavigationContent() {
         <nav className="grid items-start gap-1 p-4 text-sm font-medium">
           {navItems.map((item, index) => {
             let showItem = false;
-            if (userRole === 'admin') {
-              showItem = !item.tutorOnly && !item.userOnly; // Admins see admin items and general items (like profile)
-            } else if (userRole === 'tutor') {
+            if (currentDashboardRole === 'admin') {
+              showItem = !item.tutorOnly && !item.userOnly;
+            } else if (currentDashboardRole === 'tutor') {
               showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.userOnly;
-            } else if (userRole === 'user') {
+            } else if (currentDashboardRole === 'user') {
               showItem = (!!item.userOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly;
             }
 
@@ -156,12 +151,11 @@ function SidebarNavigationContent() {
             let renderSectionHeader = false;
             if (item.sectionTitle) { 
                 if (item.sectionTitle !== currentSectionTitleDisplayed) { 
-                    if (userRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
+                    if (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
                         renderSectionHeader = true;
-                    } else if (userRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
-                        // Do not render "TUTOR PORTAAL" header for tutor role itself
+                    } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
                         renderSectionHeader = false; 
-                    } else if (userRole === 'user') {
+                    } else if (currentDashboardRole === 'user') {
                          if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
                             renderSectionHeader = true; 
                         }
@@ -173,9 +167,9 @@ function SidebarNavigationContent() {
             const isItemDirectlyActive = pathname === item.href;
             
             const visibleChildren = item.children?.filter(child => {
-                if (userRole === 'admin') return !child.tutorOnly && !child.userOnly;
-                if (userRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.userOnly;
-                if (userRole === 'user') return (!!child.userOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly;
+                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.userOnly;
+                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.userOnly;
+                if (currentDashboardRole === 'user') return (!!child.userOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly;
                 return false;
             }) || [];
 
@@ -197,11 +191,7 @@ function SidebarNavigationContent() {
                     isParentHighlighted = false; 
                  }
             }
-
-            const isProfileLinkForTutor = userRole === 'tutor' && item.href === '/dashboard/profile';
-            const isTutorDashboardLinkForTutor = userRole === 'tutor' && item.href === '/dashboard/tutor';
-
-
+            
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && item.sectionTitle && (
@@ -209,45 +199,7 @@ function SidebarNavigationContent() {
                         {item.sectionTitle}
                     </div>
                 )}
-                {/* Specific ordering for Tutor: Dashboard first, then Availability, then Profile */}
-                {userRole === 'tutor' && item.href === '/dashboard/tutor' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                )}
-                 {userRole === 'tutor' && item.href === '/dashboard/tutor/availability' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10 ml-4 text-sm py-2', // Indent for sub-like appearance
-                        pathname.startsWith(item.href) && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                )}
-                 {userRole === 'tutor' && item.href === '/dashboard/profile' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                )}
-                {/* General rendering for other roles or non-specific tutor items */}
-                {!(userRole === 'tutor' && (item.href === '/dashboard/tutor' || item.href === '/dashboard/tutor/availability' || item.href === '/dashboard/profile')) && (
+                {!(currentDashboardRole === 'tutor' && (item.href === '/dashboard/tutor' || item.href === '/dashboard/tutor/availability' || item.href === '/dashboard/profile')) && (
                     <Link
                         href={item.href}
                         className={cn(
@@ -259,8 +211,36 @@ function SidebarNavigationContent() {
                         {item.label}
                     </Link>
                 )}
+                {currentDashboardRole === 'tutor' && item.href === '/dashboard/tutor' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isParentHighlighted && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    ><item.icon className="h-5 w-5" />{item.label}</Link>
+                )}
+                 {currentDashboardRole === 'tutor' && item.href === '/dashboard/tutor/availability' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10 ml-0 text-sm py-2.5', 
+                        pathname.startsWith(item.href) && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    ><item.icon className="h-5 w-5" />{item.label}</Link>
+                )}
+                 {currentDashboardRole === 'tutor' && item.href === '/dashboard/profile' && (
+                     <Link
+                        href={item.href}
+                        className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                        isParentHighlighted && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                    ><item.icon className="h-5 w-5" />{item.label}</Link>
+                )}
+
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
-                  if (userRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/tutor/availability' || child.href === '/dashboard/profile')) return null; // Already handled
+                  if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/tutor/availability' || child.href === '/dashboard/profile')) return null;
                   
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (

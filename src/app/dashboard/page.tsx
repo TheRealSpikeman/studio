@@ -1,3 +1,5 @@
+// src/app/dashboard/page.tsx
+"use client"; // Deze pagina moet nu een client component zijn om de context te gebruiken
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,12 +7,15 @@ import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import Link from 'next/link';
 import { MessageSquare, TrendingUp, AlertTriangle, Download } from 'lucide-react';
 import { ResultsChart } from '@/components/dashboard/results-chart';
+import { useDashboardRole } from '@/contexts/DashboardRoleContext'; // Importeer de hook
 
-// Dummy data for demonstration
-// TODO: Fetch actual user data and their ageGroup from authentication context
-const currentUser = {
+// Importeer de specifieke dashboard componenten
+import AdminDashboardOverviewPage from './admin/page'; 
+import TutorDashboardPage from './tutor/page';
+
+const currentUserData = { // Huidige dummy data, kan worden verfijnd of uit context gehaald
   name: "Alex", 
-  ageGroup: '15-18' as '12-14' | '15-18' | 'adult' // Example age group
+  ageGroup: '15-18' as '12-14' | '15-18' | 'adult'
 };
 
 const allDashboardQuizzes = [
@@ -40,7 +45,7 @@ const allDashboardQuizzes = [
     progress: 60, 
     imageUrl: 'https://picsum.photos/seed/dashexamstress/400/200', 
     dataAiHint: 'student exam',
-    ageGroup: 'all', // Indicates suitable for all teen age groups
+    ageGroup: 'all',
   },
   { 
     id: 'social-anxiety-friendships', 
@@ -62,30 +67,27 @@ const allDashboardQuizzes = [
   },
 ];
 
-// Filter quizzes based on currentUser.ageGroup
-const quizzes = allDashboardQuizzes.filter(quiz => 
-  quiz.ageGroup === currentUser.ageGroup || quiz.ageGroup === 'all'
-);
-
 const latestCoachingTip = {
   title: "Tip van de dag: Structuur en Routine",
   message: "Een voorspelbare dagstructuur kan helpen om overprikkeling te verminderen en focus te verbeteren. Probeer vandaag één vast rustmoment in te plannen.",
 };
 
 const resultsData = [
-  // Filter or ensure resultsData also aligns with user's quizzes or make it generic
-  { name: 'Basis Neuroprofiel (15-18 jr)', score: 75, date: '2024-03-15' }, // Example
-  { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' }, // Example
-  // Add more data as needed
+  { name: 'Basis Neuroprofiel (15-18 jr)', score: 75, date: '2024-03-15' },
+  { name: 'Sociale Angst & Vriendschap', score: 85, date: '2024-03-25' },
 ];
 
+// Functie om de content voor de "deelnemer" rol te renderen
+function UserDashboardContent() {
+  const quizzesForUser = allDashboardQuizzes.filter(quiz => 
+    quiz.ageGroup === currentUserData.ageGroup || quiz.ageGroup === 'all'
+  );
 
-export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <section>
         <h1 className="text-3xl font-bold text-foreground">
-          Welkom terug, <span className="text-primary">{currentUser.name}</span>!
+          Welkom terug, <span className="text-primary">{currentUserData.name}</span>!
         </h1>
         <p className="text-muted-foreground">Klaar om meer over jezelf te ontdekken?</p>
       </section>
@@ -97,9 +99,9 @@ export default function DashboardPage() {
                 <Link href="/quizzes">Alle Quizzen</Link>
             </Button>
         </div>
-        {quizzes.length > 0 ? (
+        {quizzesForUser.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
-            {quizzes.slice(0,3).map((quiz) => ( // Show first 3 relevant quizzes
+            {quizzesForUser.slice(0,3).map((quiz) => (
               <QuizCard key={quiz.id} {...quiz} />
             ))}
           </div>
@@ -109,7 +111,7 @@ export default function DashboardPage() {
               <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen beschikbaar</h3>
               <p className="text-muted-foreground">
-                Er zijn op dit moment geen quizzen beschikbaar die specifiek zijn afgestemd op jouw leeftijdsgroep ({currentUser.ageGroup} jaar).
+                Er zijn op dit moment geen quizzen beschikbaar die specifiek zijn afgestemd op jouw leeftijdsgroep ({currentUserData.ageGroup} jaar).
               </p>
               <Button asChild className="mt-4">
                 <Link href="/quizzes">Bekijk alle tienerquizzen</Link>
@@ -175,4 +177,19 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+}
+
+export default function DashboardPage() {
+  const { currentDashboardRole } = useDashboardRole();
+
+  if (currentDashboardRole === 'admin') {
+    return <AdminDashboardOverviewPage />;
+  }
+
+  if (currentDashboardRole === 'tutor') {
+    return <TutorDashboardPage />;
+  }
+
+  // Default naar user/deelnemer dashboard
+  return <UserDashboardContent />;
 }
