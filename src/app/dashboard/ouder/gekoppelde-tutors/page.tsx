@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/gekoppelde-tutors/page.tsx
 "use client";
 
@@ -173,4 +174,3 @@ export default function GekoppeldeTutorsPage() {
     </div>
   );
 }
-```
