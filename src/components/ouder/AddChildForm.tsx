@@ -17,9 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { User, School, Mail, Info, Cake, GraduationCap } from "lucide-react";
+import { User, School, Mail, Info, Cake, GraduationCap, Target, Users, Share2, MessageCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { allHomeworkSubjects, type SubjectOption } from "@/lib/quiz-data/subject-data";
+import { Textarea } from "@/components/ui/textarea";
 
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_";
@@ -33,6 +34,9 @@ const addChildFormSchema = z.object({
   schoolType: z.string().optional(),
   className: z.string().optional(),
   helpSubjects: z.array(z.string()).optional(),
+  leerdoelen: z.string().optional(),
+  voorkeurTutor: z.string().optional(),
+  deelResultatenMetTutor: z.boolean().optional(),
 });
 
 export type AddChildFormData = z.infer<typeof addChildFormSchema>;
@@ -53,6 +57,9 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       schoolType: "",
       className: "",
       helpSubjects: [],
+      leerdoelen: "",
+      voorkeurTutor: "",
+      deelResultatenMetTutor: false,
     },
   });
 
@@ -254,6 +261,78 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="leerdoelen"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-semibold flex items-center gap-2">
+                        <Target className="h-5 w-5 text-primary" />
+                        Leerdoelen of aandachtspunten
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Bijv. 'Beter leren plannen voor toetsen', 'Omgaan met faalangst', 'Concentratie verbeteren tijdens de les'."
+                          {...field}
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                           <Info className="h-3 w-3"/> Deze informatie kan gedeeld worden met (toekomstige) tutors.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="voorkeurTutor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-semibold flex items-center gap-2">
+                        <Users className="h-5 w-5 text-primary" />
+                        Voorkeuren voor type tutor (optioneel)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Bijv. 'Iemand met ervaring met HSP', 'Een mannelijke tutor', 'Iemand die goed kan uitleggen aan beelddenkers'."
+                          {...field}
+                          rows={2}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="deelResultatenMetTutor"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-muted/30">
+                        <div className="flex items-center h-full pt-0.5">
+                            <FormControl>
+                                <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                id="deelResultatenMetTutor"
+                                />
+                            </FormControl>
+                        </div>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel htmlFor="deelResultatenMetTutor" className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                                <Share2 className="h-5 w-5 text-primary" />
+                                Toestemming delen quizresultaten met tutors
+                            </FormLabel>
+                            <FormDescription className="text-xs pt-1">
+                                Mag MindNavigator (geanonimiseerde) samenvattingen van quizresultaten en leerdoelen van dit kind delen met potentiële of huidige tutors om de matching en begeleiding te optimaliseren? U behoudt controle en kunt dit later aanpassen.
+                            </FormDescription>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                  )}
+                />
 
                 <CardFooter className="flex justify-end gap-2 pt-8 px-0 pb-0">
                     <Button type="button" variant="outline" onClick={onCancel}>
@@ -269,3 +348,4 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     </Card>
   );
 }
+

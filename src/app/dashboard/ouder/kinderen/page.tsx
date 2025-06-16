@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp } from 'lucide-react'; // Added TrendingUp
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,9 @@ import { Label } from '@/components/ui/label';
 
 interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
   lastActivity?: string; 
+  leerdoelen?: string;
+  voorkeurTutor?: string;
+  deelResultatenMetTutor?: boolean;
 }
 
 
@@ -36,6 +39,9 @@ const dummyChildren: Child[] = [
     schoolType: 'HAVO',
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
+    leerdoelen: 'Beter leren plannen voor toetsen en omgaan met faalangst.',
+    voorkeurTutor: 'Iemand met ervaring met HSP en geduld.',
+    deelResultatenMetTutor: true,
   },
   {
     id: 'child2',
@@ -49,6 +55,8 @@ const dummyChildren: Child[] = [
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
     helpSubjects: ['engels'],
+    leerdoelen: 'Verbeteren van spreekvaardigheid Engels en essay schrijven.',
+    deelResultatenMetTutor: false,
   },
   {
     id: 'child3',
@@ -59,6 +67,8 @@ const dummyChildren: Child[] = [
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
     helpSubjects: [],
+    voorkeurTutor: 'Een vrouwelijke tutor indien mogelijk.',
+    deelResultatenMetTutor: true,
   },
 ];
 
@@ -108,6 +118,9 @@ export default function BeheerKinderenPage() {
       subscriptionStatus: 'uitgenodigd', 
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
+      leerdoelen: data.leerdoelen,
+      voorkeurTutor: data.voorkeurTutor,
+      deelResultatenMetTutor: data.deelResultatenMetTutor,
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddingChildMode(false);
