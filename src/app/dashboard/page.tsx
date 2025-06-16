@@ -12,13 +12,15 @@ import { useDashboardRole } from '@/contexts/DashboardRoleContext';
 import AdminDashboardOverviewPage from './admin/page'; 
 import TutorDashboardPage from './tutor/page';
 import OuderDashboardPage from './ouder/page'; // Import the new parent dashboard
+import type { Quiz } from '@/app/quizzes/page'; // Import de Quiz interface
 
 const currentUserData = { 
   name: "Alex", 
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult'
 };
 
-const allDashboardQuizzes = [
+// Deze data komt idealiter uit een CMS of database, inclusief status per gebruiker
+const allDashboardQuizzes: Quiz[] = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
     title: 'Basis Neuroprofiel (12-14 jaar)', 
@@ -27,6 +29,8 @@ const allDashboardQuizzes = [
     imageUrl: 'https://picsum.photos/seed/dash1214/400/200',
     dataAiHint: 'teenager puzzle',
     ageGroup: '12-14',
+    duration: "10-15 min", // Toegevoegd
+    questionCount: 12, // Toegevoegd
   },
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
@@ -36,6 +40,8 @@ const allDashboardQuizzes = [
     imageUrl: 'https://picsum.photos/seed/dash1518/400/200',
     dataAiHint: 'teenager study',
     ageGroup: '15-18',
+    duration: "12-18 min", // Toegevoegd
+    questionCount: 15, // Toegevoegd
   },
   { 
     id: 'exam-stress-planning', 
@@ -46,6 +52,8 @@ const allDashboardQuizzes = [
     imageUrl: 'https://picsum.photos/seed/dashexamstress/400/200', 
     dataAiHint: 'student exam',
     ageGroup: 'all',
+    duration: "8-12 min", // Toegevoegd
+    questionCount: 10, // Toegevoegd
   },
   { 
     id: 'social-anxiety-friendships', 
@@ -55,6 +63,8 @@ const allDashboardQuizzes = [
     imageUrl: 'https://picsum.photos/seed/dashsocialanxiety/400/200',
     dataAiHint: 'teenagers friends',
     ageGroup: 'all',
+    duration: "7-10 min", // Toegevoegd
+    questionCount: 12, // Toegevoegd
   },
    { 
     id: 'focus-digital-distraction', 
@@ -64,6 +74,8 @@ const allDashboardQuizzes = [
     imageUrl: 'https://picsum.photos/seed/dashdigitalfocus/400/200',
     dataAiHint: 'teenager phone',
     ageGroup: 'all',
+    duration: "6-9 min", // Toegevoegd
+    questionCount: 10, // Toegevoegd
   },
 ];
 
@@ -78,9 +90,46 @@ const resultsData = [
 ];
 
 function LeerlingDashboardContent() {
-  const quizzesForUser = allDashboardQuizzes.filter(quiz => 
-    quiz.ageGroup === currentUserData.ageGroup || quiz.ageGroup === 'all'
+  const MAX_QUIZZES_ON_DASHBOARD = 3;
+
+  const baseQuizIdForAgeGroup = `teen-neurodiversity-quiz?ageGroup=${currentUserData.ageGroup}`;
+  const baseQuiz = allDashboardQuizzes.find(q => q.id === baseQuizIdForAgeGroup);
+
+  let recommendedQuizzes: Quiz[] = [];
+
+  if (baseQuiz && baseQuiz.status !== 'Voltooid') {
+    recommendedQuizzes.push(baseQuiz);
+  }
+
+  const otherRelevantQuizzes = allDashboardQuizzes.filter(quiz => 
+    quiz.id !== baseQuizIdForAgeGroup && // Exclude the base quiz if already added or handled
+    (quiz.ageGroup === currentUserData.ageGroup || quiz.ageGroup === 'all')
+  ).sort((a, b) => {
+    // Prioritize 'In progress', then 'Nog niet gestart', then 'Voltooid'
+    const statusPriority: Record<QuizStatus, number> = {
+      'In progress': 1,
+      'Nog niet gestart': 2,
+      'Voltooid': 3,
+    };
+    return statusPriority[a.status] - statusPriority[b.status];
+  });
+
+  recommendedQuizzes = [
+    ...recommendedQuizzes,
+    ...otherRelevantQuizzes
+  ].slice(0, MAX_QUIZZES_ON_DASHBOARD);
+  
+  // Ensure baseQuiz is shown if no other quizzes fill up, and it's not completed
+   if (baseQuiz && baseQuiz.status !== 'Voltooid' && !recommendedQuizzes.find(q => q.id === baseQuiz.id) && recommendedQuizzes.length < MAX_QUIZZES_ON_DASHBOARD) {
+    recommendedQuizzes.push(baseQuiz);
+  }
+  // Remove duplicates if any were accidentally added (e.g. base quiz was also in otherRelevantQuizzes)
+  recommendedQuizzes = recommendedQuizzes.filter((quiz, index, self) => 
+    index === self.findIndex((q) => (
+      q.id === quiz.id
+    ))
   );
+
 
   return (
     <div className="space-y-8">
@@ -93,14 +142,14 @@ function LeerlingDashboardContent() {
 
       <section>
         <div className="flex items-center justify-between mb-4 pt-6">
-            <h2 className="text-2xl font-semibold text-foreground">Jouw Quizzen</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Jouw Volgende Stap</h2>
             <Button variant="outline" asChild>
                 <Link href="/quizzes">Alle Quizzen</Link>
             </Button>
         </div>
-        {quizzesForUser.length > 0 ? (
+        {recommendedQuizzes.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
-            {quizzesForUser.slice(0,3).map((quiz) => (
+            {recommendedQuizzes.map((quiz) => (
               <QuizCard key={quiz.id} {...quiz} />
             ))}
           </div>
@@ -110,10 +159,10 @@ function LeerlingDashboardContent() {
               <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen beschikbaar</h3>
               <p className="text-muted-foreground">
-                Er zijn op dit moment geen quizzen beschikbaar die specifiek zijn afgestemd op jouw leeftijdsgroep ({currentUserData.ageGroup} jaar).
+                Er zijn op dit moment geen aanbevolen quizzen voor jou.
               </p>
               <Button asChild className="mt-4">
-                <Link href="/quizzes">Bekijk alle tienerquizzen</Link>
+                <Link href="/quizzes">Bekijk alle quizzen</Link>
               </Button>
             </CardContent>
           </Card>
@@ -190,9 +239,8 @@ export default function DashboardPage() {
   }
 
   if (currentDashboardRole === 'ouder') {
-    return <OuderDashboardPage />; // Render Parent Dashboard
+    return <OuderDashboardPage />; 
   }
 
-  // Default naar leerling dashboard
   return <LeerlingDashboardContent />;
 }
