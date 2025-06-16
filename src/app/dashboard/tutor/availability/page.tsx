@@ -85,13 +85,17 @@ export default function TutorAvailabilityPage() {
       setCurrentEditingWeekMonday(newMonday);
       
       const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-      setActiveTabDateKey(newlySelectedDateKey); 
+      // Only set activeTabDateKey if it's different or not set, to avoid resetting slots unnecessarily if calendar is just re-rendered.
+      if (newlySelectedDateKey !== activeTabDateKey) {
+        setActiveTabDateKey(newlySelectedDateKey); 
+      }
       
     } else { 
       const today = startOfDay(new Date());
       setSelectedDateForWeekEditing(today); 
+      // setActiveTabDateKey(format(today, 'yyyy-MM-dd')); // This might be called too early if currentEditingWeekMonday not set
     }
-  }, [selectedDateForWeekEditing, isClient]);
+  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependencies
 
 
   useEffect(() => {
@@ -162,7 +166,7 @@ export default function TutorAvailabilityPage() {
       }));
       toast({
         title: "Specifieke tijden opgeslagen",
-        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} is bijgewerkt.`,
+        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} is bijgewerkt. Vergeet niet om alle wijzigingen definitief op te slaan.`,
       });
     }
   };
@@ -177,7 +181,7 @@ export default function TutorAvailabilityPage() {
         setSlotsForActiveTab([]); 
         toast({
             title: "Specifieke tijden gewist",
-            description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} zijn verwijderd.`,
+            description: `Alle afwijkende tijden voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} zijn verwijderd. Standaard weekrooster is weer van toepassing.`,
         });
     }
   };
@@ -259,9 +263,14 @@ export default function TutorAvailabilityPage() {
                   </Button>
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)} className="mt-3">
-                Tijdslot Toevoegen
-              </Button>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)} className="w-full sm:flex-1">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
+                </Button>
+                <Button size="sm" onClick={handleSaveAvailability} className="w-full sm:flex-1">
+                  <Save className="mr-2 h-4 w-4" /> Wijzigingen Opslaan
+                </Button>
+              </div>
             </div>
           ))}
         </CardContent>
@@ -360,7 +369,7 @@ export default function TutorAvailabilityPage() {
                         value={dateKeyForTab} 
                         className={cn(
                             "flex items-center justify-center w-full h-auto text-center whitespace-normal rounded-sm transition-colors duration-150",
-                            "text-xs px-2 py-3 leading-tight sm:text-sm", 
+                            "text-xs px-1 py-2 leading-tight sm:text-sm sm:px-1.5 sm:py-2", 
                             "bg-background hover:bg-muted/80",
                             "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                           )}
@@ -377,7 +386,7 @@ export default function TutorAvailabilityPage() {
                   const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                   return (
                       <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
-                          <div className="space-y-3 pt-4">
+                          <div className="space-y-3 pt-3"> {/* Adjusted pt-3 from pt-4 */}
                             <h4 className="font-semibold text-lg">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                             </h4>
