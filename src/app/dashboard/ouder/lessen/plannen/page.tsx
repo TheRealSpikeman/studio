@@ -274,8 +274,8 @@ export default function PlanLesPage() {
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <ClockIcon className="h-5 w-5"/> Wanneer? (Eerste Les)
             </h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              <div className="lg:col-span-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6 items-start">
+              <div className="lg:col-span-1"> {/* Kalender kolom */}
                   <Label className="font-medium block mb-1">Startdatum</Label>
                   <Calendar
                       mode="single"
@@ -286,7 +286,7 @@ export default function PlanLesPage() {
                       disabled={{ before: startOfDay(new Date()) }}
                   />
               </div>
-              <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="lg:col-span-1 space-y-6"> {/* Tijd en Duur kolom */}
                   <div>
                       <Label htmlFor="select-time" className="font-medium">Starttijd</Label>
                        <Select value={selectedTime} onValueChange={setSelectedTime}>
