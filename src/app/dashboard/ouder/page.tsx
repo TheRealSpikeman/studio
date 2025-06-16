@@ -38,10 +38,10 @@ const ouderDashboardItems: DashboardItem[] = [
     description: 'Plan en beheer de bijlessen voor uw kinderen.',
     icon: BookOpenCheck,
     link: '/dashboard/ouder/lessen',
-    buttonText: 'Plan Lessen (binnenkort)',
+    buttonText: 'Plan & Bekijk Lessen',
     buttonVariant: 'outline',
-    disabled: true,
-    isLink: false,
+    disabled: false,
+    isLink: true,
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {

@@ -215,7 +215,8 @@ function SidebarNavigationContent() {
                  }
             }
             
-            const skipRenderingMainLink = (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor') ||
+            const skipRenderingMainLink = (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard" && item.href === '/dashboard/admin') ||
+                                          (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor') ||
                                           (currentDashboardRole === 'ouder' && item.sectionTitle === "Ouder Portaal" && item.href === '/dashboard/ouder');
 
 
@@ -243,6 +244,7 @@ function SidebarNavigationContent() {
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
                   if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/profile')) return null;
                   if (currentDashboardRole === 'ouder' && (child.href === '/dashboard/ouder' || child.href === '/dashboard/profile')) return null;
+                  if (currentDashboardRole === 'admin' && (child.href === '/dashboard/admin' || child.href === '/dashboard/profile')) return null;
                   
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (
