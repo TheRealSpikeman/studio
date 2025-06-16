@@ -19,7 +19,7 @@ const initialUserData = {
   email: "alex.tester@example.com",
   age: 16 as number | undefined,
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
-  profileImageUrl: null as string | null, // This will be managed by DashboardHeader for display/change
+  profileImageUrl: null as string | null, 
   subscription: {
     planName: "Coaching Maandelijks" as string | null,
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
@@ -51,9 +51,6 @@ export default function ProfilePage() {
   const [userEmail, setUserEmail] = useState(initialUserData.email);
   const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
   const [userAgeGroup, setUserAgeGroup] = useState<'12-14' | '15-18' | 'adult'>(initialUserData.ageGroup);
-
-  // profileImageUrl state remains here for saving, but UI for changing it is removed.
-  // The DashboardHeader will have its own state for the displayed avatar.
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
@@ -85,7 +82,7 @@ export default function ProfilePage() {
         setUserEmail(initialUserData.email);
         setUserAgeString(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
         setUserAgeGroup(initialUserData.ageGroup);
-        setProfileImageUrl(initialUserData.profileImageUrl); // Reset to initial for consistency if needed
+        setProfileImageUrl(initialUserData.profileImageUrl); 
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -133,13 +130,10 @@ export default function ProfilePage() {
       }
     }
 
-    // Note: profileImageUrl from this component's state might not reflect
-    // a change made via the DashboardHeader if that was the last action.
-    // This is a limitation without shared state management.
     const profileDataToSave: any = {
       name: userName,
       email: userEmail,
-      profileImageUrl: profileImageUrl, // Will save the PofilePage's version of profileImageUrl
+      profileImageUrl: profileImageUrl, 
       role: currentDashboardRole,
     };
 
@@ -286,8 +280,6 @@ export default function ProfilePage() {
         )}
       </section>
 
-      {/* Profielfoto Card is verwijderd */}
-
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -317,7 +309,7 @@ export default function ProfilePage() {
               type="email"
               value={userEmail}
               onChange={(e) => setUserEmail(e.target.value)}
-              disabled // Email typically not editable for existing accounts
+              disabled 
               className="mt-1"
             />
              {!isEditing && <p className="text-xs text-muted-foreground mt-1">E-mailadres kan niet gewijzigd worden.</p>}
@@ -587,28 +579,7 @@ export default function ProfilePage() {
           </CardFooter>
         </Card>
       )}
-
-      {currentDashboardRole === 'ouder' && (
-         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UsersLucide className="h-6 w-6 text-primary" />
-              Kinderen Beheren (Ouder)
-            </CardTitle>
-            <CardDescription>
-              Voeg kinderen toe aan uw account en beheer hun instellingen, abonnementen en voortgang.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Link href="/dashboard/ouder/kinderen" passHref>
-                <Button variant="outline" className="w-full">
-                 Naar Mijn Kinderen Overzicht
-                </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      )}
-
+      
       {currentDashboardRole !== 'tutor' && currentDashboardRole !== 'ouder' && (
           <Card className="shadow-lg" id="subject-visibility-settings">
             <CardHeader>
