@@ -1,4 +1,3 @@
-
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -85,17 +84,17 @@ export default function TutorAvailabilityPage() {
       setCurrentEditingWeekMonday(newMonday);
       
       const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-      // Only set activeTabDateKey if it's different or not set, to avoid resetting slots unnecessarily if calendar is just re-rendered.
-      if (newlySelectedDateKey !== activeTabDateKey) {
-        setActiveTabDateKey(newlySelectedDateKey); 
-      }
+      // Update activeTabDateKey to reflect the selected date in the calendar,
+      // ensuring the correct tab becomes active.
+      setActiveTabDateKey(newlySelectedDateKey);
       
-    } else { 
+    } else if (!selectedDateForWeekEditing && isClient) { 
+      // If no date is selected yet (e.g., on initial load), select today.
       const today = startOfDay(new Date());
       setSelectedDateForWeekEditing(today); 
-      // setActiveTabDateKey(format(today, 'yyyy-MM-dd')); // This might be called too early if currentEditingWeekMonday not set
+      // activeTabDateKey will be set in the next render cycle due to selectedDateForWeekEditing change.
     }
-  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependencies
+  }, [selectedDateForWeekEditing, isClient]);
 
 
   useEffect(() => {
@@ -264,10 +263,10 @@ export default function TutorAvailabilityPage() {
                 </div>
               ))}
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)} className="w-full sm:flex-1">
+                <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
                 </Button>
-                <Button size="sm" onClick={handleSaveAvailability} className="w-full sm:flex-1">
+                <Button size="sm" onClick={handleSaveAvailability}>
                   <Save className="mr-2 h-4 w-4" /> Wijzigingen Opslaan
                 </Button>
               </div>
@@ -369,7 +368,7 @@ export default function TutorAvailabilityPage() {
                         value={dateKeyForTab} 
                         className={cn(
                             "flex items-center justify-center w-full h-auto text-center whitespace-normal rounded-sm transition-colors duration-150",
-                            "text-xs px-1 py-2 leading-tight sm:text-sm sm:px-1.5 sm:py-2", 
+                            "text-xs px-2 py-3 leading-tight sm:text-sm", 
                             "bg-background hover:bg-muted/80",
                             "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                           )}
@@ -386,7 +385,7 @@ export default function TutorAvailabilityPage() {
                   const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                   return (
                       <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
-                          <div className="space-y-3 pt-3"> {/* Adjusted pt-3 from pt-4 */}
+                          <div className="space-y-3 pt-5">
                             <h4 className="font-semibold text-lg">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                             </h4>
