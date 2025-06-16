@@ -1,4 +1,3 @@
-
 // src/app/dashboard/profile/page.tsx
 "use client";
 
@@ -324,15 +323,15 @@ export default function ProfilePage() {
             Profielfoto
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4">
-          <Avatar className="h-32 w-32 border-2 border-primary/50 shadow-md">
+        <CardContent className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <Avatar className="h-24 w-24 border-2 border-primary/50 shadow-md">
             <AvatarImage src={profileImageUrl || undefined} alt={userName || 'Profielfoto'} data-ai-hint="profile person" />
-            <AvatarFallback className="text-3xl bg-muted">
+            <AvatarFallback className="text-2xl bg-muted">
               {userInitials}
             </AvatarFallback>
           </Avatar>
           {isEditing && (
-            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
               <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
