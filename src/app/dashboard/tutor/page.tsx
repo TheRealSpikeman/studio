@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { CalendarDays, BookOpen, Users, Settings, DollarSign, FileText, AlertTriangle, Briefcase, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 // Simulate user data and role for redirection logic
 // In a real app, this would come from an authentication context
@@ -23,44 +24,45 @@ interface DashboardItem {
   icon: React.ElementType;
   link: string;
   buttonText: string;
-  buttonVariant: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
-  disabled: boolean;
+  buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+  disabled?: boolean;
   isLink: boolean;
+  colorClass?: string; // For unique card styling
 }
 
 const dashboardItems: DashboardItem[] = [
   {
     id: 'availability',
-    title: 'Beschikbaarheid Beheren',
-    description: 'Stel je werkuren en uurtarief in.',
-    icon: Clock, 
+    title: 'Mijn Beschikbaarheid',
+    description: 'Stel je werkuren, afwijkende dagen en uurtarief in.',
+    icon: Clock,
     link: '/dashboard/tutor/availability',
     buttonText: 'Beheer Beschikbaarheid',
     buttonVariant: 'outline',
-    disabled: false,
     isLink: true,
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   },
   {
     id: 'lessons',
-    title: 'Geplande Online Lessen',
-    description: 'Bekijk je agenda met geboekte sessies.',
+    title: 'Mijn Lessen',
+    description: 'Bekijk je geplande en afgelopen online bijlessen.',
     icon: BookOpen,
-    link: '/dashboard/tutor/lessons', // Updated link
-    buttonText: 'Bekijk Lessen', // Updated text
+    link: '/dashboard/tutor/lessons',
+    buttonText: 'Bekijk Lessen',
     buttonVariant: 'outline',
-    disabled: false, // Enabled button
     isLink: true,
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
     id: 'students',
-    title: 'Leerlingvoortgang',
-    description: 'Houd notities en voortgang per leerling bij.',
+    title: 'Mijn Leerlingen',
+    description: 'Bekijk het overzicht van je leerlingen en hun voortgang.',
     icon: Users,
-    link: '#', // Placeholder
-    buttonText: 'Bekijk Leerlingen (binnenkort)',
+    link: '/dashboard/tutor/students',
+    buttonText: 'Bekijk Mijn Leerlingen',
     buttonVariant: 'outline',
-    disabled: true,
-    isLink: false,
+    isLink: true,
+    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
   {
     id: 'earnings',
@@ -72,6 +74,7 @@ const dashboardItems: DashboardItem[] = [
     buttonVariant: 'outline',
     disabled: true,
     isLink: false,
+    colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
   },
   {
     id: 'reviews',
@@ -83,6 +86,7 @@ const dashboardItems: DashboardItem[] = [
     buttonVariant: 'outline',
     disabled: true,
     isLink: false,
+    colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
   },
   {
     id: 'profileSettings',
@@ -91,9 +95,9 @@ const dashboardItems: DashboardItem[] = [
     icon: Settings,
     link: '/dashboard/profile',
     buttonText: 'Ga naar Profiel',
-    buttonVariant: 'default', 
-    disabled: false,
+    buttonVariant: 'default',
     isLink: true,
+    colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
   },
 ];
 
@@ -163,10 +167,16 @@ export default function TutorDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {dashboardItems.map((item) => (
-          <Card key={item.id} className="group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full">
+          <Card 
+            key={item.id} 
+            className={cn(
+                "group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full",
+                item.colorClass || "bg-card"
+            )}
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <item.icon className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
@@ -177,7 +187,7 @@ export default function TutorDashboardPage() {
             </CardContent>
             <CardFooter>
               <Button 
-                variant={item.buttonVariant} 
+                variant={item.buttonVariant || 'outline'} 
                 className="w-full" 
                 asChild={item.isLink} 
                 disabled={item.disabled}

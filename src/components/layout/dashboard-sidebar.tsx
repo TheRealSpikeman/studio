@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, DollarSign, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -71,10 +71,13 @@ const navItems: NavItem[] = [
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+  { href: '/dashboard/tutor/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+
 
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
-  { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: Users, adminOnly: true },
+  { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: UsersIconLucide, adminOnly: true },
   { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
   { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
   {
@@ -154,7 +157,7 @@ function SidebarNavigationContent() {
                     if (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
-                        renderSectionHeader = false; 
+                        renderSectionHeader = true; // Always render for Tutor Portaal title
                     } else if (currentDashboardRole === 'user') {
                          if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal") {
                             renderSectionHeader = true; 
@@ -192,6 +195,9 @@ function SidebarNavigationContent() {
                  }
             }
             
+            // Special handling for Tutor Portaal: don't render the main link if it's the section title itself
+            const skipRenderingMainLink = currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor';
+
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && item.sectionTitle && (
@@ -199,7 +205,7 @@ function SidebarNavigationContent() {
                         {item.sectionTitle}
                     </div>
                 )}
-                {!(currentDashboardRole === 'tutor' && (item.href === '/dashboard/tutor' || item.href === '/dashboard/tutor/availability' || item.href === '/dashboard/profile')) && (
+                {!skipRenderingMainLink && (
                     <Link
                         href={item.href}
                         className={cn(
@@ -211,36 +217,10 @@ function SidebarNavigationContent() {
                         {item.label}
                     </Link>
                 )}
-                {currentDashboardRole === 'tutor' && item.href === '/dashboard/tutor' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isParentHighlighted && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    ><item.icon className="h-5 w-5" />{item.label}</Link>
-                )}
-                 {currentDashboardRole === 'tutor' && item.href === '/dashboard/tutor/availability' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10 ml-0 text-sm py-2.5', 
-                        pathname.startsWith(item.href) && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    ><item.icon className="h-5 w-5" />{item.label}</Link>
-                )}
-                 {currentDashboardRole === 'tutor' && item.href === '/dashboard/profile' && (
-                     <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isParentHighlighted && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    ><item.icon className="h-5 w-5" />{item.label}</Link>
-                )}
+
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
-                  if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/tutor/availability' || child.href === '/dashboard/profile')) return null;
+                  if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/profile')) return null;
                   
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (
