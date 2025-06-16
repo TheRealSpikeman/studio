@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react'; // Added Link2
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react'; 
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +23,7 @@ interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ag
   leerdoelen?: string; 
   voorkeurTutor?: string;
   deelResultatenMetTutor?: boolean;
+  linkedTutorIds?: string[]; // Nieuw veld voor gekoppelde tutor IDs
 }
 
 
@@ -43,6 +44,7 @@ const dummyChildren: Child[] = [
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
+    linkedTutorIds: ['tutor1'], // Voorbeeld: Sofie is gekoppeld aan Mevr. Jansen
   },
   {
     id: 'child2',
@@ -51,14 +53,15 @@ const dummyChildren: Child[] = [
     age: 16,
     ageGroup: '15-18', 
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
-    subscriptionStatus: 'actief', // Changed to 'actief' for demo purposes for tutor linking
+    subscriptionStatus: 'actief', 
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
-    helpSubjects: ['engels'],
+    helpSubjects: ['engels', 'geschiedenis'],
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
+    linkedTutorIds: [], // Max heeft nog geen gekoppelde tutors
   },
   {
     id: 'child3',
@@ -66,13 +69,14 @@ const dummyChildren: Child[] = [
     lastName: 'Voorbeeld',
     age: 12,
     ageGroup: '12-14', 
-    subscriptionStatus: 'verlopen',
+    subscriptionStatus: 'uitgenodigd', // Status aangepast voor demo
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
+    linkedTutorIds: ['tutor2', 'tutor3'], // Lisa is gekoppeld aan twee tutors
   },
 ];
 
@@ -134,18 +138,19 @@ export default function BeheerKinderenPage() {
       childEmail: data.childEmail,
       schoolType: data.schoolType,
       className: data.className,
-      subscriptionStatus: 'uitgenodigd', // Nieuw kind wordt eerst uitgenodigd
+      subscriptionStatus: 'uitgenodigd',
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
       leerdoelen: leerdoelenString.trim() || undefined,
       voorkeurTutor: tutorPreferencesString.trim() || undefined,
       deelResultatenMetTutor: data.deelResultatenMetTutor,
+      linkedTutorIds: [], // Nieuw kind heeft nog geen gekoppelde tutors
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
-      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. Zodra het account actief is, kunt u hier de voortgang volgen en eventueel het profiel aanbieden aan tutors.`,
+      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. Zodra het account actief is, kunt u hier de voortgang volgen en een tutor koppelen.`,
       duration: 8000,
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
@@ -160,6 +165,9 @@ export default function BeheerKinderenPage() {
   const confirmDeleteChild = () => {
     if (childToDelete && deleteConfirmationText === "VERWIJDER") {
       setChildren(prev => prev.filter(c => c.id !== childToDelete.id));
+      // Optioneel: ook uit localStorage verwijderen als daar kind-specifieke data staat
+      // localStorage.removeItem(`linkedTutors_${childToDelete.id}`); // Als je per kind opslaat
+      // Of update een algemeen 'linkedTutorsByChild' object.
       toast({
         title: "Kind Verwijderd",
         description: `${childToDelete.firstName} ${childToDelete.lastName} is succesvol verwijderd (simulatie).`,
@@ -336,3 +344,17 @@ export default function BeheerKinderenPage() {
   );
 }
 
+// Dummy User type for reference (can be expanded)
+// interface User {
+//   id: string;
+//   firstName: string;
+//   lastName: string;
+//   age?: number;
+//   ageGroup?: '12-14' | '15-18' | 'adult';
+//   childEmail?: string;
+//   schoolType?: string;
+//   className?: string;
+//   avatarUrl?: string;
+//   helpSubjects?: string[];
+// }
+```

@@ -45,7 +45,7 @@ interface Tutor {
   fullBio: string;
   education?: string;
   teachingPhilosophy?: string;
-  cvUrl?: string; // Placeholder for a link to a CV
+  cvUrl?: string; 
   rating: number;
   availableSlots?: string[]; 
   reviewsCount?: number;
@@ -105,6 +105,8 @@ const dummyTutors: Tutor[] = [
   },
 ];
 
+const LOCAL_STORAGE_LINKED_TUTORS_KEY = 'linkedTutorsByChild'; // Key voor localStorage
+
 function KoppelTutorContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -115,12 +117,25 @@ function KoppelTutorContent() {
   const [filteredTutors, setFilteredTutors] = useState<Tutor[]>(dummyTutors);
   const [selectedTutorForModal, setSelectedTutorForModal] = useState<Tutor | null>(null);
   const [isTutorDetailModalOpen, setIsTutorDetailModalOpen] = useState(false);
+  const [linkedTutorsMap, setLinkedTutorsMap] = useState<Record<string, string[]>>({}); // kindId: [tutorId1, tutorId2]
 
   const [vakFilter, setVakFilter] = useState<string>('all');
   const [ervaringFilter, setErvaringFilter] = useState<string>('all');
   
   const activeChildren = dummyChildren.filter(c => c.active);
   const selectedChildDetails = selectedChildId ? dummyChildren.find(c => c.id === selectedChildId) : null;
+
+  // Load linked tutors from localStorage
+  useEffect(() => {
+    try {
+      const storedMap = localStorage.getItem(LOCAL_STORAGE_LINKED_TUTORS_KEY);
+      if (storedMap) {
+        setLinkedTutorsMap(JSON.parse(storedMap));
+      }
+    } catch (error) {
+      console.error("Error loading linked tutors map from localStorage:", error);
+    }
+  }, []);
 
   useEffect(() => {
     if (initialKindId && !activeChildren.find(c => c.id === initialKindId)) {
@@ -152,23 +167,46 @@ function KoppelTutorContent() {
   
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
-  const handleKoppelTutor = (tutor: Tutor) => {
+  const handleKoppelTutor = (tutorToLink: Tutor) => {
     if (!selectedChildId) {
         toast({ title: "Selecteer een kind", description: "Kies eerst een kind om een tutor aan te koppelen.", variant: "destructive"});
         return;
     }
     const child = dummyChildren.find(c => c.id === selectedChildId);
-    toast({
-        title: "Tutor Gekoppeld (Simulatie)",
-        description: `${tutor.name} is succesvol gekoppeld aan ${child?.name} voor ${tutor.specializations.join(', ')}. U kunt nu lessen plannen.`,
+    
+    setLinkedTutorsMap(prevMap => {
+      const currentLinkedForChild = prevMap[selectedChildId] || [];
+      if (currentLinkedForChild.includes(tutorToLink.id)) {
+        toast({ title: "Al Gekoppeld", description: `${tutorToLink.name} is al gekoppeld aan ${child?.name}.`, variant: "default" });
+        return prevMap; // No change
+      }
+      const updatedMap = {
+        ...prevMap,
+        [selectedChildId]: [...currentLinkedForChild, tutorToLink.id],
+      };
+      localStorage.setItem(LOCAL_STORAGE_LINKED_TUTORS_KEY, JSON.stringify(updatedMap));
+      toast({
+        title: "Tutor Gekoppeld!",
+        description: `${tutorToLink.name} is succesvol gekoppeld aan ${child?.name}. U kunt nu lessen plannen via "Gekoppelde Tutors" of "Les Plannen".`,
+        action: (
+          <Button variant="link" size="sm" asChild>
+            <Link href="/dashboard/ouder/gekoppelde-tutors">Bekijk Gekoppelde Tutors</Link>
+          </Button>
+        )
+      });
+      return updatedMap;
     });
-    console.log(`Koppelen: Kind ${child?.name} (ID: ${selectedChildId}) aan Tutor ${tutor.name} (ID: ${tutor.id})`);
-    setIsTutorDetailModalOpen(false); // Close modal if open
+    setIsTutorDetailModalOpen(false);
   };
 
   const handleViewProfile = (tutor: Tutor) => {
     setSelectedTutorForModal(tutor);
     setIsTutorDetailModalOpen(true);
+  };
+
+  const isTutorLinkedToSelectedChild = (tutorId: string): boolean => {
+    if (!selectedChildId) return false;
+    return !!(linkedTutorsMap[selectedChildId] && linkedTutorsMap[selectedChildId].includes(tutorId));
   };
   
   return (
@@ -177,7 +215,7 @@ function KoppelTutorContent() {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Link2 className="h-8 w-8 text-primary" />
-            Kind aan Tutor Koppelen
+            Tutor Zoeken & Koppelen
           </h1>
           <p className="text-muted-foreground">
             Selecteer een kind en vind een geschikte tutor.
@@ -274,7 +312,7 @@ function KoppelTutorContent() {
             {filteredTutors.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
                 {filteredTutors.map(tutor => (
-                  <Card key={tutor.id} className={`flex flex-col ${selectedTutorForModal?.id === tutor.id ? 'border-2 border-primary ring-2 ring-primary/30' : 'hover:shadow-md'}`}>
+                  <Card key={tutor.id} className={`flex flex-col ${isTutorLinkedToSelectedChild(tutor.id) ? 'border-2 border-green-500 ring-2 ring-green-500/30' : (selectedTutorForModal?.id === tutor.id ? 'border-2 border-primary ring-2 ring-primary/30' : 'hover:shadow-md')}`}>
                     <CardHeader className="items-center text-center">
                         <Avatar className="h-20 w-20 mb-2">
                             <AvatarImage src={tutor.avatarUrl} alt={tutor.name} data-ai-hint="tutor person" />
@@ -307,8 +345,14 @@ function KoppelTutorContent() {
                         <Button variant="outline" size="sm" className="w-full" disabled>
                             <MessageSquare className="mr-2 h-4 w-4"/> Stuur bericht (binnenkort)
                         </Button>
-                        <Button size="sm" className="w-full" onClick={() => handleKoppelTutor(tutor)}>
-                            <UserCheck className="mr-2 h-4 w-4"/> Koppel deze Tutor
+                        <Button 
+                            size="sm" 
+                            className="w-full" 
+                            onClick={() => handleKoppelTutor(tutor)}
+                            disabled={isTutorLinkedToSelectedChild(tutor.id)}
+                        >
+                            <UserCheck className="mr-2 h-4 w-4"/> 
+                            {isTutorLinkedToSelectedChild(tutor.id) ? 'Reeds Gekoppeld' : 'Koppel deze Tutor'}
                         </Button>
                     </CardFooter>
                   </Card>
@@ -329,7 +373,7 @@ function KoppelTutorContent() {
               <p>3. Klik op "Bekijk Profiel & Reviews" voor meer details over een tutor.</p>
               <p>4. Klik op "Koppel deze Tutor" om de tutor direct aan uw kind te koppelen. De tutor ontvangt een notificatie.</p>
               <p>5. (Binnenkort) Stuur eerst een bericht om kennis te maken of vragen te stellen voordat u koppelt.</p>
-              <p>6. Na koppeling kunt u lessen plannen via de "Les Plannen" pagina.</p>
+              <p>6. Na koppeling kunt u lessen plannen via de "Les Plannen" pagina of via het "Gekoppelde Tutors" overzicht.</p>
           </CardContent>
       </Card>
 
@@ -399,8 +443,13 @@ function KoppelTutorContent() {
                     <DialogFooter className="pt-4 border-t flex-col sm:flex-row gap-2">
                         <Button variant="outline" onClick={() => setIsTutorDetailModalOpen(false)} className="w-full sm:w-auto">Sluiten</Button>
                         <Button variant="secondary" disabled className="w-full sm:w-auto"><MessageSquare className="mr-2 h-4 w-4"/>Start Gesprek (binnenkort)</Button>
-                        <Button onClick={() => handleKoppelTutor(selectedTutorForModal)} className="w-full sm:w-auto">
-                            <UserCheck className="mr-2 h-4 w-4"/> Koppel aan {selectedChildDetails?.name || 'kind'}
+                        <Button 
+                            onClick={() => handleKoppelTutor(selectedTutorForModal)} 
+                            className="w-full sm:w-auto"
+                            disabled={isTutorLinkedToSelectedChild(selectedTutorForModal.id)}
+                        >
+                            <UserCheck className="mr-2 h-4 w-4"/> 
+                            {isTutorLinkedToSelectedChild(selectedTutorForModal.id) ? 'Reeds Gekoppeld' : `Koppel aan ${selectedChildDetails?.name || 'kind'}`}
                         </Button>
                     </DialogFooter>
                 </>
@@ -420,3 +469,4 @@ export default function KoppelTutorPage() {
   );
 }
 
+```
