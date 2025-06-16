@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Info, Users, BarChart3, BookOpenText, MessageSquare, GraduationCap } from 'lucide-react'; // Added new icons
+import { CheckCircle2, XCircle, Info, Users, BarChart3, BookOpenText, MessageSquare, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ interface Plan {
   priceDetail: string;
   features: PlanFeature[];
   ctaText: string;
-  ctaBaseLink: string; 
+  ctaBaseLink: string;
   isPopular: boolean;
   savingsText?: string;
   planId: string;
@@ -30,6 +30,10 @@ interface Plan {
 const yearlyCoachingPrice = (3.99 * 12 * 0.85).toFixed(2); // 40.70
 const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12).toFixed(2); // 3.39
 const yearlySavingsCoaching = ((3.99*12) - parseFloat(yearlyCoachingPrice)).toFixed(2); // 7.18
+
+const yearlyFamilyGuidePrice = (9.99 * 12 * 0.85).toFixed(2); // 101.90
+const monthlyEquivalentForFamilyGuide = (parseFloat(yearlyFamilyGuidePrice) / 12).toFixed(2); // 8.49
+const yearlySavingsFamilyGuide = ((9.99*12) - parseFloat(yearlyFamilyGuidePrice)).toFixed(2); // 17.98
 
 const plansData: Plan[] = [
   {
@@ -71,24 +75,20 @@ const plansData: Plan[] = [
     highlightClass: "border-primary ring-2 ring-primary/50",
   },
   {
-    name: 'Compleet Pakket',
+    name: 'Gezins Gids', // New name
     price: '€9,99',
     priceDetail: 'p/m',
     features: [
-      { text: 'Basis Neurodiversiteit Quiz', included: true },
-      { text: 'Direct Uitgebreid PDF Rapport', included: true },
-      { text: 'Toegang tot Alle Subquizzen', included: true },
-      { text: 'Coaching Hub (Virtueel, Dagboek, Tools)', included: true },
-      { text: 'Huiswerk Tools (Planner, Pomodoro)', included: true },
+      { text: 'Alles van Coaching & Tools', included: true, tooltip: 'Inclusief alle quizzen, coaching hub en huiswerk tools.' },
       { text: 'Toegang tot Pool Persoonlijke Coaches', included: true },
-      { text: 'Toegang tot Pool Huiswerk Tutors', included: true },
+      { text: 'Toegang tot Pool Huiswerktutors', included: true },
       { text: 'Uitgebreid Ouder Dashboard (kind volgen)', included: true },
     ],
-    ctaText: 'Kies Compleet',
+    ctaText: 'Kies Gezins Gids',
     ctaBaseLink: '/signup',
     isPopular: false,
-    planId: 'complete_monthly',
-    // Jaarlijkse optie kan hier later worden toegevoegd als de gebruiker dat specificeert
+    planId: 'family_guide_monthly',
+    savingsText: `Of €${yearlyFamilyGuidePrice}/jaar (gelijk aan €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`, // Added savings text
   },
 ];
 
@@ -97,16 +97,9 @@ export function PricingSection() {
 
   const handlePlanSelection = (plan: Plan) => {
     if (plan.planId === 'free') {
-      router.push(plan.ctaBaseLink); 
+      router.push(plan.ctaBaseLink);
     } else {
-      let targetPlanId = plan.planId;
-      // Specifieke logica als we een jaarlijkse CTA willen voor het "Coaching & Tools" plan
-      if (plan.planId === 'coaching_monthly' && plan.savingsText) {
-        // Voor nu laten we de maandelijkse planId in de URL, 
-        // de ouder kan in de signup of dashboard later een jaarlijkse optie kiezen.
-        // Als je direct naar een jaarlijks plan wilt linken, heb je een planId zoals 'coaching_annual' nodig.
-      }
-      router.push(`${plan.ctaBaseLink}?plan=${targetPlanId}`);
+      router.push(`${plan.ctaBaseLink}?plan=${plan.planId}`);
     }
   };
 

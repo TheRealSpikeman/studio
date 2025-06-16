@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BarChart3, MessageSquare, Users2, Sparkles, Brain, GraduationCap } from 'lucide-react'; // Adjusted icons
+import { BarChart3, MessageSquare, Users2, Sparkles, Brain, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ServicePackage {
@@ -33,19 +33,19 @@ const servicePackages: ServicePackage[] = [
     description: 'Krijg volledige toegang tot alle quizzen, de virtuele coaching hub, dagboek en handige huiswerk tools.',
     features: ['Alle Quizzen (Basis + Subtests)', 'Volledige Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
     ctaText: 'Ontdek Coaching',
-    link: '/#pricing', // Link to pricing section to choose monthly/yearly
+    link: '/#pricing', 
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
-    typeLabel: '€3,99 p/m',
+    typeLabel: 'Vanaf €3,39 p/m', // Updated to reflect yearly equivalent
   },
   {
     icon: <Users2 className="h-10 w-10 text-primary" />,
-    title: 'Compleet Pakket',
+    title: 'Gezins Gids', // New name
     description: 'Alles van Coaching & Tools, plus toegang tot persoonlijke coaches en huiswerktutors, en een uitgebreid ouder-dashboard.',
     features: ['Alles van Coaching & Tools', 'Pool Persoonlijke Coaches', 'Pool Huiswerktutors', 'Uitgebreid Ouder Dashboard'],
-    ctaText: 'Kies Compleet',
-    link: '/#pricing', // Link to pricing section
+    ctaText: 'Kies Gezins Gids',
+    link: '/#pricing', 
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
-    typeLabel: '€9,99 p/m',
+    typeLabel: 'Vanaf €8,49 p/m', // Updated to reflect yearly equivalent
   },
 ];
 
