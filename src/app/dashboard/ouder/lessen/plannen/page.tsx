@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/lessen/plannen/page.tsx
 "use client";
 
@@ -397,10 +398,11 @@ export default function PlanLesPage() {
         <CardFooter className="border-t pt-6">
           <Button onClick={handleScheduleLesson} size="lg" className="w-full md:w-auto">
             <CalendarDays className="mr-2 h-5 w-5" />
-            {repeatOption !== 'once' && lessonsPlannedCount > 1 ? 'Reeks Lessen Inplannen' : 'Les Inplannen'}
+            {repeatOption !== 'once' ? 'Reeks Lessen Inplannen' : 'Les Inplannen'}
           </Button>
         </CardFooter>
       </Card>
     </div>
   );
 }
+
