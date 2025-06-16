@@ -15,9 +15,11 @@ import { useToast } from '@/hooks/use-toast';
 
 const DUMMY_USERS: User[] = [
   { id: '1', name: 'Alice Wonderland', email: 'alice@example.com', status: 'actief', role: 'admin', lastLogin: new Date(Date.now() - 86400000 * 2).toISOString(), createdAt: new Date(Date.now() - 86400000 * 30).toISOString(), avatarUrl: 'https://picsum.photos/seed/alice/40/40', coaching: { startDate: new Date(Date.now() - 86400000 * 10).toISOString(), interval: 7, currentDayInFlow: 3 } },
-  { id: '2', name: 'Bob De Bouwer', email: 'bob@example.com', status: 'niet geverifieerd', role: 'deelnemer', lastLogin: new Date(Date.now() - 86400000 * 5).toISOString(), createdAt: new Date(Date.now() - 86400000 * 20).toISOString(), avatarUrl: 'https://picsum.photos/seed/bob/40/40' },
+  { id: 'parent1', name: 'Olivia Ouder', email: 'olivia.ouder@example.com', status: 'actief', role: 'ouder', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 50).toISOString(), avatarUrl: 'https://picsum.photos/seed/olivia/40/40', children: ['child1_of_olivia'] },
+  { id: 'child1_of_olivia', name: 'Sofie de Tester (Kind)', email: 'sofie.kind@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', parentId: 'parent1', lastLogin: new Date(Date.now() - 86400000 * 0.5).toISOString(), createdAt: new Date(Date.now() - 86400000 * 40).toISOString(), avatarUrl: 'https://picsum.photos/seed/sofiekind/40/40' },
+  { id: '2', name: 'Bob De Bouwer', email: 'bob@example.com', status: 'niet geverifieerd', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 5).toISOString(), createdAt: new Date(Date.now() - 86400000 * 20).toISOString(), avatarUrl: 'https://picsum.photos/seed/bob/40/40' },
   { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', status: 'geblokkeerd', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString(), avatarUrl: 'https://picsum.photos/seed/charlie/40/40', coaching: { startDate: new Date(Date.now() - 86400000 * 5).toISOString(), interval: 1, currentDayInFlow: 5 } },
-  { id: '4', name: 'Diana Prince', email: 'diana@example.com', status: 'actief', role: 'deelnemer', lastLogin: new Date(Date.now() - 86400000 * 12).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString(), avatarUrl: 'https://picsum.photos/seed/diana/40/40' },
+  { id: '4', name: 'Diana Prince', email: 'diana@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 12).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString(), avatarUrl: 'https://picsum.photos/seed/diana/40/40' },
   { id: '5', name: 'Edward Scissorhands', email: 'edward@example.com', status: 'actief', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 15).toISOString() },
   { id: '6', name: 'Fiona Tutor', email: 'fiona.tutor@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString(), avatarUrl: 'https://picsum.photos/seed/fiona/40/40' },
   { id: '7', name: 'George TutorApp', email: 'george.app@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString() },
@@ -84,21 +86,29 @@ export default function UserManagementPage() {
   };
 
   const handleSaveUser = (userData: User) => {
-    // Conceptual: If role is 'tutor' and status was 'pending_approval' and now 'actief', send approval email.
     const originalUser = users.find(u => u.id === selectedUser?.id);
     if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'actief') {
       console.log(`Tutor ${userData.email} approved. Sending approval email.`);
       toast({ title: "Tutor Goedgekeurd", description: `Tutor ${userData.name} is goedgekeurd en geactiveerd.`, className: "bg-green-100 text-green-700 border-green-300"});
     }
-    // Conceptual: If role is 'tutor' and status was 'pending_approval' and now 'rejected', send rejection email.
      if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'rejected') {
       console.log(`Tutor ${userData.email} rejected. Sending rejection email.`);
       toast({ title: "Tutor Afgewezen", description: `Tutor ${userData.name} is afgewezen.`, variant: "destructive"});
     }
 
-
     if (isAddingNewUser) {
-      setUsers(prevUsers => [...prevUsers, { ...userData, id: (Math.random() * 10000).toString(), createdAt: new Date().toISOString(), lastLogin: new Date().toISOString() }]);
+      const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const newUserWithId: User = { 
+        ...userData, 
+        id: newId, 
+        createdAt: new Date().toISOString(), 
+        lastLogin: new Date().toISOString() 
+      };
+      // If the new user is a 'leerling' and a parentId was somehow set (not typical for direct admin creation), clear it or handle.
+      // For now, new users created by admin don't automatically get a parentId.
+      if(newUserWithId.role === 'leerling') newUserWithId.parentId = undefined; 
+
+      setUsers(prevUsers => [newUserWithId, ...prevUsers]);
       toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
     } else if (selectedUser) {
       setUsers(prevUsers => prevUsers.map(user => user.id === selectedUser.id ? { ...user, ...userData } : user));
@@ -108,7 +118,6 @@ export default function UserManagementPage() {
     setSelectedUser(null);
     setIsAddingNewUser(false);
   };
-
 
   return (
     <div className="space-y-8">
@@ -162,8 +171,9 @@ export default function UserManagementPage() {
                 <SelectItem value="all">Alle Rollen</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="coach">Coach</SelectItem>
-                <SelectItem value="deelnemer">Deelnemer</SelectItem>
+                <SelectItem value="leerling">Leerling</SelectItem>
                 <SelectItem value="tutor">Tutor</SelectItem>
+                <SelectItem value="ouder">Ouder</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -48,7 +48,7 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
       case 'coach': return 'secondary';
       case 'leerling': return 'outline';
       case 'tutor': return 'default';
-      case 'ouder': return 'secondary'; // Added 'ouder'
+      case 'ouder': return 'secondary';
       default: return 'outline';
     }
   };
@@ -58,7 +58,7 @@ const getRoleBadgeClasses = (role: UserRole): string => {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
       case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
       case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
-      case 'ouder': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; // Added 'ouder' styling
+      case 'ouder': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200';
       default: return ''; // Leerling gets default outline styling
     }
 }
@@ -77,7 +77,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
   
   const formatRoleText = (role: UserRole): string => {
     if (role === 'leerling') return 'Leerling';
-    if (role === 'ouder') return 'Ouder'; // Added 'ouder'
+    if (role === 'ouder') return 'Ouder';
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
 
@@ -114,7 +114,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
                   <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
               </TableCell>
-              <TableCell className="font-medium">{user.name}</TableCell>
+              <TableCell className="font-medium">{user.name} {user.parentId && <span className="text-xs text-muted-foreground">(Kind van {user.parentId})</span>}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <Badge 

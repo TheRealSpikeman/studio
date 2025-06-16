@@ -16,14 +16,14 @@ import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact } from 'lucide-react'; // Added Contact
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users } from 'lucide-react'; // Added Users
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 const ageGroupValues = ["12-14", "15-18", "adult"] as const;
-const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; // Added 'ouder'
+const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder'];
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
@@ -43,6 +43,8 @@ const userFormSchema = z.object({
   tutorDetails_availability: z.string().optional(),
   tutorDetails_cvUrl: z.string().url().optional().or(z.literal('')),
   tutorDetails_vogUrl: z.string().url().optional().or(z.literal('')),
+  parentId: z.string().optional().or(z.literal('')), // For leerling, link to ouder
+  // children: z.array(z.string()).optional(), // For ouder, list of linked children (display only for now)
 }).refine(data => {
     if (data.password && data.password.length > 0 && data.password.length < 8) return false;
     return true;
@@ -73,6 +75,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
       coaching_interval: 0, coaching_currentDayInFlow: 0, password: '', confirmPassword: '',
       tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
       tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
+      parentId: '',
     }
   });
 
@@ -95,6 +98,8 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           tutorDetails_availability: user.tutorDetails?.availability || '',
           tutorDetails_cvUrl: user.tutorDetails?.cvUrl || '',
           tutorDetails_vogUrl: user.tutorDetails?.vogUrl || '',
+          parentId: user.parentId || '',
+          // children: user.children || [],
         });
       } else {
         reset({
@@ -103,6 +108,8 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           password: '', confirmPassword: '',
           tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
           tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
+          parentId: '',
+          // children: [],
         });
       }
     }
@@ -126,6 +133,8 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         cvUrl: data.tutorDetails_cvUrl,
         vogUrl: data.tutorDetails_vogUrl,
       } : undefined,
+      parentId: data.role === 'leerling' ? (data.parentId || undefined) : undefined,
+      children: data.role === 'ouder' ? (user?.children || []) : undefined, // Preserve existing children for parent, handle adding/removing later
     };
     onSave(processedData as User);
   };
@@ -159,9 +168,9 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
             <TabsList className={cn("grid w-full grid-cols-3", (currentRole === 'tutor' || currentRole === 'ouder') && "md:grid-cols-4")}>
               <TabsTrigger value="profile"><UserCircle className="mr-1 h-4 w-4 inline-block" />Profiel</TabsTrigger>
               <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen & Status</TabsTrigger>
-              <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>
+              {currentRole !== 'ouder' && <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>}
               {currentRole === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
-              {currentRole === 'ouder' && <TabsTrigger value="parentSpecific"><Contact className="mr-1 h-4 w-4 inline-block" />Kinderen</TabsTrigger>}
+              {currentRole === 'ouder' && <TabsTrigger value="parentSpecific"><Users className="mr-1 h-4 w-4 inline-block" />Kinderen</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="profile" className="space-y-4 pt-2">
@@ -191,29 +200,36 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 {!isAddingNewUser && <p className="text-xs text-muted-foreground">E-mail kan niet gewijzigd worden.</p>}
               </div>
               {currentRole === 'leerling' && (
-                 <div>
-                    <Label htmlFor="ageGroup" className="flex items-center gap-1">
-                        <Cake className="h-4 w-4 text-muted-foreground"/>
-                        Leeftijdsgroep
-                    </Label>
-                    <Controller
-                      name="ageGroup"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger id="ageGroup" className="mt-1">
-                            <SelectValue placeholder="Selecteer leeftijdsgroep" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="12-14">12-14 jaar</SelectItem>
-                            <SelectItem value="15-18">15-18 jaar</SelectItem>
-                            <SelectItem value="adult">Volwassene</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.ageGroup && <p className="text-sm text-destructive">{errors.ageGroup.message}</p>}
-                  </div>
+                 <>
+                  <div>
+                      <Label htmlFor="ageGroup" className="flex items-center gap-1">
+                          <Cake className="h-4 w-4 text-muted-foreground"/>
+                          Leeftijdsgroep
+                      </Label>
+                      <Controller
+                        name="ageGroup"
+                        control={control}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger id="ageGroup" className="mt-1">
+                              <SelectValue placeholder="Selecteer leeftijdsgroep" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="12-14">12-14 jaar</SelectItem>
+                              <SelectItem value="15-18">15-18 jaar</SelectItem>
+                              <SelectItem value="adult">Volwassene</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.ageGroup && <p className="text-sm text-destructive">{errors.ageGroup.message}</p>}
+                    </div>
+                    <div>
+                      <Label htmlFor="parentId">Gekoppelde Ouder ID (optioneel)</Label>
+                      <Input id="parentId" {...register("parentId")} placeholder="ID van ouder account" />
+                      {errors.parentId && <p className="text-sm text-destructive">{errors.parentId.message}</p>}
+                    </div>
+                 </>
               )}
               {(isAddingNewUser || (user && (user.status !== 'actief' && user.status !== 'pending_approval'))) && (
                  <>
@@ -275,50 +291,52 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
               </div>
             </TabsContent>
 
-            <TabsContent value="coaching" className="space-y-4 pt-2">
-              <div>
-                <Label htmlFor="coaching_startDate">Startdatum Coaching (optioneel)</Label>
-                 <Controller
-                    name="coaching_startDate"
-                    control={control}
-                    render={({ field }) => (
-                        <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP", {locale: nl }) : <span>Kies een datum</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            />
-                        </PopoverContent>
-                        </Popover>
-                    )}
-                    />
-                {errors.coaching_startDate && <p className="text-sm text-destructive">{errors.coaching_startDate.message}</p>}
-              </div>
-              <div>
-                <Label htmlFor="coaching_interval">Coaching Interval (dagen, optioneel)</Label>
-                <Input id="coaching_interval" type="number" {...register("coaching_interval")} />
-                {errors.coaching_interval && <p className="text-sm text-destructive">{errors.coaching_interval.message}</p>}
-              </div>
-              <div>
-                <Label htmlFor="coaching_currentDayInFlow">Huidige Dag in Coaching Flow (optioneel)</Label>
-                <Input id="coaching_currentDayInFlow" type="number" {...register("coaching_currentDayInFlow")} />
-                {errors.coaching_currentDayInFlow && <p className="text-sm text-destructive">{errors.coaching_currentDayInFlow.message}</p>}
-              </div>
-            </TabsContent>
+            {currentRole !== 'ouder' && (
+              <TabsContent value="coaching" className="space-y-4 pt-2">
+                <div>
+                  <Label htmlFor="coaching_startDate">Startdatum Coaching (optioneel)</Label>
+                  <Controller
+                      name="coaching_startDate"
+                      control={control}
+                      render={({ field }) => (
+                          <Popover>
+                          <PopoverTrigger asChild>
+                              <Button
+                              variant={"outline"}
+                              className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                              )}
+                              >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? format(field.value, "PPP", {locale: nl }) : <span>Kies een datum</span>}
+                              </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                              <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              />
+                          </PopoverContent>
+                          </Popover>
+                      )}
+                      />
+                  {errors.coaching_startDate && <p className="text-sm text-destructive">{errors.coaching_startDate.message}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="coaching_interval">Coaching Interval (dagen, optioneel)</Label>
+                  <Input id="coaching_interval" type="number" {...register("coaching_interval")} />
+                  {errors.coaching_interval && <p className="text-sm text-destructive">{errors.coaching_interval.message}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="coaching_currentDayInFlow">Huidige Dag in Coaching Flow (optioneel)</Label>
+                  <Input id="coaching_currentDayInFlow" type="number" {...register("coaching_currentDayInFlow")} />
+                  {errors.coaching_currentDayInFlow && <p className="text-sm text-destructive">{errors.coaching_currentDayInFlow.message}</p>}
+                </div>
+              </TabsContent>
+            )}
             
             {currentRole === 'tutor' && (
               <TabsContent value="tutorSpecific" className="space-y-4 pt-2">
@@ -352,17 +370,22 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 )}
               </TabsContent>
             )}
-             {currentRole === 'ouder' && (
+            {currentRole === 'ouder' && (
               <TabsContent value="parentSpecific" className="space-y-4 pt-2">
-                <CardTitle className="text-lg">Kinderen Beheren (Ouder)</CardTitle>
-                <p className="text-sm text-muted-foreground">Deze functionaliteit is nog in ontwikkeling. Hier kunt u binnenkort de profielen en lessen van uw kinderen beheren.</p>
-                {/* Placeholder voor toekomstige kinderbeheer UI */}
-                <Button variant="outline" disabled>Kind Toevoegen (binnenkort)</Button>
+                <CardTitle className="text-lg">Gekoppelde Kinderen (Ouder)</CardTitle>
+                {user?.children && user.children.length > 0 ? (
+                  <ul className="list-disc pl-5">
+                    {user.children.map(childId => <li key={childId}>Kind ID: {childId} (Details volgen)</li>)}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nog geen kinderen gekoppeld aan deze ouder.</p>
+                )}
+                <Button variant="outline" disabled>Kind Toevoegen/Beheren (binnenkort)</Button>
               </TabsContent>
             )}
           </Tabs>
         </form>
-        <DialogFooter className="pt-4 border-t mt-auto"> {/* Added mt-auto for sticky footer */}
+        <DialogFooter className="pt-4 border-t mt-auto">
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>

@@ -28,8 +28,9 @@ export interface User {
     totalRevenue?: number; 
     averageRating?: number;
   };
-  // Placeholder for future parent-child relationship
-  children?: string[]; // Array of child User IDs
+  // Parent-child relationship
+  parentId?: string; // ID of the parent, if this user is a child
+  children?: string[]; // Array of child User IDs, if this user is a parent
 
   // School and study related information, primarily for leerling role
   schoolName?: string;
