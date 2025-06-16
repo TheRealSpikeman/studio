@@ -7,19 +7,19 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react'; 
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users as UsersLucide, GraduationCap, Contact } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
+import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
 
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
-  age: undefined as number | undefined, 
+  age: 16 as number | undefined, // Example age
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
   profileImageUrl: null as string | null,
   subscription: {
@@ -27,13 +27,13 @@ const initialUserData = {
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
     nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
   },
-  schoolName: '',
-  className: '',
-  schoolType: '',
-  helpSubjects: [] as string[],
+  schoolName: 'Voorbeeld School',
+  className: 'Klas 3B',
+  schoolType: 'HAVO',
+  helpSubjects: ['wiskunde', 'nederlands'] as string[],
 };
 
-const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString());
+const profileAgeOptions = Array.from({ length: (80 - 12) + 1 }, (_, i) => (i + 12).toString());
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 
 const predefinedAvatars = [
@@ -54,7 +54,7 @@ const allHomeworkSubjects = [
   { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe },
   { id: 'natuurkunde', name: 'Natuurkunde', icon: FlaskConical },
   { id: 'scheikunde', name: 'Scheikunde', icon: FlaskConical },
-  { id: 'economie', name: 'Economie', icon: UsersLucide }, 
+  { id: 'economie', name: 'Economie', icon: UsersLucide },
   { id: 'frans', name: 'Frans', icon: Languages },
   { id: 'duits', name: 'Duits', icon: Languages },
 ];
@@ -63,11 +63,11 @@ const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", 
 
 
 export default function ProfilePage() {
-  const { currentDashboardRole } = useDashboardRole(); 
+  const { currentDashboardRole } = useDashboardRole();
 
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
-  const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE); 
+  const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
   const [userAgeGroup, setUserAgeGroup] = useState<'12-14' | '15-18' | 'adult'>(initialUserData.ageGroup);
 
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
@@ -84,9 +84,9 @@ export default function ProfilePage() {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const [hiddenHomeworkSubjects, setHiddenHomeworkSubjects] = useState<string[]>([]);
-  
+
   const [schoolName, setSchoolName] = useState(initialUserData.schoolName);
-  const [className, setClassName] = useState(initialUserData.className); 
+  const [className, setClassName] = useState(initialUserData.className);
   const [schoolType, setSchoolType] = useState(initialUserData.schoolType);
   const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
 
@@ -113,13 +113,28 @@ export default function ProfilePage() {
     }
   }, [isEditing, currentDashboardRole]);
 
+  useEffect(() => {
+    // Derive ageGroup whenever userAgeString changes
+    if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
+      const ageNum = parseInt(userAgeString, 10);
+      if (!isNaN(ageNum)) {
+        if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
+        else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
+        else setUserAgeGroup('adult');
+      }
+    } else {
+      setUserAgeGroup(initialUserData.ageGroup); // Reset to default or handle as "not specified"
+    }
+  }, [userAgeString]);
+
+
   const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImageUrl(reader.result as string);
-        setIsAvatarDialogOpen(false); 
+        setIsAvatarDialogOpen(false);
       };
       reader.readAsDataURL(file);
     }
@@ -127,7 +142,7 @@ export default function ProfilePage() {
 
   const handleSelectAvatar = (avatarSrc: string) => {
     setProfileImageUrl(avatarSrc);
-    setIsAvatarDialogOpen(false); 
+    setIsAvatarDialogOpen(false);
   };
 
   const handleSaveProfile = () => {
@@ -138,23 +153,24 @@ export default function ProfilePage() {
         ageToSave = parsedAge;
       }
     }
-    
-    const profileDataToSave: any = { 
-      name: userName, 
-      email: userEmail, 
-      profileImageUrl: profileImageUrl, 
-      role: currentDashboardRole, 
+
+    const profileDataToSave: any = {
+      name: userName,
+      email: userEmail,
+      profileImageUrl: profileImageUrl,
+      role: currentDashboardRole,
     };
 
     if (currentDashboardRole === 'leerling') {
         profileDataToSave.age = ageToSave;
+        // ageGroup is already updated via useEffect from userAgeString
         profileDataToSave.ageGroup = userAgeGroup;
         profileDataToSave.schoolName = schoolName;
         profileDataToSave.className = className;
         profileDataToSave.schoolType = schoolType;
         profileDataToSave.helpSubjects = helpSubjects;
     }
-    
+
     console.log("Profiel opgeslagen:", profileDataToSave);
     localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(hiddenHomeworkSubjects));
     toast({
@@ -167,7 +183,6 @@ export default function ProfilePage() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    // Reset to originally loaded hidden subjects if cancel
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
@@ -231,13 +246,12 @@ export default function ProfilePage() {
   const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
     setHiddenHomeworkSubjects(prev => {
       const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
-      // Do not save to localStorage immediately here, only on main save
       return newHidden;
     });
   };
 
   const handleHelpSubjectChange = (subjectId: string, checked: boolean) => {
-    setHelpSubjects(prev => 
+    setHelpSubjects(prev =>
       checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
     );
   };
@@ -304,12 +318,12 @@ export default function ProfilePage() {
                       <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full">
                         <ImageUp className="mr-2 h-4 w-4" /> Blader door bestanden
                       </Button>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        ref={fileInputRef} 
-                        onChange={handleProfileImageUpload} 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleProfileImageUpload}
+                        className="hidden"
                       />
                     </div>
                     <div className="relative my-4">
@@ -331,12 +345,12 @@ export default function ProfilePage() {
                                 ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
                               title={avatar.alt}
                             >
-                              <Image 
-                                src={avatar.src} 
-                                alt={avatar.alt} 
-                                width={80} 
-                                height={80} 
-                                className="aspect-square object-cover" 
+                              <Image
+                                src={avatar.src}
+                                alt={avatar.alt}
+                                width={80}
+                                height={80}
+                                className="aspect-square object-cover"
                                 data-ai-hint={avatar.hint}
                               />
                             </button>
@@ -374,21 +388,21 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
           <div>
             <Label htmlFor="userName">Volledige Naam</Label>
-            <Input 
-              id="userName" 
-              type="text" 
-              value={userName} 
-              onChange={(e) => setUserName(e.target.value)} 
+            <Input
+              id="userName"
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
               disabled={!isEditing}
               className="mt-1"
             />
           </div>
           <div>
             <Label htmlFor="userEmail">E-mailadres</Label>
-            <Input 
-              id="userEmail" 
-              type="email" 
-              value={userEmail} 
+            <Input
+              id="userEmail"
+              type="email"
+              value={userEmail}
               onChange={(e) => setUserEmail(e.target.value)}
               disabled // Email typically not editable for existing accounts
               className="mt-1"
@@ -397,33 +411,23 @@ export default function ProfilePage() {
           </div>
           {currentDashboardRole === 'leerling' && (
             <div>
-                <Label htmlFor="userAgeString" className="flex items-center gap-1">
+                <Label htmlFor="userAgeSelect" className="flex items-center gap-1">
                     <Cake className="h-4 w-4 text-muted-foreground"/>
                     Leeftijd (voor quiz afstemming)
                 </Label>
                 {isEditing ? (
                 <Select
-                    value={userAgeString} 
-                    onValueChange={(value) => {
-                        setUserAgeString(value);
-                        if (value !== NO_AGE_SPECIFIED_VALUE) {
-                            const ageNum = parseInt(value, 10);
-                            if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
-                            else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
-                            else setUserAgeGroup('adult'); 
-                        } else {
-                            setUserAgeGroup(initialUserData.ageGroup); 
-                        }
-                    }}
+                    value={userAgeString}
+                    onValueChange={setUserAgeString}
                     disabled={!isEditing}
                 >
-                    <SelectTrigger id="userAgeString" className="mt-1">
+                    <SelectTrigger id="userAgeSelect" className="mt-1">
                     <SelectValue placeholder="Selecteer je leeftijd" />
                     </SelectTrigger>
                     <SelectContent>
                     <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
-                    {ageOptions.map(ageOpt => (
-                        <SelectItem key={ageOpt} value={ageOpt}>{ageOpt}</SelectItem>
+                    {profileAgeOptions.map(ageOpt => (
+                        <SelectItem key={ageOpt} value={ageOpt}>{ageOpt} jaar</SelectItem>
                     ))}
                     </SelectContent>
                 </Select>
@@ -492,8 +496,8 @@ export default function ProfilePage() {
                       onCheckedChange={(checked) => isEditing && handleHelpSubjectChange(subject.id, !!checked)}
                       disabled={!isEditing}
                     />
-                    <Label 
-                      htmlFor={`help-${subject.id}`} 
+                    <Label
+                      htmlFor={`help-${subject.id}`}
                       className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
                     >
                       <subject.icon className="h-5 w-5" /> {subject.name}
@@ -505,7 +509,7 @@ export default function ProfilePage() {
           </Card>
         </>
       )}
-      
+
       {isEditing && (
         <Card className="shadow-lg">
           <CardHeader>
@@ -521,10 +525,10 @@ export default function ProfilePage() {
             <div>
               <Label htmlFor="currentPassword">Huidig Wachtwoord</Label>
               <div className="relative mt-1">
-                <Input 
-                  id="currentPassword" 
-                  type={showCurrentPassword ? "text" : "password"} 
-                  value={currentPassword} 
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className="pr-10"
                   autoComplete="current-password"
@@ -544,11 +548,11 @@ export default function ProfilePage() {
             <div>
               <Label htmlFor="newPassword">Nieuw Wachtwoord</Label>
               <div className="relative mt-1">
-                <Input 
-                  id="newPassword" 
+                <Input
+                  id="newPassword"
                   type={showNewPassword ? "text" : "password"}
-                  value={newPassword} 
-                  onChange={(e) => setNewPassword(e.target.value)} 
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="pr-10"
                   autoComplete="new-password"
                 />
@@ -567,11 +571,11 @@ export default function ProfilePage() {
             <div>
               <Label htmlFor="confirmNewPassword">Bevestig Nieuw Wachtwoord</Label>
               <div className="relative mt-1">
-                <Input 
-                  id="confirmNewPassword" 
-                  type={showConfirmNewPassword ? "text" : "password"} 
-                  value={confirmNewPassword} 
-                  onChange={(e) => setConfirmNewPassword(e.target.value)} 
+                <Input
+                  id="confirmNewPassword"
+                  type={showConfirmNewPassword ? "text" : "password"}
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
                   className="pr-10"
                   autoComplete="new-password"
                 />
@@ -646,7 +650,7 @@ export default function ProfilePage() {
         </Card>
       )}
 
-      {currentDashboardRole !== 'tutor' && currentDashboardRole !== 'ouder' && ( // Show only if not tutor or parent
+      {currentDashboardRole !== 'tutor' && currentDashboardRole !== 'ouder' && (
           <Card className="shadow-lg" id="subject-visibility-settings">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -668,7 +672,7 @@ export default function ProfilePage() {
                       onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
                       disabled={!isEditing}
                     />
-                    <Label 
+                    <Label
                       htmlFor={`subject-visibility-${subject.id}`}
                       className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
                     >

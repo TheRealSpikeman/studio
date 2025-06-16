@@ -17,17 +17,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { User, Users, School, Mail, Info } from "lucide-react";
+import { User, Users, School, Mail, Info, Cake } from "lucide-react"; // Added Cake
 
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_";
+const childAgeOptions = Array.from({ length: (18 - 12) + 1 }, (_, i) => (i + 12).toString());
 
 const addChildFormSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
   lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 tekens bevatten." }),
-  ageGroup: z.enum(['12-14 jaar', '15-18 jaar'], {
-    required_error: "Selecteer een leeftijdsgroep.",
-  }),
+  age: z.string().min(1, { message: "Selecteer een leeftijd." }),
   childEmail: z.string().email({ message: "Voer een geldig e-mailadres voor het kind in." }),
   schoolType: z.string().optional(),
   className: z.string().optional(),
@@ -46,9 +45,9 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     defaultValues: {
       firstName: "",
       lastName: "",
-      ageGroup: undefined,
+      age: undefined,
       childEmail: "",
-      schoolType: "", 
+      schoolType: "",
       className: "",
     },
   });
@@ -66,7 +65,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
         <CardHeader>
             <CardTitle>Kindgegevens Invoeren</CardTitle>
             <CardDescription>
-                Voer de gegevens van uw kind in. Na het opslaan ontvangt het kind (indien een e-mailadres is opgegeven) een uitnodiging om een eigen account te activeren en te koppelen.
+                Voer de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen.
                 Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
             </CardDescription>
         </CardHeader>
@@ -109,20 +108,21 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                 </div>
                 <FormField
                 control={form.control}
-                name="ageGroup"
+                name="age"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Leeftijdsgroep</FormLabel>
+                    <FormLabel>Leeftijd kind</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                         <SelectTrigger className="pl-10">
-                            <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <SelectValue placeholder="Selecteer leeftijdsgroep" />
+                            <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <SelectValue placeholder="Selecteer leeftijd" />
                         </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                        <SelectItem value="12-14 jaar">12-14 jaar</SelectItem>
-                        <SelectItem value="15-18 jaar">15-18 jaar</SelectItem>
+                        {childAgeOptions.map(age => (
+                            <SelectItem key={age} value={age}>{age} jaar</SelectItem>
+                        ))}
                         </SelectContent>
                     </Select>
                     <FormMessage />

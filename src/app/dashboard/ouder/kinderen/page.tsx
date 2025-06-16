@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake } from 'lucide-react'; // Added Cake
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -16,10 +16,11 @@ interface Child {
   id: string;
   firstName: string;
   lastName: string;
-  ageGroup: '12-14 jaar' | '15-18 jaar';
+  age?: number; // Store specific age
+  ageGroup?: '12-14 jaar' | '15-18 jaar'; // Can be derived or also stored
   avatarUrl?: string;
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
-  lastActivity?: string; 
+  lastActivity?: string;
   childEmail?: string;
   schoolType?: string;
   className?: string;
@@ -31,6 +32,7 @@ const dummyChildren: Child[] = [
     id: 'child1',
     firstName: 'Sofie',
     lastName: 'de Tester',
+    age: 13,
     ageGroup: '12-14 jaar',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
@@ -43,6 +45,7 @@ const dummyChildren: Child[] = [
     id: 'child2',
     firstName: 'Max',
     lastName: 'de Tester',
+    age: 16,
     ageGroup: '15-18 jaar',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'geen',
@@ -54,8 +57,8 @@ const dummyChildren: Child[] = [
     id: 'child3',
     firstName: 'Lisa',
     lastName: 'Voorbeeld',
+    age: 12,
     ageGroup: '12-14 jaar',
-    // No avatar to test fallback
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
   },
@@ -83,16 +86,25 @@ export default function BeheerKinderenPage() {
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   const handleSaveChild = (data: AddChildFormData) => {
+    const childAge = parseInt(data.age, 10);
+    let derivedAgeGroup: '12-14 jaar' | '15-18 jaar' = '12-14 jaar'; // Default
+    if (childAge >= 12 && childAge <= 14) {
+        derivedAgeGroup = '12-14 jaar';
+    } else if (childAge >= 15 && childAge <= 18) {
+        derivedAgeGroup = '15-18 jaar';
+    }
+
     const newChild: Child = {
       id: `child-${Date.now()}`,
       firstName: data.firstName,
       lastName: data.lastName,
-      ageGroup: data.ageGroup,
+      age: childAge,
+      ageGroup: derivedAgeGroup,
       childEmail: data.childEmail,
       schoolType: data.schoolType,
       className: data.className,
-      subscriptionStatus: 'uitgenodigd', 
-      avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`, 
+      subscriptionStatus: 'uitgenodigd',
+      avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
     };
     setChildren(prev => [newChild, ...prev]);
     setIsAddingChildMode(false);
@@ -103,23 +115,6 @@ export default function BeheerKinderenPage() {
     console.log("Simulating invitation email to:", data.childEmail);
   };
 
-  if (isAddingChildMode) {
-    return (
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-foreground">Nieuw Kind Toevoegen</h1>
-           <Button variant="outline" onClick={() => setIsAddingChildMode(false)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Overzicht
-          </Button>
-        </div>
-        <AddChildForm 
-            onSave={handleSaveChild} 
-            onCancel={() => setIsAddingChildMode(false)} 
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -129,19 +124,26 @@ export default function BeheerKinderenPage() {
             Beheer de profielen, abonnementen en voortgang van uw kinderen.
           </p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" asChild className="w-full sm:w-auto">
-                <Link href="/dashboard/ouder">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
-                </Link>
-            </Button>
-            <Button className="w-full sm:w-auto" onClick={() => setIsAddingChildMode(true)}>
-                <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
-            </Button>
-        </div>
+        {!isAddingChildMode && (
+            <div className="flex gap-2 w-full sm:w-auto">
+                <Button variant="outline" asChild className="w-full sm:w-auto">
+                    <Link href="/dashboard/ouder">
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
+                    </Link>
+                </Button>
+                <Button className="w-full sm:w-auto" onClick={() => setIsAddingChildMode(true)}>
+                    <UserPlus className="mr-2 h-4 w-4" /> Nieuw Kind Toevoegen
+                </Button>
+            </div>
+        )}
       </div>
 
-      {children.length === 0 && !isAddingChildMode ? (
+      {isAddingChildMode ? (
+         <AddChildForm
+            onSave={handleSaveChild}
+            onCancel={() => setIsAddingChildMode(false)}
+        />
+      ) : children.length === 0 ? (
         <Card className="text-center py-10">
           <CardContent>
             <p className="text-muted-foreground">U heeft nog geen kinderen toegevoegd aan uw account.</p>
@@ -159,13 +161,15 @@ export default function BeheerKinderenPage() {
                 </Avatar>
                 <div>
                   <CardTitle className="text-xl font-semibold">{`${child.firstName} ${child.lastName}`}</CardTitle>
-                  <CardDescription>{child.ageGroup}</CardDescription>
+                  <CardDescription className="flex items-center gap-1">
+                    <Cake className="h-4 w-4 text-muted-foreground"/> {child.age ? `${child.age} jaar` : (child.ageGroup || 'N.v.t.')}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow space-y-3">
                 <div>
                   <span className="text-xs font-medium text-muted-foreground">Status: </span>
-                  <Badge 
+                  <Badge
                     variant={getSubscriptionBadgeVariant(child.subscriptionStatus)}
                     className={getSubscriptionBadgeClasses(child.subscriptionStatus)}
                   >
