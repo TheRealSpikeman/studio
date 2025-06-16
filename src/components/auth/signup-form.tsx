@@ -1,4 +1,3 @@
-
 // src/components/auth/signup-form.tsx
 "use client";
 
@@ -10,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,19 +17,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, UserCircleIcon } from 'lucide-react'; // Replaced Cake with UserCircleIcon for age group
+import { Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-const ageGroupValues = ["12-14", "15-18", "ouder-18"] as const;
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
-  ageGroup: z.enum(ageGroupValues, {
-    required_error: "Selecteer een leeftijdsgroep.",
-  }),
   agreeToTerms: z.boolean().refine(value => value === true, {
     message: "Je moet akkoord gaan met de voorwaarden.",
   }),
@@ -48,33 +40,34 @@ export function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      ageGroup: undefined, // Will be one of "12-14", "15-18", "ouder-18"
       agreeToTerms: false,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Signup values (parent registration):", values);
     // TODO: Implement actual signup logic:
-    // 1. Call backend to create user with 'niet geverifieerd' status.
+    // 1. Call backend to create parent user with 'niet geverifieerd' status.
     // 2. Backend sends verification email.
-    // 3. On success, redirect.
-    // 4. If ageGroup is "ouder-18", potentially trigger a different flow or require parent details.
-    console.log("Signup values (including ageGroup):", values); 
-    // For now, redirect to email verification page
-    // If a paid plan was selected and user is < 18, redirect to parental approval
-    const plan = new URLSearchParams(window.location.search).get('plan');
-    if (plan && (values.ageGroup === '12-14' || values.ageGroup === '15-18')) {
-        router.push(`/parental-approval?plan=${plan}`);
+    // 3. On success, redirect to verify-email page.
+    // 4. After verification, parent can add children and manage subscriptions from their dashboard.
+    
+    const plan = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get('plan') : null;
+    if (plan) {
+        // Ouder registreert met een specifiek plan intentie
+        // De daadwerkelijke plan-activatie en betaling gebeurt na e-mail verificatie en inloggen in het dashboard.
+        router.push(`/verify-email?plan=${plan}&newRegistration=true`);
     } else {
-        router.push('/verify-email');
+        // Standaard ouder registratie zonder directe plan selectie
+        router.push('/verify-email?newRegistration=true');
     }
   }
 
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Account aanmaken</CardTitle>
-        <CardDescription>Start je reis met MindNavigator.</CardDescription>
+        <CardTitle className="text-2xl font-bold">Ouder Account Aanmaken</CardTitle>
+        <CardDescription>Start hier om MindNavigator voor uw gezin te gebruiken.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -84,11 +77,11 @@ export function SignupForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-mailadres</FormLabel>
+                  <FormLabel>Uw e-mailadres</FormLabel>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <FormControl>
-                      <Input placeholder="jouw@email.com" {...field} className="pl-10" />
+                      <Input placeholder="ouder@email.com" {...field} className="pl-10" />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -129,60 +122,6 @@ export function SignupForm() {
             />
             <FormField
               control={form.control}
-              name="ageGroup"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="flex items-center gap-1">
-                     <UserCircleIcon className="h-4 w-4 text-muted-foreground"/>
-                     Leeftijdsgroep
-                  </FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-2"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="12-14" id="age-12-14" />
-                        </FormControl>
-                        <FormLabel htmlFor="age-12-14" className="font-normal cursor-pointer">
-                          Ik ben 12–14 jaar
-                          <FormDescription className="!mt-0.5">
-                            Kies deze optie als je in groep 8, brugklas of klas 2–3 zit.
-                          </FormDescription>
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="15-18" id="age-15-18" />
-                        </FormControl>
-                        <FormLabel htmlFor="age-15-18" className="font-normal cursor-pointer">
-                          Ik ben 15–18 jaar
-                           <FormDescription className="!mt-0.5">
-                            Kies deze optie als je in de bovenbouw zit of je eindexamen doet.
-                          </FormDescription>
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="ouder-18" id="age-ouder-18" />
-                        </FormControl>
-                        <FormLabel htmlFor="age-ouder-18" className="font-normal cursor-pointer">
-                          Ik ben ouder dan 18 jaar (ouder/verzorger)
-                          <FormDescription className="!mt-0.5">
-                            Selecteer dit als u een ouder/verzorger bent die een account aanmaakt.
-                          </FormDescription>
-                        </FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="agreeToTerms"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
@@ -210,10 +149,10 @@ export function SignupForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !form.formState.isValid}>
-              Aanmelden
+              Ouderaccount Aanmaken
             </Button>
             <p className="pt-1 text-xs text-muted-foreground text-center">
-              Na aanmelding ontvang je een e-mail om je account te verifiëren.
+              Na aanmelding ontvangt u een e-mail om uw account te verifiëren.
             </p>
           </form>
         </Form>
@@ -227,4 +166,3 @@ export function SignupForm() {
     </Card>
   );
 }
-

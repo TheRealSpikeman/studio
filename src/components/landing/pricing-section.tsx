@@ -6,9 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { CheckCircle2, XCircle, Info } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ParentalApprovalDialog } from '@/components/auth/parental-approval-dialog';
+// ParentalApprovalDialog is niet meer nodig hier.
 
 interface PlanFeature {
   basisQuiz: boolean;             // "Basis Neurodiversiteit Quiz"
@@ -25,10 +24,10 @@ interface Plan {
   priceDetail: string;
   features: PlanFeature;
   ctaText: string;
-  ctaBaseLink: string; // Base link before adding query params or changing for checkout
+  ctaBaseLink: string; 
   isPopular: boolean;
   savingsText?: string;
-  planId: string; // e.g., 'monthly', 'annual'
+  planId: string; 
 }
 
 const plans: Plan[] = [
@@ -45,7 +44,7 @@ const plans: Plan[] = [
       oneOnOneTutorPremium: false,
     },
     ctaText: 'Start gratis quiz',
-    ctaBaseLink: '/quizzes',
+    ctaBaseLink: '/quizzes', // Direct naar quizzen, registratie is optioneel
     isPopular: false,
     planId: 'free',
   },
@@ -54,7 +53,7 @@ const plans: Plan[] = [
     price: '€2,50',
     priceDetail: 'p/m',
     features: {
-      basisQuiz: true, // Included in 'alleQuizzen'
+      basisQuiz: true, 
       alleQuizzen: true,
       coachingHubToegang: true,
       huiswerkToolsToegang: true,
@@ -62,7 +61,7 @@ const plans: Plan[] = [
       oneOnOneTutorPremium: true,
     },
     ctaText: 'Kies Maandelijks',
-    ctaBaseLink: '/signup', // Will append ?plan=monthly
+    ctaBaseLink: '/signup', // Ouders registreren zich hier
     isPopular: true,
     planId: 'monthly',
   },
@@ -71,7 +70,7 @@ const plans: Plan[] = [
     price: '€25',
     priceDetail: 'per jaar',
     features: {
-      basisQuiz: true, // Included in 'alleQuizzen'
+      basisQuiz: true, 
       alleQuizzen: true,
       coachingHubToegang: true,
       huiswerkToolsToegang: true,
@@ -79,7 +78,7 @@ const plans: Plan[] = [
       oneOnOneTutorPremium: true,
     },
     ctaText: 'Kies Jaarlijks',
-    ctaBaseLink: '/signup', // Will append ?plan=annual
+    ctaBaseLink: '/signup', // Ouders registreren zich hier
     isPopular: false,
     savingsText: 'Bespaar €5 (gelijk aan €2,08 p/m)',
     planId: 'annual',
@@ -95,43 +94,18 @@ const featureLabels: Record<keyof PlanFeature, string> = {
   oneOnOneTutorPremium: "1-op-1 Tutor Premium Sessies (korting/extra's)",
 };
 
-// Simulate user data. In a real app, this would come from an auth context.
-interface MockUser {
-  isLoggedIn: boolean;
-  name: string;
-  email: string;
-  age: number;
-}
-// const MOCKED_USER: MockUser | null = { isLoggedIn: true, name: "Test Kid", email: "kid@example.com", age: 15 };
-const MOCKED_USER: MockUser | null = null; // Simulate not logged in
-// const MOCKED_USER: MockUser | null = { isLoggedIn: true, name: "Test Adult", email: "adult@example.com", age: 25 };
-
-
 export function PricingSection() {
   const router = useRouter();
-  const [isParentModalOpen, setIsParentModalOpen] = useState(false);
-  const [selectedPlanForModal, setSelectedPlanForModal] = useState<Plan | null>(null);
 
   const handlePlanSelection = (plan: Plan) => {
     if (plan.planId === 'free') {
-      router.push(plan.ctaBaseLink);
-      return;
-    }
-
-    if (MOCKED_USER?.isLoggedIn) {
-      if (MOCKED_USER.age < 18) {
-        setSelectedPlanForModal(plan);
-        setIsParentModalOpen(true);
-      } else {
-        // Logged in and adult, redirect to checkout (placeholder)
-        router.push(`/checkout?plan=${plan.planId}`);
-      }
+      router.push(plan.ctaBaseLink); 
     } else {
-      // Not logged in, redirect to signup with plan
+      // Voor betaalde plannen, altijd naar signup met planId.
+      // De authenticatiestatus (ingelogd of niet) wordt afgehandeld op de signup of login pagina.
       router.push(`${plan.ctaBaseLink}?plan=${plan.planId}`);
     }
   };
-
 
   return (
     <section id="pricing" className="py-16 md:py-24 bg-secondary/30 flex flex-col items-center">
@@ -140,7 +114,7 @@ export function PricingSection() {
           Kies jouw pad naar zelfinzicht
         </h2>
         <p className="mb-12 text-center text-lg text-muted-foreground">
-          Start gratis of krijg volledige toegang tot alle coaching en tools.
+          Start gratis of krijg volledige toegang tot alle coaching en tools. Registratie door ouder/verzorger.
         </p>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 items-stretch">
           {plans.map((plan) => (
@@ -170,7 +144,6 @@ export function PricingSection() {
                 <ul className="space-y-3" style={{ lineHeight: '1.6' }}>
                   {Object.entries(plan.features).map(([key, value]) => {
                     const featureKey = key as keyof PlanFeature;
-                    // Conditional rendering for basisQuiz on paid plans if alleQuizzen is true
                     if (featureKey === 'basisQuiz' && plan.features.alleQuizzen && plan.planId !== 'free') {
                       return null; 
                     }
@@ -183,7 +156,7 @@ export function PricingSection() {
                           ) : (
                             <XCircle className="mr-2 h-5 w-5 text-red-500 flex-shrink-0" />
                           )
-                        ) : ( // For pdfRapport which can be 'geen', 'beperkt', 'volledig'
+                        ) : ( 
                           value !== 'geen' ? 
                           <CheckCircle2 className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
                           : <XCircle className="mr-2 h-5 w-5 text-red-500 flex-shrink-0" />
@@ -224,14 +197,6 @@ export function PricingSection() {
           ))}
         </div>
       </div>
-      {selectedPlanForModal && (
-        <ParentalApprovalDialog
-          isOpen={isParentModalOpen}
-          onOpenChange={setIsParentModalOpen}
-          planName={selectedPlanForModal.name}
-        />
-      )}
     </section>
   );
 }
-

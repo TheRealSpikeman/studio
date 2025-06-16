@@ -7,16 +7,31 @@ import { MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { SiteLogo } from '@/components/common/site-logo';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function VerifyEmailPage() {
+
+function VerifyEmailContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
+  const isNewRegistration = searchParams.get("newRegistration") === "true";
+
+  let descriptionText = "We hebben een verificatielink naar uw e-mailadres gestuurd. Klik op de link in de e-mail om uw account te activeren.";
+  if (isNewRegistration) {
+    descriptionText += " Na verificatie kunt u inloggen op uw ouder-dashboard om uw gezinsprofiel in te stellen en kinderen toe te voegen.";
+    if (planParam) {
+        const planName = planParam === 'monthly' ? 'Coaching Maandelijks' : planParam === 'annual' ? 'Coaching Jaarlijks' : 'Geselecteerd Plan';
+      descriptionText += ` Vervolgens kunt u het "${planName}" abonnement voor uw gezin activeren.`;
+    }
+  }
+
 
   const handleResendEmail = () => {
-    // TODO: Implement actual backend logic to resend the verification email
     console.log("Resend verification email logic here.");
     toast({
       title: "Verificatie-e-mail opnieuw verzonden",
-      description: "Een nieuwe verificatielink is naar je e-mailadres gestuurd. Controleer je inbox (en spamfolder).",
+      description: "Een nieuwe verificatielink is naar uw e-mailadres gestuurd. Controleer uw inbox (en spamfolder).",
       variant: "default",
     });
   };
@@ -31,15 +46,14 @@ export default function VerifyEmailPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MailCheck className="h-8 w-8" />
           </div>
-          <CardTitle className="text-2xl font-bold">Controleer je inbox</CardTitle>
+          <CardTitle className="text-2xl font-bold">Controleer uw inbox</CardTitle>
           <CardDescription>
-            We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link in de e-mail om je account te activeren.
-            Als je jonger dan 18 bent en een betaald abonnement hebt gekozen, word je na verificatie gevraagd om gegevens van een ouder/verzorger voor de betaling.
+            {descriptionText}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Geen e-mail ontvangen? Controleer je spamfolder of vraag hieronder een nieuwe verificatie-e-mail aan.
+            Geen e-mail ontvangen? Controleer uw spamfolder of vraag hieronder een nieuwe verificatie-e-mail aan.
           </p>
           <Button onClick={handleResendEmail} className="w-full">
             Verificatie-e-mail opnieuw verzenden
@@ -52,3 +66,12 @@ export default function VerifyEmailPage() {
     </div>
   );
 }
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Pagina laden...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
