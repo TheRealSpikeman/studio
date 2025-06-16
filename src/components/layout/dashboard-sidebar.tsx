@@ -148,6 +148,7 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   let currentSectionTitleDisplayed: string | null = null;
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); // Demo state
 
   return (
     <>
@@ -267,6 +268,11 @@ function SidebarNavigationContent() {
                 >
                     <item.icon className="h-5 w-5" />
                     {item.label}
+                    {item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && (
+                        <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full bg-primary" title="Nieuwe berichten">
+                            <span className="sr-only">Nieuwe berichten</span>
+                        </span>
+                    )}
                 </Link>
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
