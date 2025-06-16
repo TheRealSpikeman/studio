@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain } from 'lucide-react';
+import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Added Accordion imports
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface QuizResult {
   quizId: string;
@@ -52,7 +52,6 @@ interface ChildProgressData {
   goals?: Goal[];
 }
 
-// Dummy data - in a real app, this would be fetched based on kindId
 const dummyProgressData: Record<string, ChildProgressData> = {
   'child1': {
     id: 'child1',
@@ -91,7 +90,6 @@ const dummyProgressData: Record<string, ChildProgressData> = {
       { month: 'Maa', completedLessons: 3, completedQuizzes: 0 },
     ],
   },
-  // Add more dummy data for other children if needed
 };
 
 
@@ -104,12 +102,10 @@ export default function KindVoortgangPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    // Simulate data fetching
     const data = dummyProgressData[kindId];
     if (data) {
       setChildData(data);
     } else {
-      // Handle case where child data is not found (e.g., redirect or show error)
       console.error("Kind data niet gevonden voor ID:", kindId);
     }
     setIsLoading(false);
@@ -156,17 +152,16 @@ export default function KindVoortgangPage() {
         </Button>
       </div>
 
-      {/* Recente Quizresultaten */}
-      <Card className="shadow-lg">
-        <Accordion type="single" collapsible className="w-full" defaultValue="quiz-results-section">
-          <AccordionItem value="quiz-results-section" className="border-b-0">
-            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg">
-              <CardHeader className="flex flex-row justify-between items-center w-full data-[state=open]:border-b">
+      <Accordion type="multiple" defaultValue={["quiz-results-section", "tutor-feedback-section"]} className="w-full space-y-6">
+        <AccordionItem value="quiz-results-section" className="border-0">
+          <Card className="shadow-lg">
+            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&[data-state=open]>div>svg]:text-primary [&[data-state=open]>div>svg]:rotate-180">
+              <CardHeader className="flex flex-row justify-between items-center w-full p-6 data-[state=open]:border-b">
                 <div className="text-left">
                   <CardTitle className="flex items-center gap-2"><FileText className="h-6 w-6 text-primary"/>Recente Quizresultaten</CardTitle>
                   <CardDescription>Een samenvatting van de laatst gemaakte quizzen.</CardDescription>
                 </div>
-                {/* ChevronDown is automatically part of AccordionTrigger */}
+                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
               </CardHeader>
             </AccordionTrigger>
             <AccordionContent>
@@ -178,7 +173,7 @@ export default function KindVoortgangPage() {
                         <h4 className="font-semibold text-primary">{quiz.title}</h4>
                         <p className="text-xs text-muted-foreground">Voltooid op: <FormattedDateCell isoDateString={quiz.dateCompleted} dateFormatPattern="P" /></p>
                       </div>
-                      <Badge variant={quiz.isShared ? "default" : "secondary"} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                      <Badge variant={quiz.isShared ? "default" : "secondary"} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-300"}>
                         {quiz.isShared ? <ShieldCheck className="mr-1.5 h-3.5 w-3.5"/> : <ShieldAlert className="mr-1.5 h-3.5 w-3.5"/>}
                         {quiz.isShared ? 'Gedeeld' : 'Niet Gedeeld'}
                       </Badge>
@@ -204,32 +199,39 @@ export default function KindVoortgangPage() {
                 )}
               </CardContent>
             </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </Card>
+          </Card>
+        </AccordionItem>
 
-      {/* Tutor Feedback Logboek */}
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><MessageSquareText className="h-6 w-6 text-primary"/>Feedback van Tutors</CardTitle>
-          <CardDescription>Belangrijke opmerkingen en feedback uit recente bijlessen.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {childData.tutorFeedback.length > 0 ? childData.tutorFeedback.map(fb => (
-            <Card key={fb.feedbackId} className="p-4 bg-muted/30">
-              <div className="flex justify-between items-center mb-1">
-                <h4 className="font-semibold">{fb.lessonSubject} (met {fb.tutorName})</h4>
-                <p className="text-xs text-muted-foreground"><FormattedDateCell isoDateString={fb.date} dateFormatPattern="P" /></p>
-              </div>
-              <p className="text-sm text-foreground/80">{fb.comment}</p>
-            </Card>
-          )) : (
-            <p className="text-muted-foreground text-center py-3">Nog geen feedback van tutors ontvangen.</p>
-          )}
-        </CardContent>
-      </Card>
+        <AccordionItem value="tutor-feedback-section" className="border-0">
+          <Card className="shadow-lg">
+            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&[data-state=open]>div>svg]:text-primary [&[data-state=open]>div>svg]:rotate-180">
+              <CardHeader className="flex flex-row justify-between items-center w-full p-6 data-[state=open]:border-b">
+                <div className="text-left">
+                  <CardTitle className="flex items-center gap-2"><MessageSquareText className="h-6 w-6 text-primary"/>Feedback van Tutors</CardTitle>
+                  <CardDescription>Belangrijke opmerkingen en feedback uit recente bijlessen.</CardDescription>
+                </div>
+                 <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
+              </CardHeader>
+            </AccordionTrigger>
+            <AccordionContent>
+              <CardContent className="space-y-4 pt-6">
+                {childData.tutorFeedback.length > 0 ? childData.tutorFeedback.map(fb => (
+                  <Card key={fb.feedbackId} className="p-4 bg-muted/30">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-semibold">{fb.lessonSubject} (met {fb.tutorName})</h4>
+                      <p className="text-xs text-muted-foreground"><FormattedDateCell isoDateString={fb.date} dateFormatPattern="P" /></p>
+                    </div>
+                    <p className="text-sm text-foreground/80">{fb.comment}</p>
+                  </Card>
+                )) : (
+                  <p className="text-muted-foreground text-center py-3">Nog geen feedback van tutors ontvangen.</p>
+                )}
+              </CardContent>
+            </AccordionContent>
+          </Card>
+        </AccordionItem>
+      </Accordion>
 
-      {/* Activiteitengrafiek */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Activity className="h-6 w-6 text-primary"/>Activiteitenoverzicht</CardTitle>
@@ -238,12 +240,10 @@ export default function KindVoortgangPage() {
         <CardContent>
           <div className="h-60 bg-muted rounded-md flex items-center justify-center">
             <p className="text-muted-foreground italic">Grafiek: Voltooide lessen/quizzen per periode (binnenkort beschikbaar)</p>
-            {/* Placeholder for chart component e.g. <ActivityChart data={childData.activityData} /> */}
           </div>
         </CardContent>
       </Card>
 
-      {/* Doelen */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Target className="h-6 w-6 text-primary"/>Doelen (binnenkort)</CardTitle>
@@ -264,4 +264,3 @@ export default function KindVoortgangPage() {
     </div>
   );
 }
-
