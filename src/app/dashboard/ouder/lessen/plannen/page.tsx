@@ -42,6 +42,19 @@ interface ScheduledLesson {
 
 type RepeatOption = 'once' | 'weekly' | 'biweekly';
 
+const generateTimeOptions = (): string[] => {
+  const options: string[] = [];
+  for (let hour = 7; hour <= 22; hour++) {
+    options.push(`${String(hour).padStart(2, '0')}:00`);
+    if (hour < 22) {
+      options.push(`${String(hour).padStart(2, '0')}:30`);
+    }
+  }
+  return options;
+};
+const timeOptions = generateTimeOptions();
+
+
 export default function PlanLesPage() {
   const { toast } = useToast();
   const [selectedChild, setSelectedChild] = useState<string>('');
@@ -80,7 +93,6 @@ export default function PlanLesPage() {
         description: "Kies 'Specificeer einddatum voor herhaling' en selecteer een einddatum, of kies 'Eenmalige les'. Voor nu worden herhalende lessen zonder einddatum tot maximaal 12 weken ingepland.",
         variant: "destructive",
       });
-      // return; // We allow planning without end date, but with a limit
     }
 
 
@@ -97,7 +109,7 @@ export default function PlanLesPage() {
     const recurringGroupId = repeatOption !== 'once' ? `recur-${Date.now()}` : undefined;
     let currentLessonStartDate = startOfDay(selectedDate);
     let lessonsPlannedCount = 0;
-    const maxLessons = specifyEndDate && repeatUntilDate ? 52 : 12; // Limit to 52 if end date, else 12 weeks
+    const maxLessons = specifyEndDate && repeatUntilDate ? 52 : 12; 
 
     while (lessonsPlannedCount < maxLessons) {
         if (specifyEndDate && repeatUntilDate && isBefore(repeatUntilDate, currentLessonStartDate)) {
@@ -150,7 +162,6 @@ export default function PlanLesPage() {
           )
         });
         
-        // Reset form fields
         setSelectedChild('');
         setSelectedSubject('');
         setSelectedDate(new Date());
@@ -186,7 +197,7 @@ export default function PlanLesPage() {
       } else {
         break; 
       }
-      if (count > 52) return '>52 (max. 1 jaar)'; // Safety break
+      if (count > 52) return '>52 (max. 1 jaar)'; 
     }
     return count;
   };
@@ -217,7 +228,6 @@ export default function PlanLesPage() {
           <CardDescription>Vul de gegevens in om een nieuwe les of lessenreeks te plannen.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          {/* Sectie 1: Kind & Vak */}
           <section className="space-y-6">
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
               <User className="h-5 w-5" /> Wie & Wat?
@@ -259,7 +269,6 @@ export default function PlanLesPage() {
 
           <Separator />
 
-          {/* Sectie 2: Datum & Tijd */}
           <section className="space-y-6">
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <ClockIcon className="h-5 w-5"/> Wanneer? (Eerste Les)
@@ -279,14 +288,16 @@ export default function PlanLesPage() {
               <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                       <Label htmlFor="select-time" className="font-medium">Starttijd</Label>
-                      <Input 
-                          id="select-time" 
-                          type="time" 
-                          value={selectedTime} 
-                          onChange={e => setSelectedTime(e.target.value)} 
-                          step="1800" // 30 min intervals
-                          className="mt-1"
-                      />
+                       <Select value={selectedTime} onValueChange={setSelectedTime}>
+                          <SelectTrigger id="select-time" className="mt-1">
+                              <SelectValue placeholder="Kies starttijd" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {timeOptions.map(time => (
+                                  <SelectItem key={time} value={time}>{time}</SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
                   </div>
                   <div>
                       <Label htmlFor="select-duration" className="font-medium">Duur</Label>
@@ -308,7 +319,6 @@ export default function PlanLesPage() {
           
           <Separator />
 
-          {/* Sectie 3: Herhaling */}
           <section className="space-y-6">
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <Repeat className="h-5 w-5"/> Herhaling (Optioneel)
@@ -365,8 +375,7 @@ export default function PlanLesPage() {
 
           <Separator />
 
-           {/* Sectie 4: Tutor */}
-          <section className="space-y-4">
+           <section className="space-y-4">
             <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <User className="h-5 w-5"/> Voorkeurstutor (Optioneel)
             </h3>
@@ -378,7 +387,7 @@ export default function PlanLesPage() {
                     value={selectedTutor} 
                     onChange={e => setSelectedTutor(e.target.value)} 
                     className="mt-1"
-                    disabled // Voor nu disabled, tot er een echte tutor selectie is
+                    disabled 
                 />
                 <p className="text-xs text-muted-foreground mt-1">Als u geen voorkeur opgeeft, zoeken wij de best passende beschikbare tutor.</p>
             </div>
@@ -395,4 +404,3 @@ export default function PlanLesPage() {
     </div>
   );
 }
-
