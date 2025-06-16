@@ -7,56 +7,44 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, Share2, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase } from 'lucide-react';
+import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Languages, Calculator, Globe, FlaskConical, History, Briefcase, School, Users, GraduationCap } from 'lucide-react'; // Added School, Users icons
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; // Import context
 
-
-// Dummy user data - in a real app, this would come from context/API
 const initialUserData = {
   name: "Alex de Tester",
   email: "alex.tester@example.com",
-  age: 30 as number | undefined, // Default age for adult
-  socialMedia: [] as string[],
+  age: undefined as number | undefined, 
+  ageGroup: '15-18' as '12-14' | '15-18' | 'adult', // For quiz filtering, keep as default
   profileImageUrl: null as string | null,
   subscription: {
     planName: "Coaching Maandelijks" as string | null,
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
     nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL') as string | null,
   },
-  // Simulate role for conditional rendering on this page
-  role: 'tutor' as 'user' | 'tutor' | 'admin', 
+  schoolName: '',
+  className: '', // For klas
+  schoolType: '',
+  helpSubjects: [] as string[],
 };
 
-const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString()); // Ages 12 to 100
+const ageOptions = Array.from({ length: 89 }, (_, i) => (i + 12).toString());
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 
-const socialMediaOptions = [
-  { id: 'facebook', label: 'Facebook' },
-  { id: 'instagram', label: 'Instagram' },
-  { id: 'x-twitter', label: 'X (Twitter)' },
-  { id: 'tiktok', label: 'TikTok' },
-  { id: 'linkedin', label: 'LinkedIn' },
-  { id: 'snapchat', label: 'Snapchat' },
-  { id: 'pinterest', label: 'Pinterest' },
-  { id: 'reddit', label: 'Reddit' },
-  { id: 'youtube', label: 'YouTube' },
-];
-
 const predefinedAvatars = [
-  { id: 'avatar1', src: 'https://picsum.photos/seed/avatar1/200/200', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
-  { id: 'avatar2', src: 'https://picsum.photos/seed/avatar2/200/200', alt: 'Natuur landschap', hint: 'nature landscape' },
-  { id: 'avatar3', src: 'https://picsum.photos/seed/avatar3/200/200', alt: 'Dieren portret', hint: 'animal portrait' },
-  { id: 'avatar4', src: 'https://picsum.photos/seed/avatar4/200/200', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
-  { id: 'avatar5', src: 'https://picsum.photos/seed/avatar5/200/200', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
-  { id: 'avatar6', src: 'https://picsum.photos/seed/avatar6/200/200', alt: 'Lekker eten', hint: 'food delicious' },
+  { id: 'avatar1', src: 'https://placehold.co/200x200.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
+  { id: 'avatar2', src: 'https://placehold.co/200x200.png?text=A2', alt: 'Natuur landschap', hint: 'nature landscape' },
+  { id: 'avatar3', src: 'https://placehold.co/200x200.png?text=A3', alt: 'Dieren portret', hint: 'animal portrait' },
+  { id: 'avatar4', src: 'https://placehold.co/200x200.png?text=A4', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
+  { id: 'avatar5', src: 'https://placehold.co/200x200.png?text=A5', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
+  { id: 'avatar6', src: 'https://placehold.co/200x200.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
 ];
 
-// This list should ideally come from a shared config or be fetched
 const allHomeworkSubjects = [
   { id: 'nederlands', name: 'Nederlands', icon: Languages },
   { id: 'wiskunde', name: 'Wiskunde', icon: Calculator },
@@ -64,15 +52,24 @@ const allHomeworkSubjects = [
   { id: 'geschiedenis', name: 'Geschiedenis', icon: History },
   { id: 'biologie', name: 'Biologie', icon: FlaskConical },
   { id: 'aardrijkskunde', name: 'Aardrijkskunde', icon: Globe },
+  { id: 'natuurkunde', name: 'Natuurkunde', icon: FlaskConical },
+  { id: 'scheikunde', name: 'Scheikunde', icon: FlaskConical },
+  { id: 'economie', name: 'Economie', icon: Users }, 
+  { id: 'frans', name: 'Frans', icon: Languages },
+  { id: 'duits', name: 'Duits', icon: Languages },
 ];
 const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
+const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 
 
 export default function ProfilePage() {
+  const { currentDashboardRole } = useDashboardRole(); // Get current role from context
+
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
-  const [userAge, setUserAge] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
-  const [selectedSocialMedia, setSelectedSocialMedia] = useState<string[]>(initialUserData.socialMedia);
+  const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE); // For Select
+  const [userAgeGroup, setUserAgeGroup] = useState<'12-14' | '15-18' | 'adult'>(initialUserData.ageGroup);
+
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
@@ -86,44 +83,34 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-  const [subscriptionPlan, setSubscriptionPlan] = useState(initialUserData.subscription.planName);
-  const [subscriptionStatus, setSubscriptionStatus] = useState(initialUserData.subscription.status);
-  const [subscriptionNextBillingDate, setSubscriptionNextBillingDate] = useState(initialUserData.subscription.nextBillingDate);
-
   const [hiddenHomeworkSubjects, setHiddenHomeworkSubjects] = useState<string[]>([]);
   
-  // Simulate user role for this page - in a real app, this comes from auth context
-  const [userRole, setUserRole] = useState<'user' | 'tutor' | 'admin'>(initialUserData.role);
-
+  // Leerling-specifieke state
+  const [schoolName, setSchoolName] = useState(initialUserData.schoolName);
+  const [className, setClassName] = useState(initialUserData.className); // Klas
+  const [schoolType, setSchoolType] = useState(initialUserData.schoolType);
+  const [helpSubjects, setHelpSubjects] = useState<string[]>(initialUserData.helpSubjects);
 
   useEffect(() => {
     if (!isEditing) {
         setUserName(initialUserData.name);
         setUserEmail(initialUserData.email);
-        setUserAge(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
-        setSelectedSocialMedia(initialUserData.socialMedia);
+        setUserAgeString(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
+        setUserAgeGroup(initialUserData.ageGroup);
         setProfileImageUrl(initialUserData.profileImageUrl);
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
-        setSubscriptionPlan(initialUserData.subscription.planName);
-        setSubscriptionStatus(initialUserData.subscription.status);
-        setSubscriptionNextBillingDate(initialUserData.subscription.nextBillingDate);
-        setUserRole(initialUserData.role);
+        setSchoolName(initialUserData.schoolName);
+        setClassName(initialUserData.className);
+        setSchoolType(initialUserData.schoolType);
+        setHelpSubjects(initialUserData.helpSubjects);
     }
     const storedHiddenSubjects = localStorage.getItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY);
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
     }
-  }, [isEditing]);
-
-  const handleSocialMediaChange = (socialMediaId: string) => {
-    setSelectedSocialMedia(prev => 
-      prev.includes(socialMediaId) 
-        ? prev.filter(id => id !== socialMediaId) 
-        : [...prev, socialMediaId]
-    );
-  };
+  }, [isEditing, currentDashboardRole]); // Add currentDashboardRole to reset form if role changes (though unlikely on this page itself)
 
   const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -144,21 +131,28 @@ export default function ProfilePage() {
 
   const handleSaveProfile = () => {
     let ageToSave: number | undefined = undefined;
-    if (userAge && userAge !== NO_AGE_SPECIFIED_VALUE) {
-      const parsedAge = parseInt(userAge, 10);
+    if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
+      const parsedAge = parseInt(userAgeString, 10);
       if (!isNaN(parsedAge)) {
         ageToSave = parsedAge;
       }
     }
     
-    console.log("Profile saved:", { 
+    const profileDataToSave = { 
       name: userName, 
       email: userEmail, 
       age: ageToSave,
-      socialMedia: selectedSocialMedia,
+      ageGroup: userAgeGroup,
       profileImageUrl: profileImageUrl, 
-      role: userRole, // Include role if it's editable or part of the save
-    });
+      role: currentDashboardRole, 
+      ...(currentDashboardRole === 'leerling' && {
+        schoolName,
+        className,
+        schoolType,
+        helpSubjects,
+      }),
+    };
+    console.log("Profiel opgeslagen:", profileDataToSave);
     localStorage.setItem(LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY, JSON.stringify(hiddenHomeworkSubjects));
     toast({
       title: "Profiel Opgeslagen",
@@ -180,7 +174,7 @@ export default function ProfilePage() {
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
-    const symbols = "!@#$%^&amp;*()_+-=[]{};':\",./&lt;&gt;?";
+    const symbols = "!@#$%^&*()_+-=[]{};':\",./<>?"; // Corrected HTML entities
     const allChars = uppercase + lowercase + numbers + symbols;
 
     let password = "";
@@ -230,17 +224,6 @@ export default function ProfilePage() {
 
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
-  const getSubscriptionStatusText = (status: typeof subscriptionStatus) => {
-    switch (status) {
-      case 'active': return 'Actief';
-      case 'pending_parental_approval': return 'Wacht op goedkeuring ouder';
-      case 'cancelled': return 'Geannuleerd';
-      case 'past_due': return 'Betaling mislukt';
-      case 'none':
-      default: return 'Geen abonnement';
-    }
-  };
-
   const handleHomeworkSubjectVisibilityChange = (subjectId: string, checked: boolean) => {
     setHiddenHomeworkSubjects(prev => {
       const newHidden = checked ? prev.filter(id => id !== subjectId) : [...prev, subjectId];
@@ -248,11 +231,17 @@ export default function ProfilePage() {
     });
   };
 
+  const handleHelpSubjectChange = (subjectId: string, checked: boolean) => {
+    setHelpSubjects(prev => 
+      checked ? [...prev, subjectId] : prev.filter(id => id !== subjectId)
+    );
+  };
+
   return (
     <div className="space-y-8">
       <section className="flex justify-between items-center">
         <div>
-            <h1 className="text-3xl font-bold text-foreground">Mijn Profiel</h1>
+            <h1 className="text-3xl font-bold text-foreground">Mijn Profiel ({currentDashboardRole})</h1>
             <p className="text-muted-foreground">
             Bekijk en bewerk hier je persoonlijke gegevens en voorkeuren.
             </p>
@@ -402,25 +391,33 @@ export default function ProfilePage() {
              {!isEditing && <p className="text-xs text-muted-foreground mt-1">E-mailadres kan niet gewijzigd worden.</p>}
           </div>
           <div>
-            <Label htmlFor="userAge" className="flex items-center gap-1">
+            <Label htmlFor="userAgeString" className="flex items-center gap-1">
                 <Cake className="h-4 w-4 text-muted-foreground"/>
-                Leeftijd
+                Leeftijd (voor quiz afstemming)
             </Label>
             {isEditing ? (
               <Select
-                value={userAge === NO_AGE_SPECIFIED_VALUE || userAge === undefined ? NO_AGE_SPECIFIED_VALUE : userAge.toString()} 
+                value={userAgeString} 
                 onValueChange={(value) => {
-                  setUserAge(value === NO_AGE_SPECIFIED_VALUE ? NO_AGE_SPECIFIED_VALUE : value);
+                    setUserAgeString(value);
+                    if (value !== NO_AGE_SPECIFIED_VALUE) {
+                        const ageNum = parseInt(value, 10);
+                        if (ageNum >= 12 && ageNum <= 14) setUserAgeGroup('12-14');
+                        else if (ageNum >= 15 && ageNum <= 18) setUserAgeGroup('15-18');
+                        else setUserAgeGroup('adult');
+                    } else {
+                        setUserAgeGroup(initialUserData.ageGroup); // Reset to default or initial
+                    }
                 }}
                 disabled={!isEditing}
               >
-                <SelectTrigger id="userAge" className="mt-1">
+                <SelectTrigger id="userAgeString" className="mt-1">
                   <SelectValue placeholder="Selecteer je leeftijd" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
-                  {ageOptions.map(age => (
-                    <SelectItem key={age} value={age}>{age}</SelectItem>
+                  {ageOptions.map(ageOpt => (
+                    <SelectItem key={ageOpt} value={ageOpt}>{ageOpt}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -428,7 +425,7 @@ export default function ProfilePage() {
               <Input
                 id="userAgeDisplay"
                 type="text"
-                value={userAge && userAge !== NO_AGE_SPECIFIED_VALUE ? userAge : "Niet opgegeven"}
+                value={userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE ? `${userAgeString} jaar (groep: ${userAgeGroup})` : "Niet opgegeven"}
                 disabled
                 className="mt-1"
               />
@@ -436,6 +433,71 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {currentDashboardRole === 'leerling' && (
+        <>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <School className="h-6 w-6 text-primary" />
+                Schoolinformatie
+              </CardTitle>
+              <CardDescription>Deze gegevens helpen ons om eventuele schoolspecifieke content aan te bieden.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label htmlFor="schoolName">Naam school</Label>
+                <Input id="schoolName" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="className">Klas</Label>
+                <Input id="className" placeholder="Bijv. 3A, VWO 5" value={className} onChange={(e) => setClassName(e.target.value)} disabled={!isEditing} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="schoolType">Type school</Label>
+                <Select value={schoolType} onValueChange={setSchoolType} disabled={!isEditing}>
+                  <SelectTrigger id="schoolType" className="mt-1">
+                    <SelectValue placeholder="Selecteer schooltype" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="h-6 w-6 text-primary" />
+                Hulp bij Vakken
+              </CardTitle>
+              <CardDescription>Geef aan voor welke vakken je extra ondersteuning of tips kunt gebruiken.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                {allHomeworkSubjects.map(subject => (
+                  <div key={subject.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`help-${subject.id}`}
+                      checked={helpSubjects.includes(subject.id)}
+                      onCheckedChange={(checked) => isEditing && handleHelpSubjectChange(subject.id, !!checked)}
+                      disabled={!isEditing}
+                    />
+                    <Label 
+                      htmlFor={`help-${subject.id}`} 
+                      className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
+                    >
+                      <subject.icon className="h-5 w-5" /> {subject.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
       
       {isEditing && (
         <Card className="shadow-lg">
@@ -532,7 +594,7 @@ export default function ProfilePage() {
         </Card>
       )}
 
-      {userRole === 'tutor' && (
+      {currentDashboardRole === 'tutor' && (
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -556,41 +618,6 @@ export default function ProfilePage() {
         </Card>
       )}
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-6 w-6 text-primary" />
-            Social Media Voorkeuren
-          </CardTitle>
-          <CardDescription>
-            Geef aan welke social media platforms je gebruikt. Deze informatie kan ons helpen relevantere content of functies aan te bieden (optioneel).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {socialMediaOptions.map(option => (
-              <div key={option.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`social-${option.id}`}
-                  checked={selectedSocialMedia.includes(option.id)}
-                  onCheckedChange={() => isEditing && handleSocialMediaChange(option.id)}
-                  disabled={!isEditing}
-                />
-                <Label 
-                  htmlFor={`social-${option.id}`}
-                  className={`font-normal ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
-                >
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </div>
-           {!isEditing && selectedSocialMedia.length === 0 && (
-            <p className="text-sm text-muted-foreground italic">Nog geen social media voorkeuren opgegeven. Klik op "Profiel Bewerken" om selecties te maken.</p>
-          )}
-        </CardContent>
-      </Card>
-
       <Card className="shadow-lg" id="subject-visibility-settings">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -603,23 +630,25 @@ export default function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {allHomeworkSubjects.map(subject => (
-            <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent hover:border-muted-foreground/20">
-              <Checkbox
-                id={`subject-visibility-${subject.id}`}
-                checked={!hiddenHomeworkSubjects.includes(subject.id)}
-                onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
-                disabled={!isEditing}
-              />
-              <Label 
-                htmlFor={`subject-visibility-${subject.id}`}
-                className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
-              >
-                <subject.icon className="h-5 w-5" />
-                {subject.name}
-              </Label>
-            </div>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            {allHomeworkSubjects.map(subject => (
+              <div key={subject.id} className="flex items-center space-x-2 p-2 rounded-md border border-transparent hover:border-muted-foreground/20">
+                <Checkbox
+                  id={`subject-visibility-${subject.id}`}
+                  checked={!hiddenHomeworkSubjects.includes(subject.id)}
+                  onCheckedChange={(checked) => isEditing && handleHomeworkSubjectVisibilityChange(subject.id, !!checked)}
+                  disabled={!isEditing}
+                />
+                <Label 
+                  htmlFor={`subject-visibility-${subject.id}`}
+                  className={`font-normal flex items-center gap-2 ${!isEditing ? 'cursor-not-allowed text-muted-foreground' : 'cursor-pointer'}`}
+                >
+                  <subject.icon className="h-5 w-5" />
+                  {subject.name}
+                </Label>
+              </div>
+            ))}
+          </div>
           {!isEditing && (
             <p className="text-sm text-muted-foreground italic mt-2">
               Ga naar <Link href="/dashboard/homework-assistance" className="text-primary hover:underline">Huiswerkbegeleiding</Link> om vakken direct te verbergen.
@@ -634,51 +663,6 @@ export default function ProfilePage() {
             </Button>
           </CardFooter>
         )}
-      </Card>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-6 w-6 text-primary" />
-            Abonnementsgegevens
-          </CardTitle>
-          <CardDescription>
-            Beheer hier je MindNavigator abonnement.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="subscriptionPlan">Huidig Plan</Label>
-            <Input id="subscriptionPlan" value={subscriptionPlan || "Geen"} disabled className="mt-1 bg-muted/30" />
-          </div>
-          <div>
-            <Label htmlFor="subscriptionStatus">Status</Label>
-            <Input id="subscriptionStatus" value={getSubscriptionStatusText(subscriptionStatus)} disabled className="mt-1 bg-muted/30" />
-          </div>
-          {subscriptionStatus === 'active' && subscriptionNextBillingDate && (
-            <div>
-              <Label htmlFor="subscriptionNextBillingDate">Volgende Factuurdatum</Label>
-              <Input id="subscriptionNextBillingDate" value={subscriptionNextBillingDate} disabled className="mt-1 bg-muted/30" />
-            </div>
-          )}
-           {subscriptionStatus === 'pending_parental_approval' && (
-             <p className="text-sm text-accent p-3 bg-accent/10 rounded-md border border-accent/30">
-               Je abonnement "{subscriptionPlan}" wacht op goedkeuring en betaling door je ouder/verzorger.
-               Vraag hen om de e-mail te controleren die we hebben gestuurd.
-             </p>
-           )}
-        </CardContent>
-        <CardFooter>
-          {subscriptionStatus === 'none' || subscriptionStatus === 'cancelled' || subscriptionStatus === 'past_due' ? (
-            <Button asChild className="w-full sm:w-auto">
-                <Link href="/#pricing">Bekijk abonnementen</Link>
-            </Button>
-          ) : subscriptionStatus === 'pending_parental_approval' ? (
-            <Button disabled className="w-full sm:w-auto">Wacht op goedkeuring</Button>
-          ) : (
-            <Button disabled className="w-full sm:w-auto">Beheer abonnement (binnenkort)</Button>
-          )}
-        </CardFooter>
       </Card>
 
     </div>
