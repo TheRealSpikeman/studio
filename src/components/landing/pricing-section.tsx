@@ -41,15 +41,15 @@ const plansData: Plan[] = [
     price: 'Gratis',
     priceDetail: '',
     features: [
-      { text: 'Basis Neurodiversiteit Quiz', included: true },
-      { text: 'Direct Uitgebreid PDF Rapport', included: true, tooltip: 'Een volledig rapport op basis van de gemaakte basisquiz.' },
+      { text: 'Basis Neurodiversiteit Quiz (voor uw kind)', included: true },
+      { text: 'Direct Uitgebreid PDF Rapport', included: true, tooltip: 'Een volledig rapport op basis van de gemaakte basisquiz, direct beschikbaar voor u en uw kind.' },
       { text: 'Toegang tot Subquizzen', included: false },
       { text: 'Coaching Hub (Tips, Dagboek)', included: false },
       { text: 'Huiswerk Tools (Planner, Pomodoro)', included: false },
       { text: 'Toegang tot Tutors & Coaches', included: false },
       { text: 'Uitgebreid Ouder Dashboard', included: false },
     ],
-    ctaText: 'Start gratis quiz',
+    ctaText: 'Start gratis quiz voor uw kind',
     ctaBaseLink: '/quizzes',
     isPopular: false,
     planId: 'free',
@@ -57,17 +57,17 @@ const plansData: Plan[] = [
   {
     name: 'Coaching & Tools',
     price: '€3,99',
-    priceDetail: 'p/m',
+    priceDetail: 'p/kind/mnd',
     features: [
       { text: 'Basis Neurodiversiteit Quiz', included: true },
       { text: 'Direct Uitgebreid PDF Rapport', included: true },
-      { text: 'Toegang tot Alle Subquizzen', included: true },
-      { text: 'Coaching Hub (Virtueel, Dagboek, Tools)', included: true },
-      { text: 'Huiswerk Tools (Planner, Pomodoro)', included: true },
+      { text: 'Toegang tot Alle Subquizzen', included: true, tooltip: "Verdiepende quizzen voor een completer beeld van uw kind's profiel." },
+      { text: 'Coaching Hub (Virtueel, Dagboek, Tools)', included: true, tooltip: "Dagelijkse tips, reflectie-oefeningen en tools voor zelfmanagement voor uw kind." },
+      { text: 'Huiswerk Tools (Planner, Pomodoro)', included: true, tooltip: "Praktische hulpmiddelen voor planning, focus en studievaardigheden." },
       { text: 'Toegang tot Tutors & Coaches', included: false },
       { text: 'Uitgebreid Ouder Dashboard', included: false },
     ],
-    ctaText: 'Kies Maandelijks',
+    ctaText: 'Kies Coaching & Tools',
     ctaBaseLink: '/signup',
     isPopular: true,
     planId: 'coaching_monthly',
@@ -75,20 +75,20 @@ const plansData: Plan[] = [
     highlightClass: "border-primary ring-2 ring-primary/50",
   },
   {
-    name: 'Gezins Gids', // New name
+    name: 'Gezins Gids',
     price: '€9,99',
-    priceDetail: 'p/m',
+    priceDetail: 'p/gezin/mnd',
     features: [
-      { text: 'Alles van Coaching & Tools', included: true, tooltip: 'Inclusief alle quizzen, coaching hub en huiswerk tools.' },
-      { text: 'Toegang tot Pool Persoonlijke Coaches', included: true },
-      { text: 'Toegang tot Pool Huiswerktutors', included: true },
-      { text: 'Uitgebreid Ouder Dashboard (kind volgen)', included: true },
+      { text: 'Alles van Coaching & Tools (voor max. 3 kinderen)', included: true, tooltip: 'Inclusief alle quizzen, coaching hub en huiswerk tools voor elk kind in uw gezin (tot 3).' },
+      { text: 'Toegang tot Pool Persoonlijke Coaches', included: true, tooltip: "Vind en boek sessies met gespecialiseerde coaches voor persoonlijke begeleiding." },
+      { text: 'Toegang tot Pool Huiswerktutors', included: true, tooltip: "Koppel uw kind aan gekwalificeerde tutors voor vakspecifieke ondersteuning." },
+      { text: 'Uitgebreid Ouder Dashboard', included: true, tooltip: "Volg de voortgang van uw kinderen, beheer abonnementen en communiceer eenvoudig." },
     ],
     ctaText: 'Kies Gezins Gids',
     ctaBaseLink: '/signup',
     isPopular: false,
     planId: 'family_guide_monthly',
-    savingsText: `Of €${yearlyFamilyGuidePrice}/jaar (gelijk aan €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`, // Added savings text
+    savingsText: `Of €${yearlyFamilyGuidePrice}/jaar (gelijk aan €${monthlyEquivalentForFamilyGuide}/mnd - bespaar €${yearlySavingsFamilyGuide})`,
   },
 ];
 
@@ -107,10 +107,10 @@ export function PricingSection() {
     <section id="pricing" className="py-16 md:py-24 bg-secondary/30 flex flex-col items-center">
       <div className="container">
         <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Kies jouw pad naar zelfinzicht
+          Kies het plan dat bij uw gezin past
         </h2>
         <p className="mb-12 text-center text-lg text-muted-foreground max-w-2xl mx-auto">
-          Start gratis, of krijg volledige toegang tot coaching, alle tools en persoonlijke begeleiding. Registratie en beheer via het ouderaccount.
+          Start gratis om de basis te ontdekken, of kies voor uitgebreide coaching en ondersteuning voor uw kind en uzelf. Registratie en beheer via uw ouderaccount.
         </p>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
           {plansData.map((plan) => (
@@ -178,7 +178,7 @@ export function PricingSection() {
           ))}
         </div>
          <p className="text-center text-sm text-muted-foreground mt-12">
-            Alle betaalde abonnementen worden beheerd door de ouder/verzorger en kunnen maandelijks of jaarlijks worden opgezegd.
+            Alle betaalde abonnementen worden beheerd door u als ouder/verzorger en kunnen maandelijks of jaarlijks worden opgezegd.
         </p>
       </div>
     </section>

@@ -25,23 +25,23 @@ export function QuizPreviewSection() {
   const handleOptionChange = (value: string) => {
     setSelectedValue(value);
     const selectedOpt = sampleQuestion.options.find(opt => opt.id === value);
-    setSelectedOptionText(selectedOpt ? `Jouw selectie: ${selectedOpt.text}` : null);
+    setSelectedOptionText(selectedOpt ? `Uw selectie: ${selectedOpt.text}` : null);
   };
 
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto flex flex-col items-center text-center px-4">
         <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Probeer een voorbeeldvraag
+          Krijg een eerste indruk
         </h2>
-        <p className="mb-8 text-muted-foreground max-w-lg">
-          Beantwoord één voorbeeldvraag om te zien hoe onze quiz werkt.
+        <p className="mb-8 text-muted-foreground max-w-xl">
+          Beantwoord één voorbeeldvraag en zie hoe onze quizzen uw kind (en u!) op weg helpen naar zelfinzicht.
         </p>
         <Card className="w-full max-w-lg shadow-xl mb-6" aria-labelledby="sample-question-title" aria-describedby="sample-question-description">
           <CardHeader>
             <CardTitle id="sample-question-title" className="text-xl font-semibold">{sampleQuestion.text}</CardTitle>
             <CardDescription id="sample-question-description">
-              Zo ziet een vraag eruit—kies wat het beste bij jou past. (Voorbeeldvraag van 12)
+              Kies het antwoord dat het beste past bij uw kind. (Voorbeeldvraag uit een reeks van 12 tot 15)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -62,15 +62,14 @@ export function QuizPreviewSection() {
               <p className="mt-4 text-sm text-primary font-medium animate-pulse">{selectedOptionText}</p>
             )}
             <p className="mt-4 text-xs text-muted-foreground">
-              Ontdek hoe jij je verhoudt tot andere jongeren.
+              Ontdek hoe u uw kind beter kunt begrijpen en ondersteunen.
             </p>
           </CardContent>
         </Card>
         <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-          <Link href="/quizzes">Doe de volledige quiz gratis</Link>
+          <Link href="/quizzes">Start een quiz voor uw kind</Link>
         </Button>
       </div>
     </section>
   );
 }
-

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { FileText, Puzzle, MessageSquareText, BookOpenCheck } from 'lucide-react';
+import { FileText, Puzzle, MessageSquareText, BookOpenCheck, Users, BarChart3 } from 'lucide-react';
 
 export function HeroSection() {
   return (
@@ -19,19 +19,19 @@ export function HeroSection() {
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
               <FileText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Uitgebreid rapport over het profiel van uw kind (PDF)</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <Puzzle className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Verdiepende subquizzen, afgestemd op uw kind</span>
+              <span>Uitgebreide rapporten voor inzicht in uw kind (PDF).</span>
             </li>
             <li className="flex items-center gap-3">
               <MessageSquareText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Dagelijkse coaching & routines voor uw kind (premium)</span>
+              <span>Dagelijkse coaching & routines voor uw kind (premium).</span>
             </li>
             <li className="flex items-center gap-3">
               <BookOpenCheck className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Huiswerkbegeleiding tools en tips voor uw kind (premium)</span>
+              <span>Huiswerkbegeleiding tools en concrete tips.</span>
+            </li>
+             <li className="flex items-center gap-3">
+              <BarChart3 className="h-6 w-6 text-primary flex-shrink-0" />
+              <span>Volg voortgang via uw eigen ouder-dashboard.</span>
             </li>
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
@@ -63,4 +63,3 @@ export function HeroSection() {
     </section>
   );
 }
-

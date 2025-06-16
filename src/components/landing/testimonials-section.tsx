@@ -29,14 +29,14 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 md:py-24 bg-secondary/30"> {/* Changed background to secondary/30 for variation */}
+    <section className="py-16 md:py-24 bg-secondary/30">
       <div className="container mx-auto px-4">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Wat anderen zeggen
+          Ervaringen van Jongeren én Ouders
         </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="flex flex-col shadow-lg transform hover:scale-105 transition-transform duration-300 bg-card"> {/* Ensure card background contrasts */}
+            <Card key={index} className="flex flex-col shadow-lg transform hover:scale-105 transition-transform duration-300 bg-card">
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={`https://picsum.photos/seed/${testimonial.avatarSeed}/100/100`} alt={testimonial.name} data-ai-hint="person avatar" />
@@ -67,12 +67,12 @@ export function TestimonialsSection() {
             <div className="rounded-lg border bg-card p-6 shadow-sm">
                 <Users className="mx-auto h-12 w-12 text-primary mb-3"/>
                 <p className="text-3xl font-bold text-foreground">1.200+</p>
-                <p className="text-muted-foreground">Quizzen al voltooid</p>
+                <p className="text-muted-foreground">Quizzen al voltooid door jongeren</p>
             </div>
             <div className="rounded-lg border bg-card p-6 shadow-sm">
                 <ThumbsUp className="mx-auto h-12 w-12 text-primary mb-3"/>
                 <p className="text-3xl font-bold text-foreground">95%</p>
-                <p className="text-muted-foreground">Beveelt ons aan</p>
+                <p className="text-muted-foreground">Ouders beveelt MindNavigator aan</p>
             </div>
         </div>
       </div>

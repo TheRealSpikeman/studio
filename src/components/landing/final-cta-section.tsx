@@ -1,27 +1,32 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 
 export function FinalCtaSection() {
   return (
-    <section className="py-16 md:py-24 bg-background">
-      <div className="container mx-auto text-center max-w-2xl px-4">
-        <h2 className="mb-6 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-          Klaar om te beginnen?
+    <section className="py-16 md:py-24 bg-gradient-to-b from-secondary/30 to-background">
+      <div className="container mx-auto text-center max-w-3xl px-4">
+        <h2 className="mb-6 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          Klaar om <span className="text-primary">uw kind écht</span> te begrijpen en te ondersteunen?
         </h2>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-          <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-            <Link href="/quizzes">Start gratis quiz</Link>
+        <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+          Zet vandaag de eerste stap naar meer inzicht, rust en effectieve strategieën voor uw gezin.
+          MindNavigator biedt u de tools en de kennis.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow text-lg px-8 py-6">
+            <Link href="/signup">Start met Gezins Gids</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow">
-            <Link href="/dashboard/coaching">Ontdek coaching-hub</Link>
+          <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow text-lg px-8 py-6">
+            <Link href="/quizzes">Doe eerst een gratis quiz</Link>
           </Button>
         </div>
-        <p className="text-base text-foreground/80">
-          Kies je begeleiding op maat: online groepssessies, 1-op-1 of dagelijkse coaching-hub. Probeer het gratis!
+        <p className="text-muted-foreground flex items-center justify-center gap-2">
+          <Sparkles className="h-5 w-5 text-accent" />
+          Investeer in het welzijn en de toekomst van uw kind.
         </p>
       </div>
     </section>
   );
 }
-

@@ -1,12 +1,11 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/landing/hero-section';
-// import { FeaturesSection } from '@/components/landing/features-section'; // Replaced by ServicesSection for now
+import { ParentBenefitsSection } from '@/components/landing/parent-benefits-section';
 import { TestimonialsSection } from '@/components/landing/testimonials-section';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { QuizPreviewSection } from '@/components/landing/quiz-preview-section';
 import { FaqSection } from '@/components/landing/faq-section';
-// import { ServicesSection } from '@/components/landing/services-section'; // Removed this import
 import { FinalCtaSection } from '@/components/landing/final-cta-section';
 
 export default function LandingPage() {
@@ -15,11 +14,11 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        {/* <ServicesSection /> */} {/* Removed this section */}
+        <ParentBenefitsSection />
         <PricingSection />
         <TestimonialsSection />
         <QuizPreviewSection />
-        <FinalCtaSection /> {/* New final CTA section */}
+        <FinalCtaSection />
         <FaqSection />
       </main>
       <Footer />
