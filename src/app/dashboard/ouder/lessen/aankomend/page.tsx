@@ -231,11 +231,6 @@ export default function AankomendeLessenPage() {
             Een overzicht van alle geplande en lopende lessen.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard/ouder">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Ouder Dashboard
-          </Link>
-        </Button>
       </div>
 
       <Card className="shadow-lg">
