@@ -13,9 +13,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass, Repeat, FileText, Info } from 'lucide-react';
+import { ArrowLeft, CalendarDays, BookOpen, User, Book, Clock, Users, MoreVertical, CheckCircle, XCircle, Hourglass, Repeat, FileText, Info, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format, parseISO, addHours, setHours, setMinutes, startOfDay, isEqual, addWeeks, isBefore } from 'date-fns';
+import { format, parseISO, addHours, setHours, setMinutes, startOfDay, isEqual, addWeeks, isBefore, differenceInHours } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 
 // Dummy data for children - in a real app, this would come from a user's profile
@@ -48,11 +49,13 @@ interface ScheduledLesson {
   tutorName: string;
   status: LessonStatus;
   recurringGroupId?: string; // Optional: to group recurring lessons
-  report?: string; // Nieuw veld voor het lesverslag
+  report?: string; 
 }
 
 const initialScheduledLessons: ScheduledLesson[] = [
   { id: 'sl1', childId: 'child1', childName: 'Sofie de Tester', subject: 'Wiskunde', subjectId: 'wiskunde', dateTime: addHours(new Date(), 2).toISOString(), durationMinutes: 60, tutorName: 'Mevr. Jansen', status: 'Gepland' },
+  { id: 'sl1-short', childId: 'child1', childName: 'Sofie de Tester', subject: 'Wiskunde Kort', subjectId: 'wiskunde', dateTime: addHours(new Date(), 4).toISOString(), durationMinutes: 60, tutorName: 'Mevr. Jansen', status: 'Gepland' },
+  { id: 'sl1-medium', childId: 'child1', childName: 'Sofie de Tester', subject: 'Wiskunde Medium', subjectId: 'wiskunde', dateTime: addHours(new Date(), 12).toISOString(), durationMinutes: 60, tutorName: 'Mevr. Jansen', status: 'Gepland' },
   { id: 'sl2', childId: 'child2', childName: 'Max de Tester', subject: 'Engels', subjectId: 'engels', dateTime: addHours(new Date(), 26).toISOString(), durationMinutes: 45, tutorName: 'Dhr. Pietersen', status: 'Gepland' },
   { id: 'sl3', childId: 'child1', childName: 'Sofie de Tester', subject: 'Nederlands', subjectId: 'nederlands', dateTime: addHours(new Date(), -48).toISOString(), durationMinutes: 60, tutorName: 'Mevr. de Wit', status: 'Voltooid', report: "Sofie heeft goed geoefend met werkwoordspelling. De d/t regels zijn nog een aandachtspunt. Tip: extra oefeningen maken op www.voorbeeld.nl/dt. Volgende les focussen op onregelmatige werkwoorden." },
   { id: 'sl4', childId: 'child2', childName: 'Max de Tester', subject: 'Geschiedenis', subjectId: 'geschiedenis', dateTime: addHours(new Date(), -72).toISOString(), durationMinutes: 45, tutorName: 'Dhr. Bakker', status: 'Voltooid' },
@@ -96,6 +99,10 @@ export default function OuderLessenPage() {
   const [isReportViewOpen, setIsReportViewOpen] = useState(false);
   const [selectedReportText, setSelectedReportText] = useState<string | null>(null);
   const [selectedLessonForReportView, setSelectedLessonForReportView] = useState<ScheduledLesson | null>(null);
+
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [lessonToCancel, setLessonToCancel] = useState<ScheduledLesson | null>(null);
+  const [cancelationMessage, setCancelationMessage] = useState('');
 
 
   const handleScheduleLesson = () => {
@@ -173,9 +180,33 @@ export default function OuderLessenPage() {
     }
   };
   
-  const cancelLesson = (lessonId: string) => {
-    setScheduledLessons(prev => prev.map(l => l.id === lessonId ? {...l, status: 'Geannuleerd'} : l));
-    toast({ title: "Les geannuleerd", description: "De geselecteerde les is geannuleerd.", variant: "default"});
+  const handleCancelLessonClick = (lesson: ScheduledLesson) => {
+    const now = new Date();
+    const lessonDateTime = parseISO(lesson.dateTime);
+    const hoursUntilLesson = differenceInHours(lessonDateTime, now);
+
+    let msg = `Weet u zeker dat u de les ${lesson.subject} voor ${lesson.childName} op ${format(lessonDateTime, 'PPPp', {locale: nl})} wilt annuleren?`;
+
+    if (hoursUntilLesson < 6) {
+      msg += " Omdat dit minder dan 6 uur voor aanvang is, wordt 100% van de leskosten in rekening gebracht.";
+    } else if (hoursUntilLesson < 24) {
+      msg += " Omdat dit binnen 24 uur voor aanvang is, wordt 50% van de leskosten in rekening gebracht.";
+    } else {
+      msg += " Dit is meer dan 24 uur van tevoren en is kosteloos.";
+    }
+    
+    setCancelationMessage(msg);
+    setLessonToCancel(lesson);
+    setIsCancelDialogOpen(true);
+  };
+
+  const confirmCancelLesson = () => {
+    if (lessonToCancel) {
+      setScheduledLessons(prev => prev.map(l => l.id === lessonToCancel.id ? {...l, status: 'Geannuleerd'} : l));
+      toast({ title: "Les geannuleerd", description: `De les ${lessonToCancel.subject} is geannuleerd.`, variant: "default"});
+      setIsCancelDialogOpen(false);
+      setLessonToCancel(null);
+    }
   };
   
   const markAsCompleted = (lessonId: string) => {
@@ -215,7 +246,7 @@ export default function OuderLessenPage() {
       <Tabs defaultValue="plan">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="plan">Les Plannen</TabsTrigger>
-          <TabsTrigger value="overview">Overzicht Lessen ({scheduledLessons.length})</TabsTrigger>
+          <TabsTrigger value="overview">Overzicht Lessen ({scheduledLessons.filter(l => l.status !== 'Geannuleerd').length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plan" className="mt-6">
@@ -321,7 +352,7 @@ export default function OuderLessenPage() {
                             locale={nl}
                             disabled={{ before: selectedDate || new Date() }}
                         />
-                        <p className="text-xs text-muted-foreground">
+                         <p className="text-xs text-muted-foreground">
                             De les wordt wekelijks op dezelfde dag en tijd ingepland tot en met de hier geselecteerde datum.
                         </p>
                     </div>
@@ -407,7 +438,7 @@ export default function OuderLessenPage() {
                             <DropdownMenuContent align="end">
                               {lesson.status === 'Gepland' && (
                                 <>
-                                <DropdownMenuItem onClick={() => cancelLesson(lesson.id)} className="text-destructive focus:text-destructive">
+                                <DropdownMenuItem onClick={() => handleCancelLessonClick(lesson)} className="text-destructive focus:text-destructive">
                                     <XCircle className="mr-2 h-4 w-4" />Les Annuleren
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => markAsCompleted(lesson.id)} className="text-green-600 focus:text-green-700">
@@ -452,6 +483,25 @@ export default function OuderLessenPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-6 w-6 text-destructive" /> Les Annuleren
+            </AlertDialogTitle>
+            <AlertDialogDescription className="whitespace-pre-wrap">
+              {cancelationMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setLessonToCancel(null)}>Nee, niet annuleren</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCancelLesson} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Ja, bevestig annulering
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   );
