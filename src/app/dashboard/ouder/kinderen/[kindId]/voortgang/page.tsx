@@ -155,14 +155,11 @@ export default function KindVoortgangPage() {
       <Accordion type="multiple" defaultValue={["quiz-results-section", "tutor-feedback-section"]} className="w-full space-y-6">
         <AccordionItem value="quiz-results-section" className="border-0">
           <Card className="shadow-lg">
-            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&[data-state=open]>div>svg]:text-primary [&[data-state=open]>div>svg]:rotate-180">
-              <CardHeader className="flex flex-row justify-between items-center w-full p-6 data-[state=open]:border-b">
-                <div className="text-left">
-                  <CardTitle className="flex items-center gap-2"><FileText className="h-6 w-6 text-primary"/>Recente Quizresultaten</CardTitle>
-                  <CardDescription>Een samenvatting van de laatst gemaakte quizzen.</CardDescription>
-                </div>
-                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
-              </CardHeader>
+            <AccordionTrigger className="hover:no-underline w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-primary [&[data-state=open]>svg]:rotate-180 p-6">
+              <div className="flex-1 text-left">
+                <CardTitle className="flex items-center gap-2"><FileText className="h-6 w-6 text-primary"/>Recente Quizresultaten</CardTitle>
+                <CardDescription>Een samenvatting van de laatst gemaakte quizzen.</CardDescription>
+              </div>
             </AccordionTrigger>
             <AccordionContent>
               <CardContent className="space-y-4 pt-6">
@@ -204,14 +201,11 @@ export default function KindVoortgangPage() {
 
         <AccordionItem value="tutor-feedback-section" className="border-0">
           <Card className="shadow-lg">
-            <AccordionTrigger className="hover:no-underline p-0 w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&[data-state=open]>div>svg]:text-primary [&[data-state=open]>div>svg]:rotate-180">
-              <CardHeader className="flex flex-row justify-between items-center w-full p-6 data-[state=open]:border-b">
-                <div className="text-left">
-                  <CardTitle className="flex items-center gap-2"><MessageSquareText className="h-6 w-6 text-primary"/>Feedback van Tutors</CardTitle>
-                  <CardDescription>Belangrijke opmerkingen en feedback uit recente bijlessen.</CardDescription>
-                </div>
-                 <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
-              </CardHeader>
+            <AccordionTrigger className="hover:no-underline w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-primary [&[data-state=open]>svg]:rotate-180 p-6">
+               <div className="flex-1 text-left">
+                <CardTitle className="flex items-center gap-2"><MessageSquareText className="h-6 w-6 text-primary"/>Feedback van Tutors</CardTitle>
+                <CardDescription>Belangrijke opmerkingen en feedback uit recente bijlessen.</CardDescription>
+              </div>
             </AccordionTrigger>
             <AccordionContent>
               <CardContent className="space-y-4 pt-6">
