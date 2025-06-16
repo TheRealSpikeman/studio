@@ -90,9 +90,9 @@ export default function BerichtencentrumPage() {
   };
 
   useEffect(scrollToBottom, [selectedConversation?.messages]);
-  useEffect(() => { // Scroll on conversation change
+  useEffect(() => { 
     if (selectedConversation) {
-        setTimeout(scrollToBottom, 0); // Timeout ensures DOM is updated
+        setTimeout(scrollToBottom, 0); 
     }
   }, [selectedConversation]);
 
@@ -162,7 +162,7 @@ export default function BerichtencentrumPage() {
         </p>
       </div>
 
-      <Card className="shadow-lg h-[calc(100vh-230px)] flex flex-col"> {/* Adjusted height */}
+      <Card className="shadow-lg h-[calc(100vh-230px)] flex flex-col">
         <CardHeader className="flex-row items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
             <Input placeholder="Zoek gesprekken..." className="max-w-xs h-9 hidden sm:block" />
@@ -175,22 +175,22 @@ export default function BerichtencentrumPage() {
         <div className="flex flex-1 overflow-hidden">
           {/* Conversations List */}
           <ScrollArea className="w-full md:w-1/3 border-r bg-muted/30">
-            <div className="p-2 space-y-1">
+            <div className="p-2 space-y-1.5"> {/* Increased space-y for conversation list items */}
               {conversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()).map(conv => (
                 <Button
                   key={conv.id}
                   variant="ghost"
                   className={cn(
-                    "w-full h-auto justify-start p-3 text-left rounded-md hover:bg-background/80", // bg-background for hover to stand out
+                    "w-full h-auto justify-start p-3 text-left rounded-md hover:bg-background/80",
                     selectedConversation?.id === conv.id && "bg-background shadow-sm font-semibold"
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
-                  <Avatar className="h-10 w-10 mr-4"> {/* Increased margin from mr-3 to mr-4 */}
+                  <Avatar className="h-10 w-10 mr-4">
                     <AvatarImage src={conv.tutorAvatar} alt={conv.tutorName} data-ai-hint="person avatar" />
                     <AvatarFallback>{getInitials(conv.tutorName)}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 overflow-hidden">
+                  <div className="flex-1 overflow-hidden space-y-0.5"> {/* Added space-y here */}
                     <div className="flex justify-between items-center">
                         <p className="truncate font-medium text-sm">{conv.tutorName}</p>
                         {conv.unreadCount > 0 && (
@@ -227,28 +227,33 @@ export default function BerichtencentrumPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-4 space-y-8 bg-muted/10"> {/* Increased space-y from 6 to 8 */}
+                <ScrollArea className="flex-1 p-4 bg-muted/10"> {/* Removed space-y from here */}
                   {selectedConversation.messages.map(msg => (
-                    <div
-                      key={msg.id}
+                    <div 
+                      key={msg.id} 
                       className={cn(
-                        "flex items-end gap-2 max-w-[85%] sm:max-w-[75%]",
-                        msg.sender === 'ouder' ? 'ml-auto flex-row-reverse' : 'mr-auto'
+                        "w-full flex mb-6", // Added mb-6 for spacing between messages
+                        msg.sender === 'ouder' ? 'justify-end' : 'justify-start'
                       )}
                     >
-                      <div
-                        className={cn(
+                      <div className={cn("max-w-[85%] sm:max-w-[75%]", msg.sender === 'ouder' ? 'ml-auto' : 'mr-auto')}>
+                        {/* Bubble */}
+                        <div className={cn(
                           "p-3 rounded-xl text-sm shadow",
                           msg.sender === 'ouder' 
                             ? 'bg-primary text-primary-foreground rounded-br-none' 
                             : 'bg-card text-card-foreground border rounded-bl-none'
-                        )}
-                      >
-                        <p className="whitespace-pre-wrap">{msg.text}</p>
+                        )}>
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                        </div>
+                        {/* Timestamp, aligned based on sender */}
+                        <p className={cn(
+                          "text-[10px] text-muted-foreground/70 mt-1",
+                          msg.sender === 'ouder' ? 'text-right pr-1' : 'text-left pl-1'
+                        )}>
+                          <FormattedDateCell isoDateString={msg.timestamp} dateFormatPattern="p" />
+                        </p>
                       </div>
-                      <p className="text-[10px] text-muted-foreground/70 mb-1">
-                        <FormattedDateCell isoDateString={msg.timestamp} dateFormatPattern="p" />
-                      </p>
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
