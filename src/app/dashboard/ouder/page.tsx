@@ -26,10 +26,10 @@ const ouderDashboardItems: DashboardItem[] = [
     description: 'Bekijk en beheer de profielen en voortgang van uw kinderen.',
     icon: Contact,
     link: '/dashboard/ouder/kinderen', 
-    buttonText: 'Beheer Kinderen (binnenkort)',
+    buttonText: 'Beheer Kinderen',
     buttonVariant: 'outline',
-    disabled: true,
-    isLink: false, 
+    disabled: false,
+    isLink: true, 
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   },
   {
