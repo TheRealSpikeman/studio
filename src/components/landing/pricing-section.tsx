@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { CheckCircle2, XCircle, Info } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useRouter } from 'next/navigation';
-// ParentalApprovalDialog is niet meer nodig hier.
+import { useRouter, useSearchParams } from 'next/navigation'; // Added useSearchParams
+import { useState, useEffect } from 'react'; // Added useState and useEffect
 
 interface PlanFeature {
   basisQuiz: boolean;             // "Basis Neurodiversiteit Quiz"
@@ -96,13 +96,29 @@ const featureLabels: Record<keyof PlanFeature, string> = {
 
 export function PricingSection() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Keep searchParams for potential future use if needed
+
+  // State for parental approval dialog is no longer needed here
+  // const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
+  // const [selectedPlanForApproval, setSelectedPlanForApproval] = useState<Plan | null>(null);
+
+  // This useEffect was for the old approval flow and can be removed or kept commented if there's future need
+  // useEffect(() => {
+  //   const planId = searchParams.get('plan');
+  //   const approvalRequired = searchParams.get('approval_required');
+  //   if (planId && approvalRequired === 'true') {
+  //     const planToApprove = plans.find(p => p.planId === planId);
+  //     if (planToApprove) {
+  //       setSelectedPlanForApproval(planToApprove);
+  //       setIsApprovalDialogOpen(true);
+  //     }
+  //   }
+  // }, [searchParams]);
 
   const handlePlanSelection = (plan: Plan) => {
     if (plan.planId === 'free') {
       router.push(plan.ctaBaseLink); 
     } else {
-      // Voor betaalde plannen, altijd naar signup met planId.
-      // De authenticatiestatus (ingelogd of niet) wordt afgehandeld op de signup of login pagina.
       router.push(`${plan.ctaBaseLink}?plan=${plan.planId}`);
     }
   };
@@ -197,6 +213,7 @@ export function PricingSection() {
           ))}
         </div>
       </div>
+      {/* ParentalApprovalDialog is no longer rendered here */}
     </section>
   );
 }
