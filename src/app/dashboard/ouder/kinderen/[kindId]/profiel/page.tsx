@@ -1,0 +1,250 @@
+
+// src/app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
+import type { User as UserType } from '@/types/user'; // Using existing User type for child data structure consistency
+
+// Re-using the Child interface definition from de-ouder/kinderen page for consistency
+interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
+  firstName: string;
+  lastName: string;
+  age?: number;
+  childEmail?: string;
+  schoolType?: string;
+  className?: string;
+  helpSubjects?: string[];
+  subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
+  lastActivity?: string;
+  leerdoelen?: string;
+  voorkeurTutor?: string;
+  deelResultatenMetTutor?: boolean;
+  linkedTutorIds?: string[];
+}
+
+// Re-using dummyChildren from de-ouder/kinderen page. In a real app, this data would be fetched.
+const dummyChildren: Child[] = [
+   {
+    id: 'child1',
+    firstName: 'Sofie',
+    lastName: 'de Tester',
+    name: 'Sofie de Tester',
+    age: 13,
+    ageGroup: '12-14',
+    avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
+    subscriptionStatus: 'actief',
+    lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
+    childEmail: 'sofie.tester@example.com',
+    schoolType: 'HAVO',
+    className: '2B',
+    helpSubjects: ['wiskunde', 'nederlands'],
+    leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
+    deelResultatenMetTutor: true,
+    linkedTutorIds: ['tutor1'],
+  },
+  {
+    id: 'child2',
+    firstName: 'Max',
+    lastName: 'de Tester',
+    name: 'Max de Tester',
+    age: 16,
+    ageGroup: '15-18',
+    avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
+    subscriptionStatus: 'actief',
+    lastActivity: 'Laatste les: Engels (1 dag geleden)',
+    childEmail: 'max.tester@example.com',
+    schoolType: 'VWO',
+    helpSubjects: ['engels', 'geschiedenis'],
+    leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
+    deelResultatenMetTutor: false,
+    linkedTutorIds: [],
+  },
+  {
+    id: 'child3',
+    firstName: 'Lisa',
+    lastName: 'Voorbeeld',
+    name: 'Lisa Voorbeeld',
+    age: 12,
+    ageGroup: '12-14',
+    subscriptionStatus: 'uitgenodigd',
+    lastActivity: 'Coaching tip van gisteren bekeken',
+    childEmail: 'lisa.voorbeeld@example.com',
+    helpSubjects: [],
+    leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
+    deelResultatenMetTutor: true,
+    linkedTutorIds: ['tutor2', 'tutor3'],
+  },
+];
+
+const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "default" | "secondary" | "destructive" | "outline" => {
+  if (status === 'actief') return 'default';
+  if (status === 'geen') return 'secondary';
+  if (status === 'uitgenodigd') return 'outline';
+  return 'destructive'; // verlopen
+};
+const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): string => {
+  if (status === 'actief') return 'bg-green-100 text-green-700 border-green-300';
+  if (status === 'geen') return 'bg-gray-100 text-gray-700 border-gray-300';
+  if (status === 'uitgenodigd') return 'bg-blue-100 text-blue-700 border-blue-300';
+  return 'bg-red-100 text-red-700 border-red-300'; // verlopen
+};
+
+export default function KindProfielPage() {
+  const params = useParams();
+  const router = useRouter();
+  const kindId = params.kindId as string;
+  const [childData, setChildData] = useState<Child | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const data = dummyChildren.find(c => c.id === kindId);
+    if (data) {
+      setChildData(data);
+    } else {
+      console.error("Kind data niet gevonden voor ID:", kindId);
+    }
+    setIsLoading(false);
+  }, [kindId]);
+
+  const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+  const getSubjectName = (subjectId: string) => allHomeworkSubjects.find(s => s.id === subjectId)?.name || subjectId;
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Profielgegevens laden...</div>;
+  }
+
+  if (!childData) {
+    return (
+      <div className="p-8 text-center">
+        <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+        <h1 className="text-2xl font-bold text-destructive">Profiel niet gevonden</h1>
+        <p className="text-muted-foreground mb-6">De profielgegevens voor dit kind konden niet worden geladen.</p>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/ouder/kinderen">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={childData.avatarUrl} alt={childData.name} data-ai-hint="child person" />
+            <AvatarFallback className="text-3xl bg-muted">{getInitials(childData.name)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{childData.name}</h1>
+            <p className="text-muted-foreground">Profieloverzicht en instellingen.</p>
+          </div>
+        </div>
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/ouder/kinderen">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p><strong className="text-foreground/80">Volledige Naam:</strong> {childData.firstName} {childData.lastName}</p>
+              <p><strong className="text-foreground/80">Leeftijd:</strong> {childData.age ? `${childData.age} jaar` : (childData.ageGroup || 'N.v.t.')}</p>
+              <p><strong className="text-foreground/80">E-mail Kind:</strong> {childData.childEmail || 'Niet opgegeven'}</p>
+              <p><strong className="text-foreground/80">Account Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData.subscriptionStatus)}>{childData.subscriptionStatus.charAt(0).toUpperCase() + childData.subscriptionStatus.slice(1)}</Badge></p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p><strong className="text-foreground/80">Schooltype:</strong> {childData.schoolType || 'Niet opgegeven'}</p>
+              <p><strong className="text-foreground/80">Klas:</strong> {childData.className || 'Niet opgegeven'}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Vakken</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              {childData.helpSubjects && childData.helpSubjects.length > 0 ? (
+                <ul className="list-disc list-inside space-y-1">
+                  {childData.helpSubjects.map(id => <li key={id}>{getSubjectName(id)}</li>)}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">Geen specifieke hulpvakken opgegeven.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Target className="h-6 w-6 text-primary"/>Leerdoelen & Aandachtspunten</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <p className="text-muted-foreground whitespace-pre-line">{childData.leerdoelen || 'Niet opgegeven.'}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Users className="h-6 w-6 text-primary"/>Tutor Voorkeuren</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <p className="text-muted-foreground whitespace-pre-line">{childData.voorkeurTutor || 'Geen specifieke voorkeuren opgegeven.'}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Share2 className="h-6 w-6 text-primary"/>Privacy & Delen</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-foreground/80">Quizresultaten delen met gekoppelde tutors:</p>
+                <Badge variant={childData.deelResultatenMetTutor ? "default" : "secondary"} className={childData.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
+                  {childData.deelResultatenMetTutor ? 'Ja' : 'Nee'}
+                </Badge>
+              </div>
+            </CardContent>
+             <CardFooter>
+                <Button variant="outline" size="sm" disabled>
+                  <Edit className="mr-2 h-4 w-4" /> Deelinstellingen Wijzigen (binnenkort)
+                </Button>
+             </CardFooter>
+          </Card>
+        </div>
+      </div>
+      <div className="flex justify-end mt-6">
+        <Button size="lg" disabled>
+            <Edit className="mr-2 h-4 w-4" /> Kindprofiel Bewerken (binnenkort)
+        </Button>
+      </div>
+    </div>
+  );
+}
+

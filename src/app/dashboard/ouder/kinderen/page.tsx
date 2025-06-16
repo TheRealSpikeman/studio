@@ -7,28 +7,28 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react'; 
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; 
-import type { User } from '@/types/user'; 
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import type { User } from '@/types/user';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > { // Simplified for this page initially
+interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
   firstName: string;
   lastName: string;
-  age?: number; // Made optional to align with form data where it's a string initially
+  age?: number;
   childEmail?: string;
   schoolType?: string;
   className?: string;
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
-  lastActivity?: string; 
-  leerdoelen?: string; 
+  lastActivity?: string;
+  leerdoelen?: string;
   voorkeurTutor?: string;
   deelResultatenMetTutor?: boolean;
   linkedTutorIds?: string[];
@@ -40,8 +40,9 @@ const dummyChildren: Child[] = [
     id: 'child1',
     firstName: 'Sofie',
     lastName: 'de Tester',
+    name: 'Sofie de Tester',
     age: 13,
-    ageGroup: '12-14', 
+    ageGroup: '12-14',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
@@ -52,16 +53,17 @@ const dummyChildren: Child[] = [
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
-    linkedTutorIds: ['tutor1'], 
+    linkedTutorIds: ['tutor1'],
   },
   {
     id: 'child2',
     firstName: 'Max',
     lastName: 'de Tester',
+    name: 'Max de Tester',
     age: 16,
-    ageGroup: '15-18', 
+    ageGroup: '15-18',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
-    subscriptionStatus: 'actief', 
+    subscriptionStatus: 'actief',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
@@ -69,22 +71,23 @@ const dummyChildren: Child[] = [
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
-    linkedTutorIds: [], 
+    linkedTutorIds: [],
   },
   {
     id: 'child3',
     firstName: 'Lisa',
     lastName: 'Voorbeeld',
+    name: 'Lisa Voorbeeld',
     age: 12,
-    ageGroup: '12-14', 
-    subscriptionStatus: 'uitgenodigd', 
+    ageGroup: '12-14',
+    subscriptionStatus: 'uitgenodigd',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
-    linkedTutorIds: ['tutor2', 'tutor3'], 
+    linkedTutorIds: ['tutor2', 'tutor3'],
   },
 ];
 
@@ -115,7 +118,7 @@ export default function BeheerKinderenPage() {
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
     let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14';
-    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; 
+    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult';
     else if (childAge >= 12 && childAge <= 14) derivedAgeGroup = '12-14';
     else if (childAge >= 15 && childAge <= 18) derivedAgeGroup = '15-18';
     else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult';
@@ -139,7 +142,7 @@ export default function BeheerKinderenPage() {
 
     const newChild: Child = {
       id: `child-${Date.now()}`,
-      name: `${data.firstName} ${data.lastName}`, // Combined name for simplicity here
+      name: `${data.firstName} ${data.lastName}`,
       firstName: data.firstName,
       lastName: data.lastName,
       age: childAge,
@@ -164,10 +167,10 @@ export default function BeheerKinderenPage() {
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
   };
-  
+
   const openDeleteDialog = (child: Child) => {
     setChildToDelete(child);
-    setDeleteConfirmationText(''); 
+    setDeleteConfirmationText('');
     setIsDeleteDialogOpen(true);
   };
 
@@ -181,7 +184,7 @@ export default function BeheerKinderenPage() {
       });
       setChildToDelete(null);
       setIsDeleteDialogOpen(false);
-      setDeleteConfirmationText(''); 
+      setDeleteConfirmationText('');
     } else {
       toast({
         title: "Verwijdering mislukt",
@@ -279,18 +282,20 @@ export default function BeheerKinderenPage() {
                 )}
               </CardContent>
               <CardFooter className="grid grid-cols-2 gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" disabled>
-                  <Edit className="mr-2 h-3.5 w-3.5" /> Profiel
+                <Button variant="outline" size="sm" asChild>
+                   <Link href={`/dashboard/ouder/kinderen/${child.id}/profiel`}>
+                     <Edit className="mr-2 h-3.5 w-3.5" /> Profiel
+                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" disabled={child.subscriptionStatus === 'uitgenodigd'} asChild>
                    <Link href={`/dashboard/ouder/kinderen/${child.id}/voortgang`}>
                      <TrendingUp className="mr-2 h-3.5 w-3.5" /> Voortgang
                    </Link>
                 </Button>
-                 <Button 
-                    variant="default" 
-                    size="sm" 
-                    className="col-span-2" 
+                 <Button
+                    variant="default"
+                    size="sm"
+                    className="col-span-2"
                     disabled={child.subscriptionStatus === 'uitgenodigd'}
                     asChild
                 >
@@ -298,9 +303,9 @@ export default function BeheerKinderenPage() {
                     <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek Tutor
                   </Link>
                 </Button>
-                 <Button 
-                    variant="destructive" 
-                    size="sm" 
+                 <Button
+                    variant="destructive"
+                    size="sm"
                     className="col-span-2"
                     onClick={() => openDeleteDialog(child)}
                 >
@@ -311,7 +316,7 @@ export default function BeheerKinderenPage() {
           ))}
         </div>
       )}
-      
+
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) setDeleteConfirmationText(''); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -335,8 +340,8 @@ export default function BeheerKinderenPage() {
             </div>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setDeleteConfirmationText('')}>Annuleren</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={confirmDeleteChild} 
+              <AlertDialogAction
+                onClick={confirmDeleteChild}
                 disabled={deleteConfirmationText !== "VERWIJDER"}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
@@ -349,5 +354,3 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
-
-    
