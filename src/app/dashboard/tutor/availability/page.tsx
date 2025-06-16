@@ -80,19 +80,15 @@ export default function TutorAvailabilityPage() {
     if (!isClient) return;
 
     if (selectedDateForWeekEditing) {
-      const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-      setCurrentEditingWeekMonday(newMonday);
-      
-      const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-      // Update activeTabDateKey to reflect the selected date in the calendar,
-      // ensuring the correct tab becomes active.
-      setActiveTabDateKey(newlySelectedDateKey);
-      
-    } else if (!selectedDateForWeekEditing && isClient) { 
-      // If no date is selected yet (e.g., on initial load), select today.
-      const today = startOfDay(new Date());
-      setSelectedDateForWeekEditing(today); 
-      // activeTabDateKey will be set in the next render cycle due to selectedDateForWeekEditing change.
+        const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
+        setCurrentEditingWeekMonday(newMonday);
+        const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
+        setActiveTabDateKey(newlySelectedDateKey);
+    } else {
+        // Initialize with today if no date is selected
+        const today = startOfDay(new Date());
+        setSelectedDateForWeekEditing(today);
+        // activeTabDateKey will be set by the above selectedDateForWeekEditing change in the next effect cycle
     }
   }, [selectedDateForWeekEditing, isClient]);
 
@@ -164,8 +160,8 @@ export default function TutorAvailabilityPage() {
         [activeTabDateKey as string]: validSlots,
       }));
       toast({
-        title: "Specifieke tijden opgeslagen",
-        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} is bijgewerkt. Vergeet niet om alle wijzigingen definitief op te slaan.`,
+        title: "Specifieke tijden voor dag opgeslagen",
+        description: `Beschikbaarheid voor ${format(new Date(activeTabDateKey as string + 'T00:00:00'), 'PPP', { locale: nl })} is lokaal bijgewerkt. Klik op 'Alle Wijzigingen Opslaan' om definitief te bewaren.`,
       });
     }
   };
@@ -186,12 +182,37 @@ export default function TutorAvailabilityPage() {
   };
 
   const handleSaveAvailability = () => {
+    // In a real app, this would send data to the backend
     console.log("Saving availability:", { hourlyRate, weeklyAvailability, unavailableDates, specificDateAvailability });
+    // Simulate saving to localStorage for persistence in demo
+    localStorage.setItem('tutorAvailability_hourlyRate', JSON.stringify(hourlyRate));
+    localStorage.setItem('tutorAvailability_weekly', JSON.stringify(weeklyAvailability));
+    localStorage.setItem('tutorAvailability_unavailableDates', JSON.stringify(unavailableDates.map(d => d.toISOString().split('T')[0]))); // Store as YYYY-MM-DD
+    localStorage.setItem('tutorAvailability_specificDates', JSON.stringify(specificDateAvailability));
+
     toast({
       title: "Beschikbaarheid Opgeslagen",
-      description: "Je uurtarief, wekelijkse beschikbaarheid en specifieke datum aanpassingen zijn bijgewerkt (simulatie).",
+      description: "Je uurtarief, wekelijkse beschikbaarheid en specifieke datum aanpassingen zijn bijgewerkt (gesimuleerd).",
     });
   };
+
+  // Effect to load saved data from localStorage on component mount
+  useEffect(() => {
+    if (!isClient) return;
+
+    const savedRate = localStorage.getItem('tutorAvailability_hourlyRate');
+    if (savedRate) setHourlyRate(JSON.parse(savedRate));
+
+    const savedWeekly = localStorage.getItem('tutorAvailability_weekly');
+    if (savedWeekly) setWeeklyAvailability(JSON.parse(savedWeekly));
+
+    const savedUnavailable = localStorage.getItem('tutorAvailability_unavailableDates');
+    if (savedUnavailable) setUnavailableDates(JSON.parse(savedUnavailable).map((ds: string) => new Date(ds + 'T00:00:00')));
+    
+    const savedSpecific = localStorage.getItem('tutorAvailability_specificDates');
+    if (savedSpecific) setSpecificDateAvailability(JSON.parse(savedSpecific));
+
+  }, [isClient]);
   
   const getDayLabelForTabIndex = (index: number) : string => {
     return dayLabels[dayKeys[index]];
@@ -254,20 +275,20 @@ export default function TutorAvailabilityPage() {
               )}
               {weeklyAvailability[day].map((slot, index) => (
                 <div key={slot.id || index} className="flex items-center gap-2 mt-2">
-                  <Input type="time" value={slot.start} onChange={(e) => handleTimeSlotChange(day, index, 'start', e.target.value)} className="w-1/3"/>
-                  <span>-</span>
-                  <Input type="time" value={slot.end} onChange={(e) => handleTimeSlotChange(day, index, 'end', e.target.value)} className="w-1/3"/>
+                  <Input type="time" value={slot.start} onChange={(e) => handleTimeSlotChange(day, index, 'start', e.target.value)} className="flex-1 min-w-[100px]"/>
+                  <span className="text-muted-foreground">-</span>
+                  <Input type="time" value={slot.end} onChange={(e) => handleTimeSlotChange(day, index, 'end', e.target.value)} className="flex-1 min-w-[100px]"/>
                   <Button variant="ghost" size="icon" onClick={() => removeTimeSlot(day, index)} aria-label="Verwijder tijdslot">
                     <XCircle className="h-5 w-5 text-destructive" />
                   </Button>
                 </div>
               ))}
-              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)}>
+              <div className="mt-3 flex items-center gap-2 flex-wrap">
+                <Button variant="outline" size="sm" onClick={() => addTimeSlot(day)} className="flex-shrink-0">
                   <PlusCircle className="mr-2 h-4 w-4" /> Tijdslot Toevoegen
                 </Button>
-                <Button size="sm" onClick={handleSaveAvailability}>
-                  <Save className="mr-2 h-4 w-4" /> Wijzigingen Opslaan
+                <Button size="sm" onClick={handleSaveAvailability} className="flex-shrink-0">
+                  <Save className="mr-2 h-4 w-4" /> Sla Weekrooster Op
                 </Button>
               </div>
             </div>
@@ -278,7 +299,7 @@ export default function TutorAvailabilityPage() {
       <Card>
         <CardHeader>
             <CardTitle>Uitzonderingen: Hele Dagen Niet Beschikbaar</CardTitle>
-            <CardDescription>Markeer specifieke datums waarop je de <span className="font-semibold">gehele dag niet</span> beschikbaar bent, ondanks je standaard wekelijkse schema. Deze instelling wordt overschreven als je voor diezelfde dag afwijkende tijden instelt in de sectie hieronder.</CardDescription>
+            <CardDescription className="text-sm">Markeer specifieke datums waarop je de <span className="font-semibold">gehele dag niet</span> beschikbaar bent, ondanks je standaard wekelijkse schema. Deze instelling wordt overschreven als je voor diezelfde dag afwijkende tijden instelt in de sectie hieronder.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col lg:flex-row gap-4 items-start">
@@ -329,7 +350,7 @@ export default function TutorAvailabilityPage() {
       <Card>
         <CardHeader>
           <CardTitle>Afwijkende Beschikbaarheid per Week</CardTitle>
-          <CardDescription>Selecteer een datum in de kalender om de beschikbaarheid voor die specifieke week aan te passen. Deze tijden overschrijven je standaard rooster en "hele dag niet beschikbaar" voor die dagen.</CardDescription>
+          <CardDescription className="text-sm">Selecteer een datum in de kalender om de beschikbaarheid voor die specifieke week aan te passen. Deze tijden overschrijven je standaard rooster en "hele dag niet beschikbaar" voor die dagen.</CardDescription>
         </CardHeader>
         <CardContent className="p-4 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -368,7 +389,7 @@ export default function TutorAvailabilityPage() {
                         value={dateKeyForTab} 
                         className={cn(
                             "flex items-center justify-center w-full h-auto text-center whitespace-normal rounded-sm transition-colors duration-150",
-                            "text-xs px-2 py-3 leading-tight sm:text-sm", 
+                            "text-xs px-2 py-2.5 sm:py-2 leading-tight sm:text-sm", 
                             "bg-background hover:bg-muted/80",
                             "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                           )}
@@ -394,29 +415,29 @@ export default function TutorAvailabilityPage() {
                             )}
                             {activeTabDateKey === dateKeyForTab && slotsForActiveTab.map((slot, slotIndex) => (
                                 <div key={slot.id || slotIndex} className="flex items-center gap-2">
-                                <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'start', e.target.value)} className="w-2/5" />
-                                <span>-</span>
-                                <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'end', e.target.value)} className="w-2/5" />
+                                <Input type="time" value={slot.start} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'start', e.target.value)} className="flex-1 min-w-[100px]" />
+                                <span className="text-muted-foreground">-</span>
+                                <Input type="time" value={slot.end} onChange={(e) => handleSpecificSlotChangeForTab(slotIndex, 'end', e.target.value)} className="flex-1 min-w-[100px]" />
                                 <Button variant="ghost" size="icon" onClick={() => removeSpecificSlotForTab(slotIndex)} aria-label="Verwijder tijdslot">
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                                 </div>
                             ))}
                             {activeTabDateKey === dateKeyForTab && (
-                                <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                                    <Button variant="outline" size="sm" onClick={addSpecificSlotForTab} className="w-full sm:w-auto">
+                                <div className="flex flex-col sm:flex-row gap-2 pt-2 flex-wrap">
+                                    <Button variant="outline" size="sm" onClick={addSpecificSlotForTab} className="w-full sm:w-auto flex-shrink-0">
                                         <PlusCircle className="mr-0 sm:mr-2 h-4 w-4" />
                                         <span className="hidden sm:inline">Tijdslot Toevoegen</span>
                                         <span className="sm:hidden">Nieuw Slot</span>
                                     </Button>
-                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]} className="w-full sm:w-auto">
+                                    <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]} className="w-full sm:w-auto flex-shrink-0">
                                         <SaveIcon className="mr-0 sm:mr-2 h-4 w-4"/>
-                                        <span className="hidden sm:inline">Tijden Opslaan</span>
-                                        <span className="sm:hidden">Opslaan</span>
+                                        <span className="hidden sm:inline">Sla Deze Dag Op</span>
+                                        <span className="sm:hidden">Sla Dag Op</span>
                                     </Button>
                                     {specificDateAvailability[activeTabDateKey!] && specificDateAvailability[activeTabDateKey!]!.length > 0 && (
-                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto w-full sm:w-auto text-center sm:text-right block sm:inline-block">
-                                            Wis specifieke tijden voor deze dag
+                                        <Button variant="link" size="sm" onClick={clearSlotsForActiveTab} className="text-destructive p-0 h-auto mt-2 sm:mt-0 sm:ml-auto w-full sm:w-auto text-center sm:text-right block sm:inline-block flex-shrink-0">
+                                            <Trash2 className="inline-block mr-1 h-3 w-3"/>Wis specifieke tijden
                                         </Button>
                                     )}
                                 </div>
