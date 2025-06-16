@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact } from 'lucide-react'; // Changed DollarSign to Euro
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,7 +21,7 @@ interface NavItem {
   adminOnly?: boolean;
   tutorOnly?: boolean;
   leerlingOnly?: boolean;
-  ouderOnly?: boolean; // Added ouderOnly
+  ouderOnly?: boolean;
   sectionTitle?: string;
   isSubItem?: boolean;
   parent?: string;
@@ -77,7 +77,18 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder', label: 'Ouder Overzicht', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/lessen', label: 'Lessen Kinderen', icon: BookOpenCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { 
+    href: '/dashboard/ouder/lessen/overzicht', // Default to overview
+    label: 'Lessen Kinderen', 
+    icon: BookOpenCheck, 
+    ouderOnly: true, 
+    isSubItem: false, 
+    parent: '/dashboard/ouder',
+    children: [
+        { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
+        { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
+    ]
+  },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
 
@@ -197,21 +208,22 @@ function SidebarNavigationContent() {
             }) || [];
 
             let isParentExpanded = isItemDirectlyActive;
-            if(item.children && visibleChildren.length > 0){ 
+             if(item.children && visibleChildren.length > 0){ 
                  isParentExpanded = visibleChildren.some(child => 
-                    pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href))
+                    pathname === child.href || (child.parent && pathname.startsWith(child.parent)) // Match on parent if sub-items are active
                 ) || isItemDirectlyActive;
             }
 
+
             let isParentHighlighted = isItemDirectlyActive;
-            if(isParentExpanded && item.children && visibleChildren.length > 0){
-                 const activeChildIsNotParentDefault = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== item.href);
-                 if (activeChildIsNotParentDefault) {
-                    isParentHighlighted = false;
-                 } else if(isItemDirectlyActive) {
+             if(isParentExpanded && item.children && visibleChildren.length > 0){
+                 // Highlight parent if its direct href matches, or if a child that IS the parent's default href matches
+                 const parentDefaultChildIsActive = visibleChildren.some(child => child.href === item.href && pathname.startsWith(child.href));
+                 if (isItemDirectlyActive || parentDefaultChildIsActive) {
                     isParentHighlighted = true;
                  } else {
-                    isParentHighlighted = false; 
+                    // If another child (not the default for parent) is active, don't highlight parent as strictly active
+                    isParentHighlighted = !visibleChildren.some(child => child.href !== item.href && pathname.startsWith(child.href));
                  }
             }
             
@@ -254,7 +266,7 @@ function SidebarNavigationContent() {
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
                         isChildActive && 'bg-primary/10 text-primary font-semibold',
-                        child.isSubItem && 'ml-4 text-sm py-2'
+                        child.isSubItem && 'ml-4 text-sm py-2' // Ensure sub-items are styled correctly
                       )}
                     >
                       <child.icon className="h-5 w-5" />
