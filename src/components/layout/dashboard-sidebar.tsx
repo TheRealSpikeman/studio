@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -91,6 +91,7 @@ const navItems: NavItem[] = [
     ]
   },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
 
   // Tutor specific section
@@ -216,31 +217,29 @@ function SidebarNavigationContent() {
                 ) || isItemDirectlyActive;
             }
 
-            // --- Start of modified highlight logic ---
-            let highlightThisParent = false;
+            let isParentHighlighted = false;
             if (isItemDirectlyActive) {
                 if (item.children && visibleChildren.length > 0) {
-                    // Check if a child with the *exact same href* is also directly active.
-                    // If so, the child should get the highlight, not this parent.
                     const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
                     if (!childWithIdenticalHrefIsActive) {
-                        highlightThisParent = true; // Parent's own distinct page is active
+                        isParentHighlighted = true; 
                     }
                 } else {
-                    highlightThisParent = true; // Leaf node (no children), directly active
+                    isParentHighlighted = true; 
                 }
             } else if (item.children && visibleChildren.length > 0 && isParentExpanded) {
-                // Parent is not directly active, but it's expanded.
-                // Highlight if pathname starts with parent's href AND no child is a more specific active match.
                 const noChildIsMoreSpecificOrExactMatch = !visibleChildren.some(child =>
-                    child.href === pathname || // No child is an exact match
-                    (child.href !== item.href && pathname.startsWith(child.href)) // No child (with a different href) is a more specific prefix match
+                    child.href === pathname || 
+                    (child.href !== item.href && pathname.startsWith(child.href)) 
                 );
-                if (pathname.startsWith(item.href) && item.href !== '/' && noChildIsMoreSpecificOrExactMatch) {
-                    highlightThisParent = true;
+                if (pathname.startsWith(item.href) && item.href !== '/' && noChildIsMoreSpecificOrExactMatch && item.href !== '/dashboard/ouder/lessen/overzicht') {
+                    isParentHighlighted = true;
                 }
             }
-            // --- End of modified highlight logic ---
+             // Special case for 'Lessen Kinderen' when its own page '/dashboard/ouder/lessen/overzicht' is active
+            if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
+               isParentHighlighted = true;
+            }
             
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -253,7 +252,7 @@ function SidebarNavigationContent() {
                     href={item.href}
                     className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    highlightThisParent && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
                     )}
                 >
                     <item.icon className="h-5 w-5" />
@@ -261,14 +260,17 @@ function SidebarNavigationContent() {
                 </Link>
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
-                  const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
+                  const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
+                  // Specific highlight for the exact match of Lessen Overzicht sub-item
+                  const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
+
                   return (
                     <Link
                       key={`${child.href}-${childIndex}`}
                       href={child.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isChildActive && 'bg-primary/10 text-primary font-semibold',
+                        (isChildActive || isExactLessenOverzichtActive) && 'bg-primary/10 text-primary font-semibold',
                         child.isSubItem && 'ml-4 text-sm py-2' 
                       )}
                     >
