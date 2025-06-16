@@ -11,60 +11,52 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Ontdek je <span className="text-primary">unieke</span> sterktes
+            Ondersteun uw tiener (12-18 jr) bij <span className="text-primary">neurodiversiteit</span>
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-             Heb je je ooit afgevraagd waarom jij op sommige manieren anders denkt dan je vrienden? Waarom jij misschien sneller afgeleid bent of juist supergefocust kunt zijn? Of waarom drukke plekken je soms overweldigen? Deze test helpt je ontdekken wat jouw sterke punten zijn en waar jouw uitdagingen liggen. Je krijgt persoonlijke tips die je echt kunnen helpen op school en met vrienden. Neurodiversiteit betekent dat ieders brein anders werkt - ontdek hoe jouw brein speciaal is!
+            Maakt u zich zorgen over de concentratie, sociale interacties of schoolprestaties van uw tiener? Voelt u dat uw kind anders denkt of leert? MindNavigator biedt u en uw kind (12-18 jaar) inzicht in neurodiversiteit (zoals ADD, ADHD, HSP, ASS-kenmerken). Ontdek samen sterke punten en praktische strategieën om uitdagingen op school en thuis aan te gaan.
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
               <FileText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Uitgebreid persoonlijk rapport in PDF</span>
+              <span>Uitgebreid rapport over het profiel van uw kind (PDF)</span>
             </li>
             <li className="flex items-center gap-3">
               <Puzzle className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Verdiepende subquizzen op maat</span>
+              <span>Verdiepende subquizzen, afgestemd op uw kind</span>
             </li>
             <li className="flex items-center gap-3">
               <MessageSquareText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Dagelijkse coaching & routines (premium)</span>
+              <span>Dagelijkse coaching & routines voor uw kind (premium)</span>
             </li>
             <li className="flex items-center gap-3">
               <BookOpenCheck className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Huiswerkbegeleiding op maat (binnen premium coaching)</span>
+              <span>Huiswerkbegeleiding tools en tips voor uw kind (premium)</span>
             </li>
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quizzes">Start gratis quiz – ontvang persoonlijk rapport</Link>
+              <Link href="/quizzes">Start een quiz voor uw kind</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quiz/teen-neurodiversity-quiz">Start Tienerquiz (zonder account)</Link>
+              <Link href="/for-parents">Meer informatie voor ouders</Link>
             </Button>
           </div>
            <p className="text-xs text-muted-foreground mt-2">
-            Upgrade daarna voor €2,50 p/m voor dagelijkse coaching & alle subquizzen.
+            Vanaf €2,50 p/m voor dagelijkse coaching & alle subquizzen voor uw kind.
           </p>
            <p className="text-sm text-muted-foreground mt-3">
-            ★ 4.8 (1.200+ jongeren gingen je voor!)
+            ★ 4.8 – Ouders waarderen onze aanpak!
           </p>
         </div>
         {/* Image column */}
         <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl hidden md:block">
-          {/* 
-            IMPORTANT: The original src "gs://neurodiversity-navigator.firebasestorage.app/homepage.png"
-            is a Firebase Storage URI and not a public HTTPS URL. 
-            You need to replace the placeholder below with the actual public HTTPS URL 
-            for your image from Firebase Storage. You can get this URL from the Firebase Console.
-            It will look something like: 
-            https://firebasestorage.googleapis.com/v0/b/your-bucket-id/o/homepage.png?alt=media&token=your-access-token
-          */}
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage-2.gif?alt=media&token=57902da7-73b1-4c01-828c-9de735ef9bf4" 
-            alt="Creatieve weergave van mensen die diep nadenken en enigszins paniekerig zijn, passend bij neurodiversiteit."
+            alt="Ouders die hun kind ondersteunen bij het leren en ontdekken."
             layout="fill"
             objectFit="cover"
-            data-ai-hint="neurodiversity thinking"
+            data-ai-hint="parent child support"
             priority
             unoptimized={true}
           />
@@ -74,3 +66,4 @@ export function HeroSection() {
     </section>
   );
 }
+
