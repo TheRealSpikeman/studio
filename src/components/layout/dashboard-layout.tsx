@@ -1,18 +1,19 @@
+
 // src/components/layout/dashboard-layout.tsx
 "use client";
 
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
-import React, { ReactNode, useEffect, useState, useRef } from 'react'; // Added useState, useRef
+import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, ImageUp } from 'lucide-react'; // Added ImageUp
+import { LogOut, UserCircle, ImageUp } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import Image from 'next/image'; // Added Image
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'; // Changed DialogTrigger to DialogClose
-import { Input } from '@/components/ui/input'; // Added Input
+import Image from 'next/image';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 const predefinedAvatars = [
   { id: 'avatar1', src: 'https://placehold.co/80x80.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
@@ -87,7 +88,7 @@ function DashboardHeader() {
                     </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => setIsAvatarModalOpen(true)}> {/* Correctly trigger dialog */}
+                    <DropdownMenuItem onSelect={() => setIsAvatarModalOpen(true)}>
                         <ImageUp className="mr-2 h-4 w-4" />
                         Profielfoto wijzigen
                     </DropdownMenuItem>
