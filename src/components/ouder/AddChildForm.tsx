@@ -105,7 +105,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
         <CardHeader>
             <CardTitle>Kindgegevens Invoeren</CardTitle>
             <CardDescription>
-                Voer de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen. Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
+                Vul de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen. Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -481,3 +481,4 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     </Card>
   );
 }
+

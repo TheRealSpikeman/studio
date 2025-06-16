@@ -18,7 +18,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
+interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
+  subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   lastActivity?: string; 
   leerdoelen?: string; 
   voorkeurTutor?: string;
@@ -68,6 +69,7 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14', 
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
+    childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
@@ -124,7 +126,6 @@ export default function BeheerKinderenPage() {
       tutorPreferencesString += `Overig: ${data.otherTutorPreference}`;
     }
 
-
     const newChild: Child = {
       id: `child-${Date.now()}`,
       firstName: data.firstName,
@@ -134,7 +135,7 @@ export default function BeheerKinderenPage() {
       childEmail: data.childEmail,
       schoolType: data.schoolType,
       className: data.className,
-      subscriptionStatus: 'uitgenodigd', 
+      subscriptionStatus: 'uitgenodigd', // Nieuw kind wordt eerst uitgenodigd
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
       leerdoelen: leerdoelenString.trim() || undefined,
@@ -145,7 +146,8 @@ export default function BeheerKinderenPage() {
     setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
-      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. U kunt nu een abonnement voor dit kind beheren via de 'Abonnementen' pagina.`,
+      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. Zodra het account actief is, kunt u hier de voortgang volgen en eventueel het profiel aanbieden aan tutors.`,
+      duration: 8000,
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
   };
@@ -183,7 +185,7 @@ export default function BeheerKinderenPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Mijn Kinderen</h1>
           <p className="text-muted-foreground">
-            Beheer de profielen, abonnementen en voortgang van uw kinderen.
+            Beheer de profielen en voortgang van uw kinderen. Na activatie door uw kind kunt u het profiel eventueel anoniem aanbieden aan tutors.
           </p>
         </div>
         {!isAddingChildMode && (
@@ -225,7 +227,7 @@ export default function BeheerKinderenPage() {
               </CardHeader>
               <CardContent className="flex-grow space-y-3">
                 <div>
-                  <span className="text-xs font-medium text-muted-foreground">Status Abonnement: </span>
+                  <span className="text-xs font-medium text-muted-foreground">Status Account: </span>
                   <Badge
                     variant={getSubscriptionBadgeVariant(child.subscriptionStatus)}
                     className={getSubscriptionBadgeClasses(child.subscriptionStatus)}
@@ -255,7 +257,7 @@ export default function BeheerKinderenPage() {
                   </p>
                 )}
                  {child.subscriptionStatus === 'uitgenodigd' && (
-                   <Alert variant="default" className="mt-2 p-3 text-xs bg-blue-50 border-blue-200">
+                   <Alert variant="default" className="mt-2 p-3 text-xs bg-blue-50/70 border-blue-200">
                       <Info className="h-4 w-4 !text-blue-600" />
                       <AlertDescUi className="!text-blue-700 pl-0">
                         Wacht op account activatie door kind.
@@ -323,3 +325,4 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
+
