@@ -72,27 +72,26 @@ export default function TutorAvailabilityPage() {
   const [activeTabDateKey, setActiveTabDateKey] = useState<string | null>(null);
   const [slotsForActiveTab, setSlotsForActiveTab] = useState<TimeSlot[]>([]);
 
-
- useEffect(() => {
+  useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined' && !selectedDateForWeekEditing) {
-      const today = startOfDay(new Date());
-      setSelectedDateForWeekEditing(today);
-    }
-  }, [selectedDateForWeekEditing]);
+  }, []);
+
 
   useEffect(() => {
-    if (!isClient || !selectedDateForWeekEditing) return;
+    if (!isClient) return;
 
-    const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-    setCurrentEditingWeekMonday(newMonday);
-    
-    const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-    if (activeTabDateKey !== newlySelectedDateKey) {
-        setActiveTabDateKey(newlySelectedDateKey);
+    if (selectedDateForWeekEditing) {
+      const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
+      setCurrentEditingWeekMonday(newMonday);
+      
+      const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
+      setActiveTabDateKey(newlySelectedDateKey); 
+      
+    } else { 
+      const today = startOfDay(new Date());
+      setSelectedDateForWeekEditing(today); 
     }
-
-  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]);
+  }, [selectedDateForWeekEditing, isClient]);
 
 
   useEffect(() => {
@@ -360,8 +359,8 @@ export default function TutorAvailabilityPage() {
                         key={dateKeyForTab} 
                         value={dateKeyForTab} 
                         className={cn(
-                            "flex items-center justify-center w-full h-[56px] text-center whitespace-normal rounded-sm transition-colors duration-150", // Fixed height, flex centering
-                            "text-xs p-1 leading-tight sm:text-sm sm:p-2", // Responsive text and padding
+                            "flex items-center justify-center w-full h-auto text-center whitespace-normal rounded-sm transition-colors duration-150",
+                            "text-xs px-2 py-3 leading-tight sm:text-sm", 
                             "bg-background hover:bg-muted/80",
                             "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                           )}
@@ -378,7 +377,7 @@ export default function TutorAvailabilityPage() {
                   const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                   return (
                       <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
-                          <div className="space-y-3 pt-5"> {/* Added pt-5 here for more space */}
+                          <div className="space-y-3 pt-4">
                             <h4 className="font-semibold text-lg">
                                 Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                             </h4>
@@ -403,7 +402,7 @@ export default function TutorAvailabilityPage() {
                                         <span className="sm:hidden">Nieuw Slot</span>
                                     </Button>
                                     <Button size="sm" onClick={saveSlotsForActiveTab} disabled={slotsForActiveTab.length === 0 && !specificDateAvailability[activeTabDateKey!]} className="w-full sm:w-auto">
-                                        <SaveIcon className="mr-0 sm:mr-2 h-4 w-4"/> {/* Changed to SaveIcon from lucide for consistency */}
+                                        <SaveIcon className="mr-0 sm:mr-2 h-4 w-4"/>
                                         <span className="hidden sm:inline">Tijden Opslaan</span>
                                         <span className="sm:hidden">Opslaan</span>
                                     </Button>
