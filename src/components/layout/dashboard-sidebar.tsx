@@ -177,7 +177,6 @@ function SidebarNavigationContent() {
               showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly;
             }
 
-
             if (!showItem) return null;
             
             let renderSectionHeader = false;
@@ -194,7 +193,9 @@ function SidebarNavigationContent() {
                             renderSectionHeader = true; 
                         }
                     }
-                    currentSectionTitleDisplayed = item.sectionTitle;
+                    if(renderSectionHeader) {
+                      currentSectionTitleDisplayed = item.sectionTitle;
+                    }
                 }
             }
 
@@ -211,28 +212,20 @@ function SidebarNavigationContent() {
             let isParentExpanded = isItemDirectlyActive;
              if(item.children && visibleChildren.length > 0){ 
                  isParentExpanded = visibleChildren.some(child => 
-                    pathname === child.href || (child.parent && pathname.startsWith(child.parent)) // Match on parent if sub-items are active
+                    pathname === child.href || (child.parent && pathname.startsWith(child.parent))
                 ) || isItemDirectlyActive;
             }
 
-
             let isParentHighlighted = isItemDirectlyActive;
              if(isParentExpanded && item.children && visibleChildren.length > 0){
-                 // Highlight parent if its direct href matches, or if a child that IS the parent's default href matches
                  const parentDefaultChildIsActive = visibleChildren.some(child => child.href === item.href && pathname.startsWith(child.href));
                  if (isItemDirectlyActive || parentDefaultChildIsActive) {
                     isParentHighlighted = true;
                  } else {
-                    // If another child (not the default for parent) is active, don't highlight parent as strictly active
                     isParentHighlighted = !visibleChildren.some(child => child.href !== item.href && pathname.startsWith(child.href));
                  }
             }
             
-            const skipRenderingMainLink = (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard" && item.href === '/dashboard/admin') ||
-                                          (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal" && item.href === '/dashboard/tutor') ||
-                                          (currentDashboardRole === 'ouder' && item.sectionTitle === "Ouder Portaal" && item.href === '/dashboard/ouder');
-
-
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && item.sectionTitle && (
@@ -240,25 +233,18 @@ function SidebarNavigationContent() {
                         {item.sectionTitle}
                     </div>
                 )}
-                {!skipRenderingMainLink && (
-                    <Link
-                        href={item.href}
-                        className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                )}
-
+                <Link
+                    href={item.href}
+                    className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
+                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                    )}
+                >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                </Link>
 
                 {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
-                  if (currentDashboardRole === 'tutor' && (child.href === '/dashboard/tutor' || child.href === '/dashboard/profile')) return null;
-                  if (currentDashboardRole === 'ouder' && (child.href === '/dashboard/ouder' || child.href === '/dashboard/profile')) return null;
-                  if (currentDashboardRole === 'admin' && (child.href === '/dashboard/admin' || child.href === '/dashboard/profile')) return null;
-                  
                   const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                   return (
                     <Link
@@ -267,7 +253,7 @@ function SidebarNavigationContent() {
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
                         isChildActive && 'bg-primary/10 text-primary font-semibold',
-                        child.isSubItem && 'ml-4 text-sm py-2' // Ensure sub-items are styled correctly
+                        child.isSubItem && 'ml-4 text-sm py-2' 
                       )}
                     >
                       <child.icon className="h-5 w-5" />
