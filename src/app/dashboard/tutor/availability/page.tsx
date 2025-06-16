@@ -1,4 +1,3 @@
-
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -12,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Clock, Euro, Save, XCircle, PlusCircle, Trash2, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { format, isEqual, startOfDay, addDays, startOfWeek, getDay } from 'date-fns';
+import { format, isEqual, startOfDay, addDays, startOfWeek, getDay, endOfWeek } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -75,21 +74,23 @@ export default function TutorAvailabilityPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // Initial date setting is now handled in the next useEffect
-  }, []);
+    // Initialize selectedDateForWeekEditing on client mount if not already set
+    if (!selectedDateForWeekEditing) {
+      setSelectedDateForWeekEditing(startOfDay(new Date()));
+    }
+  }, []); // Runs once on mount
 
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || !selectedDateForWeekEditing) return;
 
-    if (selectedDateForWeekEditing) {
-        const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-        setCurrentEditingWeekMonday(monday);
+    const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
+    setCurrentEditingWeekMonday(monday);
+    
+    // Set active tab to the initially selected date, or the Monday if selected date is outside current week view
+    if (!activeTabDateKey || !isDateInWeek(new Date(activeTabDateKey + 'T00:00:00'), monday)) {
         setActiveTabDateKey(format(selectedDateForWeekEditing, 'yyyy-MM-dd'));
-    } else {
-        // Initialize selectedDateForWeekEditing if it's undefined.
-        // This will trigger this effect again once the state is set.
-        setSelectedDateForWeekEditing(startOfDay(new Date()));
     }
+
   }, [selectedDateForWeekEditing, isClient]);
 
 
@@ -100,6 +101,11 @@ export default function TutorAvailabilityPage() {
       setSlotsForActiveTab([]);
     }
   }, [activeTabDateKey, specificDateAvailability]);
+
+  const isDateInWeek = (date: Date, weekStartMonday: Date): boolean => {
+    const weekEndSunday = endOfWeek(weekStartMonday, { weekStartsOn: 1 });
+    return date >= weekStartMonday && date <= weekEndSunday;
+  };
 
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
@@ -273,7 +279,7 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <div className="w-[280px] flex-shrink-0">
+               <div className="w-[280px] flex-shrink-0">
                 {!isClient ? (
                     <Skeleton className="h-[290px] w-full rounded-md border shadow-sm" />
                 ) : (
@@ -324,7 +330,7 @@ export default function TutorAvailabilityPage() {
         </CardHeader>
         <CardContent className="space-y-6 pb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <div className="w-[280px] flex-shrink-0 self-start"> 
+             <div className="w-[280px] flex-shrink-0 self-start"> 
               <Label>Kies een datum om de week te selecteren:</Label>
               {!isClient ? (
                 <Skeleton className="h-[290px] w-full rounded-md border mt-1" />
@@ -336,21 +342,21 @@ export default function TutorAvailabilityPage() {
                   locale={nl}
                   className="rounded-md border mt-1 shadow-sm w-full"
                   disabled={isClient ? { before: startOfDay(new Date()) } : undefined}
-                  footer={selectedDateForWeekEditing ? `Geselecteerde week: ${format(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 'PPP', { locale: nl })} - ${format(addDays(startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 }), 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
+                  footer={selectedDateForWeekEditing && currentEditingWeekMonday ? `Geselecteerde week: ${format(currentEditingWeekMonday, 'PPP', { locale: nl })} - ${format(addDays(currentEditingWeekMonday, 6), 'PPP', { locale: nl })}` : 'Selecteer een dag om de week te zien.'}
                   initialFocus={isClient} 
                 />
               )}
             </div>
             
             {currentEditingWeekMonday && (
-              <Card className="flex-1 min-w-0">
-                <CardContent className="p-4">
+              <Card className="flex-1 min-w-0"> {/* Main card for Tabs */}
+                <CardContent className="p-4"> {/* Padding for the Tabs component inside the card */}
                   <Tabs 
                     value={activeTabDateKey || undefined}
                     onValueChange={setActiveTabDateKey}
                     className="w-full"
                   >
-                    <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
+                    <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
                       {dayKeys.map((dayKey, index) => {
                         const dateForTab = getDateForTabIndex(index);
                         if (!dateForTab) return null;
