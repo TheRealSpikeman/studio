@@ -1,3 +1,4 @@
+
 // src/components/ouder/AddChildForm.tsx
 "use client";
 
@@ -26,6 +27,15 @@ const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", 
 const NOT_SPECIFIED_VALUE = "_NOT_SPECIFIED_";
 const childAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
 
+const predefinedLeerdoelen = [
+  { id: 'plannen', label: "Beter leren plannen voor toetsen" },
+  { id: 'faalangst', label: "Omgaan met faalangst" },
+  { id: 'concentratie', label: "Concentratie verbeteren tijdens de les" },
+  { id: 'zelfvertrouwen', label: "Zelfvertrouwen vergroten" },
+  { id: 'motivatie', label: "Motivatie vinden/behouden" },
+  { id: 'structuur', label: "Structuur aanbrengen in huiswerk" },
+];
+
 const addChildFormSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
   lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 tekens bevatten." }),
@@ -34,7 +44,8 @@ const addChildFormSchema = z.object({
   schoolType: z.string().optional(),
   className: z.string().optional(),
   helpSubjects: z.array(z.string()).optional(),
-  leerdoelen: z.string().optional(),
+  selectedLeerdoelen: z.array(z.string()).optional(),
+  otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
   voorkeurTutor: z.string().optional(),
   deelResultatenMetTutor: z.boolean().optional(),
 });
@@ -57,7 +68,8 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       schoolType: "",
       className: "",
       helpSubjects: [],
-      leerdoelen: "",
+      selectedLeerdoelen: [],
+      otherLeerdoelen: "",
       voorkeurTutor: "",
       deelResultatenMetTutor: false,
     },
@@ -221,7 +233,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                            <Info className="h-3 w-3"/> Selecteer de vakken. Dit helpt bij het aanbevelen van content en tutors.
                         </FormDescription>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
                         {allHomeworkSubjects.map((subject) => (
                           <FormField
                             key={subject.id}
@@ -231,7 +243,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                               return (
                                 <FormItem
                                   key={subject.id}
-                                  className="flex flex-row items-start space-x-2 space-y-0"
+                                  className="flex flex-row items-center space-x-2 space-y-0"
                                 >
                                   <FormControl>
                                     <Checkbox
@@ -263,23 +275,73 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="leerdoelen"
+                  name="selectedLeerdoelen"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-2">
+                        <FormLabel className="text-base font-semibold flex items-center gap-2">
+                          <Target className="h-5 w-5 text-primary" />
+                          Leerdoelen of aandachtspunten
+                        </FormLabel>
+                         <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                           <Info className="h-3 w-3"/> Selecteer de meest relevante doelen of aandachtspunten.
+                        </FormDescription>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+                        {predefinedLeerdoelen.map((doel) => (
+                          <FormField
+                            key={doel.id}
+                            control={form.control}
+                            name="selectedLeerdoelen"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={doel.id}
+                                  className="flex flex-row items-center space-x-2 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(doel.label)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...(field.value || []), doel.label])
+                                          : field.onChange(
+                                              (field.value || []).filter(
+                                                (value) => value !== doel.label
+                                              )
+                                            );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer text-sm">
+                                    {doel.label}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="otherLeerdoelen"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-semibold flex items-center gap-2">
-                        <Target className="h-5 w-5 text-primary" />
-                        Leerdoelen of aandachtspunten
+                      <FormLabel className="flex items-center gap-2 text-sm">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                        Andere leerdoelen of specifieke toelichting (optioneel)
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Bijv. 'Beter leren plannen voor toetsen', 'Omgaan met faalangst', 'Concentratie verbeteren tijdens de les'."
+                          placeholder="Bijv. 'Moeite met starten van taken', 'Hulp nodig bij het samenvatten van lange teksten'."
                           {...field}
                           rows={3}
                         />
                       </FormControl>
-                      <FormDescription className="text-xs pt-1 flex items-center gap-1">
-                           <Info className="h-3 w-3"/> Deze informatie kan gedeeld worden met (toekomstige) tutors.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
