@@ -1,3 +1,4 @@
+
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -65,7 +66,6 @@ export default function TutorAvailabilityPage() {
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
   const [isClient, setIsClient] = useState(false);
 
-  // State for specific date overrides
   const [specificDateAvailability, setSpecificDateAvailability] = useState<SpecificDateAvailability>({});
   const [selectedDateForWeekEditing, setSelectedDateForWeekEditing] = useState<Date | undefined>(undefined);
   const [currentEditingWeekMonday, setCurrentEditingWeekMonday] = useState<Date | null>(null);
@@ -75,29 +75,23 @@ export default function TutorAvailabilityPage() {
 
   useEffect(() => {
     setIsClient(true);
+    // Initial date setting is now handled in the next useEffect
   }, []);
 
   useEffect(() => {
-    if (isClient && !selectedDateForWeekEditing) { 
-        const today = startOfDay(new Date());
-        setSelectedDateForWeekEditing(today);
-        const monday = startOfWeek(today, { weekStartsOn: 1 });
+    if (!isClient) return;
+
+    if (selectedDateForWeekEditing) {
+        const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
         setCurrentEditingWeekMonday(monday);
-        setActiveTabDateKey(format(today, 'yyyy-MM-dd')); 
-    } else if (selectedDateForWeekEditing) {
-      const monday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-      setCurrentEditingWeekMonday(monday);
-      const dayIndex = (getDay(selectedDateForWeekEditing) + 6) % 7; 
-      const initialTabDate = addDays(monday, dayIndex);
-      // Set activeTabDateKey only if it's different or null to avoid unnecessary re-renders
-      if (activeTabDateKey !== format(initialTabDate, 'yyyy-MM-dd')) {
-        setActiveTabDateKey(format(initialTabDate, 'yyyy-MM-dd'));
-      }
+        setActiveTabDateKey(format(selectedDateForWeekEditing, 'yyyy-MM-dd'));
     } else {
-      setCurrentEditingWeekMonday(null);
-      setActiveTabDateKey(null);
+        // Initialize selectedDateForWeekEditing if it's undefined.
+        // This will trigger this effect again once the state is set.
+        setSelectedDateForWeekEditing(startOfDay(new Date()));
     }
-  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependencies
+  }, [selectedDateForWeekEditing, isClient]);
+
 
   useEffect(() => {
     if (activeTabDateKey) {
@@ -204,14 +198,6 @@ export default function TutorAvailabilityPage() {
     return addDays(currentEditingWeekMonday, index);
   }
   
-  const getDefaultActiveTabKey = (): string | undefined => {
-    if (!selectedDateForWeekEditing || !currentEditingWeekMonday) return undefined;
-    const dayIndexInWeek = (getDay(selectedDateForWeekEditing) + 6) % 7; // Monday = 0
-    const dateForTab = addDays(currentEditingWeekMonday, dayIndexInWeek);
-    return format(dateForTab, 'yyyy-MM-dd');
-  }
-
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -360,7 +346,7 @@ export default function TutorAvailabilityPage() {
               <Card className="flex-1 min-w-0">
                 <CardContent className="p-4">
                   <Tabs 
-                    value={activeTabDateKey || undefined} // Use value prop to control active tab
+                    value={activeTabDateKey || undefined}
                     onValueChange={setActiveTabDateKey}
                     className="w-full"
                   >
@@ -386,8 +372,8 @@ export default function TutorAvailabilityPage() {
                       if (!dateForTab) return null;
                       const dateKeyForTab = format(dateForTab, 'yyyy-MM-dd');
                       return (
-                          <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> {/* Standard mt-2 from ShadCN */}
-                              <div className="space-y-3 pt-4"> {/* Added pt-4 here */}
+                          <TabsContent key={dateKeyForTab} value={dateKeyForTab} className="mt-2"> 
+                              <div className="space-y-3 pt-5"> 
                                 <h4 className="font-semibold text-lg">
                                     Tijdslots voor {getDayLabelForTabIndex(index)} - {format(dateForTab, 'PPP', { locale: nl })}
                                 </h4>
