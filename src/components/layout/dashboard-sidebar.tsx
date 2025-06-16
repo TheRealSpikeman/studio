@@ -7,7 +7,7 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock } from 'lucide-react'; // Added CalendarClock
+import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,7 +30,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   // Leerling Items
-  { href: '/dashboard', label: 'Overzicht', icon: LayoutDashboard, leerlingOnly: true },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
   { href: '/quizzes', label: 'Quizzen', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, leerlingOnly: true },
   {
@@ -75,7 +75,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, leerlingOnly: true },
   
   // Ouder Items
-  { href: '/dashboard/ouder', label: 'Ouder Overzicht', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
+  { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
     href: '/dashboard/ouder/lessen/overzicht', 
@@ -101,7 +101,7 @@ const navItems: NavItem[] = [
 
 
   // Admin specific section
-  { href: '/dashboard/admin', label: 'Admin Overzicht', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
+  { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: UsersIconLucide, adminOnly: true },
   { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
   { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
