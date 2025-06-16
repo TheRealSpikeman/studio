@@ -216,15 +216,31 @@ function SidebarNavigationContent() {
                 ) || isItemDirectlyActive;
             }
 
-            let isParentHighlighted = isItemDirectlyActive;
-             if(isParentExpanded && item.children && visibleChildren.length > 0){
-                 const parentDefaultChildIsActive = visibleChildren.some(child => child.href === item.href && pathname.startsWith(child.href));
-                 if (isItemDirectlyActive || parentDefaultChildIsActive) {
-                    isParentHighlighted = true;
-                 } else {
-                    isParentHighlighted = !visibleChildren.some(child => child.href !== item.href && pathname.startsWith(child.href));
-                 }
+            // --- Start of modified highlight logic ---
+            let highlightThisParent = false;
+            if (isItemDirectlyActive) {
+                if (item.children && visibleChildren.length > 0) {
+                    // Check if a child with the *exact same href* is also directly active.
+                    // If so, the child should get the highlight, not this parent.
+                    const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
+                    if (!childWithIdenticalHrefIsActive) {
+                        highlightThisParent = true; // Parent's own distinct page is active
+                    }
+                } else {
+                    highlightThisParent = true; // Leaf node (no children), directly active
+                }
+            } else if (item.children && visibleChildren.length > 0 && isParentExpanded) {
+                // Parent is not directly active, but it's expanded.
+                // Highlight if pathname starts with parent's href AND no child is a more specific active match.
+                const noChildIsMoreSpecificOrExactMatch = !visibleChildren.some(child =>
+                    child.href === pathname || // No child is an exact match
+                    (child.href !== item.href && pathname.startsWith(child.href)) // No child (with a different href) is a more specific prefix match
+                );
+                if (pathname.startsWith(item.href) && item.href !== '/' && noChildIsMoreSpecificOrExactMatch) {
+                    highlightThisParent = true;
+                }
             }
+            // --- End of modified highlight logic ---
             
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -237,7 +253,7 @@ function SidebarNavigationContent() {
                     href={item.href}
                     className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
+                    highlightThisParent && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
                     )}
                 >
                     <item.icon className="h-5 w-5" />
