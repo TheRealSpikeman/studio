@@ -186,7 +186,7 @@ export default function BerichtencentrumPage() {
                   )}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
-                  <Avatar className="h-10 w-10 mr-3">
+                  <Avatar className="h-10 w-10 mr-4"> {/* Increased margin from mr-3 to mr-4 */}
                     <AvatarImage src={conv.tutorAvatar} alt={conv.tutorName} data-ai-hint="person avatar" />
                     <AvatarFallback>{getInitials(conv.tutorName)}</AvatarFallback>
                   </Avatar>
@@ -227,7 +227,7 @@ export default function BerichtencentrumPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-4 space-y-6 bg-muted/10"> {/* Increased space-y from 4 to 6 */}
+                <ScrollArea className="flex-1 p-4 space-y-8 bg-muted/10"> {/* Increased space-y from 6 to 8 */}
                   {selectedConversation.messages.map(msg => (
                     <div
                       key={msg.id}
