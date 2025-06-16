@@ -7,12 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { UserCircle, Cake, Save, ImageUp, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone } from 'lucide-react';
+import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, CreditCard, Settings, BookOpenCheck, Briefcase, School, Users as UsersLucide, GraduationCap, Contact, MapPin, Phone } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext';
 import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
@@ -22,7 +19,7 @@ const initialUserData = {
   email: "alex.tester@example.com",
   age: 16 as number | undefined,
   ageGroup: '15-18' as '12-14' | '15-18' | 'adult',
-  profileImageUrl: null as string | null,
+  profileImageUrl: null as string | null, // This will be managed by DashboardHeader for display/change
   subscription: {
     planName: "Coaching Maandelijks" as string | null,
     status: 'active' as 'none' | 'active' | 'pending_parental_approval' | 'cancelled' | 'past_due',
@@ -43,15 +40,6 @@ const initialUserData = {
 const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 
-const predefinedAvatars = [
-  { id: 'avatar1', src: 'https://placehold.co/200x200.png?text=A1', alt: 'Abstract geometrisch patroon', hint: 'abstract geometric' },
-  { id: 'avatar2', src: 'https://placehold.co/200x200.png?text=A2', alt: 'Natuur landschap', hint: 'nature landscape' },
-  { id: 'avatar3', src: 'https://placehold.co/200x200.png?text=A3', alt: 'Dieren portret', hint: 'animal portrait' },
-  { id: 'avatar4', src: 'https://placehold.co/200x200.png?text=A4', alt: 'Ruimte en sterrenstelsels', hint: 'space galaxy' },
-  { id: 'avatar5', src: 'https://placehold.co/200x200.png?text=A5', alt: 'Stadsgezicht skyline', hint: 'city skyline' },
-  { id: 'avatar6', src: 'https://placehold.co/200x200.png?text=A6', alt: 'Lekker eten', hint: 'food delicious' },
-];
-
 const LOCAL_STORAGE_HIDDEN_SUBJECTS_KEY = 'mindnavigator_hidden_subjects';
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 
@@ -64,11 +52,11 @@ export default function ProfilePage() {
   const [userAgeString, setUserAgeString] = useState<string>(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
   const [userAgeGroup, setUserAgeGroup] = useState<'12-14' | '15-18' | 'adult'>(initialUserData.ageGroup);
 
+  // profileImageUrl state remains here for saving, but UI for changing it is removed.
+  // The DashboardHeader will have its own state for the displayed avatar.
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(initialUserData.profileImageUrl);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -97,7 +85,7 @@ export default function ProfilePage() {
         setUserEmail(initialUserData.email);
         setUserAgeString(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
         setUserAgeGroup(initialUserData.ageGroup);
-        setProfileImageUrl(initialUserData.profileImageUrl);
+        setProfileImageUrl(initialUserData.profileImageUrl); // Reset to initial for consistency if needed
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -136,24 +124,6 @@ export default function ProfilePage() {
     }
   }, [userAgeString]);
 
-
-  const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImageUrl(reader.result as string);
-        setIsAvatarDialogOpen(false);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSelectAvatar = (avatarSrc: string) => {
-    setProfileImageUrl(avatarSrc);
-    setIsAvatarDialogOpen(false);
-  };
-
   const handleSaveProfile = () => {
     let ageToSave: number | undefined = undefined;
     if (userAgeString && userAgeString !== NO_AGE_SPECIFIED_VALUE) {
@@ -163,10 +133,13 @@ export default function ProfilePage() {
       }
     }
 
+    // Note: profileImageUrl from this component's state might not reflect
+    // a change made via the DashboardHeader if that was the last action.
+    // This is a limitation without shared state management.
     const profileDataToSave: any = {
       name: userName,
       email: userEmail,
-      profileImageUrl: profileImageUrl,
+      profileImageUrl: profileImageUrl, // Will save the PofilePage's version of profileImageUrl
       role: currentDashboardRole,
     };
 
@@ -202,7 +175,6 @@ export default function ProfilePage() {
     if (storedHiddenSubjects) {
       setHiddenHomeworkSubjects(JSON.parse(storedHiddenSubjects));
     }
-    // Reset all fields to initialUserData or previously saved data
     setUserName(initialUserData.name);
     setUserEmail(initialUserData.email);
     setUserAgeString(initialUserData.age?.toString() || NO_AGE_SPECIFIED_VALUE);
@@ -288,8 +260,6 @@ export default function ProfilePage() {
     );
   };
 
-  const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
-
   return (
     <div className="space-y-8">
       <section className="flex justify-between items-center">
@@ -316,98 +286,7 @@ export default function ProfilePage() {
         )}
       </section>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCircle className="h-6 w-6 text-primary" />
-            Profielfoto
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-          <Avatar className="h-24 w-24 border-2 border-primary/50 shadow-md">
-            <AvatarImage src={profileImageUrl || undefined} alt={userName || 'Profielfoto'} data-ai-hint="profile person" />
-            <AvatarFallback className="text-2xl bg-muted">
-              {userInitials}
-            </AvatarFallback>
-          </Avatar>
-          {isEditing && (
-            <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
-              <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <ImageUp className="mr-2 h-4 w-4" />
-                    Wijzig Foto/Avatar
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[625px]">
-                  <DialogHeader>
-                    <DialogTitle>Profielfoto Wijzigen</DialogTitle>
-                    <DialogDescription>
-                      Upload een nieuwe foto of kies een van onze avatars.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-6 py-4">
-                    <div className="space-y-2">
-                      <h4 className="font-semibold">Upload een foto</h4>
-                      <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full">
-                        <ImageUp className="mr-2 h-4 w-4" /> Blader door bestanden
-                      </Button>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        onChange={handleProfileImageUpload}
-                        className="hidden"
-                      />
-                    </div>
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Of</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                        <h4 className="font-semibold">Kies een avatar</h4>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                          {predefinedAvatars.map(avatar => (
-                            <button
-                              key={avatar.id}
-                              onClick={() => handleSelectAvatar(avatar.src)}
-                              className={`rounded-full overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
-                                ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
-                              title={avatar.alt}
-                            >
-                              <Image
-                                src={avatar.src}
-                                alt={avatar.alt}
-                                width={80}
-                                height={80}
-                                className="aspect-square object-cover"
-                                data-ai-hint={avatar.hint}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline">Annuleren</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              {profileImageUrl && (
-                <Button variant="destructive" onClick={() => setProfileImageUrl(null)}>
-                  Verwijder Foto
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Profielfoto Card is verwijderd */}
 
       <Card className="shadow-lg">
         <CardHeader>
