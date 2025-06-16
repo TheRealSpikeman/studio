@@ -10,12 +10,11 @@ import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, Schoo
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; // Renamed AlertTitle
 import type { User } from '@/types/user'; // Import the main User type
 
 interface Child extends Pick<User, 'id' | 'firstName' | 'lastName' | 'age' | 'ageGroup' | 'avatarUrl' | 'subscriptionStatus' | 'childEmail' | 'schoolType' | 'className' | 'helpSubjects'> {
-  // Specific Child fields if any, otherwise it's a subset of User
-  lastActivity?: string; // Example of a child-specific field not on User
+  lastActivity?: string; 
 }
 
 
@@ -26,7 +25,7 @@ const dummyChildren: Child[] = [
     firstName: 'Sofie',
     lastName: 'de Tester',
     age: 13,
-    ageGroup: '12-14 jaar',
+    ageGroup: '12-14', // Using new age logic, this would be derived or explicitly set.
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
@@ -40,7 +39,7 @@ const dummyChildren: Child[] = [
     firstName: 'Max',
     lastName: 'de Tester',
     age: 16,
-    ageGroup: '15-18 jaar',
+    ageGroup: '15-18', // Using new age logic
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'geen',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
@@ -53,7 +52,7 @@ const dummyChildren: Child[] = [
     firstName: 'Lisa',
     lastName: 'Voorbeeld',
     age: 12,
-    ageGroup: '12-14 jaar',
+    ageGroup: '12-14', // Using new age logic
     subscriptionStatus: 'verlopen',
     lastActivity: 'Coaching tip van gisteren bekeken',
     helpSubjects: [],
@@ -83,12 +82,15 @@ export default function BeheerKinderenPage() {
 
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
-    let derivedAgeGroup: '12-14 jaar' | '15-18 jaar' = '12-14 jaar'; // Default
+    let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14'; // Default
     if (childAge >= 12 && childAge <= 14) {
-        derivedAgeGroup = '12-14 jaar';
+        derivedAgeGroup = '12-14';
     } else if (childAge >= 15 && childAge <= 18) {
-        derivedAgeGroup = '15-18 jaar';
+        derivedAgeGroup = '15-18';
+    } else if (childAge >= 10) { // Adjusted for new age range 10-20
+        derivedAgeGroup = 'adult'; // Or a more specific group like '10-11', '19-20' if needed
     }
+
 
     const newChild: Child = {
       id: `child-${Date.now()}`,
@@ -107,7 +109,7 @@ export default function BeheerKinderenPage() {
     setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
-      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren.`,
+      description: `${data.firstName} ${data.lastName} is succesvol toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. U kunt nu een abonnement voor dit kind beheren.`,
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
   };
@@ -165,7 +167,7 @@ export default function BeheerKinderenPage() {
               </CardHeader>
               <CardContent className="flex-grow space-y-3">
                 <div>
-                  <span className="text-xs font-medium text-muted-foreground">Status: </span>
+                  <span className="text-xs font-medium text-muted-foreground">Status Abonnement: </span>
                   <Badge
                     variant={getSubscriptionBadgeVariant(child.subscriptionStatus)}
                     className={getSubscriptionBadgeClasses(child.subscriptionStatus)}
