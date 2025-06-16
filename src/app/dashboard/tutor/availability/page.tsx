@@ -75,10 +75,11 @@ export default function TutorAvailabilityPage() {
 
   useEffect(() => {
     setIsClient(true);
+    // Set initial selected date on client, if not already set
     if (!selectedDateForWeekEditing) {
         setSelectedDateForWeekEditing(startOfDay(new Date()));
     }
-  }, []);
+  }, [selectedDateForWeekEditing]); // Added selectedDateForWeekEditing to dependencies
 
   useEffect(() => {
     if (!isClient || !selectedDateForWeekEditing) return;
@@ -86,12 +87,10 @@ export default function TutorAvailabilityPage() {
     const mondayOfSelectedWeek = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
     setCurrentEditingWeekMonday(mondayOfSelectedWeek);
     
-    // If the activeTabDateKey is not set, or it's not in the newly selected week,
-    // set it to the currently selectedDateForWeekEditing.
-    if (!activeTabDateKey || !isDateInWeek(new Date(activeTabDateKey + 'T00:00:00'), mondayOfSelectedWeek)) {
-        setActiveTabDateKey(format(selectedDateForWeekEditing, 'yyyy-MM-dd'));
-    }
-  }, [selectedDateForWeekEditing, isClient, activeTabDateKey]); // Added activeTabDateKey to dependency
+    // Always set activeTabDateKey to the selectedDateForWeekEditing when it changes or week changes
+    setActiveTabDateKey(format(selectedDateForWeekEditing, 'yyyy-MM-dd'));
+
+  }, [selectedDateForWeekEditing, isClient]);
 
 
   useEffect(() => {
@@ -101,11 +100,6 @@ export default function TutorAvailabilityPage() {
       setSlotsForActiveTab([]);
     }
   }, [activeTabDateKey, specificDateAvailability]);
-
-  const isDateInWeek = (date: Date, weekStartMonday: Date): boolean => {
-    const weekEndSunday = endOfWeek(weekStartMonday, { weekStartsOn: 1 });
-    return date >= weekStartMonday && date <= weekEndSunday;
-  };
 
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
@@ -278,7 +272,7 @@ export default function TutorAvailabilityPage() {
             <CardDescription>Markeer specifieke datums waarop je de <span className="font-semibold">gehele dag niet</span> beschikbaar bent, ondanks je standaard wekelijkse schema. Deze instelling wordt overschreven als je voor diezelfde dag afwijkende tijden instelt in de sectie hieronder.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
+            <div className="flex flex-col md:flex-row gap-4 items-start">
                <div className="w-[280px] flex-shrink-0">
                 {!isClient ? (
                     <Skeleton className="h-[290px] w-full rounded-md border shadow-sm" />
@@ -348,15 +342,14 @@ export default function TutorAvailabilityPage() {
               )}
             </div>
             
-            {currentEditingWeekMonday && (
-              <Card className="flex-1 min-w-0">
+            <Card className="flex-1 min-w-0">
                 <CardContent className="p-4">
                   <Tabs 
                     value={activeTabDateKey || undefined}
                     onValueChange={setActiveTabDateKey}
                     className="w-full"
                   >
-                    <TabsList className="grid h-auto w-full grid-cols-3 gap-1 sm:grid-cols-4 md:grid-cols-7 mb-4 bg-muted p-1 rounded-lg">
+                    <TabsList className="grid h-auto w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1 mb-4 bg-muted p-1 rounded-lg">
                       {dayKeys.map((dayKey, index) => {
                         const dateForTab = getDateForTabIndex(index);
                         if (!dateForTab) return null;
@@ -365,9 +358,14 @@ export default function TutorAvailabilityPage() {
                           <TabsTrigger 
                             key={dateKeyForTab} 
                             value={dateKeyForTab} 
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                            className={cn(
+                                "h-auto whitespace-normal text-center", // Core for wrapping
+                                "text-xs p-1 leading-tight", // Smallest screens: tiny text, minimal padding, tight line height
+                                "sm:text-sm sm:p-1.5", // SM screens: slightly larger
+                                "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                              )}
                           >
-                            {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd MMM')})
+                            {getDayLabelForTabIndex(index).substring(0,2)} ({format(dateForTab, 'd')})
                           </TabsTrigger>
                         );
                       })}
@@ -418,7 +416,6 @@ export default function TutorAvailabilityPage() {
                   </Tabs>
                 </CardContent>
               </Card>
-            )}
           </div>
 
            <div className="mt-6 pt-6 border-t">
