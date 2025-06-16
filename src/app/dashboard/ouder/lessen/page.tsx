@@ -25,7 +25,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FormDescription } from '@/components/ui/form'; // Added FormDescription for better context
 
 // Dummy data for children - in a real app, this would come from a user's profile
 const dummyChildren = [
@@ -305,9 +304,9 @@ export default function OuderLessenPage() {
                             locale={nl}
                             disabled={{ before: selectedDate || new Date() }}
                         />
-                        <FormDescription className="text-xs">
+                        <p className="text-xs text-muted-foreground">
                             De les wordt wekelijks op dezelfde dag en tijd ingepland tot en met de hier geselecteerde datum.
-                        </FormDescription>
+                        </p>
                     </div>
                 )}
               </div>
@@ -411,3 +410,4 @@ export default function OuderLessenPage() {
     </div>
   );
 }
+
