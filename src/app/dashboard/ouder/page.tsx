@@ -23,14 +23,14 @@ const ouderDashboardItems: DashboardItem[] = [
   {
     id: 'kinderen',
     title: 'Mijn Kinderen',
-    description: 'Bekijk en beheer de profielen en voortgang van uw kinderen.',
+    description: 'Voeg uw kinderen toe en beheer hun profielen en voortgang.',
     icon: Contact,
     link: '/dashboard/ouder/kinderen', 
-    buttonText: 'Beheer Kinderen',
-    buttonVariant: 'outline',
+    buttonText: 'Kinderen Toevoegen & Beheren',
+    buttonVariant: 'default', // Changed to default for emphasis
     disabled: false,
     isLink: true, 
-    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-primary/20', // Emphasized color
   },
   {
     id: 'lessen',
@@ -63,7 +63,7 @@ const ouderDashboardItems: DashboardItem[] = [
     icon: Settings,
     link: '/dashboard/profile',
     buttonText: 'Ga naar Instellingen',
-    buttonVariant: 'default',
+    buttonVariant: 'outline', // Changed to outline, as "Mijn Kinderen" is now primary
     isLink: true,
     colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
   },
@@ -76,7 +76,7 @@ export default function OuderDashboardPage() {
       <section>
         <h1 className="text-3xl font-bold text-foreground">Ouder Dashboard</h1>
         <p className="text-muted-foreground">
-          Welkom! Beheer hier de profielen, lessen en abonnementen van uw kinderen.
+          Welkom! Start hier met het toevoegen van uw kinderen. Beheer vervolgens hun profielen, lessen en abonnementen.
         </p>
       </section>
 
