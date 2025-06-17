@@ -1,14 +1,28 @@
-/src/app/features/huiswerkondersteuning/page.tsx
+
+"use client";
+
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenCheck } from 'lucide-react';
 
+const allFeatures = [
+  { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten' },
+  { title: 'Coaching & Tools voor Groei', link: '/features/coaching-en-tools' },
+  { title: 'Huiswerkondersteuning', link: '/features/huiswerkondersteuning' },
+  { title: '1-op-1 Begeleiding (Optioneel)', link: '/features/een-op-een-begeleiding' },
+  { title: 'Ouder Dashboard & Communicatie', link: '/features/ouder-dashboard' },
+  { title: 'Veilig & Deskundig Platform', link: '/features/veilig-platform' },
+];
+
 export default function HuiswerkondersteuningPage() {
   const featureTitle = "Huiswerkondersteuning";
   const FeatureIcon = BookOpenCheck;
+  const currentLink = "/features/huiswerkondersteuning";
+
+  const otherFeatures = allFeatures.filter(feature => feature.link !== currentLink);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -28,11 +42,11 @@ export default function HuiswerkondersteuningPage() {
                 Effectieve tools en strategieën om studie-uitdagingen te overwinnen.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 text-lg leading-relaxed text-foreground/90">
+            <CardContent className="space-y-6 text-base leading-relaxed text-foreground/90">
               <p>
                 Schoolwerk kan soms een uitdaging zijn. MindNavigator biedt praktische huiswerkondersteuning die is afgestemd op de individuele leerstijl en behoeften van uw kind. Dit omvat:
               </p>
-              <ul className="list-disc list-inside space-y-2 pl-5">
+              <ul className="list-disc list-inside space-y-1.5 pl-5 text-base">
                 <li><strong>Planning Tools:</strong> Digitale planners en schema's om huiswerk, toetsen en projecten overzichtelijk te maken.</li>
                 <li><strong>Focus Technieken:</strong> Hulp bij het toepassen van methoden zoals de Pomodoro-techniek om concentratie te verbeteren.</li>
                 <li><strong>Studievaardigheden Tips:</strong> Strategieën voor effectief leren, samenvatten, en voorbereiden op toetsen.</li>
@@ -42,10 +56,17 @@ export default function HuiswerkondersteuningPage() {
               <p>
                 Ons doel is om uw kind te helpen zelfstandiger en met meer vertrouwen hun schoolwerk aan te pakken, en vaardigheden te ontwikkelen waar ze hun hele leven profijt van hebben.
               </p>
-              <div className="h-40 bg-muted rounded-md flex items-center justify-center">
-                <p className="text-muted-foreground italic">Voorbeelden van de tools komen hier...</p>
-              </div>
             </CardContent>
+            <CardFooter className="flex-col items-start pt-6 mt-4 border-t">
+              <h4 className="text-md font-semibold text-foreground mb-3">Ontdek ook onze andere features:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 w-full">
+                {otherFeatures.map(feature => (
+                  <Button key={feature.link} variant="link" asChild className="p-0 h-auto justify-start text-left text-sm">
+                    <Link href={feature.link}>{feature.title}</Link>
+                  </Button>
+                ))}
+              </div>
+            </CardFooter>
           </Card>
         </div>
       </main>
