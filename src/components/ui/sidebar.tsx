@@ -24,7 +24,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3.5rem"
+const SIDEBAR_WIDTH_ICON = "3.5rem" // Adjusted for more horizontal space
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -406,6 +406,7 @@ const SidebarContent = React.forwardRef<
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1", // Added pt-1 for collapsed icon state
         className
       )}
       {...props}
@@ -495,7 +496,7 @@ const SidebarMenu = React.forwardRef<
     data-sidebar="menu"
     className={cn(
       "flex w-full min-w-0 flex-col gap-1.5",
-      "group-data-[state=collapsed]:group-data-[collapsible=icon]:gap-2.5", // Override for collapsed icon mode
+      "group-data-[state=collapsed]:group-data-[collapsible=icon]:gap-2.5", 
       className
     )}
     {...props}
@@ -512,7 +513,7 @@ const SidebarMenuItem = React.forwardRef<
     data-sidebar="menu-item"
     className={cn(
       "group/menu-item relative", 
-      "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center",
+      "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center", // Centers the button within the li when collapsed
       className
     )}
     {...props}
@@ -770,3 +771,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
