@@ -312,7 +312,10 @@ function SidebarNavigationContent() {
                     <SidebarMenuBadge title="Nieuwe berichten"></SidebarMenuBadge>
                   )}
                    {(item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction) && (
-                    <SidebarMenuBadge title="Facturatie actie vereist" className="bg-destructive text-destructive-foreground"></SidebarMenuBadge>
+                    <SidebarMenuBadge
+                        title="Facturatie actie vereist"
+                        className="h-2.5 w-2.5 p-0 rounded-full bg-destructive text-destructive"
+                    />
                   )}
                 </SidebarMenuItem>
 
