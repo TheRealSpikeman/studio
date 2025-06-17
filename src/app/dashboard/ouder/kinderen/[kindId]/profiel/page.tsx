@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image'; // Import Image component
+import { FormDescription } from '@/components/ui/form'; // Added FormDescription import
 
 interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
@@ -426,7 +427,7 @@ export default function KindProfielPage() {
             )}
             </CardContent>
           </Card>
-          <Card className="shadow-lg">
+           <Card className="shadow-lg">
             <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
             <CardContent className="text-sm">
                 {isEditing && editableChildData ? (
@@ -464,9 +465,11 @@ export default function KindProfielPage() {
                             </div>
                             {editableChildData.hulpvraagType.includes('tutor') && (
                                 <>
+                                    <FormDescription className="text-xs !mt-0 !mb-3">Help ons de beste tutor voor {childData.name} te vinden. Selecteer hieronder de vakken en leerdoelen.</FormDescription>
                                     <div>
                                         <Label className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</Label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <FormDescription className="text-xs !mt-0 !mb-2">Selecteer de vakken waarvoor ondersteuning gewenst is (max. 3-4 aanbevolen voor focus).</FormDescription>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                             {allHomeworkSubjects.map(subject => (
                                                 <div key={subject.id} className="flex items-center space-x-2">
                                                     <Checkbox id={`subject-${subject.id}`} checked={editableChildData.helpSubjects.includes(subject.id)} onCheckedChange={(checked) => handleCheckboxChange('helpSubjects', subject.id, !!checked)} />
@@ -477,7 +480,8 @@ export default function KindProfielPage() {
                                     </div>
                                     <div className="mt-4">
                                         <Label className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</Label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <FormDescription className="text-xs !mt-0 !mb-2">Kies de 2-3 belangrijkste leerdoelen of aandachtspunten.</FormDescription>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             {predefinedLeerdoelen.map(doel => (
                                                 <div key={doel.id} className="flex items-center space-x-2">
                                                     <Checkbox id={`leerdoel-${doel.id}`} checked={editableChildData.selectedLeerdoelen.includes(doel.label)} onCheckedChange={(checked) => handleCheckboxChange('selectedLeerdoelen', doel.label, !!checked)} />
@@ -537,9 +541,11 @@ export default function KindProfielPage() {
                             </div>
                             {editableChildData.hulpvraagType.includes('coach') && (
                                 <>
+                                    <FormDescription className="text-xs !mt-0 !mb-3">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData.name}.</FormDescription>
                                     <div>
                                         <Label className="font-semibold text-foreground/90 mb-1 block">Voorkeuren Coach</Label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <FormDescription className="text-xs !mt-0 !mb-2">Selecteer de belangrijkste voorkeuren voor een coach.</FormDescription>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             {predefinedTutorPreferences.map(pref => (
                                                 <div key={pref.id} className="flex items-center space-x-2">
                                                     <Checkbox id={`coachpref-${pref.id}`} checked={editableChildData.selectedTutorPreferences.includes(pref.label)} onCheckedChange={(checked) => handleCheckboxChange('selectedTutorPreferences', pref.label, !!checked)} />
