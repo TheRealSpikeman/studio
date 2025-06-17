@@ -1,7 +1,7 @@
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare } from 'lucide-react';
+import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare, Link2, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -39,15 +39,37 @@ const ouderDashboardItems: DashboardItem[] = [
     isLink: true,
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100', 
   },
+   {
+    id: 'zoek-professional',
+    title: 'Zoek Begeleiding (Tutor/Coach)',
+    description: 'Vind en koppel gekwalificeerde tutors of coaches voor 1-op-1 ondersteuning van uw kind.',
+    icon: Link2,
+    link: '/dashboard/ouder/zoek-professional',
+    buttonText: 'Zoek een Tutor of Coach',
+    buttonVariant: 'outline',
+    isLink: true,
+    colorClass: 'bg-indigo-50 border-indigo-200 hover:shadow-indigo-100',
+  },
+  {
+    id: 'gekoppelde-professionals',
+    title: 'Mijn Begeleiders (Tutors/Coaches)',
+    description: 'Overzicht van alle aan uw kinderen gekoppelde tutors en coaches. Plan hier ook lessen.',
+    icon: UserCheck,
+    link: '/dashboard/ouder/gekoppelde-professionals',
+    buttonText: 'Bekijk Gekoppelde Begeleiders',
+    buttonVariant: 'outline',
+    isLink: true,
+    colorClass: 'bg-cyan-50 border-cyan-200 hover:shadow-cyan-100',
+  },
   {
     id: 'privacy',
     title: 'Privacy & Toestemming',
     description: 'Beheer hier de deelinstellingen van uw kind en lees tips over respectvolle communicatie en het waarborgen van autonomie.',
     icon: ShieldCheck,
-    link: '/dashboard/ouder/privacy-instellingen', // Updated link
-    buttonText: 'Beheer Privacy & Delen', // Updated button text
+    link: '/dashboard/ouder/privacy-instellingen', 
+    buttonText: 'Beheer Privacy & Delen', 
     buttonVariant: 'outline',
-    disabled: false, // Enabled
+    disabled: false, 
     isLink: true,
     colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
   },
@@ -177,3 +199,4 @@ export default function OuderDashboardPage() {
     </div>
   );
 }
+

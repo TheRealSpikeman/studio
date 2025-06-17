@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/kinderen/page.tsx
 "use client";
 
@@ -29,9 +28,9 @@ interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   lastActivity?: string;
   leerdoelen?: string;
-  voorkeurTutor?: string;
-  deelResultatenMetTutor?: boolean;
-  linkedTutorIds?: string[];
+  voorkeurTutor?: string; // Blijft voor nu 'voorkeurTutor' maar kan later generieker
+  deelResultatenMetTutor?: boolean; // Blijft voor nu 'deelResultatenMetTutor'
+  linkedTutorIds?: string[]; // Wordt conceptueel 'linkedProfessionalIds'
 }
 
 
@@ -162,7 +161,7 @@ export default function BeheerKinderenPage() {
     setIsAddingChildMode(false);
     toast({
       title: "Kind Toegevoegd & Uitgenodigd",
-      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. Zodra het account actief is, kunt u hier de voortgang volgen en een tutor koppelen.`,
+      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail} om het account te activeren. Zodra het account actief is, kunt u hier de voortgang volgen en een begeleider koppelen.`,
       duration: 8000,
     });
     console.log("Simulating invitation email to:", data.childEmail, "with data:", newChild);
@@ -201,7 +200,7 @@ export default function BeheerKinderenPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Mijn Kinderen</h1>
           <p className="text-muted-foreground">
-            Beheer de profielen en voortgang van uw kinderen. Na activatie door uw kind kunt u het profiel eventueel anoniem aanbieden aan tutors.
+            Beheer de profielen en voortgang van uw kinderen. Na activatie door uw kind kunt u het profiel eventueel anoniem aanbieden aan begeleiders.
           </p>
         </div>
         {!isAddingChildMode && (
@@ -299,8 +298,8 @@ export default function BeheerKinderenPage() {
                     disabled={child.subscriptionStatus === 'uitgenodigd'}
                     asChild
                 >
-                  <Link href={`/dashboard/ouder/tutor-koppelen?kindId=${child.id}`}>
-                    <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek Tutor
+                  <Link href={`/dashboard/ouder/zoek-professional?kindId=${child.id}`}>
+                    <Link2 className="mr-2 h-3.5 w-3.5" /> Zoek Begeleiding
                   </Link>
                 </Button>
                  <Button
@@ -354,3 +353,4 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
+

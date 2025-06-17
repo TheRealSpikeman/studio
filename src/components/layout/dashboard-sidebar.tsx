@@ -121,8 +121,8 @@ const navItems: NavItem[] = [
         { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
     ]
   },
-  { href: '/dashboard/ouder/tutor-koppelen', label: 'Tutor Zoeken', icon: Link2, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/gekoppelde-tutors', label: 'Gekoppelde Tutors', icon: UserCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/zoek-professional', label: 'Zoek Begeleiding', icon: Link2, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/gekoppelde-professionals', label: 'Mijn Begeleiders', icon: UserCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
@@ -367,3 +367,4 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
+

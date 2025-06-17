@@ -1,5 +1,4 @@
-
-// src/app/dashboard/ouder/tutor-koppelen/page.tsx
+// src/app/dashboard/ouder/zoek-professional/page.tsx (Voorheen tutor-koppelen)
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
@@ -11,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, User, Link2, Search, Filter, Star, BookOpen, Info, UserCheck, MessageSquare, FileText, GraduationCap } from 'lucide-react';
+import { ArrowLeft, User, Link2, Search, Filter, Star, BookOpen, Info, UserCheck, MessageSquare, FileText, GraduationCap, Users as UsersIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
@@ -34,17 +33,18 @@ interface Review {
   date: string; // ISO Date string
 }
 
-interface Tutor {
+interface Professional {
   id: string;
   name: string;
+  type: 'tutor' | 'coach'; // Nieuw veld
   avatarUrl?: string;
-  specializations: string[]; 
+  specializations: string[]; // Kan vakken zijn voor tutors, of expertisegebieden voor coaches
   experienceYears: number;
-  hourlyRate: number;
+  hourlyRate?: number; // Coaches hebben mogelijk andere tariefstructuren
   shortBio: string;
   fullBio: string;
   education?: string;
-  teachingPhilosophy?: string;
+  teachingPhilosophy?: string; // Of coaching aanpak
   cvUrl?: string; 
   rating: number;
   availableSlots?: string[]; 
@@ -52,9 +52,9 @@ interface Tutor {
   reviews?: Review[];
 }
 
-const dummyTutors: Tutor[] = [
+const dummyProfessionalsData: Professional[] = [
   { 
-    id: 'tutor1', name: 'Mevr. A. Jansen', avatarUrl: 'https://picsum.photos/seed/tutorJansen/80/80', 
+    id: 'tutor1', name: 'Mevr. A. Jansen', type: 'tutor', avatarUrl: 'https://picsum.photos/seed/tutorJansen/80/80', 
     specializations: ['wiskunde', 'natuurkunde'], experienceYears: 5, hourlyRate: 35, 
     shortBio: 'Geduldige wiskundedocent met focus op examenvoorbereiding.', 
     fullBio: 'Als ervaren wiskunde- en natuurkundedocent help ik leerlingen al meer dan 5 jaar om complexe concepten te begrijpen en zelfvertrouwen op te bouwen. Ik ben gespecialiseerd in examenvoorbereiding (VMBO-T t/m VWO) en werk graag met leerlingen die extra structuur of een andere uitleg nodig hebben. Mijn aanpak is geduldig, positief en gericht op het ontdekken van de eigen kracht van de leerling.',
@@ -68,8 +68,9 @@ const dummyTutors: Tutor[] = [
         { reviewerName: "Anoniem (Leerling, 17jr)", rating: 4, comment: "Goede uitleg, soms wel wat snel. Maar ze is geduldig als je het nog niet snapt.", date: new Date(Date.now() - 25 * 86400000).toISOString() },
     ]
   },
+  // ... (andere dummy professionals, zorg dat ze een 'type' veld hebben)
   { 
-    id: 'tutor2', name: 'Dhr. B. de Vries', avatarUrl: 'https://picsum.photos/seed/tutorDeVries/80/80', 
+    id: 'tutor2', name: 'Dhr. B. de Vries', type: 'tutor', avatarUrl: 'https://picsum.photos/seed/tutorDeVries/80/80', 
     specializations: ['nederlands', 'engels'], experienceYears: 8, hourlyRate: 40, 
     shortBio: 'Ervaren taaldocent, helpt met grammatica, spelling en schrijfvaardigheid.', 
     fullBio: 'Met 8 jaar ervaring als docent Nederlands en Engels (eerstegraads bevoegdheid) ondersteun ik leerlingen bij alle aspecten van taal: van grammatica en spelling tot tekstbegrip en schrijfvaardigheid. Ik heb ervaring met diverse leerstijlen en niveaus.',
@@ -81,43 +82,21 @@ const dummyTutors: Tutor[] = [
         { reviewerName: "Familie El Idrissi", rating: 5, comment: "Dhr. de Vries is een topper! Onze dochter haar cijfers voor Engels zijn flink omhoog gegaan.", date: new Date(Date.now() - 5 * 86400000).toISOString() },
     ]
   },
-  { 
-    id: 'tutor3', name: 'Dr. C. El Amrani', avatarUrl: 'https://picsum.photos/seed/tutorElAmrani/80/80', 
-    specializations: ['biologie', 'scheikunde'], experienceYears: 3, hourlyRate: 38, 
-    shortBio: 'Bioloog met passie voor exacte vakken en wetenschappelijk denken.',
-    fullBio: 'Als gepromoveerd bioloog deel ik mijn passie voor de exacte vakken graag met leerlingen. Ik bied ondersteuning voor biologie en scheikunde op alle middelbare schoolniveaus, met een focus op het ontwikkelen van analytisch en wetenschappelijk denken.',
-    rating: 4.6, reviewsCount: 15, 
-    availableSlots: ['Vr 13:00-16:00'] 
-  },
-  { 
-    id: 'tutor4', name: 'Mw. D. Pieters', avatarUrl: 'https://picsum.photos/seed/tutorPieters/80/80', 
-    specializations: ['geschiedenis', 'aardrijkskunde', 'maatschappijleer'], experienceYears: 6, hourlyRate: 32, 
-    shortBio: 'Enthousiaste docent die context en overzicht biedt.',
-    fullBio: 'Geschiedenis en aardrijkskunde zijn meer dan feiten; het gaat om het begrijpen van de wereld om ons heen. Ik help leerlingen verbanden te zien en kritisch te denken over maatschappelijke thema\'s.',
-    rating: 4.7, reviewsCount: 19 
-  },
-  { 
-    id: 'tutor5', name: 'Dhr. E. Willems', avatarUrl: 'https://picsum.photos/seed/tutorWillems/80/80', 
-    specializations: ['wiskunde', 'engels'], experienceYears: 2, hourlyRate: 30, 
-    shortBio: 'Jonge, energieke tutor, goed met basis wiskunde en Engels.',
-    fullBio: 'Recent afgestudeerd en vol frisse energie om leerlingen te helpen met de basis van wiskunde en Engels. Ik sluit goed aan bij de belevingswereld van jongeren.',
-    rating: 4.5, reviewsCount: 10 
-  },
 ];
 
-const LOCAL_STORAGE_LINKED_TUTORS_KEY = 'linkedTutorsByChild'; // Key voor localStorage
+const LOCAL_STORAGE_LINKED_PROFESSIONALS_KEY = 'linkedProfessionalsByChild';
 
-function KoppelTutorContent() {
+function ZoekProfessionalContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
   
   const initialKindId = searchParams.get('kindId');
   const [selectedChildId, setSelectedChildId] = useState<string | undefined>(initialKindId || undefined);
-  const [filteredTutors, setFilteredTutors] = useState<Tutor[]>(dummyTutors);
-  const [selectedTutorForModal, setSelectedTutorForModal] = useState<Tutor | null>(null);
-  const [isTutorDetailModalOpen, setIsTutorDetailModalOpen] = useState(false);
-  const [linkedTutorsMap, setLinkedTutorsMap] = useState<Record<string, string[]>>({}); // kindId: [tutorId1, tutorId2]
+  const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>(dummyProfessionalsData);
+  const [selectedProfessionalForModal, setSelectedProfessionalForModal] = useState<Professional | null>(null);
+  const [isProfessionalDetailModalOpen, setIsProfessionalDetailModalOpen] = useState(false);
+  const [linkedProfessionalsMap, setLinkedProfessionalsMap] = useState<Record<string, string[]>>({});
 
   const [vakFilter, setVakFilter] = useState<string>('all');
   const [ervaringFilter, setErvaringFilter] = useState<string>('all');
@@ -125,15 +104,14 @@ function KoppelTutorContent() {
   const activeChildren = dummyChildren.filter(c => c.active);
   const selectedChildDetails = selectedChildId ? dummyChildren.find(c => c.id === selectedChildId) : null;
 
-  // Load linked tutors from localStorage
   useEffect(() => {
     try {
-      const storedMap = localStorage.getItem(LOCAL_STORAGE_LINKED_TUTORS_KEY);
+      const storedMap = localStorage.getItem(LOCAL_STORAGE_LINKED_PROFESSIONALS_KEY);
       if (storedMap) {
-        setLinkedTutorsMap(JSON.parse(storedMap));
+        setLinkedProfessionalsMap(JSON.parse(storedMap));
       }
     } catch (error) {
-      console.error("Error loading linked tutors map from localStorage:", error);
+      console.error("Error loading linked professionals map from localStorage:", error);
     }
   }, []);
 
@@ -145,68 +123,68 @@ function KoppelTutorContent() {
   }, [initialKindId, activeChildren, toast]);
 
   useEffect(() => {
-    let tutorsSource = dummyTutors;
-    let tempFilteredTutors = tutorsSource;
+    let professionalsSource = dummyProfessionalsData.filter(p => p.type === 'tutor'); // Tijdelijk: toon alleen tutors
+    let tempFilteredProfessionals = professionalsSource;
 
     if (vakFilter === 'all' && selectedChildDetails && selectedChildDetails.helpSubjects && selectedChildDetails.helpSubjects.length > 0) {
-      tempFilteredTutors = tempFilteredTutors.filter(tutor =>
-        selectedChildDetails.helpSubjects!.some(childSub => tutor.specializations.includes(childSub))
+      tempFilteredProfessionals = tempFilteredProfessionals.filter(prof =>
+        selectedChildDetails.helpSubjects!.some(childSub => prof.specializations.includes(childSub))
       );
     } else if (vakFilter !== 'all') {
-      tempFilteredTutors = tempFilteredTutors.filter(t => t.specializations.includes(vakFilter));
+      tempFilteredProfessionals = tempFilteredProfessionals.filter(p => p.specializations.includes(vakFilter));
     }
 
     if (ervaringFilter !== 'all') {
         const [minExp, maxExpStr] = ervaringFilter.split('-');
         const min = parseInt(minExp);
         const max = maxExpStr === '+' ? Infinity : parseInt(maxExpStr);
-        tempFilteredTutors = tempFilteredTutors.filter(t => t.experienceYears >= min && (maxExpStr === '+' || t.experienceYears <= max));
+        tempFilteredProfessionals = tempFilteredProfessionals.filter(p => p.experienceYears >= min && (maxExpStr === '+' || p.experienceYears <= max));
     }
-    setFilteredTutors(tempFilteredTutors);
+    setFilteredProfessionals(tempFilteredProfessionals);
   }, [vakFilter, ervaringFilter, selectedChildDetails]);
   
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
-  const handleKoppelTutor = (tutorToLink: Tutor) => {
+  const handleKoppelProfessional = (professionalToLink: Professional) => {
     if (!selectedChildId) {
-        toast({ title: "Selecteer een kind", description: "Kies eerst een kind om een tutor aan te koppelen.", variant: "destructive"});
+        toast({ title: "Selecteer een kind", description: "Kies eerst een kind om een professional aan te koppelen.", variant: "destructive"});
         return;
     }
     const child = dummyChildren.find(c => c.id === selectedChildId);
     
-    setLinkedTutorsMap(prevMap => {
+    setLinkedProfessionalsMap(prevMap => {
       const currentLinkedForChild = prevMap[selectedChildId] || [];
-      if (currentLinkedForChild.includes(tutorToLink.id)) {
-        toast({ title: "Al Gekoppeld", description: `${tutorToLink.name} is al gekoppeld aan ${child?.name}.`, variant: "default" });
-        return prevMap; // No change
+      if (currentLinkedForChild.includes(professionalToLink.id)) {
+        toast({ title: "Al Gekoppeld", description: `${professionalToLink.name} is al gekoppeld aan ${child?.name}.`, variant: "default" });
+        return prevMap;
       }
       const updatedMap = {
         ...prevMap,
-        [selectedChildId]: [...currentLinkedForChild, tutorToLink.id],
+        [selectedChildId]: [...currentLinkedForChild, professionalToLink.id],
       };
-      localStorage.setItem(LOCAL_STORAGE_LINKED_TUTORS_KEY, JSON.stringify(updatedMap));
+      localStorage.setItem(LOCAL_STORAGE_LINKED_PROFESSIONALS_KEY, JSON.stringify(updatedMap));
       toast({
-        title: "Tutor Gekoppeld!",
-        description: `${tutorToLink.name} is succesvol gekoppeld aan ${child?.name}. U kunt nu lessen plannen via "Gekoppelde Tutors" of "Les Plannen".`,
+        title: `${professionalToLink.type === 'tutor' ? 'Tutor' : 'Coach'} Gekoppeld!`,
+        description: `${professionalToLink.name} is succesvol gekoppeld aan ${child?.name}. U kunt nu lessen/sessies plannen.`,
         action: (
           <Button variant="link" size="sm" asChild>
-            <Link href="/dashboard/ouder/gekoppelde-tutors">Bekijk Gekoppelde Tutors</Link>
+            <Link href="/dashboard/ouder/gekoppelde-professionals">Bekijk Gekoppelde Begeleiders</Link>
           </Button>
         )
       });
       return updatedMap;
     });
-    setIsTutorDetailModalOpen(false);
+    setIsProfessionalDetailModalOpen(false);
   };
 
-  const handleViewProfile = (tutor: Tutor) => {
-    setSelectedTutorForModal(tutor);
-    setIsTutorDetailModalOpen(true);
+  const handleViewProfile = (professional: Professional) => {
+    setSelectedProfessionalForModal(professional);
+    setIsProfessionalDetailModalOpen(true);
   };
 
-  const isTutorLinkedToSelectedChild = (tutorId: string): boolean => {
+  const isProfessionalLinkedToSelectedChild = (profId: string): boolean => {
     if (!selectedChildId) return false;
-    return !!(linkedTutorsMap[selectedChildId] && linkedTutorsMap[selectedChildId].includes(tutorId));
+    return !!(linkedProfessionalsMap[selectedChildId] && linkedProfessionalsMap[selectedChildId].includes(profId));
   };
   
   return (
@@ -215,10 +193,10 @@ function KoppelTutorContent() {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Link2 className="h-8 w-8 text-primary" />
-            Tutor Zoeken & Koppelen
+            Zoek Begeleiding (Tutor/Coach)
           </h1>
           <p className="text-muted-foreground">
-            Selecteer een kind en vind een geschikte tutor.
+            Selecteer een kind en vind een geschikte tutor of coach.
           </p>
         </div>
         <Button variant="outline" asChild>
@@ -234,7 +212,7 @@ function KoppelTutorContent() {
         </CardHeader>
         <CardContent>
           <div className="max-w-md">
-            <Label htmlFor="select-kind">Voor welk kind zoek je een tutor?</Label>
+            <Label htmlFor="select-kind">Voor welk kind zoek je begeleiding?</Label>
             <Select value={selectedChildId} onValueChange={setSelectedChildId}>
               <SelectTrigger id="select-kind" className="mt-1">
                 <SelectValue placeholder="Kies een kind" />
@@ -264,12 +242,12 @@ function KoppelTutorContent() {
                     {selectedChildDetails.name} - Voorkeuren & Hulpvragen
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                    <strong>Hulp nodig bij:</strong> {selectedChildDetails.helpSubjects?.join(', ') || 'N.v.t.'} <br/>
+                    <strong>Hulp nodig bij (vakken):</strong> {selectedChildDetails.helpSubjects?.map(sId => allHomeworkSubjects.find(s => s.id === sId)?.name || sId).join(', ') || 'N.v.t.'} <br/>
                     <strong>Leerdoelen:</strong> {selectedChildDetails.leerdoelen || 'N.v.t.'} <br/>
-                    <strong>Tutor voorkeur:</strong> {selectedChildDetails.voorkeurTutor || 'N.v.t.'}
+                    <strong>Tutor/Coach voorkeur:</strong> {selectedChildDetails.voorkeurTutor || 'N.v.t.'}
                 </p>
                 <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1" asChild>
-                  <Link href={`/dashboard/ouder/kinderen`}>Bewerk profiel & voorkeuren</Link>
+                  <Link href={`/dashboard/ouder/kinderen/${selectedChildDetails.id}/profiel`}>Bewerk profiel & voorkeuren</Link>
                 </Button>
             </Card>
           )}
@@ -280,13 +258,14 @@ function KoppelTutorContent() {
         <section className="mt-8 space-y-6">
             <div className="flex items-center gap-2">
                 <Search className="h-5 w-5 text-primary"/>
-                <h2 className="text-xl font-semibold text-foreground">Vind Beschikbare Tutors</h2>
+                <h2 className="text-xl font-semibold text-foreground">Vind Beschikbare Professionals</h2>
             </div>
-            <p className="text-muted-foreground">Filter op vak en ervaring om de beste match te vinden. De lijst toont automatisch tutors die passen bij de "Hulp nodig bij" vakken van {selectedChildDetails?.name || 'het geselecteerde kind'}, tenzij u een specifiek vak filtert.</p>
+            {/* Hier komt later de Tutor/Coach selector */}
+            <p className="text-muted-foreground">Filter op vak en ervaring om de beste match te vinden. (Momenteel worden alleen tutors getoond).</p>
           
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="vak-filter">Filter op Specifiek Vak</Label>
+                <Label htmlFor="vak-filter">Filter op Specifiek Vak (voor Tutors)</Label>
                 <Select value={vakFilter} onValueChange={setVakFilter}>
                     <SelectTrigger id="vak-filter"><SelectValue placeholder="Alle passende vakken"/></SelectTrigger>
                     <SelectContent>
@@ -309,37 +288,38 @@ function KoppelTutorContent() {
               </div>
             </div>
 
-            {filteredTutors.length > 0 ? (
+            {filteredProfessionals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-                {filteredTutors.map(tutor => (
-                  <Card key={tutor.id} className={`flex flex-col ${isTutorLinkedToSelectedChild(tutor.id) ? 'border-2 border-green-500 ring-2 ring-green-500/30' : (selectedTutorForModal?.id === tutor.id ? 'border-2 border-primary ring-2 ring-primary/30' : 'hover:shadow-md')}`}>
+                {filteredProfessionals.map(prof => (
+                  <Card key={prof.id} className={`flex flex-col ${isProfessionalLinkedToSelectedChild(prof.id) ? 'border-2 border-green-500 ring-2 ring-green-500/30' : (selectedProfessionalForModal?.id === prof.id ? 'border-2 border-primary ring-2 ring-primary/30' : 'hover:shadow-md')}`}>
                     <CardHeader className="items-center text-center">
                         <Avatar className="h-20 w-20 mb-2">
-                            <AvatarImage src={tutor.avatarUrl} alt={tutor.name} data-ai-hint="tutor person" />
-                            <AvatarFallback>{getInitials(tutor.name)}</AvatarFallback>
+                            <AvatarImage src={prof.avatarUrl} alt={prof.name} data-ai-hint="professional person" />
+                            <AvatarFallback>{getInitials(prof.name)}</AvatarFallback>
                         </Avatar>
-                        <CardTitle className="text-lg">{tutor.name}</CardTitle>
-                        <div className="flex items-center gap-0.5 text-yellow-500">
-                            {Array.from({length: Math.floor(tutor.rating)}).map((_, i) => <Star key={`fs-${i}`} className="h-4 w-4 fill-current"/>)}
-                            {tutor.rating % 1 !== 0 && <Star key="hs" className="h-4 w-4 fill-current opacity-50"/>}
-                            {Array.from({length: 5 - Math.ceil(tutor.rating)}).map((_, i) => <Star key={`es-${i}`} className="h-4 w-4 text-muted-foreground/30 fill-current"/>)}
-                            <span className="text-xs text-muted-foreground ml-1">({tutor.reviewsCount || 0})</span>
+                        <CardTitle className="text-lg">{prof.name}</CardTitle>
+                        <Badge variant={prof.type === 'tutor' ? 'secondary' : 'outline'} className="text-xs">{prof.type === 'tutor' ? 'Tutor' : 'Coach'}</Badge>
+                        <div className="flex items-center gap-0.5 text-yellow-500 mt-1">
+                            {Array.from({length: Math.floor(prof.rating)}).map((_, i) => <Star key={`fs-${i}`} className="h-4 w-4 fill-current"/>)}
+                            {prof.rating % 1 !== 0 && <Star key="hs" className="h-4 w-4 fill-current opacity-50"/>}
+                            {Array.from({length: 5 - Math.ceil(prof.rating)}).map((_, i) => <Star key={`es-${i}`} className="h-4 w-4 text-muted-foreground/30 fill-current"/>)}
+                            <span className="text-xs text-muted-foreground ml-1">({prof.reviewsCount || 0})</span>
                         </div>
                     </CardHeader>
                     <CardContent className="text-sm text-muted-foreground text-center space-y-1 flex-grow">
-                      <p><strong>Specialisaties:</strong> {tutor.specializations.map(id => allHomeworkSubjects.find(s=>s.id===id)?.name || id).join(', ')}</p>
-                      <p><strong>Ervaring:</strong> {tutor.experienceYears} jaar</p>
-                      <p><strong>Tarief:</strong> €{tutor.hourlyRate}/uur</p>
-                      <p className="text-xs pt-1 italic">"{tutor.shortBio}"</p>
-                      {tutor.availableSlots && tutor.availableSlots.length > 0 && (
+                      <p><strong>{prof.type === 'tutor' ? 'Vakken:' : 'Expertise:'}</strong> {prof.specializations.map(id => prof.type === 'tutor' ? (allHomeworkSubjects.find(s=>s.id===id)?.name || id) : id).join(', ')}</p>
+                      <p><strong>Ervaring:</strong> {prof.experienceYears} jaar</p>
+                      {prof.type === 'tutor' && prof.hourlyRate && <p><strong>Tarief:</strong> €{prof.hourlyRate}/uur</p>}
+                      <p className="text-xs pt-1 italic">"{prof.shortBio}"</p>
+                      {prof.availableSlots && prof.availableSlots.length > 0 && (
                         <div className="pt-2">
                             <p className="text-xs font-medium">Direct beschikbaar (voorbeeld):</p>
-                            {tutor.availableSlots.slice(0,2).map(slot => <Badge key={slot} variant="outline" className="mr-1 mt-1 text-xs">{slot}</Badge>)}
+                            {prof.availableSlots.slice(0,2).map(slot => <Badge key={slot} variant="outline" className="mr-1 mt-1 text-xs">{slot}</Badge>)}
                         </div>
                       )}
                     </CardContent>
                     <CardFooter className="flex-col gap-2 pt-3">
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleViewProfile(tutor)}>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleViewProfile(prof)}>
                             <Info className="mr-2 h-4 w-4"/>Bekijk Profiel & Reviews
                         </Button>
                         <Button variant="outline" size="sm" className="w-full" disabled>
@@ -348,18 +328,18 @@ function KoppelTutorContent() {
                         <Button 
                             size="sm" 
                             className="w-full" 
-                            onClick={() => handleKoppelTutor(tutor)}
-                            disabled={isTutorLinkedToSelectedChild(tutor.id)}
+                            onClick={() => handleKoppelProfessional(prof)}
+                            disabled={isProfessionalLinkedToSelectedChild(prof.id)}
                         >
                             <UserCheck className="mr-2 h-4 w-4"/> 
-                            {isTutorLinkedToSelectedChild(tutor.id) ? 'Reeds Gekoppeld' : 'Koppel deze Tutor'}
+                            {isProfessionalLinkedToSelectedChild(prof.id) ? 'Reeds Gekoppeld' : `Koppel ${prof.type === 'tutor' ? 'Tutor' : 'Coach'}`}
                         </Button>
                     </CardFooter>
                   </Card>
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-6">Geen tutors gevonden die voldoen aan de criteria. Probeer andere filters of pas de "Hulp nodig bij" vakken van {selectedChildDetails?.name} aan.</p>
+              <p className="text-muted-foreground text-center py-6">Geen professionals gevonden die voldoen aan de criteria. Probeer andere filters.</p>
             )}
         </section>
       )}
@@ -368,51 +348,51 @@ function KoppelTutorContent() {
               <CardTitle className="text-blue-700 text-md flex items-center gap-2"><Info className="h-5 w-5"/>Hoe werkt het koppelen?</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-blue-600 space-y-1">
-              <p>1. Selecteer het kind voor wie u een tutor zoekt.</p>
-              <p>2. De lijst met tutors wordt automatisch gefilterd op basis van de vakken waar uw kind hulp bij nodig heeft (uit hun profiel). U kunt dit verder verfijnen met de filters.</p>
-              <p>3. Klik op "Bekijk Profiel & Reviews" voor meer details over een tutor.</p>
-              <p>4. Klik op "Koppel deze Tutor" om de tutor direct aan uw kind te koppelen. De tutor ontvangt een notificatie.</p>
-              <p>5. (Binnenkort) Stuur eerst een bericht om kennis te maken of vragen te stellen voordat u koppelt.</p>
-              <p>6. Na koppeling kunt u lessen plannen via de "Les Plannen" pagina of via het "Gekoppelde Tutors" overzicht.</p>
+              <p>1. Selecteer het kind voor wie u begeleiding zoekt.</p>
+              <p>2. (Binnenkort: Kies of u een Tutor of Coach zoekt.) De lijst met professionals wordt gefilterd op basis van de "Hulp nodig bij" vakken (voor tutors) of relevante expertise.</p>
+              <p>3. Klik op "Bekijk Profiel & Reviews" voor meer details.</p>
+              <p>4. Klik op "Koppel..." om de professional direct aan uw kind te koppelen. De professional ontvangt een notificatie.</p>
+              <p>5. Na koppeling kunt u lessen/sessies plannen via de "Les Plannen" pagina of via het "Mijn Begeleiders" overzicht.</p>
           </CardContent>
       </Card>
 
-      <Dialog open={isTutorDetailModalOpen} onOpenChange={setIsTutorDetailModalOpen}>
+      <Dialog open={isProfessionalDetailModalOpen} onOpenChange={setIsProfessionalDetailModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-            {selectedTutorForModal && (
+            {selectedProfessionalForModal && (
                 <>
                     <DialogHeader className="text-center border-b pb-4">
                         <Avatar className="h-24 w-24 mx-auto mb-3">
-                            <AvatarImage src={selectedTutorForModal.avatarUrl} alt={selectedTutorForModal.name} data-ai-hint="tutor person" />
-                            <AvatarFallback className="text-3xl">{getInitials(selectedTutorForModal.name)}</AvatarFallback>
+                            <AvatarImage src={selectedProfessionalForModal.avatarUrl} alt={selectedProfessionalForModal.name} data-ai-hint="professional person" />
+                            <AvatarFallback className="text-3xl">{getInitials(selectedProfessionalForModal.name)}</AvatarFallback>
                         </Avatar>
-                        <DialogTitle className="text-2xl font-bold">{selectedTutorForModal.name}</DialogTitle>
-                        <div className="flex items-center justify-center gap-0.5 text-yellow-500">
-                            {Array.from({length: Math.floor(selectedTutorForModal.rating)}).map((_, i) => <Star key={`fs-modal-${i}`} className="h-5 w-5 fill-current"/>)}
-                            {selectedTutorForModal.rating % 1 !== 0 && <Star key="hs-modal" className="h-5 w-5 fill-current opacity-50"/>}
-                            {Array.from({length: 5 - Math.ceil(selectedTutorForModal.rating)}).map((_, i) => <Star key={`es-modal-${i}`} className="h-5 w-5 text-muted-foreground/30 fill-current"/>)}
-                            <span className="text-sm text-muted-foreground ml-1.5">({selectedTutorForModal.reviewsCount || 0} reviews)</span>
+                        <DialogTitle className="text-2xl font-bold">{selectedProfessionalForModal.name}</DialogTitle>
+                        <Badge variant={selectedProfessionalForModal.type === 'tutor' ? 'secondary' : 'outline'} className="text-xs mx-auto w-fit">{selectedProfessionalForModal.type === 'tutor' ? 'Gecertificeerd Tutor' : 'Gecertificeerd Coach'}</Badge>
+                        <div className="flex items-center justify-center gap-0.5 text-yellow-500 mt-1">
+                            {Array.from({length: Math.floor(selectedProfessionalForModal.rating)}).map((_, i) => <Star key={`fs-modal-${i}`} className="h-5 w-5 fill-current"/>)}
+                            {selectedProfessionalForModal.rating % 1 !== 0 && <Star key="hs-modal" className="h-5 w-5 fill-current opacity-50"/>}
+                            {Array.from({length: 5 - Math.ceil(selectedProfessionalForModal.rating)}).map((_, i) => <Star key={`es-modal-${i}`} className="h-5 w-5 text-muted-foreground/30 fill-current"/>)}
+                            <span className="text-sm text-muted-foreground ml-1.5">({selectedProfessionalForModal.reviewsCount || 0} reviews)</span>
                         </div>
                     </DialogHeader>
                     <ScrollArea className="flex-grow px-1 py-2">
                         <div className="space-y-6 px-4 py-2">
                             <section>
                                 <h3 className="font-semibold text-lg text-primary mb-1">Over Mij</h3>
-                                <p className="text-sm text-muted-foreground whitespace-pre-line">{selectedTutorForModal.fullBio || selectedTutorForModal.shortBio}</p>
+                                <p className="text-sm text-muted-foreground whitespace-pre-line">{selectedProfessionalForModal.fullBio || selectedProfessionalForModal.shortBio}</p>
                             </section>
                             <Separator/>
                              <section>
                                 <h3 className="font-semibold text-lg text-primary mb-2">Details</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                    <p><strong className="text-foreground">Specialisaties:</strong> {selectedTutorForModal.specializations.map(id => allHomeworkSubjects.find(s=>s.id===id)?.name || id).join(', ')}</p>
-                                    <p><strong className="text-foreground">Ervaring:</strong> {selectedTutorForModal.experienceYears} jaar</p>
-                                    <p><strong className="text-foreground">Tarief:</strong> €{selectedTutorForModal.hourlyRate}/uur</p>
-                                    {selectedTutorForModal.education && <p className="sm:col-span-2"><strong className="text-foreground">Opleiding:</strong> {selectedTutorForModal.education}</p>}
-                                    {selectedTutorForModal.teachingPhilosophy && <p className="sm:col-span-2"><strong className="text-foreground">Lesfilosofie:</strong> "{selectedTutorForModal.teachingPhilosophy}"</p>}
-                                    {selectedTutorForModal.cvUrl && (
+                                    <p><strong className="text-foreground">{selectedProfessionalForModal.type === 'tutor' ? 'Vakken:' : 'Expertise:'}</strong> {selectedProfessionalForModal.specializations.map(id => selectedProfessionalForModal.type === 'tutor' ? (allHomeworkSubjects.find(s=>s.id===id)?.name || id) : id).join(', ')}</p>
+                                    <p><strong className="text-foreground">Ervaring:</strong> {selectedProfessionalForModal.experienceYears} jaar</p>
+                                    {selectedProfessionalForModal.type === 'tutor' && selectedProfessionalForModal.hourlyRate && <p><strong className="text-foreground">Tarief:</strong> €{selectedProfessionalForModal.hourlyRate}/uur</p>}
+                                    {selectedProfessionalForModal.education && <p className="sm:col-span-2"><strong className="text-foreground">Opleiding:</strong> {selectedProfessionalForModal.education}</p>}
+                                    {selectedProfessionalForModal.teachingPhilosophy && <p className="sm:col-span-2"><strong className="text-foreground">{selectedProfessionalForModal.type === 'tutor' ? 'Lesfilosofie:' : 'Coaching aanpak:'}</strong> "{selectedProfessionalForModal.teachingPhilosophy}"</p>}
+                                    {selectedProfessionalForModal.cvUrl && (
                                         <div className="sm:col-span-2">
                                             <strong className="text-foreground">CV:</strong> 
-                                            <Button variant="link" size="sm" asChild className="p-0 h-auto ml-1"><a href={selectedTutorForModal.cvUrl} target="_blank" rel="noopener noreferrer">Bekijk CV (PDF)</a></Button>
+                                            <Button variant="link" size="sm" asChild className="p-0 h-auto ml-1"><a href={selectedProfessionalForModal.cvUrl} target="_blank" rel="noopener noreferrer">Bekijk CV (PDF)</a></Button>
                                         </div>
                                     )}
                                 </div>
@@ -420,9 +400,9 @@ function KoppelTutorContent() {
                             <Separator/>
                             <section>
                                 <h3 className="font-semibold text-lg text-primary mb-2">Reviews</h3>
-                                {selectedTutorForModal.reviews && selectedTutorForModal.reviews.length > 0 ? (
+                                {selectedProfessionalForModal.reviews && selectedProfessionalForModal.reviews.length > 0 ? (
                                     <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                                        {selectedTutorForModal.reviews.map((review, idx) => (
+                                        {selectedProfessionalForModal.reviews.map((review, idx) => (
                                             <Card key={idx} className="p-3 bg-muted/50 text-xs">
                                                 <div className="flex justify-between items-center mb-0.5">
                                                     <p className="font-semibold text-foreground">{review.reviewerName}</p>
@@ -441,15 +421,15 @@ function KoppelTutorContent() {
                         </div>
                     </ScrollArea>
                     <DialogFooter className="pt-4 border-t flex-col sm:flex-row gap-2">
-                        <Button variant="outline" onClick={() => setIsTutorDetailModalOpen(false)} className="w-full sm:w-auto">Sluiten</Button>
+                        <Button variant="outline" onClick={() => setIsProfessionalDetailModalOpen(false)} className="w-full sm:w-auto">Sluiten</Button>
                         <Button variant="secondary" disabled className="w-full sm:w-auto"><MessageSquare className="mr-2 h-4 w-4"/>Start Gesprek (binnenkort)</Button>
                         <Button 
-                            onClick={() => handleKoppelTutor(selectedTutorForModal)} 
+                            onClick={() => handleKoppelProfessional(selectedProfessionalForModal)} 
                             className="w-full sm:w-auto"
-                            disabled={isTutorLinkedToSelectedChild(selectedTutorForModal.id)}
+                            disabled={isProfessionalLinkedToSelectedChild(selectedProfessionalForModal.id)}
                         >
                             <UserCheck className="mr-2 h-4 w-4"/> 
-                            {isTutorLinkedToSelectedChild(selectedTutorForModal.id) ? 'Reeds Gekoppeld' : `Koppel aan ${selectedChildDetails?.name || 'kind'}`}
+                            {isProfessionalLinkedToSelectedChild(selectedProfessionalForModal.id) ? 'Reeds Gekoppeld' : `Koppel aan ${selectedChildDetails?.name || 'kind'}`}
                         </Button>
                     </DialogFooter>
                 </>
@@ -461,10 +441,12 @@ function KoppelTutorContent() {
   );
 }
 
-export default function KoppelTutorPage() {
+// Wrapper component voor Suspense
+export default function ZoekProfessionalPage() {
   return (
     <Suspense fallback={<div>Pagina laden...</div>}>
-      <KoppelTutorContent />
+      <ZoekProfessionalContent />
     </Suspense>
   );
 }
+
