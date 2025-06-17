@@ -253,12 +253,12 @@ export default function QuizPageContent() {
   const [parsedAiAnalysis, setParsedAiAnalysis] = useState<AiAnalysisSection[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(false);
 
+  const ageGroupFromQuery = searchParams.get('ageGroup') as AgeGroup;
 
   useEffect(() => {
-    const group = searchParams.get('ageGroup') as AgeGroup;
-    if (group === '12-14' || group === '15-18') {
-      setAgeGroup(group);
-      if (group === '12-14') {
+    if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
+      setAgeGroup(ageGroupFromQuery);
+      if (ageGroupFromQuery === '12-14') {
         setCurrentBaseQuestions(baseQuestionsTeen12_14);
         setCurrentSubTests(subTestsTeen12_14);
         setCurrentThresholds(thresholdsTeen12_14);
@@ -273,7 +273,7 @@ export default function QuizPageContent() {
         // Redirect if no valid age group is provided
         // router.replace('/quizzes'); // Or a specific error page
     }
-  }, [searchParams, router]);
+  }, [ageGroupFromQuery, router]);
 
   useEffect(() => {
     if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
@@ -940,4 +940,3 @@ export default function QuizPageContent() {
     </div>
   );
 }
-

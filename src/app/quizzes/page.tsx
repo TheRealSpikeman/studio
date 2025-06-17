@@ -1,4 +1,3 @@
-
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -171,8 +170,9 @@ function PublicQuizzesContent() {
   const [durationFilter, setDurationFilter] = useState('all');
   const [themeFilter, setThemeFilter] = useState('');
 
+  const ageGroupFromQuery = searchParams.get('ageGroup');
+
   useEffect(() => {
-    const ageGroupFromQuery = searchParams.get('ageGroup');
     if (ageGroupFromQuery) {
       if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
         setAgeFilter(ageGroupFromQuery as '12-14' | '15-18');
@@ -180,7 +180,7 @@ function PublicQuizzesContent() {
         setAgeFilter('all'); 
       }
     }
-  }, [searchParams]);
+  }, [ageGroupFromQuery]);
 
 
   const filterQuizzes = (quizzesToFilter: Quiz[], isRecommendedSection: boolean = false) => {
