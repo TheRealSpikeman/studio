@@ -1,3 +1,4 @@
+
 // src/app/(auth)/signup/page.tsx
 "use client";
 
@@ -24,7 +25,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, subYears, isValid } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { SiteLogo } from '@/components/common/site-logo'; // Corrected: Uncommented this line
+import { SiteLogo } from '@/components/common/site-logo';
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;
@@ -38,7 +39,7 @@ const calculateAge = (birthdate: Date | undefined): number | null => {
 };
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Naam is vereist."}),
+  name: z.string().min(2, { message: "Naam moet minimaal 2 tekens lang zijn."}),
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   birthdate: z.date({
     required_error: "Geboortedatum is vereist.",
@@ -76,12 +77,12 @@ export default function SignupPage() {
   const watchIsParent = form.watch("isParent");
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Signup values:", values);
+    console.log("Parent Signup values (simulation):", values);
     const age = calculateAge(values.birthdate);
+    console.log("Calculated age of parent:", age);
 
-    // For now, all signups from this page are considered parent signups
-    // The age check for parental approval will happen when a *child* is added by the parent.
-    // This form is now explicitly for the parent.
+    // This form is explicitly for the parent.
+    // Age check for parental approval will happen when a *child* is added or registers separately.
     
     console.log("Parent account registration submitted for:", values.email);
     // TODO: Implement actual parent signup logic
@@ -93,6 +94,7 @@ export default function SignupPage() {
     if (plan) {
       redirectUrl += `&plan=${plan}`;
     }
+    console.log("Redirecting to:", redirectUrl);
     router.push(redirectUrl);
   }
 
