@@ -1,12 +1,9 @@
 // src/app/quiz/teen-neurodiversity-quiz/QuizPageContent.tsx
-"use client"; // Deze directive is essentieel omdat useSearchParams hierin zit
+"use client"; 
 
-// Importeer benodigde hooks en React elementen
 import React, { useState, useMemo, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // useSearchParams wordt hier gebruikt
+import { useRouter, useSearchParams } from 'next/navigation'; 
 
-// Importeer AL je andere componenten en utility functies
-// Zorg ervoor dat DIT GEDEELTE overeenkomt met de imports in JOUW oorspronkelijke page.tsx
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
@@ -32,10 +29,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
 import { cn } from '@/lib/utils';
-
-// DEFINIEER HIER ALLE TYPES EN CONSTANTES
-// Kopieer DIT GEDEELTE uit JOUW oorspronkelijke page.tsx.
-// Dit zijn de types en consts die BUITEN de oorspronkelijke TeenNeurodiversityQuizPage functie stonden.
 
 type QuizStep = 'intro' | 'baseQuestions' | 'subtestConfirmation' | 'subtestQuestions' | 'results';
 type AgeGroup = '12-14' | '15-18' | null;
@@ -67,7 +60,7 @@ interface ParsedProfileScore {
   score: string;
   comment: string;
   icon?: React.ElementType;
-  subScores?: ParsedProfileScore[]; // Voor "Score Inzichten per Thema"
+  subScores?: ParsedProfileScore[]; 
 }
 
 interface AiAnalysisSection {
@@ -77,10 +70,8 @@ interface AiAnalysisSection {
   icon?: React.ElementType;
 }
 
-// Kopieer OOK je helper functies zoals sanitizeAiText en parseAiAnalysis HIER naartoe
 const sanitizeAiText = (text: string): string => {
   if (typeof text !== 'string') return '';
-  // Verwijder Markdown voor bold (**text** of __text__) en italic (*text* of _text_)
   return text.replace(/(\*\*|__)(.*?)\1/g, '$2').replace(/(\*|_)(.*?)\1/g, '$2');
 };
 
@@ -88,8 +79,8 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   if (!analysisText || typeof analysisText !== 'string') return [];
 
   let cleanedText = sanitizeAiText(analysisText);
-  cleanedText = cleanedText.replace(/^##\s+/gm, ''); // Verwijder markdown h2 headings
-  cleanedText = cleanedText.replace(/^#\s+/gm, ''); // Verwijder markdown h1 headings
+  cleanedText = cleanedText.replace(/^##\s+/gm, ''); 
+  cleanedText = cleanedText.replace(/^#\s+/gm, ''); 
 
 
   const sections: AiAnalysisSection[] = [];
@@ -149,7 +140,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
           if (!line) return;
           const scoreMatch = line.match(/([^:(]+)(?:\s*\(Score:\s*([\d.]+)\))?:\s*(.+)/i) || line.match(/([^:]+):\s*([\d.]+)\s*(?:\((.+)\))?/i);
 
-          if (scoreMatch && (scoreMatch[2] || scoreMatch[3])) { // Ensure there's a score or a comment part to the regex
+          if (scoreMatch && (scoreMatch[2] || scoreMatch[3])) { 
             const profileName = sanitizeAiText(scoreMatch[1].trim());
             const scoreValue = scoreMatch[2] ? sanitizeAiText(scoreMatch[2].trim()) : "";
             let commentText = scoreMatch[3] ? sanitizeAiText(scoreMatch[3].trim()) : "";
@@ -172,9 +163,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
               icon: currentProfileIcon
             });
           } else {
-            // If it doesn't match the score pattern, add to general overview.
-            // Avoid adding lines that are just prefixes or look like empty list items
-            if (line.trim() && !line.trim().match(/^[-*]\s*$/) && line.length > 3) { // Add length check
+            if (line.trim() && !line.trim().match(/^[-*]\s*$/) && line.length > 3) { 
                  generalOverviewContent += (generalOverviewContent ? '\n' : '') + line;
             }
           }
@@ -244,14 +233,7 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
 };
 
-
-// ***********************************************************************************
-//  PLAK HIER AL JOUW BESTAANDE QUIZLOGICA EN RENDERING CODE
-//  UIT JE OORSPRONKELIJKE src/app/quiz/teen-neurodiversity-quiz/page.tsx BESTAND.
-//
-//  KOPIEER ALLES WAT BINNEN de "export default function TeenNeurodiversityQuizPage() { ... }"
-//  functie stond
-export default function QuizPageContent() { // Changed function name
+export default function QuizPageContent() { 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
@@ -288,9 +270,6 @@ export default function QuizPageContent() { // Changed function name
         setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
       }
     } else {
-      // Default or redirect if no/invalid age group
-      // For now, let's assume a default or handle redirection
-      // router.push('/quizzes'); // Or a page to select age group
     }
   }, [searchParams, router]);
 
@@ -428,7 +407,7 @@ export default function QuizPageContent() { // Changed function name
       } else {
          scores[key] = baseScoresCalc[key] || 0;
       }
-       scores[key] = Math.round(scores[key] * 100) / 100; // Round to 2 decimal places
+       scores[key] = Math.round(scores[key] * 100) / 100; 
     });
     return scores;
   };
@@ -464,7 +443,7 @@ export default function QuizPageContent() { // Changed function name
     } else if (ageGroup === '15-18') {
       setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
     } else {
-       setBaseAnswers([]); // Should not happen if ageGroup is enforced
+       setBaseAnswers([]); 
     }
     setSubtestAnswers({});
     setRelevantSubtests([]);
@@ -477,19 +456,19 @@ export default function QuizPageContent() { // Changed function name
     const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && currentThresholds[key] && scores[key] >= currentThresholds[key]);
 
     if (profilesToShow.length === 0) {
-      return "Op basis van je antwoorden zie je geen opvallend sterke kenmerken van de verschillende neurodiversiteitsprofielen. Dit betekent niet dat je geen enkele eigenschap hebt - iedereen heeft in meer of mindere mate kenmerken die passen bij verschillende profielen.";
+      return "Op basis van je antwoorden kom je op dit moment niet opvallend naar voren voor een specifiek neurodivergent profiel. Iedereen is uniek en het is mogelijk dat je een mix van eigenschappen hebt die niet sterk wijzen op één enkel profiel. Dit is volkomen normaal. Bekijk de AI analyse hieronder voor een persoonlijker inzicht.";
     }
 
     if (profilesToShow.length === 1) {
       const profileKey = profilesToShow[0];
       const profile = neurotypeDescriptionsTeen[profileKey];
-      return `Je antwoorden laten zien dat je vooral eigenschappen herkent die passen bij ${profile.title}. ${profile.detail} Denk eraan dat deze quiz geen diagnostisch instrument is maar je wel inzicht kan geven in je sterke punten en uitdagingen. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
+      return `Je antwoorden wijzen erop dat je kenmerken herkent die vaak geassocieerd worden met ${profile.title}. Dit kan betekenen dat je de wereld op een bepaalde manier ervaart die past bij dit profiel. ${profile.detail} Dit rapport is afgestemd op ${ageGroup} jarigen. De AI analyse hieronder geeft meer context.`;
     }
 
     const profileTitles = profilesToShow.map(d => neurotypeDescriptionsTeen[d].title);
     const lastProfileTitle = profileTitles.pop();
 
-    return `Je antwoorden laten zien dat je eigenschappen herkent die passen bij meerdere profielen: ${profileTitles.join(', ')} en ${lastProfileTitle}. Deze combinatie is uniek en toont je persoonlijke neurodiversiteitsprofiel. De tips in dit rapport kunnen je helpen om je sterke punten te gebruiken en met je uitdagingen om te gaan. Dit rapport is afgestemd op ${ageGroup} jarigen.`;
+    return `Je antwoorden wijzen erop dat je kenmerken herkent die passen bij meerdere profielen, namelijk ${profileTitles.join(', ')} en ${lastProfileTitle}. Deze combinatie is uniek en vormt jouw persoonlijke neurodiversiteitsprofiel. Dit rapport is afgestemd op ${ageGroup} jarigen. De AI analyse hieronder geeft meer context.`;
   };
 
   const progressStepNames = ["Basisvragen", "Verdieping", "Resultaten"];
@@ -723,7 +702,7 @@ export default function QuizPageContent() { // Changed function name
                         let titleClasses = "text-[1.35rem] font-semibold mb-3 flex items-center gap-3"; 
                         let contentClasses = "text-base text-gray-700 leading-relaxed";
                         let listClasses = "list-disc space-y-1.5 pl-6 text-base text-gray-700 leading-relaxed";
-                        let listItemClasses = "mb-3 flex items-start"; // Consistent base class
+                        let listItemClasses = "mb-3 flex items-start"; 
 
                         if (index > 0) sectionContainerClasses = cn(sectionContainerClasses, "mt-10");
 
@@ -758,8 +737,8 @@ export default function QuizPageContent() { // Changed function name
                                         const cleanedItem = item.trim().replace(/^- |^\* /,'');
                                         if (!cleanedItem) return null;
 
-                                        let ListItemIconToUse: React.ElementType;
-                                        let currentItemIconColor = "";
+                                        let ListItemIconToUse: React.ElementType = CheckSquare;
+                                        let currentItemIconColor = "text-gray-600";
 
                                         if (section.title === "Sterke Kanten") {
                                             ListItemIconToUse = ThumbsUp;
@@ -770,9 +749,6 @@ export default function QuizPageContent() { // Changed function name
                                         } else if (section.title === "Tips voor Jou") {
                                             ListItemIconToUse = tipIcons[i % tipIcons.length] || Sparkles;
                                             currentItemIconColor = "text-yellow-600";
-                                        } else {
-                                            ListItemIconToUse = CheckSquare; 
-                                            currentItemIconColor = "text-gray-600";
                                         }
                                         
                                         return (
@@ -827,7 +803,7 @@ export default function QuizPageContent() { // Changed function name
                                       </div>
                                     );
                                 }
-                                return ( // Fallback for ParsedProfileScore items not matching "Algemeen Overzicht" or "Score Inzichten"
+                                return ( 
                                     <div key={itemIdx} className="bg-background/50 p-4 rounded-md mb-4">
                                       <div className="flex items-start gap-3 mb-1">
                                         <ItemIcon className="h-6 w-6 text-teal-700 flex-shrink-0 mt-0.5" />
@@ -852,11 +828,11 @@ export default function QuizPageContent() { // Changed function name
 
                   <Alert variant="destructive" className="mt-10 text-base rounded-lg shadow-sm">
                       <AlertTriangle className="h-5 w-5" />
-                      <AlertTitleUi className="font-semibold text-[1.125rem]">Disclaimer</AlertTitleUi>
+                      <AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
                       <AlertDescUi className="leading-relaxed text-base">
-                          Deze quiz geeft inzicht in neurodiversiteitskenmerken, maar is geen diagnostisch instrument.
-                          Voor een formele diagnose of professioneel advies, raadpleeg een zorgverlener of psycholoog.
-                          MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.
+                          Deze quiz en het rapport zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is <strong className="font-bold">geen</strong> formele diagnose.
+                          Als je vragen of zorgen hebt, of als je overweegt een professionele diagnose te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen.
+                          MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport. Onze tool dient ter zelfreflectie en educatie.
                       </AlertDescUi>
                   </Alert>
 

@@ -2,8 +2,9 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Target, Lightbulb, CheckCircle, Milestone } from 'lucide-react';
+import { Users, Target, Lightbulb, CheckCircle, Milestone, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function AboutPage() {
   return (
@@ -45,21 +46,25 @@ export default function AboutPage() {
                 <section>
                     <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
                     <CheckCircle className="h-7 w-7" />
-                    Onze Aanpak
+                    Onze Aanpak & Expertise
                     </h2>
                     <p className="mb-3">
-                    Onze quizzen zijn zorgvuldig samengesteld en gebaseerd op erkende psychologische modellen en inzichten in neurodiversiteit. We combineren wetenschappelijke onderbouwing met een gebruiksvriendelijke en laagdrempelige aanpak, speciaal afgestemd op tieners.
+                    Onze quizzen en content zijn zorgvuldig samengesteld en gebaseerd op erkende psychologische modellen en inzichten in neurodiversiteit, met de intentie om samen te werken met experts in het veld. We combineren deze basis met een gebruiksvriendelijke en laagdrempelige aanpak, speciaal afgestemd op tieners.
                     </p>
                     <ul className="list-disc list-inside space-y-1 pl-5">
                         <li>Gebaseerd op recente inzichten</li>
                         <li>Afgestemd op de belevingswereld van jongeren</li>
                         <li>Focus op sterke punten en praktische tips</li>
                         <li>Continue ontwikkeling en verbetering</li>
+                        <li>Samenwerking met experts nagestreefd</li>
                     </ul>
+                     <p className="mt-4 text-sm text-muted-foreground">
+                      <strong>Belangrijk:</strong> MindNavigator biedt educatieve tools en inzichten, maar stelt geen medische diagnoses. Voor diagnose en behandeling, raadpleeg altijd een gekwalificeerde zorgprofessional. Lees meer op onze <Link href="/neurodiversiteit" className="text-primary hover:underline">Neurodiversiteit infopagina</Link>.
+                    </p>
                 </section>
                 <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
                     <Image
-                        src="https://picsum.photos/seed/teamcollaboration/600/400"
+                        src="https://placehold.co/600x400.png"
                         alt="Team MindNavigator werkt samen aan innovatieve oplossingen"
                         fill
                         style={{ objectFit: 'cover' }}
@@ -67,6 +72,16 @@ export default function AboutPage() {
                     />
                 </div>
               </div>
+              
+              <section>
+                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <ShieldCheck className="h-7 w-7" />
+                  Privacy en Veiligheid
+                </h2>
+                <p>
+                  De privacy en veiligheid van onze gebruikers, met name jongeren, is van het grootste belang. We hanteren strikte databeschermingsprotocollen en zorgen ervoor dat persoonlijke informatie vertrouwelijk wordt behandeld. Lees ons volledige <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid</Link> voor details.
+                </p>
+              </section>
 
               <section>
                 <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
@@ -76,14 +91,6 @@ export default function AboutPage() {
                 <p>
                   MindNavigator is constant in ontwikkeling. We werken aan uitbreiding van onze coaching-hub, nieuwe thematische quizzen, en integraties met planningstools. Ons doel is om dé gids te worden voor jongeren die hun neurodiversiteit willen omarmen.
                 </p>
-                {/* Voorbeeld van hoe testimonials hier geïntegreerd kunnen worden:
-                <div className="mt-6 border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-3">Wat gebruikers zeggen:</h3>
-                  <blockquote className="italic border-l-4 border-primary pl-4 py-2 bg-muted/50 rounded-r-md">
-                    "MindNavigator heeft me echt geholpen mezelf beter te begrijpen. De tips zijn super handig!" - Anoniem, 16 jaar
-                  </blockquote>
-                </div>
-                */}
               </section>
 
             </CardContent>

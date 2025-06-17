@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
-import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn, Sparkles } from 'lucide-react'; 
+import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn, Sparkles, AlertTriangle } from 'lucide-react'; 
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
 import { generateQuizSummary } from '@/ai/flows/generate-quiz-summary';
@@ -13,7 +13,9 @@ import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights'
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
-import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-neurodiversity-quiz'; // Assuming this quiz might redirect here.
+import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-neurodiversity-quiz'; 
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+
 
 interface ProfileSection {
   title: string;
@@ -46,7 +48,6 @@ const quizTitles: { [key: string]: string } = {
     'neuroprofile-101': 'Basis Neuroprofiel Quiz',
     'adhd-focus-201': 'ADHD & Focus Verdieping',
     'teen-neurodiversity-quiz': 'Neurodiversiteit Quiz (12-18 jaar)',
-     // ... add other quiz titles
 };
 
 
@@ -77,7 +78,6 @@ export default function QuizResultsPage() {
           quizResults: JSON.stringify(quizResultsForAI),
           profileDescription: `Gebruiker heeft zojuist de ${quizTitle} voltooid.`
         };
-        // Only fetch coaching insights if it's not the teen quiz (as that one has its own full report structure)
         if (quizId !== 'teen-neurodiversity-quiz') {
             const coachingOutput = await generateCoachingInsights(coachingInput);
             setCoaching(coachingOutput.coachingInsights);
@@ -93,12 +93,9 @@ export default function QuizResultsPage() {
         setIsLoading(false);
       }
     }
-    // Only run AI if it's not the teen quiz, which has its own detailed report structure.
     if (quizId !== 'teen-neurodiversity-quiz') {
         fetchData();
     } else {
-        // For teen quiz, the results are typically handled by its own page.
-        // If somehow landed here, show a generic message or use dummy data.
         setSummary("Je resultaten worden hieronder weergegeven. Voor de Tienerquiz is dit een samenvatting, het volledige rapport staat op de vorige pagina.");
         setCoaching("Specifieke coaching inzichten voor de Tienerquiz vind je in het uitgebreide rapport.");
         setIsLoading(false); 
@@ -107,9 +104,9 @@ export default function QuizResultsPage() {
 
 
   const resultsToDisplay = isLoading ? { summary, profileSections: [], coachingInsights: coaching } : {
-      summary: summary, // Use AI generated summary
-      profileSections: dummyResults.profileSections, // Keep dummy for now for adult quizzes
-      coachingInsights: coaching, // Use AI generated coaching
+      summary: summary, 
+      profileSections: dummyResults.profileSections, 
+      coachingInsights: coaching, 
   };
 
   const handleRestartQuiz = () => {
@@ -121,7 +118,6 @@ export default function QuizResultsPage() {
         title: "PDF Download (Voorbeeld)",
         description: `Deze functie is nog in ontwikkeling. Je rapport voor "${quizTitle}" zou hier gedownload worden.`,
       });
-      // Actual PDF generation logic would go here, similar to /dashboard/results page
   };
 
   const totalSteps = 3; 
@@ -157,7 +153,6 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
       
-      {/* Only show these sections if not teen quiz, as teen quiz has its own structure on its page */}
       {quizId !== 'teen-neurodiversity-quiz' && resultsToDisplay.profileSections.map((section, index) => (
         <Card key={index} className="w-full max-w-3xl shadow-lg mb-6">
           <CardHeader>
@@ -203,7 +198,16 @@ export default function QuizResultsPage() {
         </CardContent>
       </Card>
 
-      {/* Upsell Section */}
+      <Alert variant="destructive" className="w-full max-w-3xl shadow-xl mb-8">
+          <AlertTriangle className="h-5 w-5" />
+          <AlertTitleUi className="font-semibold text-lg">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
+          <AlertDescUi className="leading-relaxed">
+              De resultaten van deze quiz zijn bedoeld om inzicht te geven en zelfreflectie te stimuleren. Ze vormen <strong className="font-bold">geen</strong> formele medische of psychologische diagnose.
+              Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met een gekwalificeerde zorgverlener (zoals je huisarts, een psycholoog, of een mentor op school).
+              MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit rapport worden genomen.
+          </AlertDescUi>
+      </Alert>
+
       <Card className="w-full max-w-3xl shadow-xl mb-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl text-primary">

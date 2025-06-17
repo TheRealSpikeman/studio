@@ -12,7 +12,6 @@ export const answerOptions: QuizOption[] = [
   { value: '4', label: 'Altijd' },
 ];
 
-// --- Questions for 15-18 years old (existing questions) ---
 export const baseQuestionsTeen15_18: string[] = [
   "Ik merk dat mijn gedachten afdwalen, zelfs als ik probeer te focussen op schoolwerk.", // ADD
   "Ik moet bladzijdes of opdrachten vaak opnieuw lezen omdat ik niet oplet wat ik lees.", // ADD
@@ -102,8 +101,6 @@ export const thresholdsTeen15_18: Record<string, number> = {
   AngstDepressie: 3.0 
 };
 
-
-// --- Questions for 12-14 years old (Max 12 base questions, 8 subtest questions) ---
 export const baseQuestionsTeen12_14: string[] = [
   "Dwalen je gedachten makkelijk af als je je probeert te concentreren, bijvoorbeeld op school?", // ADD
   "Moet je dingen vaak opnieuw lezen omdat je niet goed oplette?", // ADD
@@ -180,7 +177,6 @@ export const thresholdsTeen12_14: Record<string, number> = {
   AngstDepressie: 2.8 
 };
 
-// --- Generic Data (can be refined per age group if needed) ---
 export const subtestDescriptionsTeen: Record<string, string> = {
   ADD: "ADD (aandachtstekort zonder hyperactiviteit): Je lijkt eigenschappen te herkennen die passen bij moeite met aandacht en concentratie, zonder hyperactief gedrag.",
   ADHD: "ADHD (aandachtstekort met hyperactiviteit): Je lijkt eigenschappen te herkennen die passen bij een combinatie van concentratieproblemen en behoefte aan beweging.",
@@ -194,96 +190,95 @@ export interface NeurotypeDescription {
   eigenschappen: string;
   text: string;
   detail: string;
-  color: string; // For charts, if used later
+  color: string; 
   uitleg: string;
   sterktepunten: string[];
   tips: {
     school: string;
     thuis: string;
     sociaal: string;
-    werk: string; // or stage/studie for teens
+    werk: string; 
   };
 }
 
 export const neurotypeDescriptionsTeen: Record<string, NeurotypeDescription> = {
   ADD: { 
-    title:'ADD - Onoplettend', 
-    eigenschappen:'Rustig van buiten, druk van binnen; moeite met focus en details.', 
-    text:'Je mist soms details in de les.', 
-    detail:'Bij ADD is je aandacht snel afgeleid doordat je gedachtestroom alle kanten op gaat. Dit kan ervoor zorgen dat informatie je ontgaat, zelfs als je stil en rustig lijkt. Je kunt moeite hebben om je concentratie vast te houden bij taken die je niet boeien.',
+    title:'ADD - Onoplettendheid', 
+    eigenschappen:'Moeite met focus en details, interne gedachtestroom.', 
+    text:'Je herkent mogelijk moeite met concentreren en het vasthouden van aandacht.', 
+    detail:'Personen die kenmerken van ADD herkennen, ervaren vaak een constante stroom van gedachten die de aandacht kan afleiden. Dit kan het lastig maken om details op te merken of instructies volledig te volgen, vooral bij taken die minder boeiend zijn.',
     color: 'rgba(75, 192, 192, 0.7)',
-    uitleg: 'ADD (Attention Deficit Disorder) is een variant van ADHD waarbij hyperactiviteit ontbreekt. Personen met ADD hebben vooral moeite met aandacht en concentratie, terwijl ze uiterlijk rustig overkomen. Hun gedachten zijn vaak druk en springen van onderwerp naar onderwerp.',
-    sterktepunten: ['Creatief denken', 'Goed in verbanden leggen', 'Out-of-the-box ideeën', 'Hyperfocus bij interessante onderwerpen'],
+    uitleg: 'ADD (Attention Deficit Disorder) wordt vaak gezien als een subtype van ADHD waarbij hyperactiviteit minder op de voorgrond staat. Kernmerkend is een aanhoudende moeite met aandacht en concentratie. Interne gedachten kunnen snel afdwalen, wat het volgen van uitleg of het afmaken van taken kan bemoeilijken.',
+    sterktepunten: ['Creatief en associatief denken', 'Vermogen om originele verbanden te leggen', 'Ontwikkelen van unieke ideeën', 'Intense focus (hyperfocus) op onderwerpen van grote interesse'],
     tips: {
-      school: 'Werk in blokken van 15 minuten met een timer en maak korte notities. Vraag om herhaling of opschrijven van belangrijke instructies. Voor jongeren: vraag je leraar om een seintje als je afdwaalt.',
-      thuis: 'Creëer een prikkelarme studieplek. Gebruik visuele planners en checklists voor taken. Voor jongeren: maak een huiswerkschema met pauzes.',
-      sociaal: 'Plan één-op-één afspraken in plaats van grote groepsactiviteiten. Neem korte pauzes tijdens sociale evenementen. Voor jongeren: spreek met één of twee vrienden tegelijk af.',
-      werk: 'Gebruik koptelefoons om afleiding te verminderen. Vraag om schriftelijke instructies bij complexe taken. Voor jongeren (bijbaan/stage): vraag om duidelijke, korte opdrachten.'
+      school: 'Werk in kortere blokken met een timer. Maak beknopte notities en vraag om schriftelijke instructies of samenvattingen. Voor jongeren: overleg met een docent over een seintje bij afdwalen.',
+      thuis: 'Creëer een rustige, opgeruimde studieplek. Gebruik visuele planners en deel taken op in kleinere stappen. Voor jongeren: stel een vast huiswerkschema op met ingebouwde pauzes.',
+      sociaal: 'Geef voorkeur aan één-op-één contact of kleine groepen. Neem bewust pauzes tijdens drukke sociale evenementen. Voor jongeren: spreek af met een beperkt aantal vrienden tegelijk.',
+      werk: 'Gebruik een koptelefoon om omgevingsgeluiden te dempen. Vraag om duidelijke, schriftelijke instructies bij complexe taken. Voor jongeren (bijbaan/stage): kies taken die overzichtelijk zijn en waar je je goed op kunt focussen.'
     }
   },
   ADHD: { 
-    title:'ADHD - Hyperactiviteit', 
-    eigenschappen:'Veel energie en impulsief gedrag; je zoekt beweging.', 
-    text:'Je voelt je vaak gejaagd en onrustig.', 
-    detail:'Bij ADHD ervaar je een constante drang om te bewegen, wat kan leiden tot impulsief handelen. Je gedachten gaan snel, wat creatieve ideeën oplevert maar ook kan zorgen voor ongeorganiseerd werken.',
+    title:'ADHD - Hyperactiviteit & Impulsiviteit', 
+    eigenschappen:'Veel energie, bewegingsdrang en soms impulsief handelen.', 
+    text:'Je herkent mogelijk een innerlijke onrust en de neiging om snel te handelen.', 
+    detail:'Kenmerken van ADHD omvatten vaak een aanhoudende behoefte aan beweging en moeite met stilzitten. Impulsiviteit kan leiden tot snelle reacties zonder vooraf diep na te denken. Gedachten kunnen snel gaan, wat zowel tot creativiteit als tot ongeorganiseerdheid kan leiden.',
     color: 'rgba(255, 99, 132, 0.7)',
-    uitleg: 'ADHD (Attention Deficit Hyperactivity Disorder) kenmerkt zich door moeite met aandacht, hyperactiviteit en impulsiviteit. De hersenen filteren minder effectief, waardoor meer prikkels binnenkomen en er een continue behoefte is aan beweging en actie.',
-    sterktepunten: ['Energiek en enthousiast', 'Snel schakelen tussen taken', 'Spontaan en creatief', 'Goed in crisissituaties'],
+    uitleg: 'ADHD (Attention Deficit Hyperactivity Disorder) wordt gekenmerkt door een combinatie van aandachtsproblemen, hyperactiviteit en impulsiviteit. De informatieverwerking in de hersenen kan anders verlopen, wat resulteert in een verhoogde gevoeligheid voor prikkels en een sterke drang naar activiteit.',
+    sterktepunten: ['Hoge energie en enthousiasme', 'Snel kunnen schakelen', 'Spontaniteit en vindingrijkheid', 'Goed presteren onder druk of in dynamische situaties'],
     tips: {
-      school: 'Plan korte beweegpauzes na elke 20 minuten om je focus te verbeteren. Gebruik een stressballetje of ander fidget-speelgoed om je handen bezig te houden. Voor jongeren: vraag of je soms mag staan of bewegen in de klas.',
-      thuis: 'Verdeel grote taken in kleine, overzichtelijke stappen. Stel timers in voor taken als opruimen of huiswerk. Voor jongeren: zorg voor voldoende buitenspeel- of sportmomenten.',
-      sociaal: 'Wees open over je behoefte aan beweging. Kies actieve sociale activiteiten zoals sporten of wandelen. Voor jongeren: doe actieve dingen met vrienden.',
-      werk: 'Vraag om een sta-bureau of stabiliteitsbal in plaats van een normale stoel. Plan korte bewegingsmomenten in je werkdag. Voor jongeren (bijbaan/stage): zoek een actieve bijbaan.'
+      school: 'Plan korte beweegmomenten na studieblokken. Gebruik een stressbal of ander klein object om handen bezig te houden. Voor jongeren: bespreek met docenten de mogelijkheid om af en toe te staan of kort te bewegen.',
+      thuis: 'Deel grote taken op in kleinere, behapbare stappen. Werk met timers voor specifieke activiteiten zoals opruimen. Voor jongeren: zorg voor voldoende fysieke uitlaatkleppen zoals sport of buitenspelen.',
+      sociaal: 'Communiceer openlijk over je behoefte aan beweging. Kies voor actieve sociale bezigheden. Voor jongeren: onderneem actieve activiteiten met vrienden.',
+      werk: 'Overweeg een sta-bureau of een dynamische zitoplossing. Integreer korte bewegingspauzes in je werkdag. Voor jongeren (bijbaan/stage): zoek een bijbaan die fysieke activiteit toelaat.'
     }
   },
   HSP: { 
-    title:'HSP - Hoogsensitief', 
-    eigenschappen:'Sterk gevoelig voor prikkels; creatief en empathisch.', 
-    text:'Je ervaart prikkels zoals harde geluiden intenser.', 
-    detail:'Als HSP verwerk je zintuiglijke indrukken diepgaand, waardoor drukke omgevingen overweldigend kunnen zijn. Je pikt emoties en sferen goed op, wat je tot een empathisch persoon maakt.',
+    title:'HSP - Hoogsensitiviteit', 
+    eigenschappen:'Diepgaande verwerking van prikkels, sterke empathie en gevoeligheid voor de omgeving.', 
+    text:'Je herkent mogelijk een intense beleving van geluiden, licht of emoties.', 
+    detail:'Als je kenmerken van HSP herkent, verwerk je zintuiglijke informatie (geluiden, licht, geuren) en emotionele signalen vaak dieper en gedetailleerder. Dit kan leiden tot een rijk innerlijk leven en een sterk inlevingsvermogen, maar ook tot snellere overprikkeling in intense omgevingen.',
     color: 'rgba(153, 102, 255, 0.7)',
-    uitleg: 'Hoogsensitieve personen (HSP) verwerken zintuiglijke prikkels intenser en dieper dan gemiddeld. Dit zorgt voor een rijk innerlijk leven, grote empathie en creativiteit, maar kan ook leiden tot overprikkeling in drukke omgevingen.',
-    sterktepunten: ['Diepgaande verwerking van informatie', 'Sterke intuïtie en empathisch vermogen', 'Oog voor detail en nuance', 'Rijk gevoelsleven en creativiteit'],
+    uitleg: 'Hoogsensitiviteit (HSP) is een eigenschap waarbij prikkels intenser worden waargenomen en verwerkt. Dit resulteert vaak in een genuanceerde waarneming, een sterk empathisch vermogen en een diep reflectief vermogen, maar kan ook leiden tot overstimulatie.',
+    sterktepunten: ['Grote empathie en inlevingsvermogen', 'Sterke intuïtie', 'Opmerkzaamheid voor details en subtiele signalen', 'Creativiteit en diepgaande reflectie'],
     tips: {
-      school: 'Neem regelmatig rustige pauzes om op te laden. Vraag of je af en toe in een rustiger ruimte mag werken. Voor jongeren: zoek een rustig plekje op school tijdens pauzes.',
-      thuis: 'Creëer een eigen rustige plek waar je je kunt terugtrekken. Bouw bewust ontspanningsmomenten in je dag. Voor jongeren: zorg voor een eigen kamer of hoekje waar je je kunt afsluiten.',
-      sociaal: 'Plan hersteltijd in na sociale activiteiten. Communiceer je grenzen duidelijk aan anderen. Voor jongeren: kies bewust met wie je afspreekt en hoe lang.',
-      werk: 'Gebruik noise-cancelling koptelefoons in drukke werkruimtes. Vraag om flexibele werktijden om drukke momenten te vermijden. Voor jongeren (bijbaan/stage): zoek een rustige (bij)baan.'
+      school: 'Neem regelmatig korte, rustige pauzes. Zoek indien mogelijk een rustige werkplek op. Voor jongeren: vind een rustig plekje op school tijdens pauzes om even op te laden.',
+      thuis: 'Creëer een eigen rustige en prikkelarme ruimte. Plan bewust ontspanningsmomenten in je dagelijkse routine. Voor jongeren: zorg voor een eigen plek waar je je kunt terugtrekken als het te veel wordt.',
+      sociaal: 'Plan hersteltijd na sociale activiteiten. Communiceer je behoeften en grenzen aan anderen. Voor jongeren: kies bewust met wie je afspreekt en voor hoe lang, en neem pauzes indien nodig.',
+      werk: 'Overweeg noise-cancelling koptelefoons in drukke omgevingen. Vraag naar mogelijkheden voor een rustige werkplek. Voor jongeren (bijbaan/stage): zoek een omgeving die niet constant overstimulerend is.'
     }
   },
   ASS: { 
-    title:'ASS - Autisme', 
-    eigenschappen:'Houdt van routines en duidelijke regels; eerlijk en rechtlijnig.', 
-    text:'Je geeft de voorkeur aan voorspelbare routines en structuren.', 
-    detail:'Voor leerlingen met ASS biedt voorspelbaarheid rust; onverwachte veranderingen kunnen stress veroorzaken. Je kunt intens focussen op specifieke interesses en merkt details op die anderen missen.',
+    title:'ASS - Autismespectrum Kenmerken', 
+    eigenschappen:'Behoefte aan structuur en voorspelbaarheid, specifieke interesses, unieke sociale interactie.', 
+    text:'Je herkent mogelijk een voorkeur voor routines en een duidelijke communicatiestijl.', 
+    detail:'Kenmerken die vaak bij het autismespectrum passen, omvatten een voorkeur voor voorspelbaarheid en structuur; onverwachte veranderingen kunnen stressvol zijn. Er kan sprake zijn van intense focus op specifieke interesses en een gedetailleerde manier van informatieverwerking. Sociale interactie en communicatie kunnen anders ervaren worden.',
     color: 'rgba(255, 206, 86, 0.7)',
-    uitleg: 'Autismespectrumstoornis (ASS) kenmerkt zich door een andere manier van informatieverwerking. Personen met ASS hebben vaak behoefte aan voorspelbaarheid, kunnen intens focussen op interessegebieden en verwerken sociale signalen anders.',
-    sterktepunten: ['Analytisch denkvermogen', 'Oog voor detail en patronen', 'Eerlijkheid en rechtvaardigheidsgevoel', 'Diepgaande kennis van interessegebieden'],
+    uitleg: 'Autismespectrum (ASS) verwijst naar een variatie in de informatieverwerking in de hersenen. Dit kan zich uiten in een sterke behoefte aan routine, een gedetailleerde manier van denken, intense focus op specifieke interesses, en een andere manier van sociale communicatie en interactie.',
+    sterktepunten: ['Sterk analytisch denkvermogen', 'Oog voor detail en patronen', 'Eerlijkheid en loyaliteit', 'Diepgaande expertise in interessegebieden'],
     tips: {
-      school: 'Gebruik visuele planningen en checklists. Vraag om duidelijke, concrete instructies bij opdrachten. Voor jongeren: vraag om een vast weekschema en duidelijke uitleg.',
-      thuis: 'Houd een vaste dagstructuur aan. Bereid veranderingen zo veel mogelijk van tevoren voor. Voor jongeren: bespreek veranderingen vooraf en maak ze voorspelbaar.',
-      sociaal: 'Plan sociale activiteiten met een duidelijk doel en structuur. Neem rustmomenten tussen sociale interacties. Voor jongeren: oefen sociale situaties of vraag om uitleg over sociale regels.',
-      werk: 'Vraag om een rustige werkplek met minimale afleiding. Maak afspraken over communicatievormen (mail vs. bellen). Voor jongeren (bijbaan/stage): zoek werk met duidelijke taken en structuur.'
+      school: 'Gebruik visuele schema\'s en checklists. Vraag om duidelijke, concrete instructies voor opdrachten. Voor jongeren: vraag om een voorspelbaar weekschema en expliciete uitleg van verwachtingen.',
+      thuis: 'Hanteer een consequente dagstructuur. Bereid veranderingen zorgvuldig en tijdig voor. Voor jongeren: communiceer veranderingen duidelijk en geef tijd om aan te passen.',
+      sociaal: 'Kies sociale activiteiten met een duidelijke structuur of doel. Neem pauzes tussen sociale interacties. Voor jongeren: oefen sociale scenario\'s of vraag uitleg over ongeschreven sociale regels.',
+      werk: 'Zoek een werkplek die structuur biedt en waar verwachtingen helder zijn. Maak afspraken over de gewenste communicatiestijl. Voor jongeren (bijbaan/stage): kies werk met duidelijke taken en routines.'
     }
   },
   AngstDepressie: { 
-    title:'Angst/Depressie', 
-    eigenschappen:'Piekeren en somberheid; behoefte aan steun en duidelijkheid.', 
-    text:'Je merkt dat je vaak piekert of je somber voelt.', 
-    detail:'Angst en somberheid kunnen leiden tot concentratieproblemen en vermijding van sociale activiteiten. Het kan moeilijk zijn om positieve aspecten te zien en energie voor dagelijkse activiteiten te vinden.',
+    title:'Angst & Depressie Kenmerken', 
+    eigenschappen:'Neiging tot piekeren, mogelijke somberheid, behoefte aan steun en duidelijkheid.', 
+    text:'Je herkent mogelijk dat je je vaak zorgen maakt of je soms neerslachtig voelt.', 
+    detail:'Kenmerken van angst en/of depressie kunnen invloed hebben op concentratie, energie en de beleving van sociale activiteiten. Het kan lastig zijn om positieve gedachten vast te houden of motivatie te vinden voor dagelijkse bezigheden.',
     color: 'rgba(54, 162, 235, 0.7)',
-    uitleg: 'Angst- en stemmingsklachten komen regelmatig voor bij jongeren en volwassenen. Bij angst is er sprake van zorgen en fysieke spanning, terwijl depressieve gevoelens gepaard gaan met somberheid, energieverlies en verminderde interesse in activiteiten.',
-    sterktepunten: ['Zelfreflectie en zelfbewustzijn', 'Empathisch vermogen door eigen ervaringen', 'Voorzichtigheid en oog voor risico\'s', 'Grondigheid en perfectionisme'],
+    uitleg: 'Kenmerken van angst en depressie komen vaak voor en kunnen het dagelijks functioneren beïnvloeden. Angst kan zich uiten in overmatig piekeren en spanning, terwijl depressieve gevoelens vaak gepaard gaan met somberheid, verlies van interesse en verminderde energie.',
+    sterktepunten: ['Verhoogde zelfreflectie', 'Groot inlevingsvermogen in anderen', 'Voorzichtigheid en het zien van mogelijke risico\'s', 'Streven naar kwaliteit en grondigheid'],
     tips: {
-      school: 'Schrijf dagelijks drie positieve ervaringen op om je stemming te verbeteren. Deel je zorgen met een vertrouwenspersoon op school. Voor jongeren: praat met een mentor, leraar of de schoolpsycholoog.',
-      thuis: 'Bouw dagelijks ontspanningsmomenten in. Focus op kleine, haalbare doelen en vier successen. Voor jongeren: praat met je ouders of een andere volwassene die je vertrouwt.',
-      sociaal: 'Kies sociale activiteiten die niet te veel energie kosten. Wees open naar vrienden over wat je nodig hebt. Voor jongeren: spreek af met vrienden waar je je fijn bij voelt.',
-      werk: 'Stel realistische doelen en verdeel grote taken in kleinere stappen. Neem korte pauzes als spanning oploopt. Voor jongeren (bijbaan/stage): geef je grenzen aan en vraag om hulp als het te veel wordt.'
+      school: 'Houd een dagboek bij met positieve ervaringen. Bespreek zorgen met een vertrouwenspersoon. Voor jongeren: praat met een mentor, docent of schoolpsycholoog.',
+      thuis: 'Integreer dagelijks ontspannings- of mindfulnessoefeningen. Focus op kleine, haalbare doelen en vier je successen. Voor jongeren: praat open met je ouders of een andere volwassene die je vertrouwt.',
+      sociaal: 'Kies sociale activiteiten die je energie geven en niet te overweldigend zijn. Wees eerlijk naar vrienden over wat je nodig hebt. Voor jongeren: spreek af met vrienden bij wie je je veilig en begrepen voelt.',
+      werk: 'Stel realistische doelen en deel grote taken op. Neem korte pauzes bij oplopende spanning. Voor jongeren (bijbaan/stage): geef je grenzen aan en vraag om hulp als het te veel wordt. Zoek professionele hulp als de klachten aanhouden.'
     }
   }
 };
 
-// Helper function to calculate average, returns 0 if array is empty or all zeros after filtering
 export const calculateAverage = (arr: (number | undefined)[]): number => {
   const validNumbers = arr.filter(n => typeof n === 'number' && n > 0) as number[];
   if (validNumbers.length === 0) {
@@ -292,8 +287,6 @@ export const calculateAverage = (arr: (number | undefined)[]): number => {
   return validNumbers.reduce((a, b) => a + b, 0) / validNumbers.length;
 };
 
-
-// Renaming old exports for clarity if they are still used elsewhere, or they can be removed if not.
 export const baseQuestionsTeen = baseQuestionsTeen15_18;
 export const subTestsTeen = subTestsTeen15_18;
 export const thresholdsTeen = thresholdsTeen15_18;
