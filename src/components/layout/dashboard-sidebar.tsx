@@ -305,17 +305,19 @@ function SidebarNavigationContent() {
                   <SidebarMenuButton asChild isActive={isParentHighlighted && !item.isSubItem} tooltip={item.label}>
                     <Link href={item.href}>
                       <item.icon />
-                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        {item.label}
+                        {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
+                          <span
+                            title="Facturatie actie vereist"
+                            className="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary"
+                          />
+                        )}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                   {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages) && (
                     <SidebarMenuBadge title="Nieuwe berichten"></SidebarMenuBadge>
-                  )}
-                   {(item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction) && (
-                    <SidebarMenuBadge
-                        title="Facturatie actie vereist"
-                        className="h-2 w-2 min-w-0 p-0 rounded-full bg-primary"
-                    />
                   )}
                 </SidebarMenuItem>
 
@@ -370,4 +372,3 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
-
