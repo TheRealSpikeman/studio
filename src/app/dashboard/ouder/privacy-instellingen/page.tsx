@@ -23,7 +23,7 @@ interface PrivacySettings {
   shareResultsWithActualCoaches: boolean;
   allowChildToControlSharingTutors: boolean;
   allowChildToControlSharingCoaches: boolean;
-  allowChildToScheduleLessonsWithTutors: boolean; 
+  allowChildToScheduleLessonsWithTutors: boolean;
   allowChildToScheduleSessionsWithCoaches: boolean;
   allowCommunityAccess: boolean;
   communityProfileVisibility: 'anonymous' | 'firstName' | 'fullName';
@@ -50,6 +50,7 @@ export default function PrivacyInstellingenPage() {
   const { toast } = useToast();
   const [selectedChildId, setSelectedChildId] = useState<string>(dummyChildren[0]?.id || '');
   const [settings, setSettings] = useState<PrivacySettings>(initialPrivacySettings);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   const selectedChild = dummyChildren.find(c => c.id === selectedChildId);
   const selectedChildName = selectedChild ? selectedChild.name.split(' ')[0] : 'Uw kind';
@@ -57,10 +58,22 @@ export default function PrivacyInstellingenPage() {
 
   useEffect(() => {
     if (selectedChildId) {
-      console.log(`Instellingen laden voor kind: ${selectedChildId} (simulatie)`);
-      // In een echte app: laad hier kind-specifieke instellingen.
-      // Voor nu resetten we naar de defaults voor demo doeleinden.
-      setSettings(initialPrivacySettings); 
+      setIsLoadingSettings(true);
+      console.log(`Privacy-instellingen laden voor kind: ${selectedChildId} (simulatie)`);
+      try {
+        const storedSettingsRaw = localStorage.getItem(`privacySettings_${selectedChildId}`);
+        if (storedSettingsRaw) {
+          const storedSettings = JSON.parse(storedSettingsRaw);
+          setSettings(prev => ({ ...prev, ...storedSettings }));
+        } else {
+          // Geen opgeslagen instellingen, gebruik defaults
+          setSettings(initialPrivacySettings);
+        }
+      } catch (error) {
+        console.error("Fout bij laden privacy-instellingen uit localStorage:", error);
+        setSettings(initialPrivacySettings); // Fallback naar defaults bij error
+      }
+      setIsLoadingSettings(false);
     }
   }, [selectedChildId]);
 
@@ -69,12 +82,34 @@ export default function PrivacyInstellingenPage() {
   };
 
   const handleSaveSettings = () => {
+    if (!selectedChildId) {
+      toast({ title: "Fout", description: "Selecteer eerst een kind.", variant: "destructive" });
+      return;
+    }
     console.log("Opslaan van privacy-instellingen voor kind:", selectedChildId, settings);
-    toast({
-      title: "Instellingen Opgeslagen",
-      description: `De privacy-instellingen voor ${selectedChild?.name || 'het kind'} zijn bijgewerkt (simulatie). De wijzigingen zijn direct actief.`,
-    });
+    
+    try {
+      localStorage.setItem(`privacySettings_${selectedChildId}`, JSON.stringify(settings));
+      // Specifiek opslaan voor community toegang voor de sidebar demo
+      localStorage.setItem(`communityAccess_${selectedChildId}`, JSON.stringify(settings.allowCommunityAccess));
+
+      toast({
+        title: "Instellingen Opgeslagen",
+        description: `De privacy-instellingen voor ${selectedChild?.name || 'het kind'} zijn bijgewerkt. De wijzigingen zijn direct actief.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Opslagfout",
+        description: "Kon de instellingen niet lokaal opslaan.",
+        variant: "destructive",
+      });
+      console.error("Fout bij opslaan privacy-instellingen in localStorage:", error);
+    }
   };
+  
+  if (isLoadingSettings && selectedChildId) {
+    return <div className="p-8 text-center">Privacy-instellingen voor {selectedChildName} laden...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -109,12 +144,13 @@ export default function PrivacyInstellingenPage() {
               {dummyChildren.map(child => (
                 <SelectItem key={child.id} value={child.id}>{child.name}</SelectItem>
               ))}
+              {dummyChildren.length === 0 && <SelectItem value="no-children" disabled>Voeg eerst een kind toe</SelectItem>}
             </SelectContent>
           </Select>
         </CardContent>
       </Card>
 
-      {selectedChildId && (
+      {selectedChildId && !isLoadingSettings && (
         <>
           <Card className="shadow-lg">
             <CardHeader>
@@ -232,7 +268,7 @@ export default function PrivacyInstellingenPage() {
                     onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
                     />
                 </div>
-                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun.</p>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun (indien geactiveerd).</p>
               </div>
                {settings.allowCommunityAccess && (
                 <>
@@ -266,7 +302,7 @@ export default function PrivacyInstellingenPage() {
                         onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
                       />
                     </div>
-                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community.</p>
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community (indien geactiveerd).</p>
                   </div>
                 </>
                )}
@@ -329,4 +365,3 @@ export default function PrivacyInstellingenPage() {
     </div>
   );
 }
-

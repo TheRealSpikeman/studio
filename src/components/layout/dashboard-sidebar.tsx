@@ -170,6 +170,20 @@ function SidebarNavigationContent() {
   let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
+  const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && currentDashboardRole === 'leerling') {
+      // Gebruik een placeholder/mock ID voor de leerling, bv. 'child1'
+      // In een echte app zou dit de ID van de ingelogde leerling zijn.
+      const communityAccessAllowed = JSON.parse(localStorage.getItem('communityAccess_child1') ?? 'true');
+      setShowCommunityNavItemForLeerling(communityAccessAllowed);
+    } else {
+      // Voor andere rollen, of als localStorage niet beschikbaar is, toon het item (als de rol 'leerling' is en het item leerlingOnly is)
+      setShowCommunityNavItemForLeerling(true);
+    }
+  }, [currentDashboardRole]);
+
 
   return (
     <>
@@ -219,7 +233,12 @@ function SidebarNavigationContent() {
             } else if (currentDashboardRole === 'tutor') {
               showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly;
             } else if (currentDashboardRole === 'leerling') {
-              showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+              // Specifieke check voor community forum link
+              if (item.href === '/dashboard/community') {
+                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+              } else {
+                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+              }
             } else if (currentDashboardRole === 'ouder') {
               showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly;
             }
@@ -281,7 +300,7 @@ function SidebarNavigationContent() {
             if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
                isParentHighlighted = true;
             }
-             if (item.label === "Voortgang Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
+             if (item.label === "Mijn Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
               isParentHighlighted = true;
             }
 
@@ -295,17 +314,17 @@ function SidebarNavigationContent() {
                 )}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={isParentHighlighted && !item.isSubItem} tooltip={item.label}>
-                    <Link href={item.href}>
+                    <Link href={item.href} className="flex items-center"> {/* Added flex and items-center */}
                       <item.icon />
-                      <span className="group-data-[collapsible=icon]:hidden">
+                      <span className="group-data-[collapsible=icon]:hidden flex-grow"> {/* Added flex-grow */}
                         {item.label}
-                        {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
-                          <span
-                            title="Facturatie actie vereist"
-                            className="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary min-w-0"
-                          />
-                        )}
                       </span>
+                       {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
+                        <span
+                          title="Facturatie actie vereist"
+                          className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden" // Adjusted margin and added min-w-0
+                        />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                   {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages) && (
