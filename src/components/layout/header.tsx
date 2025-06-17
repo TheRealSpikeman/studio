@@ -12,7 +12,6 @@ import { Menu } from 'lucide-react'; // For mobile menu icon
 
 export function Header() {
   const navLinks = [
-    // { href: "/quizzes", label: "Quizzen" }, // Removed Quizzen
     { href: "/dashboard/coaching", label: "Coaching" },
     { href: "/pricing", label: "Prijzen" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
@@ -50,9 +49,7 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link href="/login">Inloggen</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                 <Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link>
-              </DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
