@@ -119,19 +119,19 @@ function LeerlingDashboardContent() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-3"> {/* Adjusted gap to 24px */}
+      <div className="grid gap-6 lg:grid-cols-3">
         <section className="lg:col-span-2">
-          <Card className="shadow-lg">
-            <CardHeader className="p-8"> {/* Card padding */}
+          <Card className="shadow-lg h-full flex flex-col">
+            <CardHeader className="p-8">
               <CardTitle className="flex items-center gap-2 text-xl text-primary">
                 <MessageSquare className="h-6 w-6 text-primary" />
                 {latestCoachingTip.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-8 pt-0"> {/* Card padding */}
+            <CardContent className="p-8 pt-0 flex-grow">
               <p className="text-muted-foreground">{latestCoachingTip.message}</p>
             </CardContent>
-            <CardFooter className="p-8 pt-6 flex flex-col sm:flex-row gap-2"> {/* Card padding and button margin */}
+            <CardFooter className="p-8 pt-6 flex flex-col sm:flex-row gap-2 mt-auto">
                 <Button asChild className="flex-1 h-12 py-3 px-6 rounded-lg font-semibold" variant="default">
                     <Link href="/dashboard/coaching">Naar Coaching Hub</Link>
                 </Button>
@@ -143,14 +143,14 @@ function LeerlingDashboardContent() {
         </section>
         
         <section>
-            <Card className="shadow-lg h-full flex flex-col"> {/* Ensure this card also matches height if needed or allow natural height */}
-                 <CardHeader className="p-8"> {/* Card padding */}
+            <Card className="shadow-lg h-full flex flex-col">
+                 <CardHeader className="p-8">
                     <CardTitle className="flex items-center gap-2 text-xl text-accent">
                         <TrendingUp className="h-6 w-6 text-accent"/>
                         Mijn Voortgang
                     </CardTitle>
                  </CardHeader>
-                 <CardContent className="p-8 pt-0 flex-grow"> {/* Card padding and flex-grow */}
+                 <CardContent className="p-8 pt-0 flex-grow">
                     <p className="text-muted-foreground text-sm">
                         Je hebt recent de "Sociale Angst & Vriendschap" quiz voltooid. Goed bezig!
                     </p>
@@ -158,7 +158,7 @@ function LeerlingDashboardContent() {
                         Volgende stap: verdiep je in de coaching tips over communicatiestijlen.
                     </p>
                  </CardContent>
-                 <CardFooter className="p-8 pt-6 mt-auto"> {/* Card padding and mt-auto */}
+                 <CardFooter className="p-8 pt-6 mt-auto">
                     <Button variant="outline" asChild className="w-full h-12 py-3 px-6 rounded-lg font-semibold">
                         <Link href="/dashboard/results">Bekijk alle resultaten</Link>
                     </Button>
@@ -187,3 +187,4 @@ export default function DashboardPage() {
 
   return <LeerlingDashboardContent />;
 }
+
