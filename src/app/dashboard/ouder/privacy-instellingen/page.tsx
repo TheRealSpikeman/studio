@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2, GraduationCap, HeartHandshake } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2, GraduationCap, HeartHandshake, ImageUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
@@ -25,6 +25,7 @@ interface PrivacySettings {
   allowChildToControlSharingCoaches: boolean;
   allowChildToScheduleLessonsWithTutors: boolean;
   allowChildToScheduleSessionsWithCoaches: boolean;
+  allowChildToChooseAvatar: boolean; // Nieuwe instelling
   allowCommunityAccess: boolean;
   communityProfileVisibility: 'anonymous' | 'firstName' | 'fullName';
   allowCommunityMessaging: boolean;
@@ -39,6 +40,7 @@ const initialPrivacySettings: PrivacySettings = {
   allowChildToControlSharingCoaches: false,
   allowChildToScheduleLessonsWithTutors: false,
   allowChildToScheduleSessionsWithCoaches: false,
+  allowChildToChooseAvatar: false, // Standaard uit
   allowCommunityAccess: true,
   communityProfileVisibility: 'firstName',
   allowCommunityMessaging: false,
@@ -64,7 +66,7 @@ export default function PrivacyInstellingenPage() {
         const storedSettingsRaw = localStorage.getItem(`privacySettings_${selectedChildId}`);
         if (storedSettingsRaw) {
           const storedSettings = JSON.parse(storedSettingsRaw);
-          setSettings(prev => ({ ...prev, ...storedSettings }));
+          setSettings(prev => ({ ...initialPrivacySettings, ...storedSettings })); // Zorg dat nieuwe defaults worden meegenomen
         } else {
           // Geen opgeslagen instellingen, gebruik defaults
           setSettings(initialPrivacySettings);
@@ -90,9 +92,7 @@ export default function PrivacyInstellingenPage() {
     
     try {
       localStorage.setItem(`privacySettings_${selectedChildId}`, JSON.stringify(settings));
-      // De aparte opslag voor communityAccess is hier verwijderd, omdat het al in het 'settings' object zit.
-      // De sidebar zal aangepast moeten worden om uit `privacySettings_child1.allowCommunityAccess` te lezen ipv `communityAccess_child1`.
-
+      
       toast({
         title: "Instellingen Opgeslagen",
         description: `De privacy-instellingen voor ${selectedChildName} zijn bijgewerkt. De wijzigingen zijn direct actief.`,
@@ -120,7 +120,7 @@ export default function PrivacyInstellingenPage() {
             Privacy & Toestemming
           </h1>
           <p className="text-muted-foreground">
-            Beheer hier de deelinstellingen en privacyvoorkeuren voor uw kind.
+            Beheer hier de deelinstellingen en privacyvoorkeuren voor {selectedChildName}.
           </p>
         </div>
         <Button variant="outline" asChild>
@@ -155,7 +155,7 @@ export default function PrivacyInstellingenPage() {
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5 text-primary"/>Zichtbaarheid & Delen van Resultaten</CardTitle>
-              <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten van {selectedChildName}.</CardDescription>
+              <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten en voortgang van {selectedChildName}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Delen met Tutors */}
@@ -248,12 +248,28 @@ export default function PrivacyInstellingenPage() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft {selectedChildName} meer verantwoordelijkheid in het plannen van persoonlijke begeleiding. U ontvangt een notificatie.</p>
               </div>
+
+              <hr className="my-2 border-border/50"/>
+              {/* Kind mag avatar kiezen */}
+               <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToChooseAvatar" className="text-base flex items-center gap-2">
+                        <ImageUp className="h-4 w-4 text-muted-foreground" /> {selectedChildName} toestaan zelf een profielafbeelding/avatar te kiezen?
+                    </Label>
+                    <Switch
+                    id="allowChildToChooseAvatar"
+                    checked={settings.allowChildToChooseAvatar}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToChooseAvatar', checked)}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kan {selectedChildName} het eigen profiel personaliseren. U behoudt de mogelijkheid om een avatar te overschrijven indien nodig.</p>
+              </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5 text-primary"/>Community & Interactie</CardTitle>
+              <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5 text-primary"/>Community &amp; Interactie</CardTitle>
               <CardDescription>Beheer de toegang en zichtbaarheid van {selectedChildName} binnen de MindNavigator community.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -268,7 +284,7 @@ export default function PrivacyInstellingenPage() {
                     onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
                     />
                 </div>
-                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun.</p>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun. Deelname is optioneel.</p>
               </div>
                {settings.allowCommunityAccess && (
                 <>
@@ -294,7 +310,7 @@ export default function PrivacyInstellingenPage() {
                   <div className="p-3 rounded-md border">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="allowCommunityMessaging" className="text-base flex items-center gap-2">
-                        <Share2 className="h-4 w-4 text-muted-foreground" /> {selectedChildName} toestaan privéberichten te sturen/ontvangen van andere (goedgekeurde) gebruikers?
+                        <Share2 className="h-4 w-4 text-muted-foreground" /> {selectedChildName} toestaan privéberichten te sturen/ontvangen?
                       </Label>
                       <Switch
                         id="allowCommunityMessaging"
@@ -302,7 +318,7 @@ export default function PrivacyInstellingenPage() {
                         onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
                       />
                     </div>
-                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community.</p>
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community (onderhevig aan moderatie).</p>
                   </div>
                 </>
                )}
@@ -365,3 +381,4 @@ export default function PrivacyInstellingenPage() {
     </div>
   );
 }
+
