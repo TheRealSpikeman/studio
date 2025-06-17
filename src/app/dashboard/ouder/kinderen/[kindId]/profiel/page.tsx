@@ -435,9 +435,9 @@ export default function KindProfielPage() {
                     <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
-                    {isEditing && editableChildData ? (
+                     {isEditing && editableChildData ? (
                         <>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mb-4">
                                 <Checkbox 
                                     id="hulpvraag-tutor" 
                                     checked={editableChildData.hulpvraagType.includes('tutor')} 
@@ -458,7 +458,7 @@ export default function KindProfielPage() {
                                             ))}
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="mt-4">
                                         <Label className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</Label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             {predefinedLeerdoelen.map(doel => (
@@ -469,7 +469,7 @@ export default function KindProfielPage() {
                                             ))}
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="mt-4">
                                         <Label htmlFor="otherLeerdoelenEdit">Andere leerdoelen/toelichting</Label>
                                         <Textarea id="otherLeerdoelenEdit" value={editableChildData.otherLeerdoelen} onChange={(e) => handleInputChange('otherLeerdoelen', e.target.value)} rows={3} />
                                     </div>
@@ -478,12 +478,14 @@ export default function KindProfielPage() {
                         </>
                     ) : (
                         <>
-                           <div className="flex items-center justify-between mb-2">
-                                <p className="font-medium text-foreground/80">Hulp bij huiswerk:</p>
-                                <Badge variant={childData.hulpvraagType?.includes('tutor') ? "default" : "secondary"} className={childData.hulpvraagType?.includes('tutor') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
-                                    {childData.hulpvraagType?.includes('tutor') ? 'Actief' : 'Niet Actief'}
-                                </Badge>
-                            </div>
+                            {allHulpvraagOptions.filter(opt => opt.id === 'tutor').map(opt => (
+                                <div key={opt.id} className="flex items-center justify-between mb-3">
+                                    <p className="font-medium text-foreground/80">{opt.label}:</p>
+                                    <Badge variant={childData.hulpvraagType?.includes(opt.id) ? "default" : "secondary"} className={childData.hulpvraagType?.includes(opt.id) ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                                        {childData.hulpvraagType?.includes(opt.id) ? 'Actief' : 'Niet Actief'}
+                                    </Badge>
+                                </div>
+                            ))}
                             {childData.hulpvraagType?.includes('tutor') && (
                                 <>
                                     <div>
@@ -503,12 +505,16 @@ export default function KindProfielPage() {
                     )}
                 </CardContent>
             </Card>
-            <Card className="shadow-lg">
+        </div>
+
+        {/* Kolom 3 */}
+        <div className="lg:col-span-1 space-y-6">
+             <Card className="shadow-lg">
                 <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle></CardHeader>
                 <CardContent className="text-sm space-y-4">
                     {isEditing && editableChildData ? (
                         <>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mb-4">
                                 <Checkbox id="hulpvraag-coach" checked={editableChildData.hulpvraagType.includes('coach')} onCheckedChange={(checked) => handleCheckboxChange('hulpvraagType', 'coach', !!checked)} />
                                 <Label htmlFor="hulpvraag-coach" className="font-semibold">1-op-1 coaching actief?</Label>
                             </div>
@@ -525,7 +531,7 @@ export default function KindProfielPage() {
                                             ))}
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="mt-4">
                                         <Label htmlFor="otherTutorPreferenceEdit">Andere voorkeuren coach/toelichting</Label>
                                         <Textarea id="otherTutorPreferenceEdit" value={editableChildData.otherTutorPreference} onChange={(e) => handleInputChange('otherTutorPreference', e.target.value)} rows={2} />
                                     </div>
@@ -534,12 +540,14 @@ export default function KindProfielPage() {
                         </>
                     ) : (
                         <>
-                             <div className="flex items-center justify-between mb-2">
-                                <p className="font-medium text-foreground/80">1-op-1 coaching:</p>
-                                <Badge variant={childData.hulpvraagType?.includes('coach') ? "default" : "secondary"} className={childData.hulpvraagType?.includes('coach') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
-                                    {childData.hulpvraagType?.includes('coach') ? 'Actief' : 'Niet Actief'}
-                                </Badge>
-                            </div>
+                            {allHulpvraagOptions.filter(opt => opt.id === 'coach').map(opt => (
+                                <div key={opt.id} className="flex items-center justify-between mb-3">
+                                    <p className="font-medium text-foreground/80">{opt.label}:</p>
+                                    <Badge variant={childData.hulpvraagType?.includes(opt.id) ? "default" : "secondary"} className={childData.hulpvraagType?.includes(opt.id) ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                                        {childData.hulpvraagType?.includes(opt.id) ? 'Actief' : 'Niet Actief'}
+                                    </Badge>
+                                </div>
+                            ))}
                             {childData.hulpvraagType?.includes('coach') && (
                                 <div className="mt-2">
                                     <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><UsersIcon className="h-4 w-4"/>Voorkeuren Coach</h4>
@@ -552,10 +560,6 @@ export default function KindProfielPage() {
                     )}
                 </CardContent>
             </Card>
-        </div>
-
-        {/* Kolom 3 */}
-        <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-lg">
                 <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
                 <CardContent className="text-sm">
@@ -575,7 +579,6 @@ export default function KindProfielPage() {
                     <p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p>
                 </CardContent>
             </Card>
-            {/* Eventueel nog een andere kleine kaart hier later */}
         </div>
       </div>
     </div>
