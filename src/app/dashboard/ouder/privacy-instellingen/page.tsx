@@ -90,12 +90,12 @@ export default function PrivacyInstellingenPage() {
     
     try {
       localStorage.setItem(`privacySettings_${selectedChildId}`, JSON.stringify(settings));
-      // Specifiek opslaan voor community toegang voor de sidebar demo
-      localStorage.setItem(`communityAccess_${selectedChildId}`, JSON.stringify(settings.allowCommunityAccess));
+      // De aparte opslag voor communityAccess is hier verwijderd, omdat het al in het 'settings' object zit.
+      // De sidebar zal aangepast moeten worden om uit `privacySettings_child1.allowCommunityAccess` te lezen ipv `communityAccess_child1`.
 
       toast({
         title: "Instellingen Opgeslagen",
-        description: `De privacy-instellingen voor ${selectedChild?.name || 'het kind'} zijn bijgewerkt. De wijzigingen zijn direct actief.`,
+        description: `De privacy-instellingen voor ${selectedChildName} zijn bijgewerkt. De wijzigingen zijn direct actief.`,
       });
     } catch (error) {
       toast({
@@ -162,7 +162,7 @@ export default function PrivacyInstellingenPage() {
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="shareResultsWithActualTutors" className="text-base flex items-center gap-2">
-                        <GraduationCap className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde tutors (huiswerkbegeleiding)?
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde tutors (huiswerkbegeleiding)?
                     </Label>
                     <Switch
                     id="shareResultsWithActualTutors"
@@ -176,7 +176,7 @@ export default function PrivacyInstellingenPage() {
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="shareResultsWithActualCoaches" className="text-base flex items-center gap-2">
-                        <HeartHandshake className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde coaches (persoonlijke begeleiding)?
+                        <HeartHandshake className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde coaches (persoonlijke begeleiding)?
                     </Label>
                     <Switch
                     id="shareResultsWithActualCoaches"
@@ -268,7 +268,7 @@ export default function PrivacyInstellingenPage() {
                     onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
                     />
                 </div>
-                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun (indien geactiveerd).</p>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun.</p>
               </div>
                {settings.allowCommunityAccess && (
                 <>
@@ -302,7 +302,7 @@ export default function PrivacyInstellingenPage() {
                         onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
                       />
                     </div>
-                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community (indien geactiveerd).</p>
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community.</p>
                   </div>
                 </>
                )}
