@@ -57,6 +57,18 @@ body {
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 10% 80%; /* Gray */
     --sidebar-ring: 25 78% 52%; /* Oranje */
+
+    /* Dashboard specific theme variables - can be overridden by user preference later */
+    --dashboard-background: hsl(var(--background));
+    --dashboard-foreground: hsl(var(--foreground));
+    --dashboard-card: hsl(var(--card));
+    --dashboard-card-foreground: hsl(var(--card-foreground));
+    --dashboard-primary: hsl(var(--primary));
+    --dashboard-primary-foreground: hsl(var(--primary-foreground));
+    --dashboard-accent: hsl(var(--accent));
+    --dashboard-accent-foreground: hsl(var(--accent-foreground));
+    --dashboard-border: hsl(var(--border));
+    --dashboard-ring: hsl(var(--ring));
   }
 
   .dark {
@@ -102,6 +114,18 @@ body {
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 20% 30%; /* Darker border */
     --sidebar-ring: 25 78% 52%; /* Oranje */
+
+    /* Dashboard specific theme variables - dark mode */
+    --dashboard-background: hsl(var(--background)); /* These will pick up the dark mode versions of global vars */
+    --dashboard-foreground: hsl(var(--foreground));
+    --dashboard-card: hsl(var(--card));
+    --dashboard-card-foreground: hsl(var(--card-foreground));
+    --dashboard-primary: hsl(var(--primary));
+    --dashboard-primary-foreground: hsl(var(--primary-foreground));
+    --dashboard-accent: hsl(var(--accent));
+    --dashboard-accent-foreground: hsl(var(--accent-foreground));
+    --dashboard-border: hsl(var(--border));
+    --dashboard-ring: hsl(var(--ring));
   }
 }
 
