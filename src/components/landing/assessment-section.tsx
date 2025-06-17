@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain, Compass, MapIcon, LocateIcon } from 'lucide-react'; 
+import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain, Compass, MapIcon, LocateIcon, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react'; 
 
 export function AssessmentSection() {
   return (
@@ -12,7 +12,7 @@ export function AssessmentSection() {
         
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
-            <Compass className="h-8 w-8 text-primary" /> {/* Changed from OCR icon */}
+            <Compass className="h-8 w-8 text-primary" />
             Uw Persoonlijke MindNavigator Reis Begint Met Zelfontdekking
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -22,11 +22,12 @@ export function AssessmentSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-start"> {/* Changed to items-start for better control if content heights differ slightly */}
           
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-foreground flex items-center gap-2">
-              <Sparkles className="h-7 w-7 text-primary" /> Wat Ontdekt Uw Kind?
+              <Compass className="h-7 w-7 text-primary" /> {/* Changed from Sparkles */}
+              Wat Ontdekt Uw Kind?
             </h3>
             
             <div className="space-y-4">
@@ -99,7 +100,7 @@ export function AssessmentSection() {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center"> {/* Standardized icon background */}
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                      <Target className="h-6 w-6 text-primary" />
                   </div>
                   <div>
@@ -108,12 +109,13 @@ export function AssessmentSection() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                <strong className="text-primary">1.200+</strong> jongeren ontdekten al hun persoonlijke profiel
-              </p>
+              
+              {/* Stats moved inside the card */}
+              <div className="mt-8 pt-6 border-t border-border/50 text-center">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-primary">1.200+</strong> jongeren ontdekten al hun persoonlijke profiel
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -128,8 +130,10 @@ export function AssessmentSection() {
             </Button>
           </div>
           
-          <p className="text-sm text-muted-foreground mt-3">
-            ⏱️ Duurt 15 minuten • 🔒 Volledig privé • ✨ Direct resultaat
+          <p className="text-sm text-muted-foreground mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> Duurt 15 minuten</span>
+            <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> Volledig privé</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" /> Direct resultaat</span>
           </p>
         </div>
 
