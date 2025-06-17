@@ -1,4 +1,5 @@
-/src/app/features/gepersonaliseerde-inzichten/page.tsx
+"use client"; // Add "use client" directive at the top
+
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
