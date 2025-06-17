@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2 } from 'lucide-react'; // Added Share2
+import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2, GraduationCap, HeartHandshake } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
@@ -19,9 +19,12 @@ const dummyChildren = [
 ];
 
 interface PrivacySettings {
-  shareResultsWithTutors: boolean;
-  allowChildToControlSharing: boolean;
-  allowChildToScheduleLessons: boolean; 
+  shareResultsWithActualTutors: boolean;
+  shareResultsWithActualCoaches: boolean;
+  allowChildToControlSharingTutors: boolean;
+  allowChildToControlSharingCoaches: boolean;
+  allowChildToScheduleLessonsWithTutors: boolean; 
+  allowChildToScheduleSessionsWithCoaches: boolean;
   allowCommunityAccess: boolean;
   communityProfileVisibility: 'anonymous' | 'firstName' | 'fullName';
   allowCommunityMessaging: boolean;
@@ -30,9 +33,12 @@ interface PrivacySettings {
 }
 
 const initialPrivacySettings: PrivacySettings = {
-  shareResultsWithTutors: true,
-  allowChildToControlSharing: false,
-  allowChildToScheduleLessons: false, 
+  shareResultsWithActualTutors: true,
+  shareResultsWithActualCoaches: true,
+  allowChildToControlSharingTutors: false,
+  allowChildToControlSharingCoaches: false,
+  allowChildToScheduleLessonsWithTutors: false,
+  allowChildToScheduleSessionsWithCoaches: false,
   allowCommunityAccess: true,
   communityProfileVisibility: 'firstName',
   allowCommunityMessaging: false,
@@ -48,6 +54,8 @@ export default function PrivacyInstellingenPage() {
   useEffect(() => {
     if (selectedChildId) {
       console.log(`Instellingen laden voor kind: ${selectedChildId} (simulatie)`);
+      // In een echte app: laad hier kind-specifieke instellingen.
+      // Voor nu resetten we naar de defaults voor demo doeleinden.
       setSettings(initialPrivacySettings); 
     }
   }, [selectedChildId]);
@@ -110,44 +118,95 @@ export default function PrivacyInstellingenPage() {
               <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten en het profiel van uw kind.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Delen met Tutors */}
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="shareResultsWithTutors" className="text-base flex items-center gap-2">
-                        <Share2 className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde tutors en/of coaches?
+                    <Label htmlFor="shareResultsWithActualTutors" className="text-base flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde tutors (huiswerkbegeleiding)?
                     </Label>
                     <Switch
-                    id="shareResultsWithTutors"
-                    checked={settings.shareResultsWithTutors}
-                    onCheckedChange={(checked) => handleSettingChange('shareResultsWithTutors', checked)}
+                    id="shareResultsWithActualTutors"
+                    checked={settings.shareResultsWithActualTutors}
+                    onCheckedChange={(checked) => handleSettingChange('shareResultsWithActualTutors', checked)}
                     />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen tutors en coaches beter afgestemde ondersteuning bieden.</p>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen tutors beter afgestemde huiswerkbegeleiding bieden.</p>
               </div>
+              {/* Delen met Coaches */}
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="allowChildToControlSharing" className="text-base flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf te bepalen of resultaten met tutors en/of coaches gedeeld worden?
+                    <Label htmlFor="shareResultsWithActualCoaches" className="text-base flex items-center gap-2">
+                        <HeartHandshake className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde coaches (persoonlijke begeleiding)?
                     </Label>
                     <Switch
-                    id="allowChildToControlSharing"
-                    checked={settings.allowChildToControlSharing}
-                    onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharing', checked)}
+                    id="shareResultsWithActualCoaches"
+                    checked={settings.shareResultsWithActualCoaches}
+                    onCheckedChange={(checked) => handleSettingChange('shareResultsWithActualCoaches', checked)}
                     />
                 </div>
-                 <p className="text-xs text-muted-foreground mt-1 pl-6">Dit geeft uw kind meer autonomie over de eigen gegevens.</p>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen coaches beter afgestemde persoonlijke begeleiding bieden.</p>
               </div>
+              
+              <hr className="my-2 border-border/50"/>
+              
+              {/* Kind bepaalt delen Tutors */}
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="allowChildToScheduleLessons" className="text-base flex items-center gap-2">
-                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig 1-op-1 lessen (met tutors) of sessies (met coaches) te plannen?
+                    <Label htmlFor="allowChildToControlSharingTutors" className="text-base flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf delen met tutors te bepalen?
                     </Label>
                     <Switch
-                    id="allowChildToScheduleLessons"
-                    checked={settings.allowChildToScheduleLessons}
-                    onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessons', checked)}
+                    id="allowChildToControlSharingTutors"
+                    checked={settings.allowChildToControlSharingTutors}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharingTutors', checked)}
                     />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid en flexibiliteit in het plannen van ondersteuning met tutors of coaches. Indien uitgeschakeld, moet u als ouder deze inplannen.</p>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">Dit geeft uw kind meer autonomie over de eigen gegevens m.b.t. huiswerkbegeleiding.</p>
+              </div>
+              {/* Kind bepaalt delen Coaches */}
+               <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToControlSharingCoaches" className="text-base flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf delen met coaches te bepalen?
+                    </Label>
+                    <Switch
+                    id="allowChildToControlSharingCoaches"
+                    checked={settings.allowChildToControlSharingCoaches}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharingCoaches', checked)}
+                    />
+                </div>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">Dit geeft uw kind meer autonomie over de eigen gegevens m.b.t. persoonlijke begeleiding.</p>
+              </div>
+
+              <hr className="my-2 border-border/50"/>
+
+              {/* Kind plant lessen Tutors */}
+              <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToScheduleLessonsWithTutors" className="text-base flex items-center gap-2">
+                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig lessen met tutors te plannen?
+                    </Label>
+                    <Switch
+                    id="allowChildToScheduleLessonsWithTutors"
+                    checked={settings.allowChildToScheduleLessonsWithTutors}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessonsWithTutors', checked)}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid in het plannen van huiswerkbegeleiding. U ontvangt een notificatie.</p>
+              </div>
+              {/* Kind plant sessies Coaches */}
+               <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToScheduleSessionsWithCoaches" className="text-base flex items-center gap-2">
+                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig sessies met coaches te plannen?
+                    </Label>
+                    <Switch
+                    id="allowChildToScheduleSessionsWithCoaches"
+                    checked={settings.allowChildToScheduleSessionsWithCoaches}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleSessionsWithCoaches', checked)}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid in het plannen van persoonlijke begeleiding. U ontvangt een notificatie.</p>
               </div>
             </CardContent>
           </Card>
