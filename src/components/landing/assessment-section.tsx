@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain, Compass, MapIcon, LocateIcon, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react'; 
+import { FileText, BarChart3, Target, TrendingUp, Brain, Compass, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react'; 
 
 export function AssessmentSection() {
   return (
@@ -22,11 +22,11 @@ export function AssessmentSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-start"> {/* Changed to items-start for better control if content heights differ slightly */}
+        <div className="grid lg:grid-cols-2 gap-12 items-center"> {/* Changed from items-start */}
           
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-foreground flex items-center gap-2">
-              <Compass className="h-7 w-7 text-primary" /> {/* Changed from Sparkles */}
+              <Compass className="h-7 w-7 text-primary" /> 
               Wat Ontdekt Uw Kind?
             </h3>
             
@@ -64,7 +64,7 @@ export function AssessmentSection() {
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-card/60 rounded-lg border border-primary/20">
+            <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border shadow-sm"> {/* Adjusted testimonial card style */}
               <p className="text-foreground/80 italic">
                 💫 "De assessment gaf me eindelijk inzicht in hoe ik het beste leer en wat mijn sterke punten zijn"
               </p>
@@ -110,7 +110,6 @@ export function AssessmentSection() {
                 </div>
               </div>
               
-              {/* Stats moved inside the card */}
               <div className="mt-8 pt-6 border-t border-border/50 text-center">
                 <p className="text-sm text-muted-foreground">
                   <strong className="text-primary">1.200+</strong> jongeren ontdekten al hun persoonlijke profiel
