@@ -64,7 +64,7 @@ const ouderDashboardItems: DashboardItem[] = [
   {
     id: 'privacy',
     title: 'Privacy & Toestemming',
-    description: 'Beheer hier de deelinstellingen van uw kind en lees tips over respectvolle communicatie en het waarborgen van autonomie.',
+    description: 'Beheer hier per kind de deelinstellingen en privacyvoorkeuren. Lees ook tips over respectvolle communicatie en het waarborgen van autonomie.',
     icon: ShieldCheck,
     link: '/dashboard/ouder/privacy-instellingen', 
     buttonText: 'Beheer Privacy & Delen', 
