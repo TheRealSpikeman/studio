@@ -36,7 +36,7 @@ export function HeroSection() {
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
-              <Link href="/quizzes">Start een quiz voor uw kind</Link>
+              <Link href="/quiz/ouder-symptomen-check">Doe de Symptomen Check (voor ouders)</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-6">
               <Link href="/for-parents">Meer informatie voor ouders</Link>
