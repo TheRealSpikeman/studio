@@ -20,9 +20,9 @@ const servicePackages: ServicePackage[] = [
   {
     icon: <BarChart3 className="h-10 w-10 text-primary" />,
     title: 'Gratis Start',
-    description: 'Begin met de basis: doe de neurodiversiteit quiz en ontvang direct een uitgebreid PDF-rapport.',
-    features: ['Basis Neurodiversiteit Quiz', 'Uitgebreid PDF Rapport'],
-    ctaText: 'Start de gratis quiz',
+    description: 'Begin met de basis: doe een zelfreflectie tool en ontvang direct een uitgebreid PDF-overzicht.',
+    features: ['Basis Zelfreflectie Tool', 'Uitgebreid PDF Overzicht'],
+    ctaText: 'Start de gratis tool',
     link: '/quizzes',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
     typeLabel: 'Gratis',
@@ -30,8 +30,8 @@ const servicePackages: ServicePackage[] = [
   {
     icon: <MessageSquare className="h-10 w-10 text-primary" />,
     title: 'Coaching & Tools',
-    description: 'Krijg volledige toegang tot alle quizzen, de virtuele coaching hub, dagboek en handige huiswerk tools.',
-    features: ['Alle Quizzen (Basis + Subtests)', 'Volledige Coaching Hub', 'Huiswerk Tools'],
+    description: 'Krijg volledige toegang tot alle zelfreflectie-instrumenten, de virtuele coaching hub, dagboek en handige huiswerk tools.',
+    features: ['Alle Zelfreflectie Tools', 'Volledige Coaching Hub', 'Huiswerk Tools'],
     ctaText: 'Ontdek Coaching',
     link: '/#pricing', 
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
@@ -108,4 +108,3 @@ export function ServicesSection() {
     </section>
   );
 }
-

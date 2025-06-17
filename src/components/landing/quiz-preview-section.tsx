@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 const sampleQuestion = {
   id: 'sample-q1',
-  text: 'Hoe voel je je meestal in sociale situaties?',
+  text: 'Hoe voelt uw kind zich meestal in sociale situaties?',
   options: [
     { id: 'sq-o1a', text: 'Energiek en spraakzaam' },
     { id: 'sq-o1b', text: 'Rustig en observerend' },
@@ -35,13 +35,13 @@ export function QuizPreviewSection() {
           Krijg een eerste indruk
         </h2>
         <p className="mb-8 text-muted-foreground max-w-xl">
-          Beantwoord één voorbeeldvraag en zie hoe onze quizzen uw kind (en u!) op weg helpen naar zelfinzicht.
+          Beantwoord één voorbeeldvraag en zie hoe onze zelfreflectie-instrumenten uw kind (en u!) op weg helpen naar zelfinzicht.
         </p>
         <Card className="w-full max-w-lg shadow-xl mb-6" aria-labelledby="sample-question-title" aria-describedby="sample-question-description">
           <CardHeader>
             <CardTitle id="sample-question-title" className="text-xl font-semibold">{sampleQuestion.text}</CardTitle>
             <CardDescription id="sample-question-description">
-              Kies het antwoord dat het beste past bij uw kind. (Voorbeeldvraag uit een reeks van 12 tot 15)
+              Kies het antwoord dat het beste past bij uw kind. (Voorbeeldvraag uit een reeks)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -67,7 +67,7 @@ export function QuizPreviewSection() {
           </CardContent>
         </Card>
         <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-          <Link href="/quizzes">Start een quiz voor uw kind</Link>
+          <Link href="/quizzes">Start een zelfreflectie tool voor uw kind</Link>
         </Button>
       </div>
     </section>

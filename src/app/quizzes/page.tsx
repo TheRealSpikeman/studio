@@ -2,7 +2,7 @@
 "use client"; 
 
 import type { ElementType } from 'react';
-import { useState, useMemo, useEffect, Suspense } from 'react'; // Added Suspense
+import { useState, useMemo, useEffect, Suspense } from 'react'; 
 import { useSearchParams } from 'next/navigation';
 import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
@@ -30,16 +30,17 @@ export interface Quiz {
   icon?: ElementType; 
   badgeText?: string; 
   badgeClass?: string; 
+  isNeuroIntake?: boolean; // Toegevoegd om intake te identificeren
 }
 
 const recommendedQuizzes: Quiz[] = [
     { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
-    title: 'Neurodiversiteit (15-18 jr)', 
+    title: 'Zelfreflectie Tool (15-18 jr)', 
     description: 'Ontdek jouw eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/teenquiz1518/400/200',
-    dataAiHint: 'teenager focused',
+    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
+    dataAiHint: 'teenager focused thinking',
     ageGroup: '15-18',
     duration: "12-18 min",
     questionCount: 15,
@@ -47,14 +48,15 @@ const recommendedQuizzes: Quiz[] = [
     icon: Brain,
     badgeText: "Aanrader",
     badgeClass: "bg-purple-500 text-white",
+    isNeuroIntake: true,
   },
   { 
     id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding', 
+    title: 'Focus & Digitale Afleiding Tool', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/digitalfocus/400/200',
-    dataAiHint: 'teenager phone',
+    imageUrl: 'https://placehold.co/400x200.png?text=Focus+Digitaal',
+    dataAiHint: 'teenager phone screen',
     ageGroup: 'all',
     duration: "6-9 min",
     questionCount: 10,
@@ -68,11 +70,11 @@ const recommendedQuizzes: Quiz[] = [
 const baseTeenQuizzes: Quiz[] = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
-    title: 'Neurodiversiteit (12-14 jr)', 
+    title: 'Zelfreflectie Tool (12-14 jr)', 
     description: 'Ontdek jouw eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/teenquiz1214/400/200',
-    dataAiHint: 'teenager study',
+    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+12-14',
+    dataAiHint: 'teenager study journal',
     ageGroup: '12-14',
     duration: "10-15 min",
     questionCount: 12,
@@ -80,14 +82,15 @@ const baseTeenQuizzes: Quiz[] = [
     icon: Brain,
     badgeText: "Basis",
     badgeClass: "bg-blue-500 text-white",
+    isNeuroIntake: true,
   },
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
-    title: 'Neurodiversiteit (15-18 jr)', 
+    title: 'Zelfreflectie Tool (15-18 jr)', 
     description: 'Ontdek jouw eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/teenquiz1518/400/200',
-    dataAiHint: 'teenager focused',
+    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
+    dataAiHint: 'teenager focused thinking',
     ageGroup: '15-18',
     duration: "12-18 min",
     questionCount: 15,
@@ -95,17 +98,18 @@ const baseTeenQuizzes: Quiz[] = [
     icon: Brain,
     badgeText: "Basis",
     badgeClass: "bg-blue-500 text-white",
+    isNeuroIntake: true,
   },
 ];
 
 const thematicTeenQuizzes: Quiz[] = [
   { 
     id: 'exam-stress-planning', 
-    title: 'Examenvrees & Planning', 
+    title: 'Omgaan met Examenvrees', 
     description: 'Leer stress te beheersen en je planning scherp te houden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/examstress/400/200',
-    dataAiHint: 'student exam',
+    imageUrl: 'https://placehold.co/400x200.png?text=Examenvrees',
+    dataAiHint: 'student exam stress',
     ageGroup: 'all',
     duration: "8-12 min",
     questionCount: 10,
@@ -116,11 +120,11 @@ const thematicTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'social-anxiety-friendships', 
-    title: 'Sociale Angst & Vriendschap', 
+    title: 'Sociale Situaties & Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/socialanxiety/400/200',
-    dataAiHint: 'teenagers friends',
+    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties',
+    dataAiHint: 'teenagers friends group',
     ageGroup: 'all',
     duration: "7-10 min",
     questionCount: 12,
@@ -129,11 +133,11 @@ const thematicTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding', 
+    title: 'Focus & Digitale Afleiding Tool', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/digitalfocus/400/200',
-    dataAiHint: 'teenager phone',
+    imageUrl: 'https://placehold.co/400x200.png?text=Focus+Digitaal',
+    dataAiHint: 'teenager phone screen',
     ageGroup: 'all',
     duration: "6-9 min",
     questionCount: 10,
@@ -144,11 +148,11 @@ const thematicTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'motivation-goals', 
-    title: 'Motivatie & Doelen', 
+    title: 'Motivatie & Doelen Stellen', 
     description: 'Leer doelen stellen, successen vieren en gemotiveerd blijven.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://picsum.photos/seed/motivationgoals/400/200',
-    dataAiHint: 'success achievement',
+    imageUrl: 'https://placehold.co/400x200.png?text=Motivatie+Doelen',
+    dataAiHint: 'success achievement arrow',
     ageGroup: 'all',
     duration: "5-8 min",
     questionCount: 8,
@@ -159,7 +163,6 @@ const thematicTeenQuizzes: Quiz[] = [
 
 type AgeFilterType = 'all' | '12-14' | '15-18';
 
-// This is the content component that uses client-side hooks
 function PublicQuizzesContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
@@ -173,7 +176,7 @@ function PublicQuizzesContent() {
       if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
         setAgeFilter(ageGroupFromQuery as '12-14' | '15-18');
       } else if (ageGroupFromQuery === 'adult') {
-        setAgeFilter('all'); // Adults see 'all' by default if coming from dashboard
+        setAgeFilter('all'); 
       }
     }
   }, [searchParams]);
@@ -224,20 +227,20 @@ function PublicQuizzesContent() {
         <div className="container space-y-12">
           <section className="text-center">
             <BookOpen className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">Alle Quizzen (Openbaar)</h1>
+            <h1 className="text-4xl font-bold text-foreground">Zelfreflectie Tools</h1>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Dit is de openbare quizzenpagina. Ingelogde leerlingen zien dit overzicht binnen hun dashboard.
+              Ontdek onze tools om meer inzicht te krijgen in jouw unieke denkstijl, sterke punten en uitdagingen.
             </p>
              <p className="text-md text-accent mt-3 flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Elke quiz helpt je dichter bij betere focus en zelfinzicht.
+              Elke tool helpt je dichter bij betere focus en zelfinzicht.
             </p>
           </section>
 
           <Card className="shadow-md">
             <CardContent className="p-6 space-y-4 md:space-y-0 md:flex md:items-end md:gap-4">
               <div className="flex-grow relative">
-                <Label htmlFor="search-quiz" className="sr-only">Zoek quizzen</Label>
+                <Label htmlFor="search-quiz" className="sr-only">Zoek tools</Label>
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   id="search-quiz"
@@ -288,9 +291,9 @@ function PublicQuizzesContent() {
              <Card className="bg-secondary/50 border-secondary">
                 <CardContent className="p-6 flex flex-col items-center text-center">
                 <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen gevonden</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Geen tools gevonden</h3>
                 <p className="text-muted-foreground">
-                    Er zijn geen quizzen die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
+                    Er zijn geen zelfreflectie tools die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
                 </p>
                 <Button onClick={() => {setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); setDurationFilter('all');}} className="mt-4">
                     Wis filters & zoekopdracht
@@ -313,8 +316,8 @@ function PublicQuizzesContent() {
               )}
 
               <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Basistests voor jouw leeftijd</h2>
-                 <p className="text-sm text-muted-foreground mb-6">Start hier als je voor het eerst jouw profiel ontdekt.</p>
+                <h2 className="mb-2 text-2xl font-semibold text-foreground">Basistools voor jouw leeftijd</h2>
+                 <p className="text-sm text-muted-foreground mb-6">Start hier als je voor het eerst jouw eigenschappen wilt verkennen.</p>
                 {filteredBaseQuizzes.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredBaseQuizzes.map((quiz) => (
@@ -323,13 +326,13 @@ function PublicQuizzesContent() {
                   </div>
                 ) : (
                    <p className="text-muted-foreground text-center py-6">
-                    Geen basistests gevonden die voldoen aan de huidige filters.
+                    Geen basistools gevonden die voldoen aan de huidige filters.
                   </p>
                 )}
               </section>
 
               <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale angst & meer</h2>
+                <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale situaties & meer</h2>
                 <p className="text-sm text-muted-foreground mb-6">Duik dieper in specifieke onderwerpen die voor jou relevant zijn.</p>
                 {filteredThematicQuizzes.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -339,7 +342,7 @@ function PublicQuizzesContent() {
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-6">
-                    Geen thema-quizzen gevonden die voldoen aan de huidige filters.
+                    Geen thematische tools gevonden die voldoen aan de huidige filters.
                   </p>
                 )}
               </section>
@@ -351,10 +354,10 @@ function PublicQuizzesContent() {
               Klaar om te ontdekken wat <span className="text-primary">jouw brein uniek</span> maakt?
             </h2>
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-              <Link href="/quizzes?ageGroup=12-14">Start gratis quiz (12-14jr)</Link>
+              <Link href="/quizzes?ageGroup=12-14">Start gratis tool (12-14jr)</Link>
             </Button>
              <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow ml-4">
-              <Link href="/quizzes?ageGroup=15-18">Start gratis quiz (15-18jr)</Link>
+              <Link href="/quizzes?ageGroup=15-18">Start gratis tool (15-18jr)</Link>
             </Button>
             <p className="mt-6 text-muted-foreground">
               <Sparkles className="inline-block h-5 w-5 mr-1 text-accent" />
@@ -369,8 +372,6 @@ function PublicQuizzesContent() {
   );
 }
 
-
-// New wrapper component to handle Suspense for useSearchParams
 export default function QuizzesOverviewPage() {
   return (
     <Suspense fallback={<div>Pagina laden...</div>}>

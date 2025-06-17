@@ -1,4 +1,5 @@
-"use client"; // This page needs client-side interactivity for quiz progression
+
+"use client"; 
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,15 +17,13 @@ const dummyQuizData: { [key: string]: QuestionType[] } = {
     { id: 'q3', text: 'Hoe ga je om met onverwachte veranderingen in je routine?', options: [{ id: 'o3a', text: 'Ik vind het lastig en heb tijd nodig om aan te passen' }, { id: 'o3b', text: 'Ik pas me makkelijk aan en zie het als een uitdaging' }, { id: 'o3c', text: 'Het hangt af van de soort verandering' }] },
   ],
   'adhd-focus-201': [
-    // Questions for ADHD quiz
     { id: 'q1-adhd', text: 'Hoe vaak heb je moeite om je aandacht bij taken of spelactiviteiten te houden?', options: [{ id: 'o1a-adhd', text: 'Zelden of nooit' }, { id: 'o1b-adhd', text: 'Soms' }, { id: 'o1c-adhd', text: 'Vaak' }, { id: 'o1d-adhd', text: 'Zeer vaak' }] },
     { id: 'q2-adhd', text: 'Hoe vaak lijk je niet te luisteren als je direct wordt aangesproken?', options: [{ id: 'o1a-adhd', text: 'Zelden of nooit' }, { id: 'o1b-adhd', text: 'Soms' }, { id: 'o1c-adhd', text: 'Vaak' }, { id: 'o1d-adhd', text: 'Zeer vaak' }] },
   ],
-  // ... other quizzes
 };
 
 const quizTitles: { [key: string]: string } = {
-    'neuroprofile-101': 'Basis Neuroprofiel Quiz (Volwassenen)',
+    'neuroprofile-101': 'Basis Zelfreflectie Tool (Volwassenen)',
     'adhd-focus-201': 'ADHD & Focus Verdieping (Volwassenen)',
 };
 
@@ -35,12 +34,12 @@ export default function TakeQuizPage() {
 
   useEffect(() => {
     if (quizId === 'teen-neurodiversity-quiz') {
-      router.replace('/quiz/teen-neurodiversity-quiz');
+      router.replace('/quiz/teen-neurodiversity-quiz'); // This ensures it redirects to the specific teen quiz handler
     }
   }, [quizId, router]);
   
   const questions = quizId === 'teen-neurodiversity-quiz' ? [] : dummyQuizData[quizId] || [];
-  const quizTitle = quizTitles[quizId] || "Quiz";
+  const quizTitle = quizTitles[quizId] || "Zelfreflectie Tool";
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
@@ -50,8 +49,6 @@ export default function TakeQuizPage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      // End of basisvragen, navigate to subquiz selection or results
-      // TODO: Implement logic to decide based on answers/thresholds
       console.log('Basisvragen voltooid:', answers);
       router.push(`/quiz/${quizId}/subquiz-selection`);
     }
@@ -64,10 +61,9 @@ export default function TakeQuizPage() {
   };
   
   if (quizId === 'teen-neurodiversity-quiz') {
-    // This will be briefly visible while redirecting, or you can show a loader.
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
-        <p>Laden van de quiz...</p>
+        <p>Laden van de zelfreflectie tool...</p>
       </div>
     );
   }
@@ -78,10 +74,10 @@ export default function TakeQuizPage() {
          <div className="absolute top-8 left-8">
             <SiteLogo />
         </div>
-        <h1 className="text-2xl font-semibold mb-4">Quiz niet gevonden</h1>
-        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde quiz niet laden of deze is verplaatst.</p>
+        <h1 className="text-2xl font-semibold mb-4">Tool niet gevonden</h1>
+        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde zelfreflectie tool niet laden of deze is verplaatst.</p>
         <Button asChild>
-          <Link href="/quizzes">Terug naar quizoverzicht</Link>
+          <Link href="/quizzes">Terug naar overzicht</Link>
         </Button>
       </div>
     );
@@ -98,7 +94,7 @@ export default function TakeQuizPage() {
       </div>
       <div className="w-full max-w-3xl text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">{quizTitle}</h1>
-        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Subquiz", "Resultaten"]} />
+        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Verdieping", "Resultaten"]} />
       </div>
       
       <QuestionDisplay

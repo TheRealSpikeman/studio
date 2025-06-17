@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Eye, BarChart3, Info, AlertTriangle, Brain, ThumbsUp, Edit2Icon, Lightbulb, HelpCircle, Sparkles, MessageSquareHeart, Zap, Compass, ShieldAlert, Users as UsersIcon } from 'lucide-react';
+import { Download, Eye, BarChart3, Info, AlertTriangle, Brain, ThumbsUp, Edit2Icon, Lightbulb, HelpCircle, Sparkles, MessageSquareHeart, Zap, Compass, ShieldAlert, Users as UsersIcon, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { jsPDF, TextOptionsLight } from 'jspdf';
@@ -12,16 +12,18 @@ import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-
 import type { NeurotypeDescription, QuizOption } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+
 
 // Dummy data for demonstration
 const completedQuizzes = [
   { 
     id: 'neuroprofile-101', 
-    title: 'Basis Neuroprofiel Quiz', 
+    title: 'Basis Zelfreflectie Tool', 
     dateCompleted: '2024-03-10', 
     score: 'Uitgebalanceerd Profiel', 
     reportData: { 
-      summary: "Dit is een voorlopige samenvatting voor het Basis Neuroprofiel. U vertoont een evenwichtige mix van eigenschappen, wat wijst op een flexibele aanpassing aan verschillende situaties. Uw sterke punten liggen mogelijk in het combineren van analytisch denken met creatieve oplossingen.",
+      summary: "Dit is een voorlopige samenvatting voor de Basis Zelfreflectie Tool. U vertoont een evenwichtige mix van eigenschappen, wat wijst op een flexibele aanpassing aan verschillende situaties. Uw sterke punten liggen mogelijk in het combineren van analytisch denken met creatieve oplossingen.",
       answers: [
         {question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie"}, 
         {question: "Als je een nieuwe taak krijgt, hoe pak je die meestal aan?", answer: "Ik zoek een balans tussen plannen en doen"},
@@ -32,7 +34,6 @@ const completedQuizzes = [
         "Reflecteer regelmatig op welke aanpak het beste werkt in verschillende contexten.",
         "Zoek naar mogelijkheden om zowel uw analytische als creatieve kanten te ontwikkelen."
       ],
-      // Simulating AI analysis for this generic quiz for PDF styling
       aiAnalysis: `## Jouw Profiel In Vogelvlucht
 * Algemeen Overzicht: Op basis van uw antwoorden lijkt u een flexibel en aanpasbaar persoon te zijn, die situaties pragmatisch benadert.
 * Creativiteit (Score: 3.2): U toont een bovengemiddelde neiging tot creatief denken en het vinden van originele oplossingen.
@@ -75,7 +76,7 @@ const completedQuizzes = [
   },
   { 
     id: 'teen-neurodiversity-quiz', 
-    title: 'Neurodiversiteit Quiz (15-18 jaar)', 
+    title: 'Neurodiversiteit Zelfreflectie Tool (15-18 jaar)', 
     dateCompleted: '2024-04-05', 
     score: 'Profiel: ADD & HSP',
     ageGroup: '15-18',
@@ -87,8 +88,6 @@ const completedQuizzes = [
         {question: "Na een lange schooldag heb ik echt tijd nodig om bij te komen.", answer: "Vaak (3)"},
         {question: "Ik merk geuren, geluiden of aanrakingen sterker op dan mijn vrienden.", answer: "Altijd (4)"}
       ],
-      // Tips for teen quiz will be dynamically pulled from neurotypeDescriptionsTeen
-      // Placeholder for AI analysis for teen quiz (this is usually on the quiz result page itself)
       aiAnalysis: `## Jouw Profiel In Vogelvlucht
 * ADD (Score: 3.5): Je herkent duidelijk kenmerken van aandachtsuitdagingen.
 * HSP (Score: 3.2): Prikkelverwerking lijkt intenser bij jou.
@@ -122,49 +121,38 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   return [255 * f(0), 255 * f(8), 255 * f(4)];
 }
 
-// Consistent colors from globals.css (approximated)
-// --background: 200 17% 94%; /* #ecf0f1 - Light Gray */
-// --foreground: 210 40% 10%; /* Dark Gray for text on light gray */
-// --primary: 27 86% 50%; /* #ed7613 - Orange (New primary) */
-// --accent: 168 76% 42%; /* #1abc9c - Teal */
-// --muted: 210 16% 85%; /* Another shade of gray */
-// --muted-foreground: 210 20% 45%; /* Lighter gray text */
-// --card: 0 0% 100%; /* White */
-// --border: 210 10% 80%; /* Gray for borders */
-
 const PDF_COLORS = {
-  primary: hslToRgb(27, 86, 50), // Orange
-  accent: hslToRgb(168, 76, 42), // Teal
-  foreground: hslToRgb(210, 40, 10), // Dark Gray
-  mutedForeground: hslToRgb(210, 20, 45), // Lighter Gray
-  background: hslToRgb(200, 17, 94), // Light Gray
-  card: hslToRgb(0,0,100), // White
-  border: hslToRgb(210, 10, 80), // Gray
-  green: hslToRgb(145, 63, 42), // Green for positive items
-  yellow: hslToRgb(48, 96, 59), // Yellow for tips/attention
-  blue: hslToRgb(207, 90, 54), // Blue for info
-  // Specific theme colors for AI report sections
+  primary: hslToRgb(27, 86, 50), 
+  accent: hslToRgb(168, 76, 42), 
+  foreground: hslToRgb(210, 40, 10), 
+  mutedForeground: hslToRgb(210, 20, 45), 
+  background: hslToRgb(200, 17, 94), 
+  card: hslToRgb(0,0,100), 
+  border: hslToRgb(210, 10, 80), 
+  green: hslToRgb(145, 63, 42), 
+  yellow: hslToRgb(48, 96, 59), 
+  blue: hslToRgb(207, 90, 54), 
   sectionBlue: {
-    bg: hslToRgb(210, 100, 98), // Very light blue, e.g., #f0f6ff
-    border: hslToRgb(207, 90, 54), // Main blue, e.g., #3f51b5
-    text: hslToRgb(210, 40, 10), // Dark Gray
-    title: hslToRgb(207, 90, 44), // Darker blue for title
+    bg: hslToRgb(210, 100, 98), 
+    border: hslToRgb(207, 90, 54), 
+    text: hslToRgb(210, 40, 10), 
+    title: hslToRgb(207, 90, 44), 
   },
   sectionGreen: {
-    bg: hslToRgb(120, 60, 95), // Very light green
-    border: hslToRgb(145, 63, 42), // Main green
+    bg: hslToRgb(120, 60, 95), 
+    border: hslToRgb(145, 63, 42), 
     text: hslToRgb(120, 40, 10),
     title: hslToRgb(145, 63, 32),
   },
   sectionOrange: {
-    bg: hslToRgb(39, 100, 97), // Very light orange/yellow
-    border: hslToRgb(35, 100, 50), // Main orange/yellow
+    bg: hslToRgb(39, 100, 97), 
+    border: hslToRgb(35, 100, 50), 
     text: hslToRgb(39, 40, 10),
     title: hslToRgb(35, 100, 40),
   },
-   sectionYellow: { // For tips
-    bg: hslToRgb(50, 100, 97), // Very light yellow (FFFDE7)
-    border: hslToRgb(45, 100, 50), // Main yellow (FFB300)
+   sectionYellow: { 
+    bg: hslToRgb(50, 100, 97), 
+    border: hslToRgb(45, 100, 50), 
     text: hslToRgb(50, 40, 10),
     title: hslToRgb(45, 100, 40),
   }
@@ -173,7 +161,7 @@ const PDF_COLORS = {
 const PDF_STYLES = {
   fontFamily: "Helvetica",
   pageMargins: { top: 20, bottom: 20, left: 15, right: 15 },
-  lineHeight: 7, // Base line height
+  lineHeight: 7, 
   paragraphSpacing: 5,
   sectionSpacing: 10,
   titleSize: 20,
@@ -189,7 +177,7 @@ const neurotypeIcons: Record<string, React.ElementType> = {
   'Jouw Profiel In Vogelvlucht': MessageSquareHeart,
   'Sterke Kanten': ThumbsUp, 'Aandachtspunten': Edit2Icon, 'Tips voor Jou': Lightbulb,
   'Overige Informatie': Info, 'Default': HelpCircle,
-  'Algemeen Overzicht': MessageSquareHeart, // Icon for general overview text
+  'Algemeen Overzicht': MessageSquareHeart,
 };
 
 interface ParsedProfileScore {
@@ -205,7 +193,6 @@ export default function ResultsHistoryPage() {
 
     const sanitizeAiTextForPdf = (text: string): string => {
       if (typeof text !== 'string') return '';
-      // Remove Markdown for bold (**text** or __text__) and italic (*text* or _text_)
       return text.replace(/(\*\*|__)(.*?)\1/g, '$2').replace(/(\*|_)(.*?)\1/g, '$2').trim();
     };
 
@@ -213,8 +200,8 @@ export default function ResultsHistoryPage() {
       if (!analysisText || typeof analysisText !== 'string') return [];
       
       let cleanedText = sanitizeAiTextForPdf(analysisText);
-      cleanedText = cleanedText.replace(/^##\s+/gm, ''); // Remove markdown h2 headings
-      cleanedText = cleanedText.replace(/^#\s+/gm, ''); // Remove markdown h1 headings
+      cleanedText = cleanedText.replace(/^##\s+/gm, ''); 
+      cleanedText = cleanedText.replace(/^#\s+/gm, ''); 
 
       const sections: AiAnalysisSection[] = [];
       const knownHeaders = ["Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou"];
@@ -393,7 +380,7 @@ export default function ResultsHistoryPage() {
         if (options.color) doc.setTextColor(options.color[0], options.color[1], options.color[2]);
         if (options.fontStyle) doc.setFont(PDF_STYLES.fontFamily, options.fontStyle);
         
-        const lineHeight = fontSize * (options.lineHeightFactor || 0.45); // Adjusted line height based on font size
+        const lineHeight = fontSize * (options.lineHeightFactor || 0.45); 
         const lines = doc.splitTextToSize(text, options.maxWidth || usableWidth);
 
         lines.forEach((line: string) => {
@@ -414,75 +401,47 @@ export default function ResultsHistoryPage() {
       const addSectionContainer = (currentY: number, contentFunction: (yPos: number) => number, bgColor?: [number,number,number], borderColor?: [number,number,number], title?:string, titleColor?:[number,number,number], titleSize?:number, icon?: React.ElementType ) => {
         let startY = currentY;
         let tempY = currentY;
+        const titleHeightEstimate = title ? (titleSize || PDF_STYLES.h2Size) * 0.6 + PDF_STYLES.paragraphSpacing / 2 : 0;
 
-        if(title){
-            // tempY = addTextLines(title, margins.left + (icon ? 7 : 0), tempY, { fontSize: titleSize || PDF_STYLES.h2Size, fontStyle: 'bold', color: titleColor || PDF_COLORS.primary });
-            // tempY += PDF_STYLES.paragraphSpacing / 2; // Space after title
-            // Add icon if provided
-            // if (icon) {
-            //   // Placeholder for icon drawing. You might need a library or SVG path for this.
-            //   // Example: doc.text("ICON", margins.left, startY + (titleSize || PDF_STYLES.h2Size) / 2);
-            // }
-        }
-
-        const contentEndY = contentFunction(tempY);
-        const rectHeight = contentEndY - startY + (PDF_STYLES.paragraphSpacing); // Add some padding
+        // Estimate if content fits with title
+        let contentEndY = contentFunction(tempY + titleHeightEstimate);
+        let rectHeight = contentEndY - startY + (PDF_STYLES.paragraphSpacing); 
 
         if (startY + rectHeight > pageHeight - margins.bottom) {
           doc.addPage();
           startY = margins.top;
-          currentY = startY; // Reset currentY for the new page
-          // Redraw title if it was part of this section and moved to new page
-           if(title){
-             // tempY = addTextLines(title, margins.left + (icon ? 7 : 0), currentY, { fontSize: titleSize || PDF_STYLES.h2Size, fontStyle: 'bold', color: titleColor || PDF_COLORS.primary });
-             // currentY = tempY + PDF_STYLES.paragraphSpacing / 2;
-           }
-           // Recalculate content end Y on new page
-           const newContentEndY = contentFunction(currentY);
-           const newRectHeight = newContentEndY - currentY + PDF_STYLES.paragraphSpacing;
-           
-           if (bgColor) {
-            doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-            doc.rect(margins.left - 3, startY - 3, usableWidth + 6, newRectHeight + 3, 'F'); // -3 and +6 for padding
-           }
-           if (borderColor) {
-             doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
-             doc.setLineWidth(0.5);
-             doc.rect(margins.left - 3, startY - 3, usableWidth + 6, newRectHeight + 3, 'S');
-           }
-           currentY = newContentEndY;
-
-        } else {
-          if (bgColor) {
-            doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-            doc.rect(margins.left - 3, startY - 3, usableWidth + 6, rectHeight + 3, 'F');
-          }
-           if (borderColor) {
-             doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
-             doc.setLineWidth(0.5);
-             doc.rect(margins.left - 3, startY - 3, usableWidth + 6, rectHeight + 3, 'S');
-           }
-           currentY = contentEndY;
+          currentY = startY; 
+          tempY = currentY; 
+          contentEndY = contentFunction(tempY + titleHeightEstimate);
+          rectHeight = contentEndY - startY + PDF_STYLES.paragraphSpacing;
         }
         
-        // Redraw title on top of the filled/bordered rect if it was defined for the section
+        if (bgColor) {
+          doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+          doc.rect(margins.left - 3, startY - 3, usableWidth + 6, rectHeight + 3, 'F'); 
+        }
+        if (borderColor) {
+          doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+          doc.setLineWidth(0.5);
+          doc.rect(margins.left - 3, startY - 3, usableWidth + 6, rectHeight + 3, 'S');
+        }
+        
         if(title){
-            addTextLines(title, margins.left + (icon ? 7 : 0), startY, { fontSize: titleSize || PDF_STYLES.h2Size, fontStyle: 'bold', color: titleColor || PDF_COLORS.primary, lineHeightFactor: 0.6 });
-            // Add icon if provided - This is tricky with jsPDF, might need image or SVG conversion
+             addTextLines(title, margins.left + (icon ? 7 : 0), startY, { fontSize: titleSize || PDF_STYLES.h2Size, fontStyle: 'bold', color: titleColor || PDF_COLORS.primary, lineHeightFactor: 0.6 });
         }
 
-        return currentY + PDF_STYLES.sectionSpacing;
+        contentFunction(startY + titleHeightEstimate); // Redraw content on top of bg/border
+
+        return startY + rectHeight + PDF_STYLES.sectionSpacing;
       };
 
 
-      // --- Document Header ---
       y = addTextLines(quiz.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.accent, lineHeightFactor: 0.6 });
       y = addTextLines(`Rapport gegenereerd op: ${format(new Date(), 'PPPp', { locale: nl })}`, margins.left, y, {fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.6});
       y = addTextLines(`Resultaten voor quiz voltooid op: ${quiz.dateCompleted}`, margins.left, y, {fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.6});
-      y = addTextLines(`Score/Profiel: ${quiz.score}`, margins.left, y, {fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.6});
+      y = addTextLines(`Indicatief Profiel: ${quiz.score}`, margins.left, y, {fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.6});
       y += PDF_STYLES.sectionSpacing;
 
-      // --- Summary for Generic Quizzes ---
       if (quiz.id !== 'teen-neurodiversity-quiz' && quiz.reportData.summary) {
          y = addSectionContainer(y, (currentY) => {
             currentY = addTextLines(quiz.reportData.summary, margins.left, currentY, { color: PDF_COLORS.foreground, lineHeightFactor: 0.5 });
@@ -490,23 +449,22 @@ export default function ResultsHistoryPage() {
         }, PDF_COLORS.sectionBlue.bg, PDF_COLORS.sectionBlue.border, "Samenvatting", PDF_COLORS.sectionBlue.title, PDF_STYLES.h2Size);
       }
       
-      // --- AI Analysis ---
       const aiAnalysisText = quiz.reportData.aiAnalysis;
       const parsedAnalysis = parseAiAnalysisText(aiAnalysisText);
 
       if (parsedAnalysis.length > 0) {
-          y = addTextLines("Diepgaande Analyse door AI", margins.left, y, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
+          y = addTextLines("Persoonlijke Inzichten (AI-gegenereerd)", margins.left, y, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
           y += PDF_STYLES.paragraphSpacing;
 
           parsedAnalysis.forEach(section => {
-            let sectionThemeColors = PDF_COLORS.sectionBlue; // Default
+            let sectionThemeColors = PDF_COLORS.sectionBlue; 
             if (section.title === "Jouw Profiel In Vogelvlucht") sectionThemeColors = PDF_COLORS.sectionBlue;
             else if (section.title === "Sterke Kanten") sectionThemeColors = PDF_COLORS.sectionGreen;
             else if (section.title === "Aandachtspunten") sectionThemeColors = PDF_COLORS.sectionOrange;
             else if (section.title === "Tips voor Jou") sectionThemeColors = PDF_COLORS.sectionYellow;
               
             y = addSectionContainer(y, (currentY) => {
-              let contentY = currentY + (PDF_STYLES.h3Size * 0.5) + PDF_STYLES.paragraphSpacing; // Space for title
+              let contentY = currentY + (PDF_STYLES.h3Size * 0.5) + PDF_STYLES.paragraphSpacing; 
               if (typeof section.content === 'string') {
                   const listItems = section.isList ? section.content.split('\n').map(item => item.replace(/^- |^\* /,'').trim()).filter(Boolean) : [];
                   if (section.isList && listItems.length > 0) {
@@ -516,7 +474,7 @@ export default function ResultsHistoryPage() {
                   } else {
                       contentY = addTextLines(section.content, margins.left, contentY, { color: sectionThemeColors.text, lineHeightFactor: 0.5 });
                   }
-              } else if (Array.isArray(section.content)) { // ParsedProfileScore[]
+              } else if (Array.isArray(section.content)) { 
                   section.content.forEach(profileScore => {
                     if (profileScore.profileName === "Score Inzichten per Thema" && profileScore.subScores) {
                         contentY = addTextLines(profileScore.profileName, margins.left, contentY, { fontSize: PDF_STYLES.h4Size, fontStyle: 'bold', color: sectionThemeColors.title, lineHeightFactor: 0.5 });
@@ -534,8 +492,6 @@ export default function ResultsHistoryPage() {
           });
       }
 
-
-      // --- Specific Teen Quiz Tips (if applicable and not covered by AI) ---
       if (quiz.id === 'teen-neurodiversity-quiz' && !aiAnalysisText) { 
         const identifiedProfiles: string[] = [];
         const profileMatch = quiz.score.match(/Profiel: (.*)/);
@@ -573,7 +529,6 @@ export default function ResultsHistoryPage() {
         }, PDF_COLORS.sectionYellow.bg, PDF_COLORS.sectionYellow.border, "Tips en Strategieën", PDF_COLORS.sectionYellow.title, PDF_STYLES.h2Size);
       }
       
-      // --- Vragen en Antwoorden ---
       if (quiz.reportData.answers && quiz.reportData.answers.length > 0) {
         y = addSectionContainer(y, (currentY) => {
             quiz.reportData.answers.forEach((ans, index) => {
@@ -585,9 +540,7 @@ export default function ResultsHistoryPage() {
         }, PDF_COLORS.card, PDF_COLORS.border, "Jouw Antwoorden", PDF_COLORS.foreground, PDF_STYLES.h2Size);
       }
 
-
-      // --- Disclaimer ---
-      const disclaimerText = "Dit rapport is gebaseerd op de antwoorden die zijn gegeven in de quiz en dient ter indicatie en zelfreflectie. Het is geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener of psycholoog voor een formele diagnose, persoonlijk advies of behandeling. MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.";
+      const disclaimerText = "Dit rapport is gebaseerd op de antwoorden die zijn gegeven en dient ter indicatie en zelfreflectie. Het is nadrukkelijk geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener of psycholoog voor een formele diagnose, persoonlijk advies of behandeling. Voor meer informatie, bezoek onze informatieve pagina: www.mindnavigator.app/neurodiversiteit (of een relevante link). MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport.";
       y = addSectionContainer(y, (currentY) => {
         return addTextLines(disclaimerText, margins.left, currentY , { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.foreground, lineHeightFactor: 0.6 });
       }, PDF_COLORS.mutedForeground, undefined, "Disclaimer", PDF_COLORS.foreground, PDF_STYLES.h3Size);
@@ -616,7 +569,7 @@ export default function ResultsHistoryPage() {
       <section>
         <h1 className="text-3xl font-bold text-foreground">Resultatenoverzicht</h1>
         <p className="text-muted-foreground">
-          Bekijk hier de resultaten van al je voltooide quizzen en download je rapporten.
+          Bekijk hier de resultaten van al je voltooide zelfreflectie tools en download je rapporten.
         </p>
       </section>
 
@@ -624,10 +577,10 @@ export default function ResultsHistoryPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
              <BarChart3 className="h-6 w-6 text-primary" />
-            Voltooide Quizzen
+            Voltooide Zelfreflectie Tools
           </CardTitle>
           <CardDescription>
-            Een overzicht van al je afgeronde quizzen en bijbehorende rapporten.
+            Een overzicht van al je afgeronde tools en bijbehorende rapporten.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -635,9 +588,9 @@ export default function ResultsHistoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Quiz Titel</TableHead>
+                  <TableHead>Titel Zelfreflectie Tool</TableHead>
                   <TableHead>Datum Voltooid</TableHead>
-                  <TableHead>Score/Profiel</TableHead>
+                  <TableHead>Indicatief Profiel</TableHead>
                   <TableHead className="text-right">Acties</TableHead>
                 </TableRow>
               </TableHeader>
@@ -649,7 +602,6 @@ export default function ResultsHistoryPage() {
                     <TableCell>{quiz.score}</TableCell>
                     <TableCell className="text-right space-x-2">
                        <Button variant="outline" size="sm" asChild>
-                        {/* Ensure link directs to the correct results page, considering teen quiz has its own dynamic one */}
                         <Link href={quiz.id === 'teen-neurodiversity-quiz' ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.ageGroup || '15-18'}` : `/quiz/${quiz.id}/results`}> 
                           <Eye className="mr-2 h-4 w-4" />
                           Bekijk
@@ -670,13 +622,19 @@ export default function ResultsHistoryPage() {
             </Table>
           ) : (
             <p className="text-muted-foreground text-center py-10">
-              Je hebt nog geen quizzen voltooid. Ga naar het <Link href="/quizzes" className="text-primary hover:underline">quizoverzicht</Link> om te starten.
+              Je hebt nog geen tools voor zelfreflectie voltooid. Ga naar het <Link href="/quizzes" className="text-primary hover:underline">overzicht</Link> om te starten.
             </p>
           )}
         </CardContent>
       </Card>
+       <Alert variant="destructive">
+          <AlertTriangle className="h-5 w-5" />
+          <AlertTitleUi className="font-semibold">Belangrijk: Geen Diagnose</AlertTitleUi>
+          <AlertDescUi>
+              De inzichten uit deze tools zijn bedoeld voor zelfreflectie en educatie. Ze vervangen <strong className="font-bold">geen</strong> professioneel medisch of psychologisch advies, diagnose of behandeling.
+              Raadpleeg altijd een gekwalificeerde zorgverlener voor persoonlijke begeleiding. Bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4"/> </Link> voor meer informatie en bronnen.
+          </AlertDescUi>
+      </Alert>
     </div>
   );
 }
-
-

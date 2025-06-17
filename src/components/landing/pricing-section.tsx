@@ -22,35 +22,36 @@ interface Plan {
   ctaText: string;
   ctaBaseLink: string;
   isPopular: boolean;
-  yearlyOptionText?: string; // Nieuw: "Of kies jaarlijks: €XX.XX/jaar (omgerekend €Y.YY/mnd)"
-  yearlySavingsHighlight?: string; // Nieuw: "bespaar €Z.ZZ"
+  yearlyOptionText?: string; 
+  yearlySavingsHighlight?: string; 
   planId: string;
   highlightClass?: string;
+  extraInfo?: string; // Voor opmerking over meer dan 3 kinderen
 }
 
-const yearlyCoachingPrice = (3.99 * 12 * 0.85).toFixed(2); // 40.70
-const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12).toFixed(2); // 3.39
-const yearlySavingsCoaching = ((3.99*12) - parseFloat(yearlyCoachingPrice)).toFixed(2); // 7.18
+const yearlyCoachingPrice = (3.99 * 12 * 0.85).toFixed(2); 
+const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12).toFixed(2); 
+const yearlySavingsCoaching = ((3.99*12) - parseFloat(yearlyCoachingPrice)).toFixed(2); 
 
-const yearlyFamilyGuidePrice = (9.99 * 12 * 0.85).toFixed(2); // 101.90
-const monthlyEquivalentForFamilyGuide = (parseFloat(yearlyFamilyGuidePrice) / 12).toFixed(2); // 8.49
-const yearlySavingsFamilyGuide = ((9.99*12) - parseFloat(yearlyFamilyGuidePrice)).toFixed(2); // 17.98
+const yearlyFamilyGuidePrice = (9.99 * 12 * 0.85).toFixed(2); 
+const monthlyEquivalentForFamilyGuide = (parseFloat(yearlyFamilyGuidePrice) / 12).toFixed(2); 
+const yearlySavingsFamilyGuide = ((9.99*12) - parseFloat(yearlyFamilyGuidePrice)).toFixed(2); 
 
 const plansData: Plan[] = [
   {
     name: 'Gratis Start',
     price: 'Gratis',
-    priceDetail: '',
+    priceDetail: 'Kennismaking',
     features: [
-      { text: 'Basis Neurodiversiteit Quiz (voor uw kind)', included: true },
-      { text: 'Direct Uitgebreid PDF Rapport', included: true, tooltip: 'Een volledig rapport op basis van de gemaakte basisquiz, direct beschikbaar voor u en uw kind.' },
-      { text: 'Toegang tot Subquizzen', included: false },
+      { text: 'Basis Zelfreflectie Tool (voor uw kind)', included: true },
+      { text: 'Direct Uitgebreid PDF Overzicht', included: true, tooltip: 'Een volledig overzicht op basis van de gemaakte tool, direct beschikbaar voor u en uw kind.' },
+      { text: 'Toegang tot Verdiepende Modules', included: false },
       { text: 'Coaching Hub (Tips, Dagboek)', included: false },
       { text: 'Huiswerk Tools (Planner, Pomodoro)', included: false },
       { text: 'Toegang tot Tutors & Coaches', included: false },
       { text: 'Uitgebreid Ouder Dashboard', included: false },
     ],
-    ctaText: 'Start gratis quiz voor uw kind',
+    ctaText: 'Start gratis kennismaking',
     ctaBaseLink: '/quizzes',
     isPopular: false,
     planId: 'free_start', 
@@ -60,9 +61,9 @@ const plansData: Plan[] = [
     price: '€3,99',
     priceDetail: 'p/kind/mnd',
     features: [
-      { text: 'Basis Neurodiversiteit Quiz', included: true },
-      { text: 'Direct Uitgebreid PDF Rapport', included: true },
-      { text: 'Toegang tot Alle Subquizzen', included: true, tooltip: "Verdiepende quizzen voor een completer beeld van uw kind's profiel." },
+      { text: 'Basis Zelfreflectie Tool', included: true },
+      { text: 'Direct Uitgebreid PDF Overzicht', included: true },
+      { text: 'Toegang tot Alle Verdiepende Modules', included: true, tooltip: "Verdiepende tools voor een completer beeld van uw kind's eigenschappen." },
       { text: 'Coaching Hub (Virtueel, Dagboek, Tools)', included: true, tooltip: "Dagelijkse tips, reflectie-oefeningen en tools voor zelfmanagement voor uw kind." },
       { text: 'Huiswerk Tools (Planner, Pomodoro)', included: true, tooltip: "Praktische hulpmiddelen voor planning, focus en studievaardigheden." },
       { text: 'Toegang tot Tutors & Coaches', included: false },
@@ -79,9 +80,9 @@ const plansData: Plan[] = [
   {
     name: 'Gezins Gids',
     price: '€9,99',
-    priceDetail: 'p/gezin/mnd',
+    priceDetail: 'p/gezin/mnd (tot 3 kinderen)',
     features: [
-      { text: 'Alles van Coaching & Tools (voor max. 3 kinderen)', included: true, tooltip: 'Inclusief alle quizzen, coaching hub en huiswerk tools voor elk kind in uw gezin (tot 3).' },
+      { text: 'Alles van Coaching & Tools (voor max. 3 kinderen)', included: true, tooltip: 'Inclusief alle zelfreflectie-instrumenten, coaching hub en huiswerk tools voor elk kind in uw gezin (tot 3).' },
       { text: 'Toegang tot Pool Persoonlijke Coaches', included: true, tooltip: "Vind en boek sessies met gespecialiseerde coaches voor persoonlijke begeleiding." },
       { text: 'Toegang tot Pool Huiswerktutors', included: true, tooltip: "Koppel uw kind aan gekwalificeerde tutors voor vakspecifieke ondersteuning." },
       { text: 'Uitgebreid Ouder Dashboard', included: true, tooltip: "Volg de voortgang van uw kinderen, beheer abonnementen en communiceer eenvoudig." },
@@ -92,6 +93,7 @@ const plansData: Plan[] = [
     planId: 'family_guide_monthly',
     yearlyOptionText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForFamilyGuide}/mnd)`,
     yearlySavingsHighlight: `bespaar €${yearlySavingsFamilyGuide}`,
+    extraInfo: "Meer dan 3 kinderen? Neem contact op."
   },
 ];
 
@@ -170,6 +172,9 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
+                 {plan.extraInfo && (
+                  <p className="text-xs text-muted-foreground text-center pt-2">{plan.extraInfo}</p>
+                )}
               </CardContent>
               <CardFooter className="mt-auto pt-4 pb-6 flex flex-col gap-2">
                 <Button

@@ -49,16 +49,15 @@ export default function AboutPage() {
                     Onze Aanpak & Expertise
                     </h2>
                     <p className="mb-3">
-                    Onze quizzen en content zijn zorgvuldig samengesteld en gebaseerd op erkende psychologische modellen en inzichten in neurodiversiteit, met de intentie om samen te werken met experts in het veld. We combineren deze basis met een gebruiksvriendelijke en laagdrempelige aanpak, speciaal afgestemd op tieners.
+                    De zelfreflectie-instrumenten en content op MindNavigator zijn zorgvuldig samengesteld met als doel inzicht en bewustwording te bevorderen. Ze zijn gebaseerd op algemeen erkende psychologische modellen en inzichten in neurodiversiteit. We streven ernaar om samen te werken met experts in het veld om onze content continu te verbeteren en te valideren.
                     </p>
-                    <ul className="list-disc list-inside space-y-1 pl-5">
-                        <li>Gebaseerd op recente inzichten</li>
-                        <li>Afgestemd op de belevingswereld van jongeren</li>
-                        <li>Focus op sterke punten en praktische tips</li>
-                        <li>Continue ontwikkeling en verbetering</li>
-                        <li>Samenwerking met experts nagestreefd</li>
-                    </ul>
+                    <p className="mb-3">
+                    Ons team is toegewijd aan het creëren van een gebruiksvriendelijke en laagdrempelige ervaring, speciaal afgestemd op tieners. We combineren dit met een focus op sterke punten en het aanreiken van praktische tips. 
+                    </p>
                      <p className="mt-4 text-sm text-muted-foreground">
+                      {/* Placeholder for user to add specifics:
+                      (Voorbeeld: "Ons kernteam bestaat uit [aantal] professionals met achtergronden in [bijv. psychologie, onderwijs, softwareontwikkeling]. We worden geadviseerd door [type adviseurs, bijv. een GZ-psycholoog gespecialiseerd in neurodiversiteit].")
+                      */}
                       <strong>Belangrijk:</strong> MindNavigator biedt educatieve tools en inzichten, maar stelt geen medische diagnoses. Voor diagnose en behandeling, raadpleeg altijd een gekwalificeerde zorgprofessional. Lees meer op onze <Link href="/neurodiversiteit" className="text-primary hover:underline">Neurodiversiteit infopagina</Link>.
                     </p>
                 </section>
@@ -68,7 +67,7 @@ export default function AboutPage() {
                         alt="Team MindNavigator werkt samen aan innovatieve oplossingen"
                         fill
                         style={{ objectFit: 'cover' }}
-                        data-ai-hint="team collaboration"
+                        data-ai-hint="team collaboration discussion"
                     />
                 </div>
               </div>
@@ -89,7 +88,7 @@ export default function AboutPage() {
                   Toekomstplannen
                 </h2>
                 <p>
-                  MindNavigator is constant in ontwikkeling. We werken aan uitbreiding van onze coaching-hub, nieuwe thematische quizzen, en integraties met planningstools. Ons doel is om dé gids te worden voor jongeren die hun neurodiversiteit willen omarmen.
+                  MindNavigator is constant in ontwikkeling. We werken aan uitbreiding van onze coaching-hub, nieuwe thematische tools, en integraties met planningstools. Ons doel is om dé gids te worden voor jongeren die hun neurodiversiteit willen omarmen.
                 </p>
               </section>
 

@@ -19,7 +19,7 @@ export function FinalCtaSection() {
             <Link href="/signup">Start met Gezins Gids</Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow text-lg px-8 py-6">
-            <Link href="/quizzes">Doe eerst een gratis quiz</Link>
+            <Link href="/quizzes">Doe een gratis zelfreflectie tool</Link>
           </Button>
         </div>
         <p className="text-muted-foreground flex items-center justify-center gap-2">

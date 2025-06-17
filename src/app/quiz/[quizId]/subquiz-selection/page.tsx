@@ -10,24 +10,22 @@ import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
 
 
-// Dummy data - in a real app, this would be determined by answers to basisvragen
 interface SubQuizInfo {
   id: string;
   title: string;
   description: string;
-  relevant: boolean; // Determined by AI/logic based on basisvragen
+  relevant: boolean; 
 }
 
 const allSubQuizzes: SubQuizInfo[] = [
   { id: 'adhd-deep-dive', title: 'ADHD Verdieping', description: 'Specifieke vragen over aandacht, impulsiviteit en hyperactiviteit.', relevant: true },
   { id: 'asd-social-communication', title: 'Autisme & Sociale Communicatie', description: 'Verkenning van sociale interactie en communicatiepatronen.', relevant: true },
   { id: 'sensory-profile', title: 'Sensorisch Profiel', description: 'Analyse van je reacties op zintuiglijke prikkels.', relevant: false },
-  { id: 'executive-functioning', title: 'Executieve Functies', description: 'Quiz over planning, organisatie en zelfregulatie.', relevant: true },
+  { id: 'executive-functioning', title: 'Executieve Functies', description: 'Tool over planning, organisatie en zelfregulatie.', relevant: true },
 ];
 
 const quizTitles: { [key: string]: string } = {
-    'neuroprofile-101': 'Basis Neuroprofiel Quiz',
-     // ... add other main quiz titles if subquiz selection is generic
+    'neuroprofile-101': 'Basis Zelfreflectie Tool',
 };
 
 export default function SubQuizSelectionPage() {
@@ -35,15 +33,10 @@ export default function SubQuizSelectionPage() {
   const router = useRouter();
   const mainQuizId = params.quizId as string; 
 
-  // Filter relevant subquizzes - this logic would be more complex
   const relevantSubQuizzes = allSubQuizzes.filter(sq => sq.relevant);
-  const mainQuizTitle = quizTitles[mainQuizId] || "Quiz";
+  const mainQuizTitle = quizTitles[mainQuizId] || "Zelfreflectie Tool";
 
   const handleStartSubQuiz = (subQuizId: string) => {
-    // Navigate to the specific subquiz page (which would be similar to TakeQuizPage)
-    // For now, we'll assume subquizzes are also identified by their ID under the /quiz/ route.
-    // e.g. router.push(`/quiz/${subQuizId}`);
-    // For this example, we'll just log it and move to results
     console.log(`Starting subquiz: ${subQuizId} for main quiz: ${mainQuizId}`);
     router.push(`/quiz/${mainQuizId}/results?subquiz=${subQuizId}`); 
   };
@@ -52,8 +45,8 @@ export default function SubQuizSelectionPage() {
     router.push(`/quiz/${mainQuizId}/results`);
   };
   
-  const totalSteps = 3; // Basis, Subquiz, Resultaten
-  const currentGlobalStep = 2; // Subquiz selectie
+  const totalSteps = 3; 
+  const currentGlobalStep = 2; 
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24 pb-16">
@@ -61,18 +54,18 @@ export default function SubQuizSelectionPage() {
             <SiteLogo />
       </div>
       <div className="w-full max-w-3xl text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">{mainQuizTitle} - Subquiz Keuze</h1>
-        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Subquiz", "Resultaten"]} />
+        <h1 className="text-3xl font-bold text-foreground mb-2">{mainQuizTitle} - Verdiepende Modules</h1>
+        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Verdieping", "Resultaten"]} />
       </div>
 
       <Card className="w-full max-w-2xl shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <ListChecks className="h-7 w-7 text-primary" />
-            Kies een verdiepende subquiz
+            Kies een verdiepende module
           </CardTitle>
           <CardDescription>
-            Op basis van je antwoorden raden we de volgende subquiz(zen) aan. Je kunt er een kiezen of direct doorgaan naar je basisresultaten.
+            Op basis van je antwoorden raden we de volgende modules aan. Je kunt er een kiezen of direct doorgaan naar je basisinzichten.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -93,13 +86,13 @@ export default function SubQuizSelectionPage() {
               </Card>
             ))
           ) : (
-            <p className="text-muted-foreground text-center">Geen specifieke subquizzen aanbevolen op basis van je antwoorden.</p>
+            <p className="text-muted-foreground text-center">Geen specifieke verdiepende modules aanbevolen op basis van je antwoorden.</p>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-3 pt-6 pb-8">
           <Button onClick={handleSkipToResults} variant="secondary" className="w-full">
             <CheckSquare className="mr-2 h-4 w-4" />
-            Direct naar resultaten (basisprofiel)
+            Direct naar inzichten (basisprofiel)
           </Button>
            <Button variant="outline" className="w-full" asChild>
               <Link href={`/quiz/${mainQuizId}`}>Terug naar basisvragen</Link>

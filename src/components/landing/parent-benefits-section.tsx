@@ -4,14 +4,15 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const benefits = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
     title: 'Gespecialiseerde Inzichten',
-    description: 'Help uw kind zelfinzicht te krijgen met quizzen gericht op neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat dit inhoudt</Link>. Ontvang heldere rapporten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    description: 'Help uw kind zelfinzicht te krijgen met zelfreflectie-instrumenten gericht op het herkennen van patronen in gedrag en denken die kunnen samenhangen met neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat dit inhoudt</Link>. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
-    linkText: 'Ontdek de quizzen',
+    linkText: 'Ontdek de tools',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
@@ -49,7 +50,7 @@ const benefits = [
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
     title: 'Veilig, Vertrouwd & Deskundig',
-    description: 'Een privacygerichte omgeving, speciaal ontworpen voor tieners, onderbouwd door inzichten van experts in neurodiversiteit en pedagogiek.',
+    description: 'Een privacygerichte omgeving, speciaal ontworpen voor tieners. Onze aanpak is gebaseerd op educatieve principes en inzichten van experts in neurodiversiteit en pedagogiek. Wij bieden geen diagnoses.',
     link: '/privacy',
     linkText: 'Lees ons privacybeleid',
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
@@ -101,7 +102,7 @@ export function ParentBenefitsSection() {
                 Met het "Gezins Gids" pakket krijgt u toegang tot een uitgebreid ouder-dashboard. Hiermee kunt u:
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6 pl-2">
-                <li>De voortgang en quizresultaten van uw kind (met toestemming) inzien.</li>
+                <li>De voortgang en inzichten uit zelfreflectie-tools van uw kind (met toestemming) inzien.</li>
                 <li>Abonnementen voor uw gezin eenvoudig beheren.</li>
                 <li>Effectief communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
                 <li>Toegang krijgen tot specifieke bronnen en tips voor ouders.</li>

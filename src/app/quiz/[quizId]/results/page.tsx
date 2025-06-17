@@ -5,15 +5,18 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
-import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn, Sparkles, AlertTriangle } from 'lucide-react'; 
+import { Download, RefreshCw, Award, Lightbulb, Target, UserPlus, LogIn, Sparkles, AlertTriangle, ExternalLink } from 'lucide-react'; 
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
 import { generateQuizSummary } from '@/ai/flows/generate-quiz-summary';
 import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { jsPDF } from 'jspdf';
+import { jsPDF, TextOptionsLight } from 'jspdf';
 import { neurotypeDescriptionsTeen, thresholdsTeen } from '@/lib/quiz-data/teen-neurodiversity-quiz'; 
+import type { NeurotypeDescription, QuizOption } from '@/lib/quiz-data/teen-neurodiversity-quiz';
+import { format } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 
@@ -45,9 +48,9 @@ const dummyResults = {
 };
 
 const quizTitles: { [key: string]: string } = {
-    'neuroprofile-101': 'Basis Neuroprofiel Quiz',
+    'neuroprofile-101': 'Basis Zelfreflectie Tool',
     'adhd-focus-201': 'ADHD & Focus Verdieping',
-    'teen-neurodiversity-quiz': 'Neurodiversiteit Quiz (12-18 jaar)',
+    'teen-neurodiversity-quiz': 'Neurodiversiteit Zelfreflectie Tool (12-18 jaar)',
 };
 
 
@@ -63,7 +66,7 @@ export default function QuizResultsPage() {
   const [coaching, setCoaching] = useState("Laden van coaching inzichten...");
   const [isLoading, setIsLoading] = useState(true);
   
-  const quizTitle = quizTitles[quizId] || "Quiz";
+  const quizTitle = quizTitles[quizId] || "Zelfreflectie Tool";
 
   useEffect(() => {
     async function fetchData() {
@@ -96,8 +99,8 @@ export default function QuizResultsPage() {
     if (quizId !== 'teen-neurodiversity-quiz') {
         fetchData();
     } else {
-        setSummary("Je resultaten worden hieronder weergegeven. Voor de Tienerquiz is dit een samenvatting, het volledige rapport staat op de vorige pagina.");
-        setCoaching("Specifieke coaching inzichten voor de Tienerquiz vind je in het uitgebreide rapport.");
+        setSummary("Je resultaten worden hieronder weergegeven. Voor de Tiener Zelfreflectie Tool is dit een samenvatting, het volledige rapport staat op de vorige pagina.");
+        setCoaching("Specifieke coaching inzichten voor de Tiener Zelfreflectie Tool vind je in het uitgebreide rapport.");
         setIsLoading(false); 
     }
   }, [quizId, subQuizId, quizTitle]);
@@ -130,7 +133,7 @@ export default function QuizResultsPage() {
       </div>
       <div className="w-full max-w-3xl text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">{quizTitle} - Resultaten</h1>
-        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Subquiz", "Resultaten"]} />
+        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Verdieping", "Resultaten"]} />
       </div>
 
       <Card className="w-full max-w-3xl shadow-xl mb-8">
@@ -149,7 +152,7 @@ export default function QuizResultsPage() {
           ) : (
              <p className="text-muted-foreground">{resultsToDisplay.summary}</p>
           )}
-          {subQuizId && <p className="mt-2 text-sm text-accent">Resultaten inclusief subquiz: {subQuizId}</p>}
+          {subQuizId && <p className="mt-2 text-sm text-accent">Resultaten inclusief verdiepende module: {subQuizId}</p>}
         </CardContent>
       </Card>
       
@@ -202,8 +205,9 @@ export default function QuizResultsPage() {
           <AlertTriangle className="h-5 w-5" />
           <AlertTitleUi className="font-semibold text-lg">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
           <AlertDescUi className="leading-relaxed">
-              De resultaten van deze quiz zijn bedoeld om inzicht te geven en zelfreflectie te stimuleren. Ze vormen <strong className="font-bold">geen</strong> formele medische of psychologische diagnose.
+              De resultaten van deze zelfreflectie tool zijn bedoeld om inzicht te geven en zelfreflectie te stimuleren. Ze vormen <strong className="font-bold">geen</strong> formele medische of psychologische diagnose.
               Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met een gekwalificeerde zorgverlener (zoals je huisarts, een psycholoog, of een mentor op school).
+              Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
               MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit rapport worden genomen.
           </AlertDescUi>
       </Alert>
@@ -217,13 +221,13 @@ export default function QuizResultsPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met verdiepende subquizzen en dagelijkse, persoonlijke coaching ontvangen?
+            Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met verdiepende modules en dagelijkse, persoonlijke coaching ontvangen?
           </p>
           <p className="text-lg font-semibold mb-1">Krijg toegang tot premium functies:</p>
           <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-4 pl-5">
-            <li>Alle verdiepende subquizzen</li>
+            <li>Alle verdiepende zelfreflectie modules</li>
             <li>Dagelijkse coaching tips & routines</li>
-            <li>Uitgebreide PDF rapportages</li>
+            <li>Uitgebreide PDF overzichten</li>
             <li>Voortgangstracking en meer!</li>
           </ul>
           <p className="text-center text-xl font-bold text-primary mb-4">
@@ -270,7 +274,7 @@ export default function QuizResultsPage() {
       <div className="w-full max-w-3xl flex flex-col sm:flex-row gap-4">
         <Button onClick={handleRestartQuiz} variant="outline" className="flex-1">
           <RefreshCw className="mr-2 h-4 w-4" />
-          Doe een andere quiz
+          Doe een andere zelfreflectie tool
         </Button>
          <Button onClick={handlePdfDownloadClick} variant="outline" className="flex-1" disabled={quizId === 'teen-neurodiversity-quiz'}>
           <Download className="mr-2 h-4 w-4" />
@@ -278,7 +282,7 @@ export default function QuizResultsPage() {
         </Button>
       </div>
        <Button variant="link" asChild className="mt-8">
-          <Link href="/quizzes">Terug naar quiz overzicht</Link>
+          <Link href="/quizzes">Terug naar overzicht zelfreflectie tools</Link>
         </Button>
     </div>
   );

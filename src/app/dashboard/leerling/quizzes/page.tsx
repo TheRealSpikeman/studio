@@ -11,12 +11,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-// Quiz interface blijft hetzelfde, maar de manier waarop we data gebruiken verandert.
 export interface Quiz {
   id: string; 
   title: string;
   description: string; 
-  status: QuizStatus; // Voor demo-doeleinden kunnen we deze 'hardcoden' of later dynamisch maken
+  status: QuizStatus; 
   progress?: number;
   imageUrl?: string;
   dataAiHint?: string;
@@ -27,18 +26,17 @@ export interface Quiz {
   icon?: ElementType; 
   badgeText?: string; 
   badgeClass?: string; 
-  isNeuroIntake?: boolean; // Nieuw veld om de intake test te identificeren
+  isNeuroIntake?: boolean; 
 }
 
-// Dummy data - aangepast voor de nieuwe structuur
 const allAvailableQuizzes: Quiz[] = [
   { 
     id: 'neuro-intake-12-14', 
-    title: 'Neuro Intake Test (12-14 jr)', 
+    title: 'Zelfreflectie Start (12-14 jr)', 
     description: 'Start hier om jouw unieke eigenschappen en denkstijl te ontdekken. Dit helpt ons om je de beste vervolgstappen te tonen.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Intake+12-14', // Gebruik placehold.co
-    dataAiHint: 'teenager thinking',
+    imageUrl: 'https://placehold.co/400x200.png?text=Start+12-14', 
+    dataAiHint: 'teenager thinking brain',
     ageGroup: '12-14',
     duration: "10-15 min",
     questionCount: 12,
@@ -50,11 +48,11 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'neuro-intake-15-18', 
-    title: 'Neuro Intake Test (15-18 jr)', 
+    title: 'Zelfreflectie Start (15-18 jr)', 
     description: 'Start hier om jouw unieke eigenschappen en denkstijl te ontdekken. Dit helpt ons om je de beste vervolgstappen te tonen.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Intake+15-18', // Gebruik placehold.co
-    dataAiHint: 'teenager focused',
+    imageUrl: 'https://placehold.co/400x200.png?text=Start+15-18',
+    dataAiHint: 'teenager focused idea',
     ageGroup: '15-18',
     duration: "12-18 min",
     questionCount: 15,
@@ -66,11 +64,11 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'exam-stress-planning', 
-    title: 'Examenvrees & Planning', 
+    title: 'Omgaan met Examenvrees', 
     description: 'Leer stress te beheersen en je planning scherp te houden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Examenstress', // Gebruik placehold.co
-    dataAiHint: 'student exam',
+    imageUrl: 'https://placehold.co/400x200.png?text=Examenvrees', 
+    dataAiHint: 'student exam stress',
     ageGroup: 'all',
     duration: "8-12 min",
     questionCount: 10,
@@ -81,11 +79,11 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'social-anxiety-friendships', 
-    title: 'Sociale Angst & Vriendschap', 
+    title: 'Sociale Situaties & Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Angst', // Gebruik placehold.co
-    dataAiHint: 'teenagers friends',
+    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties', 
+    dataAiHint: 'teenagers friends group',
     ageGroup: 'all',
     duration: "7-10 min",
     questionCount: 12,
@@ -94,11 +92,11 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding', 
+    title: 'Focus & Digitale Afleiding Tool', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Focus+Digitaal', // Gebruik placehold.co
-    dataAiHint: 'teenager phone',
+    imageUrl: 'https://placehold.co/400x200.png?text=Focus+Digitaal', 
+    dataAiHint: 'teenager phone screen',
     ageGroup: 'all',
     duration: "6-9 min",
     questionCount: 10,
@@ -109,11 +107,11 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'motivation-goals', 
-    title: 'Motivatie & Doelen', 
+    title: 'Motivatie & Doelen Stellen', 
     description: 'Leer doelen stellen, successen vieren en gemotiveerd blijven.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Motivatie', // Gebruik placehold.co
-    dataAiHint: 'success achievement',
+    imageUrl: 'https://placehold.co/400x200.png?text=Motivatie+Doelen', 
+    dataAiHint: 'success achievement arrow',
     ageGroup: 'all',
     duration: "5-8 min",
     questionCount: 8,
@@ -127,17 +125,15 @@ type AgeFilterType = 'all' | '12-14' | '15-18';
 function DashboardQuizContent() {
   const searchParams = useSearchParams();
   const [currentUserAgeGroup, setCurrentUserAgeGroup] = useState<AgeFilterType>('all');
-  const [neuroIntakeCompleted, setNeuroIntakeCompleted] = useState(false); // SIMULATIE
+  const [neuroIntakeCompleted, setNeuroIntakeCompleted] = useState(false); 
 
   useEffect(() => {
     const ageGroupFromQuery = searchParams.get('ageGroup') as AgeFilterType;
     if (ageGroupFromQuery && (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18')) {
       setCurrentUserAgeGroup(ageGroupFromQuery);
     } else {
-      // Fallback of als 'adult' of 'all' expliciet is meegegeven. Voor nu, demo met 15-18 als geen specifieke.
       setCurrentUserAgeGroup('15-18'); 
     }
-    // In een echte app zou je `neuroIntakeCompleted` status ophalen (bv. uit localStorage of backend)
   }, [searchParams]);
 
   const neuroIntakeTest = useMemo(() => {
@@ -146,14 +142,11 @@ function DashboardQuizContent() {
 
   const relevantThematicQuizzes = useMemo(() => {
     if (!neuroIntakeCompleted) return [];
-    // In een echte app: filter op basis van intake resultaten.
-    // Voor nu: toon alle thematische quizzen die passen bij de leeftijd of 'all'.
     return allAvailableQuizzes.filter(quiz => 
       !quiz.isNeuroIntake && (quiz.ageGroup === currentUserAgeGroup || quiz.ageGroup === 'all')
     );
   }, [currentUserAgeGroup, neuroIntakeCompleted]);
 
-  // Knop om de intake status te simuleren voor demo
   const toggleIntakeStatus = () => setNeuroIntakeCompleted(prev => !prev);
 
   return (
@@ -161,29 +154,28 @@ function DashboardQuizContent() {
         <section className="text-center">
         <BookOpen className="mx-auto h-12 w-12 text-primary mb-4" />
         <h1 className="text-4xl font-bold text-foreground">
-          {neuroIntakeCompleted ? "Jouw Pad naar Zelfinzicht" : "Start je Neuro Intake Test"}
+          {neuroIntakeCompleted ? "Jouw Pad naar Zelfinzicht" : `Start je Zelfreflectie (${currentUserAgeGroup} jr)`}
         </h1>
         <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
           {neuroIntakeCompleted 
-            ? "Je hebt de Neuro Intake Test voltooid! Hieronder vind je verdiepende quizzen die je verder kunnen helpen."
-            : `De Neuro Intake Test is de eerste stap om meer over jouw unieke denkstijl te leren. Deze test is speciaal voor ${currentUserAgeGroup} jaar.`}
+            ? "Je hebt de Start Tool voltooid! Hieronder vind je verdiepende tools die je verder kunnen helpen."
+            : `De Zelfreflectie Start Tool is de eerste stap om meer over jouw unieke denkstijl te leren. Deze tool is speciaal voor ${currentUserAgeGroup} jaar.`}
         </p>
         <p className="text-md text-accent mt-3 flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5" />
-            Elke quiz helpt je dichter bij betere focus en zelfinzicht.
+            Elke tool helpt je dichter bij betere focus en zelfinzicht.
         </p>
         </section>
 
-        {/* Demo knop om intake status te wisselen */}
         <div className="text-center">
             <Button onClick={toggleIntakeStatus} variant="outline">
-                Simuleer: Intake {neuroIntakeCompleted ? 'Niet ' : ''}Voltooid
+                Simuleer: Start Tool {neuroIntakeCompleted ? 'Niet ' : ''}Voltooid
             </Button>
         </div>
 
         {!neuroIntakeCompleted && neuroIntakeTest && (
             <section>
-                <h2 className="mb-6 text-2xl font-semibold text-foreground text-center">Jouw Neuro Intake Test</h2>
+                <h2 className="mb-6 text-2xl font-semibold text-foreground text-center">Jouw Start Tool</h2>
                 <div className="flex justify-center">
                     <div className="w-full max-w-sm">
                         <QuizCard {...neuroIntakeTest} />
@@ -196,7 +188,7 @@ function DashboardQuizContent() {
         <>
             {relevantThematicQuizzes.length > 0 && (
             <section>
-                <h2 className="mb-6 text-2xl font-semibold text-foreground">Aanbevolen Verdiepingsquizzen</h2>
+                <h2 className="mb-6 text-2xl font-semibold text-foreground">Aanbevolen Verdiepingsmodules</h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {relevantThematicQuizzes.map((quiz) => (
                     <QuizCard key={quiz.id} {...quiz} />
@@ -209,9 +201,9 @@ function DashboardQuizContent() {
                  <Card className="bg-secondary/50 border-secondary">
                     <CardContent className="p-6 flex flex-col items-center text-center">
                         <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-xl font-semibold text-foreground mb-2">Nog geen verdiepingsquizzen</h3>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">Nog geen verdiepingsmodules</h3>
                         <p className="text-muted-foreground">
-                            Er zijn momenteel geen specifieke verdiepingsquizzen aanbevolen. Kom later terug of bekijk de algemene thema's.
+                            Er zijn momenteel geen specifieke verdiepingsmodules aanbevolen. Kom later terug of bekijk de algemene thema's.
                         </p>
                     </CardContent>
                 </Card>
@@ -225,8 +217,8 @@ function DashboardQuizContent() {
         </h2>
         {neuroIntakeTest && !neuroIntakeCompleted && (
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-                <Link href={neuroIntakeTest.id.startsWith('teen-neurodiversity-quiz') || neuroIntakeTest.id.startsWith('neuro-intake-') ? `/quiz/${neuroIntakeTest.id}` : `/quiz/${neuroIntakeTest.id}`}>
-                    Start de Neuro Intake Test
+                <Link href={neuroIntakeTest.id.startsWith('teen-neurodiversity-quiz') || neuroIntakeTest.id.startsWith('neuro-intake-') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${neuroIntakeTest.ageGroup}` : `/quiz/${neuroIntakeTest.id}`}>
+                    Start de Zelfreflectie Tool
                 </Link>
             </Button>
         )}
@@ -246,7 +238,7 @@ function DashboardQuizContent() {
 
 export default function DashboardQuizzesPage() {
   return (
-    <Suspense fallback={<div>Quizzen laden...</div>}>
+    <Suspense fallback={<div>Zelfreflectie tools laden...</div>}>
       <DashboardQuizContent />
     </Suspense>
   );

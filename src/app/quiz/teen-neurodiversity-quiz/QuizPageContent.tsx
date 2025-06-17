@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -270,6 +270,8 @@ export default function QuizPageContent() {
         setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
       }
     } else {
+        // Redirect if no valid age group is provided
+        // router.replace('/quizzes'); // Or a specific error page
     }
   }, [searchParams, router]);
 
@@ -286,18 +288,21 @@ export default function QuizPageContent() {
             if (answerValue !== undefined) {
               const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
               let profileKeyForQuestion: string | undefined = undefined;
+              // Correctly determine profileKey based on question index and age group
               if (ageGroup === '15-18') {
-                if (index < 3) profileKeyForQuestion = 'ADD';
-                else if (index < 6) profileKeyForQuestion = 'ADHD';
-                else if (index < 9) profileKeyForQuestion = 'HSP';
-                else if (index < 12) profileKeyForQuestion = 'ASS';
-                else if (index < 15) profileKeyForQuestion = 'AngstDepressie';
+                if (index < 3) profileKeyForQuestion = 'ADD'; // First 3 questions for ADD
+                else if (index < 6) profileKeyForQuestion = 'ADHD'; // Next 3 for ADHD
+                else if (index < 9) profileKeyForQuestion = 'HSP'; // Next 3 for HSP
+                else if (index < 12) profileKeyForQuestion = 'ASS'; // Next 3 for ASS
+                else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; // Last 3 for AngstDepressie
               } else if (ageGroup === '12-14') {
-                 if (index < 2) profileKeyForQuestion = 'ADD';
-                 else if (index < 4) profileKeyForQuestion = 'ADHD';
-                 else if (index < 6) profileKeyForQuestion = 'HSP';
-                 else if (index < 8) profileKeyForQuestion = 'ASS';
-                 else if (index < 10) profileKeyForQuestion = 'AngstDepressie';
+                 if (index < 2) profileKeyForQuestion = 'ADD'; // First 2 questions for ADD
+                 else if (index < 4) profileKeyForQuestion = 'ADHD'; // Next 2 for ADHD
+                 else if (index < 6) profileKeyForQuestion = 'HSP'; // Next 2 for HSP
+                 else if (index < 8) profileKeyForQuestion = 'ASS'; // Next 2 for ASS
+                 else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; // Next 2 for AngstDepressie
+                // Note: The 12-14 age group has 12 base questions in the data. The last 2 are general.
+                // If these last two also need a profile key, that logic should be added.
               }
 
               answeredQuestions.push({
@@ -323,7 +328,7 @@ export default function QuizPageContent() {
           });
 
           const analysisInput = {
-            quizTitle: `Neurodiversiteit Quiz (${ageGroup} jaar)`,
+            quizTitle: `Neurodiversiteit Zelfreflectie Tool (${ageGroup} jaar)`,
             ageGroup: ageGroup,
             finalScores: finalScores,
             answeredQuestions: answeredQuestions
@@ -485,6 +490,7 @@ export default function QuizPageContent() {
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
         <SiteLogo />
         <p className="mt-4">Quiz informatie laden...</p>
+        <p className="text-xs text-muted-foreground">Zorg dat je een leeftijdsgroep hebt gekozen via de <Link href="/quizzes" className="text-primary hover:underline">quizzen pagina</Link>.</p>
       </div>
     );
   }
@@ -499,9 +505,9 @@ export default function QuizPageContent() {
           {ageGroup && (
               <Alert variant="default" className="mb-6 bg-primary/10 border-primary/30 text-primary shadow-sm">
                   <Info className="h-5 w-5 !text-primary" />
-                  <AlertTitleUi className="font-semibold text-accent text-[1.25rem]">Quiz voor {ageGroup} jaar</AlertTitleUi>
+                  <AlertTitleUi className="font-semibold text-accent text-[1.25rem]">Zelfreflectie Tool voor {ageGroup} jaar</AlertTitleUi>
                   <AlertDescUi className="text-foreground/80 text-base leading-relaxed">
-                      Deze vragen en tips zijn speciaal afgestemd op jouw leeftijdscategorie.
+                      Deze vragen en inzichten zijn speciaal voor jouw leeftijdscategorie om je te helpen jezelf beter te begrijpen.
                   </AlertDescUi>
               </Alert>
           )}
@@ -513,25 +519,25 @@ export default function QuizPageContent() {
           {currentStep === 'intro' && (
             <Card className="shadow-xl rounded-lg">
               <CardHeader className="pt-8">
-                <CardTitle className="text-3xl font-bold text-center text-accent">Welkom bij de Neurodiversiteit Quiz ({ageGroup} jaar)</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center text-accent">Welkom bij de Zelfreflectie Tool ({ageGroup} jaar)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-center pt-4 px-6 leading-relaxed">
                 <p className="text-foreground/90 text-base">
-                  Deze test geeft inzicht in eigenschappen zoals ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn {currentBaseQuestions.length} basisvragen; op basis van je antwoorden kun je één of meerdere subtests doen voor verdieping.
+                  Deze tool helpt je inzicht te krijgen in eigenschappen die samenhangen met o.a. ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn {currentBaseQuestions.length} basisvragen; op basis van je antwoorden kun je één of meerdere verdiepende modules doen.
                 </p>
                 <p className="text-foreground/90 text-base">
-                  Je ontvangt een persoonlijk rapport met uitleg, herkenbare voorbeelden en tips. Er zijn geen foute antwoorden; kijk wat bij jou past.
+                  Je ontvangt een persoonlijk overzicht met uitleg, herkenbare voorbeelden en tips. Er zijn geen foute antwoorden; kijk wat bij jou past.
                 </p>
                 <div className="rounded-md border border-accent/50 bg-accent/10 p-4 text-left shadow-sm">
                   <h3 className="mb-2 flex items-center text-[1.25rem] font-semibold text-accent"><Info className="mr-2 h-5 w-5" />Over neurodiversiteit</h3>
                   <p className="text-sm text-foreground/80 leading-relaxed">
-                    Neurodiversiteit verwijst naar de natuurlijke variatie in hoe mensen denken, leren en hun omgeving ervaren. Elke persoon heeft een uniek neurotype. De test helpt je ontdekken welke eigenschappen bij jou het sterkst aanwezig zijn. <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>Meer weten over neurodiversiteit?</Link>
+                    Neurodiversiteit betekent dat ieders brein uniek is. Deze tool helpt je ontdekken welke eigenschappen bij jou het sterkst aanwezig zijn. <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>Meer weten over neurodiversiteit en de verschillende eigenschappen?</Link>
                   </p>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-center pt-6 pb-8">
                 <Button size="lg" onClick={() => setCurrentStep('baseQuestions')} className="shadow-md">
-                  Start de test <ArrowRight className="ml-2 h-5 w-5" />
+                  Start de Zelfreflectie <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </CardFooter>
             </Card>
@@ -566,7 +572,7 @@ export default function QuizPageContent() {
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Niet alle vragen beantwoord</AlertDialogTitle>
                       <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
-                        Je hebt nog niet alle basisvragen beantwoord. Voor het meest accurate resultaat raden we aan alle vragen in te vullen. Wil je toch doorgaan?
+                        Je hebt nog niet alle basisvragen beantwoord. Voor het meest complete beeld raden we aan alle vragen in te vullen. Wil je toch doorgaan?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -587,7 +593,7 @@ export default function QuizPageContent() {
               <CardHeader className="pt-8 px-6">
                 <CardTitle className="text-[1.5rem] font-semibold text-accent">Verdiepende vragen ({ageGroup} jaar)</CardTitle>
                 <CardDescription className="pt-1 text-foreground/80 leading-relaxed text-base">
-                  Op basis van je antwoorden willen we je graag meer vragen stellen over specifieke gebieden.
+                  Op basis van je antwoorden raden we je aan om je verder te verdiepen in de volgende thema's.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-2 px-6 leading-relaxed">
@@ -660,7 +666,7 @@ export default function QuizPageContent() {
             <div className="space-y-8 max-w-[800px] mx-auto">
               <Card className="shadow-xl rounded-lg bg-card text-card-foreground">
                 <CardHeader className="text-center pt-8 px-6">
-                  <CardTitle className="text-teal-700 text-[1.75rem] font-bold">Jouw Persoonlijke Rapport ({ageGroup} jaar)</CardTitle>
+                  <CardTitle className="text-teal-700 text-[1.75rem] font-bold">Jouw Persoonlijke Overzicht ({ageGroup} jaar)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-10 pt-4 px-6 pb-6 text-base leading-relaxed">
                   
@@ -673,19 +679,19 @@ export default function QuizPageContent() {
                         <li><strong>Score 2.0 - 2.9:</strong> Kenmerken zijn soms herkenbaar.</li>
                         <li><strong>Score 1.0 - 1.9:</strong> Kenmerken zijn minder herkenbaar.</li>
                       </ul>
-                      Een hogere score is niet beter of slechter, het geeft inzicht.
+                      Een hogere score is niet beter of slechter, het geeft inzicht. Deze tool is voor zelfreflectie, niet voor diagnose.
                     </AlertDescUi>
                   </div>
                   
                   <div className="bg-primary/5 p-6 rounded-lg shadow-sm border-l-4 border-primary">
-                      <h2 className="mb-2 text-primary text-[1.5rem] font-semibold">Jouw Neurodiversiteitsprofiel Samenvatting</h2>
+                      <h2 className="mb-2 text-primary text-[1.5rem] font-semibold">Jouw Eigenschappen Samengevat</h2>
                       <p className="text-foreground leading-relaxed text-base">{generateSummaryText(finalScores, relevantSubtests)}</p>
                   </div>
                   
                   <div className="bg-card rounded-lg mt-6">
                     <header className="p-0 pb-3 mb-6 border-b border-border">
                       <h2 className="text-teal-600 text-[1.75rem] font-semibold flex items-center gap-3">
-                        <Brain className="h-8 w-8" /> Diepgaande Analyse door AI
+                        <Brain className="h-8 w-8" /> Jouw Persoonlijke Inzichten (AI-gegenereerd)
                       </h2>
                     </header>
                     <div className="space-y-10">
@@ -830,9 +836,11 @@ export default function QuizPageContent() {
                       <AlertTriangle className="h-5 w-5" />
                       <AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
                       <AlertDescUi className="leading-relaxed text-base">
-                          Deze quiz en het rapport zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is <strong className="font-bold">geen</strong> formele diagnose.
-                          Als je vragen of zorgen hebt, of als je overweegt een professionele diagnose te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen.
-                          MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit rapport. Onze tool dient ter zelfreflectie en educatie.
+                          Deze zelfreflectie tool en het resulterende overzicht zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is nadrukkelijk <strong className="font-bold">geen</strong> formele (medische) diagnose.
+                          <br/><br/>
+                          Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen. Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
+                          <br/><br/>
+                          MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit overzicht. Onze tool dient ter zelfreflectie en educatie.
                       </AlertDescUi>
                   </Alert>
 
@@ -842,7 +850,7 @@ export default function QuizPageContent() {
                           Jouw Reis Gaat Verder!
                       </h3>
                       <p className="text-foreground leading-relaxed text-base">
-                          Iedereen heeft unieke sterke kanten en uitdagingen. Dit rapport is een startpunt om jezelf beter te leren kennen. Onthoud dat je niet alleen bent op deze ontdekkingsreis. Er zijn altijd manieren om te groeien en je welzijn te verbeteren.
+                          Iedereen heeft unieke sterke kanten en uitdagingen. Dit overzicht is een startpunt om jezelf beter te leren kennen. Onthoud dat je niet alleen bent op deze ontdekkingsreis. Er zijn altijd manieren om te groeien en je welzijn te verbeteren.
                       </p>
                   </div>
                 </CardContent>
@@ -857,13 +865,13 @@ export default function QuizPageContent() {
                   </CardHeader>
                   <CardContent className="px-6 pb-6">
                   <p className="text-muted-foreground mb-4 leading-relaxed text-base">
-                      Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met verdiepende subquizzen en dagelijkse, persoonlijke coaching ontvangen?
+                      Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met meer zelfreflectie tools en dagelijkse, persoonlijke coaching ontvangen?
                   </p>
                   <p className="text-lg font-semibold mb-2 text-foreground">Krijg toegang tot premium functies:</p>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1.5 mb-5 pl-5 leading-relaxed text-base">
-                      <li>Alle verdiepende subquizzen</li>
+                      <li>Alle verdiepende zelfreflectie modules</li>
                       <li>Dagelijkse coaching tips & routines</li>
-                      <li>Uitgebreide PDF rapportages</li>
+                      <li>Uitgebreide PDF overzichten</li>
                       <li>Voortgangstracking en meer!</li>
                   </ul>
                   <p className="text-center text-xl font-bold text-primary mb-5">
@@ -882,12 +890,12 @@ export default function QuizPageContent() {
               <Card className="w-full shadow-xl mt-10 rounded-lg">
                 <CardHeader className="py-6 px-6">
                   <h2 className="text-[1.35rem] font-bold flex items-center gap-2 text-foreground">
-                    Sla je resultaten op (zonder coaching)
+                    Sla je overzicht op (zonder coaching)
                   </h2>
                 </CardHeader>
                 <CardContent className="px-6 pb-6">
                   <p className="text-muted-foreground mb-4 leading-relaxed text-base">
-                    Wil je alleen dit resultaat opslaan en je voortgang bijhouden zonder direct te abonneren op coaching? Maak een gratis account aan.
+                    Wil je alleen dit overzicht opslaan en je voortgang bijhouden zonder direct te abonneren op coaching? Maak een gratis account aan.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button asChild className="flex-1">
@@ -907,13 +915,13 @@ export default function QuizPageContent() {
               <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
                   <AlertDialog>
                       <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="lg" className="shadow-sm"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
+                          <Button variant="outline" size="lg" className="shadow-sm"><RefreshCw className="mr-2 h-4 w-4" />Doe de zelfreflectie opnieuw</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="rounded-lg shadow-lg">
                           <AlertDialogHeader>
-                          <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Quiz opnieuw starten?</AlertDialogTitle>
+                          <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Zelfreflectie Tool opnieuw starten?</AlertDialogTitle>
                           <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
-                              Weet je zeker dat je de quiz opnieuw wilt starten? Alle antwoorden worden gewist.
+                              Weet je zeker dat je de tool opnieuw wilt starten? Alle antwoorden worden gewist.
                           </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -923,7 +931,7 @@ export default function QuizPageContent() {
                       </AlertDialogContent>
                   </AlertDialog>
                   <Button variant="link" asChild className="mt-2">
-                      <Link href="/quizzes">Terug naar quiz overzicht</Link>
+                      <Link href="/quizzes">Terug naar overzicht zelfreflectie tools</Link>
                   </Button>
               </CardFooter>
             </div>
@@ -932,3 +940,4 @@ export default function QuizPageContent() {
     </div>
   );
 }
+
