@@ -6,11 +6,27 @@ import Image from 'next/image';
 import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const benefits = [
+interface Benefit {
+  icon: React.ReactNode;
+  title: string;
+  descriptionPart1: string;
+  descriptionLinkText?: string;
+  descriptionLinkHref?: string;
+  descriptionPart2?: string;
+  descriptionFull?: string; // Fallback if no link parts
+  link: string;
+  linkText: string;
+  colorClass: string;
+}
+
+const benefits: Benefit[] = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
     title: 'Gespecialiseerde Inzichten',
-    description: 'Help uw kind zelfinzicht te krijgen met zelfreflectie-instrumenten gericht op het herkennen van patronen in gedrag en denken. Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat neurodiversiteit inhoudt <ExternalLink class="inline-block h-4 w-4 align-text-bottom"/></Link>. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    descriptionPart1: 'Help uw kind zelfinzicht te krijgen met zelfreflectie-instrumenten gericht op het herkennen van patronen in gedrag en denken. Lees ',
+    descriptionLinkText: 'hier meer over wat neurodiversiteit inhoudt',
+    descriptionLinkHref: '/neurodiversiteit',
+    descriptionPart2: '. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de tools',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
@@ -18,7 +34,7 @@ const benefits = [
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
     title: 'Praktische Coaching & Tools voor Groei',
-    description: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) die uw kind ondersteunen bij het ontwikkelen van routines, het vergroten van zelfvertrouwen en het effectief omgaan met school en sociale situaties.',
+    descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) die uw kind ondersteunen bij het ontwikkelen van routines, het vergroten van zelfvertrouwen en het effectief omgaan met school en sociale situaties.',
     link: '/dashboard/coaching',
     linkText: 'Verken coaching',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
@@ -26,7 +42,7 @@ const benefits = [
   {
     icon: <BookOpenCheck className="h-10 w-10 text-primary" />,
     title: 'Huiswerkondersteuning Tools',
-    description: 'Effectieve tools en strategieën om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen, direct geïntegreerd in hun dashboard.',
+    descriptionFull: 'Effectieve tools en strategieën om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen, direct geïntegreerd in hun dashboard.',
     link: '/dashboard/homework-assistance',
     linkText: 'Bekijk tools',
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
@@ -34,7 +50,7 @@ const benefits = [
   {
     icon: <GraduationCap className="h-10 w-10 text-primary" />,
     title: '1-op-1 Huiswerkbegeleiding',
-    description: 'Koppel uw kind aan gekwalificeerde en gescreende tutors voor persoonlijke hulp bij specifieke vakken. Flexibel en afgestemd op de behoeften van uw kind.',
+    descriptionFull: 'Koppel uw kind aan gekwalificeerde en gescreende tutors voor persoonlijke hulp bij specifieke vakken. Flexibel en afgestemd op de behoeften van uw kind.',
     link: '/dashboard/homework-assistance/tutors',
     linkText: 'Vind een Tutor',
     colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
@@ -42,7 +58,7 @@ const benefits = [
   {
     icon: <MessageSquareText className="h-10 w-10 text-primary" />,
     title: 'Persoonlijke Coaching (Psychologen)',
-    description: 'Bied uw kind de mogelijkheid tot verdiepende gesprekken met bij ons aangesloten kinder- en jeugdpsychologen voor extra ondersteuning bij persoonlijke groei en welzijn.',
+    descriptionFull: 'Bied uw kind de mogelijkheid tot verdiepende gesprekken met bij ons aangesloten kinder- en jeugdpsychologen voor extra ondersteuning bij persoonlijke groei en welzijn.',
     link: '/contact',
     linkText: 'Meer Informatie & Contact',
     colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
@@ -50,8 +66,11 @@ const benefits = [
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
     title: 'Veilig, Vertrouwd & Deskundig',
-    description: 'Een privacygerichte omgeving, speciaal ontworpen voor tieners. Onze aanpak is gebaseerd op educatieve principes en inzichten van experts in neurodiversiteit en pedagogiek. Wij bieden geen diagnoses.',
-    link: '/privacy',
+    descriptionPart1: 'Een privacygerichte omgeving, speciaal ontworpen voor tieners. Onze aanpak is gebaseerd op educatieve principes en inzichten van experts in neurodiversiteit en pedagogiek. Wij bieden geen diagnoses. Lees meer in ons ',
+    descriptionLinkText: 'Privacybeleid',
+    descriptionLinkHref: '/privacy',
+    descriptionPart2: '.',
+    link: '/privacy', // Main link for the button can still be privacy or a general "Learn More"
     linkText: 'Lees ons privacybeleid',
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
@@ -80,7 +99,19 @@ export function ParentBenefitsSection() {
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: benefit.description }} />
+                <p className="text-sm text-muted-foreground leading-snug">
+                  {benefit.descriptionFull ? benefit.descriptionFull : (
+                    <>
+                      {benefit.descriptionPart1}
+                      {benefit.descriptionLinkText && benefit.descriptionLinkHref && (
+                        <Link href={benefit.descriptionLinkHref} className="text-primary hover:underline font-medium">
+                          {benefit.descriptionLinkText} <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/>
+                        </Link>
+                      )}
+                      {benefit.descriptionPart2}
+                    </>
+                  )}
+                </p>
               </CardContent>
               <CardFooter>
                 <Button variant="link" asChild className="p-0 h-auto text-primary">
