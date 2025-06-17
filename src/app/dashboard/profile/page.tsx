@@ -64,6 +64,15 @@ const countryCodeOptions = [
   { value: '+33', label: 'FR (+33)' },
 ];
 
+const countryOptionsList = [
+  { value: 'Nederland', label: 'Nederland' },
+  { value: 'België', label: 'België' },
+  { value: 'Duitsland', label: 'Duitsland' },
+  { value: 'Verenigd Koninkrijk', label: 'Verenigd Koninkrijk' },
+  { value: 'Frankrijk', label: 'Frankrijk' },
+  { value: 'Anders', label: 'Anders (specificeer indien nodig)'},
+];
+
 
 export default function ProfilePage() {
   const { currentDashboardRole } = useDashboardRole();
@@ -458,8 +467,21 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="country">Land</Label>
-              <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} disabled={!isEditing} className="mt-1" />
+                <Label htmlFor="country">Land</Label>
+                {isEditing ? (
+                  <Select value={country} onValueChange={setCountry} disabled={!isEditing}>
+                    <SelectTrigger id="country" className="mt-1">
+                      <SelectValue placeholder="Selecteer een land" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countryOptionsList.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input id="countryDisplay" value={country} disabled className="mt-1" />
+                )}
             </div>
             <div>
               <Label htmlFor="phoneNumber" className="flex items-center gap-1">
