@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx
 "use client";
 
@@ -121,7 +120,7 @@ const dummyChildren: Child[] = [
     helpSubjects: [],
     hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
-    voorkeurTutor: 'Geselecteerd: Vrouw, Ervaring met faalangst.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor2', 'tutor3'],
   },
@@ -230,17 +229,17 @@ export default function KindProfielPage() {
     if (typeof window !== 'undefined') {
       try {
         const storedChildren = localStorage.getItem('ouderDashboard_kinderen');
-        const allChildren: Child[] = JSON.parse(storedChildren || JSON.stringify(dummyChildren));
+        const allChildren: Child[] = JSON.parse(storedChildren || JSON.stringify(dummyChildren)); // Fallback to dummy if localStorage is empty or invalid
         const data = allChildren.find(c => c.id === kindId);
         if (data) {
           setChildData(data);
         } else {
           console.error("Kind data niet gevonden voor ID:", kindId);
-          setChildData(null);
+          setChildData(null); 
         }
       } catch (error) {
         console.error("Error parsing children from localStorage:", error);
-        const dummyData = dummyChildren.find(c => c.id === kindId);
+        const dummyData = dummyChildren.find(c => c.id === kindId); // Fallback for parsing error
         setChildData(dummyData || null);
       }
     }
@@ -304,7 +303,7 @@ export default function KindProfielPage() {
 
     let tutorPreferencesString = "";
     if (data.selectedTutorPreferences && data.selectedTutorPreferences.length > 0) {
-      tutorPreferencesString += `Geselecteerd: ${data.selectedTutorPreferences.join(', ')}. `;
+      tutorPreferencesString += `Geselecteerd: ${data.selectedTutorPreferences.join(', ')}. `; // Corrected prefix
     }
     if (data.otherTutorPreference) {
       tutorPreferencesString += `Overig: ${data.otherTutorPreference}`;
@@ -344,23 +343,35 @@ export default function KindProfielPage() {
   const displayedName = isEditing ? `${editableChildData?.firstName} ${editableChildData?.lastName}` : childData?.name;
   const displayedAvatar = isEditing ? editableChildData?.avatarUrl : childData?.avatarUrl;
 
+  const formatHulpvraagTypeDetailed = (types?: ('tutor' | 'coach')[]): { selected: string[], notSelected: string[] } => {
+    const result = { selected: [] as string[], notSelected: [] as string[] };
+    const allOptions = allHulpvraagOptions;
+
+    allOptions.forEach(opt => {
+        if (types?.includes(opt.id)) {
+            result.selected.push(opt.label);
+        } else {
+            result.notSelected.push(opt.label);
+        }
+    });
+    return result;
+  };
+
   if (isLoading) return <div className="p-8 text-center">Profielgegevens laden...</div>;
-  if (!childData) {
-    return (
-      <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center p-4">
-        <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-        <h1 className="text-2xl font-bold text-destructive mb-2">Profiel Niet Gevonden</h1>
-        <p className="text-muted-foreground mb-6">
-          De gegevens voor dit kind konden niet worden geladen. Controleer of het kind correct is toegevoegd.
-        </p>
-        <Button asChild variant="outline">
-          <Link href="/dashboard/ouder/kinderen">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
-          </Link>
-        </Button>
-      </div>
+  if (!childData) return (
+        <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center p-4">
+            <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
+            <h1 className="text-2xl font-bold text-destructive mb-2">Profiel Niet Gevonden</h1>
+            <p className="text-muted-foreground mb-6">
+            De gegevens voor dit kind konden niet worden geladen. Controleer of het kind correct is toegevoegd.
+            </p>
+            <Button asChild variant="outline">
+            <Link href="/dashboard/ouder/kinderen">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
+            </Link>
+            </Button>
+        </div>
     );
-  }
 
   return (
     <div className="space-y-8">
@@ -433,7 +444,7 @@ export default function KindProfielPage() {
                       <FormField control={control} name="className" render={({ field }) => (<FormItem><div><FormLabel htmlFor="classNameEdit">Klas</FormLabel><Input id="classNameEdit" {...field} /></div><FormMessage/></FormItem>)} />
                   </CardContent>
                 </Card>
-                <Card className="shadow-lg">
+                 <Card className="shadow-lg">
                   <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
                   <CardContent className="text-sm">
                       <FormField control={control} name="deelResultatenMetTutor" render={({ field }) => (<FormItem className="flex items-center space-x-2">
@@ -447,42 +458,44 @@ export default function KindProfielPage() {
 
               <div className="lg:col-span-1 space-y-6">
                 <Card className="shadow-lg flex flex-col h-full">
-                  <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle></CardHeader>
-                  <CardContent className="space-y-4 text-sm flex-grow">
-                    <FormField control={control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
-                        <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
-                        <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
-                    </FormItem>)} />
-                    {editableChildData.hulpvraagType?.includes('tutor') && (
-                        <>
-                            <p className="text-xs text-muted-foreground mb-3">Help ons de beste tutor voor {childData?.name || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
-                            <FormField control={control} name="helpSubjects" render={() => (<FormItem>
-                                <FormLabel className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</FormLabel>
-                                <p className={cn("text-xs text-muted-foreground !mt-0 !mb-2")}> {`Selecteer de vakken waarvoor ondersteuning gewenst is (max. 3-4 aanbevolen voor focus).`}</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                    {allHomeworkSubjects.map(subject => (<FormField key={subject.id} control={control} name="helpSubjects" render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(subject.id)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, subject.id]) : field.onChange(newVal.filter(v => v !== subject.id));}}/></FormControl><FormLabel htmlFor={`subject-${subject.id}-edit`} className="font-normal">{subject.name}</FormLabel></FormItem>
-                                    )} />))}
-                                </div><FormMessage/>
-                            </FormItem>)} />
-                            <div className="mt-4">
-                                <FormLabel className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</FormLabel>
-                                <p className={cn("text-xs text-muted-foreground !mt-0 !mb-2")}>{`Kies de 2-3 belangrijkste leerdoelen of aandachtspunten.`}</p>
-                                <FormField control={control} name="selectedLeerdoelen" render={() => (<FormItem>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        {predefinedLeerdoelen.map(doel => (<FormField key={doel.id} control={control} name="selectedLeerdoelen" render={({ field }) => (
-                                            <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(doel.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, doel.label]) : field.onChange(newVal.filter(v => v !== doel.label)); }}/></FormControl><FormLabel htmlFor={`leerdoel-${doel.id}-edit`} className="font-normal">{doel.label}</FormLabel></FormItem>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 text-sm flex-grow">
+                        <FormField control={control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
+                            <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
+                            <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
+                        </FormItem>)} />
+                        {editableChildData.hulpvraagType?.includes('tutor') && (
+                            <>
+                                <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
+                                <FormField control={control} name="helpSubjects" render={() => (<FormItem>
+                                    <FormLabel className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</FormLabel>
+                                    <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de vakken waarvoor ondersteuning gewenst is (max. 3-4 aanbevolen voor focus).</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        {allHomeworkSubjects.map(subject => (<FormField key={subject.id} control={control} name="helpSubjects" render={({ field }) => (
+                                            <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(subject.id)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, subject.id]) : field.onChange(newVal.filter(v => v !== subject.id));}}/></FormControl><FormLabel htmlFor={`subject-${subject.id}-edit`} className="font-normal">{subject.name}</FormLabel></FormItem>
                                         )} />))}
                                     </div><FormMessage/>
                                 </FormItem>)} />
-                            </div>
-                            <FormField control={control} name="otherLeerdoelen" render={({ field }) => (<FormItem className="mt-4">
-                                <FormLabel htmlFor="otherLeerdoelenEdit">Andere leerdoelen/toelichting</FormLabel>
-                                <Textarea id="otherLeerdoelenEdit" {...field} rows={3} /><FormMessage/>
-                            </FormItem>)} />
-                        </>
-                    )}
-                  </CardContent>
+                                <div className="mt-4">
+                                    <FormLabel className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</FormLabel>
+                                    <p className="text-xs text-muted-foreground !mt-0 !mb-2">Kies de 2-3 belangrijkste leerdoelen of aandachtspunten.</p>
+                                    <FormField control={control} name="selectedLeerdoelen" render={() => (<FormItem>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            {predefinedLeerdoelen.map(doel => (<FormField key={doel.id} control={control} name="selectedLeerdoelen" render={({ field }) => (
+                                                <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(doel.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, doel.label]) : field.onChange(newVal.filter(v => v !== doel.label)); }}/></FormControl><FormLabel htmlFor={`leerdoel-${doel.id}-edit`} className="font-normal">{doel.label}</FormLabel></FormItem>
+                                            )} />))}
+                                        </div><FormMessage/>
+                                    </FormItem>)} />
+                                </div>
+                                <FormField control={control} name="otherLeerdoelen" render={({ field }) => (<FormItem className="mt-4">
+                                    <FormLabel htmlFor="otherLeerdoelenEdit">Andere leerdoelen/toelichting</FormLabel>
+                                    <Textarea id="otherLeerdoelenEdit" {...field} rows={3} /><FormMessage/>
+                                </FormItem>)} />
+                            </>
+                        )}
+                    </CardContent>
                 </Card>
               </div>
               
@@ -496,10 +509,10 @@ export default function KindProfielPage() {
                       </FormItem>)} />
                       {editableChildData.hulpvraagType?.includes('coach') && (
                           <>
-                              <p className="text-xs text-muted-foreground mb-3">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData?.name || 'uw kind'}.</p>
+                              <p className="text-xs text-muted-foreground mb-3 -mt-2">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData?.firstName || 'uw kind'}.</p>
                               <div>
                                   <FormLabel className="font-semibold text-foreground/90 mb-1 block">Voorkeuren Coach</FormLabel>
-                                  <p className={cn("text-xs text-muted-foreground !mt-0 !mb-2")}>{`Selecteer de belangrijkste voorkeuren voor een coach.`}</p>
+                                   <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de belangrijkste voorkeuren voor een coach.</p>
                                   <FormField control={control} name="selectedTutorPreferences" render={() => (<FormItem>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                           {predefinedTutorPreferences.map(pref => (<FormField key={pref.id} control={control} name="selectedTutorPreferences" render={({ field }) => (
@@ -539,35 +552,37 @@ export default function KindProfielPage() {
                         <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData?.className || 'Niet opgegeven'}</span></p>
                     </CardContent>
                 </Card>
-                 <Card className="shadow-lg">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
-                    <CardContent className="text-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium text-foreground/80">Quizresultaten delen met begeleiders:</p>
-                            <Badge variant={childData?.deelResultatenMetTutor ? "default" : "secondary"} className={childData?.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
-                            {childData?.deelResultatenMetTutor ? 'Ja' : 'Nee'}
-                            </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p>
-                    </CardContent>
+                <Card className="shadow-lg">
+                  <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
+                  <CardContent className="text-sm">
+                      <div className="flex items-center justify-between mb-2">
+                          <p className="font-medium text-foreground/80">Quizresultaten delen met begeleiders:</p>
+                          <Badge variant={childData?.deelResultatenMetTutor ? "default" : "secondary"} className={childData?.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
+                          {childData?.deelResultatenMetTutor ? 'Ja' : 'Nee'}
+                          </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p>
+                  </CardContent>
                 </Card>
             </div>
 
             <div className="lg:col-span-1 space-y-6">
                 <Card className="shadow-lg flex flex-col h-full">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle></CardHeader>
-                    <CardContent className="space-y-3 text-sm flex-grow">
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium text-foreground/80">Status:</p>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground">Status:</p>
                             <Badge variant={childData?.hulpvraagType?.includes('tutor') ? "default" : "secondary"} className={childData?.hulpvraagType?.includes('tutor') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
                                 {childData?.hulpvraagType?.includes('tutor') ? 'Actief' : 'Niet Actief'}
                             </Badge>
                         </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm flex-grow">
                         {childData?.hulpvraagType?.includes('tutor') ? (
                             <>
                                 <div>
                                     <h4 className="font-semibold text-foreground/90 mb-1 mt-2 flex items-center gap-1"><BookOpen className="h-4 w-4"/>Hulp bij Vakken</h4>
-                                    {childData.helpSubjects && childData.helpSubjects.length > 0 ? (<ul className="list-disc list-inside space-y-1 pl-2 text-foreground">{childData.helpSubjects.map(id => <li key={id}>{getSubjectName(id)}</li>)}</ul>) 
+                                    {childData.helpSubjects && childData.helpSubjects.length > 0 ? (<ul className="list-disc list-inside space-y-1 pl-2 text-muted-foreground">{childData.helpSubjects.map(id => <li key={id}>{getSubjectName(id)}</li>)}</ul>) 
                                     : (<p className="text-muted-foreground">Geen specifieke hulpvakken opgegeven.</p>)}
                                 </div>
                                 <div className="mt-2">
@@ -586,19 +601,30 @@ export default function KindProfielPage() {
 
             <div className="lg:col-span-1 space-y-6">
                  <Card className="shadow-lg flex flex-col h-full">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle></CardHeader>
-                    <CardContent className="text-sm space-y-3 flex-grow">
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium text-foreground/80">Status:</p>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle>
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground">Status:</p>
                             <Badge variant={childData?.hulpvraagType?.includes('coach') ? "default" : "secondary"} className={childData?.hulpvraagType?.includes('coach') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
                                 {childData?.hulpvraagType?.includes('coach') ? 'Actief' : 'Niet Actief'}
                             </Badge>
                         </div>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-3 flex-grow">
                         {childData?.hulpvraagType?.includes('coach') ? (
                              <div className="mt-2">
                                 <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><UsersIcon className="h-4 w-4"/>Voorkeuren Coach</h4>
-                                {tutorVoorkeurenParsed.selected.length > 0 && (<p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{tutorVoorkeurenParsed.selected.join(', ')}</span></p>)}
-                                {tutorVoorkeurenParsed.other && (<p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.other}</span></p>)}
+                                {tutorVoorkeurenParsed.selected.length > 0 && (
+                                  <div>
+                                    <p className="font-medium text-foreground/80">Geselecteerd:</p>
+                                    <ul className="list-disc list-inside space-y-0.5 pl-2 text-muted-foreground">
+                                      {tutorVoorkeurenParsed.selected.map((pref, index) => (
+                                        <li key={index}>{pref}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {tutorVoorkeurenParsed.other && (<p className="mt-1"><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.other}</span></p>)}
                                 {(tutorVoorkeurenParsed.selected.length === 0 && !tutorVoorkeurenParsed.other) && (<p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>)}
                             </div>
                         ) : (
