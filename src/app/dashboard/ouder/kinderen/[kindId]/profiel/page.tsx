@@ -200,19 +200,23 @@ export default function KindProfielPage() {
           </Card>
         </div>
 
-        {/* Kolom 2: School & Hulpvraag */}
+        {/* Kolom 2: School & Persoonlijke Begeleidingsbehoefte */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="shadow-lg h-full">
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>School &amp; Hulpvraag</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p><strong className="font-medium text-foreground/80">Schooltype:</strong> <span className="text-foreground">{childData.schoolType || 'Niet opgegeven'}</span></p>
+              <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData.className || 'Niet opgegeven'}</span></p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl"><HelpCircle className="h-6 w-6 text-primary"/>Persoonlijke Begeleidingsbehoefte</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold text-foreground/90 mb-1">Schoolinformatie</h4>
-                <p><strong className="font-medium text-foreground/80">Schooltype:</strong> <span className="text-foreground">{childData.schoolType || 'Niet opgegeven'}</span></p>
-                <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData.className || 'Niet opgegeven'}</span></p>
-              </div>
-              <div>
+               <div>
                 <h4 className="font-semibold text-foreground/90 mb-1">Type Hulpvraag</h4>
                  <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-foreground">{formatHulpvraagType(childData.hulpvraagType)}</span></p>
               </div>
