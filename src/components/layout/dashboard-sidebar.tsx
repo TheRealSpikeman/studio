@@ -29,9 +29,9 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon // Added ShieldCheckIcon
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon
 } from 'lucide-react'; 
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'; // Added SheetTitle
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -98,7 +98,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   
   // Ouder Items
-  { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "Ouder Portaal" },
+  { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   {
     href: '/dashboard/ouder/kinderen', 
@@ -241,10 +241,10 @@ function SidebarNavigationContent() {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
                         renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "Ouder Portaal") {
+                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL") {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'leerling') {
-                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "Ouder Portaal") {
+                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "OUDER PORTAAL") {
                             renderSectionHeader = true; 
                         }
                     }
