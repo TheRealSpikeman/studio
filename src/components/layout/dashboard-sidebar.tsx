@@ -7,7 +7,29 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, TrendingUp, Link2, UserCheck } from 'lucide-react'; 
+import { 
+  Sidebar, 
+  SidebarHeader, 
+  SidebarContent, 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarMenuButton, 
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  useSidebar // Import useSidebar
+} from '@/components/ui/sidebar';
+import { 
+  LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
+  Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, 
+  GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
+  FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
+  Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft
+} from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -144,43 +166,54 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
   
-  { href: '/dashboard/profile', label: 'Profiel', icon: User }, // Common for all roles
+  { href: '/dashboard/profile', label: 'Profiel', icon: User }, 
 ];
 
 function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
+  const { state: sidebarState, toggleSidebar } = useSidebar(); // Get sidebar state from context
   let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
 
   return (
     <>
-      <div className="flex h-16 items-center border-b px-6">
-        <SiteLogo />
-      </div>
-      <div className="p-4 border-b">
-        <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
-          <Shuffle className="h-3 w-3"/>
-          Testrol Wisselaar
-        </Label>
-        <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
-          <SelectTrigger id="role-switcher" className="h-9">
-            <SelectValue placeholder="Selecteer een rol" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="leerling">Leerling</SelectItem>
-            <SelectItem value="ouder">Ouder</SelectItem>
-            <SelectItem value="tutor">Tutor</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
-         <p className="text-xs text-muted-foreground mt-1">
-          Sidebar past zich aan de gekozen rol aan.
-        </p>
-      </div>
-      <ScrollArea className="flex-1">
-        <nav className="grid items-start gap-1 p-4 text-sm font-medium">
+      <SidebarHeader className="border-b">
+        <div className="flex h-16 items-center justify-between px-4">
+          <SiteLogo />
+          {/* Only show toggle button if sidebar is not in 'icon' collapsible mode and not mobile */}
+          {sidebarState !== 'collapsed' && (
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden md:inline-flex">
+              <ChevronsRightLeft className="h-5 w-5 transform data-[state=open]:rotate-180" data-state={sidebarState} />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+          )}
+        </div>
+        <div className="p-4 border-b">
+          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
+            <Shuffle className="h-3 w-3"/>
+            Testrol Wisselaar
+          </Label>
+          <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
+            <SelectTrigger id="role-switcher" className="h-9 group-data-[collapsible=icon]:hidden">
+              <SelectValue placeholder="Selecteer een rol" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="leerling">Leerling</SelectItem>
+              <SelectItem value="ouder">Ouder</SelectItem>
+              <SelectItem value="tutor">Tutor</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1 group-data-[collapsible=icon]:hidden">
+            Sidebar past zich aan de gekozen rol aan.
+          </p>
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarMenu>
           {navItems.map((item, index) => {
             let showItem = false;
             if (currentDashboardRole === 'admin') {
@@ -250,7 +283,7 @@ function SidebarNavigationContent() {
             if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
                isParentHighlighted = true;
             }
-            if (item.label === "Voortgang Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
+             if (item.label === "Voortgang Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
               isParentHighlighted = true;
             }
 
@@ -258,97 +291,78 @@ function SidebarNavigationContent() {
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && item.sectionTitle && (
-                    <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mt-3">
-                        {item.sectionTitle}
-                    </div>
+                    <SidebarGroup className="pt-3 pb-1 group-data-[collapsible=icon]:hidden">
+                        <SidebarGroupLabel>{item.sectionTitle}</SidebarGroupLabel>
+                    </SidebarGroup>
                 )}
-                <Link
-                    href={item.href}
-                    className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                    isParentHighlighted && !item.isSubItem && 'bg-primary/10 text-primary font-semibold'
-                    )}
-                >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
-                    {item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && (
-                        <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" title="Nieuwe berichten">
-                            <span className="sr-only">Nieuwe berichten</span>
-                        </span>
-                    )}
-                    {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
-                        <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-destructive animate-pulse" title="Facturatie actie vereist">
-                            <span className="sr-only">Facturatie actie vereist</span>
-                        </span>
-                    )}
-                </Link>
-
-                {isParentExpanded && item.children && visibleChildren.map((child, childIndex) => {
-                  const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
-                  const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
-
-                  return (
-                    <Link
-                      key={`${child.href}-${childIndex}`}
-                      href={child.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-                        (isChildActive || isExactLessenOverzichtActive) && 'bg-primary/10 text-primary font-semibold',
-                        child.isSubItem && 'ml-4 text-sm py-2' 
-                      )}
-                    >
-                      <child.icon className="h-5 w-5" />
-                      {child.label}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isParentHighlighted && !item.isSubItem} tooltip={item.label}>
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
-                  );
-                })}
+                  </SidebarMenuButton>
+                  {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages) && (
+                    <SidebarMenuBadge title="Nieuwe berichten"></SidebarMenuBadge>
+                  )}
+                   {(item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction) && (
+                    <SidebarMenuBadge title="Facturatie actie vereist" className="bg-destructive text-destructive-foreground"></SidebarMenuBadge>
+                  )}
+                </SidebarMenuItem>
+
+                {isParentExpanded && item.children && visibleChildren.length > 0 && (
+                  <SidebarMenuSub>
+                    {visibleChildren.map((child, childIndex) => {
+                      const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
+                       const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
+                      return (
+                        <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
+                          <SidebarMenuSubButton asChild isActive={isChildActive || isExactLessenOverzichtActive}>
+                            <Link href={child.href}>
+                              <child.icon />
+                              {child.label}
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      );
+                    })}
+                  </SidebarMenuSub>
+                )}
               </Fragment>
             );
           })}
-        </nav>
-      </ScrollArea>
+        </SidebarMenu>
+      </SidebarContent>
     </>
   );
 }
 
 export function DashboardSidebar() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
+  // Close mobile sheet on pathname change
   const pathname = usePathname();
   useEffect(() => {
     if (isMobile) {
-      setIsSheetOpen(false);
+      setOpenMobile(false);
     }
-  }, [pathname, isMobile]);
-
+  }, [pathname, isMobile, setOpenMobile]);
 
   if (isMobile) {
+    // For mobile, we use a Sheet (off-canvas) from ui/sheet.tsx, triggered by SidebarTrigger in DashboardHeader.
+    // The Sidebar component itself from ui/sidebar.tsx handles the Sheet for mobile internally.
+    // So we only need to render the <Sidebar> component here, and it will know it's mobile.
     return (
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="fixed top-4 left-4 z-50 md:hidden">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col p-0 w-64 bg-card">
-          <SidebarNavigationContent />
-        </SheetContent>
-      </Sheet>
+      <Sidebar side="left" collapsible="offcanvas">
+        <SidebarNavigationContent />
+      </Sidebar>
     );
   }
 
+  // For desktop, use the Sidebar component configured for icon collapsibility.
   return (
-    <aside className="fixed top-0 left-0 z-40 hidden h-screen w-64 flex-col border-r bg-card shadow-lg md:flex">
+    <Sidebar side="left" collapsible="icon" className="bg-card border-r shadow-lg">
       <SidebarNavigationContent />
-    </aside>
+    </Sidebar>
   );
 }
