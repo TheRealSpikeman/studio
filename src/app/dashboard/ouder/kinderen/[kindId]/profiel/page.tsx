@@ -111,14 +111,33 @@ const parseMultiPartString = (str: string | undefined): { geselecteerd: string; 
   };
 };
 
-const formatHulpvraagType = (types?: ('tutor' | 'coach')[]): string => {
-  if (!types || types.length === 0) return 'Niet gespecificeerd';
-  return types.map(type => {
-    if (type === 'tutor') return 'Hulp bij huiswerk (Tutor)';
-    if (type === 'coach') return '1-op-1 coaching (Coach)';
-    return type;
-  }).join(', ');
+interface FormattedHulpvraag {
+  selected: string[];
+  notSelected: string[];
+}
+
+const allHulpvraagOptions: { id: 'tutor' | 'coach'; label: string }[] = [
+  { id: 'tutor', label: "Hulp bij huiswerk (Tutor)" },
+  { id: 'coach', label: "1-op-1 coaching (Coach)" },
+];
+
+const formatHulpvraagTypeDetailed = (types?: ('tutor' | 'coach')[]): FormattedHulpvraag => {
+  const currentTypes = types || [];
+  const selectedLabels = allHulpvraagOptions
+    .filter(opt => currentTypes.includes(opt.id))
+    .map(opt => opt.label);
+
+  const notSelectedLabels = allHulpvraagOptions
+    .filter(opt => !currentTypes.includes(opt.id))
+    .map(opt => opt.label);
+
+  if (selectedLabels.length === 0 && notSelectedLabels.length > 0) {
+    return { selected: ["Niet gespecificeerd"], notSelected: notSelectedLabels };
+  }
+  
+  return { selected: selectedLabels, notSelected: notSelectedLabels };
 };
+
 
 export default function KindProfielPage() {
   const params = useParams();
@@ -144,6 +163,8 @@ export default function KindProfielPage() {
   
   const leerdoelenParsed = parseMultiPartString(childData?.leerdoelen);
   const tutorVoorkeurenParsed = parseMultiPartString(childData?.voorkeurTutor);
+  const hulpvraagFormatted = formatHulpvraagTypeDetailed(childData?.hulpvraagType);
+
 
   if (isLoading) {
     return <div className="p-8 text-center">Profielgegevens laden...</div>;
@@ -185,7 +206,6 @@ export default function KindProfielPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kolom 1: Persoonlijke Gegevens */}
         <div className="lg:col-span-1 space-y-6">
            <Card className="shadow-lg h-full">
             <CardHeader>
@@ -200,7 +220,6 @@ export default function KindProfielPage() {
           </Card>
         </div>
 
-        {/* Kolom 2: School & Persoonlijke Begeleidingsbehoefte */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="shadow-lg">
             <CardHeader>
@@ -218,7 +237,14 @@ export default function KindProfielPage() {
             <CardContent className="space-y-4 text-sm">
                <div>
                 <h4 className="font-semibold text-foreground/90 mb-1">Type Hulpvraag</h4>
-                 <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-foreground">{formatHulpvraagType(childData.hulpvraagType)}</span></p>
+                {hulpvraagFormatted.selected.length > 0 && hulpvraagFormatted.selected[0] !== "Niet gespecificeerd" ? (
+                  <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-foreground">{hulpvraagFormatted.selected.join(', ')}</span></p>
+                ) : (
+                  <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">Niet gespecificeerd</span></p>
+                )}
+                {hulpvraagFormatted.notSelected.length > 0 && (
+                  <p className="mt-1"><strong className="font-medium text-muted-foreground/80">Niet geselecteerd:</strong> <span className="text-muted-foreground">{hulpvraagFormatted.notSelected.join(', ')}</span></p>
+                )}
               </div>
               <div>
                 <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><BookOpen className="h-4 w-4"/>Hulp bij Vakken</h4>
@@ -234,7 +260,6 @@ export default function KindProfielPage() {
           </Card>
         </div>
 
-        {/* Kolom 3: Leerdoelen, Voorkeuren, Privacy */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="shadow-lg">
             <CardHeader>
