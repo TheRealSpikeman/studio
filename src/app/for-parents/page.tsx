@@ -5,13 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
+import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
+
 
 const parentFaqs = [
   {
     question: "Wat is neurodiversiteit precies?",
-    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals ADD, ADHD, HSP, en autisme zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen. Bekijk onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>uitgebreide informatiepagina over neurodiversiteit <ExternalLink class='inline-block h-4 w-4'/></a> voor meer details.",
+    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals aandachtspatronen, energielevels, prikkelgevoeligheid, en sociale voorkeuren zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen. Bekijk onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>uitgebreide informatiepagina over neurodiversiteit <ExternalLink class='inline-block h-4 w-4'/></a> voor meer details.",
   },
   {
     question: "Hoe helpt MindNavigator mijn kind?",
@@ -22,6 +24,7 @@ const parentFaqs = [
     answer: "Veiligheid en privacy zijn onze topprioriteit. Alle gegevens worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. Resultaten van zelfreflectie-instrumenten zijn persoonlijk en worden niet zonder toestemming gedeeld. Voor betaalde abonnementen voor minderjarigen is altijd ouderlijke toestemming en betaling vereist. Lees meer in ons <a href='/privacy' class='text-primary hover:underline'>Privacybeleid <ExternalLink class='inline-block h-4 w-4'/></a>.",
   },
   {
+    id: "faq-payment", // Added ID for direct linking if needed
     question: "Wat als mijn kind professionele hulp nodig heeft?",
     answer: "MindNavigator is een tool voor zelfinzicht en ondersteuning, maar vervangt geen professionele diagnose of behandeling. Als u of uw kind zorgen heeft, raden wij altijd aan contact op te nemen met een huisarts, psycholoog of andere gekwalificeerde zorgverlener. Meer informatie en verwijzingen vindt u ook op onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>neurodiversiteit pagina <ExternalLink class='inline-block h-4 w-4'/></a>.",
   },
@@ -77,7 +80,7 @@ export default function ForParentsPage() {
                     Hoe ondersteunen wij uw kind?
                     </h2>
                     <ul className="list-disc list-inside space-y-2 pl-5">
-                        <li><strong>Zelfinzicht:</strong> Heldere overzichten die neurodivergente eigenschappen (zoals ADD, ADHD, HSP, ASS-kenmerken) uitleggen in begrijpelijke taal.</li>
+                        <li><strong>Zelfinzicht:</strong> Heldere overzichten die neurodivergente eigenschappen (zoals aandachtspatronen, gevoeligheid, sociale voorkeuren) uitleggen in begrijpelijke taal.</li>
                         <li><strong>Praktische Tips:</strong> Concrete strategieën voor school, thuis, en sociale situaties, afgestemd op hun leeftijd en profiel.</li>
                         <li><strong>Dagelijkse Groei:</strong> Via de (premium) coaching-hub dagelijkse affirmaties, reflectie-oefeningen en tools voor planning en focus.</li>
                         <li><strong>Positieve Benadering:</strong> We benadrukken sterke punten en helpen bij het ontwikkelen van copingmechanismen voor uitdagingen.</li>
@@ -94,6 +97,17 @@ export default function ForParentsPage() {
                   De veiligheid en privacy van uw kind staan bij ons voorop. We voldoen aan de AVG (GDPR) en zorgen voor een beveiligde omgeving. Persoonlijke resultaten van de tools zijn strikt vertrouwelijk. Voor jongeren onder de 18 jaar is voor betaalde diensten altijd uw toestemming en betalingsafhandeling nodig. U kunt hierover meer lezen in ons <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
                 </p>
               </section>
+
+              <section>
+                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <AlertTriangle className="h-7 w-7 text-destructive" />
+                  Belangrijk: MindNavigator en Professionele Hulp
+                </h2>
+                <p>
+                  MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link>.
+                </p>
+              </section>
+
 
               <section id="faq-payment">
                 <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
@@ -136,3 +150,4 @@ export default function ForParentsPage() {
     </div>
   );
 }
+
