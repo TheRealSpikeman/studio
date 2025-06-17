@@ -118,8 +118,8 @@ export default function PrivacyInstellingenPage() {
         <>
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5 text-primary"/>Zichtbaarheid & Delen</CardTitle>
-              <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten en het profiel van {selectedChildName}.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5 text-primary"/>Zichtbaarheid & Delen van Resultaten</CardTitle>
+              <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten van {selectedChildName}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Delen met Tutors */}
@@ -218,7 +218,7 @@ export default function PrivacyInstellingenPage() {
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5 text-primary"/>Community & Interactie</CardTitle>
-              <CardDescription>Beheer de toegang en zichtbaarheid van {selectedChildName} binnen de MindNavigator community (binnenkort beschikbaar).</CardDescription>
+              <CardDescription>Beheer de toegang en zichtbaarheid van {selectedChildName} binnen de MindNavigator community.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-3 rounded-md border">
@@ -230,10 +230,9 @@ export default function PrivacyInstellingenPage() {
                     id="allowCommunityAccess"
                     checked={settings.allowCommunityAccess}
                     onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
-                    disabled // Functionaliteit is nog niet live
                     />
                 </div>
-                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun (functionaliteit binnenkort).</p>
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun.</p>
               </div>
                {settings.allowCommunityAccess && (
                 <>
@@ -244,7 +243,6 @@ export default function PrivacyInstellingenPage() {
                      <Select 
                         value={settings.communityProfileVisibility} 
                         onValueChange={(value: PrivacySettings['communityProfileVisibility']) => handleSettingChange('communityProfileVisibility', value)}
-                        disabled // Functionaliteit is nog niet live
                     >
                         <SelectTrigger id="communityProfileVisibility">
                         <SelectValue placeholder="Kies zichtbaarheid" />
@@ -266,10 +264,9 @@ export default function PrivacyInstellingenPage() {
                         id="allowCommunityMessaging"
                         checked={settings.allowCommunityMessaging}
                         onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
-                        disabled // Functionaliteit is nog niet live
                       />
                     </div>
-                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community (functionaliteit binnenkort).</p>
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community.</p>
                   </div>
                 </>
                )}
@@ -332,3 +329,4 @@ export default function PrivacyInstellingenPage() {
     </div>
   );
 }
+
