@@ -12,9 +12,9 @@ import { Menu } from 'lucide-react'; // For mobile menu icon
 
 export function Header() {
   const navLinks = [
-    { href: "/quizzes", label: "Quizzen" },
+    // { href: "/quizzes", label: "Quizzen" }, // Removed Quizzen
     { href: "/dashboard/coaching", label: "Coaching" },
-    { href: "/pricing", label: "Prijzen" }, // Updated link
+    { href: "/pricing", label: "Prijzen" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
     { href: "/for-parents", label: "Voor ouders" },
     { href: "/about", label: "Over ons" },
