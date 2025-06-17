@@ -54,6 +54,9 @@ export function Footer() {
               <Link href="/neurodiversiteit" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Neurodiversiteit
               </Link>
+              <Link href="/samenwerkingen" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                Partners & Deskundigheid
+              </Link>
             </nav>
           </div>
 
