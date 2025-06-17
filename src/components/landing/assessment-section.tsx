@@ -7,7 +7,7 @@ import { FileText, BarChart3, Target, TrendingUp, Brain, Compass, Clock, ShieldC
 
 export function AssessmentSection() {
   return (
-    <section className="bg-gradient-to-br from-primary/5 to-accent/5 py-16 md:py-20">
+    <section className="pt-8 pb-16 md:pt-12 md:pb-20 bg-gradient-to-br from-primary/5 to-accent/5">
       <div className="container mx-auto px-6">
         
         <div className="text-center mb-12">
@@ -22,7 +22,7 @@ export function AssessmentSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-end"> {/* Changed items-center to items-end */}
+        <div className="grid lg:grid-cols-2 gap-12 items-end">
           
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-foreground flex items-center gap-2">
