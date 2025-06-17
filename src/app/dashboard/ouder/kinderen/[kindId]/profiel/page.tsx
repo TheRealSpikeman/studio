@@ -426,15 +426,32 @@ export default function KindProfielPage() {
             )}
             </CardContent>
           </Card>
+          <Card className="shadow-lg">
+            <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
+            <CardContent className="text-sm">
+                {isEditing && editableChildData ? (
+                    <div className="flex items-center space-x-2">
+                        <Switch id="deelResultatenEdit" checked={editableChildData.deelResultatenMetTutor} onCheckedChange={(checked) => handleInputChange('deelResultatenMetTutor', checked)} />
+                        <Label htmlFor="deelResultatenEdit">Quizresultaten delen met begeleiders</Label>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium text-foreground/80">Quizresultaten delen:</p>
+                        <Badge variant={childData.deelResultatenMetTutor ? "default" : "secondary"} className={childData.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
+                        {childData.deelResultatenMetTutor ? 'Ja' : 'Nee'}
+                        </Badge>
+                    </div>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Kolom 2 */}
         <div className="lg:col-span-1 space-y-6">
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
+            <Card className="shadow-lg flex flex-col h-full">
+                <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle></CardHeader>
+                <CardContent className="space-y-4 text-sm flex-grow">
                      {isEditing && editableChildData ? (
                         <>
                             <div className="flex items-center space-x-2 mb-4">
@@ -449,7 +466,7 @@ export default function KindProfielPage() {
                                 <>
                                     <div>
                                         <Label className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</Label>
-                                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             {allHomeworkSubjects.map(subject => (
                                                 <div key={subject.id} className="flex items-center space-x-2">
                                                     <Checkbox id={`subject-${subject.id}`} checked={editableChildData.helpSubjects.includes(subject.id)} onCheckedChange={(checked) => handleCheckboxChange('helpSubjects', subject.id, !!checked)} />
@@ -478,7 +495,7 @@ export default function KindProfielPage() {
                         </>
                     ) : (
                         <>
-                            {allHulpvraagOptions.filter(opt => opt.id === 'tutor').map(opt => (
+                           {allHulpvraagOptions.filter(opt => opt.id === 'tutor').map(opt => (
                                 <div key={opt.id} className="flex items-center justify-between mb-3">
                                     <p className="font-medium text-foreground/80">{opt.label}:</p>
                                     <Badge variant={childData.hulpvraagType?.includes(opt.id) ? "default" : "secondary"} className={childData.hulpvraagType?.includes(opt.id) ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
@@ -509,9 +526,9 @@ export default function KindProfielPage() {
 
         {/* Kolom 3 */}
         <div className="lg:col-span-1 space-y-6">
-             <Card className="shadow-lg">
+             <Card className="shadow-lg flex flex-col h-full">
                 <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle></CardHeader>
-                <CardContent className="text-sm space-y-4">
+                <CardContent className="text-sm space-y-4 flex-grow">
                     {isEditing && editableChildData ? (
                         <>
                             <div className="flex items-center space-x-2 mb-4">
@@ -540,7 +557,7 @@ export default function KindProfielPage() {
                         </>
                     ) : (
                         <>
-                            {allHulpvraagOptions.filter(opt => opt.id === 'coach').map(opt => (
+                           {allHulpvraagOptions.filter(opt => opt.id === 'coach').map(opt => (
                                 <div key={opt.id} className="flex items-center justify-between mb-3">
                                     <p className="font-medium text-foreground/80">{opt.label}:</p>
                                     <Badge variant={childData.hulpvraagType?.includes(opt.id) ? "default" : "secondary"} className={childData.hulpvraagType?.includes(opt.id) ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
@@ -558,25 +575,6 @@ export default function KindProfielPage() {
                             )}
                         </>
                     )}
-                </CardContent>
-            </Card>
-            <Card className="shadow-lg">
-                <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
-                <CardContent className="text-sm">
-                    {isEditing && editableChildData ? (
-                        <div className="flex items-center space-x-2">
-                            <Switch id="deelResultatenEdit" checked={editableChildData.deelResultatenMetTutor} onCheckedChange={(checked) => handleInputChange('deelResultatenMetTutor', checked)} />
-                            <Label htmlFor="deelResultatenEdit">Quizresultaten delen met begeleiders</Label>
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium text-foreground/80">Quizresultaten delen:</p>
-                            <Badge variant={childData.deelResultatenMetTutor ? "default" : "secondary"} className={childData.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
-                            {childData.deelResultatenMetTutor ? 'Ja' : 'Nee'}
-                            </Badge>
-                        </div>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p>
                 </CardContent>
             </Card>
         </div>
