@@ -26,11 +26,11 @@ const neurodiversityTopics = [
   },
   {
     id: "add",
-    title: "ADD (Attention Deficit Disorder) Kenmerken",
+    title: "Aandacht & Focus (vaak geassocieerd met ADD)",
     icon: Brain,
     shortDescription: "Mogelijke kenmerken zijn onoplettendheid, dromerigheid, en moeite met focus.",
     content: [
-      "Kinderen en jongeren die kenmerken van ADD (vaak het overwegend onoplettende subtype van ADHD genoemd) herkennen, kunnen moeite ervaren met aandacht en concentratie. Ze kunnen dromerig of afwezig lijken, en het lastig vinden om taken te starten of af te maken, vooral als deze minder boeiend of repetitief zijn. Eventuele hyperactiviteit is bij ADD minder op de voorgrond of afwezig.",
+      "Kinderen en jongeren die patronen van onoplettendheid of dromerigheid herkennen (soms gerelateerd aan wat ADD wordt genoemd, vaak het overwegend onoplettende subtype van ADHD), kunnen moeite ervaren met aandacht en concentratie. Ze kunnen dromerig of afwezig lijken, en het lastig vinden om taken te starten of af te maken, vooral als deze minder boeiend of repetitief zijn. Eventuele hyperactiviteit is hierbij minder op de voorgrond of afwezig.",
       "Herkenbare punten voor ouders en jongeren kunnen zijn:",
       "- Moeite met het vasthouden van aandacht bij schoolwerk of spel.",
       "- Lijkt soms niet te luisteren als er direct gesproken wordt.",
@@ -46,11 +46,11 @@ const neurodiversityTopics = [
   },
   {
     id: "adhd",
-    title: "ADHD (Attention Deficit Hyperactivity Disorder) Kenmerken",
+    title: "Energie & Impulsiviteit (vaak geassocieerd met ADHD)",
     icon: Zap,
-    shortDescription: "Mogelijke kenmerken zijn hyperactiviteit, impulsiviteit en aandachtsproblemen.",
+    shortDescription: "Mogelijke kenmerken zijn veel energie, bewegingsdrang en soms impulsief handelen.",
     content: [
-      "ADHD wordt vaak gekenmerkt door een patroon van onoplettendheid en/of hyperactiviteit-impulsiviteit dat invloed kan hebben op functioneren of ontwikkeling. Jongeren die kenmerken van ADHD herkennen, kunnen het lastig vinden om stil te zitten, op hun beurt te wachten, en impulsen te beheersen. Ze kunnen ook snel afgeleid zijn en moeite hebben met het organiseren van taken.",
+      "Patronen van hyperactiviteit en impulsiviteit (soms gerelateerd aan wat ADHD wordt genoemd) kunnen invloed hebben op functioneren of ontwikkeling. Jongeren die dit herkennen, kunnen het lastig vinden om stil te zitten, op hun beurt te wachten, en impulsen te beheersen. Ze kunnen ook snel afgeleid zijn en moeite hebben met het organiseren van taken, naast de energetische en impulsieve aspecten.",
       "Herkenbare punten voor ouders en jongeren (hyperactiviteit/impulsiviteit) kunnen zijn:",
       "- Vaak onrustig bewegen met handen of voeten, of draaien op de stoel.",
       "- Vaak opstaan in situaties waar verwacht wordt dat men blijft zitten.",
@@ -67,11 +67,11 @@ const neurodiversityTopics = [
   },
   {
     id: "hsp",
-    title: "HSP (Hoogsensitief Persoon) Kenmerken",
+    title: "Prikkelverwerking & Empathie (vaak geassocieerd met HSP)",
     icon: Sparkles,
     shortDescription: "Diepgaande verwerking van prikkels, empathie en gevoeligheid voor omgeving.",
     content: [
-      "Hoogsensitiviteit is een eigenschap waarbij prikkels (zoals geluiden, licht, geuren, maar ook emoties van anderen) intenser en gedetailleerder kunnen worden waargenomen en verwerkt. Dit kan leiden tot een rijk innerlijk leven en grote empathie, maar ook tot snellere overprikkeling.",
+      "Een hoge sensitiviteit voor prikkels (soms gerelateerd aan wat HSP wordt genoemd) betekent dat prikkels (zoals geluiden, licht, geuren, maar ook emoties van anderen) intenser en gedetailleerder kunnen worden waargenomen en verwerkt. Dit kan leiden tot een rijk innerlijk leven en grote empathie, maar ook tot snellere overprikkeling.",
       "Herkenbare punten voor ouders en jongeren kunnen zijn:",
       "- Subtiele details en nuances opmerken die anderen vaak ontgaan.",
       "- Gevoelig zijn voor stemmingen en emoties van anderen.",
@@ -87,13 +87,13 @@ const neurodiversityTopics = [
   },
   {
     id: "ass",
-    title: "ASS (Autismespectrumstoornis) Kenmerken",
+    title: "Sociale & Sensorische Voorkeuren (vaak geassocieerd met ASS)",
     icon: Compass,
     shortDescription: "Behoefte aan structuur, specifieke interesses en een andere beleving van sociale interactie.",
     content: [
-      "Autisme is een ontwikkelingsvariant die invloed heeft op hoe iemand communiceert, sociale interacties aangaat en de wereld ervaart. Kinderen en jongeren die kenmerken van autisme herkennen, hebben vaak een sterke behoefte aan structuur, routine en voorspelbaarheid. Ze kunnen intense, specifieke interesses hebben en informatie op een gedetailleerde manier verwerken.",
+      "Een voorkeur voor structuur en een andere beleving van sociale en sensorische informatie (soms gerelateerd aan wat ASS wordt genoemd) kan invloed hebben op hoe iemand communiceert, sociale interacties aangaat en de wereld ervaart. Kinderen en jongeren die dit herkennen, hebben vaak een sterke behoefte aan structuur, routine en voorspelbaarheid. Ze kunnen intense, specifieke interesses hebben en informatie op een gedetailleerde manier verwerken.",
       "Herkenbare punten voor ouders en jongeren kunnen zijn:",
-      "- Moeite met het initiëren of onderhouden van sociale interacties; kan soms onhandig overkomen.",
+      "- Moeite met het initiëren of onderhouden van sociale interacties op een manier die als 'standaard' wordt gezien; kan soms onhandig overkomen.",
       "- Beperkter gebruik of begrip van non-verbale communicatie (oogcontact, gezichtsuitdrukkingen, gebaren).",
       "- Moeite met het ontwikkelen, onderhouden en begrijpen van relaties op de 'standaard' manier.",
       "- Sterke voorkeur voor routines en mogelijke weerstand tegen veranderingen.",
@@ -107,12 +107,12 @@ const neurodiversityTopics = [
   },
   {
     id: "angst-depressie",
-    title: "Angst & Depressie Gerelateerde Kenmerken",
+    title: "Stemmings- & Zorgpatronen (soms gerelateerd aan Angst & Depressie)",
     icon: ShieldAlert,
     shortDescription: "Mogelijke aanhoudende zorgen, somberheid, en impact op dagelijks functioneren.",
     content: [
-      "Angst- en depressieve klachten komen vaak voor bij jongeren. Angst kan zich uiten in overmatig piekeren, nervositeit, vermijdingsgedrag en fysieke symptomen zoals hartkloppingen of buikpijn. Depressieve kenmerken kunnen aanhoudende somberheid, verlies van interesse of plezier, vermoeidheid en veranderingen in slaap of eetlust omvatten.",
-      "Herkenbare punten bij angst kunnen zijn:",
+      "Zorg- en stemmingspatronen komen vaak voor bij jongeren. Overmatige zorgen kunnen zich uiten in piekeren, nervositeit, vermijdingsgedrag en fysieke symptomen zoals hartkloppingen of buikpijn. Somberheid kan zich uiten in aanhoudend neerslachtige gevoelens, verlies van interesse of plezier, vermoeidheid en veranderingen in slaap of eetlust.",
+      "Herkenbare punten bij zorgen/angst kunnen zijn:",
       "- Overmatige zorgen over alledaagse dingen (school, vrienden, gezondheid).",
       "- Rusteloosheid of een 'opgejaagd' gevoel.",
       "- Snel geïrriteerd zijn.",
@@ -120,7 +120,7 @@ const neurodiversityTopics = [
       "- Spierspanning, hoofdpijn, buikpijn zonder duidelijke medische oorzaak.",
       "- Slaapproblemen (moeite met inslapen, doorslapen, of onrustige slaap).",
       "- Vermijden van bepaalde situaties of plaatsen uit angst.",
-      "Herkenbare punten bij depressie kunnen zijn:",
+      "Herkenbare punten bij somberheid kunnen zijn:",
       "- Aanhoudende sombere of prikkelbare stemming gedurende het grootste deel van de dag.",
       "- Duidelijk verminderde interesse of plezier in (bijna) alle activiteiten.",
       "- Significant gewichtsverlies (zonder dieet) of gewichtstoename, of verandering in eetlust.",
@@ -187,7 +187,7 @@ export default function NeurodiversiteitPage() {
                       <AccordionContent className="px-6 pb-6 pt-2 text-base leading-relaxed text-foreground/80 bg-card rounded-b-lg">
                         <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>
                         {topic.content.map((paragraph, pIndex) => {
-                            if (paragraph.startsWith("Herkenbare punten voor ouders en jongeren") || paragraph.startsWith("Herkenbare punten bij angst") || paragraph.startsWith("Herkenbare punten bij depressie")) {
+                            if (paragraph.startsWith("Herkenbare punten")) {
                                 return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace(/Herkenbare punten voor ouders en jongeren:\s*|Herkenbare punten bij angst kunnen zijn:\s*|Herkenbare punten bij depressie kunnen zijn:\s*/, '')}</p>;
                             }
                             if (paragraph.startsWith("- ")) { 
@@ -224,12 +224,11 @@ export default function NeurodiversiteitPage() {
                 </p>
               </section>
 
-
               <Alert variant="destructive" className="mt-12 p-6 rounded-lg shadow-md">
                   <AlertTriangle className="h-6 w-6" />
                   <AlertTitleUi className="text-xl font-bold">Belangrijke Mededeling</AlertTitleUi>
                   <AlertDescUi className="text-base leading-relaxed mt-2">
-                    MindNavigator is ontworpen om inzicht en ondersteuning te bieden via zelfreflectie tools en educatieve content. Het is <strong>nadrukkelijk geen diagnostisch instrument</strong>. De informatie op deze pagina en de resultaten van onze tools zijn bedoeld voor educatieve doeleinden en zelfreflectie. Ze vervangen geen professioneel medisch of psychologisch advies.
+                    MindNavigator is ontworpen om inzicht en ondersteuning te bieden via zelfreflectie-instrumenten en educatieve content. Het is <strong>nadrukkelijk geen diagnostisch instrument</strong>. De informatie op deze pagina en de resultaten van onze tools zijn bedoeld voor educatieve doeleinden en zelfreflectie. Ze vervangen geen professioneel medisch of psychologisch advies.
                     <br /><br />
                     Als u zich zorgen maakt over de ontwikkeling, het gedrag of het welzijn van uzelf of uw kind, of als u een formele diagnose overweegt, adviseren wij u dringend om contact op te nemen met een gekwalificeerde professional. Zij kunnen u de juiste begeleiding en eventuele diagnostiek bieden. MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van de hier verstrekte informatie.
                   </AlertDescUi>

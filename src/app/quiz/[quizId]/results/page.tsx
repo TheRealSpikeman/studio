@@ -1,3 +1,4 @@
+
 // This page will be client-rendered if it needs to access searchParams for subquiz info
 "use client";
 
@@ -49,8 +50,8 @@ const dummyResults = {
 
 const quizTitles: { [key: string]: string } = {
     'neuroprofile-101': 'Basis Zelfreflectie Tool',
-    'adhd-focus-201': 'ADHD & Focus Verdieping',
-    'teen-neurodiversity-quiz': 'Neurodiversiteit Zelfreflectie Tool (12-18 jaar)',
+    'adhd-focus-201': 'Aandacht & Focus Verdieping', // Aangepast
+    'teen-neurodiversity-quiz': 'Zelfreflectie Tool (12-18 jaar)', // Aangepast
 };
 
 
@@ -85,7 +86,8 @@ export default function QuizResultsPage() {
             const coachingOutput = await generateCoachingInsights(coachingInput);
             setCoaching(coachingOutput.coachingInsights);
         } else {
-            setCoaching("Bekijk de uitgebreide tips en strategieën in je rapport hierboven.");
+            // Aangepast bericht voor de tiener zelfreflectie tool
+            setCoaching("Bekijk de uitgebreide tips en strategieën in je persoonlijke overzicht hierboven. Deze zijn speciaal voor jou samengesteld!");
         }
 
       } catch (error) {
@@ -96,12 +98,13 @@ export default function QuizResultsPage() {
         setIsLoading(false);
       }
     }
-    if (quizId !== 'teen-neurodiversity-quiz') {
-        fetchData();
-    } else {
-        setSummary("Je resultaten worden hieronder weergegeven. Voor de Tiener Zelfreflectie Tool is dit een samenvatting, het volledige rapport staat op de vorige pagina.");
-        setCoaching("Specifieke coaching inzichten voor de Tiener Zelfreflectie Tool vind je in het uitgebreide rapport.");
+    // Aangepaste logica voor de tiener quiz resultaten
+    if (quizId === 'teen-neurodiversity-quiz') {
+        setSummary("Je resultaten worden hieronder weergegeven. Dit is een samenvatting van je Zelfreflectie Tool. Je volledige persoonlijke overzicht vind je op de vorige pagina, of download het als PDF.");
+        setCoaching("Specifieke coaching inzichten voor de Zelfreflectie Tool (12-18 jaar) vind je in je uitgebreide persoonlijke overzicht.");
         setIsLoading(false); 
+    } else {
+       fetchData();
     }
   }, [quizId, subQuizId, quizTitle]);
 
@@ -119,7 +122,7 @@ export default function QuizResultsPage() {
   const handlePdfDownloadClick = () => {
      toast({
         title: "PDF Download (Voorbeeld)",
-        description: `Deze functie is nog in ontwikkeling. Je rapport voor "${quizTitle}" zou hier gedownload worden.`,
+        description: `Deze functie is nog in ontwikkeling. Je overzicht voor "${quizTitle}" zou hier gedownload worden.`,
       });
   };
 
@@ -205,10 +208,10 @@ export default function QuizResultsPage() {
           <AlertTriangle className="h-5 w-5" />
           <AlertTitleUi className="font-semibold text-lg">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
           <AlertDescUi className="leading-relaxed">
-              De resultaten van deze zelfreflectie tool zijn bedoeld om inzicht te geven en zelfreflectie te stimuleren. Ze vormen <strong className="font-bold">geen</strong> formele medische of psychologische diagnose.
+              De resultaten van dit zelfreflectie-instrument zijn bedoeld om inzicht te geven en zelfreflectie te stimuleren. Ze vormen <strong className="font-bold">geen</strong> formele medische of psychologische diagnose.
               Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met een gekwalificeerde zorgverlener (zoals je huisarts, een psycholoog, of een mentor op school).
               Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
-              MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit rapport worden genomen.
+              MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen.
           </AlertDescUi>
       </Alert>
 
@@ -226,7 +229,7 @@ export default function QuizResultsPage() {
           <p className="text-lg font-semibold mb-1">Krijg toegang tot premium functies:</p>
           <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-4 pl-5">
             <li>Alle verdiepende zelfreflectie modules</li>
-            <li>Dagelijkse coaching tips & routines</li>
+            <li>Dagelijkse coaching tips &amp; routines</li>
             <li>Uitgebreide PDF overzichten</li>
             <li>Voortgangstracking en meer!</li>
           </ul>
@@ -247,7 +250,7 @@ export default function QuizResultsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <UserPlus className="h-6 w-6 text-primary" />
-            Sla je resultaten op & meer!
+            Sla je resultaten op &amp; meer!
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -274,7 +277,7 @@ export default function QuizResultsPage() {
       <div className="w-full max-w-3xl flex flex-col sm:flex-row gap-4">
         <Button onClick={handleRestartQuiz} variant="outline" className="flex-1">
           <RefreshCw className="mr-2 h-4 w-4" />
-          Doe een andere zelfreflectie tool
+          Doe een andere zelfreflectie-instrument
         </Button>
          <Button onClick={handlePdfDownloadClick} variant="outline" className="flex-1" disabled={quizId === 'teen-neurodiversity-quiz'}>
           <Download className="mr-2 h-4 w-4" />
@@ -282,7 +285,7 @@ export default function QuizResultsPage() {
         </Button>
       </div>
        <Button variant="link" asChild className="mt-8">
-          <Link href="/quizzes">Terug naar overzicht zelfreflectie tools</Link>
+          <Link href="/quizzes">Terug naar overzicht zelfreflectie-instrumenten</Link>
         </Button>
     </div>
   );

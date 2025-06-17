@@ -67,7 +67,7 @@ export function QuizPreviewSection() {
           </CardContent>
         </Card>
         <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-          <Link href="/quizzes">Start een zelfreflectie tool voor uw kind</Link>
+          <Link href="/quizzes">Start een zelfreflectie-instrument</Link>
         </Button>
       </div>
     </section>

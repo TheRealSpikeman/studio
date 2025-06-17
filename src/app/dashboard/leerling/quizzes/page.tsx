@@ -1,3 +1,4 @@
+
 // src/app/dashboard/leerling/quizzes/page.tsx
 "use client"; 
 
@@ -33,7 +34,7 @@ const allAvailableQuizzes: Quiz[] = [
   { 
     id: 'neuro-intake-12-14', 
     title: 'Zelfreflectie Start (12-14 jr)', 
-    description: 'Start hier om jouw unieke eigenschappen en denkstijl te ontdekken. Dit helpt ons om je de beste vervolgstappen te tonen.', 
+    description: 'Start hier om jouw unieke eigenschappen en denkstijl te verkennen. Dit helpt ons om je de beste vervolgstappen te tonen.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Start+12-14', 
     dataAiHint: 'teenager thinking brain',
@@ -49,7 +50,7 @@ const allAvailableQuizzes: Quiz[] = [
   { 
     id: 'neuro-intake-15-18', 
     title: 'Zelfreflectie Start (15-18 jr)', 
-    description: 'Start hier om jouw unieke eigenschappen en denkstijl te ontdekken. Dit helpt ons om je de beste vervolgstappen te tonen.', 
+    description: 'Start hier om jouw unieke eigenschappen en denkstijl te verkennen. Dit helpt ons om je de beste vervolgstappen te tonen.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Start+15-18',
     dataAiHint: 'teenager focused idea',
@@ -79,7 +80,7 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'social-anxiety-friendships', 
-    title: 'Sociale Situaties & Vriendschap', 
+    title: 'Sociale Situaties &amp; Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties', 
@@ -93,7 +94,7 @@ const allAvailableQuizzes: Quiz[] = [
   { 
     id: 'focus-digital-distraction', 
     title: 'Focus & Digitale Afleiding Tool', 
-    description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
+    description: 'Verken je aandachtspatronen in relatie tot digitale media.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Focus+Digitaal', 
     dataAiHint: 'teenager phone screen',
@@ -132,7 +133,8 @@ function DashboardQuizContent() {
     if (ageGroupFromQuery && (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18')) {
       setCurrentUserAgeGroup(ageGroupFromQuery);
     } else {
-      setCurrentUserAgeGroup('15-18'); 
+      // Fallback or default if no valid ageGroup in query, e.g., to a common one or 'all'
+      setCurrentUserAgeGroup('15-18'); // Example: default to 15-18 if not specified or invalid
     }
   }, [searchParams]);
 
@@ -147,6 +149,7 @@ function DashboardQuizContent() {
     );
   }, [currentUserAgeGroup, neuroIntakeCompleted]);
 
+  // Simulate intake completion for demo purposes
   const toggleIntakeStatus = () => setNeuroIntakeCompleted(prev => !prev);
 
   return (

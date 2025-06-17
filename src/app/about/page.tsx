@@ -2,7 +2,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Target, Lightbulb, CheckCircle, Milestone, ShieldCheck } from 'lucide-react';
+import { Users, Target, Lightbulb, CheckCircle, Milestone, ShieldCheck, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -46,19 +46,17 @@ export default function AboutPage() {
                 <section>
                     <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
                     <CheckCircle className="h-7 w-7" />
-                    Onze Aanpak & Expertise
+                    Onze Aanpak &amp; Expertise
                     </h2>
                     <p className="mb-3">
-                    De zelfreflectie-instrumenten en content op MindNavigator zijn zorgvuldig samengesteld met als doel inzicht en bewustwording te bevorderen. Ze zijn gebaseerd op algemeen erkende psychologische modellen en inzichten in neurodiversiteit. We streven ernaar om samen te werken met experts in het veld om onze content continu te verbeteren en te valideren.
+                    De zelfreflectie-instrumenten en content op MindNavigator zijn zorgvuldig samengesteld met als doel inzicht en bewustwording te bevorderen. Ze zijn gebaseerd op algemeen erkende psychologische modellen en inzichten in neurodiversiteit. MindNavigator biedt educatieve tools en inzichten, maar stelt nadrukkelijk <strong>geen</strong> medische diagnoses en vervangt geen professionele zorg. We streven ernaar om samen te werken met experts in het veld om onze content continu te verbeteren en te valideren.
                     </p>
                     <p className="mb-3">
-                    Ons team is toegewijd aan het creëren van een gebruiksvriendelijke en laagdrempelige ervaring, speciaal afgestemd op tieners. We combineren dit met een focus op sterke punten en het aanreiken van praktische tips. 
-                    </p>
-                     <p className="mt-4 text-sm text-muted-foreground">
-                      {/* Placeholder for user to add specifics:
-                      (Voorbeeld: "Ons kernteam bestaat uit [aantal] professionals met achtergronden in [bijv. psychologie, onderwijs, softwareontwikkeling]. We worden geadviseerd door [type adviseurs, bijv. een GZ-psycholoog gespecialiseerd in neurodiversiteit].")
-                      */}
-                      <strong>Belangrijk:</strong> MindNavigator biedt educatieve tools en inzichten, maar stelt geen medische diagnoses. Voor diagnose en behandeling, raadpleeg altijd een gekwalificeerde zorgprofessional. Lees meer op onze <Link href="/neurodiversiteit" className="text-primary hover:underline">Neurodiversiteit infopagina</Link>.
+                     {/* Placeholder voor de gebruiker om details over het team en expertise toe te voegen.
+                         Voorbeeld: "Ons team bestaat uit [aantal] professionals met achtergronden in [bijv. psychologie, onderwijs, softwareontwikkeling].
+                         We worden geadviseerd door [type adviseurs, bijv. een GZ-psycholoog gespecialiseerd in neurodiversiteit] om de kwaliteit en relevantie van onze content te waarborgen."
+                     */}
+                     Momenteel is ons team toegewijd aan het creëren van een gebruiksvriendelijke en laagdrempelige ervaring, speciaal afgestemd op tieners. We combineren dit met een focus op sterke punten en het aanreiken van praktische tips.
                     </p>
                 </section>
                 <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
@@ -72,6 +70,19 @@ export default function AboutPage() {
                 </div>
               </div>
               
+              <section>
+                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <AlertTriangle className="h-7 w-7" /> 
+                  Onze Beperkingen &amp; Verantwoordelijkheid
+                </h2>
+                <p className="mb-3">
+                  MindNavigator biedt educatieve tools en inzichten voor zelfreflectie. Wij bieden <strong>geen</strong> medische diensten of diagnostiek. De informatie en de resultaten van onze tools zijn niet bedoeld als vervanging voor professioneel medisch of psychologisch advies, diagnose of behandeling.
+                </p>
+                <p>
+                  Voor professionele zorg, diagnose of gespecialiseerde begeleiding verwijzen wij u naar gekwalificeerde professionals zoals uw huisarts, GGZ-instellingen, kinderartsen, (kinder- en jeugd)psychologen of orthopedagogen. Op onze <Link href="/neurodiversiteit" className="text-primary hover:underline">informatiepagina over neurodiversiteit</Link> vindt u meer context en tips om de juiste hulp te vinden.
+                </p>
+              </section>
+
               <section>
                 <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
                   <ShieldCheck className="h-7 w-7" />

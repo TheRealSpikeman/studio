@@ -1,3 +1,4 @@
+
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -37,7 +38,7 @@ const recommendedQuizzes: Quiz[] = [
     { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
     title: 'Zelfreflectie Tool (15-18 jr)', 
-    description: 'Ontdek jouw eigenschappen. Speciaal voor 15-18 jaar.', 
+    description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
     dataAiHint: 'teenager focused thinking',
@@ -71,7 +72,7 @@ const baseTeenQuizzes: Quiz[] = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
     title: 'Zelfreflectie Tool (12-14 jr)', 
-    description: 'Ontdek jouw eigenschappen. Speciaal voor 12-14 jaar.', 
+    description: 'Verken jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+12-14',
     dataAiHint: 'teenager study journal',
@@ -87,7 +88,7 @@ const baseTeenQuizzes: Quiz[] = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
     title: 'Zelfreflectie Tool (15-18 jr)', 
-    description: 'Ontdek jouw eigenschappen. Speciaal voor 15-18 jaar.', 
+    description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
     dataAiHint: 'teenager focused thinking',
@@ -120,7 +121,7 @@ const thematicTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'social-anxiety-friendships', 
-    title: 'Sociale Situaties & Vriendschap', 
+    title: 'Sociale Situaties &amp; Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties',
@@ -244,7 +245,7 @@ function PublicQuizzesContent() {
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   id="search-quiz"
-                  placeholder="Zoek op trefwoord (bijv. focus, planning, HSP)..." 
+                  placeholder="Zoek op trefwoord (bijv. focus, planning, sociale voorkeuren)..." 
                   className="pl-10"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} 
@@ -278,7 +279,7 @@ function PublicQuizzesContent() {
                     <Label htmlFor="theme-filter" className="text-xs font-medium text-muted-foreground">Thema (zoekterm)</Label>
                     <Input 
                       id="theme-filter"
-                      placeholder="Bijv. ADD, examenstress..." 
+                      placeholder="Bijv. Aandacht, examenstress..." 
                       value={themeFilter}
                       onChange={(e) => setThemeFilter(e.target.value)}
                     />
@@ -293,10 +294,10 @@ function PublicQuizzesContent() {
                 <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Geen tools gevonden</h3>
                 <p className="text-muted-foreground">
-                    Er zijn geen zelfreflectie tools die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
+                    Er zijn geen zelfreflectie-instrumenten die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
                 </p>
                 <Button onClick={() => {setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); setDurationFilter('all');}} className="mt-4">
-                    Wis filters & zoekopdracht
+                    Wis filters &amp; zoekopdracht
                 </Button>
                 </CardContent>
             </Card>
@@ -332,7 +333,7 @@ function PublicQuizzesContent() {
               </section>
 
               <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale situaties & meer</h2>
+                <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale situaties &amp; meer</h2>
                 <p className="text-sm text-muted-foreground mb-6">Duik dieper in specifieke onderwerpen die voor jou relevant zijn.</p>
                 {filteredThematicQuizzes.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

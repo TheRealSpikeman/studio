@@ -20,7 +20,7 @@ const servicePackages: ServicePackage[] = [
   {
     icon: <BarChart3 className="h-10 w-10 text-primary" />,
     title: 'Gratis Start',
-    description: 'Begin met de basis: doe een zelfreflectie tool en ontvang direct een uitgebreid PDF-overzicht.',
+    description: 'Begin met de basis: doe een zelfreflectie-instrument en ontvang direct een uitgebreid PDF-overzicht.',
     features: ['Basis Zelfreflectie Tool', 'Uitgebreid PDF Overzicht'],
     ctaText: 'Start de gratis tool',
     link: '/quizzes',

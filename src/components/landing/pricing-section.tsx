@@ -26,7 +26,7 @@ interface Plan {
   yearlySavingsHighlight?: string; 
   planId: string;
   highlightClass?: string;
-  extraInfo?: string; // Voor opmerking over meer dan 3 kinderen
+  extraInfo?: string;
 }
 
 const yearlyCoachingPrice = (3.99 * 12 * 0.85).toFixed(2); 
@@ -34,7 +34,7 @@ const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12
 const yearlySavingsCoaching = ((3.99*12) - parseFloat(yearlyCoachingPrice)).toFixed(2); 
 
 const yearlyFamilyGuidePrice = (9.99 * 12 * 0.85).toFixed(2); 
-const monthlyEquivalentForFamilyGuide = (parseFloat(yearlyFamilyGuidePrice) / 12).toFixed(2); 
+const monthlyEquivalentForYearlyFamilyGuide = (parseFloat(yearlyFamilyGuidePrice) / 12).toFixed(2); 
 const yearlySavingsFamilyGuide = ((9.99*12) - parseFloat(yearlyFamilyGuidePrice)).toFixed(2); 
 
 const plansData: Plan[] = [
@@ -52,7 +52,7 @@ const plansData: Plan[] = [
       { text: 'Uitgebreid Ouder Dashboard', included: false },
     ],
     ctaText: 'Start gratis kennismaking',
-    ctaBaseLink: '/quizzes',
+    ctaBaseLink: '/quizzes', // Aangepast om naar algemene quizpagina te gaan, gebruiker kiest daar
     isPopular: false,
     planId: 'free_start', 
   },
@@ -63,7 +63,7 @@ const plansData: Plan[] = [
     features: [
       { text: 'Basis Zelfreflectie Tool', included: true },
       { text: 'Direct Uitgebreid PDF Overzicht', included: true },
-      { text: 'Toegang tot Alle Verdiepende Modules', included: true, tooltip: "Verdiepende tools voor een completer beeld van uw kind's eigenschappen." },
+      { text: 'Toegang tot Alle Verdiepende Modules', included: true, tooltip: "Verdiepende tools voor een completer beeld van de eigenschappen van uw kind." },
       { text: 'Coaching Hub (Virtueel, Dagboek, Tools)', included: true, tooltip: "Dagelijkse tips, reflectie-oefeningen en tools voor zelfmanagement voor uw kind." },
       { text: 'Huiswerk Tools (Planner, Pomodoro)', included: true, tooltip: "Praktische hulpmiddelen voor planning, focus en studievaardigheden." },
       { text: 'Toegang tot Tutors & Coaches', included: false },
@@ -91,9 +91,9 @@ const plansData: Plan[] = [
     ctaBaseLink: '/signup',
     isPopular: false,
     planId: 'family_guide_monthly',
-    yearlyOptionText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForFamilyGuide}/mnd)`,
+    yearlyOptionText: `Of kies jaarlijks: €${yearlyFamilyGuidePrice}/jaar (omgerekend €${monthlyEquivalentForYearlyFamilyGuide}/mnd)`,
     yearlySavingsHighlight: `bespaar €${yearlySavingsFamilyGuide}`,
-    extraInfo: "Meer dan 3 kinderen? Neem contact op."
+    extraInfo: "Meer dan 3 kinderen? Neem contact op voor een aanbod op maat."
   },
 ];
 

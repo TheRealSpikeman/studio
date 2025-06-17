@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap } from 'lucide-react';
+import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const benefits = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
     title: 'Gespecialiseerde Inzichten',
-    description: 'Help uw kind zelfinzicht te krijgen met zelfreflectie-instrumenten gericht op het herkennen van patronen in gedrag en denken die kunnen samenhangen met neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat dit inhoudt</Link>. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    description: 'Help uw kind zelfinzicht te krijgen met zelfreflectie-instrumenten gericht op het herkennen van patronen in gedrag en denken. Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat neurodiversiteit inhoudt <ExternalLink class="inline-block h-4 w-4 align-text-bottom"/></Link>. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de tools',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
@@ -96,13 +96,13 @@ export function ParentBenefitsSection() {
             <div className="p-8 md:p-10 lg:p-12">
               <div className="flex items-center gap-3 mb-3">
                 <BarChart3 className="h-10 w-10 text-primary" />
-                <h3 className="text-2xl font-bold text-foreground">Uw Eigen Ouderportaal: Inzicht & Begeleiding</h3>
+                <h3 className="text-2xl font-bold text-foreground">Uw Eigen Ouderportaal: Inzicht &amp; Begeleiding</h3>
               </div>
               <p className="text-muted-foreground mb-4 text-base leading-relaxed">
                 Met het "Gezins Gids" pakket krijgt u toegang tot een uitgebreid ouder-dashboard. Hiermee kunt u:
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6 pl-2">
-                <li>De voortgang en inzichten uit zelfreflectie-tools van uw kind (met toestemming) inzien.</li>
+                <li>De voortgang en inzichten uit zelfreflectie-instrumenten van uw kind (met toestemming) inzien.</li>
                 <li>Abonnementen voor uw gezin eenvoudig beheren.</li>
                 <li>Effectief communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
                 <li>Toegang krijgen tot specifieke bronnen en tips voor ouders.</li>
