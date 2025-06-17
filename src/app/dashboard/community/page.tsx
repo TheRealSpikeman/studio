@@ -73,16 +73,16 @@ export default function CommunityPage() {
             Dit is dé plek om in contact te komen met andere MindNavigator gebruikers. De volledige forumfunctionaliteit is binnenkort beschikbaar!
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-10">
           <div>
-            <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <Hash className="h-5 w-5 text-accent"/>
               Populaire Onderwerpen (Binnenkort)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {placeholderCategories.map(category => (
                 <Card key={category.id} className="bg-muted/50 hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-md font-medium flex items-center gap-2">
                       <category.icon className="h-5 w-5 text-primary/80" />
                       {category.name}
@@ -91,7 +91,7 @@ export default function CommunityPage() {
                   <CardContent>
                     <p className="text-xs text-muted-foreground">{category.description}</p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="pt-3">
                     <Button variant="outline" size="sm" disabled>Bekijk Discussies</Button>
                   </CardFooter>
                 </Card>
@@ -100,28 +100,32 @@ export default function CommunityPage() {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <FileText className="h-5 w-5 text-accent"/>
               Recente Discussies (Binnenkort)
             </h3>
             <div className="space-y-3">
               {placeholderPosts.map(post => (
-                <Card key={post.id} className="p-3 bg-card border">
-                  <h4 className="font-medium text-sm text-primary hover:underline cursor-not-allowed">{post.title}</h4>
-                  <p className="text-xs text-muted-foreground">
-                    In: {post.category} | Door: {post.author} | {post.replies} reacties | Laatste: {post.lastReply}
+                <Card key={post.id} className="p-4 bg-card border hover:shadow-sm transition-shadow">
+                  <h4 className="font-semibold text-md text-primary hover:underline cursor-not-allowed">{post.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    In: {post.category} | Door: {post.author}
                   </p>
+                  <div className="mt-2 flex justify-between items-center">
+                     <p className="text-xs text-muted-foreground">{post.replies} reacties | Laatste: {post.lastReply}</p>
+                     <Button variant="link" size="sm" className="p-0 h-auto text-primary" disabled>Lees meer &raquo;</Button>
+                  </div>
                 </Card>
               ))}
             </div>
           </div>
 
-          <div className="text-center pt-6 border-t">
+          <div className="text-center pt-8 border-t">
             <p className="text-lg font-semibold text-accent mb-2">Forum Binnenkort Live!</p>
             <p className="text-muted-foreground">
               We werken hard om deze community ruimte voor jullie te openen. Hier kun je binnenkort:
             </p>
-            <ul className="list-disc list-inside text-muted-foreground text-left max-w-md mx-auto mt-3 space-y-1">
+            <ul className="list-disc list-inside text-muted-foreground text-left max-w-md mx-auto mt-3 space-y-1.5">
               <li>Ervaringen en tips uitwisselen.</li>
               <li>Vragen stellen aan elkaar.</li>
               <li>Deelnemen aan groepsdiscussies.</li>
@@ -129,11 +133,10 @@ export default function CommunityPage() {
             </ul>
           </div>
         </CardContent>
-        <CardFooter className="justify-center">
-            <Button disabled size="lg">Nieuw Topic Starten (Binnenkort)</Button>
+        <CardFooter className="justify-center pt-6 pb-8">
+            <Button disabled size="lg" className="bg-primary text-primary-foreground">Nieuw Topic Starten (Binnenkort)</Button>
         </CardFooter>
       </Card>
     </div>
   );
 }
-
