@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Link from 'next/link';
 import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from 'lucide-react';
 import { useDashboardRole } from '@/contexts/DashboardRoleContext'; 
+import { cn } from '@/lib/utils';
 
 import AdminDashboardOverviewPage from './admin/page'; 
 import TutorDashboardPage from './tutor/page';
@@ -28,6 +29,7 @@ interface DashboardActionItem {
   icon: React.ElementType;
   link: string;
   buttonText: string;
+  buttonVariant: "default" | "outline";
   colorClass?: string;
 }
 
@@ -39,6 +41,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     icon: ClipboardList,
     link: currentUserData.ageGroup === 'adult' ? '/dashboard/leerling/quizzes' : `/dashboard/leerling/quizzes?ageGroup=${currentUserData.ageGroup}`,
     buttonText: 'Naar Mijn Quizzen',
+    buttonVariant: 'default', // Primary button
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
@@ -48,6 +51,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     icon: MessageSquare,
     link: '/dashboard/coaching',
     buttonText: 'Naar Mijn Coaching',
+    buttonVariant: 'outline', // Secondary button
     colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
   },
   {
@@ -57,6 +61,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     icon: BarChart3,
     link: '/dashboard/results',
     buttonText: 'Bekijk Mijn Resultaten',
+    buttonVariant: 'outline', // Secondary button
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
   {
@@ -66,6 +71,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     icon: BookOpenCheck,
     link: '/dashboard/homework-assistance',
     buttonText: 'Naar Huiswerk Tools',
+    buttonVariant: 'outline', // Secondary button
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   }
 ];
@@ -73,32 +79,38 @@ const leerlingDashboardItems: DashboardActionItem[] = [
 function LeerlingDashboardContent() {
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="text-3xl font-bold text-foreground">
+      <section className="pt-10 md:pt-0"> {/* Adjusted top padding for container instruction */}
+        <h1 className="text-3xl font-extrabold text-foreground">
           Welkom terug, <span className="text-primary">{currentUserData.name}</span>!
         </h1>
-        <p className="text-muted-foreground">Klaar om meer over jezelf te ontdekken en te groeien?</p>
+        <p className="text-lg text-muted-foreground">Klaar om meer over jezelf te ontdekken en te groeien?</p>
       </section>
 
       <section>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {leerlingDashboardItems.map((item) => (
-            <Card key={item.id} className={`group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full ${item.colorClass || 'bg-card'}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start gap-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${ item.id === 'quizzes' ? 'bg-primary/20 text-primary' : item.id === 'coaching' ? 'bg-accent/20 text-accent' : item.id === 'results' ? 'bg-purple-600/20 text-purple-600' : 'bg-blue-600/20 text-blue-600' }`}>
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold leading-tight">{item.title}</CardTitle>
-                  </div>
+            <Card 
+                key={item.id} 
+                className={cn(
+                    "group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full min-h-72", // min-h-72 for 288px
+                    item.colorClass || "bg-card"
+                )}
+            >
+              <CardHeader className="p-8 items-center text-center"> {/* Centered icon and title */}
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 mb-5">
+                  <item.icon className="h-6 w-6 text-primary" />
                 </div>
+                <CardTitle className="text-2xl font-bold leading-tight">{item.title}</CardTitle>
               </CardHeader>
-              <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+              <CardContent className="p-8 pt-0 text-center flex-grow">
+                <p className="text-base font-normal leading-relaxed">{item.description}</p>
               </CardContent>
-              <CardFooter className="pt-3">
-                <Button asChild className="w-full" variant={item.id === 'quizzes' ? 'default' : 'outline'}>
+              <CardFooter className="p-8 pt-6 mt-auto"> {/* mt-auto to push footer down */}
+                <Button 
+                  asChild 
+                  variant={item.buttonVariant} 
+                  className="w-full h-12 py-3 px-6 rounded-lg font-semibold" // Specific height, padding, border-radius, font-weight
+                >
                   <Link href={item.link}>{item.buttonText}</Link>
                 </Button>
               </CardFooter>
@@ -107,23 +119,23 @@ function LeerlingDashboardContent() {
         </div>
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3"> {/* Adjusted gap to 24px */}
         <section className="lg:col-span-2">
           <Card className="shadow-lg">
-            <CardHeader>
+            <CardHeader className="p-8"> {/* Card padding */}
               <CardTitle className="flex items-center gap-2 text-xl text-primary">
                 <MessageSquare className="h-6 w-6 text-primary" />
                 {latestCoachingTip.title}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8 pt-0"> {/* Card padding */}
               <p className="text-muted-foreground">{latestCoachingTip.message}</p>
             </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row gap-2">
-                <Button asChild className="flex-1">
+            <CardFooter className="p-8 pt-6 flex flex-col sm:flex-row gap-2"> {/* Card padding and button margin */}
+                <Button asChild className="flex-1 h-12 py-3 px-6 rounded-lg font-semibold" variant="default">
                     <Link href="/dashboard/coaching">Naar Coaching Hub</Link>
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1 h-12 py-3 px-6 rounded-lg font-semibold">
                     Markeer als gelezen
                 </Button>
             </CardFooter>
@@ -131,14 +143,14 @@ function LeerlingDashboardContent() {
         </section>
         
         <section>
-            <Card className="shadow-lg">
-                 <CardHeader>
+            <Card className="shadow-lg h-full flex flex-col"> {/* Ensure this card also matches height if needed or allow natural height */}
+                 <CardHeader className="p-8"> {/* Card padding */}
                     <CardTitle className="flex items-center gap-2 text-xl text-accent">
                         <TrendingUp className="h-6 w-6 text-accent"/>
                         Mijn Voortgang
                     </CardTitle>
                  </CardHeader>
-                 <CardContent>
+                 <CardContent className="p-8 pt-0 flex-grow"> {/* Card padding and flex-grow */}
                     <p className="text-muted-foreground text-sm">
                         Je hebt recent de "Sociale Angst & Vriendschap" quiz voltooid. Goed bezig!
                     </p>
@@ -146,8 +158,8 @@ function LeerlingDashboardContent() {
                         Volgende stap: verdiep je in de coaching tips over communicatiestijlen.
                     </p>
                  </CardContent>
-                 <CardFooter>
-                    <Button variant="outline" asChild className="w-full">
+                 <CardFooter className="p-8 pt-6 mt-auto"> {/* Card padding and mt-auto */}
+                    <Button variant="outline" asChild className="w-full h-12 py-3 px-6 rounded-lg font-semibold">
                         <Link href="/dashboard/results">Bekijk alle resultaten</Link>
                     </Button>
                  </CardFooter>
