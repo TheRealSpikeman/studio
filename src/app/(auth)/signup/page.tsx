@@ -54,7 +54,7 @@ const formSchema = z.object({
         });
     }
     const age = calculateAge(data.birthdate);
-    if (age === null && data.birthdate) { // birthdate is selected but invalid (though z.date should catch this)
+    if (age === null && data.birthdate) { 
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Selecteer een geldige geboortedatum.",
@@ -110,21 +110,16 @@ export default function SignupPage() {
     if (values.isParent) {
       console.log("Parent Signup values (simulation):", values);
       console.log("Calculated age of parent:", age);
-      // TODO: Implement actual parent signup logic
       redirectUrl = '/verify-email?userType=parent&newRegistration=true';
       if (plan) redirectUrl += `&plan=${plan}`;
-    } else { // Tiener/Jongvolwassene
+    } else { 
       console.log("Teen/Young Adult Signup values (simulation):", values);
       console.log("Calculated age of teen/young adult:", age);
       
       if (age !== null && age < 16) {
-        // TODO: Implement teen signup logic needing parental approval
-        // 1. Create teen account with status 'wacht_op_ouder_goedkeuring'
-        // 2. (Simulate) Send email to parent with link: /parental-approval?teenEmail=...&teenName=...
         console.log(`Simulating email to parent for approval for ${values.email}`);
         redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
       } else {
-        // TODO: Implement teen/young adult signup logic (direct registration)
         const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
         redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
         if (plan) redirectUrl += `&plan=${plan}`;
@@ -135,6 +130,10 @@ export default function SignupPage() {
     console.log("Redirecting to:", redirectUrl);
     router.push(redirectUrl);
   }
+
+  const currentYear = new Date().getFullYear();
+  const defaultParentBirthDate = subYears(new Date(), 30);
+  const defaultTeenBirthDate = subYears(new Date(), 15);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
@@ -220,15 +219,17 @@ export default function SignupPage() {
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
+                            key={watchIsParent ? 'parent-calendar' : 'teen-calendar'}
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            defaultMonth={watchIsParent ? defaultParentBirthDate : defaultTeenBirthDate}
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
                             captionLayout="dropdown-buttons"
-                            fromYear={watchIsParent ? 1950 : subYears(new Date(), 25).getFullYear()}
-                            toYear={watchIsParent ? subYears(new Date(), 18).getFullYear() : subYears(new Date(), 12).getFullYear()}
+                            fromYear={watchIsParent ? currentYear - 100 : currentYear - 25}
+                            toYear={watchIsParent ? currentYear - 18 : currentYear - 12}
                             initialFocus
                             locale={nl}
                             className="rounded-md border"
