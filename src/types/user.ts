@@ -37,4 +37,6 @@ export interface User {
   className?: string;
   schoolType?: string;
   helpSubjects?: string[]; // Array of subject IDs the student needs help with
+  hulpvraagType?: ('tutor' | 'coach')[]; // Nieuw: type hulpvraag
 }
+

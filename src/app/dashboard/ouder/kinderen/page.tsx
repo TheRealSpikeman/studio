@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2 } from 'lucide-react';
+import { ArrowLeft, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2, HelpCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
+interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { // Added hulpvraagType
   firstName: string;
   lastName: string;
   age?: number;
@@ -28,9 +28,9 @@ interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   lastActivity?: string;
   leerdoelen?: string;
-  voorkeurTutor?: string; // Blijft voor nu 'voorkeurTutor' maar kan later generieker
-  deelResultatenMetTutor?: boolean; // Blijft voor nu 'deelResultatenMetTutor'
-  linkedTutorIds?: string[]; // Wordt conceptueel 'linkedProfessionalIds'
+  voorkeurTutor?: string; 
+  deelResultatenMetTutor?: boolean; 
+  linkedTutorIds?: string[]; 
 }
 
 
@@ -49,6 +49,7 @@ const dummyChildren: Child[] = [
     schoolType: 'HAVO',
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
+    hulpvraagType: ['tutor'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
@@ -67,6 +68,7 @@ const dummyChildren: Child[] = [
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
     helpSubjects: ['engels', 'geschiedenis'],
+    hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
@@ -83,6 +85,7 @@ const dummyChildren: Child[] = [
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
+    hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
@@ -117,11 +120,11 @@ export default function BeheerKinderenPage() {
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
     let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14';
-    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult';
+    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; // Technically, system should handle this, but for display
     else if (childAge >= 12 && childAge <= 14) derivedAgeGroup = '12-14';
     else if (childAge >= 15 && childAge <= 18) derivedAgeGroup = '15-18';
-    else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult';
-    else derivedAgeGroup = 'adult';
+    else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult'; // Example if older teens allowed
+    else derivedAgeGroup = 'adult'; // Default or error case
 
     let leerdoelenString = "";
     if (data.selectedLeerdoelen && data.selectedLeerdoelen.length > 0) {
@@ -152,6 +155,7 @@ export default function BeheerKinderenPage() {
       subscriptionStatus: 'uitgenodigd',
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
       helpSubjects: data.helpSubjects || [],
+      hulpvraagType: data.hulpvraagType || [],
       leerdoelen: leerdoelenString.trim() || undefined,
       voorkeurTutor: tutorPreferencesString.trim() || undefined,
       deelResultatenMetTutor: data.deelResultatenMetTutor,
@@ -250,6 +254,12 @@ export default function BeheerKinderenPage() {
                     {child.subscriptionStatus.charAt(0).toUpperCase() + child.subscriptionStatus.slice(1)}
                   </Badge>
                 </div>
+                {child.hulpvraagType && child.hulpvraagType.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium flex items-center gap-1"><HelpCircle className="h-3.5 w-3.5"/> Hulpvraag:</span> 
+                    {child.hulpvraagType.map(type => type === 'tutor' ? 'Huiswerk (Tutor)' : 'Coaching (Coach)').join(', ')}
+                  </p>
+                )}
                 {child.childEmail && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Mail className="h-3.5 w-3.5"/> {child.childEmail}

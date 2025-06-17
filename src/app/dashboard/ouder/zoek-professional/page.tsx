@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, User, Link2, Search, Filter, Star, BookOpen, Info, UserCheck, MessageSquare, FileText, GraduationCap, Users as UsersIcon } from 'lucide-react';
+import { ArrowLeft, User, Link2, Search, Filter, Star, BookOpen, Info, UserCheck, MessageSquare, FileText, GraduationCap, Users as UsersIcon, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
@@ -18,12 +18,20 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import type { User as UserType } from '@/types/user';
 
-// Dummy data for children - in a real app, this would come from user's profile
-const dummyChildren = [
-  { id: 'child1', name: 'Sofie de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/sofiechild/40/40', helpSubjects: ['wiskunde', 'nederlands'], leerdoelen: 'Beter leren plannen, Omgaan met faalangst', voorkeurTutor: 'Ervaring met HSP, Geduldig' },
-  { id: 'child2', name: 'Max de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/maxchild/40/40', helpSubjects: ['engels', 'geschiedenis'], leerdoelen: 'Concentratie verbeteren', voorkeurTutor: 'Man, ervaring met motivatie' },
-  { id: 'child3', name: 'Lisa Voorbeeld (inactief)', active: false, helpSubjects: [] },
+
+interface ChildFromParentDashboard extends Pick<UserType, 'id' | 'name' | 'avatarUrl' | 'helpSubjects' | 'hulpvraagType'> {
+  active: boolean;
+  leerdoelen?: string;
+  voorkeurTutor?: string; // Blijft voor nu 'voorkeurTutor' voor context, later 'voorkeurProfessional'
+}
+
+
+const dummyChildren: ChildFromParentDashboard[] = [
+  { id: 'child1', name: 'Sofie de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/sofiechild/40/40', helpSubjects: ['wiskunde', 'nederlands'], hulpvraagType: ['tutor'], leerdoelen: 'Beter leren plannen, Omgaan met faalangst', voorkeurTutor: 'Ervaring met HSP, Geduldig' },
+  { id: 'child2', name: 'Max de Tester', active: true, avatarUrl: 'https://picsum.photos/seed/maxchild/40/40', helpSubjects: ['engels', 'geschiedenis'], hulpvraagType: ['tutor', 'coach'], leerdoelen: 'Concentratie verbeteren', voorkeurTutor: 'Man, ervaring met motivatie' },
+  { id: 'child3', name: 'Lisa Voorbeeld (inactief)', active: false, helpSubjects: [], hulpvraagType: ['coach'] },
 ];
 
 interface Review {
@@ -36,15 +44,15 @@ interface Review {
 interface Professional {
   id: string;
   name: string;
-  type: 'tutor' | 'coach'; // Nieuw veld
+  type: 'tutor' | 'coach'; 
   avatarUrl?: string;
-  specializations: string[]; // Kan vakken zijn voor tutors, of expertisegebieden voor coaches
+  specializations: string[]; 
   experienceYears: number;
-  hourlyRate?: number; // Coaches hebben mogelijk andere tariefstructuren
+  hourlyRate?: number; 
   shortBio: string;
   fullBio: string;
   education?: string;
-  teachingPhilosophy?: string; // Of coaching aanpak
+  teachingPhilosophy?: string; 
   cvUrl?: string; 
   rating: number;
   availableSlots?: string[]; 
@@ -68,7 +76,6 @@ const dummyProfessionalsData: Professional[] = [
         { reviewerName: "Anoniem (Leerling, 17jr)", rating: 4, comment: "Goede uitleg, soms wel wat snel. Maar ze is geduldig als je het nog niet snapt.", date: new Date(Date.now() - 25 * 86400000).toISOString() },
     ]
   },
-  // ... (andere dummy professionals, zorg dat ze een 'type' veld hebben)
   { 
     id: 'tutor2', name: 'Dhr. B. de Vries', type: 'tutor', avatarUrl: 'https://picsum.photos/seed/tutorDeVries/80/80', 
     specializations: ['nederlands', 'engels'], experienceYears: 8, hourlyRate: 40, 
@@ -85,6 +92,15 @@ const dummyProfessionalsData: Professional[] = [
 ];
 
 const LOCAL_STORAGE_LINKED_PROFESSIONALS_KEY = 'linkedProfessionalsByChild';
+
+function formatHulpvraagTypeForDisplay(types?: ('tutor' | 'coach')[]): string {
+  if (!types || types.length === 0) return 'Nog niet gespecificeerd.';
+  return types.map(type => {
+    if (type === 'tutor') return 'Hulp bij huiswerk (Tutor)';
+    if (type === 'coach') return '1-op-1 coaching (Coach)';
+    return type;
+  }).join(' en ');
+};
 
 function ZoekProfessionalContent() {
   const searchParams = useSearchParams();
@@ -237,14 +253,15 @@ function ZoekProfessionalContent() {
           </div>
           {selectedChildDetails && (
             <Card className="mt-4 p-4 bg-primary/5 border-primary/20">
-                <CardTitle className="text-md font-semibold text-primary flex items-center gap-2 mb-1">
+                <CardTitle className="text-md font-semibold text-primary flex items-center gap-2 mb-2">
                     <User className="h-5 w-5"/>
                     {selectedChildDetails.name} - Voorkeuren & Hulpvragen
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
+                    <strong>Type hulpvraag:</strong> {formatHulpvraagTypeForDisplay(selectedChildDetails.hulpvraagType)} <br/>
                     <strong>Hulp nodig bij (vakken):</strong> {selectedChildDetails.helpSubjects?.map(sId => allHomeworkSubjects.find(s => s.id === sId)?.name || sId).join(', ') || 'N.v.t.'} <br/>
                     <strong>Leerdoelen:</strong> {selectedChildDetails.leerdoelen || 'N.v.t.'} <br/>
-                    <strong>Tutor/Coach voorkeur:</strong> {selectedChildDetails.voorkeurTutor || 'N.v.t.'}
+                    <strong>Voorkeur Begeleider:</strong> {selectedChildDetails.voorkeurTutor || 'N.v.t.'}
                 </p>
                 <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1" asChild>
                   <Link href={`/dashboard/ouder/kinderen/${selectedChildDetails.id}/profiel`}>Bewerk profiel & voorkeuren</Link>
@@ -449,3 +466,4 @@ export default function ZoekProfessionalPage() {
     </Suspense>
   );
 }
+

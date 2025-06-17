@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { User, School, Mail, Info, Cake, GraduationCap, Target, Users, Share2, MessageCircle } from "lucide-react";
+import { User, School, Mail, Info, Cake, GraduationCap, Target, Users, Share2, MessageCircle, HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { allHomeworkSubjects, type SubjectOption } from "@/lib/quiz-data/subject-data";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +59,7 @@ const addChildFormSchema = z.object({
   schoolType: z.string().optional(),
   className: z.string().optional(),
   helpSubjects: z.array(z.string()).optional(),
+  hulpvraagType: z.array(z.enum(['tutor', 'coach'])).optional(), // Nieuw veld
   selectedLeerdoelen: z.array(z.string()).optional(),
   otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
   selectedTutorPreferences: z.array(z.string()).optional(),
@@ -84,6 +85,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       schoolType: "",
       className: "",
       helpSubjects: [],
+      hulpvraagType: [], // Init als lege array
       selectedLeerdoelen: [],
       otherLeerdoelen: "",
       selectedTutorPreferences: [],
@@ -105,7 +107,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
         <CardHeader>
             <CardTitle>Kindgegevens Invoeren</CardTitle>
             <CardDescription>
-                Vul de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen. Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor.
+                Vul de gegevens van uw kind in. Na het opslaan ontvangt het kind een uitnodiging om het eigen account te activeren en te koppelen. Deze informatie helpt ons ook bij het selecteren van de juiste quizzen en, indien van toepassing, de meest geschikte tutor of coach.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -238,13 +240,84 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
 
                 <FormField
                   control={form.control}
+                  name="hulpvraagType"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-2">
+                        <FormLabel className="text-base font-semibold flex items-center gap-2">
+                          <HelpCircle className="h-5 w-5 text-primary" />
+                          Type begeleiding gezocht
+                        </FormLabel>
+                        <FormDescription className="text-xs pt-1 flex items-center gap-1">
+                          <Info className="h-3 w-3" /> Welk type ondersteuning zoekt u primair voor dit kind? (Meerdere selecties mogelijk)
+                        </FormDescription>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                        <FormField
+                          control={form.control}
+                          name="hulpvraagType"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes('tutor')}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), 'tutor'])
+                                      : field.onChange(
+                                          (field.value || []).filter(
+                                            (value) => value !== 'tutor'
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal cursor-pointer text-sm">
+                                Hulp bij huiswerk (Tutor)
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="hulpvraagType"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes('coach')}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), 'coach'])
+                                      : field.onChange(
+                                          (field.value || []).filter(
+                                            (value) => value !== 'coach'
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal cursor-pointer text-sm">
+                                1-op-1 coaching (Coach)
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="helpSubjects"
                   render={() => (
                     <FormItem>
                       <div className="mb-2">
                         <FormLabel className="text-base font-semibold flex items-center gap-2">
                             <GraduationCap className="h-5 w-5 text-primary"/>
-                            Voor welke vakken heeft dit kind hulp nodig?
+                            Voor welke vakken heeft dit kind hulp nodig? (Indien tutor gezocht)
                         </FormLabel>
                         <FormDescription className="text-xs pt-1 flex items-center gap-1">
                            <Info className="h-3 w-3"/> Selecteer de vakken. Dit helpt bij het aanbevelen van content en tutors.
@@ -372,10 +445,10 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                       <div className="mb-2">
                         <FormLabel className="text-base font-semibold flex items-center gap-2">
                           <Users className="h-5 w-5 text-primary" />
-                          Voorkeuren voor type tutor (optioneel)
+                          Voorkeuren voor type tutor/coach (optioneel)
                         </FormLabel>
                         <FormDescription className="text-xs pt-1 flex items-center gap-1">
-                           <Info className="h-3 w-3"/> Selecteer voorkeuren voor het type tutor.
+                           <Info className="h-3 w-3"/> Selecteer voorkeuren voor het type begeleider.
                         </FormDescription>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
@@ -424,11 +497,11 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-sm">
                         <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                        Andere tutorvoorkeuren of specifieke toelichting (optioneel)
+                        Andere voorkeuren voor begeleider of specifieke toelichting (optioneel)
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Bijv. 'Iemand die ook 's avonds laat kan', 'Een tutor die ervaring heeft met topsport'."
+                          placeholder="Bijv. 'Iemand die ook 's avonds laat kan', 'Een coach die ervaring heeft met topsport'."
                           {...field}
                           rows={2}
                         />
@@ -456,10 +529,10 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                         <div className="space-y-1 leading-none">
                             <FormLabel htmlFor="deelResultatenMetTutor" className="text-base font-semibold flex items-center gap-2 cursor-pointer">
                                 <Share2 className="h-5 w-5 text-primary" />
-                                Toestemming delen quizresultaten met tutors
+                                Toestemming delen quizresultaten met begeleiders
                             </FormLabel>
                             <FormDescription className="text-xs pt-1">
-                                Mag MindNavigator (geanonimiseerde) samenvattingen van quizresultaten en leerdoelen van dit kind delen met potentiële of huidige tutors om de matching en begeleiding te optimaliseren? U behoudt controle en kunt dit later aanpassen.
+                                Mag MindNavigator (geanonimiseerde) samenvattingen van quizresultaten en leerdoelen van dit kind delen met potentiële of gekoppelde begeleiders (tutors/coaches) om de matching en begeleiding te optimaliseren? U behoudt controle en kunt dit later aanpassen.
                             </FormDescription>
                             <FormMessage />
                         </div>

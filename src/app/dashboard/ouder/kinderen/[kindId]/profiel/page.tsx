@@ -9,12 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle, HelpCircle } from 'lucide-react';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 import type { User as UserType } from '@/types/user'; 
 
-// Re-using the Child interface definition from de-ouder/kinderen page for consistency
-interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
+interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { // Added hulpvraagType
   firstName: string;
   lastName: string;
   age?: number;
@@ -30,7 +29,6 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   linkedTutorIds?: string[];
 }
 
-// Re-using dummyChildren from de-ouder/kinderen page. In a real app, this data would be fetched.
 const dummyChildren: Child[] = [
    {
     id: 'child1',
@@ -46,8 +44,9 @@ const dummyChildren: Child[] = [
     schoolType: 'HAVO',
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
+    hulpvraagType: ['tutor'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
-    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: lemand met ervaring met visueel ingestelde leerlingen.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor1'],
   },
@@ -64,6 +63,7 @@ const dummyChildren: Child[] = [
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
     helpSubjects: ['engels', 'geschiedenis'],
+    hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
@@ -80,6 +80,7 @@ const dummyChildren: Child[] = [
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
+    hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
@@ -110,6 +111,15 @@ const parseMultiPartString = (str: string | undefined): { geselecteerd: string; 
   };
 };
 
+const formatHulpvraagType = (types?: ('tutor' | 'coach')[]): string => {
+  if (!types || types.length === 0) return 'Niet gespecificeerd';
+  return types.map(type => {
+    if (type === 'tutor') return 'Hulp bij huiswerk (Tutor)';
+    if (type === 'coach') return '1-op-1 coaching (Coach)';
+    return type;
+  }).join(', ');
+};
+
 export default function KindProfielPage() {
   const params = useParams();
   const router = useRouter();
@@ -119,7 +129,9 @@ export default function KindProfielPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    const data = dummyChildren.find(c => c.id === kindId);
+    // Simulate fetching from localStorage or a "database"
+    const allChildren: Child[] = JSON.parse(localStorage.getItem('ouderDashboard_kinderen') || JSON.stringify(dummyChildren));
+    const data = allChildren.find(c => c.id === kindId);
     if (data) {
       setChildData(data);
     } else {
@@ -199,7 +211,16 @@ export default function KindProfielPage() {
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Vakken</CardTitle>
+              <CardTitle className="flex items-center gap-2"><HelpCircle className="h-6 w-6 text-primary"/>Type Hulpvraag</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+               <p><strong className="text-foreground/80">Geselecteerd type ondersteuning:</strong> {formatHulpvraagType(childData.hulpvraagType)}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Vakken (indien tutor gezocht)</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
               {childData.helpSubjects && childData.helpSubjects.length > 0 ? (
@@ -233,7 +254,7 @@ export default function KindProfielPage() {
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="h-6 w-6 text-primary"/>Tutor Voorkeuren</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Users className="h-6 w-6 text-primary"/>Voorkeuren Begeleider (Tutor/Coach)</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2">
               {tutorVoorkeurenParsed.geselecteerd && (
@@ -254,7 +275,7 @@ export default function KindProfielPage() {
             </CardHeader>
             <CardContent className="text-sm">
               <div className="flex items-center justify-between">
-                <p className="text-foreground/80">Quizresultaten delen met gekoppelde tutors:</p>
+                <p className="text-foreground/80">Quizresultaten delen met gekoppelde begeleiders:</p>
                 <Badge variant={childData.deelResultatenMetTutor ? "default" : "secondary"} className={childData.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
                   {childData.deelResultatenMetTutor ? 'Ja' : 'Nee'}
                 </Badge>
