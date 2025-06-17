@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users } from 'lucide-react'; // Added Info and Users icons
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
 
 export function Footer() {
   return (
@@ -51,6 +51,9 @@ export function Footer() {
                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Contact
               </Link>
+              <Link href="/neurodiversiteit" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                Neurodiversiteit
+              </Link>
             </nav>
           </div>
 
@@ -58,7 +61,7 @@ export function Footer() {
           {/* Column 3: Legal Links & Tutor CTA */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
              <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" /> Community & Support
+              <ShieldCheck className="h-5 w-5 text-primary" /> Belangrijk & Support
             </h4>
              <nav className="flex flex-col gap-1.5 mb-4">
                 <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary hover:underline">
@@ -69,6 +72,9 @@ export function Footer() {
                 </Link>
                 <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Algemene Voorwaarden
+                </Link>
+                <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                  Disclaimer
                 </Link>
             </nav>
             <div className="flex items-center gap-2 mb-1 mt-2">
