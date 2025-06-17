@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -179,14 +180,17 @@ function SidebarNavigationContent() {
 
   return (
     <>
-      <SidebarHeader className="border-b group-data-[collapsible=icon]:py-2"> {/* Adjusted padding for collapsed state */}
+      <SidebarHeader className="border-b">
         <div className="flex h-16 items-center justify-between px-4 group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1">
           <SiteLogo 
             textClassName="group-data-[collapsible=icon]:hidden" 
             iconClassName="group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" 
           />
         </div>
-        <div className="p-4 border-b group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:border-b-0">
+        <div className={cn(
+            "p-4 border-b", 
+            "group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:border-b-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
+        )}>
           <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1 group-data-[collapsible=icon]:hidden">
             <Shuffle className="h-3 w-3"/>
             Testrol Wisselaar
