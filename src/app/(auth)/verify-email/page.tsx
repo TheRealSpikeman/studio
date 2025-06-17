@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MailCheck, Hourglass, CheckCircle2 } from 'lucide-react'; // Added Hourglass, CheckCircle2
+import { MailCheck, Hourglass, CheckCircle2 } from 'lucide-react'; 
 import Link from 'next/link';
 import { SiteLogo } from '@/components/common/site-logo';
 import { useToast } from '@/hooks/use-toast';
@@ -16,8 +16,8 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
   const isNewRegistration = searchParams.get("newRegistration") === "true";
-  const flow = searchParams.get("flow"); // e.g., 'parent_approval_pending'
-  const userType = searchParams.get("userType"); // 'teen' or 'parent'
+  const flow = searchParams.get("flow"); 
+  const userType = searchParams.get("userType"); 
   const parentApproved = searchParams.get("parentApproved") === "true";
   const teenEmailForParentContext = searchParams.get("teenEmail");
 
@@ -27,22 +27,23 @@ function VerifyEmailContent() {
     coaching_tools_yearly: "Coaching & Tools - Jaarlijks",
     family_guide_monthly: "Gezins Gids - Maandelijks",
     family_guide_yearly: "Gezins Gids - Jaarlijks",
-    // Legacy plan IDs for backward compatibility if needed, or remove if old links are not a concern
-    monthly: "Coaching Maandelijks",
-    annual: "Coaching Jaarlijks",
+    monthly: "Coaching Maandelijks", // Legacy
+    annual: "Coaching Jaarlijks", // Legacy
   };
 
   let titleText = "Controleer uw inbox";
   let descriptionText = "We hebben een verificatielink naar uw e-mailadres gestuurd. Klik op de link in de e-mail om uw account te activeren.";
   let IconComponent = MailCheck;
+  let showResendButton = true;
 
   if (userType === 'teen' && flow === 'parent_approval_pending') {
     titleText = "Wacht op goedkeuring ouder";
-    descriptionText = `Je account is aangemaakt! We hebben een e-mail gestuurd naar je ouder/verzorger voor goedkeuring. Zodra zij toestemming geven, ontvang je bericht en kun je starten met MindNavigator.`;
+    descriptionText = `Je account is aangemaakt! We hebben een e-mail gestuurd naar je ouder/verzorger voor goedkeuring. Zodra zij toestemming geven, ontvang je bericht en kun je starten met MindNavigator. Controleer ook je spamfolder voor onze e-mails.`;
     IconComponent = Hourglass;
+    showResendButton = false; // Tiener kan niet opnieuw sturen; ouder moet actie ondernemen.
   } else if (userType === 'parent' && parentApproved && teenEmailForParentContext) {
      titleText = "Bedankt voor uw goedkeuring!";
-     descriptionText = `U heeft succesvol toestemming gegeven voor ${teenEmailForParentContext}. Verifieer nu uw eigen e-mailadres om uw ouderaccount te activeren. Hierna kunt u het abonnement voor uw gezin beheren en de voortgang van uw kinderen volgen.`;
+     descriptionText = `U heeft succesvol toestemming gegeven voor het account van ${teenEmailForParentContext}. Verifieer nu uw eigen e-mailadres om uw ouderaccount te activeren. Hierna kunt u het abonnement voor uw gezin beheren en de voortgang van uw kinderen volgen.`;
      IconComponent = CheckCircle2;
   } else if (userType === 'parent' && isNewRegistration) {
     titleText = "Ouderaccount bijna klaar!";
@@ -54,8 +55,15 @@ function VerifyEmailContent() {
         descriptionText += ` Hierna kunt u kinderen toevoegen en een passend abonnement kiezen.`;
     }
     IconComponent = MailCheck;
-  } else if (isNewRegistration) { // General new registration, potentially teen >= 16 or adult
-    // Description might vary if it's a teen >= 16 vs adult. For now, generic.
+  } else if (userType === 'teen' && isNewRegistration) {
+    titleText = "Account bijna klaar!";
+    descriptionText = "We hebben een verificatielink naar je e-mailadres gestuurd. Klik op de link in de e-mail om je account te activeren en toegang te krijgen tot MindNavigator.";
+     if (planParam) {
+        const planName = planNames[planParam] || "Geselecteerd Plan";
+      descriptionText += ` Vervolgens kun je het "${planName}" abonnement activeren.`;
+    }
+    IconComponent = MailCheck;
+  } else if (isNewRegistration) { // General new registration fallback
     descriptionText = "We hebben een verificatielink naar uw e-mailadres gestuurd. Klik op de link in de e-mail om uw account te activeren en toegang te krijgen tot MindNavigator.";
     if (planParam) {
         const planName = planNames[planParam] || "Geselecteerd Plan";
@@ -91,7 +99,7 @@ function VerifyEmailContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {(flow !== 'parent_approval_pending') && ( // Hide resend for teens waiting on parents
+          {showResendButton && (
             <>
               <p className="text-sm text-muted-foreground">
                 Geen e-mail ontvangen? Controleer uw spamfolder of vraag hieronder een nieuwe verificatie-e-mail aan.
@@ -104,6 +112,11 @@ function VerifyEmailContent() {
           <Button variant="outline" className="w-full" asChild>
             <Link href="/login">Terug naar Inloggen</Link>
           </Button>
+           {userType === 'teen' && flow === 'parent_approval_pending' && (
+             <p className="text-xs text-muted-foreground pt-2">
+               Terwijl je wacht, kun je alvast <Link href="/neurodiversiteit" className="underline hover:text-primary">meer lezen over neurodiversiteit</Link>.
+             </p>
+           )}
         </CardContent>
       </Card>
     </div>

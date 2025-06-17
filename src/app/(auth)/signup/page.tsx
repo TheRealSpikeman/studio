@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,38 +22,65 @@ import { Mail, Lock, User as UserIcon, CalendarIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format, subYears, isValid } from 'date-fns';
+import { format, subYears, isValid, differenceInYears } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SiteLogo } from '@/components/common/site-logo';
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;
-  const today = new Date();
-  let age = today.getFullYear() - birthdate.getFullYear();
-  const m = today.getMonth() - birthdate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
-    age--;
-  }
-  return age;
+  return differenceInYears(new Date(), birthdate);
 };
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Naam moet minimaal 2 tekens lang zijn."}),
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
+  isParent: z.boolean().default(false),
   birthdate: z.date({
     required_error: "Geboortedatum is vereist.",
     invalid_type_error: "Selecteer een geldige geboortedatum.",
   }),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
-  isParent: z.boolean().default(false),
   agreeToTerms: z.boolean().refine(value => value === true, {
     message: "Je moet akkoord gaan met de voorwaarden.",
   }),
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Wachtwoorden komen niet overeen.",
-  path: ["confirmPassword"],
+}).superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Wachtwoorden komen niet overeen.",
+            path: ["confirmPassword"],
+        });
+    }
+    const age = calculateAge(data.birthdate);
+    if (age === null && data.birthdate) { // birthdate is selected but invalid (though z.date should catch this)
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Selecteer een geldige geboortedatum.",
+            path: ["birthdate"],
+        });
+        return;
+    }
+    if (age !== null) {
+        if (data.isParent) {
+            if (age < 18) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Ouders/verzorgers moeten minimaal 18 jaar oud zijn.",
+                path: ["birthdate"],
+            });
+            }
+        } else { // Tiener/Jongvolwassene
+            if (age < 12) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Je moet minimaal 12 jaar oud zijn om je te registreren.",
+                path: ["birthdate"],
+            });
+            }
+        }
+    }
 });
 
 export default function SignupPage() {
@@ -66,10 +93,10 @@ export default function SignupPage() {
     defaultValues: {
       name: "",
       email: "",
+      isParent: false,
       birthdate: undefined,
       password: "",
       confirmPassword: "",
-      isParent: true, // Default to parent registration on this page
       agreeToTerms: false,
     },
   });
@@ -77,23 +104,34 @@ export default function SignupPage() {
   const watchIsParent = form.watch("isParent");
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Parent Signup values (simulation):", values);
     const age = calculateAge(values.birthdate);
-    console.log("Calculated age of parent:", age);
+    let redirectUrl = '';
 
-    // This form is explicitly for the parent.
-    // Age check for parental approval will happen when a *child* is added or registers separately.
-    
-    console.log("Parent account registration submitted for:", values.email);
-    // TODO: Implement actual parent signup logic
-    // 1. Call backend to create parent user with 'niet geverifieerd' status.
-    // 2. Backend sends verification email.
-    // 3. On success, redirect to verify-email page.
-    
-    let redirectUrl = '/verify-email?newRegistration=true&userType=parent';
-    if (plan) {
-      redirectUrl += `&plan=${plan}`;
+    if (values.isParent) {
+      console.log("Parent Signup values (simulation):", values);
+      console.log("Calculated age of parent:", age);
+      // TODO: Implement actual parent signup logic
+      redirectUrl = '/verify-email?userType=parent&newRegistration=true';
+      if (plan) redirectUrl += `&plan=${plan}`;
+    } else { // Tiener/Jongvolwassene
+      console.log("Teen/Young Adult Signup values (simulation):", values);
+      console.log("Calculated age of teen/young adult:", age);
+      
+      if (age !== null && age < 16) {
+        // TODO: Implement teen signup logic needing parental approval
+        // 1. Create teen account with status 'wacht_op_ouder_goedkeuring'
+        // 2. (Simulate) Send email to parent with link: /parental-approval?teenEmail=...&teenName=...
+        console.log(`Simulating email to parent for approval for ${values.email}`);
+        redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
+      } else {
+        // TODO: Implement teen/young adult signup logic (direct registration)
+        const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
+        redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
+        if (plan) redirectUrl += `&plan=${plan}`;
+      }
     }
+    
+    console.log("Account registration submitted for:", values.email, "Role intent:", values.isParent ? "Parent" : "Teen/Young Adult");
     console.log("Redirecting to:", redirectUrl);
     router.push(redirectUrl);
   }
@@ -103,11 +141,11 @@ export default function SignupPage() {
       <div className="absolute top-8 left-8">
         <SiteLogo />
       </div>
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-lg shadow-xl"> {/* Increased max-width for more content */}
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Account Aanmaken (Ouder)</CardTitle>
+          <CardTitle className="text-2xl font-bold">Account Aanmaken</CardTitle>
           <CardDescription>
-            Maak een account aan om MindNavigator voor uw gezin te gebruiken.
+            Maak je MindNavigator account. Ben je ouder/verzorger? Vink de optie hieronder aan.
             {plan && <span className="block mt-1 text-sm font-medium text-primary">Geselecteerd plan: {plan}</span>}
           </CardDescription>
         </CardHeader>
@@ -119,10 +157,10 @@ export default function SignupPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Uw volledige naam</FormLabel>
+                    <FormLabel>Volledige naam</FormLabel>
                     <div className="relative">
                       <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <FormControl><Input placeholder="Uw naam" {...field} className="pl-10" /></FormControl>
+                      <FormControl><Input placeholder="Je naam" {...field} className="pl-10" /></FormControl>
                     </div>
                     <FormMessage />
                   </FormItem>
@@ -133,13 +171,26 @@ export default function SignupPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Uw e-mailadres</FormLabel>
+                    <FormLabel>E-mailadres</FormLabel>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <FormControl><Input placeholder="ouder@email.com" {...field} className="pl-10" /></FormControl>
+                      <FormControl><Input type="email" placeholder="jouw@email.com" {...field} className="pl-10" /></FormControl>
                     </div>
                     <FormMessage />
                   </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="isParent"
+                render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 py-2">
+                        <FormControl>
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} id="isParentCheckbox" />
+                        </FormControl>
+                        <FormLabel htmlFor="isParentCheckbox" className="font-normal cursor-pointer">Ik registreer als ouder/verzorger</FormLabel>
+                        <FormMessage />
+                    </FormItem>
                 )}
               />
               <FormField
@@ -147,7 +198,7 @@ export default function SignupPage() {
                   name="birthdate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Uw geboortedatum</FormLabel>
+                      <FormLabel>Geboortedatum {watchIsParent ? "(van ouder/verzorger)" : "(van tiener/jongere)"}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -176,8 +227,8 @@ export default function SignupPage() {
                               date > new Date() || date < new Date("1900-01-01")
                             }
                             captionLayout="dropdown-buttons"
-                            fromYear={1950}
-                            toYear={subYears(new Date(), 18).getFullYear()} // Ouders moeten min. 18 zijn
+                            fromYear={watchIsParent ? 1950 : subYears(new Date(), 25).getFullYear()}
+                            toYear={watchIsParent ? subYears(new Date(), 18).getFullYear() : subYears(new Date(), 12).getFullYear()}
                             initialFocus
                             locale={nl}
                           />
@@ -215,19 +266,6 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-               <FormField
-                control={form.control}
-                name="isParent"
-                render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 opacity-0 h-0 overflow-hidden">
-                        <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} defaultChecked={true} />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Ik ben een ouder/verzorger</FormLabel>
-                        <FormMessage />
-                    </FormItem>
-                )}
-                />
               <FormField
                 control={form.control}
                 name="agreeToTerms"
@@ -247,10 +285,13 @@ export default function SignupPage() {
                 )}
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !form.formState.isValid}>
-                Ouder Account Aanmaken
+                Account Aanmaken
               </Button>
               <p className="pt-1 text-xs text-muted-foreground text-center">
-                Na aanmelding ontvangt u een e-mail om uw account te verifiëren. Hierna kunt u kinderen toevoegen.
+                {watchIsParent 
+                  ? "Na aanmelding ontvangt u een e-mail om uw account te verifiëren. Hierna kunt u kinderen toevoegen."
+                  : "Afhankelijk van je leeftijd, kan ouderlijke toestemming nodig zijn. Je ontvangt een e-mail om je account te activeren."
+                }
               </p>
             </form>
           </Form>

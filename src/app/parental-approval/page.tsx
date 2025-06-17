@@ -1,3 +1,4 @@
+
 // src/app/parental-approval/page.tsx
 "use client";
 
@@ -17,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, ShieldCheck, Info, ExternalLink } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, ShieldCheck, Info, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SiteLogo } from '@/components/common/site-logo';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
@@ -41,8 +42,8 @@ type ParentApprovalFormData = z.infer<typeof parentApprovalFormSchema>;
 function ApprovalContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const teenEmail = searchParams.get("teenEmail"); // E-mail van de tiener voor context
-  const teenName = searchParams.get("teenName") || "Uw kind"; // Naam van de tiener
+  const teenEmail = searchParams.get("teenEmail"); 
+  const teenName = searchParams.get("teenName") || "Uw kind"; 
   // const approvalToken = searchParams.get("token"); // Zou gebruikt worden voor backend validatie
 
   const form = useForm<ParentApprovalFormData>({
@@ -57,7 +58,7 @@ function ApprovalContent() {
   });
 
   function onSubmit(values: ParentApprovalFormData) {
-    console.log("Parent approval and account creation:", values);
+    console.log("Parent approval and account creation (simulation):", values, "for teen:", teenEmail);
     // TODO: Implement actual backend logic:
     // 1. Validate approvalToken (if used).
     // 2. Create parent user account (status 'niet geverifieerd').
@@ -67,10 +68,11 @@ function ApprovalContent() {
     // 6. Redirect parent to /verify-email.
 
     // Simulate success:
-    router.push(`/verify-email?parentApproved=true&teenEmail=${teenEmail || 'onbekend'}&userType=parent&newRegistration=true`);
+    router.push(`/verify-email?parentApproved=true&teenEmail=${encodeURIComponent(teenEmail || 'onbekend')}&userType=parent&newRegistration=true`);
   }
   
-  // if (!approvalToken) { // Simpele check, in realiteit backend validatie
+  // Dummy check. In a real app, token validation would happen on the server.
+  // if (!approvalToken) { 
   //   return (
   //       <Card className="w-full max-w-lg shadow-xl text-center">
   //           <CardHeader>
@@ -87,23 +89,22 @@ function ApprovalContent() {
   //   );
   // }
 
-
   return (
     <Card className="w-full max-w-lg shadow-xl">
       <CardHeader className="text-center">
         <ShieldCheck className="mx-auto h-12 w-12 text-primary mb-3" />
         <CardTitle className="text-2xl font-bold">Goedkeuring & Ouder Account Aanmaken</CardTitle>
         <CardDescription>
-          {teenName} wil graag MindNavigator gebruiken. Geef hieronder toestemming en maak uw eigen ouderaccount aan om {teenName} te ondersteunen.
+          {teenName} ({teenEmail || 'onbekend e-mailadres'}) wil graag MindNavigator gebruiken. Geef hieronder toestemming en maak uw eigen ouderaccount aan om {teenName} te ondersteunen.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
-          <Info className="h-5 w-5 !text-blue-600" />
-          <AlertTitleUi className="text-blue-700 font-semibold">Over MindNavigator</AlertTitleUi>
-          <AlertDescription className="text-blue-600">
+        <Alert variant="default" className="bg-primary/5 border-primary/20 text-primary-foreground">
+          <Info className="h-5 w-5 !text-primary" />
+          <AlertTitleUi className="text-primary font-semibold">Over MindNavigator</AlertTitleUi>
+          <AlertDescription className="text-foreground/80">
             MindNavigator helpt jongeren (12-18 jaar) hun neurodiversiteit te begrijpen en te benutten via zelfreflectie tools en coaching. We bieden een veilige omgeving voor zelfontdekking.
-            Lees meer over ons <Link href="/about" target="_blank" className="font-semibold underline hover:text-blue-700">Over Ons</Link> en bekijk ons <Link href="/privacy" target="_blank" className="font-semibold underline hover:text-blue-700">Privacybeleid</Link>.
+            Lees meer op onze <Link href="/about" target="_blank" className="font-semibold underline hover:text-primary/80">Over Ons</Link> pagina en bekijk ons <Link href="/privacy" target="_blank" className="font-semibold underline hover:text-primary/80">Privacybeleid</Link>.
           </AlertDescription>
         </Alert>
 
@@ -189,7 +190,10 @@ function ApprovalContent() {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex-col items-center text-center space-y-1">
+         <p className="text-xs text-muted-foreground">
+          Na het aanmaken van uw account, dient u uw e-mailadres te verifiëren.
+        </p>
         <p className="text-xs text-muted-foreground">
           Vragen? <Link href="/contact" className="underline hover:text-primary">Neem contact op</Link>.
         </p>
@@ -197,7 +201,6 @@ function ApprovalContent() {
     </Card>
   );
 }
-
 
 export default function ParentalApprovalPage() {
   return (

@@ -29,7 +29,7 @@ export function Header() {
             <Button variant="ghost" asChild key={link.href}><Link href={link.href}>{link.label}</Link></Button>
           ))}
           <Button variant="link" asChild><Link href="/login">Inloggen</Link></Button>
-          <Button asChild><Link href="/quizzes">Aanmelden</Link></Button>
+          <Button asChild><Link href="/signup">Aanmelden</Link></Button>
         </nav>
         {/* Mobile Navigation */}
         <div className="md:hidden">
@@ -43,7 +43,7 @@ export function Header() {
                 <DropdownMenuItem key={link.href} asChild><Link href={link.href}>{link.label}</Link></DropdownMenuItem>
               ))}
               <DropdownMenuItem asChild><Link href="/login">Inloggen</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/signup" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

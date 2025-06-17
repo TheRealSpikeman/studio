@@ -12,8 +12,8 @@ export interface User {
   role: UserRole;
   ageGroup?: AgeGroup; 
   geboortedatum?: string; // ISO date string, new for age calculation
-  requires_parent_approval?: boolean; // New for age-based flow
-  parent_user_id?: string; // New, ID of the approving parent
+  requires_parent_approval?: boolean; 
+  parent_user_id?: string; // ID of the approving parent
   lastLogin: string; // ISO date string
   createdAt: string; // ISO date string
   coaching?: {
@@ -31,14 +31,10 @@ export interface User {
     totalRevenue?: number; 
     averageRating?: number;
   };
-  // Parent-child relationship
-  // parentId is now parent_user_id for consistency with DB schema
   children?: string[]; // Array of child User IDs, if this user is a parent
-
-  // School and study related information, primarily for leerling role
   schoolName?: string;
   className?: string;
   schoolType?: string;
-  helpSubjects?: string[]; // Array of subject IDs the student needs help with
+  helpSubjects?: string[]; 
   hulpvraagType?: ('tutor' | 'coach')[]; 
 }
