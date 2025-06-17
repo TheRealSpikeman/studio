@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, ShieldCheck, ExternalLink } from 'lucide-react';
+import { Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, ShieldCheck, ExternalLink, ArrowRight } from 'lucide-react';
 
 const allFeatures = [
   { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten', icon: Brain },
@@ -31,7 +31,9 @@ export default function GepersonaliseerdeInzichtenPage() {
         <div className="container mx-auto">
           <Card className="shadow-xl max-w-3xl mx-auto">
             <CardHeader className="text-center pb-8">
-              <FeatureIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+              <Link href="/#platform-features-overview" aria-label={`Terug naar feature overzicht: ${featureTitle}`}>
+                <FeatureIcon className="mx-auto h-16 w-16 text-primary mb-4 cursor-pointer transition-transform hover:scale-110" />
+              </Link>
               <CardTitle className="text-4xl font-bold text-foreground">{featureTitle}</CardTitle>
               <CardDescription className="text-lg text-muted-foreground mt-2">
                 Ontdek hoe uw kind start met een assessment en directe inzichten krijgt.
@@ -56,7 +58,7 @@ export default function GepersonaliseerdeInzichtenPage() {
             </CardContent>
             <CardFooter className="flex-col items-start pt-8 mt-6 border-t">
               <h4 className="text-lg font-semibold text-foreground mb-6">Ontdek ook onze andere features:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 w-full">
                 {otherFeatures.map(feature => (
                   <Button
                     key={feature.link}
@@ -67,6 +69,7 @@ export default function GepersonaliseerdeInzichtenPage() {
                     <Link href={feature.link} className="inline-flex items-center gap-2">
                       <feature.icon className="h-5 w-5 text-primary/80 group-hover:text-primary transition-colors" />
                       <span>{feature.title}</span>
+                      <ArrowRight className="ml-auto h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity group-hover:translate-x-1" />
                     </Link>
                   </Button>
                 ))}
