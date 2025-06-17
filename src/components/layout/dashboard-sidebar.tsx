@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -21,7 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem, // Added missing import
+  SidebarMenuSubItem,
   useSidebar
 } from '@/components/ui/sidebar';
 import { 
@@ -30,9 +29,9 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon // Added ShieldCheckIcon
 } from 'lucide-react'; 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'; // Added SheetTitle
 import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -75,7 +74,7 @@ const navItems: NavItem[] = [
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
-    icon: GraduationCap, // Changed icon here
+    icon: GraduationCap, 
     leerlingOnly: true,
     children: [
       {
@@ -127,6 +126,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheckIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
 
@@ -367,4 +367,3 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
-
