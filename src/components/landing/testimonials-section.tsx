@@ -8,21 +8,21 @@ const testimonials = [
     name: 'Sophie V.',
     age: 16,
     avatarSeed: 'sophie-avatar',
-    quote: "Deze quiz gaf me echt inzicht in waarom ik soms zo overweldigd raak in drukke klassen. De tips voor HSP helpen me enorm!",
+    quote: "Deze tool gaf me echt inzicht in waarom ik soms zo overweldigd raak in drukke klassen. De tips voor gevoeligheid helpen me enorm!",
     rating: 5,
   },
   {
     name: 'Daan K.',
     age: 14,
     avatarSeed: 'daan-avatar',
-    quote: "Ik dacht altijd dat ik 'gewoon druk' was. Nu snap ik beter hoe mijn ADHD-brein werkt en de coaching tips zijn super praktisch voor school.",
+    quote: "Nu snap ik beter hoe mijn brein werkt bij drukte en de coaching tips zijn super praktisch voor school.",
     rating: 4,
   },
   {
     name: 'Lisa de B.',
     age: 17,
     avatarSeed: 'lisa-avatar',
-    quote: "Eindelijk een test die uitlegt waarom ik dingen anders zie. Het rapport over ASS was een eye-opener en de dagelijkse affirmaties zijn fijn.",
+    quote: "Eindelijk een platform dat uitlegt waarom ik dingen anders zie. Het overzicht over sociale voorkeuren was verhelderend en de dagelijkse affirmaties zijn fijn.",
     rating: 5,
   },
 ];
@@ -67,7 +67,7 @@ export function TestimonialsSection() {
             <div className="rounded-lg border bg-card p-6 shadow-sm">
                 <Users className="mx-auto h-12 w-12 text-primary mb-3"/>
                 <p className="text-3xl font-bold text-foreground">1.200+</p>
-                <p className="text-muted-foreground">Quizzen al voltooid door jongeren</p>
+                <p className="text-muted-foreground">Zelfreflectie-sessies voltooid door jongeren</p>
             </div>
             <div className="rounded-lg border bg-card p-6 shadow-sm">
                 <ThumbsUp className="mx-auto h-12 w-12 text-primary mb-3"/>
