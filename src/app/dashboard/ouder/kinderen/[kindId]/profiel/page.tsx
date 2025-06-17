@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle, HelpCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users as UsersIcon, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle, HelpCircle, CheckSquare, BookOpen } from 'lucide-react';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 import type { User as UserType } from '@/types/user'; 
 
-interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { // Added hulpvraagType
+interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
   lastName: string;
   age?: number;
@@ -92,13 +92,13 @@ const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "defa
   if (status === 'actief') return 'default';
   if (status === 'geen') return 'secondary';
   if (status === 'uitgenodigd') return 'outline';
-  return 'destructive'; // verlopen
+  return 'destructive'; 
 };
 const getSubscriptionBadgeClasses = (status: Child['subscriptionStatus']): string => {
   if (status === 'actief') return 'bg-green-100 text-green-700 border-green-300';
   if (status === 'geen') return 'bg-gray-100 text-gray-700 border-gray-300';
   if (status === 'uitgenodigd') return 'bg-blue-100 text-blue-700 border-blue-300';
-  return 'bg-red-100 text-red-700 border-red-300'; // verlopen
+  return 'bg-red-100 text-red-700 border-red-300'; 
 };
 
 const parseMultiPartString = (str: string | undefined): { geselecteerd: string; overig: string } => {
@@ -129,7 +129,6 @@ export default function KindProfielPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    // Simulate fetching from localStorage or a "database"
     const allChildren: Child[] = JSON.parse(localStorage.getItem('ouderDashboard_kinderen') || JSON.stringify(dummyChildren));
     const data = allChildren.find(c => c.id === kindId);
     if (data) {
@@ -167,7 +166,7 @@ export default function KindProfielPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 rounded-lg bg-card shadow">
         <div className="flex items-center gap-4">
           <Avatar className="h-20 w-20">
             <AvatarImage src={childData.avatarUrl} alt={childData.name} data-ai-hint="child person" />
@@ -186,65 +185,63 @@ export default function KindProfielPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="shadow-lg">
+        {/* Kolom 1: Persoonlijke Gegevens */}
+        <div className="lg:col-span-1 space-y-6">
+           <Card className="shadow-lg h-full">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <p><strong className="text-foreground/80">Volledige Naam:</strong> {childData.firstName} {childData.lastName}</p>
-              <p><strong className="text-foreground/80">Leeftijd:</strong> {childData.age ? `${childData.age} jaar` : (childData.ageGroup || 'N.v.t.')}</p>
-              <p><strong className="text-foreground/80">E-mail Kind:</strong> {childData.childEmail || 'Niet opgegeven'}</p>
-              <p><strong className="text-foreground/80">Account Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData.subscriptionStatus)}>{childData.subscriptionStatus.charAt(0).toUpperCase() + childData.subscriptionStatus.slice(1)}</Badge></p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p><strong className="text-foreground/80">Schooltype:</strong> {childData.schoolType || 'Niet opgegeven'}</p>
-              <p><strong className="text-foreground/80">Klas:</strong> {childData.className || 'Niet opgegeven'}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><HelpCircle className="h-6 w-6 text-primary"/>Type Hulpvraag</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-               <p><strong className="text-foreground/80">Geselecteerd type ondersteuning:</strong> {formatHulpvraagType(childData.hulpvraagType)}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Vakken (indien tutor gezocht)</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              {childData.helpSubjects && childData.helpSubjects.length > 0 ? (
-                <ul className="list-disc list-inside space-y-1">
-                  {childData.helpSubjects.map(id => <li key={id}>{getSubjectName(id)}</li>)}
-                </ul>
-              ) : (
-                <p className="text-muted-foreground">Geen specifieke hulpvakken opgegeven.</p>
-              )}
+              <div><strong className="font-medium text-foreground/80">Volledige Naam:</strong> <span className="text-foreground">{childData.firstName} {childData.lastName}</span></div>
+              <div><strong className="font-medium text-foreground/80">Leeftijd:</strong> <span className="text-foreground">{childData.age ? `${childData.age} jaar` : (childData.ageGroup || 'N.v.t.')}</span></div>
+              <div><strong className="font-medium text-foreground/80">E-mail Kind:</strong> <span className="text-foreground">{childData.childEmail || 'Niet opgegeven'}</span></div>
+              <div><strong className="font-medium text-foreground/80">Account Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData.subscriptionStatus)}>{childData.subscriptionStatus.charAt(0).toUpperCase() + childData.subscriptionStatus.slice(1)}</Badge></div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Kolom 2: School & Hulpvraag */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="shadow-lg h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>School &amp; Hulpvraag</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div>
+                <h4 className="font-semibold text-foreground/90 mb-1">Schoolinformatie</h4>
+                <p><strong className="font-medium text-foreground/80">Schooltype:</strong> <span className="text-foreground">{childData.schoolType || 'Niet opgegeven'}</span></p>
+                <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData.className || 'Niet opgegeven'}</span></p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground/90 mb-1">Type Hulpvraag</h4>
+                 <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-foreground">{formatHulpvraagType(childData.hulpvraagType)}</span></p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><BookOpen className="h-4 w-4"/>Hulp bij Vakken</h4>
+                {childData.helpSubjects && childData.helpSubjects.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-1 pl-2 text-foreground">
+                    {childData.helpSubjects.map(id => <li key={id}>{getSubjectName(id)}</li>)}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground">Geen specifieke hulpvakken opgegeven.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Kolom 3: Leerdoelen, Voorkeuren, Privacy */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Target className="h-6 w-6 text-primary"/>Leerdoelen & Aandachtspunten</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl"><Target className="h-6 w-6 text-primary"/>Leerdoelen &amp; Aandachtspunten</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm space-y-2">
+            <CardContent className="text-sm space-y-1">
               {leerdoelenParsed.geselecteerd && (
-                <p><strong className="text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{leerdoelenParsed.geselecteerd}</span></p>
+                <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{leerdoelenParsed.geselecteerd}</span></p>
               )}
               {leerdoelenParsed.overig && (
-                <p><strong className="text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.overig}</span></p>
+                <p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.overig}</span></p>
               )}
               {!leerdoelenParsed.geselecteerd && !leerdoelenParsed.overig && (
                 <p className="text-muted-foreground">Niet opgegeven.</p>
@@ -254,42 +251,41 @@ export default function KindProfielPage() {
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="h-6 w-6 text-primary"/>Voorkeuren Begeleider (Tutor/Coach)</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl"><UsersIcon className="h-6 w-6 text-primary"/>Voorkeuren Begeleider</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm space-y-2">
+            <CardContent className="text-sm space-y-1">
               {tutorVoorkeurenParsed.geselecteerd && (
-                <p><strong className="text-foreground/80">Geselecteerde voorkeuren:</strong> <span className="text-muted-foreground">{tutorVoorkeurenParsed.geselecteerd}</span></p>
+                <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{tutorVoorkeurenParsed.geselecteerd}</span></p>
               )}
               {tutorVoorkeurenParsed.overig && (
-                <p><strong className="text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.overig}</span></p>
+                <p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.overig}</span></p>
               )}
                {!tutorVoorkeurenParsed.geselecteerd && !tutorVoorkeurenParsed.overig && (
                 <p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>
               )}
             </CardContent>
           </Card>
-
+          
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Share2 className="h-6 w-6 text-primary"/>Privacy & Delen</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-foreground/80">Quizresultaten delen met gekoppelde begeleiders:</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium text-foreground/80">Quizresultaten delen met begeleiders:</p>
                 <Badge variant={childData.deelResultatenMetTutor ? "default" : "secondary"} className={childData.deelResultatenMetTutor ? 'bg-green-100 text-green-700 border-green-300' : ''}>
                   {childData.deelResultatenMetTutor ? 'Ja' : 'Nee'}
                 </Badge>
               </div>
-            </CardContent>
-             <CardFooter>
-                <Button variant="outline" size="sm" disabled>
-                  <Edit className="mr-2 h-4 w-4" /> Deelinstellingen Wijzigen (binnenkort)
+               <Button variant="outline" size="sm" disabled>
+                  <Edit className="mr-2 h-3.5 w-3.5" /> Deelinstellingen Wijzigen (binnenkort)
                 </Button>
-             </CardFooter>
+            </CardContent>
           </Card>
         </div>
       </div>
-      <div className="flex justify-end mt-6">
+      
+      <div className="flex justify-end mt-6 pt-6 border-t">
         <Button size="lg" disabled>
             <Edit className="mr-2 h-4 w-4" /> Kindprofiel Bewerken (binnenkort)
         </Button>
