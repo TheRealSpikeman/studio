@@ -34,21 +34,15 @@ export function Header() {
         {/* Mobile Navigation */}
         <div className="md:hidden">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
+              </Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               {navLinks.map((link) => (
-                <DropdownMenuItem key={link.href} asChild>
-                  <Link href={link.href}>{link.label}</Link>
-                </DropdownMenuItem>
+                <DropdownMenuItem key={link.href} asChild><Link href={link.href}>{link.label}</Link></DropdownMenuItem>
               ))}
-              <DropdownMenuItem asChild>
-                <Link href="/login">Inloggen</Link>
-              </DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/login">Inloggen</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
