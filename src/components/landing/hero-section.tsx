@@ -11,7 +11,7 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Ondersteun uw tiener (12-18 jr) bij <span className="text-primary">neurodiversiteit</span>
+            Ondersteun uw kind bij <span className="text-primary">neurodiversiteit</span>
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
             Maakt u zich zorgen over de concentratie, sociale interacties of schoolprestaties van uw tiener? Voelt u dat uw kind anders denkt of leert? MindNavigator biedt u en uw kind (12-18 jaar) inzicht in neurodiversiteit (zoals ADD, ADHD, HSP, ASS-kenmerken). Ontdek samen sterke punten en praktische strategieën om uitdagingen op school en thuis aan te gaan.
