@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldCheck, User, Eye, Users, Bell, Save, Info, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2 } from 'lucide-react'; // Added Share2
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
@@ -21,7 +21,7 @@ const dummyChildren = [
 interface PrivacySettings {
   shareResultsWithTutors: boolean;
   allowChildToControlSharing: boolean;
-  allowChildToScheduleLessons: boolean; // Nieuwe instelling
+  allowChildToScheduleLessons: boolean; 
   allowCommunityAccess: boolean;
   communityProfileVisibility: 'anonymous' | 'firstName' | 'fullName';
   allowCommunityMessaging: boolean;
@@ -32,7 +32,7 @@ interface PrivacySettings {
 const initialPrivacySettings: PrivacySettings = {
   shareResultsWithTutors: true,
   allowChildToControlSharing: false,
-  allowChildToScheduleLessons: false, // Standaard uit, ouder plant lessen
+  allowChildToScheduleLessons: false, 
   allowCommunityAccess: true,
   communityProfileVisibility: 'firstName',
   allowCommunityMessaging: false,
@@ -45,11 +45,9 @@ export default function PrivacyInstellingenPage() {
   const [selectedChildId, setSelectedChildId] = useState<string>(dummyChildren[0]?.id || '');
   const [settings, setSettings] = useState<PrivacySettings>(initialPrivacySettings);
 
-  // In a real app, you would fetch settings for the selected child
   useEffect(() => {
     if (selectedChildId) {
       console.log(`Instellingen laden voor kind: ${selectedChildId} (simulatie)`);
-      // Simulate fetching settings or use defaults
       setSettings(initialPrivacySettings); 
     }
   }, [selectedChildId]);
@@ -62,7 +60,7 @@ export default function PrivacyInstellingenPage() {
     console.log("Opslaan van privacy-instellingen voor kind:", selectedChildId, settings);
     toast({
       title: "Instellingen Opgeslagen",
-      description: `De privacy-instellingen voor ${dummyChildren.find(c => c.id === selectedChildId)?.name || 'het kind'} zijn bijgewerkt (simulatie).`,
+      description: `De privacy-instellingen voor ${dummyChildren.find(c => c.id === selectedChildId)?.name || 'het kind'} zijn bijgewerkt (simulatie). De wijzigingen zijn direct actief.`,
     });
   };
 
@@ -112,64 +110,74 @@ export default function PrivacyInstellingenPage() {
               <CardDescription>Bepaal wat er gedeeld mag worden van de resultaten en het profiel van uw kind.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-3 rounded-md border">
-                <div className="space-y-0.5">
-                  <Label htmlFor="shareResultsWithTutors" className="text-base">Quizresultaten delen met gekoppelde tutors?</Label>
-                  <p className="text-xs text-muted-foreground">Hiermee kunnen tutors beter afgestemde begeleiding bieden.</p>
+              <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="shareResultsWithTutors" className="text-base flex items-center gap-2">
+                        <Share2 className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde begeleiders?
+                    </Label>
+                    <Switch
+                    id="shareResultsWithTutors"
+                    checked={settings.shareResultsWithTutors}
+                    onCheckedChange={(checked) => handleSettingChange('shareResultsWithTutors', checked)}
+                    />
                 </div>
-                <Switch
-                  id="shareResultsWithTutors"
-                  checked={settings.shareResultsWithTutors}
-                  onCheckedChange={(checked) => handleSettingChange('shareResultsWithTutors', checked)}
-                />
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen begeleiders beter afgestemde ondersteuning bieden.</p>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-md border">
-                <div className="space-y-0.5">
-                  <Label htmlFor="allowChildToControlSharing" className="text-base">Kind toestaan zelf te bepalen of resultaten met tutors gedeeld worden?</Label>
-                  <p className="text-xs text-muted-foreground">Geeft uw kind controle over deze specifieke instelling.</p>
+              <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToControlSharing" className="text-base flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf te bepalen of resultaten met begeleiders gedeeld worden?
+                    </Label>
+                    <Switch
+                    id="allowChildToControlSharing"
+                    checked={settings.allowChildToControlSharing}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharing', checked)}
+                    />
                 </div>
-                <Switch
-                  id="allowChildToControlSharing"
-                  checked={settings.allowChildToControlSharing}
-                  onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharing', checked)}
-                />
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">Dit geeft uw kind meer autonomie over de eigen gegevens.</p>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-md border">
-                <div className="space-y-0.5">
-                  <Label htmlFor="allowChildToScheduleLessons" className="text-base">Kind toestaan zelfstandig 1-op-1 lessen met tutors te plannen?</Label>
-                  <p className="text-xs text-muted-foreground">Indien uitgeschakeld, moet u als ouder de lessen inplannen.</p>
+              <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowChildToScheduleLessons" className="text-base flex items-center gap-2">
+                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig 1-op-1 lessen/sessies met begeleiders te plannen?
+                    </Label>
+                    <Switch
+                    id="allowChildToScheduleLessons"
+                    checked={settings.allowChildToScheduleLessons}
+                    onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessons', checked)}
+                    />
                 </div>
-                <Switch
-                  id="allowChildToScheduleLessons"
-                  checked={settings.allowChildToScheduleLessons}
-                  onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessons', checked)}
-                />
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid en flexibiliteit in het plannen. Indien uitgeschakeld, moet u als ouder de lessen inplannen.</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Community & Interactie</CardTitle>
+              <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5 text-primary"/>Community & Interactie</CardTitle>
               <CardDescription>Beheer de toegang en zichtbaarheid van uw kind binnen de MindNavigator community (binnenkort beschikbaar).</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-3 rounded-md border">
-                <div className="space-y-0.5">
-                  <Label htmlFor="allowCommunityAccess" className="text-base">Kind toestaan deel te nemen aan het community forum?</Label>
-                  <p className="text-xs text-muted-foreground">De community is een plek om ervaringen te delen en van elkaar te leren.</p>
+              <div className="p-3 rounded-md border">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allowCommunityAccess" className="text-base flex items-center gap-2">
+                        <UsersIcon className="h-4 w-4 text-muted-foreground" /> Kind toestaan deel te nemen aan het community forum?
+                    </Label>
+                    <Switch
+                    id="allowCommunityAccess"
+                    checked={settings.allowCommunityAccess}
+                    onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
+                    disabled // Functionaliteit is nog niet live
+                    />
                 </div>
-                <Switch
-                  id="allowCommunityAccess"
-                  checked={settings.allowCommunityAccess}
-                  onCheckedChange={(checked) => handleSettingChange('allowCommunityAccess', checked)}
-                  disabled // Functionaliteit is nog niet live
-                />
+                 <p className="text-xs text-muted-foreground mt-1 pl-6">De community biedt een platform voor uitwisseling en steun (functionaliteit binnenkort).</p>
               </div>
                {settings.allowCommunityAccess && (
                 <>
                   <div className="p-3 rounded-md border">
-                    <Label htmlFor="communityProfileVisibility" className="text-base mb-1 block">Zichtbaarheid profiel in community</Label>
+                    <Label htmlFor="communityProfileVisibility" className="text-base mb-1 block flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-muted-foreground" /> Zichtbaarheid profiel in community
+                    </Label>
                      <Select 
                         value={settings.communityProfileVisibility} 
                         onValueChange={(value: PrivacySettings['communityProfileVisibility']) => handleSettingChange('communityProfileVisibility', value)}
@@ -184,19 +192,21 @@ export default function PrivacyInstellingenPage() {
                             <SelectItem value="fullName">Volledige Naam</SelectItem>
                         </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground mt-1">Hoe wordt uw kind getoond aan andere communityleden?</p>
+                    <p className="text-xs text-muted-foreground mt-1">Bepaalt hoe uw kind wordt weergegeven aan andere communityleden.</p>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-md border">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="allowCommunityMessaging" className="text-base">Kind toestaan privéberichten te sturen/ontvangen van andere (goedgekeurde) gebruikers?</Label>
-                       <p className="text-xs text-muted-foreground">Dit betreft 1-op-1 berichten, niet openbare forumposts.</p>
+                  <div className="p-3 rounded-md border">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="allowCommunityMessaging" className="text-base flex items-center gap-2">
+                        <Share2 className="h-4 w-4 text-muted-foreground" /> Kind toestaan privéberichten te sturen/ontvangen van andere (goedgekeurde) gebruikers?
+                      </Label>
+                      <Switch
+                        id="allowCommunityMessaging"
+                        checked={settings.allowCommunityMessaging}
+                        onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
+                        disabled // Functionaliteit is nog niet live
+                      />
                     </div>
-                    <Switch
-                      id="allowCommunityMessaging"
-                      checked={settings.allowCommunityMessaging}
-                      onCheckedChange={(checked) => handleSettingChange('allowCommunityMessaging', checked)}
-                      disabled // Functionaliteit is nog niet live
-                    />
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">Regelt 1-op-1 communicatie binnen de community (functionaliteit binnenkort).</p>
                   </div>
                 </>
                )}
@@ -209,25 +219,31 @@ export default function PrivacyInstellingenPage() {
               <CardDescription>Kies welke e-mailnotificaties u wilt ontvangen over de activiteiten van uw kind.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-3 rounded-md border">
-                    <div className="space-y-0.5">
-                        <Label htmlFor="notifyOnQuizCompletion" className="text-base">E-mail bij voltooiing van een zelfreflectie-instrument?</Label>
+                <div className="p-3 rounded-md border">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="notifyOnQuizCompletion" className="text-base flex items-center gap-2">
+                            <Bell className="h-4 w-4 text-muted-foreground" /> E-mail bij voltooiing van een zelfreflectie-instrument?
+                        </Label>
+                        <Switch
+                            id="notifyOnQuizCompletion"
+                            checked={settings.notifyOnQuizCompletion}
+                            onCheckedChange={(checked) => handleSettingChange('notifyOnQuizCompletion', checked)}
+                        />
                     </div>
-                    <Switch
-                        id="notifyOnQuizCompletion"
-                        checked={settings.notifyOnQuizCompletion}
-                        onCheckedChange={(checked) => handleSettingChange('notifyOnQuizCompletion', checked)}
-                    />
+                    <p className="text-xs text-muted-foreground mt-1 pl-6">U ontvangt een notificatie als uw kind een tool heeft afgerond.</p>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-md border">
-                    <div className="space-y-0.5">
-                        <Label htmlFor="notifyOnLessonReport" className="text-base">E-mail bij ontvangst van een nieuw lesverslag van een tutor?</Label>
+                <div className="p-3 rounded-md border">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="notifyOnLessonReport" className="text-base flex items-center gap-2">
+                            <Bell className="h-4 w-4 text-muted-foreground" /> E-mail bij ontvangst van een nieuw lesverslag van een begeleider?
+                        </Label>
+                        <Switch
+                            id="notifyOnLessonReport"
+                            checked={settings.notifyOnLessonReport}
+                            onCheckedChange={(checked) => handleSettingChange('notifyOnLessonReport', checked)}
+                        />
                     </div>
-                    <Switch
-                        id="notifyOnLessonReport"
-                        checked={settings.notifyOnLessonReport}
-                        onCheckedChange={(checked) => handleSettingChange('notifyOnLessonReport', checked)}
-                    />
+                     <p className="text-xs text-muted-foreground mt-1 pl-6">U wordt op de hoogte gebracht van nieuwe feedback van begeleiders.</p>
                 </div>
             </CardContent>
           </Card>
