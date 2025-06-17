@@ -1,8 +1,9 @@
-// src/components/landing/assessment-section.tsx
+
 "use client";
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain } from 'lucide-react'; 
 
 export function AssessmentSection() {
   return (
@@ -23,13 +24,13 @@ export function AssessmentSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           
           <div>
-            <h3 className="text-2xl font-semibold mb-6 text-foreground">
-              ✨ Wat Ontdekt Uw Kind?
+            <h3 className="text-2xl font-semibold mb-6 text-foreground flex items-center gap-2">
+              <Sparkles className="h-7 w-7 text-primary" /> Wat Ontdekt Uw Kind?
             </h3>
             
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <span className="text-2xl pt-1">📊</span>
+                <BarChart3 className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <strong className="text-foreground">Persoonlijke score</strong>
                   <p className="text-muted-foreground">Op leerstijl, sterke punten en voorkeuren</p>
@@ -37,7 +38,7 @@ export function AssessmentSection() {
               </div>
               
               <div className="flex items-start space-x-3">
-                <span className="text-2xl pt-1">🎯</span>
+                <Target className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <strong className="text-foreground">Automatisch dashboard</strong>
                   <p className="text-muted-foreground">Samengesteld op basis van assessment resultaten</p>
@@ -45,7 +46,7 @@ export function AssessmentSection() {
               </div>
               
               <div className="flex items-start space-x-3">
-                <span className="text-2xl pt-1">🧠</span>
+                <Brain className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <strong className="text-foreground">Gepersonaliseerd trainingsmateriaal</strong>
                   <p className="text-muted-foreground">Afgestemd op hun unieke ontwikkeling</p>
@@ -53,7 +54,7 @@ export function AssessmentSection() {
               </div>
               
               <div className="flex items-start space-x-3">
-                <span className="text-2xl pt-1">📈</span>
+                <TrendingUp className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <strong className="text-foreground">Startpunt voor groei</strong>
                   <p className="text-muted-foreground">Gepersonaliseerde route naar verbetering</p>
@@ -78,7 +79,7 @@ export function AssessmentSection() {
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-xl">📝</span>
+                    <FileText className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <strong className="text-foreground">Interactieve Tool</strong>
@@ -88,7 +89,7 @@ export function AssessmentSection() {
                 
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
-                    <span className="text-xl">📊</span>
+                    <BarChart3 className="h-6 w-6 text-accent" />
                   </div>
                   <div>
                     <strong className="text-foreground">Direct Inzicht</strong>
@@ -98,7 +99,7 @@ export function AssessmentSection() {
                 
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-secondary/50 rounded-full flex items-center justify-center">
-                    <span className="text-xl">🎯</span>
+                     <Target className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <strong className="text-foreground">Platform op Maat</strong>

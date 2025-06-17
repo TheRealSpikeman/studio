@@ -1,5 +1,5 @@
-/src/components/landing/platform-features-section.tsx
-// Renamed from parent-benefits-section.tsx
+// src/components/landing/platform-features-section.tsx
+"use client"; // Added "use client" directive
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
