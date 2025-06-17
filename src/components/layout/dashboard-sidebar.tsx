@@ -68,13 +68,13 @@ const navItems: NavItem[] = [
   {
     href: '/dashboard/leerling/lessons',
     label: 'Mijn Lessen',
-    icon: BookOpenCheck, // First BookOpenCheck
+    icon: BookOpenCheck, 
     leerlingOnly: true,
   },
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
-    icon: BookOpenCheck, // Second BookOpenCheck
+    icon: GraduationCap, // Changed icon here
     leerlingOnly: true,
     children: [
       {
@@ -217,7 +217,7 @@ function SidebarNavigationContent() {
         </div>
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
         <SidebarMenu>
           {navItems.map((item, index) => {
             let showItem = false;
@@ -366,3 +366,4 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
+
