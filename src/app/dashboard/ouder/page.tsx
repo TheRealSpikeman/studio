@@ -1,7 +1,7 @@
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus } from 'lucide-react';
+import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,9 @@ interface DashboardItem {
   link: string;
   buttonText: string;
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
-  statistic?: string; // For displaying a quick stat
+  statistic?: string; 
+  disabled?: boolean;
+  isLink?: boolean;
   colorClass?: string;
 }
 
@@ -22,7 +24,7 @@ interface DashboardItem {
 const dummyFamilyLessonStats = {
   geplandeLessenDezeWeek: 5,
   voltooideLessenTotaal: 23,
-  recenteActiviteit: "Sofie heeft de 'Focus Quiz' voltooid.",
+  recenteActiviteit: "Sofie heeft de 'Focus Zelfreflectie Tool' voltooid.",
 };
 
 const ouderDashboardItems: DashboardItem[] = [
@@ -34,7 +36,20 @@ const ouderDashboardItems: DashboardItem[] = [
     link: '/dashboard/ouder/kinderen', 
     buttonText: 'Kinderen Toevoegen & Beheren',
     buttonVariant: 'default', 
+    isLink: true,
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100', 
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy & Toestemming',
+    description: 'Beheer hier de deelinstellingen van uw kind en lees tips over respectvolle communicatie en het waarborgen van autonomie.',
+    icon: ShieldCheck,
+    link: '#',
+    buttonText: 'Beheer Privacy (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+    colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
   },
   {
     id: 'aankomende-lessen',
@@ -45,6 +60,7 @@ const ouderDashboardItems: DashboardItem[] = [
     buttonText: 'Bekijk Aankomende Lessen',
     buttonVariant: 'outline',
     statistic: `Totaal ${dummyFamilyLessonStats.geplandeLessenDezeWeek} lessen gepland deze week.`,
+    isLink: true,
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   },
   {
@@ -55,6 +71,7 @@ const ouderDashboardItems: DashboardItem[] = [
     link: '/dashboard/ouder/lessen/plannen',
     buttonText: 'Plan een Nieuwe Les',
     buttonVariant: 'default',
+    isLink: true,
     colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
@@ -65,18 +82,32 @@ const ouderDashboardItems: DashboardItem[] = [
     link: '/dashboard/ouder/abonnementen', 
     buttonText: 'Beheer Abonnementen', 
     buttonVariant: 'outline',
+    isLink: true,
     colorClass: 'bg-yellow-50 border-yellow-200 hover:shadow-yellow-100',
   },
   {
     id: 'resultaten',
     title: 'Resultaten & Voortgang',
-    description: 'Krijg inzicht in de quizresultaten en lesverslagen van uw kinderen.',
+    description: 'Bekijk de voortgang en algemene ontwikkeling van uw tiener (gedeeld met hun toestemming en respect voor hun privacy).',
     icon: BarChart3,
-    link: '/dashboard/ouder/lessen/overzicht', // Overzicht toont voltooide lessen met rapporten
+    link: '/dashboard/ouder/lessen/overzicht', 
     buttonText: 'Bekijk Resultaten & Verslagen',
     buttonVariant: 'outline',
     statistic: dummyFamilyLessonStats.recenteActiviteit,
+    isLink: true,
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
+  },
+   {
+    id: 'gezinsgesprekken',
+    title: 'Gezinsgesprekken',
+    description: 'Tips en handvatten om open en constructieve gesprekken te voeren over neurodiversiteit en welzijn binnen het gezin.',
+    icon: MessagesSquare,
+    link: '#',
+    buttonText: 'Tips voor Gesprekken (binnenkort)',
+    buttonVariant: 'outline',
+    disabled: true,
+    isLink: false,
+    colorClass: 'bg-lime-50 border-lime-200 hover:shadow-lime-100',
   },
   {
     id: 'accountinstellingen',
@@ -86,6 +117,7 @@ const ouderDashboardItems: DashboardItem[] = [
     link: '/dashboard/profile',
     buttonText: 'Ga naar Instellingen',
     buttonVariant: 'outline', 
+    isLink: true,
     colorClass: 'bg-gray-50 border-gray-200 hover:shadow-gray-100',
   },
 ];
@@ -133,9 +165,10 @@ export default function OuderDashboardPage() {
               <Button
                 variant={item.buttonVariant || 'default'}
                 className="w-full"
-                asChild
+                asChild={item.isLink && !item.disabled}
+                disabled={item.disabled}
               >
-                <Link href={item.link}>{item.buttonText}</Link>
+                {item.isLink && !item.disabled ? <Link href={item.link}>{item.buttonText}</Link> : <>{item.buttonText}</>}
               </Button>
             </CardFooter>
           </Card>
