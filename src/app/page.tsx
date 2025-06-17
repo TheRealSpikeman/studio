@@ -1,7 +1,8 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/landing/hero-section';
-import { ParentBenefitsSection } from '@/components/landing/parent-benefits-section';
+import { AssessmentSection } from '@/components/landing/assessment-section'; // Nieuwe import
+import { PlatformFeaturesSection } from '@/components/landing/platform-features-section'; // Hernoemde import
 import { TestimonialsSection } from '@/components/landing/testimonials-section';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { QuizPreviewSection } from '@/components/landing/quiz-preview-section';
@@ -13,7 +14,8 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <ParentBenefitsSection />
+        <AssessmentSection /> {/* Nieuwe sectie hier */}
+        <PlatformFeaturesSection /> {/* Hernoemde en aangepaste sectie */}
         <PricingSection />
         <TestimonialsSection />
         <QuizPreviewSection />

@@ -31,7 +31,7 @@ const platformFeatures: Feature[] = [
     descriptionPart2: '. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de tools',
-    colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
+    colorClass: 'bg-primary/5 border-primary/20 hover:shadow-md',
   },
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
@@ -39,7 +39,7 @@ const platformFeatures: Feature[] = [
     descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) gebaseerd op assessmentresultaten, die uw kind ondersteunen bij routines, zelfvertrouwen en omgaan met uitdagingen.',
     link: '/dashboard/coaching',
     linkText: 'Verken coaching',
-    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+    colorClass: 'bg-accent/5 border-accent/20 hover:shadow-md',
   },
   {
     icon: <BookOpenCheck className="h-10 w-10 text-primary" />,
@@ -47,7 +47,7 @@ const platformFeatures: Feature[] = [
     descriptionFull: 'Effectieve tools en strategieën afgestemd op leerstijl, om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen.',
     link: '/dashboard/homework-assistance',
     linkText: 'Bekijk huiswerk tools',
-    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
+    colorClass: 'bg-secondary border-border hover:shadow-md',
   },
   {
     icon: <GraduationCap className="h-10 w-10 text-primary" />,
@@ -55,7 +55,7 @@ const platformFeatures: Feature[] = [
     descriptionFull: 'Koppel uw kind aan gekwalificeerde tutors of coaches voor persoonlijke hulp, afgestemd op hun assessmentprofiel en behoeften.',
     link: '/dashboard/ouder/zoek-professional',
     linkText: 'Vind een Begeleider',
-    colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
+    colorClass: 'bg-accent/10 border-accent/30 hover:shadow-md',
   },
   {
     icon: <MessageSquareText className="h-10 w-10 text-primary" />,
@@ -63,7 +63,7 @@ const platformFeatures: Feature[] = [
     descriptionFull: 'Krijg via uw eigen portaal (met toestemming) inzicht in de voortgang, beheer abonnementen en communiceer met begeleiders.',
     link: '/dashboard/ouder',
     linkText: 'Naar Ouderportaal',
-    colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
+    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-md',
   },
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
@@ -74,25 +74,25 @@ const platformFeatures: Feature[] = [
     descriptionPart2: '.',
     link: '/privacy', 
     linkText: 'Lees ons privacybeleid',
-    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
+    colorClass: 'bg-muted border-border hover:shadow-md',
   },
 ];
 
-export function PlatformFeaturesSection() {
+export function PlatformFeaturesSection() { // Renamed component
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span>
+            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span> {/* Updated Title */}
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur.
+            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur. {/* Updated Description */}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {platformFeatures.map((feature, index) => (
+          {platformFeatures.map((feature, index) => ( // Renamed variable
             <Card key={index} className={cn("shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full", feature.colorClass)}>
               <CardHeader className="flex flex-row items-start gap-4 pb-3">
                 <div className="flex-shrink-0 mt-1">{feature.icon}</div>

@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -7,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, XCircle, Info, Users, BarChart3, BookOpenText, MessageSquare, GraduationCap, ShieldCheck, Sparkles, Star, HelpCircle, Percent, ExternalLink } from 'lucide-react';
+import { CheckCircle2, XCircle, Info, Users, BarChart3, BookOpenText, MessageSquare, GraduationCap, ShieldCheck, Sparkles, Star, HelpCircle, Percent, ExternalLink, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -52,6 +51,7 @@ const plansData: Plan[] = [
     price: 'Gratis',
     priceDetail: 'Proef de kracht',
     features: [
+      { text: 'Start-assessment inbegrepen', included: true },
       { text: 'Wekelijkse motivatie-email met praktische tips', included: true },
       { text: 'Basis zelfreflectie tool (beperkte toegang)', included: true },
       { text: 'Sample coaching content (5 voorbeeldberichten)', included: true },
@@ -63,7 +63,7 @@ const plansData: Plan[] = [
       { text: 'Geen voortgangsanalytics', included: false },
     ],
     ctaText: 'Start gratis ontdekking',
-    ctaBaseLink: '/quizzes',
+    ctaBaseLink: '/quizzes', // Ga direct naar de quizzen pagina voor de assessment
     planId: 'free_start',
     colorClass: "border-gray-300 hover:border-gray-400",
   },
@@ -73,6 +73,7 @@ const plansData: Plan[] = [
     price: '€19,99',
     priceDetail: 'p/gezin/maand',
     features: [
+      { text: 'Start-assessment inbegrepen', included: true },
       { text: 'Dagelijkse coaching berichten (gepersonaliseerd)', included: true },
       { text: 'Alle zelfreflectie instrumenten (unlimited)', included: true },
       { text: 'Interactieve dagboek en reflectie-oefeningen', included: true },
@@ -91,7 +92,7 @@ const plansData: Plan[] = [
     ctaText: 'Kies Familie Coaching',
     ctaBaseLink: '/signup',
     isPopular: true,
-    planId: 'family_guide_monthly', // Updated to match parental-approval logic
+    planId: 'family_guide_monthly', 
     yearlyOptionText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (€${monthlyEquivalentForYearlyCoaching}/mnd)`,
     yearlySavingsHighlight: `bespaar €${yearlySavingsCoaching}`,
     highlightClass: "border-primary ring-2 ring-primary/50",
@@ -103,6 +104,8 @@ const plansData: Plan[] = [
     price: '€39,99',
     priceDetail: 'p/gezin/maand',
     features: [
+      { text: 'Start-assessment inbegrepen', included: true },
+      { text: 'Uitgebreide assessment analyse & rapportage', included: true },
       { text: 'Alles van Familie Coaching PLUS:', included: true, tooltip: "Omvat alle digitale tools, coaching en platformtoegang van het Familie Coaching plan." },
       { text: 'AI-powered insights en gepersonaliseerde aanbevelingen', included: true },
       { text: 'Advanced analytics en trendanalyse', included: true },
@@ -155,14 +158,13 @@ export default function PricingPage() {
   const handlePlanSelection = (plan: Plan, isYearlySelected?: boolean) => {
     let targetPlanId = plan.planId;
     if (isYearlySelected) {
-      if (plan.planId === 'family_guide_monthly') targetPlanId = 'family_guide_yearly'; // Matching Ouder dashboard
-      if (plan.planId === 'premium_family_monthly') targetPlanId = 'premium_family_yearly'; // Nieuw ID voor Premium Jaarlijks
+      if (plan.planId === 'family_guide_monthly') targetPlanId = 'family_guide_yearly';
+      if (plan.planId === 'premium_family_monthly') targetPlanId = 'premium_family_yearly';
     }
 
     if (targetPlanId === 'free_start') {
-      router.push(plan.ctaBaseLink); // Linkt naar /quizzes
+      router.push(plan.ctaBaseLink); // Linkt naar /quizzes of assessment start
     } else {
-      // Alle betaalde plannen starten met ouder registratie, met plan ID als parameter
       router.push(`${plan.ctaBaseLink}?plan=${targetPlanId}`);
     }
   };
@@ -178,7 +180,7 @@ export default function PricingPage() {
               Kies het plan dat bij uw gezin past
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
-              Start gratis om de basis te ontdekken, of kies voor volledige digitale coaching en ondersteuning voor uw kind en uzelf. Registratie en beheer via uw ouderaccount.
+              Start gratis om de basis te ontdekken, of kies voor volledige digitale coaching en ondersteuning voor uw kind en uzelf. Registratie en beheer via uw ouderaccount. Elk pad begint met een persoonlijke assessment.
             </p>
           </div>
         </section>
@@ -226,6 +228,18 @@ export default function PricingPage() {
                           )}
                           <span className="text-muted-foreground text-sm leading-snug">
                             {feature.text}
+                            {feature.tooltip && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="inline-block h-3 w-3 ml-1 text-muted-foreground/70 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <p>{feature.tooltip}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </span>
                         </li>
                       ))}
@@ -354,3 +368,4 @@ export default function PricingPage() {
     </div>
   );
 }
+
