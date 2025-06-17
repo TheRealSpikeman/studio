@@ -20,14 +20,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image'; 
-import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel, FormDescription } from "@/components/ui/form"; 
+import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel } from "@/components/ui/form"; 
 import { useForm } from "react-hook-form"; 
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import * as z from "zod"; 
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
-interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
+interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
   firstName: string;
   lastName: string;
   age?: number; 
@@ -35,9 +35,10 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   schoolType?: string;
   className?: string;
   helpSubjects?: string[];
+  hulpvraagType?: ('tutor' | 'coach')[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
-  planId?: 'free_start' | 'coaching_tools_monthly' | 'coaching_tools_yearly' | 'family_guide_monthly' | 'family_guide_yearly'; // Added planId
-  planName?: string; // Optional: display name of the plan
+  planId?: 'free_start' | 'coaching_tools_monthly' | 'coaching_tools_yearly' | 'family_guide_monthly' | 'family_guide_yearly';
+  planName?: string; 
   lastActivity?: string;
   leerdoelen?: string; 
   voorkeurTutor?: string; 
@@ -81,14 +82,14 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
-    planId: 'coaching_tools_monthly', // Example plan
+    planId: 'coaching_tools_monthly',
     planName: 'Coaching & Tools - Maandelijks',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
     childEmail: 'sofie.tester@example.com',
     schoolType: 'HAVO',
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
-    hulpvraagType: ['coach', 'tutor'], // Sofie wants both, but plan only covers coach
+    hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerd: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
@@ -103,7 +104,7 @@ const dummyChildren: Child[] = [
     ageGroup: '15-18',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'actief',
-    planId: 'family_guide_monthly', // This plan covers both
+    planId: 'family_guide_monthly', 
     planName: 'Gezins Gids - Maandelijks',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
@@ -122,13 +123,13 @@ const dummyChildren: Child[] = [
     name: 'Lisa Voorbeeld',
     age: 12,
     ageGroup: '12-14',
-    subscriptionStatus: 'uitgenodigd', // No active plan yet
+    subscriptionStatus: 'uitgenodigd',
     planId: 'free_start',
     planName: 'Gratis Start',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
-    hulpvraagType: ['coach'], // Wants coach, but free_start doesn't cover it
+    hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerd: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
@@ -204,7 +205,6 @@ const parseMultiPartString = (str: string | undefined): { selected: string[]; ot
   };
 };
 
-// Helper functions to check service coverage by plan
 const isTutorServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
   return planId === 'family_guide_monthly' || planId === 'family_guide_yearly';
 };
@@ -251,20 +251,21 @@ export default function KindProfielPage() {
   useEffect(() => {
     setIsLoading(true);
     if (typeof window !== 'undefined') {
+      let dataToSet: Child | null = null;
       try {
         const storedChildrenRaw = localStorage.getItem('ouderDashboard_kinderen');
         const allChildren: Child[] = storedChildrenRaw ? JSON.parse(storedChildrenRaw) : dummyChildren;
-        const data = allChildren.find(c => c.id === kindId);
-        if (data) {
-          setChildData(data);
-        } else {
-          console.error("Kind data niet gevonden voor ID:", kindId);
-          setChildData(null); 
-        }
+        dataToSet = allChildren.find(c => c.id === kindId) || null;
       } catch (error) {
-        console.error("Error parsing children from localStorage:", error);
-        const dummyData = dummyChildren.find(c => c.id === kindId);
-        setChildData(dummyData || null);
+        console.error("Error parsing children from localStorage, falling back to dummy:", error);
+        dataToSet = dummyChildren.find(c => c.id === kindId) || null;
+      }
+      
+      if (dataToSet) {
+        setChildData(dataToSet);
+      } else {
+        console.error("Kind data niet gevonden voor ID:", kindId);
+        setChildData(null); 
       }
     }
     setIsLoading(false);
@@ -368,17 +369,6 @@ export default function KindProfielPage() {
   const displayedName = isEditing ? `${editableChildData?.firstName} ${editableChildData?.lastName}` : childData?.name;
   const displayedAvatar = isEditing ? editableChildData?.avatarUrl : childData?.avatarUrl;
 
-  const formatHulpvraagTypeDetailed = (types?: ('tutor' | 'coach')[]): { selected: string[], notSelected: string[] } => {
-    const result = { selected: [] as string[], notSelected: [] as string[] };
-    allHulpvraagOptions.forEach(opt => {
-        if (types?.includes(opt.id)) {
-            result.selected.push(opt.label);
-        } else {
-            result.notSelected.push(opt.label);
-        }
-    });
-    return result;
-  };
 
   if (isLoading) return <div className="p-8 text-center">Profielgegevens laden...</div>;
   if (!childData) return (
@@ -430,7 +420,7 @@ export default function KindProfielPage() {
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmitProfile)} className="space-y-0"> 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-6"> {/* Kolom 1 */}
                   <Card className="shadow-lg">
                       <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle></CardHeader>
                       <CardContent className="space-y-4 text-sm">
@@ -484,110 +474,110 @@ export default function KindProfielPage() {
                   </Card>
                 </div>
 
-                <div className="lg:col-span-1 space-y-6">
-                  <Card className="shadow-lg flex flex-col h-full">
-                      <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 text-sm flex-grow">
-                          <FormField control={control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
-                              <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
-                              <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
+                <div className="lg:col-span-1 space-y-6"> {/* Kolom 2 */}
+                    <Card className="shadow-lg flex flex-col h-full">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-sm flex-grow">
+                            <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
+                            <FormField control={form.control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
+                                <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
+                                <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
+                            </FormItem>)} />
+                            
+                            {editableChildData.hulpvraagType?.includes('tutor') && !isTutorServiceCoveredByPlan(childData.planId) && (
+                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 min-h-[120px]">
+                                  <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                  <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
+                                  <AlertDescUi>
+                                      Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. U kunt deze voorkeuren wel instellen, maar om een tutor te koppelen is een upgrade nodig.
+                                      <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                  </AlertDescUi>
+                              </Alert>
+                            )}
+
+                            {editableChildData.hulpvraagType?.includes('tutor') && (
+                                <>
+                                    <FormField control={control} name="helpSubjects" render={() => (<FormItem>
+                                        <FormLabel className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</FormLabel>
+                                        <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de vakken waarvoor ondersteuning gewenst is (max. 3-4 aanbevolen voor focus).</p>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                            {allHomeworkSubjects.map(subject => (<FormField key={subject.id} control={control} name="helpSubjects" render={({ field }) => (
+                                                <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(subject.id)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, subject.id]) : field.onChange(newVal.filter(v => v !== subject.id));}}/></FormControl><FormLabel htmlFor={`subject-${subject.id}-edit`} className="font-normal">{subject.name}</FormLabel></FormItem>
+                                            )} />))}
+                                        </div><FormMessage/>
+                                    </FormItem>)} />
+                                    <div className="mt-4">
+                                        <FormLabel className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</FormLabel>
+                                        <p className="text-xs text-muted-foreground !mt-0 !mb-2">Kies de 2-3 belangrijkste leerdoelen of aandachtspunten.</p>
+                                        <FormField control={control} name="selectedLeerdoelen" render={() => (<FormItem>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                {predefinedLeerdoelen.map(doel => (<FormField key={doel.id} control={control} name="selectedLeerdoelen" render={({ field }) => (
+                                                    <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(doel.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, doel.label]) : field.onChange(newVal.filter(v => v !== doel.label)); }}/></FormControl><FormLabel htmlFor={`leerdoel-${doel.id}-edit`} className="font-normal">{doel.label}</FormLabel></FormItem>
+                                                )} />))}
+                                            </div><FormMessage/>
+                                        </FormItem>)} />
+                                    </div>
+                                    <FormField control={control} name="otherLeerdoelen" render={({ field }) => (<FormItem className="mt-4">
+                                        <FormLabel htmlFor="otherLeerdoelenEdit">Andere leerdoelen/toelichting</FormLabel>
+                                        <Textarea id="otherLeerdoelenEdit" {...field} rows={3} /><FormMessage/>
+                                    </FormItem>)} />
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                <div className="lg:col-span-1 space-y-6"> {/* Kolom 3 */}
+                    <Card className="shadow-lg flex flex-col h-full">
+                      <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle></CardHeader>
+                      <CardContent className="text-sm space-y-4 flex-grow">
+                          <p className="text-xs text-muted-foreground mb-3 -mt-2">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData?.firstName || 'uw kind'}.</p>
+                          <FormField control={form.control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
+                              <Checkbox id="hulpvraag-coach-edit" checked={field.value?.includes('coach')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'coach']) : field.onChange(newVal.filter(v => v !== 'coach')); }} />
+                              <FormLabel htmlFor="hulpvraag-coach-edit" className="font-semibold">1-op-1 coaching actief?</FormLabel><FormMessage/>
                           </FormItem>)} />
                           
-                          {editableChildData.hulpvraagType?.includes('tutor') && !isTutorServiceCoveredByPlan(childData.planId) && (
-                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700">
-                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
-                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
-                                <AlertDescUi>
-                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. U kunt deze voorkeuren wel instellen, maar om een tutor te koppelen is een upgrade nodig.
-                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
-                                </AlertDescUi>
-                            </Alert>
-                          )}
+                           {editableChildData.hulpvraagType?.includes('coach') && !isCoachServiceCoveredByPlan(childData.planId) && (
+                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 min-h-[120px]">
+                                  <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                  <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
+                                  <AlertDescUi>
+                                       Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een 'Coaching & Tools' of 'Gezins Gids' abonnement nodig.
+                                      <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                  </AlertDescUi>
+                              </Alert>
+                            )}
 
-                          {editableChildData.hulpvraagType?.includes('tutor') && (
+                          {editableChildData.hulpvraagType?.includes('coach') && (
                               <>
-                                  <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
-                                  <FormField control={control} name="helpSubjects" render={() => (<FormItem>
-                                      <FormLabel className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</FormLabel>
-                                      <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de vakken waarvoor ondersteuning gewenst is (max. 3-4 aanbevolen voor focus).</p>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                          {allHomeworkSubjects.map(subject => (<FormField key={subject.id} control={control} name="helpSubjects" render={({ field }) => (
-                                              <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(subject.id)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, subject.id]) : field.onChange(newVal.filter(v => v !== subject.id));}}/></FormControl><FormLabel htmlFor={`subject-${subject.id}-edit`} className="font-normal">{subject.name}</FormLabel></FormItem>
-                                          )} />))}
-                                      </div><FormMessage/>
-                                  </FormItem>)} />
-                                  <div className="mt-4">
-                                      <FormLabel className="font-semibold text-foreground/90 mb-1 block">Leerdoelen & Aandachtspunten</FormLabel>
-                                      <p className="text-xs text-muted-foreground !mt-0 !mb-2">Kies de 2-3 belangrijkste leerdoelen of aandachtspunten.</p>
-                                      <FormField control={control} name="selectedLeerdoelen" render={() => (<FormItem>
+                                  <div>
+                                      <FormLabel className="font-semibold text-foreground/90 mb-1 block">Voorkeuren Coach</FormLabel>
+                                      <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de belangrijkste voorkeuren voor een coach.</p>
+                                      <FormField control={control} name="selectedTutorPreferences" render={() => (<FormItem>
                                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                              {predefinedLeerdoelen.map(doel => (<FormField key={doel.id} control={control} name="selectedLeerdoelen" render={({ field }) => (
-                                                  <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(doel.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, doel.label]) : field.onChange(newVal.filter(v => v !== doel.label)); }}/></FormControl><FormLabel htmlFor={`leerdoel-${doel.id}-edit`} className="font-normal">{doel.label}</FormLabel></FormItem>
+                                              {predefinedTutorPreferences.map(pref => (<FormField key={pref.id} control={control} name="selectedTutorPreferences" render={({ field }) => (
+                                                  <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(pref.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, pref.label]) : field.onChange(newVal.filter(v => v !== pref.label)); }}/></FormControl><FormLabel htmlFor={`coachpref-${pref.id}-edit`} className="font-normal">{pref.label}</FormLabel></FormItem>
                                               )} />))}
                                           </div><FormMessage/>
                                       </FormItem>)} />
                                   </div>
-                                  <FormField control={control} name="otherLeerdoelen" render={({ field }) => (<FormItem className="mt-4">
-                                      <FormLabel htmlFor="otherLeerdoelenEdit">Andere leerdoelen/toelichting</FormLabel>
-                                      <Textarea id="otherLeerdoelenEdit" {...field} rows={3} /><FormMessage/>
+                                  <FormField control={control} name="otherTutorPreference" render={({ field }) => (<FormItem className="mt-4">
+                                      <FormLabel htmlFor="otherTutorPreferenceEdit">Andere voorkeuren coach/toelichting</FormLabel>
+                                      <Textarea id="otherTutorPreferenceEdit" {...field} rows={2} /><FormMessage/>
                                   </FormItem>)} />
                               </>
                           )}
                       </CardContent>
-                  </Card>
-                </div>
-                
-                <div className="lg:col-span-1 space-y-6">
-                  <Card className="shadow-lg flex flex-col h-full">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle></CardHeader>
-                    <CardContent className="text-sm space-y-4 flex-grow">
-                        <FormField control={control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
-                            <Checkbox id="hulpvraag-coach-edit" checked={field.value?.includes('coach')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'coach']) : field.onChange(newVal.filter(v => v !== 'coach')); }} />
-                            <FormLabel htmlFor="hulpvraag-coach-edit" className="font-semibold">1-op-1 coaching actief?</FormLabel><FormMessage/>
-                        </FormItem>)} />
-                        
-                         {editableChildData.hulpvraagType?.includes('coach') && !isCoachServiceCoveredByPlan(childData.planId) && (
-                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700">
-                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
-                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
-                                <AlertDescUi>
-                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. U kunt deze voorkeuren wel instellen, maar om een coach te koppelen is een upgrade nodig.
-                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
-                                </AlertDescUi>
-                            </Alert>
-                          )}
-
-                        {editableChildData.hulpvraagType?.includes('coach') && (
-                            <>
-                                <p className="text-xs text-muted-foreground mb-3 -mt-2">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData?.firstName || 'uw kind'}.</p>
-                                <div>
-                                    <FormLabel className="font-semibold text-foreground/90 mb-1 block">Voorkeuren Coach</FormLabel>
-                                    <p className="text-xs text-muted-foreground !mt-0 !mb-2">Selecteer de belangrijkste voorkeuren voor een coach.</p>
-                                    <FormField control={control} name="selectedTutorPreferences" render={() => (<FormItem>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            {predefinedTutorPreferences.map(pref => (<FormField key={pref.id} control={control} name="selectedTutorPreferences" render={({ field }) => (
-                                                <FormItem className="flex flex-row items-center space-x-2"><FormControl><Checkbox checked={field.value?.includes(pref.label)} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, pref.label]) : field.onChange(newVal.filter(v => v !== pref.label)); }}/></FormControl><FormLabel htmlFor={`coachpref-${pref.id}-edit`} className="font-normal">{pref.label}</FormLabel></FormItem>
-                                            )} />))}
-                                        </div><FormMessage/>
-                                    </FormItem>)} />
-                                </div>
-                                <FormField control={control} name="otherTutorPreference" render={({ field }) => (<FormItem className="mt-4">
-                                    <FormLabel htmlFor="otherTutorPreferenceEdit">Andere voorkeuren coach/toelichting</FormLabel>
-                                    <Textarea id="otherTutorPreferenceEdit" {...field} rows={2} /><FormMessage/>
-                                </FormItem>)} />
-                            </>
-                        )}
-                    </CardContent>
-                  </Card>
+                    </Card>
                 </div>
               </div>
             </form>
           </Form>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-1 space-y-6"> {/* Kolom 1 */}
                 <Card className="shadow-lg">
                     <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle></CardHeader>
                     <CardContent className="space-y-3 text-sm">
@@ -607,7 +597,7 @@ export default function KindProfielPage() {
                         <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData?.className || 'Niet opgegeven'}</span></p>
                     </CardContent>
                 </Card>
-                 <Card className="shadow-lg">
+                <Card className="shadow-lg">
                   <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
                   <CardContent className="text-sm">
                       <div className="flex items-center justify-between mb-2">
@@ -621,7 +611,7 @@ export default function KindProfielPage() {
                 </Card>
             </div>
 
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-1 space-y-6"> {/* Kolom 2 */}
                 <Card className="shadow-lg flex flex-col h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
@@ -634,7 +624,7 @@ export default function KindProfielPage() {
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm flex-grow">
                         {tutorServiceActiveForChild && !tutorServiceCovered && (
-                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
+                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3 min-h-[120px]">
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                 <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
                                 <AlertDescUi>
@@ -664,7 +654,7 @@ export default function KindProfielPage() {
                 </Card>
             </div>
 
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-1 space-y-6"> {/* Kolom 3 */}
                  <Card className="shadow-lg flex flex-col h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle>
@@ -677,7 +667,7 @@ export default function KindProfielPage() {
                     </CardHeader>
                     <CardContent className="text-sm space-y-3 flex-grow">
                         {coachServiceActiveForChild && !coachServiceCovered && (
-                             <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
+                             <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3 min-h-[120px]">
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                 <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
                                 <AlertDescUi>
@@ -713,3 +703,4 @@ export default function KindProfielPage() {
     </div>
   );
 }
+
