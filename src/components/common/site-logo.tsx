@@ -1,15 +1,18 @@
 import Link from 'next/link';
-import { Brain } from 'lucide-react'; // Using Brain icon as a placeholder
+import { Brain } from 'lucide-react'; 
+import { cn } from '@/lib/utils';
 
 type SiteLogoProps = {
   className?: string;
+  iconClassName?: string; 
+  textClassName?: string;  
 };
 
-export function SiteLogo({ className }: SiteLogoProps) {
+export function SiteLogo({ className, iconClassName, textClassName }: SiteLogoProps) {
   return (
-    <Link href="/" className={`flex items-center gap-2 text-xl font-bold text-primary ${className}`}>
-      <Brain className="h-7 w-7" />
-      <span>MindNavigator</span>
+    <Link href="/" className={cn('flex items-center gap-2 text-xl font-bold text-primary', className)}>
+      <Brain className={cn("h-7 w-7", iconClassName)} /> {/* Default h-7 w-7 */}
+      <span className={textClassName}>MindNavigator</span>
     </Link>
   );
 }

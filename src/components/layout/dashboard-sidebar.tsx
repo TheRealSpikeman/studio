@@ -20,7 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  useSidebar // Import useSidebar
+  useSidebar
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
@@ -67,13 +67,13 @@ const navItems: NavItem[] = [
   {
     href: '/dashboard/leerling/lessons',
     label: 'Mijn Lessen',
-    icon: BookOpenCheck,
+    icon: BookOpenCheck, // First BookOpenCheck
     leerlingOnly: true,
   },
   {
     href: '/dashboard/homework-assistance',
     label: 'Huiswerkbegeleiding',
-    icon: BookOpenCheck,
+    icon: BookOpenCheck, // Second BookOpenCheck
     leerlingOnly: true,
     children: [
       {
@@ -172,27 +172,33 @@ const navItems: NavItem[] = [
 function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
-  const { state: sidebarState } = useSidebar(); // Get sidebar state for conditional rendering
+  const { state: sidebarState } = useSidebar();
   let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
 
   return (
     <>
-      <SidebarHeader className="border-b">
-        <div className="flex h-16 items-center justify-between px-4">
-          <SiteLogo />
-          {/* Removed the ChevronsRightLeft toggle button from here; main toggle is in DashboardHeader */}
+      <SidebarHeader className="border-b group-data-[collapsible=icon]:py-2"> {/* Adjusted padding for collapsed state */}
+        <div className="flex h-16 items-center justify-between px-4 group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1">
+          <SiteLogo 
+            textClassName="group-data-[collapsible=icon]:hidden" 
+            iconClassName="group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" 
+          />
         </div>
-        <div className="p-4 border-b">
+        <div className="p-4 border-b group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:border-b-0">
           <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1 group-data-[collapsible=icon]:hidden">
             <Shuffle className="h-3 w-3"/>
             Testrol Wisselaar
           </Label>
           <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
-            <SelectTrigger id="role-switcher" className="h-9 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:aspect-square group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
+            <SelectTrigger 
+              id="role-switcher" 
+              className="h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center"
+              aria-label="Selecteer een rol"
+            >
                <span className="group-data-[collapsible=icon]:hidden"><SelectValue placeholder="Selecteer een rol" /></span>
-               <Shuffle className="h-4 w-4 group-data-[collapsible=icon]:block hidden" /> {/* Icon for collapsed state */}
+               <Shuffle className="h-5 w-5 group-data-[collapsible=icon]:block hidden" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="leerling">Leerling</SelectItem>
@@ -335,7 +341,6 @@ function SidebarNavigationContent() {
 export function DashboardSidebar() {
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
-  // Close mobile sheet on pathname change
   const pathname = usePathname();
   useEffect(() => {
     if (isMobile) {
@@ -344,9 +349,6 @@ export function DashboardSidebar() {
   }, [pathname, isMobile, setOpenMobile]);
 
   if (isMobile) {
-    // For mobile, we use a Sheet (off-canvas) from ui/sheet.tsx, triggered by SidebarTrigger in DashboardHeader.
-    // The Sidebar component itself from ui/sidebar.tsx handles the Sheet for mobile internally.
-    // So we only need to render the <Sidebar> component here, and it will know it's mobile.
     return (
       <Sidebar side="left" collapsible="offcanvas">
         <SidebarNavigationContent />
@@ -354,7 +356,6 @@ export function DashboardSidebar() {
     );
   }
 
-  // For desktop, use the Sidebar component configured for icon collapsibility.
   return (
     <Sidebar side="left" collapsible="icon" className="bg-card border-r shadow-lg">
       <SidebarNavigationContent />
