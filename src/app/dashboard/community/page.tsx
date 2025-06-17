@@ -3,7 +3,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessagesSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles } from 'lucide-react';
+import { MessagesSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles, PlusCircleIcon } from 'lucide-react';
+import Link from 'next/link';
 
 const placeholderCategories = [
   { id: 'general', name: 'Algemene Discussie', icon: MessageCircle, description: 'Praat over alledaagse dingen, school en meer.' },
@@ -70,14 +71,14 @@ export default function CommunityPage() {
             Welkom bij de Community!
           </CardTitle>
           <CardDescription>
-            Dit is dé plek om in contact te komen met andere MindNavigator gebruikers. De volledige forumfunctionaliteit is binnenkort beschikbaar!
+            Dit is dé plek om in contact te komen met andere MindNavigator gebruikers. Start een discussie, deel je gedachten of help een ander!
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-10">
           <div>
             <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <Hash className="h-5 w-5 text-accent"/>
-              Populaire Onderwerpen (Binnenkort)
+              Populaire Onderwerpen
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {placeholderCategories.map(category => (
@@ -92,7 +93,9 @@ export default function CommunityPage() {
                     <p className="text-xs text-muted-foreground">{category.description}</p>
                   </CardContent>
                   <CardFooter className="pt-3">
-                    <Button variant="outline" size="sm" disabled>Bekijk Discussies</Button>
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href="#">Bekijk Discussies</Link>
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -102,18 +105,22 @@ export default function CommunityPage() {
           <div>
             <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <FileText className="h-5 w-5 text-accent"/>
-              Recente Discussies (Binnenkort)
+              Recente Discussies
             </h3>
             <div className="space-y-3">
               {placeholderPosts.map(post => (
                 <Card key={post.id} className="p-4 bg-card border hover:shadow-sm transition-shadow">
-                  <h4 className="font-semibold text-md text-primary hover:underline cursor-not-allowed">{post.title}</h4>
+                  <h4 className="font-semibold text-md text-primary hover:underline cursor-pointer">
+                    <Link href="#">{post.title}</Link>
+                  </h4>
                   <p className="text-xs text-muted-foreground mt-1">
                     In: {post.category} | Door: {post.author}
                   </p>
                   <div className="mt-2 flex justify-between items-center">
                      <p className="text-xs text-muted-foreground">{post.replies} reacties | Laatste: {post.lastReply}</p>
-                     <Button variant="link" size="sm" className="p-0 h-auto text-primary" disabled>Lees meer &raquo;</Button>
+                     <Button variant="link" size="sm" className="p-0 h-auto text-primary" asChild>
+                        <Link href="#">Lees meer &raquo;</Link>
+                     </Button>
                   </div>
                 </Card>
               ))}
@@ -121,20 +128,20 @@ export default function CommunityPage() {
           </div>
 
           <div className="text-center pt-8 border-t">
-            <p className="text-lg font-semibold text-accent mb-2">Forum Binnenkort Live!</p>
-            <p className="text-muted-foreground">
-              We werken hard om deze community ruimte voor jullie te openen. Hier kun je binnenkort:
+            <h2 className="text-xl font-semibold text-accent mb-2">Jouw Forum Acties</h2>
+            <p className="text-muted-foreground mb-4">
+              Klaar om deel te nemen?
             </p>
-            <ul className="list-disc list-inside text-muted-foreground text-left max-w-md mx-auto mt-3 space-y-1.5">
-              <li>Ervaringen en tips uitwisselen.</li>
-              <li>Vragen stellen aan elkaar.</li>
-              <li>Deelnemen aan groepsdiscussies.</li>
-              <li>Ondersteuning vinden en bieden.</li>
-            </ul>
+            <Button size="lg" asChild className="bg-primary text-primary-foreground">
+              <Link href="#"><PlusCircleIcon className="mr-2 h-5 w-5"/>Nieuw Topic Starten</Link>
+            </Button>
+             <p className="text-xs text-muted-foreground mt-4">
+              Let op: dit is een gesimuleerde omgeving. Interacties zijn placeholders.
+            </p>
           </div>
         </CardContent>
         <CardFooter className="justify-center pt-6 pb-8">
-            <Button disabled size="lg" className="bg-primary text-primary-foreground">Nieuw Topic Starten (Binnenkort)</Button>
+            {/* Footer content can be added here if needed, or remove CardFooter if not used */}
         </CardFooter>
       </Card>
     </div>
