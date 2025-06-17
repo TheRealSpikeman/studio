@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldCheck, User, Eye, Users, Bell, Save, Info } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, User, Eye, Users, Bell, Save, Info, CalendarPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
@@ -21,6 +21,7 @@ const dummyChildren = [
 interface PrivacySettings {
   shareResultsWithTutors: boolean;
   allowChildToControlSharing: boolean;
+  allowChildToScheduleLessons: boolean; // Nieuwe instelling
   allowCommunityAccess: boolean;
   communityProfileVisibility: 'anonymous' | 'firstName' | 'fullName';
   allowCommunityMessaging: boolean;
@@ -31,6 +32,7 @@ interface PrivacySettings {
 const initialPrivacySettings: PrivacySettings = {
   shareResultsWithTutors: true,
   allowChildToControlSharing: false,
+  allowChildToScheduleLessons: false, // Standaard uit, ouder plant lessen
   allowCommunityAccess: true,
   communityProfileVisibility: 'firstName',
   allowCommunityMessaging: false,
@@ -130,6 +132,17 @@ export default function PrivacyInstellingenPage() {
                   id="allowChildToControlSharing"
                   checked={settings.allowChildToControlSharing}
                   onCheckedChange={(checked) => handleSettingChange('allowChildToControlSharing', checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-md border">
+                <div className="space-y-0.5">
+                  <Label htmlFor="allowChildToScheduleLessons" className="text-base">Kind toestaan zelfstandig 1-op-1 lessen met tutors te plannen?</Label>
+                  <p className="text-xs text-muted-foreground">Indien uitgeschakeld, moet u als ouder de lessen inplannen.</p>
+                </div>
+                <Switch
+                  id="allowChildToScheduleLessons"
+                  checked={settings.allowChildToScheduleLessons}
+                  onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessons', checked)}
                 />
               </div>
             </CardContent>
