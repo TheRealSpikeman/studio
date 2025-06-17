@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button'; // Added Button import
+import { Button } from '@/components/ui/button';
 
 const neurodiversityTopics = [
   {
@@ -29,7 +29,7 @@ const neurodiversityTopics = [
     shortDescription: "Kenmerken van onoplettendheid, dromerigheid, en moeite met focus.",
     content: [
       "Kinderen en jongeren met kenmerken van ADD (vaak het overwegend onoplettende subtype van ADHD genoemd) hebben voornamelijk moeite met aandacht en concentratie. Ze kunnen dromerig of afwezig lijken, en hebben vaak moeite om taken te starten of af te maken, vooral als deze saai of repetitief zijn. Hyperactiviteit is bij ADD minder op de voorgrond of afwezig.",
-      "**Herkenbare punten voor ouders:**",
+      "Herkenbare punten voor ouders:",
       "- Moeite met het vasthouden van aandacht bij schoolwerk of spel.",
       "- Lijkt vaak niet te luisteren als er direct gesproken wordt.",
       "- Volgt instructies niet goed op en maakt taken vaak niet af.",
@@ -49,7 +49,7 @@ const neurodiversityTopics = [
     shortDescription: "Kenmerken van hyperactiviteit, impulsiviteit en aandachtsproblemen.",
     content: [
       "ADHD wordt gekenmerkt door een patroon van onoplettendheid en/of hyperactiviteit-impulsiviteit dat interfereert met functioneren of ontwikkeling. Jongeren met ADHD kunnen moeite hebben met stilzitten, wachten op hun beurt, en het beheersen van impulsen. Ze kunnen ook snel afgeleid zijn en moeite hebben met het organiseren van taken.",
-      "**Herkenbare punten voor ouders (hyperactiviteit/impulsiviteit):**",
+      "Herkenbare punten voor ouders (hyperactiviteit/impulsiviteit):",
       "- Beweegt vaak onrustig met handen of voeten, of draait op de stoel.",
       "- Staat vaak op in situaties waar verwacht wordt dat men blijft zitten.",
       "- Rent vaak rond of klimt overal op in situaties waarin dit ongepast is.",
@@ -70,7 +70,7 @@ const neurodiversityTopics = [
     shortDescription: "Diepgaande verwerking van prikkels, empathie en gevoeligheid voor omgeving.",
     content: [
       "Hoogsensitiviteit is een persoonlijkheidskenmerk waarbij prikkels (zoals geluiden, licht, geuren, maar ook emoties van anderen) intenser en gedetailleerder worden waargenomen en verwerkt. Dit kan leiden tot een rijk innerlijk leven en grote empathie, maar ook tot snellere overprikkeling.",
-      "**Herkenbare punten voor ouders:**",
+      "Herkenbare punten voor ouders:",
       "- Merkt subtiele details en nuances op die anderen vaak ontgaan.",
       "- Is gevoelig voor stemmingen en emoties van anderen.",
       "- Kan overweldigd raken door fel licht, harde geluiden, sterke geuren of drukke omgevingen.",
@@ -90,7 +90,7 @@ const neurodiversityTopics = [
     shortDescription: "Behoefte aan structuur, specifieke interesses en andere sociale interactie.",
     content: [
       "Autisme is een ontwikkelingsvariant die invloed heeft op hoe iemand communiceert, sociale interacties aangaat en de wereld ervaart. Kinderen en jongeren met kenmerken van autisme hebben vaak een sterke behoefte aan structuur, routine en voorspelbaarheid. Ze kunnen intense, specifieke interesses hebben en informatie op een gedetailleerde manier verwerken.",
-      "**Herkenbare punten voor ouders:**",
+      "Herkenbare punten voor ouders:",
       "- Moeite met het initiëren of onderhouden van sociale interacties; kan onhandig overkomen.",
       "- Beperkt gebruik of begrip van non-verbale communicatie (oogcontact, gezichtsuitdrukkingen, gebaren).",
       "- Moeite met het ontwikkelen, onderhouden en begrijpen van relaties.",
@@ -110,7 +110,7 @@ const neurodiversityTopics = [
     shortDescription: "Aanhoudende zorgen, somberheid, en impact op dagelijks functioneren.",
     content: [
       "Angst- en depressieve klachten komen vaak voor bij jongeren. Angst kan zich uiten in overmatig piekeren, nervositeit, vermijdingsgedrag en fysieke symptomen zoals hartkloppingen of buikpijn. Depressieve kenmerken omvatten aanhoudende somberheid, verlies van interesse of plezier, vermoeidheid en veranderingen in slaap of eetlust.",
-      "**Herkenbare punten bij angst voor ouders:**",
+      "Herkenbare punten bij angst voor ouders:",
       "- Overmatige zorgen over alledaagse dingen (school, vrienden, gezondheid).",
       "- Rusteloosheid of een 'opgejaagd' gevoel.",
       "- Snel geïrriteerd.",
@@ -118,7 +118,7 @@ const neurodiversityTopics = [
       "- Spierspanning, hoofdpijn, buikpijn zonder duidelijke medische oorzaak.",
       "- Slaapproblemen (moeite met inslapen, doorslapen, of onrustige slaap).",
       "- Vermijden van bepaalde situaties of plaatsen uit angst.",
-      "**Herkenbare punten bij depressie voor ouders:**",
+      "Herkenbare punten bij depressie voor ouders:",
       "- Aanhoudende sombere of prikkelbare stemming gedurende het grootste deel van de dag.",
       "- Duidelijk verminderde interesse of plezier in (bijna) alle activiteiten.",
       "- Significant gewichtsverlies (zonder dieet) of gewichtstoename, of verandering in eetlust.",
@@ -185,8 +185,8 @@ export default function NeurodiversiteitPage() {
                       <AccordionContent className="px-6 pb-6 pt-2 text-base leading-relaxed text-foreground/80 bg-card rounded-b-lg">
                         <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>
                         {topic.content.map((paragraph, pIndex) => {
-                            if (paragraph.startsWith("**Herkenbare punten voor ouders:**")) {
-                                return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace("**Herkenbare punten voor ouders:**", "Herkenbare punten voor ouders:")}</p>;
+                            if (paragraph.startsWith("Herkenbare punten voor ouders:") || paragraph.startsWith("Herkenbare punten bij angst voor ouders:") || paragraph.startsWith("Herkenbare punten bij depressie voor ouders:") || paragraph.startsWith("Herkenbare punten voor ouders (hyperactiviteit/impulsiviteit):")) {
+                                return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph}</p>;
                             }
                             if (paragraph.startsWith("- ")) { // Check for list items
                                 return <li key={pIndex} className="ml-5 list-disc">{paragraph.substring(2)}</li>;
