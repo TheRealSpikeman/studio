@@ -1,11 +1,10 @@
-// src/components/landing/platform-features-section.tsx
-"use client"; // Added "use client" directive
+"use client"; 
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink } from 'lucide-react';
+import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight } from 'lucide-react'; 
 import { cn } from '@/lib/utils';
 
 interface Feature {
@@ -78,21 +77,21 @@ const platformFeatures: Feature[] = [
   },
 ];
 
-export function PlatformFeaturesSection() { // Renamed component
+export function PlatformFeaturesSection() { 
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span> {/* Updated Title */}
+            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span> 
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur. {/* Updated Description */}
+            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur. 
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {platformFeatures.map((feature, index) => ( // Renamed variable
+          {platformFeatures.map((feature, index) => ( 
             <Card key={index} className={cn("shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full", feature.colorClass)}>
               <CardHeader className="flex flex-row items-start gap-4 pb-3">
                 <div className="flex-shrink-0 mt-1">{feature.icon}</div>
@@ -116,8 +115,11 @@ export function PlatformFeaturesSection() { // Renamed component
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="link" asChild className="p-0 h-auto text-primary">
-                  <Link href={feature.link}>{feature.linkText} &rarr;</Link>
+                <Button variant="link" asChild className="p-0 h-auto text-primary inline-flex items-center group">
+                  <Link href={feature.link}>
+                    {feature.linkText}
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
