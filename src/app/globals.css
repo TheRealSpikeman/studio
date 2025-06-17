@@ -8,6 +8,7 @@ body {
 
 @layer base {
   :root {
+    /* PRD Kleuren: Blauw Primary, Lichtgrijs Background, Teal Accent */
     --background: 200 17% 94%; /* #ecf0f1 - Light Gray */
     --foreground: 210 40% 10%; /* Dark Gray for text on light gray */
 
@@ -17,8 +18,8 @@ body {
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 210 40% 10%; /* Dark Gray */
 
-    --primary: 27 86% 50%; /* #ed7613 - Orange (New primary) */
-    --primary-foreground: 0 0% 100%; /* White for contrast with orange */
+    --primary: 207 68% 53%; /* #3498db - Calming Blue */
+    --primary-foreground: 0 0% 100%; /* White for contrast with blue */
 
     --secondary: 210 16% 90%; /* Slightly darker gray */
     --secondary-foreground: 210 30% 20%; /* Darker gray for text on secondary */
@@ -34,25 +35,25 @@ body {
 
     --border: 210 10% 80%; /* Gray for borders */
     --input: 210 10% 80%; /* Gray for input borders */
-    --ring: 27 86% 50%; /* Primary color for focus rings - Orange */
+    --ring: 207 68% 53%; /* Primary color for focus rings - Blue */
 
     --radius: 0.5rem;
 
-    --chart-1: 27 86% 50%; /* Primary - Orange */
+    --chart-1: 207 68% 53%; /* Primary - Blue */
     --chart-2: 168 76% 42%; /* Accent - Teal */
     --chart-3: 210 40% 50%; 
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-4: 43 74% 66%; 
+    --chart-5: 27 87% 67%; /* Orange (als een van de chart kleuren) */
 
     /* Sidebar specific colors */
     --sidebar-background: 0 0% 100%; /* White */
     --sidebar-foreground: 210 40% 10%; /* Dark Gray */
-    --sidebar-primary: 27 86% 50%; /* Orange */
+    --sidebar-primary: 207 68% 53%; /* Blue */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 168 76% 42%; /* Teal */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 10% 80%; /* Gray */
-    --sidebar-ring: 27 86% 50%; /* Orange */
+    --sidebar-ring: 207 68% 53%; /* Blue */
   }
 
   .dark {
@@ -65,8 +66,8 @@ body {
     --popover: 210 40% 12%;
     --popover-foreground: 200 17% 94%;
 
-    --primary: 27 86% 50%; /* #ed7613 - Orange (New primary) */
-    --primary-foreground: 0 0% 100%; /* White for contrast with orange */
+    --primary: 207 68% 53%; /* Calming Blue */
+    --primary-foreground: 0 0% 100%; 
 
     --secondary: 210 30% 20%;
     --secondary-foreground: 200 17% 94%;
@@ -75,27 +76,27 @@ body {
     --muted-foreground: 210 20% 65%;
 
     --accent: 168 76% 42%; /* Teal */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent-foreground: 0 0% 100%; 
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 20% 30%;
     --input: 210 20% 30%;
-    --ring: 27 86% 50%; /* Orange */
+    --ring: 207 68% 53%; /* Blue */
     
-    --chart-1: 27 86% 50%; /* Orange */
+    --chart-1: 207 68% 53%; /* Blue */
     --chart-2: 168 76% 42%; /* Teal */
 
     /* Sidebar specific colors for dark mode */
     --sidebar-background: 210 40% 12%; /* Darker background */
     --sidebar-foreground: 200 17% 94%; /* Light text */
-    --sidebar-primary: 27 86% 50%; /* Orange */
+    --sidebar-primary: 207 68% 53%; /* Blue */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 168 76% 42%; /* Teal */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 20% 30%; /* Darker border */
-    --sidebar-ring: 27 86% 50%; /* Orange */
+    --sidebar-ring: 207 68% 53%; /* Blue */
   }
 }
 

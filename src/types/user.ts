@@ -1,5 +1,5 @@
 // src/types/user.ts
-export type UserStatus = 'actief' | 'niet geverifieerd' | 'geblokkeerd' | 'pending_onboarding' | 'pending_approval' | 'rejected';
+export type UserStatus = 'actief' | 'niet geverifieerd' | 'geblokkeerd' | 'pending_onboarding' | 'pending_approval' | 'rejected' | 'wacht_op_ouder_goedkeuring';
 export type UserRole = 'admin' | 'coach' | 'leerling' | 'tutor' | 'ouder';
 export type AgeGroup = "12-14" | "15-18" | "adult";
 
@@ -11,6 +11,9 @@ export interface User {
   status: UserStatus;
   role: UserRole;
   ageGroup?: AgeGroup; 
+  geboortedatum?: string; // ISO date string, new for age calculation
+  requires_parent_approval?: boolean; // New for age-based flow
+  parent_user_id?: string; // New, ID of the approving parent
   lastLogin: string; // ISO date string
   createdAt: string; // ISO date string
   coaching?: {
@@ -29,7 +32,7 @@ export interface User {
     averageRating?: number;
   };
   // Parent-child relationship
-  parentId?: string; // ID of the parent, if this user is a child
+  // parentId is now parent_user_id for consistency with DB schema
   children?: string[]; // Array of child User IDs, if this user is a parent
 
   // School and study related information, primarily for leerling role
@@ -37,6 +40,5 @@ export interface User {
   className?: string;
   schoolType?: string;
   helpSubjects?: string[]; // Array of subject IDs the student needs help with
-  hulpvraagType?: ('tutor' | 'coach')[]; // Nieuw: type hulpvraag
+  hulpvraagType?: ('tutor' | 'coach')[]; 
 }
-

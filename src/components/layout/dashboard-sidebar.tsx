@@ -54,7 +54,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
-  { href: '/dashboard/leerling/quizzes', label: 'Quizzen', icon: ClipboardList, leerlingOnly: true },
+  { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, leerlingOnly: true },
   {
     href: '/dashboard/coaching',
@@ -66,7 +66,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '/dashboard/leerling/lessons',
+    href: '/dashboard/leerling/lessons', // Directe link voor leerling lessen overzicht
     label: 'Mijn Lessen',
     icon: BookOpenCheck, 
     leerlingOnly: true,
