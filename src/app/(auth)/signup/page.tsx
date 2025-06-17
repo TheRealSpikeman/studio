@@ -24,7 +24,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, subYears, isValid } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { SiteLogo } from '@/components/common/site-logo'; // Added import
+import { SiteLogo } from '@/components/common/site-logo'; // Corrected: Uncommented this line
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;

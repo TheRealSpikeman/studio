@@ -27,16 +27,10 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
-            <Button variant="ghost" asChild key={link.href}>
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
+            <Button variant="ghost" asChild key={link.href}><Link href={link.href}>{link.label}</Link></Button>
           ))}
-          <Button variant="link" asChild>
-            <Link href="/login">Inloggen</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/signup">Aanmelden</Link>
-          </Button>
+          <Button variant="link" asChild><Link href="/login">Inloggen</Link></Button>
+          <Button asChild><Link href="/quizzes">Aanmelden</Link></Button>
         </nav>
         {/* Mobile Navigation */}
         <div className="md:hidden">
@@ -57,7 +51,7 @@ export function Header() {
                 <Link href="/login">Inloggen</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                 <Link href="/signup" className="font-semibold text-primary">Aanmelden</Link>
+                 <Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
