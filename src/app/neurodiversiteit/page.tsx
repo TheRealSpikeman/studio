@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button'; // Added Button import
 
 const neurodiversityTopics = [
   {
