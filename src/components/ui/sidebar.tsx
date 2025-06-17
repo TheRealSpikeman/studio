@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet" // Added SheetTitle import
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -24,7 +24,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3.5rem" // Adjusted for more horizontal space
+const SIDEBAR_WIDTH_ICON = "3.5rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -207,6 +207,7 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
+            <SheetTitle className="sr-only">Hoofdnavigatie</SheetTitle>
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
@@ -406,7 +407,7 @@ const SidebarContent = React.forwardRef<
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
-        "group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1", // Added pt-1 for collapsed icon state
+        "group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1",
         className
       )}
       {...props}
@@ -496,7 +497,7 @@ const SidebarMenu = React.forwardRef<
     data-sidebar="menu"
     className={cn(
       "flex w-full min-w-0 flex-col gap-1.5",
-      "group-data-[state=collapsed]:group-data-[collapsible=icon]:gap-2.5", 
+      "group-data-[state=collapsed]:group-data-[collapsible=icon]:gap-2.5",
       className
     )}
     {...props}
@@ -512,8 +513,8 @@ const SidebarMenuItem = React.forwardRef<
     ref={ref}
     data-sidebar="menu-item"
     className={cn(
-      "group/menu-item relative", 
-      "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center", // Centers the button within the li when collapsed
+      "group/menu-item relative",
+      "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center",
       className
     )}
     {...props}
