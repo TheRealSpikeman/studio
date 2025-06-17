@@ -28,8 +28,8 @@ export function BecomeTutorHero() {
           <Image
             src="https://picsum.photos/seed/tutorTeaching/800/600"
             alt="Vriendelijke tutor die online lesgeeft aan een student."
-            layout="fill"
-            objectFit="cover"
+            fill
+            style={{ objectFit: 'cover' }}
             data-ai-hint="tutor teaching online"
             priority
           />

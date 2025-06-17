@@ -51,8 +51,8 @@ export function HeroSection() {
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage-2.gif?alt=media&token=57902da7-73b1-4c01-828c-9de735ef9bf4" 
             alt="Ouders die hun kind ondersteunen bij het leren en ontdekken."
-            layout="fill"
-            objectFit="cover"
+            fill
+            style={{ objectFit: 'cover' }}
             data-ai-hint="parent child support"
             priority
             unoptimized={true}

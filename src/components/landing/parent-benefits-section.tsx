@@ -97,8 +97,8 @@ export function ParentBenefitsSection() {
               <Image
                 src="https://placehold.co/600x450.png"
                 alt="Voorbeeld van het MindNavigator Ouder Dashboard interface"
-                layout="fill"
-                objectFit="cover"
+                fill
+                style={{ objectFit: 'cover' }}
                 data-ai-hint="dashboard interface analytics"
                 className="opacity-90"
               />

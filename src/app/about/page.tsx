@@ -61,8 +61,8 @@ export default function AboutPage() {
                     <Image
                         src="https://picsum.photos/seed/teamcollaboration/600/400"
                         alt="Team MindNavigator werkt samen aan innovatieve oplossingen"
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        style={{ objectFit: 'cover' }}
                         data-ai-hint="team collaboration"
                     />
                 </div>
