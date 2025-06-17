@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Brain, ExternalLink } from 'lucide-react';
+import { Brain, ExternalLink } from 'lucide-react';
 
 const allFeatures = [
   { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten' },
@@ -29,11 +29,6 @@ export default function GepersonaliseerdeInzichtenPage() {
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
         <div className="container mx-auto">
-          <Button variant="outline" asChild className="mb-8">
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Home
-            </Link>
-          </Button>
           <Card className="shadow-xl max-w-3xl mx-auto">
             <CardHeader className="text-center pb-8">
               <FeatureIcon className="mx-auto h-16 w-16 text-primary mb-4" />
