@@ -233,7 +233,7 @@ export default function CoachingPage() {
               rows={5}
               disabled={!selectedDate}
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" disabled>
                 <ImageIcon className="mr-2 h-4 w-4" /> Foto (binnenkort)
               </Button>
