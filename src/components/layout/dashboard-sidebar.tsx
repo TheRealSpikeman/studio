@@ -21,6 +21,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem, // Added missing import
   useSidebar
 } from '@/components/ui/sidebar';
 import { 
