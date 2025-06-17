@@ -8,7 +8,7 @@ import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldChe
 const benefits = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
-    title: 'Gespecialiseerde Inzichten (12-18 jr)',
+    title: 'Gespecialiseerde Inzichten',
     description: 'Help uw kind zelfinzicht te krijgen met quizzen gericht op neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Ontvang heldere rapporten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de quizzen',
