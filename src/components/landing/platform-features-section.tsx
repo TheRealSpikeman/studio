@@ -80,7 +80,7 @@ const platformFeatures: Feature[] = [
 
 export function PlatformFeaturesSection() { 
   return (
-    <section id="platform-features-overview" className="py-16 md:py-24 bg-background">
+    <section id="platform-features-overview" className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">

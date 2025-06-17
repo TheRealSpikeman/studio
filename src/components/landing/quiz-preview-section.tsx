@@ -29,7 +29,7 @@ export function QuizPreviewSection() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section className="py-12 md:py-16 bg-background">
       <div className="container mx-auto flex flex-col items-center text-center px-4">
         <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Krijg een eerste indruk
