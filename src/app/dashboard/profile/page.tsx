@@ -33,15 +33,13 @@ const initialUserData = {
   schoolName: 'Voorbeeld School',
   className: 'Klas 3B',
   schoolType: 'HAVO',
-  // This `helpSubjects` can still represent what the parent might have set or a general default.
-  // The student's own preferences for tests/content will be in `studentFocusSubjects`.
   helpSubjectsFromParent: ['nederlands', 'wiskunde', 'engels'] as string[], 
   street: 'Voorbeeldstraat',
   houseNumber: '123',
   postalCode: '1234 AB',
   city: 'Voorbeeldstad',
   country: 'Nederland',
-  phoneNumber: '0612345678',
+  phoneNumber: '+31612345678', // Voorbeeld met landcode
 };
 
 const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
@@ -56,6 +54,14 @@ const predefinedAvatarsForProfile = [
   { id: 'profile_avatar4', src: 'https://placehold.co/80x80.png?text=P4', alt: 'Ruimte', hint: 'space galaxy' },
   { id: 'profile_avatar5', src: 'https://placehold.co/80x80.png?text=P5', alt: 'Stad', hint: 'city skyline' },
   { id: 'profile_avatar6', src: 'https://placehold.co/80x80.png?text=P6', alt: 'Eten', hint: 'food delicious' },
+];
+
+const countryCodeOptions = [
+  { value: '+31', label: 'NL (+31)' },
+  { value: '+32', label: 'BE (+32)' },
+  { value: '+49', label: 'DE (+49)' },
+  { value: '+44', label: 'UK (+44)' },
+  { value: '+33', label: 'FR (+33)' },
 ];
 
 
@@ -89,7 +95,26 @@ export default function ProfilePage() {
   const [postalCode, setPostalCode] = useState(initialUserData.postalCode);
   const [city, setCity] = useState(initialUserData.city);
   const [country, setCountry] = useState(initialUserData.country);
-  const [phoneNumber, setPhoneNumber] = useState(initialUserData.phoneNumber);
+  
+  const [selectedCountryCode, setSelectedCountryCode] = useState(countryCodeOptions[0].value);
+  const [basePhoneNumber, setBasePhoneNumber] = useState('');
+
+  const parseAndSetPhoneNumber = (fullNumberFromData: string | undefined) => {
+    const fullNum = fullNumberFromData || '';
+    let foundCode = false;
+    for (const opt of countryCodeOptions) {
+      if (fullNum.startsWith(opt.value)) {
+        setSelectedCountryCode(opt.value);
+        setBasePhoneNumber(fullNum.substring(opt.value.length).replace(/\D/g, ''));
+        foundCode = true;
+        break;
+      }
+    }
+    if (!foundCode) {
+      setSelectedCountryCode(countryCodeOptions[0].value); // Default to NL
+      setBasePhoneNumber(fullNum.replace(/\D/g, '')); // Strip non-digits
+    }
+  };
 
   useEffect(() => {
     if (currentDashboardRole === 'leerling') {
@@ -97,7 +122,6 @@ export default function ProfilePage() {
       if (storedFocusSubjects) {
         setStudentFocusSubjects(JSON.parse(storedFocusSubjects));
       } else {
-        // Default to parent-set subjects if no student preference exists yet
         setStudentFocusSubjects(initialUserData.helpSubjectsFromParent || []);
       }
     }
@@ -120,7 +144,7 @@ export default function ProfilePage() {
             setPostalCode(initialUserData.postalCode);
             setCity(initialUserData.city);
             setCountry(initialUserData.country);
-            setPhoneNumber(initialUserData.phoneNumber);
+            parseAndSetPhoneNumber(initialUserData.phoneNumber);
         }
     }
   }, [isEditing, currentDashboardRole]);
@@ -197,13 +221,12 @@ export default function ProfilePage() {
         profileDataToSave.postalCode = postalCode;
         profileDataToSave.city = city;
         profileDataToSave.country = country;
-        profileDataToSave.phoneNumber = phoneNumber;
+        profileDataToSave.phoneNumber = selectedCountryCode + basePhoneNumber;
     }
 
     console.log("Profiel opgeslagen:", profileDataToSave);
-    // Simulate updating initialUserData for next edit session, in a real app this would refetch or update a store
     initialUserData.name = userName;
-    initialUserData.email = userEmail; // Not really editable, but for consistency
+    initialUserData.email = userEmail;
     initialUserData.profileImageUrl = profileImageUrl;
     if (currentDashboardRole === 'leerling') {
       initialUserData.age = ageToSave;
@@ -211,9 +234,14 @@ export default function ProfilePage() {
       initialUserData.schoolName = schoolName;
       initialUserData.className = className;
       initialUserData.schoolType = schoolType;
-      // The `helpSubjectsFromParent` remains unchanged by student editing their focus subjects
+    } else if (currentDashboardRole === 'ouder') {
+      initialUserData.street = street;
+      initialUserData.houseNumber = houseNumber;
+      initialUserData.postalCode = postalCode;
+      initialUserData.city = city;
+      initialUserData.country = country;
+      initialUserData.phoneNumber = selectedCountryCode + basePhoneNumber;
     }
-    // ... update other initialUserData fields if they were edited by other roles
 
     toast({
       title: "Profiel Opgeslagen",
@@ -246,7 +274,7 @@ export default function ProfilePage() {
     setPostalCode(initialUserData.postalCode);
     setCity(initialUserData.city);
     setCountry(initialUserData.country);
-    setPhoneNumber(initialUserData.phoneNumber);
+    parseAndSetPhoneNumber(initialUserData.phoneNumber);
   };
 
   function generateStrongPassword(length = 12): string {
@@ -437,7 +465,34 @@ export default function ProfilePage() {
               <Label htmlFor="phoneNumber" className="flex items-center gap-1">
                 <Phone className="h-4 w-4 text-muted-foreground" /> Telefoonnummer
               </Label>
-              <Input id="phoneNumber" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isEditing} className="mt-1" />
+              <div className="flex gap-2 mt-1">
+                <div className="w-1/3">
+                  <Select
+                    value={selectedCountryCode}
+                    onValueChange={setSelectedCountryCode}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger id="countryCode">
+                      <SelectValue placeholder="Landcode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countryCodeOptions.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-grow">
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={basePhoneNumber}
+                    onChange={(e) => setBasePhoneNumber(e.target.value.replace(/\D/g, ''))}
+                    disabled={!isEditing}
+                    placeholder="Bijv. 612345678"
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -538,7 +593,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg" id="subject-focus-settings">
+          <Card className="shadow-lg" id="subject-visibility-settings">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ListChecks className="h-6 w-6 text-primary" />
@@ -569,7 +624,6 @@ export default function ProfilePage() {
                 ))}
               </div>
             </CardContent>
-             {/* De "Voorkeuren Opslaan" knop hier is verwijderd. De algemene "Profiel Opslaan" knop bovenaan handelt dit af. */}
           </Card>
         </>
       )}
@@ -695,3 +749,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+
