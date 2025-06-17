@@ -133,6 +133,11 @@ const predefinedTutorPreferences = [
   { id: 'streng-doch-rechtvaardig', label: "Streng doch rechtvaardig" },
 ];
 
+const allHulpvraagOptions: { id: 'tutor' | 'coach'; label: string }[] = [
+    { id: 'tutor', label: "Hulp bij huiswerk (Tutor)" },
+    { id: 'coach', label: "1-op-1 coaching (Coach)" },
+];
+
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders", "Niet opgegeven"];
 const ageGroupOptions: {value: AgeGroup, label: string}[] = [
     {value: '12-14', label: '12-14 jaar'},
@@ -147,10 +152,6 @@ const predefinedAvatarsForProfile = [
   { id: 'child_avatar4', src: 'https://placehold.co/80x80.png?text=C4', alt: 'Avatar Ruimte', hint: 'space cosmic' },
 ];
 
-const allHulpvraagOptions: { id: 'tutor' | 'coach'; label: string }[] = [
-    { id: 'tutor', label: "Hulp bij huiswerk (Tutor)" },
-    { id: 'coach', label: "1-op-1 coaching (Coach)" },
-];
 
 const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "default" | "secondary" | "destructive" | "outline" => {
   if (status === 'actief') return 'default';
@@ -313,22 +314,20 @@ export default function KindProfielPage() {
   
   if (isLoading) return <div className="p-8 text-center">Profielgegevens laden...</div>;
   if (!childData) return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-      <h1 className="text-2xl font-bold text-destructive mb-2">Profiel Niet Gevonden</h1>
-      <p className="text-muted-foreground mb-6">
-        De gegevens voor dit kind konden niet worden geladen. Controleer of het kind correct is toegevoegd.
-      </p>
-      <Button asChild variant="outline">
-        <Link href="/dashboard/ouder/kinderen">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
-        </Link>
-      </Button>
-    </div>
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
+        <h1 className="text-2xl font-bold text-destructive mb-2">Profiel Niet Gevonden</h1>
+        <p className="text-muted-foreground mb-6">
+          De gegevens voor dit kind konden niet worden geladen. Controleer of het kind correct is toegevoegd.
+        </p>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/ouder/kinderen">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Mijn Kinderen
+          </Link>
+        </Button>
+      </div>
   );
 
-  const tutorHulpActief = childData.hulpvraagType?.includes('tutor');
-  const coachHulpActief = childData.hulpvraagType?.includes('coach');
   const leerdoelenParsed = parseMultiPartString(childData.leerdoelen);
   const tutorVoorkeurenParsed = parseMultiPartString(childData.voorkeurTutor);
 
@@ -476,12 +475,14 @@ export default function KindProfielPage() {
                 ) : (
                   <>
                     <div>
-                      <strong className="font-medium text-foreground/80">Hulp bij huiswerk (Tutor): </strong>
-                      <Badge variant={tutorHulpActief ? 'default' : 'secondary'} className={tutorHulpActief ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
-                        {tutorHulpActief ? 'Actief' : 'Niet Actief'}
-                      </Badge>
+                        <p className="mb-2">
+                            <strong className="font-medium text-foreground/80">Hulp bij huiswerk (Tutor): </strong>
+                            <Badge variant={childData.hulpvraagType?.includes('tutor') ? 'default' : 'secondary'} className={childData.hulpvraagType?.includes('tutor') ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
+                                {childData.hulpvraagType?.includes('tutor') ? 'Actief' : 'Niet Actief'}
+                            </Badge>
+                        </p>
                     </div>
-                    {tutorHulpActief && (
+                    {childData.hulpvraagType?.includes('tutor') && (
                       <>
                         <div>
                           <h4 className="font-semibold text-foreground/90 mb-1 mt-2 flex items-center gap-1"><BookOpen className="h-4 w-4"/>Hulp bij Vakken</h4>
@@ -492,7 +493,7 @@ export default function KindProfielPage() {
                             <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><Target className="h-4 w-4"/>Leerdoelen & Aandachtspunten</h4>
                             {leerdoelenParsed.selected.length > 0 && (<p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{leerdoelenParsed.selected.join(', ')}</span></p>)}
                             {leerdoelenParsed.other && (<p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.other}</span></p>)}
-                            {leerdoelenParsed.selected.length === 0 && !leerdoelenParsed.other && (<p className="text-muted-foreground">Niet opgegeven.</p>)}
+                            {(leerdoelenParsed.selected.length === 0 && !leerdoelenParsed.other) && (<p className="text-muted-foreground">Niet opgegeven.</p>)}
                         </div>
                       </>
                     )}
@@ -532,17 +533,19 @@ export default function KindProfielPage() {
                 ) : (
                   <>
                     <div>
-                      <strong className="font-medium text-foreground/80">1-op-1 coaching (Coach): </strong>
-                      <Badge variant={coachHulpActief ? 'default' : 'secondary'} className={coachHulpActief ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
-                        {coachHulpActief ? 'Actief' : 'Niet Actief'}
-                      </Badge>
+                       <p className="mb-2">
+                            <strong className="font-medium text-foreground/80">1-op-1 coaching (Coach): </strong>
+                            <Badge variant={childData.hulpvraagType?.includes('coach') ? 'default' : 'secondary'} className={childData.hulpvraagType?.includes('coach') ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
+                                {childData.hulpvraagType?.includes('coach') ? 'Actief' : 'Niet Actief'}
+                            </Badge>
+                        </p>
                     </div>
-                    {coachHulpActief && (
+                    {childData.hulpvraagType?.includes('coach') && (
                       <div className="mt-2">
                         <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><UsersIcon className="h-4 w-4"/>Voorkeuren Coach</h4>
                         {tutorVoorkeurenParsed.selected.length > 0 && (<p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{tutorVoorkeurenParsed.selected.join(', ')}</span></p>)}
                         {tutorVoorkeurenParsed.other && (<p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.other}</span></p>)}
-                        {tutorVoorkeurenParsed.selected.length === 0 && !tutorVoorkeurenParsed.other && (<p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>)}
+                        {(tutorVoorkeurenParsed.selected.length === 0 && !tutorVoorkeurenParsed.other) && (<p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>)}
                       </div>
                     )}
                   </>
