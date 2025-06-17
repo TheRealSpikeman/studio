@@ -172,7 +172,7 @@ const navItems: NavItem[] = [
 function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
-  const { state: sidebarState, toggleSidebar } = useSidebar(); // Get sidebar state from context
+  const { state: sidebarState } = useSidebar(); // Get sidebar state for conditional rendering
   let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
@@ -182,22 +182,17 @@ function SidebarNavigationContent() {
       <SidebarHeader className="border-b">
         <div className="flex h-16 items-center justify-between px-4">
           <SiteLogo />
-          {/* Only show toggle button if sidebar is not in 'icon' collapsible mode and not mobile */}
-          {sidebarState !== 'collapsed' && (
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden md:inline-flex">
-              <ChevronsRightLeft className="h-5 w-5 transform data-[state=open]:rotate-180" data-state={sidebarState} />
-              <span className="sr-only">Toggle sidebar</span>
-            </Button>
-          )}
+          {/* Removed the ChevronsRightLeft toggle button from here; main toggle is in DashboardHeader */}
         </div>
         <div className="p-4 border-b">
-          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
+          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1 group-data-[collapsible=icon]:hidden">
             <Shuffle className="h-3 w-3"/>
             Testrol Wisselaar
           </Label>
           <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
-            <SelectTrigger id="role-switcher" className="h-9 group-data-[collapsible=icon]:hidden">
-              <SelectValue placeholder="Selecteer een rol" />
+            <SelectTrigger id="role-switcher" className="h-9 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:aspect-square group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
+               <span className="group-data-[collapsible=icon]:hidden"><SelectValue placeholder="Selecteer een rol" /></span>
+               <Shuffle className="h-4 w-4 group-data-[collapsible=icon]:block hidden" /> {/* Icon for collapsed state */}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="leerling">Leerling</SelectItem>

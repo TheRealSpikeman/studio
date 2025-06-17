@@ -21,8 +21,8 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      {/* SidebarTrigger is visible on all screen sizes to toggle the sidebar state */}
-      <SidebarTrigger className="md:hidden" /> {/* Hidden on md and up by default, but will show if sidebar can be icon-only */}
+      {/* SidebarTrigger is now always visible for toggling */}
+      <SidebarTrigger className="mr-2" /> 
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
