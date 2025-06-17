@@ -6,15 +6,15 @@ import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Brain, ExternalLink } from 'lucide-react';
+import { Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, ShieldCheck, ExternalLink } from 'lucide-react';
 
 const allFeatures = [
-  { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten' },
-  { title: 'Coaching & Tools voor Groei', link: '/features/coaching-en-tools' },
-  { title: 'Huiswerkondersteuning', link: '/features/huiswerkondersteuning' },
-  { title: '1-op-1 Begeleiding (Optioneel)', link: '/features/een-op-een-begeleiding' },
-  { title: 'Ouder Dashboard & Communicatie', link: '/features/ouder-dashboard' },
-  { title: 'Veilig & Deskundig Platform', link: '/features/veilig-platform' },
+  { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten', icon: Brain },
+  { title: 'Coaching & Tools voor Groei', link: '/features/coaching-en-tools', icon: Zap },
+  { title: 'Huiswerkondersteuning', link: '/features/huiswerkondersteuning', icon: BookOpenCheck },
+  { title: '1-op-1 Begeleiding (Optioneel)', link: '/features/een-op-een-begeleiding', icon: GraduationCap },
+  { title: 'Ouder Dashboard & Communicatie', link: '/features/ouder-dashboard', icon: MessageSquareText },
+  { title: 'Veilig & Deskundig Platform', link: '/features/veilig-platform', icon: ShieldCheck },
 ];
 
 export default function GepersonaliseerdeInzichtenPage() {
@@ -54,12 +54,20 @@ export default function GepersonaliseerdeInzichtenPage() {
                 De inzichten zijn gekoppeld aan onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">uitgebreide informatie over neurodiversiteit <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>, zodat u de resultaten beter kunt plaatsen en begrijpen.
               </p>
             </CardContent>
-            <CardFooter className="flex-col items-start pt-6 mt-4 border-t">
-              <h4 className="text-md font-semibold text-foreground mb-3">Ontdek ook onze andere features:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 w-full">
+            <CardFooter className="flex-col items-start pt-8 mt-6 border-t">
+              <h4 className="text-lg font-semibold text-foreground mb-6">Ontdek ook onze andere features:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full">
                 {otherFeatures.map(feature => (
-                  <Button key={feature.link} variant="link" asChild className="p-0 h-auto justify-start text-left text-sm">
-                    <Link href={feature.link}>{feature.title}</Link>
+                  <Button
+                    key={feature.link}
+                    variant="link"
+                    asChild
+                    className="p-0 h-auto justify-start text-left text-base text-primary hover:text-primary/80 group"
+                  >
+                    <Link href={feature.link} className="inline-flex items-center gap-2">
+                      <feature.icon className="h-5 w-5 text-primary/80 group-hover:text-primary transition-colors" />
+                      <span>{feature.title}</span>
+                    </Link>
                   </Button>
                 ))}
               </div>
