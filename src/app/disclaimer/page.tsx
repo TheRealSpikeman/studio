@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import Link from 'next/link';
 import { AlertTriangle, ExternalLink, Info } from 'lucide-react';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
+import { Button } from '@/components/ui/button'; // Added Button import
 
 export default function DisclaimerPage() {
   return (
