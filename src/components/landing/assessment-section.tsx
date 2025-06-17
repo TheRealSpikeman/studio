@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain } from 'lucide-react'; 
+import { FileText, BarChart3, Target, TrendingUp, Sparkles, Brain, Compass, MapIcon, LocateIcon } from 'lucide-react'; 
 
 export function AssessmentSection() {
   return (
@@ -11,8 +11,9 @@ export function AssessmentSection() {
       <div className="container mx-auto px-6">
         
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            🧭 Uw Persoonlijke MindNavigator Reis Begint Met Zelfontdekking
+          <h2 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-2">
+            <Compass className="h-8 w-8 text-primary" /> {/* Changed from OCR icon */}
+            Uw Persoonlijke MindNavigator Reis Begint Met Zelfontdekking
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Elke tiener is uniek. Daarom start iedereen - gratis of premium - met 
@@ -88,8 +89,8 @@ export function AssessmentSection() {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
-                    <BarChart3 className="h-6 w-6 text-accent" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <strong className="text-foreground">Direct Inzicht</strong>
@@ -98,7 +99,7 @@ export function AssessmentSection() {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-secondary/50 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center"> {/* Standardized icon background */}
                      <Target className="h-6 w-6 text-primary" />
                   </div>
                   <div>
@@ -119,10 +120,10 @@ export function AssessmentSection() {
 
         <div className="text-center mt-12">
           <div className="inline-flex flex-col sm:flex-row gap-4">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              <Link href="/quizzes?ageGroup=15-18">Begin Assessment (Gratis)</Link>
+            <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
+              <Link href="/quizzes">Begin Assessment (Gratis)</Link>
             </Button>
-            <Button variant="outline" size="lg" className="border-2 border-primary text-primary hover:bg-primary/5 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
+            <Button variant="outline" className="border-2 border-primary text-primary hover:bg-primary/5 px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
               <Link href="/quiz/teen-neurodiversity-quiz/results?ageGroup=15-18">Bekijk Voorbeeldresultaat</Link>
             </Button>
           </div>
