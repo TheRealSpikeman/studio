@@ -141,7 +141,7 @@ export default function SignupPage() {
       <div className="absolute top-8 left-8">
         <SiteLogo />
       </div>
-      <Card className="w-full max-w-lg shadow-xl"> {/* Increased max-width for more content */}
+      <Card className="w-full max-w-lg shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Account Aanmaken</CardTitle>
           <CardDescription>
@@ -231,6 +231,7 @@ export default function SignupPage() {
                             toYear={watchIsParent ? subYears(new Date(), 18).getFullYear() : subYears(new Date(), 12).getFullYear()}
                             initialFocus
                             locale={nl}
+                            className="rounded-md border"
                           />
                         </PopoverContent>
                       </Popover>
