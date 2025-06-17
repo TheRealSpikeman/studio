@@ -113,7 +113,7 @@ export default function PrivacyInstellingenPage() {
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="shareResultsWithTutors" className="text-base flex items-center gap-2">
-                        <Share2 className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde begeleiders?
+                        <Share2 className="h-4 w-4 text-muted-foreground" /> Resultaten van zelfreflectie-instrumenten delen met gekoppelde tutors en/of coaches?
                     </Label>
                     <Switch
                     id="shareResultsWithTutors"
@@ -121,12 +121,12 @@ export default function PrivacyInstellingenPage() {
                     onCheckedChange={(checked) => handleSettingChange('shareResultsWithTutors', checked)}
                     />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen begeleiders beter afgestemde ondersteuning bieden.</p>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Hiermee kunnen tutors en coaches beter afgestemde ondersteuning bieden.</p>
               </div>
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="allowChildToControlSharing" className="text-base flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf te bepalen of resultaten met begeleiders gedeeld worden?
+                        <User className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelf te bepalen of resultaten met tutors en/of coaches gedeeld worden?
                     </Label>
                     <Switch
                     id="allowChildToControlSharing"
@@ -139,7 +139,7 @@ export default function PrivacyInstellingenPage() {
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="allowChildToScheduleLessons" className="text-base flex items-center gap-2">
-                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig 1-op-1 lessen/sessies met begeleiders te plannen?
+                        <CalendarPlus className="h-4 w-4 text-muted-foreground" /> Kind toestaan zelfstandig 1-op-1 lessen (met tutors) of sessies (met coaches) te plannen?
                     </Label>
                     <Switch
                     id="allowChildToScheduleLessons"
@@ -147,7 +147,7 @@ export default function PrivacyInstellingenPage() {
                     onCheckedChange={(checked) => handleSettingChange('allowChildToScheduleLessons', checked)}
                     />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid en flexibiliteit in het plannen. Indien uitgeschakeld, moet u als ouder de lessen inplannen.</p>
+                <p className="text-xs text-muted-foreground mt-1 pl-6">Geeft uw kind meer verantwoordelijkheid en flexibiliteit in het plannen van ondersteuning met tutors of coaches. Indien uitgeschakeld, moet u als ouder deze inplannen.</p>
               </div>
             </CardContent>
           </Card>
@@ -269,3 +269,4 @@ export default function PrivacyInstellingenPage() {
     </div>
   );
 }
+
