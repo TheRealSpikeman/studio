@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain } from 'lucide-react';
+import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap } from 'lucide-react';
 
 const benefits = [
   {
@@ -12,6 +12,7 @@ const benefits = [
     description: 'Help uw kind zelfinzicht te krijgen met quizzen gericht op neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Ontvang heldere rapporten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de quizzen',
+    colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
@@ -19,13 +20,31 @@ const benefits = [
     description: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) die uw kind ondersteunen bij het ontwikkelen van routines, het vergroten van zelfvertrouwen en het effectief omgaan met school en sociale situaties.',
     link: '/dashboard/coaching',
     linkText: 'Verken coaching',
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   },
   {
     icon: <BookOpenCheck className="h-10 w-10 text-primary" />,
-    title: 'Huiswerkondersteuning',
+    title: 'Huiswerkondersteuning Tools',
     description: 'Effectieve tools en strategieën om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen, direct geïntegreerd in hun dashboard.',
     link: '/dashboard/homework-assistance',
     linkText: 'Bekijk tools',
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
+  },
+  {
+    icon: <GraduationCap className="h-10 w-10 text-primary" />,
+    title: '1-op-1 Huiswerkbegeleiding',
+    description: 'Koppel uw kind aan gekwalificeerde en gescreende tutors voor persoonlijke hulp bij specifieke vakken. Flexibel en afgestemd op de behoeften van uw kind.',
+    link: '/dashboard/homework-assistance/tutors',
+    linkText: 'Vind een Tutor',
+    colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
+  },
+  {
+    icon: <MessageSquareText className="h-10 w-10 text-primary" />,
+    title: 'Persoonlijke Coaching (Psychologen)',
+    description: 'Bied uw kind de mogelijkheid tot verdiepende gesprekken met bij ons aangesloten kinder- en jeugdpsychologen voor extra ondersteuning bij persoonlijke groei en welzijn.',
+    link: '/contact',
+    linkText: 'Meer Informatie & Contact',
+    colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
   },
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
@@ -33,6 +52,7 @@ const benefits = [
     description: 'Een privacygerichte omgeving, speciaal ontworpen voor tieners, onderbouwd door inzichten van experts in neurodiversiteit en pedagogiek.',
     link: '/privacy',
     linkText: 'Lees ons privacybeleid',
+    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
 ];
 
@@ -49,9 +69,9 @@ export function ParentBenefitsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {benefits.map((benefit, index) => (
-            <Card key={index} className="shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+            <Card key={index} className={`shadow-lg hover:shadow-xl transition-shadow flex flex-col ${benefit.colorClass}`}>
               <CardHeader className="flex flex-row items-start gap-4 pb-3">
                 <div className="flex-shrink-0 mt-1">{benefit.icon}</div>
                 <div>
