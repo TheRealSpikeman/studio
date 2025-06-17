@@ -100,14 +100,6 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  {
-    href: '/dashboard/ouder/kinderen', 
-    label: 'Voortgang Kinderen',
-    icon: TrendingUp,
-    ouderOnly: true,
-    isSubItem: false,
-    parent: '/dashboard/ouder'
-  },
   { 
     href: '/dashboard/ouder/lessen/overzicht', 
     label: 'Lessen Kinderen', 
@@ -310,7 +302,7 @@ function SidebarNavigationContent() {
                         {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
                           <span
                             title="Facturatie actie vereist"
-                            className="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary"
+                            className="ml-1.5 inline-block h-2 w-2 rounded-full bg-primary min-w-0"
                           />
                         )}
                       </span>
