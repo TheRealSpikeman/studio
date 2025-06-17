@@ -22,7 +22,7 @@ export function AssessmentSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center"> {/* Changed from items-start */}
+        <div className="grid lg:grid-cols-2 gap-12 items-end"> {/* Changed items-center to items-end */}
           
           <div>
             <h3 className="text-2xl font-semibold mb-6 text-foreground flex items-center gap-2">
@@ -64,7 +64,7 @@ export function AssessmentSection() {
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border shadow-sm"> {/* Adjusted testimonial card style */}
+            <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border shadow-sm">
               <p className="text-foreground/80 italic">
                 💫 "De assessment gaf me eindelijk inzicht in hoe ik het beste leer en wat mijn sterke punten zijn"
               </p>
