@@ -137,7 +137,7 @@ const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", 
 const ageGroupOptions: {value: AgeGroup, label: string}[] = [
     {value: '12-14', label: '12-14 jaar'},
     {value: '15-18', label: '15-18 jaar'},
-    {value: 'adult', label: 'Volwassene (18+)'} // Should rarely be used for "kind"
+    {value: 'adult', label: 'Volwassene (18+)'} 
 ];
 
 const predefinedAvatarsForProfile = [
@@ -145,6 +145,11 @@ const predefinedAvatarsForProfile = [
   { id: 'child_avatar2', src: 'https://placehold.co/80x80.png?text=C2', alt: 'Avatar Natuur', hint: 'nature element' },
   { id: 'child_avatar3', src: 'https://placehold.co/80x80.png?text=C3', alt: 'Avatar Dier', hint: 'animal cute' },
   { id: 'child_avatar4', src: 'https://placehold.co/80x80.png?text=C4', alt: 'Avatar Ruimte', hint: 'space cosmic' },
+];
+
+const allHulpvraagOptions: { id: 'tutor' | 'coach'; label: string }[] = [
+    { id: 'tutor', label: "Hulp bij huiswerk (Tutor)" },
+    { id: 'coach', label: "1-op-1 coaching (Coach)" },
 ];
 
 const getSubscriptionBadgeVariant = (status: Child['subscriptionStatus']): "default" | "secondary" | "destructive" | "outline" => {
@@ -166,7 +171,7 @@ const parseMultiPartString = (str: string | undefined): { selected: string[]; ot
   const overigMatch = str.match(/Overig:\s*(.*)/i);
   
   const selectedItems = geselecteerdMatch ? geselecteerdMatch[1].trim().split(',').map(s => s.trim()).filter(Boolean) : [];
-  const otherText = overigMatch ? overigMatch[1].trim() : (geselecteerdMatch ? '' : str); // if no "Geselecteerd" or "Overig" prefix, assume all is "other"
+  const otherText = overigMatch ? overigMatch[1].trim() : (geselecteerdMatch ? '' : str); 
 
   return {
     selected: selectedItems,
@@ -174,23 +179,6 @@ const parseMultiPartString = (str: string | undefined): { selected: string[]; ot
   };
 };
 
-const formatHulpvraagTypeDetailed = (types?: ('tutor' | 'coach')[]): { selected: string[]; notSelected: string[] } => {
-  const currentTypes = types || [];
-  const allHulpvraagOptions: { id: 'tutor' | 'coach'; label: string }[] = [
-    { id: 'tutor', label: "Hulp bij huiswerk (Tutor)" },
-    { id: 'coach', label: "1-op-1 coaching (Coach)" },
-  ];
-  const selectedLabels = allHulpvraagOptions
-    .filter(opt => currentTypes.includes(opt.id))
-    .map(opt => opt.label);
-  const notSelectedLabels = allHulpvraagOptions
-    .filter(opt => !currentTypes.includes(opt.id))
-    .map(opt => opt.label);
-  if (selectedLabels.length === 0 && notSelectedLabels.length > 0) {
-    return { selected: ["Niet gespecificeerd"], notSelected: notSelectedLabels };
-  }
-  return { selected: selectedLabels, notSelected: notSelectedLabels };
-};
 
 export default function KindProfielPage() {
   const params = useParams();
@@ -243,7 +231,7 @@ export default function KindProfielPage() {
     if (isEditing) {
       initializeEditableData();
     }
-  }, [isEditing, childData]);
+  }, [isEditing, childData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
   const getSubjectName = (subjectId: string) => allHomeworkSubjects.find(s => s.id === subjectId)?.name || subjectId;
@@ -308,11 +296,10 @@ export default function KindProfielPage() {
       voorkeurTutor: tutorPreferencesString.trim() || undefined,
       deelResultatenMetTutor: editableChildData.deelResultatenMetTutor,
       avatarUrl: editableChildData.avatarUrl,
-      age: childData.age, // Keep original age if present, ageGroup is primary
+      age: childData.age, 
     };
     
     setChildData(updatedChildData);
-    // Simulate saving to localStorage
     try {
       const allChildrenStored: Child[] = JSON.parse(localStorage.getItem('ouderDashboard_kinderen') || JSON.stringify(dummyChildren));
       const updatedAllChildren = allChildrenStored.map(c => c.id === kindId ? updatedChildData : c);
@@ -325,8 +312,7 @@ export default function KindProfielPage() {
 
   const leerdoelenParsed = parseMultiPartString(childData?.leerdoelen);
   const tutorVoorkeurenParsed = parseMultiPartString(childData?.voorkeurTutor);
-  const hulpvraagFormatted = formatHulpvraagTypeDetailed(childData?.hulpvraagType);
-
+  
   if (isLoading) return <div className="p-8 text-center">Profielgegevens laden...</div>;
   if (!childData) return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -361,14 +347,13 @@ export default function KindProfielPage() {
         ) : (
             <div className="flex gap-2">
                 <Button onClick={handleSaveProfile}><Save className="mr-2 h-4 w-4"/> Opslaan</Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>Annuleren</Button>
+                <Button variant="outline" onClick={() => { setIsEditing(false); initializeEditableData(); }}>Annuleren</Button>
             </div>
         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          {/* Persoonlijke Gegevens Kaart */}
           <Card className="shadow-lg">
             <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle></CardHeader>
             <CardContent className="space-y-4 text-sm">
@@ -416,10 +401,12 @@ export default function KindProfielPage() {
                 )}
             </CardContent>
           </Card>
+        </div>
 
-          <Card className="shadow-lg">
-            <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle></CardHeader>
-            <CardContent className="space-y-4 text-sm">
+        <div className="lg:col-span-2 space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle></CardHeader>
+                <CardContent className="space-y-4 text-sm">
                 {isEditing && editableChildData ? (
                     <>
                         <div>
@@ -437,11 +424,8 @@ export default function KindProfielPage() {
                         <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData.className || 'Niet opgegeven'}</span></p>
                     </>
                 )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-2 space-y-6">
+                </CardContent>
+            </Card>
             <Card className="shadow-lg">
                 <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><HelpCircle className="h-6 w-6 text-primary"/>Persoonlijke Begeleidingsbehoefte</CardTitle></CardHeader>
                 <CardContent className="space-y-4 text-sm">
@@ -450,10 +434,10 @@ export default function KindProfielPage() {
                             <div>
                                 <Label className="font-semibold text-foreground/90 mb-1 block">Type Hulpvraag</Label>
                                 <div className="space-y-1">
-                                    {(['tutor', 'coach'] as const).map(type => (
-                                        <div key={type} className="flex items-center space-x-2">
-                                            <Checkbox id={`hulpvraag-${type}`} checked={editableChildData.hulpvraagType.includes(type)} onCheckedChange={(checked) => handleCheckboxChange('hulpvraagType', type, !!checked)} />
-                                            <Label htmlFor={`hulpvraag-${type}`} className="font-normal">{type === 'tutor' ? 'Hulp bij huiswerk (Tutor)' : '1-op-1 coaching (Coach)'}</Label>
+                                    {allHulpvraagOptions.map(typeOpt => (
+                                        <div key={typeOpt.id} className="flex items-center space-x-2">
+                                            <Checkbox id={`hulpvraag-${typeOpt.id}`} checked={editableChildData.hulpvraagType.includes(typeOpt.id)} onCheckedChange={(checked) => handleCheckboxChange('hulpvraagType', typeOpt.id, !!checked)} />
+                                            <Label htmlFor={`hulpvraag-${typeOpt.id}`} className="font-normal">{typeOpt.label}</Label>
                                         </div>
                                     ))}
                                 </div>
@@ -474,10 +458,16 @@ export default function KindProfielPage() {
                         <>
                             <div>
                                 <h4 className="font-semibold text-foreground/90 mb-1">Type Hulpvraag</h4>
-                                {hulpvraagFormatted.selected.length > 0 && hulpvraagFormatted.selected[0] !== "Niet gespecificeerd" ? (
-                                    <p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-foreground">{hulpvraagFormatted.selected.join(', ')}</span></p>
-                                ) : (<p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">Niet gespecificeerd</span></p>)}
-                                {hulpvraagFormatted.notSelected.length > 0 && (<p className="mt-1"><strong className="font-medium text-muted-foreground/80">Niet geselecteerd:</strong> <span className="text-muted-foreground">{hulpvraagFormatted.notSelected.join(', ')}</span></p>)}
+                                {allHulpvraagOptions.map(opt => (
+                                    <div key={opt.id} className="flex items-center gap-2 mb-1">
+                                        <span className="text-foreground">{opt.label}:</span>
+                                        <Badge variant={childData.hulpvraagType?.includes(opt.id) ? 'default' : 'secondary'} 
+                                               className={childData.hulpvraagType?.includes(opt.id) ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
+                                            {childData.hulpvraagType?.includes(opt.id) ? 'Actief' : 'Niet Actief'}
+                                        </Badge>
+                                    </div>
+                                ))}
+                                {(!childData.hulpvraagType || childData.hulpvraagType.length === 0) && <p className="text-muted-foreground">Niet gespecificeerd.</p>}
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><BookOpen className="h-4 w-4"/>Hulp bij Vakken</h4>
@@ -573,3 +563,4 @@ export default function KindProfielPage() {
     </div>
   );
 }
+
