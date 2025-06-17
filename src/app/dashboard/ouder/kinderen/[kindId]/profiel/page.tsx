@@ -27,7 +27,7 @@ import * as z from "zod";
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
-interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' > {
+interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
   lastName: string;
   age?: number; 
@@ -35,7 +35,6 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   schoolType?: string;
   className?: string;
   helpSubjects?: string[];
-  hulpvraagType?: ('tutor' | 'coach')[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   planId?: 'free_start' | 'coaching_tools_monthly' | 'coaching_tools_yearly' | 'family_guide_monthly' | 'family_guide_yearly';
   planName?: string; 
@@ -480,7 +479,7 @@ export default function KindProfielPage() {
                             <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm flex-grow">
-                            <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
+                           <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
                             <FormField control={form.control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
                                 <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
                                 <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
@@ -642,8 +641,15 @@ export default function KindProfielPage() {
                                 </div>
                                 <div className="mt-2">
                                     <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><Target className="h-4 w-4"/>Leerdoelen & Aandachtspunten</h4>
-                                    {leerdoelenParsed.selected.length > 0 && (<p><strong className="font-medium text-foreground/80">Geselecteerd:</strong> <span className="text-muted-foreground">{leerdoelenParsed.selected.join(', ')}</span></p>)}
-                                    {leerdoelenParsed.other && (<p><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.other}</span></p>)}
+                                    {leerdoelenParsed.selected.length > 0 && (
+                                        <div>
+                                            <p className="font-medium text-foreground/80">Geselecteerd:</p>
+                                            <ul className="list-disc list-inside space-y-0.5 pl-2 text-muted-foreground">
+                                                {leerdoelenParsed.selected.map((doel, idx) => <li key={idx}>{doel}</li>)}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    {leerdoelenParsed.other && (<p className="mt-1"><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{leerdoelenParsed.other}</span></p>)}
                                     {(leerdoelenParsed.selected.length === 0 && !leerdoelenParsed.other) && (<p className="text-muted-foreground">Niet opgegeven.</p>)}
                                 </div>
                             </>
