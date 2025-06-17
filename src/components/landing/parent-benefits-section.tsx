@@ -9,7 +9,7 @@ const benefits = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
     title: 'Gespecialiseerde Inzichten',
-    description: 'Help uw kind zelfinzicht te krijgen met quizzen gericht op neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Ontvang heldere rapporten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    description: 'Help uw kind zelfinzicht te krijgen met quizzen gericht op neurodiversiteit (o.a. ADD, HSP, ASS-kenmerken). Lees <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">hier meer over wat dit inhoudt</Link>. Ontvang heldere rapporten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
     link: '/quizzes',
     linkText: 'Ontdek de quizzen',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
@@ -79,7 +79,7 @@ export function ParentBenefitsSection() {
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-muted-foreground">{benefit.description}</p>
+                <p className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: benefit.description }} />
               </CardContent>
               <CardFooter>
                 <Button variant="link" asChild className="p-0 h-auto text-primary">

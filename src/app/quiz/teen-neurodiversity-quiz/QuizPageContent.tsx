@@ -546,7 +546,7 @@ export default function QuizPageContent() { // Changed function name
                 <div className="rounded-md border border-accent/50 bg-accent/10 p-4 text-left shadow-sm">
                   <h3 className="mb-2 flex items-center text-[1.25rem] font-semibold text-accent"><Info className="mr-2 h-5 w-5" />Over neurodiversiteit</h3>
                   <p className="text-sm text-foreground/80 leading-relaxed">
-                    Neurodiversiteit verwijst naar de natuurlijke variatie in hoe mensen denken, leren en hun omgeving ervaren. Elke persoon heeft een uniek neurotype. De test helpt je ontdekken welke eigenschappen bij jou het sterkst aanwezig zijn.
+                    Neurodiversiteit verwijst naar de natuurlijke variatie in hoe mensen denken, leren en hun omgeving ervaren. Elke persoon heeft een uniek neurotype. De test helpt je ontdekken welke eigenschappen bij jou het sterkst aanwezig zijn. <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>Meer weten over neurodiversiteit?</Link>
                   </p>
                 </div>
               </CardContent>

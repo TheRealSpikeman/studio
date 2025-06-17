@@ -11,7 +11,7 @@ import Image from 'next/image';
 const parentFaqs = [
   {
     question: "Wat is neurodiversiteit precies?",
-    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals ADD, ADHD, HSP, en autisme zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen.",
+    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals ADD, ADHD, HSP, en autisme zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen. Bekijk onze <a href='/neurodiversiteit' class='text-primary hover:underline'>uitgebreide informatiepagina over neurodiversiteit</a> voor meer details.",
   },
   {
     question: "Hoe helpt MindNavigator mijn kind?",
@@ -54,7 +54,7 @@ export default function ForParentsPage() {
                   Wat is MindNavigator?
                 </h2>
                 <p>
-                  MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve quizzen, persoonlijke rapporten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen.
+                  MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve quizzen, persoonlijke rapporten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen. Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>wat neurodiversiteit precies inhoudt</Link> op onze infopagina.
                 </p>
                  <p className="mt-3">
                   We focussen op een positieve benadering van neurodiversiteit, waarbij we de unieke manier van denken en leren van elk kind als een kracht zien.
@@ -64,10 +64,10 @@ export default function ForParentsPage() {
               <div className="grid md:grid-cols-2 gap-8 items-center">
                  <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
                     <Image
-                        src="https://picsum.photos/seed/parentchild/600/400"
+                        src="https://placehold.co/600x400.png"
                         alt="Ouder en kind die samen praten en leren"
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        style={{ objectFit: 'cover' }}
                         data-ai-hint="parent child learning"
                     />
                 </div>
