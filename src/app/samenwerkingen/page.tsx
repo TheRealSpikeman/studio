@@ -80,9 +80,9 @@ export default function SamenwerkingenPage() {
           <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-8">
             {partnersData.map((partner) => (
               <Card key={partner.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-6 flex flex-col md:flex-row items-start gap-6">
-                  <div className="md:w-1/3 flex-shrink-0 text-center md:text-left">
-                    <div className="relative mx-auto md:mx-0 aspect-square w-40 h-40 md:w-48 md:h-48 rounded-lg overflow-hidden shadow-md mb-3">
+                <CardContent className="p-6 flex flex-col md:flex-row items-start gap-x-6 gap-y-4">
+                  <div className="md:w-1/4 flex-shrink-0 text-center md:text-left">
+                    <div className="relative mx-auto md:mx-0 aspect-square w-36 h-36 md:w-40 md:h-40 rounded-lg overflow-hidden shadow-md mb-3">
                       <Image
                         src={partner.imageUrl}
                         alt={`Foto van ${partner.name}`}
@@ -108,13 +108,13 @@ export default function SamenwerkingenPage() {
                         )}
                     </div>
                   </div>
-                  <div className="md:w-2/3 space-y-3">
+                  <div className="md:w-3/4 space-y-4">
                     <div>
-                      <h4 className="text-md font-semibold text-foreground mb-1">Over {partner.name.split(' ')[0]}</h4>
+                      <h4 className="text-lg font-semibold text-foreground mb-1.5">Over {partner.name.split(' ')[0]}</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">{partner.bio}</p>
                     </div>
                     <div>
-                      <h4 className="text-md font-semibold text-foreground mb-1">Bijdrage aan MindNavigator</h4>
+                      <h4 className="text-lg font-semibold text-foreground mb-1.5">Bijdrage aan MindNavigator</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">{partner.contribution}</p>
                     </div>
                   </div>
