@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import * as z from "zod"; 
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
@@ -35,6 +36,8 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   className?: string;
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
+  planId?: 'free_start' | 'coaching_tools_monthly' | 'coaching_tools_yearly' | 'family_guide_monthly' | 'family_guide_yearly'; // Added planId
+  planName?: string; // Optional: display name of the plan
   lastActivity?: string;
   leerdoelen?: string; 
   voorkeurTutor?: string; 
@@ -78,12 +81,14 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
+    planId: 'coaching_tools_monthly', // Example plan
+    planName: 'Coaching & Tools - Maandelijks',
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
     childEmail: 'sofie.tester@example.com',
     schoolType: 'HAVO',
     className: '2B',
     helpSubjects: ['wiskunde', 'nederlands'],
-    hulpvraagType: ['tutor'],
+    hulpvraagType: ['coach', 'tutor'], // Sofie wants both, but plan only covers coach
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
     voorkeurTutor: 'Geselecteerd: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
@@ -98,6 +103,8 @@ const dummyChildren: Child[] = [
     ageGroup: '15-18',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     subscriptionStatus: 'actief',
+    planId: 'family_guide_monthly', // This plan covers both
+    planName: 'Gezins Gids - Maandelijks',
     lastActivity: 'Laatste les: Engels (1 dag geleden)',
     childEmail: 'max.tester@example.com',
     schoolType: 'VWO',
@@ -115,11 +122,13 @@ const dummyChildren: Child[] = [
     name: 'Lisa Voorbeeld',
     age: 12,
     ageGroup: '12-14',
-    subscriptionStatus: 'uitgenodigd',
+    subscriptionStatus: 'uitgenodigd', // No active plan yet
+    planId: 'free_start',
+    planName: 'Gratis Start',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     helpSubjects: [],
-    hulpvraagType: ['coach'],
+    hulpvraagType: ['coach'], // Wants coach, but free_start doesn't cover it
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
     voorkeurTutor: 'Geselecteerd: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
@@ -186,12 +195,22 @@ const parseMultiPartString = (str: string | undefined): { selected: string[]; ot
   const overigMatch = str.match(/Overig:\s*(.*)/i);
   
   const selectedItems = geselecteerdMatch ? geselecteerdMatch[1].trim().split(',').map(s => s.trim()).filter(Boolean) : [];
-  const otherText = overigMatch ? overigMatch[1].trim() : (geselecteerdMatch ? '' : str); 
+  const otherText = overigMatch ? overigMatch[1].trim() : (geselecteerdMatch && !str.includes("Overig:") ? '' : (!geselecteerdMatch ? str : ''));
+
 
   return {
     selected: selectedItems,
     other: otherText,
   };
+};
+
+// Helper functions to check service coverage by plan
+const isTutorServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
+  return planId === 'family_guide_monthly' || planId === 'family_guide_yearly';
+};
+
+const isCoachServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
+  return planId === 'coaching_tools_monthly' || planId === 'coaching_tools_yearly' || planId === 'family_guide_monthly' || planId === 'family_guide_yearly';
 };
 
 
@@ -233,8 +252,8 @@ export default function KindProfielPage() {
     setIsLoading(true);
     if (typeof window !== 'undefined') {
       try {
-        const storedChildren = localStorage.getItem('ouderDashboard_kinderen');
-        const allChildren: Child[] = JSON.parse(storedChildren || JSON.stringify(dummyChildren));
+        const storedChildrenRaw = localStorage.getItem('ouderDashboard_kinderen');
+        const allChildren: Child[] = storedChildrenRaw ? JSON.parse(storedChildrenRaw) : dummyChildren;
         const data = allChildren.find(c => c.id === kindId);
         if (data) {
           setChildData(data);
@@ -334,7 +353,8 @@ export default function KindProfielPage() {
     
     setChildData(updatedChildData);
     try {
-      const allChildrenStored: Child[] = JSON.parse(localStorage.getItem('ouderDashboard_kinderen') || JSON.stringify(dummyChildren));
+      const storedChildrenRaw = localStorage.getItem('ouderDashboard_kinderen');
+      let allChildrenStored: Child[] = storedChildrenRaw ? JSON.parse(storedChildrenRaw) : dummyChildren;
       const updatedAllChildren = allChildrenStored.map(c => c.id === kindId ? updatedChildData : c);
       localStorage.setItem('ouderDashboard_kinderen', JSON.stringify(updatedAllChildren));
     } catch (e) { console.error("Error updating localStorage", e); }
@@ -350,9 +370,7 @@ export default function KindProfielPage() {
 
   const formatHulpvraagTypeDetailed = (types?: ('tutor' | 'coach')[]): { selected: string[], notSelected: string[] } => {
     const result = { selected: [] as string[], notSelected: [] as string[] };
-    const allOptions = allHulpvraagOptions;
-
-    allOptions.forEach(opt => {
+    allHulpvraagOptions.forEach(opt => {
         if (types?.includes(opt.id)) {
             result.selected.push(opt.label);
         } else {
@@ -377,6 +395,11 @@ export default function KindProfielPage() {
             </Button>
         </div>
     );
+
+  const tutorServiceActiveForChild = childData?.hulpvraagType?.includes('tutor');
+  const coachServiceActiveForChild = childData?.hulpvraagType?.includes('coach');
+  const tutorServiceCovered = isTutorServiceCoveredByPlan(childData?.planId);
+  const coachServiceCovered = isCoachServiceCoveredByPlan(childData?.planId);
 
   return (
     <div className="space-y-8">
@@ -439,7 +462,7 @@ export default function KindProfielPage() {
                           </div>
                       </CardContent>
                   </Card>
-                  <Card className="shadow-lg">
+                   <Card className="shadow-lg">
                     <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle></CardHeader>
                     <CardContent className="space-y-4 text-sm">
                         <FormField control={control} name="schoolType" render={({ field }) => (<FormItem>
@@ -471,6 +494,18 @@ export default function KindProfielPage() {
                               <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
                               <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
                           </FormItem>)} />
+                          
+                          {editableChildData.hulpvraagType?.includes('tutor') && !isTutorServiceCoveredByPlan(childData.planId) && (
+                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700">
+                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
+                                <AlertDescUi>
+                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. U kunt deze voorkeuren wel instellen, maar om een tutor te koppelen is een upgrade nodig.
+                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                </AlertDescUi>
+                            </Alert>
+                          )}
+
                           {editableChildData.hulpvraagType?.includes('tutor') && (
                               <>
                                   <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
@@ -512,6 +547,18 @@ export default function KindProfielPage() {
                             <Checkbox id="hulpvraag-coach-edit" checked={field.value?.includes('coach')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'coach']) : field.onChange(newVal.filter(v => v !== 'coach')); }} />
                             <FormLabel htmlFor="hulpvraag-coach-edit" className="font-semibold">1-op-1 coaching actief?</FormLabel><FormMessage/>
                         </FormItem>)} />
+                        
+                         {editableChildData.hulpvraagType?.includes('coach') && !isCoachServiceCoveredByPlan(childData.planId) && (
+                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700">
+                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
+                                <AlertDescUi>
+                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. U kunt deze voorkeuren wel instellen, maar om een coach te koppelen is een upgrade nodig.
+                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                </AlertDescUi>
+                            </Alert>
+                          )}
+
                         {editableChildData.hulpvraagType?.includes('coach') && (
                             <>
                                 <p className="text-xs text-muted-foreground mb-3 -mt-2">Geef hier de voorkeuren aan als u op zoek bent naar een 1-op-1 coach voor {childData?.firstName || 'uw kind'}.</p>
@@ -547,7 +594,10 @@ export default function KindProfielPage() {
                         <div><strong className="font-medium text-foreground/80">Volledige Naam:</strong> <span className="text-foreground">{childData?.firstName} {childData?.lastName}</span></div>
                         <div><strong className="font-medium text-foreground/80">Leeftijdscategorie:</strong> <span className="text-foreground">{childData?.ageGroup || 'N.v.t.'}</span></div>
                         <div><strong className="font-medium text-foreground/80">E-mail Kind:</strong> <span className="text-foreground">{childData?.childEmail || 'Niet opgegeven'}</span></div>
-                        <div><strong className="font-medium text-foreground/80">Account Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData!.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData!.subscriptionStatus)}>{childData!.subscriptionStatus.charAt(0).toUpperCase() + childData!.subscriptionStatus.slice(1)}</Badge></div>
+                        <div>
+                            <strong className="font-medium text-foreground/80">Abonnement Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData!.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData!.subscriptionStatus)}>{childData!.subscriptionStatus.charAt(0).toUpperCase() + childData!.subscriptionStatus.slice(1)}</Badge>
+                            {childData.planName && <span className="text-xs text-muted-foreground"> ({childData.planName})</span>}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card className="shadow-lg">
@@ -577,12 +627,22 @@ export default function KindProfielPage() {
                         <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground">Status:</p>
-                            <Badge variant={childData?.hulpvraagType?.includes('tutor') ? "default" : "secondary"} className={childData?.hulpvraagType?.includes('tutor') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
-                                {childData?.hulpvraagType?.includes('tutor') ? 'Actief' : 'Niet Actief'}
+                            <Badge variant={tutorServiceActiveForChild ? "default" : "secondary"} className={tutorServiceActiveForChild ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                                {tutorServiceActiveForChild ? 'Actief' : 'Niet Actief'}
                             </Badge>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm flex-grow">
+                        {tutorServiceActiveForChild && !tutorServiceCovered && (
+                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
+                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
+                                <AlertDescUi>
+                                    Om een tutor te koppelen voor {childData.firstName} is een upgrade naar 'Gezins Gids' nodig.
+                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                </AlertDescUi>
+                            </Alert>
+                        )}
                         {childData?.hulpvraagType?.includes('tutor') ? (
                             <>
                                 <div>
@@ -598,7 +658,7 @@ export default function KindProfielPage() {
                                 </div>
                             </>
                         ) : (
-                           <p className="text-muted-foreground text-sm">Niet actief voor dit kind.</p>
+                           <p className="text-muted-foreground text-sm">Hulp bij huiswerk is niet geactiveerd voor {childData?.firstName}. U kunt dit aanzetten via "Profiel Bewerken".</p>
                         )}
                     </CardContent>
                 </Card>
@@ -610,12 +670,22 @@ export default function KindProfielPage() {
                         <CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle>
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground">Status:</p>
-                            <Badge variant={childData?.hulpvraagType?.includes('coach') ? "default" : "secondary"} className={childData?.hulpvraagType?.includes('coach') ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
-                                {childData?.hulpvraagType?.includes('coach') ? 'Actief' : 'Niet Actief'}
+                            <Badge variant={coachServiceActiveForChild ? "default" : "secondary"} className={coachServiceActiveForChild ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
+                                {coachServiceActiveForChild ? 'Actief' : 'Niet Actief'}
                             </Badge>
                         </div>
                     </CardHeader>
                     <CardContent className="text-sm space-y-3 flex-grow">
+                        {coachServiceActiveForChild && !coachServiceCovered && (
+                             <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
+                                <AlertTriangle className="h-5 w-5 !text-orange-600" />
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
+                                <AlertDescUi>
+                                     Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een 'Coaching & Tools' of 'Gezins Gids' abonnement nodig.
+                                    <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
+                                </AlertDescUi>
+                            </Alert>
+                        )}
                         {childData?.hulpvraagType?.includes('coach') ? (
                              <div className="mt-2">
                                 <h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><UsersIcon className="h-4 w-4"/>Voorkeuren Coach</h4>
@@ -633,7 +703,7 @@ export default function KindProfielPage() {
                                 {(tutorVoorkeurenParsed.selected.length === 0 && !tutorVoorkeurenParsed.other) && (<p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>)}
                             </div>
                         ) : (
-                            <p className="text-muted-foreground text-sm">Niet actief voor dit kind.</p>
+                            <p className="text-muted-foreground text-sm">1-op-1 coaching is niet geactiveerd voor {childData?.firstName}. U kunt dit aanzetten via "Profiel Bewerken".</p>
                         )}
                     </CardContent>
                 </Card>
@@ -643,4 +713,3 @@ export default function KindProfielPage() {
     </div>
   );
 }
-
