@@ -72,7 +72,7 @@ export function ParentBenefitsSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {benefits.map((benefit, index) => (
-            <Card key={index} className={`shadow-lg hover:shadow-xl transition-shadow flex flex-col ${benefit.colorClass}`}>
+            <Card key={index} className={cn("shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full", benefit.colorClass)}>
               <CardHeader className="flex flex-row items-start gap-4 pb-3">
                 <div className="flex-shrink-0 mt-1">{benefit.icon}</div>
                 <div>
@@ -80,7 +80,7 @@ export function ParentBenefitsSection() {
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: benefit.description }} />
+                <p className="text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: benefit.description }} />
               </CardContent>
               <CardFooter>
                 <Button variant="link" asChild className="p-0 h-auto text-primary">
