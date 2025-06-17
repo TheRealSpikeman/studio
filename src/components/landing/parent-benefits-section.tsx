@@ -147,7 +147,7 @@ export function ParentBenefitsSection() {
             </div>
             <div className="relative h-64 lg:h-full min-h-[300px] order-first lg:order-last">
               <Image
-                src="https://picsum.photos/seed/parentDashboardUI/600/450"
+                src="https://placehold.co/600x450.png"
                 alt="Voorbeeld van het MindNavigator Ouder Dashboard interface met grafieken en statistieken"
                 fill
                 style={{ objectFit: 'cover' }}
