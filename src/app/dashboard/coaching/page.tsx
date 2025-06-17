@@ -343,6 +343,12 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* TODO: Implement Community Forum features:
+                - Moderatie van peer-to-peer interacties
+                - Privacy controls voor minderjarigen  
+                - Anti-cyberpesting maatregelen
+                - Ouderlijk toezicht opties (indien van toepassing voor deze doelgroep)
+            */}
             <p className="text-muted-foreground">Deel je ervaringen, stel vragen en steun anderen in onze community (binnenkort).</p>
           </CardContent>
           <CardFooter>
@@ -357,6 +363,10 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* TODO: Implement AI Coach Chat with considerations:
+                - Duidelijke grenzen wat AI wel/niet kan (geen medische adviezen)
+                - Escalatie naar echte professionals bij zorgen (hoe detecteren/aanbieden?)
+            */}
             <p className="text-muted-foreground">Stel vragen en krijg directe feedback van je AI-gedreven coach (binnenkort).</p>
           </CardContent>
           <CardFooter>
@@ -387,7 +397,21 @@ export default function CoachingPage() {
                 Media Bibliotheek
               </CardTitle>
             </CardHeader>
-            <CardContent><p className="text-muted-foreground">Vind extra oefeningen, video's en audio om je groei te ondersteunen (binnenkort).</p></CardContent>
+            <CardContent>
+              {/* TODO: Implement Media Bibliotheek with content:
+                  - Aandachtsstrategieën (focus techniques)
+                  - Sociale vaardigheden oefeningen  
+                  - Plannings- en organisatietools
+                  - Gevoelensregulatie technieken
+                  - Stress-management voor school
+                  - Sensorische regulatie tips (voor HSP-achtige kenmerken)
+                  - Structuur & routine builders (voor ADHD-achtige patronen)
+                  - Sociale scripts & oefeningen (voor autisme-spectrum kenmerken)
+                  Frame as "tools die voor iedereen nuttig kunnen zijn".
+                  Consider visual variation in content types (video, audio, text).
+              */}
+              <p className="text-muted-foreground">Vind extra oefeningen, video's en audio om je groei te ondersteunen (binnenkort).</p>
+            </CardContent>
             <CardFooter><Button variant="outline" className="w-full" disabled>Verken Bibliotheek</Button></CardFooter>
         </Card>
         <Card className="shadow-lg">
@@ -397,7 +421,10 @@ export default function CoachingPage() {
                 Workshops & Cursussen
               </CardTitle>
             </CardHeader>
-            <CardContent><p className="text-muted-foreground">Nieuw: 5-daagse Mindfulness Marathon! Schrijf je in (binnenkort).</p></CardContent>
+            <CardContent>
+              {/* TODO: Consider same content suggestions as Media Bibliotheek for workshops/courses */}
+              <p className="text-muted-foreground">Nieuw: 5-daagse Mindfulness Marathon! Schrijf je in (binnenkort).</p>
+            </CardContent>
             <CardFooter><Button variant="outline" className="w-full" disabled>Bekijk Workshops</Button></CardFooter>
         </Card>
       </div>
@@ -423,3 +450,4 @@ export default function CoachingPage() {
     </div>
   );
 }
+
