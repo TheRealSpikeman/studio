@@ -90,7 +90,7 @@ const dummyChildren: Child[] = [
     helpSubjects: ['wiskunde', 'nederlands'],
     hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
-    voorkeurTutor: 'Geselecteerd: Ervaring met HSP, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
+    voorkeurTutor: 'Geselecteerd: Ervaring met faalangst, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor1'],
   },
@@ -479,7 +479,7 @@ export default function KindProfielPage() {
                             <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm flex-grow">
-                           <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
+                          <p className="text-xs text-muted-foreground mb-3 -mt-2">Help ons de beste tutor voor {childData?.firstName || 'uw kind'} te vinden. Selecteer hieronder de vakken en leerdoelen.</p>
                             <FormField control={form.control} name="hulpvraagType" render={({ field }) => (<FormItem className="flex items-center space-x-2 mb-4">
                                 <Checkbox id="hulpvraag-tutor-edit" checked={field.value?.includes('tutor')} onCheckedChange={(checked) => { const newVal = field.value || []; return checked ? field.onChange([...newVal, 'tutor']) : field.onChange(newVal.filter(v => v !== 'tutor')); }} />
                                 <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
@@ -614,7 +614,7 @@ export default function KindProfielPage() {
                 <Card className="shadow-lg flex flex-col h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-xl"><GraduationCap className="h-6 w-6 text-primary"/>Hulp bij Huiswerk (Tutor)</CardTitle>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 mt-1">
                             <p className="text-sm text-muted-foreground">Status:</p>
                             <Badge variant={tutorServiceActiveForChild ? "default" : "secondary"} className={tutorServiceActiveForChild ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
                                 {tutorServiceActiveForChild ? 'Actief' : 'Niet Actief'}
@@ -664,7 +664,7 @@ export default function KindProfielPage() {
                  <Card className="shadow-lg flex flex-col h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-xl"><MessageSquare className="h-6 w-6 text-primary"/>1-op-1 Coaching (Coach)</CardTitle>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 mt-1">
                             <p className="text-sm text-muted-foreground">Status:</p>
                             <Badge variant={coachServiceActiveForChild ? "default" : "secondary"} className={coachServiceActiveForChild ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>
                                 {coachServiceActiveForChild ? 'Actief' : 'Niet Actief'}
@@ -688,7 +688,7 @@ export default function KindProfielPage() {
                                 {tutorVoorkeurenParsed.selected.length > 0 && (
                                   <div>
                                     <p className="font-medium text-foreground/80">Geselecteerd:</p>
-                                    <ul className="list-disc list-inside space-y-0.5 pl-2 text-muted-foreground">
+                                     <ul className="list-disc list-inside space-y-0.5 pl-2 text-muted-foreground">
                                       {tutorVoorkeurenParsed.selected.map((pref, index) => (
                                         <li key={index}>{pref}</li>
                                       ))}
