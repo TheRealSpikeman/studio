@@ -76,7 +76,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
     yearlySavingsHighlight: `bespaar €${yearlySavingsCoaching}`,
     maxChildrenText: "voor maximaal 3 kinderen",
   },
-   'family_guide_yearly': { // Toegevoegd voor de URL param
+   'family_guide_yearly': { 
     id: 'family_guide_yearly',
     name: 'Familie Coaching - Jaarlijks',
     icon: Users,
@@ -103,7 +103,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
     yearlySavingsHighlight: `bespaar €${yearlySavingsPremium}`,
     maxChildrenText: "voor een onbeperkt aantal kinderen",
   },
-  'premium_family_yearly': { // Toegevoegd voor de URL param
+  'premium_family_yearly': { 
     id: 'premium_family_yearly',
     name: 'Premium Familie - Jaarlijks',
     icon: Star,
@@ -117,6 +117,15 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
   },
 };
 
+interface Actiepunt {
+  id: string;
+  title: string;
+  description: string;
+  icon: ElementType;
+  link?: string;
+  linkText?: string;
+  buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+}
 
 function OuderWelcomePageContent() {
   const router = useRouter();
@@ -157,22 +166,15 @@ function OuderWelcomePageContent() {
     setAddChildFormKey(prevKey => prevKey + 1);
   };
 
-  const handlePlanCTAClick = (planId: string, ctaBaseLink: string) => {
-     // Update URL without full page reload, this will trigger useEffect in this component
-     // to re-evaluate hasChosenPlan and defaultOpenAccordionItem
+  const handlePlanCTAClick = (planId: string) => {
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('plan', planId);
     window.history.pushState({ path: newUrl.href }, '', newUrl.href);
-
-    // Manually trigger a re-render or state update if necessary for Accordion to open correctly
-    // For example, if you have a state variable for the open accordion item:
-    // setDefaultOpenAccordionItem('bekijk-abonnementen'); // or whatever the ID is
-    // Or, if not using such state, you might not need to do anything extra here
-    // as the component will re-render due to searchParams change if you make it a dependency
-    // as the component will re-render due to searchParams change if you make it a dependency
+    // Force a re-render of this component with the new search param
+    router.replace(newUrl.href, { scroll: false });
   };
   
-  const getAbonnementActiepunt = () => {
+  const getAbonnementActiepunt = (): Actiepunt => {
     const gekozenPlanDetails = planParam && planDetailsMap[planParam];
     let title = "Abonnementen & Toegang";
     let description = `Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`;
@@ -182,7 +184,7 @@ function OuderWelcomePageContent() {
         ? "Je Gebruikt het Gratis Start Plan" 
         : `Actief Plan (Voorlopig): ${gekozenPlanDetails.name}`;
       description = gekozenPlanDetails.id === 'free_start'
-        ? `Met het gratis plan kan uw kind een basis assessment doen. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
+        ? `Met het gratis plan kan uw kind een basis assessment doen. Dit plan is ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
         : `U heeft gekozen voor '${gekozenPlanDetails.name}'. Dit plan is ${gekozenPlanDetails.maxChildrenText}. Bevestig hieronder uw keuze of selecteer een ander plan.`;
     }
 
@@ -194,7 +196,7 @@ function OuderWelcomePageContent() {
     };
   };
 
-  const actiepuntenBasis = [
+  const actiepuntenBasis: Actiepunt[] = [
     {
       id: "ken-je-kind",
       title: 'Doe de "Ken je Kind" Test',
@@ -202,13 +204,22 @@ function OuderWelcomePageContent() {
       icon: FileText,
       link: "/quiz/ouder-symptomen-check",
       linkText: 'Start "Ken je Kind" Test',
-      buttonVariant: 'default' as 'default',
+      buttonVariant: 'default',
     },
     {
       id: "voeg-kind-toe",
       title: 'Voeg uw Kind(eren) Toe',
       description: 'Koppel de accounts van uw kinderen aan uw ouderaccount om hun voortgang te volgen en instellingen te beheren. Het kind ontvangt een e-mail om de uitnodiging te bevestigen. Na activatie kunt u de profielinformatie van uw kind verder aanvullen.',
       icon: UserPlus,
+    },
+    {
+      id: "privacy-delen",
+      title: "Privacy & Deelinstellingen Kinderen",
+      description: "Bekijk en beheer hier per kind de deelinstellingen voor resultaten en communicatie. Lees ook onze tips over respectvolle communicatie en het waarborgen van autonomie.",
+      icon: ShieldCheck,
+      link: "/dashboard/ouder/privacy-instellingen",
+      linkText: "Beheer Privacy & Delen",
+      buttonVariant: 'outline',
     },
     getAbonnementActiepunt(),
   ];
@@ -217,11 +228,17 @@ function OuderWelcomePageContent() {
     if (!hasChosenPlan) {
       return [
         actiepuntenBasis.find(ap => ap.id === "bekijk-abonnementen")!,
+        actiepuntenBasis.find(ap => ap.id === "privacy-delen")!,
         actiepuntenBasis.find(ap => ap.id === "ken-je-kind")!,
         actiepuntenBasis.find(ap => ap.id === "voeg-kind-toe")!,
-      ];
+      ].filter(Boolean) as Actiepunt[];
     }
-    return actiepuntenBasis;
+    return [
+        actiepuntenBasis.find(ap => ap.id === "ken-je-kind")!,
+        actiepuntenBasis.find(ap => ap.id === "voeg-kind-toe")!,
+        actiepuntenBasis.find(ap => ap.id === "privacy-delen")!,
+        actiepuntenBasis.find(ap => ap.id === "bekijk-abonnementen")!,
+    ].filter(Boolean) as Actiepunt[];
   };
   
   const sortedActiepunten = getSortedActiepunten();
@@ -285,7 +302,7 @@ function OuderWelcomePageContent() {
                             <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {planDetailsMap[planParam]?.name}</AlertTitleUi>
                             <AlertDescUi className="text-green-600">
                                 Dit plan staat u toe om {planDetailsMap[planParam]?.maxChildrenText} aan te sluiten.
-                                Bevestig hieronder of kies een ander plan.
+                                Bevestig hieronder uw keuze of selecteer een ander plan.
                             </AlertDescUi>
                         </Alert>
                     )}
@@ -299,7 +316,7 @@ function OuderWelcomePageContent() {
                         </Alert>
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Object.values(planDetailsMap).filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => ( // Filter to show only base monthly/free plans here
+                        {Object.values(planDetailsMap).filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => ( 
                             <Card key={plan.id} className={cn(
                                 "flex flex-col text-center transition-all duration-200",
                                 plan.colorClass,
@@ -325,9 +342,9 @@ function OuderWelcomePageContent() {
                                       size="sm" 
                                       className="w-full" 
                                       variant={planParam === plan.id ? "default" : "outline"}
-                                      onClick={() => handlePlanCTAClick(plan.id, plan.ctaBaseLink)}
+                                      onClick={() => handlePlanCTAClick(plan.id)}
                                     >
-                                      {planParam === plan.id ? "Gekozen" : "Kies dit Plan"}
+                                      {planParam === plan.id ? (plan.id === 'free_start' ? "Gratis Gekozen" : "Bevestig & Activeer") : "Kies dit Plan"}
                                     </Button>
                                 </CardFooter>
                             </Card>
