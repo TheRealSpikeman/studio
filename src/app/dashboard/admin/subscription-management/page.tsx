@@ -12,62 +12,60 @@ import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircl
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
+export type TargetAudience = 'leerling' | 'ouder' | 'platform' | 'beide';
+
 export interface AppFeature {
   id: string;
   label: string;
-  description?: string; 
+  description?: string;
+  targetAudience: TargetAudience[];
+  category?: string; // Bijv. "Basis", "Coaching", "Tools", "Ouderportaal", "Voordeel"
 }
 
-// Updated ALL_APP_FEATURES based on the provided screenshot
+// Data nu direct gevuld op basis van de screenshot
 export const ALL_APP_FEATURES: AppFeature[] = [
-  { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.' },
-  { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie-email', description: 'Regelmatige e-mails met tips en motivatie.' },
-  { id: 'basicReflectionToolLimited', label: 'Basis zelfreflectie tool (beperkt)', description: 'Toegang tot een beperkte versie van de basis tool.' },
+  // Kolom 1 uit screenshot
+  { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
+  { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.', targetAudience: ['leerling'], category: 'Coaching' },
+  { id: 'professionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.', targetAudience: ['ouder'], category: 'Professionals' },
+  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' },
+  { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.', targetAudience: ['leerling'], category: 'Tools' },
+  { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
+  { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.', targetAudience: ['leerling', 'ouder'], category: 'Tools' },
+  { id: 'max3ChildrenIncluded', label: 'Tot 3 kinderen inbegrepen', description: 'Standaard voor familieplannen.', targetAudience: ['ouder', 'platform'], category: 'Account' },
+  { id: 'extensiveAssessmentAnalysis', label: 'Uitgebreide assessment analyse & rapportage', description: 'Nog diepere analyse van de start-assessment.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
+  { id: 'exclusiveCoachingModules', label: 'Exclusieve coaching modules en premium content', description: 'Toegang tot extra coaching materiaal.', targetAudience: ['leerling'], category: 'Coaching' },
+  { id: 'extendedSearchFilters', label: 'Extended zoekfilters en matching criteria', description: 'Meer filteropties bij het zoeken.', targetAudience: ['ouder'], category: 'Professionals' },
+  { id: 'unlimitedChildren', label: 'Unlimited kinderen (geen limiet meer)', description: 'Onbeperkt aantal kinderen voor premium plannen.', targetAudience: ['ouder', 'platform'], category: 'Account' },
+  { id: 'advancedParentTrainingModules', label: 'Advanced ouder training modules', description: 'Extra training materiaal voor ouders.', targetAudience: ['ouder'], category: 'Coaching' },
 
-  { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.' },
-  { id: 'basicPdfOverview', label: 'Basis PDF overzicht van sterke punten', description: 'Een eenvoudig PDF rapport van de assessment.' },
-  { id: 'browseProfessionals', label: 'Browse coaches & tutors (profielen bekijken)', description: 'Mogelijkheid om profielen van professionals te zien.' },
+  // Kolom 2 uit screenshot
+  { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie-email', description: 'Regelmatige e-mails met tips en motivatie.', targetAudience: ['leerling'], category: 'Coaching' },
+  { id: 'basicPdfOverview', label: 'Basis PDF overzicht van sterke punten', description: 'Een eenvoudig PDF rapport van de assessment.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
+  { id: 'bookPaySessions', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.', targetAudience: ['ouder'], category: 'Professionals' },
+  { id: 'dailyPersonalizedCoaching', label: 'Dagelijkse coaching berichten (gepersonaliseerd)', description: 'Gepersonaliseerde coaching op basis van profiel.', targetAudience: ['leerling'], category: 'Coaching' },
+  { id: 'homeworkPlannerFocusTools', label: 'Huiswerk planner en focus tools (Pomodoro)', description: 'Tools voor planning en concentratie.', targetAudience: ['leerling'], category: 'Tools' },
+  { id: 'directCommunicationProfessionals', label: 'Direct contact en communicatie met professionals', description: 'Berichten sturen naar gekoppelde professionals.', targetAudience: ['beide'], category: 'Communicatie' },
+  { id: 'childProgressTracking', label: 'Voortgangsvolging en trends van uw kind', description: 'Inzicht in de voortgang van het kind (voor ouders).', targetAudience: ['ouder'], category: 'Analytics' },
+  { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met gekoppelde coaches en tutors', description: 'Directe communicatie met begeleiders.', targetAudience: ['ouder'], category: 'Communicatie' },
+  { id: 'aiPoweredInsights', label: 'AI-powered insights en gepersonaliseerde aanbevelingen', description: 'Geavanceerde AI-aanbevelingen.', targetAudience: ['leerling', 'ouder'], category: 'Coaching' },
+  { id: 'priorityCoachMatching', label: 'Prioriteit algoritme voor beste coach matching', description: 'Voorrang bij het matchen met professionals.', targetAudience: ['ouder', 'platform'], category: 'Professionals' },
+  { id: 'bulkSessionPlanning', label: 'Bulk session planning voor gemak', description: 'Plan meerdere sessies tegelijk.', targetAudience: ['ouder'], category: 'Tools' },
+  { id: 'monthlyFamilyCoachingCalls', label: 'Maandelijkse familie coaching calls (30 min)', description: 'Live coaching sessies voor het gezin.', targetAudience: ['ouder'], category: 'Coaching' },
 
-  { id: 'viewProfessionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.' },
-  { id: 'sessionsBookPay', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.' },
-  { id: 'accountManagement', label: 'Account beheer en basisinstellingen', description: 'Toegang tot standaard accountbeheer.' },
-  
-  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.' },
-  { id: 'dailyPersonalizedCoaching', label: 'Dagelijkse coaching berichten (gepersonaliseerd)', description: 'Gepersonaliseerde coaching op basis van profiel.' },
-  { id: 'allReflectionToolsUnlimited', label: 'Alle zelfreflectie instrumenten (unlimited)', description: 'Onbeperkte toegang tot alle tools.' },
-
-  { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.' },
-  { id: 'planningFocusTools', label: 'Huiswerk planner en focus tools (Pomodoro)', description: 'Tools voor planning en concentratie.' },
-  { id: 'motivationTracking', label: 'Motivatie tracking met voortgangsvisualisatie', description: 'Volg en visualiseer motivatie.' },
-
-  { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.' },
-  { id: 'directProfessionalCommunication', label: 'Direct contact en communicatie met professionals', description: 'Berichten sturen naar gekoppelde professionals.' },
-  { id: 'reviewRatingSystem', label: 'Review en rating systeem', description: 'Beoordeel professionals.' },
-
-  { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.' },
-  { id: 'childProgressTracking', label: 'Voortgangsvolging en trends van uw kind', description: 'Inzicht in de voortgang van het kind (voor ouders).' },
-  { id: 'familyInsights', label: 'Familie insights en gepersonaliseerde aanbevelingen', description: 'Inzichten voor het hele gezin.' },
-
-  { id: 'max3ChildrenIncluded', label: 'Tot 3 kinderen inbegrepen', description: 'Standaard voor familieplannen.' },
-  { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met gekoppelde coaches en tutors', description: 'Directe communicatie met begeleiders.' },
-  { id: 'yearlyDiscount15', label: '15% korting bij jaarlijkse betaling', description: 'Korting voor jaarplannen.' },
-
-  { id: 'extensiveAssessmentAnalysis', label: 'Uitgebreide assessment analyse & rapportage', description: 'Nog diepere analyse van de start-assessment.' },
-  { id: 'aiPoweredInsights', label: 'AI-powered insights en gepersonaliseerde aanbevelingen', description: 'Geavanceerde AI-aanbevelingen.' },
-  { id: 'advancedAnalyticsTrends', label: 'Advanced analytics en trendanalyse', description: 'Gedetailleerde statistieken en trends.' },
-
-  { id: 'exclusiveCoachingModules', label: 'Exclusieve coaching modules en premium content', description: 'Toegang tot extra coaching materiaal.' },
-  { id: 'priorityMatchingAlgorithm', label: 'Prioriteit algoritme voor beste coach matching', description: 'Voorrang bij het matchen met professionals.' },
-  { id: 'priorityBooking', label: 'Prioriteit booking bij populaire coaches & tutors', description: 'Eerder toegang tot populaire professionals.' },
-
-  { id: 'extendedSearchFilters', label: 'Extended zoekfilters en matching criteria', description: 'Meer filteropties bij het zoeken.' },
-  { id: 'bulkSessionPlanning', label: 'Bulk session planning voor gemak', description: 'Plan meerdere sessies tegelijk.' },
-  { id: 'premiumSupport24h', label: 'Premium support (24u response tijd)', description: 'Snellere klantenservice.' },
-  
-  { id: 'unlimitedChildren', label: 'Unlimited kinderen (geen limiet meer)', description: 'Onbeperkt aantal kinderen voor premium plannen.' },
-  { id: 'monthlyFamilyCoachingCalls', label: 'Maandelijkse familie coaching calls (30 min)', description: 'Live coaching sessies voor het gezin.' },
-  { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.' },
-  { id: 'advancedParentTrainingModules', label: 'Advanced ouder training modules', description: 'Extra training materiaal voor ouders.' },
+  // Kolom 3 uit screenshot
+  { id: 'basicReflectionToolLimited', label: 'Basis zelfreflectie tool (beperkt)', description: 'Toegang tot een beperkte versie van de basis tool.', targetAudience: ['leerling'], category: 'Assessment' },
+  { id: 'browseProfessionals', label: 'Browse coaches & tutors (profielen bekijken)', description: 'Mogelijkheid om profielen van professionals te zien.', targetAudience: ['ouder'], category: 'Professionals' },
+  { id: 'accountManagement', label: 'Account beheer en basisinstellingen', description: 'Toegang tot standaard accountbeheer.', targetAudience: ['platform'], category: 'Account' },
+  { id: 'allReflectionToolsUnlimited', label: 'Alle zelfreflectie instrumenten (unlimited)', description: 'Onbeperkte toegang tot alle tools.', targetAudience: ['leerling'], category: 'Assessment' },
+  { id: 'motivationTracking', label: 'Motivatie tracking met voortgangsvisualisatie', description: 'Volg en visualiseer motivatie.', targetAudience: ['leerling'], category: 'Tools' },
+  { id: 'reviewRatingSystem', label: 'Review en rating systeem', description: 'Beoordeel professionals.', targetAudience: ['ouder'], category: 'Professionals' },
+  { id: 'familyInsights', label: 'Familie insights en gepersonaliseerde aanbevelingen', description: 'Inzichten voor het hele gezin.', targetAudience: ['ouder'], category: 'Coaching' },
+  { id: 'yearlyDiscount15', label: '15% korting bij jaarlijkse betaling', description: 'Korting voor jaarplannen.', targetAudience: ['platform'], category: 'Voordeel' },
+  { id: 'advancedAnalyticsTrends', label: 'Advanced analytics en trendanalyse', description: 'Gedetailleerde statistieken en trends.', targetAudience: ['ouder'], category: 'Analytics' },
+  { id: 'priorityBookingProfessionals', label: 'Prioriteit booking bij populaire coaches & tutors', description: 'Eerder toegang tot populaire professionals.', targetAudience: ['ouder', 'platform'], category: 'Professionals' },
+  { id: 'premiumSupport24h', label: 'Premium support (24u response tijd)', description: 'Snellere klantenservice.', targetAudience: ['platform'], category: 'Support' },
+  { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.', targetAudience: ['ouder', 'platform'], category: 'Tools' },
 ];
 
 
@@ -104,8 +102,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
-      aiPoweredInsights: true, exclusiveCoachingModules: true, // Based on image, these high-value features included
+      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
@@ -117,7 +115,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
       aiPoweredInsights: true, exclusiveCoachingModules: true,
     },
@@ -155,11 +153,14 @@ export default function SubscriptionManagementPage() {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         const migratedPlans = parsedPlans.map(plan => {
           const defaultAccess: Record<string,boolean> = {};
-          ALL_APP_FEATURES.forEach(f => defaultAccess[f.id] = false); 
+          ALL_APP_FEATURES.forEach(f => {
+            // Ensure feature id from ALL_APP_FEATURES is used as key
+            defaultAccess[f.id] = plan.featureAccess?.[f.id] || false;
+          }); 
           
           return {
             ...plan,
-            featureAccess: plan.featureAccess || defaultAccess, 
+            featureAccess: defaultAccess, // Apply the fully populated featureAccess
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
             isPopular: plan.isPopular ?? false,
@@ -167,7 +168,8 @@ export default function SubscriptionManagementPage() {
           };
         });
         setPlans(migratedPlans);
-        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) {
+        // Only update localStorage if migration actually changed something or if it was missing features
+        if (JSON.stringify(parsedPlans.map(p=>p.featureAccess)) !== JSON.stringify(migratedPlans.map(p=>p.featureAccess))) {
             localStorage.setItem('subscriptionPlans', JSON.stringify(migratedPlans));
         }
       } catch (error) {

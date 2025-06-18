@@ -20,12 +20,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap } from "lucide-react"; // Added icons
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { SubscriptionPlan } from "../page"; 
-import { ALL_APP_FEATURES, type AppFeature } from "../page"; 
+import { ALL_APP_FEATURES, type AppFeature, type TargetAudience } from "../page"; 
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
@@ -47,6 +49,25 @@ export type PlanFormData = z.infer<typeof planFormSchema>;
 interface NewSubscriptionPlanPageProps {
   planData?: SubscriptionPlan; 
 }
+
+const getAudienceBadgeVariant = (audience: TargetAudience): "default" | "secondary" | "outline" => {
+  switch (audience) {
+    case 'leerling': return 'default'; // Primary-like
+    case 'ouder': return 'secondary';
+    case 'beide': return 'outline'; // Accent-like
+    case 'platform': return 'outline';
+    default: return 'outline';
+  }
+};
+const getAudienceBadgeClasses = (audience: TargetAudience): string => {
+  switch (audience) {
+    case 'leerling': return 'bg-blue-100 text-blue-700 border-blue-300';
+    case 'ouder': return 'bg-green-100 text-green-700 border-green-300';
+    case 'beide': return 'bg-purple-100 text-purple-700 border-purple-300';
+    case 'platform': return 'bg-gray-100 text-gray-700 border-gray-300';
+    default: return '';
+  }
+};
 
 export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPlanPageProps) {
   const { toast } = useToast();
@@ -255,7 +276,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
 
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Toegankelijke Features</CardTitle>
+                <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Configureer Features voor dit Abonnement</CardTitle>
                 <CardDescription>Vink aan welke features in dit abonnement inbegrepen zijn.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -267,30 +288,41 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                         <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
                     </Button>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                     {ALL_APP_FEATURES.map((feature) => (
                         <FormField
                         key={feature.id}
                         control={form.control}
                         name={`featureAccess.${feature.id}`}
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-2.5 py-2">
-                                <FormControl className="mt-0.5">
+                            <FormItem className="flex flex-row items-start space-x-3 py-2 border-b border-border/50 last:border-b-0">
+                                <FormControl className="mt-1">
                                     <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    // Removed explicit id here: id={`feature-${feature.id}`}
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
                                     />
                                 </FormControl>
-                                <div className="space-y-0">
-                                    <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-normal cursor-pointer leading-snug">
-                                    {feature.label}
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
+                                        {feature.label}
                                     </FormLabel>
                                     {feature.description && (
-                                    <FormDescription className="text-xs text-muted-foreground leading-tight">
-                                        {feature.description}
-                                    </FormDescription>
+                                        <FormDescription className="text-xs text-muted-foreground leading-tight">
+                                            {feature.description}
+                                        </FormDescription>
                                     )}
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {feature.targetAudience.map(audience => (
+                                            <Badge 
+                                                key={audience} 
+                                                variant={getAudienceBadgeVariant(audience)} 
+                                                className={cn("text-[10px] px-1.5 py-0 leading-tight", getAudienceBadgeClasses(audience))}
+                                            >
+                                                {audience.charAt(0).toUpperCase() + audience.slice(1)}
+                                            </Badge>
+                                        ))}
+                                        {feature.category && <Badge variant="outline" className="text-[10px] px-1.5 py-0 leading-tight">{feature.category}</Badge>}
+                                    </div>
                                 </div>
                             </FormItem>
                         )}
