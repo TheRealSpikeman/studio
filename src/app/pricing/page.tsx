@@ -30,30 +30,28 @@ defaultFeatureAccessFree.viewProfessionalRates = true;
 defaultFeatureAccessFree.accountManagement = true;
 defaultFeatureAccessFree.noProgressAnalytics = true;
 
-// Default features for "Coaching & Tools" (based on image, assuming more than free)
-const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; // Start with free, then enable more
+// Default features for "Coaching & Tools"
+const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; 
 defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
 defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
 defaultFeatureAccessCoachingTools.interactiveJournal = true;
 defaultFeatureAccessCoachingTools.planningFocusTools = true;
 defaultFeatureAccessCoachingTools.motivationTracking = true;
 defaultFeatureAccessCoachingTools.extensivePdfReports = true;
-defaultFeatureAccessCoachingTools.bookSessions = true; // Implied by "Browse coaches & tutors" on the plan
+defaultFeatureAccessCoachingTools.bookSessions = true; 
 defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
 defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
 defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
-// Family specific features are off for this plan
-defaultFeatureAccessCoachingTools.childProgressTracking = false;
-defaultFeatureAccessCoachingTools.familyInsights = false;
-defaultFeatureAccessCoachingTools.max3ChildrenIncluded = false; 
-defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; // Assuming linked professionals are still relevant
+defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; 
+defaultFeatureAccessCoachingTools.maxChildren = 0; // Default for this plan type
 
-// Default features for "Gezins Gids" (based on image, more than Coaching & Tools)
-const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools }; // Start with Coaching & Tools
+// Default features for "Gezins Gids"
+const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools };
 defaultFeatureAccessGezinsGids.childProgressTracking = true;
 defaultFeatureAccessGezinsGids.familyInsights = true;
-defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true; // This specific feature for the plan text
-// Other premium features remain false unless specified.
+defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true;
+defaultFeatureAccessGezinsGids.maxChildren = 3; // Default for this plan type
+
 
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
@@ -108,7 +106,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('premium')) return Star; // Should not occur with current defaults
+    if (planId.includes('premium')) return Star;
     if (planId.includes('family_guide') || planId.includes('gezin')) return Users;
     if (planId.includes('coaching_tools')) return Sparkles; 
     return Sparkles; 
@@ -151,17 +149,13 @@ export default function PricingPage() {
             featureAccess: plan.featureAccess || defaultAccessForMigration,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: plan.isPopular ?? (plan.id === 'family_guide_monthly'),
+            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false, // Fallback to false if undefined
           };
         });
-         // Ensure the default popular flag is set if plans are loaded from storage
-        if (activePlans.some(p => p.id === 'family_guide_monthly' && p.isPopular !== true)) {
-          activePlans = activePlans.map(p => p.id === 'family_guide_monthly' ? { ...p, isPopular: true } : p);
-        }
       } catch (e) {
         console.error("Error parsing plans from localStorage, using defaults", e);
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing)); // Save defaults if parsing failed
       }
     } else {
       activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);

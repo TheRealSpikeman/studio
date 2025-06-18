@@ -38,7 +38,7 @@ defaultFeatureAccessFree.viewProfessionalRates = true;
 defaultFeatureAccessFree.accountManagement = true;
 defaultFeatureAccessFree.noProgressAnalytics = true;
 
-// Default features for "Coaching & Tools" (based on image, assuming more than free)
+// Default features for "Coaching & Tools" 
 const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; 
 defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
 defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
@@ -51,12 +51,14 @@ defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
 defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
 defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
 defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; 
+defaultFeatureAccessCoachingTools.maxChildren = 0; 
 
-// Default features for "Gezins Gids" (based on image, more than Coaching & Tools)
+// Default features for "Gezins Gids" 
 const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools };
 defaultFeatureAccessGezinsGids.childProgressTracking = true;
 defaultFeatureAccessGezinsGids.familyInsights = true;
 defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true;
+defaultFeatureAccessGezinsGids.maxChildren = 3;
 
 
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
@@ -142,7 +144,6 @@ function OuderWelcomePageContent() {
     const ensureFullFeatureAccess = (plan: SubscriptionPlan): SubscriptionPlan => {
         const migratedFeatureAccess: Record<string, boolean> = {};
         ALL_APP_FEATURES.forEach(appFeature => {
-            // Use the feature value from the plan if it exists, otherwise default to false.
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
             ? plan.featureAccess[appFeature.id] 
             : false;
@@ -152,7 +153,7 @@ function OuderWelcomePageContent() {
             featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: plan.isPopular ?? (plan.id === 'family_guide_monthly'),
+            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false, // Fallback to false if undefined
         };
     };
 
@@ -160,9 +161,6 @@ function OuderWelcomePageContent() {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         loadedPlans = parsedPlans.map(ensureFullFeatureAccess);
-        if (loadedPlans.some(p => p.id === 'family_guide_monthly' && p.isPopular !== true)) {
-          loadedPlans = loadedPlans.map(p => p.id === 'family_guide_monthly' ? { ...p, isPopular: true } : p);
-        }
       } catch (e) {
         console.error("Error parsing plans from localStorage on welcome page, using defaults", e);
         loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
@@ -263,8 +261,8 @@ function OuderWelcomePageContent() {
     const getBaseTitleForId = (id: string): string => {
         if (id === "bekijk-abonnementen") return hasChosenPlan && chosenPlanDetails ? (chosenPlanDetails.id === 'free_start' ? "U Gebruikt het Gratis Plan" : `Uw Keuze: ${chosenPlanDetails.name}`) : "Abonnementen & Toegang";
         if (id === "belangrijke-voorwaarden") return "Belangrijke Voorwaarden & Privacy";
-        if (id === "ken-je-kind") return "Doe de \"Ken je Kind\" Test (Optioneel)";
-        if (id === "voeg-kind-toe") return "Voeg uw Kind(eren) Toe";
+        if (id === "ken-je-kind") return "\"Ken je Kind\" Test (Optioneel)";
+        if (id === "voeg-kind-toe") return "Kind(eren) Toevoegen";
         if (id === "privacy-delen") return "Privacy & Deelinstellingen Kinderen";
         return "Onbekende Stap";
     };
@@ -376,9 +374,9 @@ function OuderWelcomePageContent() {
                 ) : item.id === "bekijk-abonnementen" ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {availablePlans.filter(p => p.billingInterval === 'month' || p.billingInterval === 'once').map(plan => { 
+                        {availablePlans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once')).map(plan => { 
                             const PlanIcon = getPlanIcon(plan.id);
-                            const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
+                            const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.active && yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
                             const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
                             const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
                             
@@ -399,7 +397,7 @@ function OuderWelcomePageContent() {
                                 <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                   <p className="mb-2">{plan.description}</p>
                                   {ALL_APP_FEATURES.slice(0,3).map((appFeature) => {
-                                    const hasFeature = plan.featureAccess && plan.featureAccess[appFeature.id];
+                                    const hasFeature = plan.featureAccess[appFeature.id];
                                     return (
                                       <p key={appFeature.id} className={cn("flex items-center justify-center gap-1.5", hasFeature ? 'text-green-600' : 'text-muted-foreground/70 line-through')}>
                                         {hasFeature ? <CheckCircle2 className="h-3.5 w-3.5"/> : <XCircle className="h-3.5 w-3.5"/>}
