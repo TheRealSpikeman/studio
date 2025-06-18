@@ -4,6 +4,7 @@
 
 import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
 import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ export default function EditSubscriptionPlanPage() {
   const params = useParams();
   const router = useRouter();
   const planId = params.planId as string;
-  const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined); // undefined for loading, null for not found
+  const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined);
 
   useEffect(() => {
     if (planId) {
@@ -22,10 +23,16 @@ export default function EditSubscriptionPlanPage() {
       if (storedPlansRaw) {
         const storedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         const foundPlan = storedPlans.find(p => p.id === planId);
-        // Zorg ervoor dat nieuwe velden een default waarde hebben als ze niet bestaan in oude localStorage data
+        
         if (foundPlan) {
+            const defaultFeatureAccess: Record<string, boolean> = {};
+            ALL_APP_FEATURES.forEach(feature => {
+              defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
+            });
+
             const planWithDefaults: SubscriptionPlan = {
                 ...foundPlan,
+                featureAccess: defaultFeatureAccess, // Ensure all features are present
                 trialPeriodDays: foundPlan.trialPeriodDays ?? (foundPlan.price === 0 ? 0 : 14),
                 maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
                 isPopular: foundPlan.isPopular ?? false,
@@ -35,7 +42,7 @@ export default function EditSubscriptionPlanPage() {
             setPlanData(null);
         }
       } else {
-        setPlanData(null); // No plans in localStorage
+        setPlanData(null); 
       }
     }
   }, [planId]);

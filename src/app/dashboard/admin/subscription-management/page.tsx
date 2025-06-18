@@ -8,89 +8,129 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star, TrendingUp } from 'lucide-react';
+import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
+export interface AppFeature {
+  id: string;
+  label: string;
+  description?: string; // Optional description for admin UI
+}
+
+export const ALL_APP_FEATURES: AppFeature[] = [
+  { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.' },
+  { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie-email', description: 'Regelmatige e-mails met tips en motivatie.' },
+  { id: 'basicReflectionToolLimited', label: 'Basis zelfreflectie tool (beperkt)', description: 'Toegang tot een beperkte versie van de basis tool.' },
+  { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.' },
+  { id: 'basicPdfOverview', label: 'Basis PDF overzicht van sterke punten', description: 'Een eenvoudig PDF rapport van de assessment.' },
+  { id: 'browseProfessionals', label: 'Browse coaches & tutors (profielen bekijken)', description: 'Mogelijkheid om profielen van professionals te zien.' },
+  { id: 'viewProfessionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.' },
+  { id: 'bookSessions', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.' },
+  { id: 'accountManagement', label: 'Account beheer en basisinstellingen', description: 'Toegang tot standaard accountbeheer.' },
+  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.' },
+  
+  { id: 'dailyPersonalizedCoaching', label: 'Dagelijkse coaching berichten (gepersonaliseerd)', description: 'Gepersonaliseerde coaching op basis van profiel.' },
+  { id: 'allReflectionToolsUnlimited', label: 'Alle zelfreflectie instrumenten (unlimited)', description: 'Onbeperkte toegang tot alle tools.' },
+  { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.' },
+  { id: 'planningFocusTools', label: 'Huiswerk planner en focus tools (Pomodoro)', description: 'Tools voor planning en concentratie.' },
+  { id: 'motivationTracking', label: 'Motivatie tracking met voortgangsvisualisatie', description: 'Volg en visualiseer motivatie.' },
+  { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.' },
+  { id: 'directProfessionalCommunication', label: 'Direct contact en communicatie met professionals', description: 'Berichten sturen naar gekoppelde professionals.' },
+  { id: 'reviewRatingSystem', label: 'Review en rating systeem', description: 'Beoordeel professionals.' },
+  { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.' },
+  { id: 'childProgressTracking', label: 'Voortgangsvolging en trends van uw kind', description: 'Inzicht in de voortgang van het kind (voor ouders).' },
+  { id: 'familyInsights', label: 'Familie insights en gepersonaliseerde aanbevelingen', description: 'Inzichten voor het hele gezin.' },
+  { id: 'max3ChildrenIncluded', label: 'Tot 3 kinderen inbegrepen', description: 'Standaard voor familieplannen.' },
+  { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met gekoppelde coaches en tutors', description: 'Directe communicatie met begeleiders.' },
+  { id: 'yearlyDiscount15', label: '15% korting bij jaarlijkse betaling', description: 'Korting voor jaarplannen.' },
+
+  { id: 'extensiveAssessmentAnalysis', label: 'Uitgebreide assessment analyse & rapportage', description: 'Nog diepere analyse van de start-assessment.' },
+  { id: 'aiPoweredInsights', label: 'AI-powered insights en gepersonaliseerde aanbevelingen', description: 'Geavanceerde AI-aanbevelingen.' },
+  { id: 'advancedAnalyticsTrends', label: 'Advanced analytics en trendanalyse', description: 'Gedetailleerde statistieken en trends.' },
+  { id: 'exclusiveCoachingModules', label: 'Exclusieve coaching modules en premium content', description: 'Toegang tot extra coaching materiaal.' },
+  { id: 'priorityMatchingAlgorithm', label: 'Prioriteit algoritme voor beste coach matching', description: 'Voorrang bij het matchen met professionals.' },
+  { id: 'priorityBooking', label: 'Prioriteit booking bij populaire coaches & tutors', description: 'Eerder toegang tot populaire professionals.' },
+  { id: 'extendedSearchFilters', label: 'Extended zoekfilters en matching criteria', description: 'Meer filteropties bij het zoeken.' },
+  { id: 'bulkSessionPlanning', label: 'Bulk session planning voor gemak', description: 'Plan meerdere sessies tegelijk.' },
+  { id: 'premiumSupport24h', label: 'Premium support (24u response tijd)', description: 'Snellere klantenservice.' },
+  { id: 'unlimitedChildren', label: 'Unlimited kinderen (geen limiet meer)', description: 'Onbeperkt aantal kinderen voor premium plannen.' },
+  { id: 'monthlyFamilyCoachingCalls', label: 'Maandelijkse familie coaching calls (30 min)', description: 'Live coaching sessies voor het gezin.' },
+  { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.' },
+  { id: 'advancedParentTrainingModules', label: 'Advanced ouder training modules', description: 'Extra training materiaal voor ouders.' },
+];
+
+
 export interface SubscriptionPlan {
-  id: string; // uniek, bijv. 'free_start', 'family_guide_monthly'
-  name: string; // Publieke naam
+  id: string;
+  name: string;
   description: string;
-  price: number; // Numerieke prijs
-  currency: string; // bijv. "EUR"
+  price: number;
+  currency: string;
   billingInterval: 'month' | 'year' | 'once';
-  features: string[]; // Array van feature strings
-  active: boolean; // Is het plan selecteerbaar?
-  trialPeriodDays?: number; // Aantal dagen gratis proefperiode
-  maxChildren?: number; // Maximaal aantal kinderen (0 of undefined voor ongelimiteerd/niet van toepassing)
-  isPopular?: boolean; // Voor highlighting
+  featureAccess: Record<string, boolean>; // Key is AppFeature.id
+  active: boolean;
+  trialPeriodDays?: number;
+  maxChildren?: number;
+  isPopular?: boolean;
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
-    id: 'free_start',
-    name: 'Gratis Ontdekking',
-    description: 'Basis zelfreflectie tool & PDF overzicht.',
-    price: 0,
-    currency: 'EUR',
-    billingInterval: 'once',
-    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
-    active: true,
-    trialPeriodDays: 0,
-    maxChildren: 1, 
-    isPopular: false,
+    id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    featureAccess: { 
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: false, accountManagement: true, noProgressAnalytics: true,
+      dailyPersonalizedCoaching: false, allReflectionToolsUnlimited: false, interactiveJournal: false, planningFocusTools: false, motivationTracking: false, extensivePdfReports: false,
+      directProfessionalCommunication: false, reviewRatingSystem: false, sessionPlanningReminders: false, childProgressTracking: false, familyInsights: false, max3ChildrenIncluded: false, communicationWithLinkedProfessionals: false,
+      yearlyDiscount15: false, extensiveAssessmentAnalysis: false, aiPoweredInsights: false, advancedAnalyticsTrends: false, exclusiveCoachingModules: false, priorityMatchingAlgorithm: false,
+      priorityBooking: false, extendedSearchFilters: false, bulkSessionPlanning: false, premiumSupport24h: false, unlimitedChildren: false, monthlyFamilyCoachingCalls: false, schoolIntegrationReporting: false, advancedParentTrainingModules: false
+    },
+    active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly',
-    name: 'Familie Coaching - Maandelijks',
-    description: 'Coaching, alle tools, en tot 3 kinderen.',
-    price: 19.99,
-    currency: 'EUR',
-    billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Dagelijkse coaching berichten (gepersonaliseerd)', 'Alle zelfreflectie instrumenten (unlimited)', 'Interactieve dagboek en reflectie-oefeningen', 'Huiswerk planner en focus tools (Pomodoro)', 'Motivatie tracking met voortgangsvisualisatie', 'Uitgebreide PDF overzichten met diepgaande insights', 'Sessies boeken en betalen bij coaches & tutors', 'Direct contact en communicatie met professionals', 'Review en rating systeem', 'Sessie planning met automatische herinneringen', 'Voortgangsvolging en trends van uw kind', 'Familie insights en gepersonaliseerde aanbevelingen', 'Tot 3 kinderen inbegrepen', 'Communicatie met gekoppelde coaches en tutors'],
-    active: true,
-    trialPeriodDays: 14,
-    maxChildren: 3,
-    isPopular: true,
+    id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: {
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: false, sampleCoachingContent: false, basicPdfOverview: false, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: false, extensiveAssessmentAnalysis: false, aiPoweredInsights: false, advancedAnalyticsTrends: false, exclusiveCoachingModules: false, priorityMatchingAlgorithm: false,
+      priorityBooking: false, extendedSearchFilters: false, bulkSessionPlanning: false, premiumSupport24h: false, unlimitedChildren: false, monthlyFamilyCoachingCalls: false, schoolIntegrationReporting: false, advancedParentTrainingModules: false
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
-    id: 'family_guide_yearly',
-    name: 'Familie Coaching - Jaarlijks',
-    description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.',
-    price: (19.99 * 12 * 0.85), // Circa 203.88
-    currency: 'EUR',
-    billingInterval: 'year',
-    features: ['Alle features van Familie Coaching - Maandelijks', '15% korting bij jaarlijkse betaling'],
-    active: true,
-    trialPeriodDays: 14,
-    maxChildren: 3,
-    isPopular: false,
+    id: 'family_guide_yearly', name: 'Familie Coaching - Jaarlijks', description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.', price: (19.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
+    featureAccess: {
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: false, sampleCoachingContent: false, basicPdfOverview: false, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: true, extensiveAssessmentAnalysis: false, aiPoweredInsights: false, advancedAnalyticsTrends: false, exclusiveCoachingModules: false, priorityMatchingAlgorithm: false,
+      priorityBooking: false, extendedSearchFilters: false, bulkSessionPlanning: false, premiumSupport24h: false, unlimitedChildren: false, monthlyFamilyCoachingCalls: false, schoolIntegrationReporting: false, advancedParentTrainingModules: false
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
+  },
+    {
+    id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: {
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: false, sampleCoachingContent: false, basicPdfOverview: false, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: false, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: false, extensiveAssessmentAnalysis: true, aiPoweredInsights: true, advancedAnalyticsTrends: true, exclusiveCoachingModules: true, priorityMatchingAlgorithm: true,
+      priorityBooking: true, extendedSearchFilters: true, bulkSessionPlanning: true, premiumSupport24h: true, unlimitedChildren: true, monthlyFamilyCoachingCalls: true, schoolIntegrationReporting: true, advancedParentTrainingModules: true
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
   {
-    id: 'premium_family_monthly',
-    name: 'Premium Familie - Maandelijks',
-    description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.',
-    price: 39.99,
-    currency: 'EUR',
-    billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Uitgebreide assessment analyse & rapportage', 'Alles van Familie Coaching PLUS:', 'AI-powered insights en gepersonaliseerde aanbevelingen', 'Advanced analytics en trendanalyse', 'Exclusieve coaching modules en premium content', 'Prioriteit algoritme voor beste coach matching', 'Prioriteit booking bij populaire coaches & tutors', 'Extended zoekfilters en matching criteria', 'Bulk session planning voor gemak', 'Premium support (24u response tijd)', 'Unlimited kinderen (geen limiet meer)', 'Maandelijkse familie coaching calls (30 min)', 'School integratie tools en rapportage', 'Advanced ouder training modules'],
-    active: true,
-    trialPeriodDays: 14,
-    maxChildren: 0, // 0 for unlimited
-    isPopular: false,
-  },
-  {
-    id: 'premium_family_yearly',
-    name: 'Premium Familie - Jaarlijks',
-    description: 'Alles van Premium Familie met 15% jaarkorting.',
-    price: (39.99 * 12 * 0.85), // Circa 407.88
-    currency: 'EUR',
-    billingInterval: 'year',
-    features: ['Alle features van Premium Familie - Maandelijks', '15% korting bij jaarlijkse betaling'],
-    active: true,
-    trialPeriodDays: 14,
-    maxChildren: 0, // 0 for unlimited
-    isPopular: false,
+    id: 'premium_family_yearly', name: 'Premium Familie - Jaarlijks', description: 'Alles van Premium Familie met 15% jaarkorting.', price: (39.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
+    featureAccess: {
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: false, sampleCoachingContent: false, basicPdfOverview: false, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: false, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: true, extensiveAssessmentAnalysis: true, aiPoweredInsights: true, advancedAnalyticsTrends: true, exclusiveCoachingModules: true, priorityMatchingAlgorithm: true,
+      priorityBooking: true, extendedSearchFilters: true, bulkSessionPlanning: true, premiumSupport24h: true, unlimitedChildren: true, monthlyFamilyCoachingCalls: true, schoolIntegrationReporting: true, advancedParentTrainingModules: true
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
 ];
 
@@ -103,20 +143,31 @@ export default function SubscriptionManagementPage() {
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        // Migrate old plans: add new fields with defaults if missing
-        const migratedPlans = parsedPlans.map(plan => ({
+        const migratedPlans = parsedPlans.map(plan => {
+          const defaultAccess: Record<string,boolean> = {};
+          ALL_APP_FEATURES.forEach(f => defaultAccess[f.id] = false); // Start with all false
+          
+          // Try to match old string features to new featureAccess keys if possible (simple example)
+          if (plan.features && Array.isArray(plan.features)) { // `features` was the old string array
+            if (plan.features.some((f:string) => f.toLowerCase().includes('start-assessment'))) defaultAccess.startAssessment = true;
+            // Add more migration logic here if needed based on old feature strings
+          }
+
+          return {
             ...plan,
+            featureAccess: plan.featureAccess || defaultAccess, // Use existing or new default
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
             isPopular: plan.isPopular ?? false,
-        }));
+          };
+        });
         setPlans(migratedPlans);
         if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) {
             localStorage.setItem('subscriptionPlans', JSON.stringify(migratedPlans));
         }
       } catch (error) {
         console.error("Error parsing subscription plans from localStorage:", error);
-        setPlans(initialSubscriptionPlans);
+        setPlans(initialSubscriptionPlans); // Use initialSubscriptionPlans which now includes featureAccess
         localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
       }
     } else {

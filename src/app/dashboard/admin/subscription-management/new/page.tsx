@@ -3,7 +3,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { SubscriptionPlan } from "../page"; 
+import { ALL_APP_FEATURES, type AppFeature } from "../page"; // Import defined features
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
@@ -33,7 +34,7 @@ const planFormSchema = z.object({
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
-  features: z.string().min(1, { message: "Voeg minimaal één feature toe (één per regel)." }),
+  featureAccess: z.record(z.boolean()), // Changed from features: z.string()
   active: z.boolean().default(true),
   trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen mag niet negatief zijn.").optional(),
@@ -43,7 +44,7 @@ const planFormSchema = z.object({
 export type PlanFormData = z.infer<typeof planFormSchema>;
 
 interface NewSubscriptionPlanPageProps {
-  planData?: SubscriptionPlan; // Optional for editing
+  planData?: SubscriptionPlan; 
 }
 
 export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPlanPageProps) {
@@ -51,11 +52,16 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
   const router = useRouter();
   const isEditMode = !!planData;
 
+  const defaultFeatureAccess: Record<string, boolean> = {};
+  ALL_APP_FEATURES.forEach(feature => {
+    defaultFeatureAccess[feature.id] = false; // Default to false for new plans
+  });
+
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: isEditMode && planData ? {
       ...planData,
-      features: planData.features.join('\n'),
+      featureAccess: planData.featureAccess || defaultFeatureAccess,
       trialPeriodDays: planData.trialPeriodDays ?? 0,
       maxChildren: planData.maxChildren ?? 0,
       isPopular: planData.isPopular ?? false,
@@ -66,7 +72,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
       price: 0,
       currency: "EUR",
       billingInterval: undefined,
-      features: "",
+      featureAccess: defaultFeatureAccess,
       active: true,
       trialPeriodDays: 0,
       maxChildren: 0,
@@ -77,7 +83,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
   const onSubmit = (data: PlanFormData) => {
     const planToSave: SubscriptionPlan = {
       ...data,
-      features: data.features.split('\n').map(f => f.trim()).filter(f => f.length > 0),
+      // features array is removed, featureAccess is already in data
       trialPeriodDays: data.trialPeriodDays,
       maxChildren: data.maxChildren,
       isPopular: data.isPopular,
@@ -209,15 +215,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 <FormItem>
                   <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximum Aantal Kinderen</FormLabel>
                   <FormControl><Input type="number" min="0" placeholder="0 voor geen limiet" {...field} /></FormControl>
-                  <FormDescription className="text-xs">Typisch 1 voor individuele plannen, of 3-5 voor gezinsplannen. 0 betekent geen specifieke limiet (bijv. voor gratis plan).</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField control={form.control} name="features" render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Features (één per regel)</FormLabel>
-                  <FormControl><Textarea placeholder="- Feature 1\n- Feature 2\n- Nog een feature" {...field} rows={5} /></FormControl>
+                  <FormDescription className="text-xs">Typisch 1 voor individuele plannen, of 3-5 voor gezinsplannen. 0 betekent geen specifieke limiet.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -244,6 +242,46 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
             />
           </CardContent>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Toegankelijke Features</CardTitle>
+                <CardDescription>Vink aan welke features in dit abonnement inbegrepen zijn.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
+                    {ALL_APP_FEATURES.map((feature) => (
+                        <FormField
+                        key={feature.id}
+                        control={form.control}
+                        name={`featureAccess.${feature.id}`}
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 bg-muted/30 hover:bg-muted/50 transition-colors">
+                            <FormControl>
+                                <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                id={`feature-${feature.id}`}
+                                />
+                            </FormControl>
+                            <div className="space-y-0.5 leading-none">
+                                <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-medium cursor-pointer">
+                                {feature.label}
+                                </FormLabel>
+                                {feature.description && (
+                                <FormDescription className="text-xs text-muted-foreground">
+                                    {feature.description}
+                                </FormDescription>
+                                )}
+                            </div>
+                            </FormItem>
+                        )}
+                        />
+                    ))}
+                 </div>
+            </CardContent>
+        </Card>
+
 
         <CardFooter className="flex justify-end gap-3 pt-8 border-t">
           <Button type="submit" disabled={form.formState.isSubmitting}>

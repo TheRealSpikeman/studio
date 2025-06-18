@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +16,8 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page';
+import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -24,20 +25,70 @@ const currentParent = {
   name: "Ouder Tester", 
 };
 
+const defaultFeatureAccessFree: Record<string, boolean> = {};
+ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false);
+defaultFeatureAccessFree.startAssessment = true;
+defaultFeatureAccessFree.weeklyMotivationEmail = true;
+defaultFeatureAccessFree.basicReflectionToolLimited = true;
+defaultFeatureAccessFree.sampleCoachingContent = true;
+defaultFeatureAccessFree.basicPdfOverview = true;
+defaultFeatureAccessFree.browseProfessionals = true;
+defaultFeatureAccessFree.viewProfessionalRates = true;
+defaultFeatureAccessFree.accountManagement = true;
+defaultFeatureAccessFree.noProgressAnalytics = true;
+
+
+const defaultFeatureAccessFamily: Record<string, boolean> = {};
+ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFamily[f.id] = false);
+defaultFeatureAccessFamily.startAssessment = true;
+defaultFeatureAccessFamily.weeklyMotivationEmail = true;
+defaultFeatureAccessFamily.dailyPersonalizedCoaching = true;
+defaultFeatureAccessFamily.allReflectionToolsUnlimited = true;
+defaultFeatureAccessFamily.interactiveJournal = true;
+defaultFeatureAccessFamily.planningFocusTools = true;
+defaultFeatureAccessFamily.motivationTracking = true;
+defaultFeatureAccessFamily.extensivePdfReports = true;
+defaultFeatureAccessFamily.bookSessions = true;
+defaultFeatureAccessFamily.directProfessionalCommunication = true;
+defaultFeatureAccessFamily.reviewRatingSystem = true;
+defaultFeatureAccessFamily.sessionPlanningReminders = true;
+defaultFeatureAccessFamily.childProgressTracking = true;
+defaultFeatureAccessFamily.familyInsights = true;
+defaultFeatureAccessFamily.max3ChildrenIncluded = true;
+defaultFeatureAccessFamily.communicationWithLinkedProfessionals = true;
+defaultFeatureAccessFamily.accountManagement = true;
+
+const defaultFeatureAccessPremium: Record<string, boolean> = { ...defaultFeatureAccessFamily };
+defaultFeatureAccessPremium.extensiveAssessmentAnalysis = true;
+defaultFeatureAccessPremium.aiPoweredInsights = true;
+defaultFeatureAccessPremium.advancedAnalyticsTrends = true;
+defaultFeatureAccessPremium.exclusiveCoachingModules = true;
+defaultFeatureAccessPremium.priorityMatchingAlgorithm = true;
+defaultFeatureAccessPremium.priorityBooking = true;
+defaultFeatureAccessPremium.extendedSearchFilters = true;
+defaultFeatureAccessPremium.bulkSessionPlanning = true;
+defaultFeatureAccessPremium.premiumSupport24h = true;
+defaultFeatureAccessPremium.unlimitedChildren = true;
+defaultFeatureAccessPremium.monthlyFamilyCoachingCalls = true;
+defaultFeatureAccessPremium.schoolIntegrationReporting = true;
+defaultFeatureAccessPremium.advancedParentTrainingModules = true;
+defaultFeatureAccessPremium.max3ChildrenIncluded = false;
+
+
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
+    featureAccess: defaultFeatureAccessFree,
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
     id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Dagelijkse coaching berichten (gepersonaliseerd)', 'Alle zelfreflectie instrumenten (unlimited)', 'Interactieve dagboek en reflectie-oefeningen', 'Huiswerk planner en focus tools (Pomodoro)', 'Motivatie tracking met voortgangsvisualisatie', 'Uitgebreide PDF overzichten met diepgaande insights', 'Sessies boeken en betalen bij coaches & tutors', 'Direct contact en communicatie met professionals', 'Review en rating systeem', 'Sessie planning met automatische herinneringen', 'Voortgangsvolging en trends van uw kind', 'Familie insights en gepersonaliseerde aanbevelingen', 'Tot 3 kinderen inbegrepen', 'Communicatie met gekoppelde coaches en tutors'],
+    featureAccess: defaultFeatureAccessFamily,
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
     id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Uitgebreide assessment analyse & rapportage', 'Alles van Familie Coaching PLUS:', 'AI-powered insights en gepersonaliseerde aanbevelingen', 'Advanced analytics en trendanalyse', 'Exclusieve coaching modules en premium content', 'Prioriteit algoritme voor beste coach matching', 'Prioriteit booking bij populaire coaches & tutors', 'Extended zoekfilters en matching criteria', 'Bulk session planning voor gemak', 'Premium support (24u response tijd)', 'Unlimited kinderen (geen limiet meer)', 'Maandelijkse familie coaching calls (30 min)', 'School integratie tools en rapportage', 'Advanced ouder training modules'],
+    featureAccess: defaultFeatureAccessPremium,
     active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
 ];
@@ -57,8 +108,25 @@ interface Actiepunt {
 const getPlanIcon = (planId: string): React.ElementType => {
     if (planId.includes('premium')) return Star;
     if (planId.includes('family') || planId.includes('gezin')) return Users;
-    return Sparkles; // Default for free_start etc.
+    return Sparkles; 
 };
+
+const getMonthlyEquivalent = (price: number, interval: 'month' | 'year' | 'once'): string | null => {
+    if (interval === 'year' && price > 0) {
+        return (price / 12).toFixed(2);
+    }
+    return null;
+};
+const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | null => {
+    if (monthlyPrice > 0 && yearlyPrice > 0) {
+        const totalMonthlyCost = monthlyPrice * 12;
+        const savings = totalMonthlyCost - yearlyPrice;
+        if (savings > 0) {
+            return savings.toFixed(2);
+        }
+    }
+    return null;
+}
 
 function OuderWelcomePageContent() {
   const router = useRouter();
@@ -84,6 +152,7 @@ function OuderWelcomePageContent() {
       }
     } else {
       setAvailablePlans(initialDefaultPlansForWelcome.filter(p => p.active));
+      // Save defaults if nothing is in localStorage yet
       localStorage.setItem('subscriptionPlans', JSON.stringify(initialDefaultPlansForWelcome));
     }
     setIsLoadingPlans(false);
@@ -229,9 +298,9 @@ function OuderWelcomePageContent() {
           <ol className="list-decimal list-inside space-y-1.5 text-sm text-blue-800">
             <li><strong>Kies een Abonnement:</strong> Selecteer een plan (gratis of betaald). Dit activeert de overige instellingen.</li>
             <li><strong>Belangrijke Info:</strong> Neem kennis van onze voorwaarden en hoe wij met privacy omgaan.</li>
+            <li><strong>Kind(eren) Toevoegen:</strong> Maak profielen aan voor uw kinderen. Zij ontvangen een e-mail om hun account te activeren.</li>
             <li><strong>Privacy & Delen Instellen:</strong> Bepaal per kind wat er gedeeld mag worden.</li>
             <li><strong>'Ken je Kind' Test (Optioneel):</strong> Krijg eerste inzichten die helpen bij het instellen en gesprekken (circa 5 min).</li>
-            <li><strong>Kind(eren) Toevoegen:</strong> Maak profielen aan voor uw kinderen. Zij ontvangen een e-mail om hun account te activeren.</li>
           </ol>
           <p className="mt-3 text-sm text-blue-800">Na deze stappen is uw Ouder Dashboard klaar voor gebruik en kunt u de voortgang van uw kinderen volgen en eventueel begeleiding koppelen.</p>
         </div>
@@ -294,8 +363,8 @@ function OuderWelcomePageContent() {
                         {availablePlans.filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => { 
                             const PlanIcon = getPlanIcon(plan.id);
                             const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
-                            const monthlyEq = yearlyEquivalentPlan ? (yearlyEquivalentPlan.price / 12).toFixed(2) : null;
-                            const savings = yearlyEquivalentPlan ? ((plan.price * 12) - yearlyEquivalentPlan.price).toFixed(2) : null;
+                            const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
+                            const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
                             
                             return (
                             <Card key={plan.id} className={cn(
@@ -313,13 +382,16 @@ function OuderWelcomePageContent() {
                                 </CardHeader>
                                 <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                   <p className="mb-2">{plan.description}</p>
-                                  {plan.maxChildren !== undefined && <p className="mb-2 font-medium">Max. kinderen: {plan.maxChildren === 0 ? 'Onbeperkt' : plan.maxChildren}.</p>}
-                                  {plan.features && plan.features.length > 0 && (
-                                    <ul className="list-none p-0 text-left">
-                                      {plan.features.slice(0,3).map(f => <li key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0"/>{f}</li>)}
-                                      {plan.features.length > 3 && <li>... en meer</li>}
-                                    </ul>
-                                  )}
+                                  {ALL_APP_FEATURES.slice(0,3).map((appFeature) => {
+                                    const hasFeature = plan.featureAccess[appFeature.id];
+                                    return (
+                                      <p key={appFeature.id} className={cn("flex items-center justify-center gap-1.5", hasFeature ? 'text-green-600' : 'text-muted-foreground/70 line-through')}>
+                                        {hasFeature ? <CheckCircle2 className="h-3.5 w-3.5"/> : <XCircle className="h-3.5 w-3.5"/>}
+                                        {appFeature.label}
+                                      </p>
+                                    );
+                                  })}
+                                  {ALL_APP_FEATURES.length > 3 && <p className="mt-1">... en meer.</p>}
                                 </CardContent>
                                 <CardFooter className="pt-3">
                                     <Button 
@@ -334,7 +406,7 @@ function OuderWelcomePageContent() {
                                 {yearlyEquivalentPlan && (
                                     <div className="text-center text-xs p-2 border-t">
                                         <Button variant="link" className="p-0 h-auto text-xs text-primary" onClick={() => handlePlanCTAClick(yearlyEquivalentPlan.id)}>
-                                            Ook als jaarplan: €{yearlyEquivalentPlan.price.toFixed(2)}/jaar (€{monthlyEq}/mnd)
+                                            Ook als jaarplan: €{yearlyEquivalentPlan.price.toFixed(2)}/jaar (${monthlyEq ? `€${monthlyEq}/mnd` : ''})
                                             {savings && parseFloat(savings) > 0 && <span className="text-accent font-semibold ml-1">- bespaar €{savings}</span>}
                                         </Button>
                                     </div>

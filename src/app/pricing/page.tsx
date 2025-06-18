@@ -7,39 +7,93 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, XCircle, Info, Users, BarChart3, BookOpenText, MessageSquare, GraduationCap, ShieldCheck, Sparkles, Star, HelpCircle, Percent, ExternalLink, FileText } from 'lucide-react';
+import { CheckCircle2, XCircle, Info, Users, BarChart3, ExternalLink, FileText, ShieldCheck, Sparkles, Star, HelpCircle, Percent } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescUi } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEffect, useState } from 'react';
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page'; // Import type
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; 
+import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
+
+
+const defaultFeatureAccessFree: Record<string, boolean> = {};
+ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false); // Base for free
+defaultFeatureAccessFree.startAssessment = true;
+defaultFeatureAccessFree.weeklyMotivationEmail = true;
+defaultFeatureAccessFree.basicReflectionToolLimited = true;
+defaultFeatureAccessFree.sampleCoachingContent = true;
+defaultFeatureAccessFree.basicPdfOverview = true;
+defaultFeatureAccessFree.browseProfessionals = true;
+defaultFeatureAccessFree.viewProfessionalRates = true;
+defaultFeatureAccessFree.accountManagement = true;
+defaultFeatureAccessFree.noProgressAnalytics = true;
+
+
+const defaultFeatureAccessFamily: Record<string, boolean> = {};
+ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFamily[f.id] = false); // Base for family
+defaultFeatureAccessFamily.startAssessment = true;
+defaultFeatureAccessFamily.weeklyMotivationEmail = true;
+defaultFeatureAccessFamily.dailyPersonalizedCoaching = true;
+defaultFeatureAccessFamily.allReflectionToolsUnlimited = true;
+defaultFeatureAccessFamily.interactiveJournal = true;
+defaultFeatureAccessFamily.planningFocusTools = true;
+defaultFeatureAccessFamily.motivationTracking = true;
+defaultFeatureAccessFamily.extensivePdfReports = true;
+defaultFeatureAccessFamily.bookSessions = true;
+defaultFeatureAccessFamily.directProfessionalCommunication = true;
+defaultFeatureAccessFamily.reviewRatingSystem = true;
+defaultFeatureAccessFamily.sessionPlanningReminders = true;
+defaultFeatureAccessFamily.childProgressTracking = true;
+defaultFeatureAccessFamily.familyInsights = true;
+defaultFeatureAccessFamily.max3ChildrenIncluded = true;
+defaultFeatureAccessFamily.communicationWithLinkedProfessionals = true;
+defaultFeatureAccessFamily.accountManagement = true;
+
+
+const defaultFeatureAccessPremium: Record<string, boolean> = { ...defaultFeatureAccessFamily }; // Start with family access
+defaultFeatureAccessPremium.extensiveAssessmentAnalysis = true;
+defaultFeatureAccessPremium.aiPoweredInsights = true;
+defaultFeatureAccessPremium.advancedAnalyticsTrends = true;
+defaultFeatureAccessPremium.exclusiveCoachingModules = true;
+defaultFeatureAccessPremium.priorityMatchingAlgorithm = true;
+defaultFeatureAccessPremium.priorityBooking = true;
+defaultFeatureAccessPremium.extendedSearchFilters = true;
+defaultFeatureAccessPremium.bulkSessionPlanning = true;
+defaultFeatureAccessPremium.premiumSupport24h = true;
+defaultFeatureAccessPremium.unlimitedChildren = true;
+defaultFeatureAccessPremium.monthlyFamilyCoachingCalls = true;
+defaultFeatureAccessPremium.schoolIntegrationReporting = true;
+defaultFeatureAccessPremium.advancedParentTrainingModules = true;
+defaultFeatureAccessPremium.max3ChildrenIncluded = false; // Premium has unlimited
 
 // Default plans if localStorage is empty
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
+    featureAccess: defaultFeatureAccessFree,
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
     id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Dagelijkse coaching berichten (gepersonaliseerd)', 'Alle zelfreflectie instrumenten (unlimited)', 'Interactieve dagboek en reflectie-oefeningen', 'Huiswerk planner en focus tools (Pomodoro)', 'Motivatie tracking met voortgangsvisualisatie', 'Uitgebreide PDF overzichten met diepgaande insights', 'Sessies boeken en betalen bij coaches & tutors', 'Direct contact en communicatie met professionals', 'Review en rating systeem', 'Sessie planning met automatische herinneringen', 'Voortgangsvolging en trends van uw kind', 'Familie insights en gepersonaliseerde aanbevelingen', 'Tot 3 kinderen inbegrepen', 'Communicatie met gekoppelde coaches en tutors'],
+    featureAccess: defaultFeatureAccessFamily,
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
     id: 'family_guide_yearly', name: 'Familie Coaching - Jaarlijks', description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.', price: (19.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
-    features: ['Alle features van Familie Coaching - Maandelijks', '15% korting bij jaarlijkse betaling'], active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
+    featureAccess: {...defaultFeatureAccessFamily, yearlyDiscount15: true},
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
   {
     id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    features: ['Start-assessment inbegrepen', 'Uitgebreide assessment analyse & rapportage', 'Alles van Familie Coaching PLUS:', 'AI-powered insights en gepersonaliseerde aanbevelingen', 'Advanced analytics en trendanalyse', 'Exclusieve coaching modules en premium content', 'Prioriteit algoritme voor beste coach matching', 'Prioriteit booking bij populaire coaches & tutors', 'Extended zoekfilters en matching criteria', 'Bulk session planning voor gemak', 'Premium support (24u response tijd)', 'Unlimited kinderen (geen limiet meer)', 'Maandelijkse familie coaching calls (30 min)', 'School integratie tools en rapportage', 'Advanced ouder training modules'],
+    featureAccess: defaultFeatureAccessPremium,
     active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
   {
     id: 'premium_family_yearly', name: 'Premium Familie - Jaarlijks', description: 'Alles van Premium Familie met 15% jaarkorting.', price: (39.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
-    features: ['Alle features van Premium Familie - Maandelijks', '15% korting bij jaarlijkse betaling'], active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+    featureAccess: {...defaultFeatureAccessPremium, yearlyDiscount15: true },
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
 ];
 
@@ -70,8 +124,8 @@ const faqItems = [
 const getPlanIcon = (planId: string): React.ElementType => {
     if (planId.includes('premium')) return Star;
     if (planId.includes('family') || planId.includes('gezin')) return Users;
-    if (planId.includes('coaching')) return Sparkles; // Fallback als 'family' niet matched
-    return Sparkles; // Default voor free_start etc.
+    if (planId.includes('coaching')) return Sparkles; 
+    return Sparkles; 
 };
 
 const getMonthlyEquivalent = (price: number, interval: 'month' | 'year' | 'once'): string | null => {
@@ -102,12 +156,18 @@ export default function PricingPage() {
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        activePlans = parsedPlans.filter(p => p.active).map(plan => ({
+        activePlans = parsedPlans.filter(p => p.active).map(plan => {
+          const defaultAccessForMigration: Record<string, boolean> = {};
+          ALL_APP_FEATURES.forEach(f => defaultAccessForMigration[f.id] = false);
+          
+          return {
             ...plan,
+            featureAccess: plan.featureAccess || defaultAccessForMigration,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : (plan.price === 0 ? 1 : 0)),
             isPopular: plan.isPopular ?? false,
-        }));
+          };
+        });
       } catch (e) {
         console.error("Error parsing plans from localStorage, using defaults", e);
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
@@ -123,11 +183,9 @@ export default function PricingPage() {
 
 
   const handlePlanSelection = (planId: string) => {
-    if (planId === 'free_start') {
-      router.push('/quizzes'); // Of een andere startpagina voor gratis plan
-    } else {
-      router.push(`/signup?plan=${planId}`);
-    }
+    // For all plans, redirect to signup and pass the planId.
+    // The signup page will handle the logic (e.g., direct to quiz for free, or to parent approval for paid)
+    router.push(`/signup?plan=${planId}`);
   };
 
   const getPlanPriceDetail = (plan: SubscriptionPlan): string => {
@@ -141,7 +199,7 @@ export default function PricingPage() {
     if (plan.billingInterval === 'month' && plan.price > 0) {
         const yearlyEquivalentPlan = plans.find(p => 
             p.billingInterval === 'year' &&
-            p.name.toLowerCase().includes(plan.name.split(' - ')[0].toLowerCase()) && // Match on base name
+            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') && // Ensure base name matches
             p.maxChildren === plan.maxChildren
         );
         if (yearlyEquivalentPlan) {
@@ -156,7 +214,7 @@ export default function PricingPage() {
     if (plan.billingInterval === 'month' && plan.price > 0) {
        const yearlyEquivalentPlan = plans.find(p => 
             p.billingInterval === 'year' &&
-            p.name.toLowerCase().includes(plan.name.split(' - ')[0].toLowerCase()) &&
+            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') &&
             p.maxChildren === plan.maxChildren
         );
         if (yearlyEquivalentPlan) {
@@ -168,18 +226,15 @@ export default function PricingPage() {
   }
   
   const getYearlyPlanIdForMonthly = (monthlyPlanId: string): string | undefined => {
-    if (monthlyPlanId === 'family_guide_monthly') return 'family_guide_yearly';
-    if (monthlyPlanId === 'premium_family_monthly') return 'premium_family_yearly';
-    return undefined;
+    const baseName = monthlyPlanId.replace('_monthly', '');
+    return plans.find(p => p.id === `${baseName}_yearly`)?.id;
   }
-
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
   }
   
   const displayPlans = plans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once'));
-
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -242,14 +297,22 @@ export default function PricingPage() {
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3 mt-1">
                     <ul className="space-y-2.5">
-                      {plan.features.map((featureText, idx) => (
-                        <li key={idx} className="flex items-start text-left">
-                          <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 text-green-500 flex-shrink-0" />
-                          <span className="text-muted-foreground text-sm leading-snug">
-                            {featureText}
-                          </span>
-                        </li>
-                      ))}
+                       {ALL_APP_FEATURES.slice(0, 10).map((appFeature) => { // Toon eerste ~10 features, of maak een selectie
+                        const hasFeature = plan.featureAccess[appFeature.id];
+                        const FeatureIcon = hasFeature ? CheckCircle2 : XCircle;
+                        const featureColor = hasFeature ? 'text-green-500' : 'text-red-500';
+                        return (
+                            <li key={appFeature.id} className="flex items-start text-left">
+                            <FeatureIcon className={cn("mr-2.5 mt-0.5 h-5 w-5 flex-shrink-0", featureColor)} />
+                            <span className={cn("text-sm leading-snug", hasFeature ? 'text-muted-foreground' : 'text-muted-foreground/70 line-through')}>
+                                {appFeature.label}
+                            </span>
+                            </li>
+                        );
+                       })}
+                        {ALL_APP_FEATURES.length > 10 && (
+                           <li className="text-xs text-muted-foreground text-center pt-1">... en meer!</li>
+                        )}
                     </ul>
                      {plan.maxChildren !== undefined && (
                          <p className="text-xs text-muted-foreground text-center pt-2">
@@ -261,7 +324,7 @@ export default function PricingPage() {
                     <Button
                       onClick={() => handlePlanSelection(plan.id)}
                       className="w-full h-12 text-base font-semibold"
-                      variant={plan.id === 'free_start' ? 'outline' : (plan.isPopular ? 'default' : 'secondary')}
+                      variant={plan.isPopular ? 'default' : (plan.id === 'free_start' ? 'outline' : 'secondary')}
                     >
                       {plan.id === 'free_start' ? 'Start gratis ontdekking' : `Kies ${plan.name.replace(' - Maandelijks', '')}`}
                     </Button>
