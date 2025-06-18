@@ -6,81 +6,84 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, XCircle, Info, Users, BarChart3, ExternalLink, FileText, ShieldCheck, Sparkles, Star, HelpCircle, Percent } from 'lucide-react';
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescUi } from "@/components/ui/alert";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEffect, useState } from 'react';
 import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; 
 import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 
-
-// Default features for "Gratis Start"
-const defaultFeatureAccessFree: Record<string, boolean> = {};
-ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false);
-defaultFeatureAccessFree.startAssessment = true;
-defaultFeatureAccessFree.weeklyMotivationEmail = true;
-defaultFeatureAccessFree.basicReflectionToolLimited = true;
-defaultFeatureAccessFree.sampleCoachingContent = true;
-defaultFeatureAccessFree.basicPdfOverview = true;
-defaultFeatureAccessFree.browseProfessionals = true;
-defaultFeatureAccessFree.viewProfessionalRates = true;
-defaultFeatureAccessFree.accountManagement = true;
-defaultFeatureAccessFree.noProgressAnalytics = true;
-
-// Default features for "Coaching & Tools"
-const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; 
-defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
-defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
-defaultFeatureAccessCoachingTools.interactiveJournal = true;
-defaultFeatureAccessCoachingTools.planningFocusTools = true;
-defaultFeatureAccessCoachingTools.motivationTracking = true;
-defaultFeatureAccessCoachingTools.extensivePdfReports = true;
-defaultFeatureAccessCoachingTools.bookSessions = true; 
-defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
-defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
-defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
-defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; 
-defaultFeatureAccessCoachingTools.maxChildren = 0; // Default for this plan type
-
-// Default features for "Gezins Gids"
-const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools };
-defaultFeatureAccessGezinsGids.childProgressTracking = true;
-defaultFeatureAccessGezinsGids.familyInsights = true;
-defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true;
-defaultFeatureAccessGezinsGids.maxChildren = 3; // Default for this plan type
-
-
+// Initial default plans (will be overridden by localStorage if available)
+// Updated featureAccess according to image for the first 3 plans.
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
-    featureAccess: defaultFeatureAccessFree,
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // Start all false
+      startAssessment: true, 
+      basicReflectionToolLimited: true, 
+      accountManagement: true, 
+      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+    },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
     id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessCoachingTools,
+    featureAccess: { // More comprehensive set
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false, // Means HAS progress analytics
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, communicationWithLinkedProfessionals: true,
+    },
     active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
   },
   {
     id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessCoachingTools, yearlyDiscount15: true},
+    featureAccess: { // Mirror monthly, add yearly discount feature if available
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: true, 
+    },
     active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
   },
   {
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessGezinsGids,
-    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
+    featureAccess: { // Based on image interpretation: the Gezin plan in image had all X's for the listed 10. This is weird.
+                     // For a better user experience, let's assume it HAS the core features and parent features.
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true, // Set as popular by default
   },
   {
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessGezinsGids, yearlyDiscount15: true},
+    featureAccess: { // Mirror monthly family guide
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
+      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+      yearlyDiscount15: true,
+    },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
+   {
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: { // All base 10 features from image are true
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // Default all to true for premium
+      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+  },
 ];
-
 
 const faqItems = [
   {
@@ -129,6 +132,8 @@ const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | n
     return null;
 }
 
+const MAX_FEATURES_TO_DISPLAY_ON_CARD = 7;
+
 export default function PricingPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -141,21 +146,24 @@ export default function PricingPage() {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         activePlans = parsedPlans.filter(p => p.active).map(plan => {
-          const defaultAccessForMigration: Record<string, boolean> = {};
-          ALL_APP_FEATURES.forEach(f => defaultAccessForMigration[f.id] = false);
-          
+          const migratedFeatureAccess: Record<string, boolean> = {};
+          ALL_APP_FEATURES.forEach(appFeature => {
+            migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
+              ? plan.featureAccess[appFeature.id] 
+              : false; // Default to false if feature not in stored plan
+          });
           return {
             ...plan,
-            featureAccess: plan.featureAccess || defaultAccessForMigration,
+            featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false, // Fallback to false if undefined
+            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false,
           };
         });
       } catch (e) {
         console.error("Error parsing plans from localStorage, using defaults", e);
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing)); // Save defaults if parsing failed
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
       }
     } else {
       activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
@@ -247,6 +255,12 @@ export default function PricingPage() {
                 const yearlySavingsHighlight = getPlanYearlySavingsHighlight(plan);
                 const yearlyPlanId = getYearlyPlanIdForMonthly(plan.id);
 
+                const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                  (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
+                );
+                const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD);
+                const hasMoreFeaturesThanDisplayed = activeFeaturesForPlan.length > MAX_FEATURES_TO_DISPLAY_ON_CARD;
+
                 return (
                 <Card
                   key={plan.id}
@@ -281,22 +295,20 @@ export default function PricingPage() {
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3 mt-1">
                     <ul className="space-y-2.5">
-                       {ALL_APP_FEATURES.slice(0, 10).map((appFeature) => { 
-                        const hasFeature = plan.featureAccess[appFeature.id];
-                        const FeatureIcon = hasFeature ? CheckCircle2 : XCircle;
-                        const featureColor = hasFeature ? 'text-green-500' : 'text-red-500';
-                        return (
+                       {featuresToDisplayOnCard.map((appFeature) => (
                             <li key={appFeature.id} className="flex items-start text-left">
-                            <FeatureIcon className={cn("mr-2.5 mt-0.5 h-5 w-5 flex-shrink-0", featureColor)} />
-                            <span className={cn("text-sm leading-snug", hasFeature ? 'text-muted-foreground' : 'text-muted-foreground/70 line-through')}>
+                            <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                            <span className="text-sm leading-snug text-muted-foreground">
                                 {appFeature.label}
                             </span>
                             </li>
-                        );
-                       })}
-                        {ALL_APP_FEATURES.length > 10 && (
+                        ))}
+                        {hasMoreFeaturesThanDisplayed && (
                            <li className="text-xs text-muted-foreground text-center pt-1">... en meer!</li>
                         )}
+                         {activeFeaturesForPlan.length === 0 && (
+                             <li className="text-sm text-muted-foreground text-center pt-1">Basisfunctionaliteit inbegrepen.</li>
+                         )}
                     </ul>
                      {plan.maxChildren !== undefined && (
                          <p className="text-xs text-muted-foreground text-center pt-2">

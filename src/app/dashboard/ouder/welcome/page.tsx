@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -25,41 +25,42 @@ const currentParent = {
   name: "Ouder Tester", 
 };
 
-// Default features for "Gratis Start"
-const defaultFeatureAccessFree: Record<string, boolean> = {};
-ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false);
-defaultFeatureAccessFree.startAssessment = true;
-defaultFeatureAccessFree.weeklyMotivationEmail = true;
-defaultFeatureAccessFree.basicReflectionToolLimited = true;
-defaultFeatureAccessFree.sampleCoachingContent = true;
-defaultFeatureAccessFree.basicPdfOverview = true;
-defaultFeatureAccessFree.browseProfessionals = true;
-defaultFeatureAccessFree.viewProfessionalRates = true;
-defaultFeatureAccessFree.accountManagement = true;
-defaultFeatureAccessFree.noProgressAnalytics = true;
+// Updated default plans with more realistic featureAccess
+const defaultFeatureAccessFree: Record<string, boolean> = {
+  ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+  startAssessment: true,
+  basicReflectionToolLimited: true,
+  accountManagement: true,
+  noProgressAnalytics: true,
+};
 
-// Default features for "Coaching & Tools" 
-const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; 
-defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
-defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
-defaultFeatureAccessCoachingTools.interactiveJournal = true;
-defaultFeatureAccessCoachingTools.planningFocusTools = true;
-defaultFeatureAccessCoachingTools.motivationTracking = true;
-defaultFeatureAccessCoachingTools.extensivePdfReports = true;
-defaultFeatureAccessCoachingTools.bookSessions = true; 
-defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
-defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
-defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
-defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; 
-defaultFeatureAccessCoachingTools.maxChildren = 0; 
+const defaultFeatureAccessCoachingTools: Record<string, boolean> = {
+  ...defaultFeatureAccessFree,
+  weeklyMotivationEmail: true,
+  sampleCoachingContent: true,
+  basicPdfOverview: true,
+  browseProfessionals: true,
+  viewProfessionalRates: true,
+  dailyPersonalizedCoaching: true,
+  allReflectionToolsUnlimited: true,
+  interactiveJournal: true,
+  planningFocusTools: true,
+  motivationTracking: true,
+  extensivePdfReports: true,
+  bookSessions: true,
+  directProfessionalCommunication: true,
+  reviewRatingSystem: true,
+  sessionPlanningReminders: true,
+  communicationWithLinkedProfessionals: true,
+  noProgressAnalytics: false, // HAS progress analytics
+};
 
-// Default features for "Gezins Gids" 
-const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools };
-defaultFeatureAccessGezinsGids.childProgressTracking = true;
-defaultFeatureAccessGezinsGids.familyInsights = true;
-defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true;
-defaultFeatureAccessGezinsGids.maxChildren = 3;
-
+const defaultFeatureAccessGezinsGids: Record<string, boolean> = {
+  ...defaultFeatureAccessCoachingTools,
+  childProgressTracking: true,
+  familyInsights: true,
+  max3ChildrenIncluded: true,
+};
 
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
@@ -87,7 +88,16 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     featureAccess: {...defaultFeatureAccessGezinsGids, yearlyDiscount15: true},
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
+   {
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: { // All base 10 features from image are true
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+  },
 ];
+
 
 interface Actiepunt {
   id: string;
@@ -124,6 +134,9 @@ const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | n
     return null;
 }
 
+const MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME = 5;
+
+
 function OuderWelcomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -146,14 +159,14 @@ function OuderWelcomePageContent() {
         ALL_APP_FEATURES.forEach(appFeature => {
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
             ? plan.featureAccess[appFeature.id] 
-            : false;
+            : false; // Ensures all features from ALL_APP_FEATURES are present, defaulting to false
         });
         return {
             ...plan,
             featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false, // Fallback to false if undefined
+            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false,
         };
     };
 
@@ -380,6 +393,12 @@ function OuderWelcomePageContent() {
                             const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
                             const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
                             
+                            const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                              (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
+                            );
+                            const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
+                            const hasMoreFeaturesThanDisplayed = activeFeaturesForPlan.length > MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME;
+
                             return (
                             <Card key={plan.id} className={cn(
                                 "flex flex-col text-center transition-all duration-200 border-2",
@@ -389,38 +408,48 @@ function OuderWelcomePageContent() {
                                 <CardHeader className="pb-2">
                                     <PlanIcon className="mx-auto h-8 w-8 text-primary mb-2"/>
                                     <CardTitle className="text-md font-semibold">{plan.name.replace(' - Maandelijks', '')}</CardTitle>
-                                    {plan.price !== undefined && <p className="text-sm font-bold text-primary">{plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}/${plan.billingInterval === 'month' ? 'mnd' : 'jaar'}`}</p>}
+                                    {plan.price !== undefined && <p className="text-2xl font-bold text-primary">{plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}</p>}
+                                    <p className="text-xs font-normal text-muted-foreground -mt-1"> {plan.price === 0 ? 'Proef de kracht' : plan.billingInterval === 'month' ? 'p/gezin/maand' : 'eenmalig'}</p>
                                     {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
                                       <p className="text-xs text-green-600 font-medium">{plan.trialPeriodDays} dagen gratis proberen!</p>
                                     )}
                                 </CardHeader>
-                                <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
-                                  <p className="mb-2">{plan.description}</p>
-                                  {ALL_APP_FEATURES.slice(0,3).map((appFeature) => {
-                                    const hasFeature = plan.featureAccess[appFeature.id];
-                                    return (
-                                      <p key={appFeature.id} className={cn("flex items-center justify-center gap-1.5", hasFeature ? 'text-green-600' : 'text-muted-foreground/70 line-through')}>
-                                        {hasFeature ? <CheckCircle2 className="h-3.5 w-3.5"/> : <XCircle className="h-3.5 w-3.5"/>}
-                                        {appFeature.label}
+                                <CardContent className="text-xs text-muted-foreground flex-grow space-y-1.5">
+                                  <p className="mb-2 text-sm">{plan.description}</p>
+                                  <ul className="space-y-1">
+                                    {featuresToDisplayOnCard.map((appFeature) => (
+                                      <li key={appFeature.id} className="flex items-center justify-center gap-1.5">
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                                        <span className="text-xs leading-tight">{appFeature.label}</span>
+                                      </li>
+                                    ))}
+                                    {hasMoreFeaturesThanDisplayed && (
+                                      <li className="text-xs text-muted-foreground/80 text-center pt-0.5">... en meer!</li>
+                                    )}
+                                    {activeFeaturesForPlan.length === 0 && (
+                                      <li className="text-xs text-muted-foreground/80 text-center pt-0.5">Basisfunctionaliteit.</li>
+                                    )}
+                                  </ul>
+                                  {plan.maxChildren !== undefined && (
+                                      <p className="text-xs text-muted-foreground pt-1.5">
+                                          {plan.maxChildren === 0 ? 'Onbeperkt kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''}`}
                                       </p>
-                                    );
-                                  })}
-                                  {ALL_APP_FEATURES.length > 3 && <p className="mt-1">... en meer.</p>}
+                                  )}
                                 </CardContent>
-                                <CardFooter className="pt-3">
+                                <CardFooter className="pt-3 pb-4">
                                     <Button 
                                       size="sm" 
                                       className="w-full" 
                                       variant={planParam === plan.id ? (plan.id === 'free_start' ? "default" : "default") : "outline"}
                                       onClick={() => handlePlanCTAClick(plan.id)}
                                     >
-                                      {planParam === plan.id ? (plan.id === 'free_start' ? "Gratis Gekozen" : "Bevestig & Activeer") : "Kies dit Plan"}
+                                      {planParam === plan.id ? (plan.id === 'free_start' ? "Gratis Gekozen" : "Bevestig Keuze") : "Kies dit Plan"}
                                     </Button>
                                 </CardFooter>
                                 {yearlyEquivalentPlan && (
                                     <div className="text-center text-xs p-2 border-t">
                                         <Button variant="link" className="p-0 h-auto text-xs text-primary" onClick={() => handlePlanCTAClick(yearlyEquivalentPlan.id)}>
-                                            Ook als jaarplan: €{yearlyEquivalentPlan.price.toFixed(2)}/jaar (${monthlyEq ? `€${monthlyEq}/mnd` : ''})
+                                            Ook jaarlijks: €{yearlyEquivalentPlan.price.toFixed(2)} (${monthlyEq ? `€${monthlyEq}/mnd` : ''})
                                             {savings && parseFloat(savings) > 0 && <span className="text-accent font-semibold ml-1">- bespaar €{savings}</span>}
                                         </Button>
                                     </div>
