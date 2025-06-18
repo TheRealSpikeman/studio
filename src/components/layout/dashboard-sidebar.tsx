@@ -30,7 +30,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package // Added Package icon
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -147,6 +147,7 @@ const navItems: NavItem[] = [
     ]
   },
   { href: '/dashboard/admin/subscription-management', label: 'Abonnementenbeheer', icon: CreditCard, adminOnly: true },
+  { href: '/dashboard/admin/feature-management', label: 'Feature Beheer', icon: Package, adminOnly: true }, 
   {
     href: '/dashboard/admin/content-management',
     label: 'Content Management',

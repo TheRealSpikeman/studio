@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle, Package } from 'lucide-react'; // Added Package
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -16,8 +16,8 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page';
-import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; // Import from centralized location
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page'; // Import from centralized location
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -25,16 +25,13 @@ const currentParent = {
   name: "Ouder Tester",
 };
 
-const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
+const initialDefaultPlansForWelcome: SubscriptionPlan[] = [ // This will be used as a fallback if localStorage is empty
   {
     id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
-    featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true,
-      basicReflectionToolLimited: true,
-      basicPdfOverview: true,
-      accountManagement: true,
+    featureAccess: { 
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])), // Use DEFAULT_APP_FEATURES
+      startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
@@ -42,13 +39,12 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
-      aiPoweredInsights: true,
-      exclusiveCoachingModules: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
@@ -56,14 +52,13 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
-       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
-      aiPoweredInsights: true,
-      exclusiveCoachingModules: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
@@ -71,8 +66,8 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: false,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
+      noProgressAnalytics: false, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
@@ -80,9 +75,9 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
     tagline: 'Het meest complete pakket met maximale korting!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: false,
-      yearlyDiscount15: true,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: false, 
+      yearlyDiscount15: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
@@ -134,6 +129,7 @@ function OuderWelcomePageContent() {
   const [isClient, setIsClient] = useState(false);
   const [addChildFormKey, setAddChildFormKey] = useState(0);
   const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
+  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
 
   const planParam = searchParams.get('plan');
@@ -141,12 +137,28 @@ function OuderWelcomePageContent() {
 
   useEffect(() => {
     setIsClient(true);
-    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    // Load features
+    const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
+    let loadedFeatures = DEFAULT_APP_FEATURES;
+    if (storedFeaturesRaw) {
+      try {
+        loadedFeatures = JSON.parse(storedFeaturesRaw);
+      } catch (e) {
+        console.error("Error parsing features from localStorage on welcome, using defaults", e);
+        localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+      }
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+    }
+    setAllAppFeatures(loadedFeatures);
+
+    // Load plans
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     let loadedPlans: SubscriptionPlan[] = [];
 
     const ensureFullFeatureAccess = (plan: SubscriptionPlan): SubscriptionPlan => {
         const migratedFeatureAccess: Record<string, boolean> = {};
-        ALL_APP_FEATURES.forEach(appFeature => {
+        loadedFeatures.forEach(appFeature => {
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean')
             ? plan.featureAccess[appFeature.id]
             : false;
@@ -168,11 +180,11 @@ function OuderWelcomePageContent() {
       } catch (e) {
         console.error("Error parsing plans from localStorage on welcome page, using defaults", e);
         loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialDefaultPlansForWelcome));
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlansForWelcome));
       }
     } else {
       loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
-      localStorage.setItem('subscriptionPlans', JSON.stringify(initialDefaultPlansForWelcome));
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlansForWelcome));
     }
 
     setAvailablePlans(loadedPlans.filter(p => p.active));
@@ -385,7 +397,7 @@ function OuderWelcomePageContent() {
                               const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
                               const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
 
-                              const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                              const activeFeaturesForPlan = allAppFeatures.filter(
                                 (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
                               );
                               const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
@@ -413,8 +425,8 @@ function OuderWelcomePageContent() {
                                     <ul className="space-y-0.5">
                                       {featuresToDisplayOnCard.map((appFeature) => (
                                         <li key={appFeature.id} className="flex items-start justify-center text-left">
-                                          <CheckCircle2 className="mr-2 mt-[2px] h-4 w-4 flex-shrink-0 text-green-500" />
-                                          <span className="text-xs leading-snug">{appFeature.label}</span>
+                                          <CheckCircle2 className="mr-2 mt-[3px] h-4 w-4 flex-shrink-0 text-green-500" />
+                                          <span className="text-sm leading-snug text-muted-foreground">{appFeature.label}</span>
                                         </li>
                                       ))}
                                       {hasMoreFeaturesThanDisplayed && (

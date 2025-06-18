@@ -7,26 +7,23 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle } from 'lucide-react';
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle, Package } from 'lucide-react'; // Added Package
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page';
-import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; // Import from centralized location
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page'; // Import from centralized location
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
-const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
+const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [ // This will be used as a fallback if localStorage is empty
   {
     id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
-    featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true,
-      basicReflectionToolLimited: true,
-      basicPdfOverview: true,
-      accountManagement: true,
+    featureAccess: { 
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])), // Use DEFAULT_APP_FEATURES
+      startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
@@ -34,13 +31,12 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
-      aiPoweredInsights: true,
-      exclusiveCoachingModules: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
@@ -48,14 +44,13 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
-       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
-      aiPoweredInsights: true,
-      exclusiveCoachingModules: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
@@ -63,8 +58,8 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // All true for premium
-      noProgressAnalytics: false,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
+      noProgressAnalytics: false, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
@@ -72,13 +67,14 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
     tagline: 'Het meest complete pakket met maximale korting!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: false,
-      yearlyDiscount15: true,
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: false, 
+      yearlyDiscount15: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
 ];
+
 
 const faqItems = [
   {
@@ -132,17 +128,34 @@ const MAX_FEATURES_TO_DISPLAY_ON_CARD = 16;
 export default function PricingPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    // Load features
+    const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
+    let loadedFeatures = DEFAULT_APP_FEATURES;
+    if (storedFeaturesRaw) {
+      try {
+        loadedFeatures = JSON.parse(storedFeaturesRaw);
+      } catch (e) {
+        console.error("Error parsing features from localStorage on pricing page, using defaults", e);
+        localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+      }
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+    }
+    setAllAppFeatures(loadedFeatures);
+
+    // Load plans
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     let activePlans: SubscriptionPlan[] = [];
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         activePlans = parsedPlans.filter(p => p.active).map(plan => {
           const migratedFeatureAccess: Record<string, boolean> = {};
-          ALL_APP_FEATURES.forEach(appFeature => {
+          loadedFeatures.forEach(appFeature => { // Use loadedFeatures here
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean')
               ? plan.featureAccess[appFeature.id]
               : false;
@@ -157,21 +170,23 @@ export default function PricingPage() {
           };
         });
       } catch (e) {
-        console.error("Error parsing plans from localStorage, using defaults", e);
+        console.error("Error parsing plans from localStorage on pricing page, using defaults", e);
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
             ...plan,
+            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess[f.id] || false])), // Ensure all features from loadedFeatures are considered
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlansForPricing));
       }
     } else {
       activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
             ...plan,
+            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess[f.id] || false])),
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
-      localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlansForPricing));
     }
     setPlans(activePlans);
     setIsLoading(false);
@@ -260,7 +275,7 @@ export default function PricingPage() {
                   const yearlySavingsHighlight = getPlanYearlySavingsHighlight(plan);
                   const yearlyPlanId = getYearlyPlanIdForMonthly(plan.id);
 
-                  const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                  const activeFeaturesForPlan = allAppFeatures.filter(
                     (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
                   );
                   const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD);
@@ -298,10 +313,10 @@ export default function PricingPage() {
                     </CardHeader>
                     <CardContent className="flex-grow space-y-3 mt-1">
                       <p className="mb-3 text-sm text-muted-foreground">{plan.description}</p>
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5">
                         {featuresToDisplayOnCard.map((appFeature) => (
                               <li key={appFeature.id} className="flex items-start text-left">
-                              <CheckCircle2 className="mr-2 mt-[2px] h-4 w-4 flex-shrink-0 text-green-500" />
+                              <CheckCircle2 className="mr-2 mt-[3px] h-4 w-4 flex-shrink-0 text-green-500" />
                               <span className="text-sm leading-snug text-muted-foreground">
                                   {appFeature.label}
                               </span>

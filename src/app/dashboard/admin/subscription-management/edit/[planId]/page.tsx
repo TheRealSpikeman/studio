@@ -4,7 +4,7 @@
 
 import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
 import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
-import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page'; // Import DEFAULT_APP_FEATURES
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,23 +19,24 @@ export default function EditSubscriptionPlanPage() {
 
   useEffect(() => {
     if (planId) {
-      const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+      const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
       if (storedPlansRaw) {
         const storedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         const foundPlan = storedPlans.find(p => p.id === planId);
         
         if (foundPlan) {
             const defaultFeatureAccess: Record<string, boolean> = {};
-            ALL_APP_FEATURES.forEach(feature => {
+            DEFAULT_APP_FEATURES.forEach(feature => { // Use DEFAULT_APP_FEATURES for full list
               defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
             });
 
             const planWithDefaults: SubscriptionPlan = {
                 ...foundPlan,
-                featureAccess: defaultFeatureAccess, // Ensure all features are present
+                featureAccess: defaultFeatureAccess, 
                 trialPeriodDays: foundPlan.trialPeriodDays ?? (foundPlan.price === 0 ? 0 : 14),
                 maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
                 isPopular: foundPlan.isPopular ?? false,
+                tagline: foundPlan.tagline ?? '',
             };
             setPlanData(planWithDefaults);
         } else {

@@ -20,12 +20,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap } from "lucide-react"; // Added icons
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package } from "lucide-react"; // Added icons
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import type { SubscriptionPlan } from "../page"; 
-import { ALL_APP_FEATURES, type AppFeature, type TargetAudience } from "../page"; 
+import { useState, useEffect } from 'react';
+import type { SubscriptionPlan, AppFeature, TargetAudience } from "../page"; 
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from "../page"; 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -52,10 +53,10 @@ interface NewSubscriptionPlanPageProps {
 
 const getAudienceBadgeVariant = (audience: TargetAudience): "default" | "secondary" | "outline" => {
   switch (audience) {
-    case 'leerling': return 'default'; // Primary-like
+    case 'leerling': return 'default'; 
     case 'ouder': return 'secondary';
-    case 'beide': return 'outline'; // Accent-like
     case 'platform': return 'outline';
+    case 'beide': return 'outline'; 
     default: return 'outline';
   }
 };
@@ -63,8 +64,8 @@ const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   switch (audience) {
     case 'leerling': return 'bg-blue-100 text-blue-700 border-blue-300';
     case 'ouder': return 'bg-green-100 text-green-700 border-green-300';
-    case 'beide': return 'bg-purple-100 text-purple-700 border-purple-300';
     case 'platform': return 'bg-gray-100 text-gray-700 border-gray-300';
+    case 'beide': return 'bg-purple-100 text-purple-700 border-purple-300';
     default: return '';
   }
 };
@@ -73,9 +74,20 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
   const { toast } = useToast();
   const router = useRouter();
   const isEditMode = !!planData;
+  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
+
+  useEffect(() => {
+    const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
+    if (storedFeaturesRaw) {
+      setAllAppFeatures(JSON.parse(storedFeaturesRaw));
+    } else {
+      setAllAppFeatures(DEFAULT_APP_FEATURES);
+      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+    }
+  }, []);
 
   const defaultFeatureAccess: Record<string, boolean> = {};
-  ALL_APP_FEATURES.forEach(feature => {
+  allAppFeatures.forEach(feature => {
     defaultFeatureAccess[feature.id] = false; 
   });
 
@@ -104,8 +116,23 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     },
   });
 
+  // Update defaultValues when allAppFeatures are loaded, especially for new plans
+  useEffect(() => {
+    if (!isEditMode && allAppFeatures.length > 0) {
+      const initialAccess: Record<string, boolean> = {};
+      allAppFeatures.forEach(feature => {
+        initialAccess[feature.id] = false; 
+      });
+      form.reset({
+        ...form.getValues(), // keep other existing values
+        featureAccess: initialAccess,
+      });
+    }
+  }, [allAppFeatures, isEditMode, form]);
+
+
   const handleSelectAllFeatures = (select: boolean) => {
-    ALL_APP_FEATURES.forEach(feature => {
+    allAppFeatures.forEach(feature => {
       form.setValue(`featureAccess.${feature.id}`, select);
     });
   };
@@ -120,7 +147,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     };
 
     try {
-      const existingPlansRaw = localStorage.getItem('subscriptionPlans');
+      const existingPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
       let existingPlans: SubscriptionPlan[] = existingPlansRaw ? JSON.parse(existingPlansRaw) : [];
       
       if (isEditMode && planData) {
@@ -144,7 +171,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
           description: `Het abonnement "${planToSave.name}" is aangemaakt.`,
         });
       }
-      localStorage.setItem('subscriptionPlans', JSON.stringify(existingPlans));
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(existingPlans));
     } catch (error) {
       console.error("Failed to save/update subscription plan in localStorage:", error);
        toast({
@@ -276,7 +303,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
 
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Configureer Features voor dit Abonnement</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Package className="h-5 w-5 text-primary"/>Configureer Features voor dit Abonnement</CardTitle>
                 <CardDescription>Vink aan welke features in dit abonnement inbegrepen zijn.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -288,8 +315,8 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                         <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
                     </Button>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                    {ALL_APP_FEATURES.map((feature) => (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
+                    {allAppFeatures.map((feature) => (
                         <FormField
                         key={feature.id}
                         control={form.control}

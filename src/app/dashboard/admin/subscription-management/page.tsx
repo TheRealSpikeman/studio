@@ -19,16 +19,15 @@ export interface AppFeature {
   label: string;
   description?: string;
   targetAudience: TargetAudience[];
-  category?: string; // Bijv. "Basis", "Coaching", "Tools", "Ouderportaal", "Voordeel"
+  category?: string;
 }
 
-// Data nu direct gevuld op basis van de screenshot
-export const ALL_APP_FEATURES: AppFeature[] = [
-  // Kolom 1 uit screenshot
+export const DEFAULT_APP_FEATURES: AppFeature[] = [
+  // Kolom 1 uit screenshot (features van de afbeelding)
   { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
   { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.', targetAudience: ['leerling'], category: 'Coaching' },
   { id: 'professionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' },
+  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' }, // Markeer als "uit" feature
   { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.', targetAudience: ['leerling'], category: 'Tools' },
   { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
   { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.', targetAudience: ['leerling', 'ouder'], category: 'Tools' },
@@ -68,11 +67,15 @@ export const ALL_APP_FEATURES: AppFeature[] = [
   { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.', targetAudience: ['ouder', 'platform'], category: 'Tools' },
 ];
 
+export const LOCAL_STORAGE_FEATURES_KEY = 'mindnavigator_app_features';
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans';
+
 
 export interface SubscriptionPlan {
   id: string;
   name: string;
   description: string;
+  tagline?: string;
   price: number;
   currency: string;
   billingInterval: 'month' | 'year' | 'once';
@@ -81,7 +84,6 @@ export interface SubscriptionPlan {
   trialPeriodDays?: number;
   maxChildren?: number;
   isPopular?: boolean;
-  tagline?: string;
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
@@ -89,7 +91,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
     featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
@@ -98,11 +100,11 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
       aiPoweredInsights: true, exclusiveCoachingModules: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
@@ -111,11 +113,11 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
-       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
-      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
       aiPoweredInsights: true, exclusiveCoachingModules: true,
     },
@@ -125,7 +127,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), 
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
       noProgressAnalytics: false, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
@@ -134,7 +136,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
     tagline: 'Het meest complete pakket met maximale korting!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
       noProgressAnalytics: false, 
       yearlyDiscount15: true, 
     },
@@ -147,20 +149,19 @@ export default function SubscriptionManagementPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
   useEffect(() => {
-    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         const migratedPlans = parsedPlans.map(plan => {
           const defaultAccess: Record<string,boolean> = {};
-          ALL_APP_FEATURES.forEach(f => {
-            // Ensure feature id from ALL_APP_FEATURES is used as key
+          DEFAULT_APP_FEATURES.forEach(f => {
             defaultAccess[f.id] = plan.featureAccess?.[f.id] || false;
           }); 
           
           return {
             ...plan,
-            featureAccess: defaultAccess, // Apply the fully populated featureAccess
+            featureAccess: defaultAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
             isPopular: plan.isPopular ?? false,
@@ -168,25 +169,24 @@ export default function SubscriptionManagementPage() {
           };
         });
         setPlans(migratedPlans);
-        // Only update localStorage if migration actually changed something or if it was missing features
         if (JSON.stringify(parsedPlans.map(p=>p.featureAccess)) !== JSON.stringify(migratedPlans.map(p=>p.featureAccess))) {
-            localStorage.setItem('subscriptionPlans', JSON.stringify(migratedPlans));
+            localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(migratedPlans));
         }
       } catch (error) {
         console.error("Error parsing subscription plans from localStorage:", error);
         setPlans(initialSubscriptionPlans); 
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlans));
       }
     } else {
       setPlans(initialSubscriptionPlans);
-      localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlans));
     }
   }, []);
 
   const handleDeletePlan = (planId: string) => {
     const updatedPlans = plans.filter(plan => plan.id !== planId);
     setPlans(updatedPlans);
-    localStorage.setItem('subscriptionPlans', JSON.stringify(updatedPlans));
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
     toast({ title: "Abonnement Verwijderd", description: `Abonnement met ID ${planId} is verwijderd.` });
   };
   
