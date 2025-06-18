@@ -47,7 +47,7 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
 const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destructive" | "outline" => {
     switch (role) {
       case 'admin': return 'default'; 
-      case 'coach': return 'default'; // Updated coach variant
+      case 'coach': return 'default'; 
       case 'leerling': return 'outline';
       case 'tutor': return 'default';
       case 'ouder': return 'secondary';
@@ -58,9 +58,9 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
 const getRoleBadgeClasses = (role: UserRole): string => {
     switch (role) {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
-      case 'coach': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; // Updated coach color
+      case 'coach': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; 
       case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
-      case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200'; // Changed ouder color for distinction
+      case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200'; 
       default: return ''; // Leerling gets default outline styling
     }
 }
@@ -78,9 +78,6 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
   }
   
   const formatRoleText = (role: UserRole): string => {
-    if (role === 'leerling') return 'Leerling';
-    if (role === 'ouder') return 'Ouder';
-    if (role === 'coach') return 'Coach';
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
 

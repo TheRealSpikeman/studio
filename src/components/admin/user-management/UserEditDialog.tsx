@@ -16,19 +16,19 @@ import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users, HeartHandshake } from 'lucide-react'; // Added HeartHandshake
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users, HeartHandshake } from 'lucide-react'; 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 const ageGroupValues = ["12-14", "15-18", "adult"] as const;
-const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; // 'coach' was already here
+const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; 
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
-  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring']), // Added wacht_op_ouder_goedkeuring
+  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring']), 
   role: z.enum(userRoleValues),
   ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),

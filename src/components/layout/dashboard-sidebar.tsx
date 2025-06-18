@@ -52,7 +52,7 @@ interface NavItem {
   isSubItem?: boolean;
   parent?: string;
   children?: NavItem[];
-  isOuderOnboardingLink?: boolean; // New property
+  isOuderOnboardingLink?: boolean; 
 }
 
 const navItems: NavItem[] = [
@@ -102,7 +102,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   
   // Ouder Items
-  { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, // New onboarding link
+  { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
@@ -181,7 +181,7 @@ function SidebarNavigationContent() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
   const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
-  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true); // State for ouder onboarding
+  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true); 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -256,9 +256,8 @@ function SidebarNavigationContent() {
               }
             } else if (currentDashboardRole === 'ouder') {
               if (item.isOuderOnboardingLink) {
-                showItem = isOuderOnboardingPending; // Show onboarding link only if pending
+                showItem = isOuderOnboardingPending; 
               } else {
-                // Hide other ouderOnly links if onboarding is pending, except for profile
                 showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
               }
             }
@@ -328,7 +327,6 @@ function SidebarNavigationContent() {
               isParentHighlighted = true;
             }
 
-            // Disable parent items if ouder onboarding is pending, unless it's the onboarding link or profile
             const itemIsDisabled = currentDashboardRole === 'ouder' && 
                                    isOuderOnboardingPending && 
                                    !item.isOuderOnboardingLink &&
@@ -374,7 +372,6 @@ function SidebarNavigationContent() {
                     {visibleChildren.map((child, childIndex) => {
                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
                        const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
-                       // Disable child items if ouder onboarding is pending, unless it's the profile link
                        const childIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile';
                       return (
                         <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
@@ -426,4 +423,3 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
-

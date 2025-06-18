@@ -15,10 +15,10 @@ import { useToast } from '@/hooks/use-toast';
 
 // Dummy student data for now
 const DUMMY_STUDENTS: User[] = [
-  { id: 's1', name: 'Eva Deelnemer', email: 'eva@example.com', status: 'actief', role: 'deelnemer', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 40).toISOString(), avatarUrl: 'https://picsum.photos/seed/eva/40/40' },
-  { id: 's2', name: 'Frank Student', email: 'frank@example.com', status: 'actief', role: 'deelnemer', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString() },
-  { id: 's3', name: 'Grace Leerling', email: 'grace@example.com', status: 'niet geverifieerd', role: 'deelnemer', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 15).toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), avatarUrl: 'https://picsum.photos/seed/grace/40/40' },
-  { id: 's4', name: 'Hugo Scholier', email: 'hugo@example.com', status: 'actief', role: 'deelnemer', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 7).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString() },
+  { id: 's1', name: 'Eva Deelnemer', email: 'eva@example.com', status: 'actief', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 40).toISOString(), avatarUrl: 'https://picsum.photos/seed/eva/40/40' },
+  { id: 's2', name: 'Frank Student', email: 'frank@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString() },
+  { id: 's3', name: 'Grace Leerling', email: 'grace@example.com', status: 'niet geverifieerd', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 15).toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), avatarUrl: 'https://picsum.photos/seed/grace/40/40' },
+  { id: 's4', name: 'Hugo Scholier', email: 'hugo@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 7).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString() },
 ];
 
 const ITEMS_PER_PAGE = 10;
@@ -42,7 +42,7 @@ export default function StudentManagementPage() {
                             student.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
       const matchesAgeGroup = ageGroupFilter === 'all' || student.ageGroup === ageGroupFilter;
-      return matchesSearch && matchesStatus && matchesAgeGroup && student.role === 'deelnemer';
+      return matchesSearch && matchesStatus && matchesAgeGroup && student.role === 'leerling';
     });
   }, [students, searchTerm, statusFilter, ageGroupFilter]);
 
