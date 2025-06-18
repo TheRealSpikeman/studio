@@ -25,66 +25,62 @@ const currentParent = {
   name: "Ouder Tester", 
 };
 
-// Updated default plans with more realistic featureAccess
-const defaultFeatureAccessFree: Record<string, boolean> = {
-  ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-  startAssessment: true,
-  basicReflectionToolLimited: true,
-  accountManagement: true,
-  noProgressAnalytics: true,
-};
-
-const defaultFeatureAccessCoachingTools: Record<string, boolean> = {
-  ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-  startAssessment: true, 
-  weeklyMotivationEmail: true, 
-  basicReflectionToolLimited: false, 
-  sampleCoachingContent: true, 
-  basicPdfOverview: true, 
-  browseProfessionals: true, 
-  viewProfessionalRates: true, 
-  bookSessions: true, 
-  accountManagement: true, 
-  noProgressAnalytics: false, 
-  dailyPersonalizedCoaching: true, 
-  allReflectionToolsUnlimited: true, 
-  interactiveJournal: true, 
-  planningFocusTools: true, 
-  motivationTracking: true, 
-  extensivePdfReports: true,
-  directProfessionalCommunication: true, 
-  reviewRatingSystem: true, 
-  sessionPlanningReminders: true, 
-  communicationWithLinkedProfessionals: true,
-};
-
-const defaultFeatureAccessGezinsGids: Record<string, boolean> = {
-  ...defaultFeatureAccessCoachingTools, // Inherits all from Coaching & Tools
-  childProgressTracking: true,
-  familyInsights: true,
-  max3ChildrenIncluded: true, // Example of a specific Gezins Gids feature
-  // Other Gezins Gids specific features can be set to true here
-};
-
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    featureAccess: defaultFeatureAccessFree,
+    tagline: 'Start direct, geen kosten.',
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true,
+      basicReflectionToolLimited: true,
+      basicPdfOverview: true,
+      accountManagement: true,
+    },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete ondersteuning voor het hele gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessGezinsGids,
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+    },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
-  {
-    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alle features en ongelimiteerd kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // All true for premium
-      noProgressAnalytics: false, // Explicitly ensure analytics is on for premium
+   {
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
+    tagline: 'Jaarlijks voordeel voor het hele gezin!',
+    featureAccess: {
+       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
+      childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
+      max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      yearlyDiscount15: true,
     },
-    active: true, trialPeriodDays: 14, maxChildren: 4, // Image shows "Tot 4 kinderen inbegrepen"
-    isPopular: false, 
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
+  },
+  {
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    tagline: '€0,67 per dag - minder dan een kopje koffie!',
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), 
+      noProgressAnalytics: false, 
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
+  },
+  { 
+    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
+    tagline: 'Het meest complete pakket met maximale korting!',
+    featureAccess: { 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: false, 
+      yearlyDiscount15: true, 
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
   },
 ];
 
@@ -154,9 +150,10 @@ function OuderWelcomePageContent() {
         return {
             ...plan,
             featureAccess: migratedFeatureAccess,
-            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
-            maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: plan.isPopular ?? false, // Ensure isPopular defaults to false if not present
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0)),
+            isPopular: plan.isPopular ?? false, 
+            tagline: plan.tagline ?? '',
         };
     };
 
@@ -388,8 +385,8 @@ function OuderWelcomePageContent() {
                                 (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
                               );
                               const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
-                              const hiddenFeatures = activeFeaturesForPlan.slice(MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
-                              const hasMoreFeaturesThanDisplayed = hiddenFeatures.length > 0;
+                              const hiddenFeaturesCount = activeFeaturesForPlan.length - featuresToDisplayOnCard.length;
+                              const hasMoreFeaturesThanDisplayed = hiddenFeaturesCount > 0;
 
                               return (
                               <Card key={plan.id} className={cn(
@@ -405,13 +402,14 @@ function OuderWelcomePageContent() {
                                       {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
                                         <p className="text-xs text-green-600 font-medium">{plan.trialPeriodDays} dagen gratis proberen!</p>
                                       )}
+                                      {plan.tagline && (<p className="text-xs text-green-600 font-medium mt-1">{plan.tagline}</p>)}
                                   </CardHeader>
-                                  <CardContent className="text-xs text-muted-foreground flex-grow space-y-1.5">
+                                  <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                     <p className="mb-2 text-sm">{plan.description}</p>
                                     <ul className="space-y-1">
                                       {featuresToDisplayOnCard.map((appFeature) => (
-                                        <li key={appFeature.id} className="flex items-center justify-center gap-1.5">
-                                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                                        <li key={appFeature.id} className="flex items-start justify-center text-left">
+                                          <CheckCircle2 className="mr-2 mt-[3px] h-3.5 w-3.5 flex-shrink-0 text-green-500" />
                                           <span className="text-xs leading-tight">{appFeature.label}</span>
                                         </li>
                                       ))}
@@ -420,13 +418,13 @@ function OuderWelcomePageContent() {
                                           <Tooltip delayDuration={300}>
                                             <TooltipTrigger asChild>
                                               <span className="cursor-help underline decoration-dashed hover:text-primary">
-                                                ... en {hiddenFeatures.length} andere feature{hiddenFeatures.length > 1 ? 's' : ''}!
+                                                ... en {hiddenFeaturesCount} andere feature{hiddenFeaturesCount > 1 ? 's' : ''}!
                                               </span>
                                             </TooltipTrigger>
                                             <TooltipContent className="w-56 bg-popover p-2 rounded-md shadow-lg border text-popover-foreground">
                                               <p className="font-semibold mb-1.5 text-sm">Extra features:</p>
                                               <ul className="list-disc list-inside space-y-0.5 text-xs">
-                                                {hiddenFeatures.map(hf => <li key={hf.id}>{hf.label}</li>)}
+                                                {activeFeaturesForPlan.slice(MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME).map(hf => <li key={hf.id}>{hf.label}</li>)}
                                               </ul>
                                             </TooltipContent>
                                           </Tooltip>
@@ -510,4 +508,3 @@ export default function OuderWelcomePage() {
   );
 }
     
-

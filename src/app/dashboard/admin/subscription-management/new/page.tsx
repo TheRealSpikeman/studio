@@ -21,9 +21,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare } from "lucide-react";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import type { SubscriptionPlan } from "../page"; 
 import { ALL_APP_FEATURES, type AppFeature } from "../page"; // Import defined features
 
@@ -31,10 +31,11 @@ const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
+  tagline: z.string().optional(), // Nieuw marketing tagline veld
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
-  featureAccess: z.record(z.boolean()), // Changed from features: z.string()
+  featureAccess: z.record(z.boolean()), 
   active: z.boolean().default(true),
   trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen mag niet negatief zijn.").optional(),
@@ -54,7 +55,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
 
   const defaultFeatureAccess: Record<string, boolean> = {};
   ALL_APP_FEATURES.forEach(feature => {
-    defaultFeatureAccess[feature.id] = false; // Default to false for new plans
+    defaultFeatureAccess[feature.id] = false; 
   });
 
   const form = useForm<PlanFormData>({
@@ -65,10 +66,12 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
       trialPeriodDays: planData.trialPeriodDays ?? 0,
       maxChildren: planData.maxChildren ?? 0,
       isPopular: planData.isPopular ?? false,
+      tagline: planData.tagline ?? '',
     } : {
       id: "",
       name: "",
       description: "",
+      tagline: "",
       price: 0,
       currency: "EUR",
       billingInterval: undefined,
@@ -92,6 +95,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
       trialPeriodDays: data.trialPeriodDays,
       maxChildren: data.maxChildren,
       isPopular: data.isPopular,
+      tagline: data.tagline,
     };
 
     try {
@@ -168,6 +172,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
             />
             <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="tagline" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Marketing Tagline (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. Slechts €0,13 per dag voor uitgebreide tools!" {...field} /></FormControl><FormDescription className="text-xs">Korte, pakkende zin die onder de prijs getoond wordt.</FormDescription><FormMessage /></FormItem>)} />
             <FormField 
                 control={form.control} 
                 name="price" 
