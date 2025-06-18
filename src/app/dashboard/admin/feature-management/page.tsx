@@ -5,12 +5,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, ListFilter, Edit, Package } from 'lucide-react'; // Added Package icon
+import { PlusCircle, ListFilter, Package } from 'lucide-react';
 import { FeatureTable } from '@/components/admin/feature-management/FeatureTable';
-import { FeatureFormDialog } from '@/components/admin/feature-management/FeatureFormDialog';
+import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feature-management/FeatureFormDialog';
 import { useToast } from '@/hooks/use-toast';
-import type { AppFeature } from '@/app/dashboard/admin/subscription-management/page'; // Import AppFeature
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
 
 export default function FeatureManagementPage() {
   const { toast } = useToast();
@@ -24,15 +24,14 @@ export default function FeatureManagementPage() {
     try {
       const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
       if (storedFeaturesRaw) {
-        const parsedFeatures = JSON.parse(storedFeaturesRaw);
-        // Ensure all default keys exist for each feature
-        const completeFeatures = parsedFeatures.map((feat: Partial<AppFeature>) => ({
-            id: feat.id || `feature-${Date.now()}-${Math.random().toString(36).substring(2,7)}`, // Ensure ID
+        const parsedFeatures = JSON.parse(storedFeaturesRaw) as Partial<AppFeature>[];
+        const completeFeatures = parsedFeatures.map((feat) => ({
+            id: feat.id || `feature-${Date.now()}-${Math.random().toString(36).substring(2,7)}`,
             label: feat.label || 'Nieuwe Feature',
             description: feat.description || '',
             targetAudience: feat.targetAudience && Array.isArray(feat.targetAudience) ? feat.targetAudience : ['leerling'],
             category: feat.category || 'Algemeen',
-        }));
+        } as AppFeature));
         setFeatures(completeFeatures);
       } else {
         setFeatures(DEFAULT_APP_FEATURES);
@@ -40,27 +39,60 @@ export default function FeatureManagementPage() {
       }
     } catch (error) {
       console.error("Error loading features from localStorage:", error);
-      setFeatures(DEFAULT_APP_FEATURES);
+      setFeatures(DEFAULT_APP_FEATURES); // Fallback to defaults
       localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
     }
     setIsLoading(false);
   }, []);
 
-  const handleSaveFeature = (featureData: AppFeature) => {
-    let updatedFeatures;
+  const handleSaveFeature = (featureFormData: FeatureFormData) => {
+    // 1. Save/Update the feature itself
+    const featureCoreData: AppFeature = {
+        id: featureFormData.id,
+        label: featureFormData.label,
+        description: featureFormData.description,
+        targetAudience: featureFormData.targetAudience,
+        category: featureFormData.category,
+    };
+
+    let updatedFeaturesList;
     if (featureToEdit) { // Editing existing feature
-      updatedFeatures = features.map(f => f.id === featureData.id ? featureData : f);
-      toast({ title: "Feature Bijgewerkt", description: `Feature "${featureData.label}" is succesvol bijgewerkt.` });
+      updatedFeaturesList = features.map(f => f.id === featureCoreData.id ? featureCoreData : f);
+      toast({ title: "Feature Bijgewerkt", description: `Feature "${featureCoreData.label}" is succesvol bijgewerkt.` });
     } else { // Adding new feature
-      if (features.some(f => f.id === featureData.id)) {
-        toast({ title: "Fout", description: `Een feature met ID "${featureData.id}" bestaat al. Kies een uniek ID.`, variant: "destructive" });
+      if (features.some(f => f.id === featureCoreData.id)) {
+        toast({ title: "Fout", description: `Een feature met ID "${featureCoreData.id}" bestaat al. Kies een uniek ID.`, variant: "destructive" });
         return;
       }
-      updatedFeatures = [featureData, ...features];
-      toast({ title: "Feature Toegevoegd", description: `Feature "${featureData.label}" is succesvol toegevoegd.` });
+      updatedFeaturesList = [featureCoreData, ...features];
+      toast({ title: "Feature Toegevoegd", description: `Feature "${featureCoreData.label}" is succesvol toegevoegd.` });
     }
-    setFeatures(updatedFeatures);
-    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeatures));
+    setFeatures(updatedFeaturesList);
+    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeaturesList));
+
+    // 2. Update subscription plans based on linkedPlans
+    try {
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        let plansToUpdate: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
+        const featureId = featureCoreData.id;
+        const linkedPlanIdsSet = new Set(featureFormData.linkedPlans || []);
+
+        plansToUpdate = plansToUpdate.map(plan => {
+            const newFeatureAccess = { ...(plan.featureAccess || {}) }; // Ensure featureAccess exists
+            if (linkedPlanIdsSet.has(plan.id)) {
+                newFeatureAccess[featureId] = true;
+            } else {
+                newFeatureAccess[featureId] = false;
+            }
+            return { ...plan, featureAccess: newFeatureAccess };
+        });
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plansToUpdate));
+        toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt in de abonnementen.`})
+    } catch (error) {
+        console.error("Error updating subscription plans with feature linkages:", error);
+        toast({ title: "Fout bij Koppelen", description: "Kon de feature niet correct aan alle abonnementen koppelen.", variant: "destructive"});
+    }
+
     setIsFormDialogOpen(false);
     setFeatureToEdit(null);
   };
@@ -71,11 +103,14 @@ export default function FeatureManagementPage() {
   };
 
   const handleDeleteFeature = (featureId: string) => {
+    // Note: This only deletes the feature. It does not automatically remove it from plans' featureAccess.
+    // That might be desired to prevent breaking existing plan configurations if a feature is accidentally deleted.
+    // Or, a more advanced version could offer to clean up linkages.
     const featureLabel = features.find(f => f.id === featureId)?.label || featureId;
     const updatedFeatures = features.filter(f => f.id !== featureId);
     setFeatures(updatedFeatures);
     localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeatures));
-    toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" is verwijderd.` });
+    toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" is verwijderd. Dit verwijdert de feature niet automatisch uit bestaande abonnementen.` });
   };
 
   const handleAddNewFeature = () => {
@@ -94,7 +129,7 @@ export default function FeatureManagementPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                <Package className="h-6 w-6 text-primary" /> {/* Changed icon */}
+                <Package className="h-6 w-6 text-primary" />
                 Feature Management
               </CardTitle>
               <CardDescription>
@@ -107,7 +142,6 @@ export default function FeatureManagementPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Placeholder for filters */}
           <div className="mb-4">
             <Button variant="outline" disabled>
               <ListFilter className="mr-2 h-4 w-4" /> Filters (binnenkort)

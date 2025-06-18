@@ -2,7 +2,7 @@
 // src/components/admin/feature-management/FeatureFormDialog.tsx
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -28,7 +28,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { AppFeature, TargetAudience } from '@/app/dashboard/admin/subscription-management/page'; // Import AppFeature and TargetAudience
+import type { AppFeature, TargetAudience, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },
@@ -43,18 +45,21 @@ const featureFormSchema = z.object({
   description: z.string().optional(),
   targetAudience: z.array(z.string() as z.ZodType<TargetAudience[], any>).min(1, { message: "Selecteer minimaal één doelgroep." }),
   category: z.string().optional(),
+  linkedPlans: z.array(z.string()).optional(), // IDs of plans this feature is linked to
 });
 
-type FeatureFormData = z.infer<typeof featureFormSchema>;
+export type FeatureFormData = z.infer<typeof featureFormSchema>;
 
 interface FeatureFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  feature: AppFeature | null; // null for adding new, AppFeature object for editing
-  onSave: (data: AppFeature) => void;
+  feature: AppFeature | null;
+  onSave: (data: FeatureFormData) => void;
 }
 
 export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: FeatureFormDialogProps) {
+  const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  
   const form = useForm<FeatureFormData>({
     resolver: zodResolver(featureFormSchema),
     defaultValues: {
@@ -63,6 +68,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
       description: "",
       targetAudience: ['leerling'],
       category: "",
+      linkedPlans: [],
     },
   });
 
@@ -70,28 +76,48 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
 
   useEffect(() => {
     if (isOpen) {
-      if (feature) {
+      // Load all subscription plans
+      try {
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
+        setAllSubscriptionPlans(loadedPlans.filter(p => p.active)); // Only show active plans to link to
+      } catch (error) {
+        console.error("Error loading subscription plans:", error);
+        setAllSubscriptionPlans([]);
+      }
+
+      let initialLinkedPlans: string[] = [];
+      if (feature) { // Editing existing feature
+        // Determine which plans this feature is currently linked to
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
+        initialLinkedPlans = loadedPlans
+          .filter(plan => plan.featureAccess && plan.featureAccess[feature.id])
+          .map(plan => plan.id);
+        
         form.reset({
           id: feature.id,
           label: feature.label,
           description: feature.description || "",
           targetAudience: feature.targetAudience,
           category: feature.category || "",
+          linkedPlans: initialLinkedPlans,
         });
-      } else {
+      } else { // Adding new feature
         form.reset({
           id: "",
           label: "",
           description: "",
           targetAudience: ['leerling'],
           category: "",
+          linkedPlans: [],
         });
       }
     }
   }, [feature, isOpen, form]);
 
   function onSubmit(values: FeatureFormData) {
-    onSave(values as AppFeature); // Assuming FeatureFormData is compatible with AppFeature
+    onSave(values);
   }
 
   return (
@@ -104,108 +130,154 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-2">
-            <FormField
-              control={form.control}
-              name="id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Uniek Feature ID</FormLabel>
-                  <FormControl>
-                    <Input placeholder="bijv. daily_coaching_emails" {...field} disabled={isEditing} />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Gebruik kleine letters, cijfers, underscores of streepjes. {isEditing ? 'ID kan niet gewijzigd worden.' : 'Dit ID wordt intern gebruikt.'}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="label"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Label (Publieke Titel)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Bijv. Dagelijkse Coaching E-mails" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Omschrijving (optioneel)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Korte uitleg van de feature..." {...field} rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="targetAudience"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Doelgroep(en)</FormLabel>
-                  <div className="grid grid-cols-2 gap-2">
-                    {targetAudienceOptions.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="targetAudience"
-                        render={({ field }) => {
-                          return (
-                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...(field.value || []), item.id])
-                                      : field.onChange(
-                                          (field.value || []).filter(
-                                            (value) => value !== item.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal cursor-pointer">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categorie (optioneel)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Bijv. Coaching, Tools, Rapportage" {...field} />
-                  </FormControl>
-                  <FormDescription className="text-xs">Helpt bij het groeperen van features.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
+          <ScrollArea className="max-h-[70vh] pr-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
+              <FormField
+                control={form.control}
+                name="id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Uniek Feature ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="bijv. daily_coaching_emails" {...field} disabled={isEditing} />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Gebruik kleine letters, cijfers, underscores of streepjes. {isEditing ? 'ID kan niet gewijzigd worden.' : 'Dit ID wordt intern gebruikt.'}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="label"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Label (Publieke Titel)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Bijv. Dagelijkse Coaching E-mails" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Omschrijving (optioneel)</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Korte uitleg van de feature..." {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="targetAudience"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Doelgroep(en)</FormLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      {targetAudienceOptions.map((item) => (
+                        <FormField
+                          key={item.id}
+                          control={form.control}
+                          name="targetAudience"
+                          render={({ field }) => {
+                            return (
+                              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([...(field.value || []), item.id])
+                                        : field.onChange(
+                                            (field.value || []).filter(
+                                              (value) => value !== item.id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal cursor-pointer">
+                                  {item.label}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categorie (optioneel)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Bijv. Coaching, Tools, Rapportage" {...field} />
+                    </FormControl>
+                    <FormDescription className="text-xs">Helpt bij het groeperen van features.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="linkedPlans"
+                render={() => (
+                  <FormItem className="pt-2">
+                    <FormLabel className="font-semibold">Koppel aan Abonnementen</FormLabel>
+                    <FormDescription className="text-xs">
+                      Selecteer aan welke actieve abonnementen deze feature direct gekoppeld moet zijn.
+                    </FormDescription>
+                    <ScrollArea className="h-48 w-full rounded-md border p-3 mt-1">
+                      <div className="space-y-2">
+                        {allSubscriptionPlans.length > 0 ? allSubscriptionPlans.map((plan) => (
+                          <FormField
+                            key={plan.id}
+                            control={form.control}
+                            name="linkedPlans"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center space-x-2 space-y-0 hover:bg-muted/50 p-1.5 rounded-sm">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(plan.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([...(field.value || []), plan.id])
+                                        : field.onChange((field.value || []).filter(value => value !== plan.id));
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal cursor-pointer flex-1">
+                                  {plan.name} <span className="text-xs text-muted-foreground">({plan.id})</span>
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                        )) : (
+                          <p className="text-xs text-muted-foreground text-center py-4">Geen actieve abonnementen gevonden om aan te koppelen.</p>
+                        )}
+                      </div>
+                    </ScrollArea>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </ScrollArea>
         </Form>
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 mt-2 border-t">
           <DialogClose asChild>
             <Button type="button" variant="outline">
               Annuleren
