@@ -7,14 +7,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
-
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -55,7 +54,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
     shortDescription: 'Basis zelfreflectie tool & PDF overzicht.',
     price: 'Gratis',
     features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
-    ctaText: 'Gratis Gekozen',
+    ctaText: 'Start gratis ontdekking',
     ctaBaseLink: '/quizzes',
     colorClass: "border-gray-300 hover:border-gray-400",
     maxChildrenText: "1 kind",
@@ -116,7 +115,6 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
     maxChildrenText: "een onbeperkt aantal kinderen",
   },
 };
-
 
 interface Actiepunt {
   id: string;
@@ -185,7 +183,7 @@ function OuderWelcomePageContent() {
         : `Actief Plan (Voorlopig): ${gekozenPlanDetails.name}`;
       description = gekozenPlanDetails.id === 'free_start'
         ? `Met het gratis plan kan uw kind een basis assessment doen. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
-        : `U heeft gekozen voor '${gekozenPlanDetails.name}'. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Bevestig hieronder uw keuze of selecteer een ander plan.`;
+        : `U heeft gekozen voor '${gekozenPlanDetails.name}'. Dit plan stelt u in staat om ${gekozenPlanDetails.maxChildrenText} aan te sluiten. Bevestig hieronder uw keuze of selecteer een ander plan.`;
     }
 
     return {
@@ -198,10 +196,16 @@ function OuderWelcomePageContent() {
 
   const actiepuntenConfig: Actiepunt[] = [
     {
-      id: "bekijk-abonnementen", // Wordt dynamisch aangepast door getAbonnementActiepunt
+      id: "bekijk-abonnementen", // Dynamisch
       title: "Abonnementen & Toegang",
       description: "Kies een plan om toegang te krijgen tot alle functies.",
       icon: CreditCard,
+    },
+     {
+      id: "belangrijke-voorwaarden",
+      title: "Belangrijke Voorwaarden & Privacy",
+      description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten. Door MindNavigator te gebruiken, bent u akkoord gegaan met onze voorwaarden tijdens uw registratie.",
+      icon: ScrollText, // Gebruik ScrollText voor documenten
     },
     {
       id: "privacy-delen",
@@ -224,25 +228,33 @@ function OuderWelcomePageContent() {
     {
       id: "voeg-kind-toe",
       title: 'Voeg uw Kind(eren) Toe',
-      description: 'Koppel de accounts van uw kinderen aan uw ouderaccount. Uw kind ontvangt een e-mail om het account te activeren en te koppelen. Hierna kunt u hun voortgang volgen en instellingen beheren.',
+      description: "Koppel de accounts van uw kinderen aan uw ouderaccount. Uw kind ontvangt een e-mail om het eigen account te activeren en te koppelen. Na activatie kunt u de voortgang volgen, instellingen beheren, en hen koppelen aan geselecteerde begeleiders.",
       icon: UserPlus,
     },
   ];
   
   const getSortedActiepunten = () => {
     const abonnementActiepunt = getAbonnementActiepunt();
-    const andereActiepunten = actiepuntenConfig.filter(ap => ap.id !== "bekijk-abonnementen");
+    const voorwaardenActiepunt = actiepuntenConfig.find(ap => ap.id === "belangrijke-voorwaarden")!;
+    const privacyActiepunt = actiepuntenConfig.find(ap => ap.id === "privacy-delen")!;
+    const kenJeKindActiepunt = actiepuntenConfig.find(ap => ap.id === "ken-je-kind")!;
+    const voegKindToeActiepunt = actiepuntenConfig.find(ap => ap.id === "voeg-kind-toe")!;
+
 
     if (!hasChosenPlan) {
       return [
         abonnementActiepunt,
-        ...andereActiepunten,
+        voorwaardenActiepunt,
+        privacyActiepunt,
+        kenJeKindActiepunt,
+        voegKindToeActiepunt,
       ];
     }
     return [
-      actiepuntenConfig.find(ap => ap.id === "ken-je-kind")!,
-      actiepuntenConfig.find(ap => ap.id === "voeg-kind-toe")!,
-      actiepuntenConfig.find(ap => ap.id === "privacy-delen")!,
+      kenJeKindActiepunt,
+      voegKindToeActiepunt,
+      privacyActiepunt,
+      voorwaardenActiepunt,
       abonnementActiepunt,
     ].filter(Boolean) as Actiepunt[];
   };
@@ -275,7 +287,7 @@ function OuderWelcomePageContent() {
         
         <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
           {sortedActiepunten.map((item) => {
-             const isDisabled = !hasChosenPlan && item.id !== "bekijk-abonnementen";
+             const isDisabled = !hasChosenPlan && !["bekijk-abonnementen", "belangrijke-voorwaarden"].includes(item.id);
             return (
             <AccordionItem
               key={item.id}
@@ -360,6 +372,15 @@ function OuderWelcomePageContent() {
                         <Link href="/pricing">Bekijk alle details en jaaropties</Link>
                     </Button>
                   </div>
+                ) : item.id === "belangrijke-voorwaarden" ? (
+                    <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt <strong>geen</strong> professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten.</p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                        </div>
+                    </div>
                 ) : (
                   item.link && item.linkText && (
                     <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}>
@@ -405,7 +426,6 @@ function OuderWelcomePageContent() {
   );
 }
 
-
 export default function OuderWelcomePage() {
   return (
     <Suspense fallback={<div>Pagina laden...</div>}>
@@ -413,4 +433,3 @@ export default function OuderWelcomePage() {
     </Suspense>
   );
 }
-
