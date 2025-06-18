@@ -7,8 +7,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Menu } from 'lucide-react'; // For mobile menu icon
+} from "@/components/ui/dropdown-menu";
+import { Menu } from 'lucide-react';
 
 export function Header() {
   const navLinks = [
