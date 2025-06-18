@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -6,6 +5,8 @@ import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, Calenda
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react'; // Added useState and useEffect
+import { useRouter } from 'next/navigation'; // Added useRouter
 
 interface DashboardItem {
   id: string;
@@ -145,8 +146,30 @@ const ouderDashboardItems: DashboardItem[] = [
   },
 ];
 
+const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
 export default function OuderDashboardPage() {
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && typeof window !== 'undefined') {
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_OUDER);
+      if (!onboardingCompleted) {
+        router.replace('/dashboard/ouder/welcome');
+      }
+    }
+  }, [isClient, router]);
+
+  if (isClient && typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_OUDER)) {
+    // Return null or a loading indicator while redirecting
+    return <div className="flex h-full w-full items-center justify-center p-8">Welkomstpagina laden...</div>;
+  }
+  
   return (
     <div className="space-y-8">
       <section>

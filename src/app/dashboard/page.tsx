@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from 'lucide-react';
 import { useDashboardRole } from '@/contexts/DashboardRoleContext'; 
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react'; // Added useState
+import { useRouter } from 'next/navigation'; // Added useRouter
 
 import AdminDashboardOverviewPage from './admin/page'; 
 import TutorDashboardPage from './tutor/page';
@@ -76,7 +78,31 @@ const leerlingDashboardItems: DashboardActionItem[] = [
   }
 ];
 
+const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
+
 function LeerlingDashboardContent() {
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && typeof window !== 'undefined') {
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_LEERLING);
+      if (!onboardingCompleted) {
+        router.replace('/dashboard/leerling/welcome');
+      }
+    }
+  }, [isClient, router]);
+  
+  if (isClient && typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_LEERLING)) {
+    // Return null or a loading indicator while redirecting to prevent flash of content
+    return <div className="flex h-full w-full items-center justify-center p-8">Welkomstpagina laden...</div>;
+  }
+
+
   return (
     <div className="space-y-8">
       <section className="pt-10 md:pt-0"> {/* Adjusted top padding for container instruction */}
@@ -187,4 +213,3 @@ export default function DashboardPage() {
 
   return <LeerlingDashboardContent />;
 }
-
