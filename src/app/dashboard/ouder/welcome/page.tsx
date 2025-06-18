@@ -1,7 +1,7 @@
 // src/app/dashboard/ouder/welcome/page.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -14,20 +14,25 @@ import { useToast } from '@/hooks/use-toast';
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
 const currentParent = {
-  name: "Ouder Tester", // Placeholder name
+  name: "Ouder Tester", 
 };
 
-const planNames: { [key: string]: string } = {
-  coaching_tools_monthly: "Coaching & Tools - Maandelijks",
-  coaching_tools_yearly: "Coaching & Tools - Jaarlijks",
-  family_guide_monthly: "Gezins Gids - Maandelijks",
-  family_guide_yearly: "Gezins Gids - Jaarlijks",
-  premium_family_monthly: "Premium Familie - Maandelijks",
-  premium_family_yearly: "Premium Familie - Jaarlijks",
-  free_start: "Gratis Ontdekking"
+interface PlanDisplayDetails {
+  name: string;
+  maxChildrenText?: string;
+}
+
+const planDetailsMap: Record<string, PlanDisplayDetails> = {
+  coaching_tools_monthly: { name: "Coaching & Tools - Maandelijks", maxChildrenText: "1 kind" },
+  coaching_tools_yearly: { name: "Coaching & Tools - Jaarlijks", maxChildrenText: "1 kind" },
+  family_guide_monthly: { name: "Gezins Gids - Maandelijks", maxChildrenText: "tot 3 kinderen" },
+  family_guide_yearly: { name: "Gezins Gids - Jaarlijks", maxChildrenText: "tot 3 kinderen" },
+  premium_family_monthly: { name: "Premium Familie - Maandelijks", maxChildrenText: "een onbeperkt aantal kinderen" }, // Nieuw toegevoegd
+  premium_family_yearly: { name: "Premium Familie - Jaarlijks", maxChildrenText: "een onbeperkt aantal kinderen" }, // Nieuw toegevoegd
+  free_start: { name: "Gratis Ontdekking", maxChildrenText: "1 kind (voor de basistool)" }
 };
 
-export default function OuderWelcomePage() {
+function OuderWelcomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -35,7 +40,7 @@ export default function OuderWelcomePage() {
   const [addChildFormKey, setAddChildFormKey] = useState(0);
 
   const planParam = searchParams.get('plan');
-  const selectedPlanName = planParam && planNames[planParam] ? planNames[planParam] : null;
+  const planDetails = planParam && planDetailsMap[planParam] ? planDetailsMap[planParam] : null;
 
   useEffect(() => {
     setIsClient(true);
@@ -55,7 +60,7 @@ export default function OuderWelcomePage() {
       description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail}. U kunt hieronder nog een kind toevoegen of doorgaan.`,
       duration: 8000,
     });
-    setAddChildFormKey(prevKey => prevKey + 1); // Reset form by changing key
+    setAddChildFormKey(prevKey => prevKey + 1);
   };
 
   const actiepuntenBasis = [
@@ -89,23 +94,23 @@ export default function OuderWelcomePage() {
 
   const getAbonnementActiepunt = () => {
     const defaultItem = actiepuntenBasis.find(item => item.id === "bekijk-abonnementen")!;
-    if (planParam && selectedPlanName) {
+    if (planParam && planDetails) {
       if (planParam === 'free_start') {
         return {
           ...defaultItem,
-          title: "U Heeft Gekozen voor de Gratis Ontdekking",
-          description: "Met het gratis plan kunt u de basis zelfreflectie tool voor uw kind gebruiken en een PDF overzicht ontvangen. Voeg een kind toe om te starten of ontdek de uitgebreidere mogelijkheden van onze betaalde plannen.",
-          linkText: "Voeg Kind Toe om te Starten",
-          link: "#voeg-kind-toe", // Link naar het accordeon item om kind toe te voegen
+          title: "U Gebruikt de Gratis Ontdekking",
+          description: `Met het gratis plan kunt u de basis zelfreflectie tool gebruiken. ${planDetails.maxChildrenText ? `Dit plan is voor ${planDetails.maxChildrenText}. ` : ''}Ontdek de uitgebreidere mogelijkheden van onze betaalde plannen.`,
+          linkText: "Bekijk Betaalde Plannen",
+          link: `/#pricing`,
           buttonVariant: 'outline' as 'outline',
         };
       } else {
         return {
           ...defaultItem,
-          title: `Activeer uw Gekozen Plan: ${selectedPlanName}`,
-          description: `U heeft interesse getoond in het "${selectedPlanName}" abonnement. Voltooi de activatie om toegang te krijgen tot alle bijbehorende functies voor uw gezin.`,
-          link: `/signup?plan=${planParam}`, // De signup flow zal de betaling/activatie afhandelen
-          linkText: `Activeer ${selectedPlanName}`,
+          title: `Activeer uw Gekozen Plan: ${planDetails.name}`,
+          description: `U heeft interesse getoond in het "${planDetails.name}" abonnement. ${planDetails.maxChildrenText ? `Dit plan stelt u in staat om ${planDetails.maxChildrenText} aan te sluiten. ` : ''}Voltooi de activatie om toegang te krijgen tot alle bijbehorende functies voor uw gezin.`,
+          link: `/signup?plan=${planParam}`,
+          linkText: `Activeer ${planDetails.name}`,
           buttonVariant: 'default' as 'default',
         };
       }
@@ -116,7 +121,6 @@ export default function OuderWelcomePage() {
   const aangepasteActiepunten = actiepuntenBasis.map(item => 
     item.id === "bekijk-abonnementen" ? getAbonnementActiepunt() : item
   );
-
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -136,7 +140,6 @@ export default function OuderWelcomePage() {
             <AccordionItem
               key={item.id}
               value={item.id}
-              id={item.id} // For linking
               className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl"
             >
               <AccordionTrigger className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
@@ -149,7 +152,7 @@ export default function OuderWelcomePage() {
                 <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
                 {item.id === "voeg-kind-toe" ? (
                   <AddChildForm
-                    key={addChildFormKey} // Used to reset the form
+                    key={addChildFormKey} 
                     onSave={handleSaveChildOnWelcome}
                     onCancel={() => { /* Blijf in het accordeon, reset wordt afgehandeld door key */ }}
                   />
@@ -189,5 +192,15 @@ export default function OuderWelcomePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function OuderWelcomePage() {
+  return (
+    // Gebruik Suspense hier om de client-side searchParams hook correct te laten werken
+    <Suspense fallback={<div>Pagina laden...</div>}>
+      <OuderWelcomePageContent />
+    </Suspense>
   );
 }
