@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod"; 
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
 
 interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
@@ -37,7 +38,7 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   className?: string;
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
-  planId?: 'free_start' | 'coaching_tools_monthly' | 'coaching_tools_yearly' | 'family_guide_monthly' | 'family_guide_yearly';
+  planId?: SubscriptionPlan['id']; // Gebruik de ID uit SubscriptionPlan
   planName?: string; 
   lastActivity?: string;
   leerdoelen?: string; 
@@ -91,8 +92,8 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
-    planId: 'coaching_tools_monthly',
-    planName: 'Coaching & Tools - Maandelijks',
+    planId: 'family_guide_monthly', // Aangepast
+    planName: 'Gezins Gids - Maandelijks', // Aangepast
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
     childEmail: 'sofie.tester@example.com',
     schoolType: 'HAVO',
@@ -121,7 +122,7 @@ const dummyChildren: Child[] = [
     helpSubjects: ['engels', 'geschiedenis'],
     hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.',
-    voorkeurTutor: 'Geselecteerd: Man. Overig: Tutor die ook kan helpen met motivatie.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.',
     deelResultatenMetTutor: false,
     linkedTutorIds: [],
   },
@@ -137,8 +138,8 @@ const dummyChildren: Child[] = [
     planName: 'Gratis Start',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
-    schoolType: 'Anders', // Voorbeeld voor 'Anders'
-    otherSchoolType: 'Internationale School', // Specificatie
+    schoolType: 'Anders', 
+    otherSchoolType: 'Internationale School', 
     helpSubjects: [],
     hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
@@ -216,12 +217,17 @@ const parseMultiPartString = (str: string | undefined): { selected: string[]; ot
   };
 };
 
+// Definieer hier welke plannen welke diensten dekken
 const isTutorServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
-  return planId === 'family_guide_monthly' || planId === 'family_guide_yearly';
+  if (!planId) return false;
+  return planId.includes('family_guide') || planId.includes('premium_family');
 };
 
 const isCoachServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
-  return planId === 'coaching_tools_monthly' || planId === 'coaching_tools_yearly' || planId === 'family_guide_monthly' || planId === 'family_guide_yearly';
+  if (!planId) return false;
+  // Aanname: alle family_guide en premium plannen dekken coaching.
+  // Als er specifieke "coaching_tools" plannen zijn, moeten die hier ook gecheckt worden.
+  return planId.includes('family_guide') || planId.includes('premium_family') || planId.includes('coaching_tools');
 };
 
 
@@ -260,6 +266,7 @@ export default function KindProfielPage() {
   const { reset, control, handleSubmit, watch, setValue } = form;
   const editableChildData = watch(); 
   const watchedSchoolType = watch("schoolType");
+  const watchedHulpvraagType = watch("hulpvraagType");
 
 
   useEffect(() => {
@@ -404,8 +411,12 @@ export default function KindProfielPage() {
 
   const tutorServiceActiveForChild = childData?.hulpvraagType?.includes('tutor');
   const coachServiceActiveForChild = childData?.hulpvraagType?.includes('coach');
-  const tutorServiceCovered = isTutorServiceCoveredByPlan(childData?.planId);
-  const coachServiceCovered = isCoachServiceCoveredByPlan(childData?.planId);
+  const tutorServiceCovered = isTutorServiceCoveredByPlan(childData.planId);
+  const coachServiceCovered = isCoachServiceCoveredByPlan(childData.planId);
+  
+  const selectedTutorHulp = isEditing ? watchedHulpvraagType?.includes('tutor') : tutorServiceActiveForChild;
+  const selectedCoachHulp = isEditing ? watchedHulpvraagType?.includes('coach') : coachServiceActiveForChild;
+
 
   return (
     <div className="space-y-8">
@@ -525,18 +536,18 @@ export default function KindProfielPage() {
                                 <FormLabel htmlFor="hulpvraag-tutor-edit" className="font-semibold">Hulp bij huiswerk (Tutor) actief?</FormLabel><FormMessage/>
                             </FormItem>)} />
                             
-                            {editableChildData.hulpvraagType?.includes('tutor') && !isTutorServiceCoveredByPlan(childData.planId) && (
-                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 min-h-[120px]">
+                            {selectedTutorHulp && !tutorServiceCovered && (
+                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
                                   <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                   <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                   <AlertDescUi>
-                                      Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. U kunt deze voorkeuren wel instellen, maar om een tutor te koppelen is een upgrade nodig.
+                                      Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. U kunt deze voorkeuren wel instellen, maar om een tutor te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                       <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                   </AlertDescUi>
                               </Alert>
                             )}
 
-                            {editableChildData.hulpvraagType?.includes('tutor') && (
+                            {selectedTutorHulp && (
                                 <>
                                     <FormField control={control} name="helpSubjects" render={() => (<FormItem>
                                         <FormLabel className="font-semibold text-foreground/90 mb-1 block">Hulp bij Vakken</FormLabel>
@@ -578,18 +589,18 @@ export default function KindProfielPage() {
                               <FormLabel htmlFor="hulpvraag-coach-edit" className="font-semibold">1-op-1 coaching actief?</FormLabel><FormMessage/>
                           </FormItem>)} />
                           
-                           {editableChildData.hulpvraagType?.includes('coach') && !isCoachServiceCoveredByPlan(childData.planId) && (
-                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 min-h-[120px]">
+                           {selectedCoachHulp && !coachServiceCovered && (
+                              <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
                                   <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                   <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                   <AlertDescUi>
-                                       Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een 'Coaching & Tools' of 'Gezins Gids' abonnement nodig.
+                                       Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                       <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                   </AlertDescUi>
                               </Alert>
                             )}
 
-                          {editableChildData.hulpvraagType?.includes('coach') && (
+                          {selectedCoachHulp && (
                               <>
                                   <div>
                                       <FormLabel className="font-semibold text-foreground/90 mb-1 block">Voorkeuren Coach</FormLabel>
@@ -663,11 +674,11 @@ export default function KindProfielPage() {
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm flex-grow">
                         {tutorServiceActiveForChild && !tutorServiceCovered && (
-                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3 min-h-[120px]">
+                            <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
-                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                 <AlertDescUi>
-                                    Om een tutor te koppelen voor {childData.firstName} is een upgrade naar 'Gezins Gids' nodig.
+                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. Om een tutor te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                     <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                 </AlertDescUi>
                             </Alert>
@@ -713,11 +724,11 @@ export default function KindProfielPage() {
                     </CardHeader>
                     <CardContent className="text-sm space-y-3 flex-grow">
                         {coachServiceActiveForChild && !coachServiceCovered && (
-                             <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3 min-h-[120px]">
+                             <Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3">
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
-                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Update Nodig</AlertTitleUi>
+                                <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                 <AlertDescUi>
-                                     Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een 'Coaching & Tools' of 'Gezins Gids' abonnement nodig.
+                                     Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                     <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                 </AlertDescUi>
                             </Alert>
