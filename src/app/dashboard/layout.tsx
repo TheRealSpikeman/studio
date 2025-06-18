@@ -81,6 +81,7 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
       leerling: '/dashboard',
       tutor: '/dashboard/tutor',
       ouder: '/dashboard/ouder',
+      coach: '/dashboard/coach', // Added coach base path
     };
 
     let shouldRedirect = false;
@@ -101,6 +102,12 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
         if (!pathname.startsWith('/dashboard/tutor')) {
           shouldRedirect = true;
           targetPath = roleBasePaths.tutor;
+        }
+        break;
+      case 'coach': // New case for coach
+        if (!pathname.startsWith('/dashboard/coach')) {
+          shouldRedirect = true;
+          targetPath = roleBasePaths.coach;
         }
         break;
       case 'ouder':
@@ -124,6 +131,7 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
         if (!isPathAllowedForLeerling) {
           if (pathname.startsWith('/dashboard/admin') || 
               pathname.startsWith('/dashboard/tutor') || 
+              pathname.startsWith('/dashboard/coach') || // Added coach check
               pathname.startsWith('/dashboard/ouder')) {
             shouldRedirect = true;
             targetPath = roleBasePaths.leerling;

@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/settings/page.tsx
 "use client";
 
@@ -13,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 
-const platformRoles = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder']; // Added Ouder
+const platformRoles = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder'];
 const platformPermissions = [
   { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het algemene gebruikersdashboard.' },
   { id: 'take_quizzes', label: 'Quizzen maken', description: 'Mogelijkheid om quizzen te starten en te voltooien.' },
@@ -24,7 +23,8 @@ const platformPermissions = [
   { id: 'manage_site_content', label: 'Website content beheren (Admin)', description: 'Aanpassen van statische pagina\'s via CMS.' },
   { id: 'view_platform_analytics', label: 'Platform analytics bekijken (Admin)', description: 'Toegang tot algemene site statistieken.' },
   { id: 'manage_tutor_profile', label: 'Eigen tutorprofiel beheren (Tutor)', description: 'Bijwerken van vakken, tarief, beschikbaarheid.' },
-  { id: 'view_student_progress', label: 'Voortgang leerlingen bekijken (Tutor/Coach)', description: 'Inzicht in de resultaten van gekoppelde leerlingen.' },
+  { id: 'manage_coach_profile', label: 'Eigen coachprofiel beheren (Coach)', description: 'Bijwerken van specialisaties, tarief, beschikbaarheid.' }, // New for Coach
+  { id: 'view_student_progress', label: 'Voortgang leerlingen/cliënten bekijken (Tutor/Coach/Ouder)', description: 'Inzicht in de resultaten van gekoppelde leerlingen/cliënten.' },
   { id: 'manage_children_profiles', label: 'Kinderprofielen beheren (Ouder)', description: 'Aanmaken, bewerken van gekoppelde kinderaccounts.' },
   { id: 'manage_children_lessons', label: 'Lessen kinderen beheren (Ouder)', description: 'Plannen en goedkeuren van lessen voor kinderen.' },
   { id: 'manage_family_subscription', label: 'Familie abonnement beheren (Ouder)', description: 'Beheren van betalingen voor gekoppelde kinderen.' },
@@ -33,15 +33,16 @@ const platformPermissions = [
 // Dummy initial permissions state - in a real app, this comes from a DB
 const initialPermissionsState: Record<string, Record<string, boolean>> = {
   'view_dashboard': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': true },
-  'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, // Ouder zelf doet geen quizzen
-  'view_results': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, // Ouder ziet resultaten via kindprofiel
-  'access_coaching': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': false }, // Ouder gebruikt geen coaching hub voor zichzelf
+  'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, 
+  'view_results': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, 
+  'access_coaching': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': false }, 
   'manage_users': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
   'manage_quizzes_admin': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
   'manage_site_content': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
   'view_platform_analytics': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
   'manage_tutor_profile': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': true, 'Ouder': false },
-  'view_student_progress': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': true }, // Ouder kan progressie kind zien
+  'manage_coach_profile': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': false, 'Ouder': false }, // Coach can manage own profile
+  'view_student_progress': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': true }, 
   'manage_children_profiles': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
   'manage_children_lessons': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
   'manage_family_subscription': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },

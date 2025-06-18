@@ -4,7 +4,7 @@
 import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { createContext, useContext, useState } from 'react';
 
-export type UserRoleType = 'admin' | 'leerling' | 'tutor' | 'ouder'; // Added 'ouder'
+export type UserRoleType = 'admin' | 'leerling' | 'tutor' | 'ouder' | 'coach'; // Added 'coach'
 
 interface DashboardRoleContextType {
   currentDashboardRole: UserRoleType;

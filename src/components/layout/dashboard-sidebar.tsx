@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -30,7 +29,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package // Added Package icon
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake // Added HeartHandshake for coach
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -46,6 +45,7 @@ interface NavItem {
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
+  coachOnly?: boolean; // Added coachOnly
   leerlingOnly?: boolean;
   ouderOnly?: boolean;
   sectionTitle?: string;
@@ -129,6 +129,12 @@ const navItems: NavItem[] = [
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+
+  // Coach specific section
+  { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "Coach Portaal" },
+  { href: '/dashboard/coach/availability', label: 'Mijn Beschikbaarheid (Coach)', icon: Clock, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
+  { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
+  { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
 
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
@@ -220,6 +226,7 @@ function SidebarNavigationContent() {
               <SelectItem value="leerling">Leerling</SelectItem>
               <SelectItem value="ouder">Ouder</SelectItem>
               <SelectItem value="tutor">Tutor</SelectItem>
+              <SelectItem value="coach">Coach</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
@@ -234,18 +241,21 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (currentDashboardRole === 'admin') {
-              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly;
+              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly;
             } else if (currentDashboardRole === 'tutor') {
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly;
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly;
+            } else if (currentDashboardRole === 'coach') {
+              showItem = (!!item.coachOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.tutorOnly;
             } else if (currentDashboardRole === 'leerling') {
               if (item.href === '/dashboard/community') {
-                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
               } else {
-                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
+                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
               }
             } else if (currentDashboardRole === 'ouder') {
-              showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly;
+              showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
             }
+
 
             if (!showItem) return null;
             
@@ -256,10 +266,12 @@ function SidebarNavigationContent() {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
                         renderSectionHeader = true; 
+                    } else if (currentDashboardRole === 'coach' && item.sectionTitle === "Coach Portaal") {
+                        renderSectionHeader = true; 
                     } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL") {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'leerling') {
-                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "OUDER PORTAAL") {
+                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "OUDER PORTAAL" && item.sectionTitle !== "Coach Portaal") {
                             renderSectionHeader = true; 
                         }
                     }
@@ -272,10 +284,11 @@ function SidebarNavigationContent() {
             const isItemDirectlyActive = pathname === item.href;
             
             const visibleChildren = item.children?.filter(child => {
-                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly;
-                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly;
-                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.ouderOnly;
-                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.leerlingOnly;
+                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
+                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
+                if (currentDashboardRole === 'coach') return (!!child.coachOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.tutorOnly;
+                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.ouderOnly && !child.coachOnly;
+                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.leerlingOnly && !child.coachOnly;
                 return false;
             }) || [];
 
@@ -398,5 +411,3 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
-
-    

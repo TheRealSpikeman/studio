@@ -16,19 +16,19 @@ import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users } from 'lucide-react'; // Added Users
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users, HeartHandshake } from 'lucide-react'; // Added HeartHandshake
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 const ageGroupValues = ["12-14", "15-18", "adult"] as const;
-const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder'];
+const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; // 'coach' was already here
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
-  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected']),
+  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring']), // Added wacht_op_ouder_goedkeuring
   role: z.enum(userRoleValues),
   ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
@@ -43,8 +43,8 @@ const userFormSchema = z.object({
   tutorDetails_availability: z.string().optional(),
   tutorDetails_cvUrl: z.string().url().optional().or(z.literal('')),
   tutorDetails_vogUrl: z.string().url().optional().or(z.literal('')),
-  parentId: z.string().optional().or(z.literal('')), // For leerling, link to ouder
-  // children: z.array(z.string()).optional(), // For ouder, list of linked children (display only for now)
+  parentId: z.string().optional().or(z.literal('')), 
+  // children: z.array(z.string()).optional(), 
 }).refine(data => {
     if (data.password && data.password.length > 0 && data.password.length < 8) return false;
     return true;
@@ -99,7 +99,6 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           tutorDetails_cvUrl: user.tutorDetails?.cvUrl || '',
           tutorDetails_vogUrl: user.tutorDetails?.vogUrl || '',
           parentId: user.parentId || '',
-          // children: user.children || [],
         });
       } else {
         reset({
@@ -109,7 +108,6 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           tutorDetails_bio: '', tutorDetails_subjects: [], tutorDetails_hourlyRate: undefined,
           tutorDetails_availability: '', tutorDetails_cvUrl: '', tutorDetails_vogUrl: '',
           parentId: '',
-          // children: [],
         });
       }
     }
@@ -134,7 +132,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         vogUrl: data.tutorDetails_vogUrl,
       } : undefined,
       parentId: data.role === 'leerling' ? (data.parentId || undefined) : undefined,
-      children: data.role === 'ouder' ? (user?.children || []) : undefined, // Preserve existing children for parent, handle adding/removing later
+      children: data.role === 'ouder' ? (user?.children || []) : undefined, 
     };
     onSave(processedData as User);
   };
@@ -165,11 +163,12 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className={cn("grid w-full grid-cols-3", (currentRole === 'tutor' || currentRole === 'ouder') && "md:grid-cols-4")}>
+            <TabsList className={cn("grid w-full grid-cols-3", (currentRole === 'tutor' || currentRole === 'ouder' || currentRole === 'coach') && "md:grid-cols-4")}>
               <TabsTrigger value="profile"><UserCircle className="mr-1 h-4 w-4 inline-block" />Profiel</TabsTrigger>
               <TabsTrigger value="permissions"><ShieldCheck className="mr-1 h-4 w-4 inline-block" />Rollen & Status</TabsTrigger>
-              {currentRole !== 'ouder' && <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>}
+              {currentRole !== 'ouder' && currentRole !== 'coach' && <TabsTrigger value="coaching"><Settings className="mr-1 h-4 w-4 inline-block" />Coaching</TabsTrigger>}
               {currentRole === 'tutor' && <TabsTrigger value="tutorSpecific"><Briefcase className="mr-1 h-4 w-4 inline-block" />Tutor Details</TabsTrigger>}
+              {currentRole === 'coach' && <TabsTrigger value="coachSpecific"><HeartHandshake className="mr-1 h-4 w-4 inline-block" />Coach Details</TabsTrigger>}
               {currentRole === 'ouder' && <TabsTrigger value="parentSpecific"><Users className="mr-1 h-4 w-4 inline-block" />Kinderen</TabsTrigger>}
             </TabsList>
 
@@ -254,15 +253,16 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                   name="status"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value} disabled={user?.role === 'tutor' && user?.status === 'pending_approval'}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={(user?.role === 'tutor' || user?.role === 'coach') && user?.status === 'pending_approval'}>
                       <SelectTrigger id="status"><SelectValue placeholder="Selecteer status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="actief">Actief</SelectItem>
                         <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
+                        <SelectItem value="wacht_op_ouder_goedkeuring">Wacht op Ouder Goedkeuring (Leerling)</SelectItem>
                         <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
-                        <SelectItem value="pending_onboarding">Wacht op Onboarding (Tutor)</SelectItem>
-                        <SelectItem value="pending_approval">Wacht op Goedkeuring (Tutor)</SelectItem>
-                        <SelectItem value="rejected">Afgewezen (Tutor)</SelectItem>
+                        {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="pending_onboarding">Wacht op Onboarding (Tutor/Coach)</SelectItem>}
+                        {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="pending_approval">Wacht op Goedkeuring (Tutor/Coach)</SelectItem>}
+                        {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="rejected">Afgewezen (Tutor/Coach)</SelectItem>}
                       </SelectContent>
                     </Select>
                   )}
@@ -291,7 +291,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
               </div>
             </TabsContent>
 
-            {currentRole !== 'ouder' && (
+            {(currentRole !== 'ouder' && currentRole !== 'coach') && (
               <TabsContent value="coaching" className="space-y-4 pt-2">
                 <div>
                   <Label htmlFor="coaching_startDate">Startdatum Coaching (optioneel)</Label>
@@ -370,6 +370,13 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 )}
               </TabsContent>
             )}
+             {currentRole === 'coach' && (
+              <TabsContent value="coachSpecific" className="space-y-4 pt-2">
+                <CardTitle className="text-lg">Coach Specifieke Informatie</CardTitle>
+                <p className="text-sm text-muted-foreground">Velden voor coach specialisaties, bio, tarieven etc. kunnen hier worden toegevoegd. (Voorbeeld, nog niet functioneel).</p>
+                {/* Hier zouden vergelijkbare velden als voor tutor komen, maar dan voor coach */}
+              </TabsContent>
+            )}
             {currentRole === 'ouder' && (
               <TabsContent value="parentSpecific" className="space-y-4 pt-2">
                 <CardTitle className="text-lg">Gekoppelde Kinderen (Ouder)</CardTitle>
@@ -389,9 +396,10 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>
-          {!(user?.role === 'tutor' && user?.status === 'pending_approval') && (
+          {!(user?.role === 'tutor' && user?.status === 'pending_approval') && 
+           !(user?.role === 'coach' && user?.status === 'pending_approval')}
             <Button type="submit" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
-          )}
+          
         </DialogFooter>
       </DialogContent>
     </Dialog>

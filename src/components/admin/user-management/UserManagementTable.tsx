@@ -22,6 +22,7 @@ const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "d
   switch (status) {
     case 'actief': return 'default';
     case 'niet geverifieerd': return 'secondary';
+    case 'wacht_op_ouder_goedkeuring': return 'secondary';
     case 'geblokkeerd': return 'destructive';
     case 'pending_onboarding': return 'outline'; 
     case 'pending_approval': return 'secondary'; 
@@ -34,6 +35,7 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
   switch (status) {
     case 'actief': return 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200';
     case 'niet geverifieerd': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
+    case 'wacht_op_ouder_goedkeuring': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
     case 'geblokkeerd': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
     case 'pending_onboarding': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
     case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
@@ -45,7 +47,7 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
 const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destructive" | "outline" => {
     switch (role) {
       case 'admin': return 'default'; 
-      case 'coach': return 'secondary';
+      case 'coach': return 'default'; // Updated coach variant
       case 'leerling': return 'outline';
       case 'tutor': return 'default';
       case 'ouder': return 'secondary';
@@ -56,9 +58,9 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
 const getRoleBadgeClasses = (role: UserRole): string => {
     switch (role) {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
-      case 'coach': return 'bg-accent/20 text-accent border-accent/40 hover:bg-accent/30';
+      case 'coach': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; // Updated coach color
       case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
-      case 'ouder': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200';
+      case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200'; // Changed ouder color for distinction
       default: return ''; // Leerling gets default outline styling
     }
 }
@@ -78,6 +80,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
   const formatRoleText = (role: UserRole): string => {
     if (role === 'leerling') return 'Leerling';
     if (role === 'ouder') return 'Ouder';
+    if (role === 'coach') return 'Coach';
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
 
