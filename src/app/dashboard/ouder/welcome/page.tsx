@@ -118,6 +118,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
   },
 };
 
+
 interface Actiepunt {
   id: string;
   title: string;
@@ -173,7 +174,6 @@ function OuderWelcomePageContent() {
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('plan', planId);
     window.history.pushState({ path: newUrl.href }, '', newUrl.href);
-    // Using router.replace to re-render with new searchParam without a full navigation
     router.replace(newUrl.href, { scroll: false }); 
   };
   
@@ -210,27 +210,20 @@ function OuderWelcomePageContent() {
     const config: Actiepunt[] = [];
     const alertMessage = "Kies eerst een plan om deze stap te kunnen doorlopen.";
 
-    if (!hasChosenPlan) {
-      const abonnementActiepunt = getAbonnementActiepunt();
-      config.push({
-        ...abonnementActiepunt,
-        title: `Stap ${currentStepNumber++}: ${abonnementActiepunt.title}`
-      });
-    }
-
-    config.push({
-      id: "belangrijke-voorwaarden",
-      title: `Stap ${currentStepNumber++}: Belangrijke Voorwaarden & Privacy`,
-      description: "Bekijk de kernpunten van onze voorwaarden en privacybeleid. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
-      icon: ScrollText,
-      contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
-      contentSteps: [
-        `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie op [Datum, Tijdstip van registratie].`,
-        "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
-      ],
-    });
+    const abonnementActiepunt = getAbonnementActiepunt();
+    const belangrijkeVoorwaardenActiepunt: Actiepunt = {
+        id: "belangrijke-voorwaarden",
+        title: `Belangrijke Voorwaarden & Privacy`,
+        description: "Bekijk de kernpunten van onze voorwaarden en privacybeleid. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
+        icon: ScrollText,
+        contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
+        contentSteps: [
+            `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie op [Datum, Tijdstip van registratie].`,
+            "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
+        ],
+    };
     
-    const otherActionItems: Omit<Actiepunt, 'title'>[] = [
+    const andereActiepunten: Omit<Actiepunt, 'title'>[] = [
       {
         id: "ken-je-kind",
         description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
@@ -257,24 +250,28 @@ function OuderWelcomePageContent() {
       }
     ];
 
-    otherActionItems.forEach(item => {
-      let itemTitle = "";
-      if (item.id === "ken-je-kind") itemTitle = "Doe de \"Ken je Kind\" Test (Optioneel, ca. 5 min)";
-      else if (item.id === "voeg-kind-toe") itemTitle = "Voeg uw Kind(eren) Toe";
-      else if (item.id === "privacy-delen") itemTitle = "Privacy & Deelinstellingen Kinderen";
-      
-      config.push({
-        ...item,
-        title: `Stap ${currentStepNumber++}: ${itemTitle}`,
-      });
-    });
+    const assignStepNumber = (title: string) => `Stap ${currentStepNumber++}: ${title}`;
 
-    if (hasChosenPlan) {
-      const abonnementActiepunt = getAbonnementActiepunt();
-      config.push({
-          ...abonnementActiepunt,
-          title: `Stap ${currentStepNumber++}: ${abonnementActiepunt.title.replace(/^Stap \d+: /, '')}`
-      });
+    if (!hasChosenPlan) {
+        config.push({ ...abonnementActiepunt, title: assignStepNumber(abonnementActiepunt.title) });
+        config.push({ ...belangrijkeVoorwaardenActiepunt, title: assignStepNumber(belangrijkeVoorwaardenActiepunt.title) });
+        andereActiepunten.forEach(item => {
+            let itemTitle = "";
+            if (item.id === "ken-je-kind") itemTitle = "Doe de \"Ken je Kind\" Test (Optioneel, ca. 5 min)";
+            else if (item.id === "voeg-kind-toe") itemTitle = "Voeg uw Kind(eren) Toe";
+            else if (item.id === "privacy-delen") itemTitle = "Privacy & Deelinstellingen Kinderen";
+            config.push({...item, title: assignStepNumber(itemTitle) });
+        });
+    } else {
+        andereActiepunten.forEach(item => {
+            let itemTitle = "";
+            if (item.id === "ken-je-kind") itemTitle = "Doe de \"Ken je Kind\" Test (Optioneel, ca. 5 min)";
+            else if (item.id === "voeg-kind-toe") itemTitle = "Voeg uw Kind(eren) Toe";
+            else if (item.id === "privacy-delen") itemTitle = "Privacy & Deelinstellingen Kinderen";
+            config.push({...item, title: assignStepNumber(itemTitle) });
+        });
+        config.push({ ...belangrijkeVoorwaardenActiepunt, title: assignStepNumber(belangrijkeVoorwaardenActiepunt.title) });
+        config.push({ ...abonnementActiepunt, title: assignStepNumber(abonnementActiepunt.title.replace(/^Stap \d+: /, '')) });
     }
     return config;
   };
@@ -283,18 +280,10 @@ function OuderWelcomePageContent() {
   
   let defaultOpenAccordionItemValue = "";
   if (!hasChosenPlan) {
-    const abonnementItem = sortedActiepunten.find(ap => ap.id === "bekijk-abonnementen");
-    if (abonnementItem) {
-      defaultOpenAccordionItemValue = "bekijk-abonnementen";
-    } else if (sortedActiepunten.length > 0) {
-      defaultOpenAccordionItemValue = sortedActiepunten[0]?.id || "";
-    }
+    defaultOpenAccordionItemValue = "bekijk-abonnementen";
   } else {
-    if (sortedActiepunten.length > 0) {
-      // If a plan is chosen, open the first *actionable* step if it's not the "bekijk-abonnementen" one.
-      const firstActionable = sortedActiepunten.find(ap => ap.id !== "bekijk-abonnementen" && ap.id !== "belangrijke-voorwaarden");
-      defaultOpenAccordionItemValue = firstActionable?.id || sortedActiepunten[0]?.id || "";
-    }
+    const firstActionable = sortedActiepunten.find(ap => ap.id !== "bekijk-abonnementen" && ap.id !== "belangrijke-voorwaarden");
+    defaultOpenAccordionItemValue = firstActionable?.id || sortedActiepunten[0]?.id || "";
   }
   const defaultOpenAccordionItem = defaultOpenAccordionItemValue;
 
@@ -357,6 +346,11 @@ function OuderWelcomePageContent() {
                 {item.id === "belangrijke-voorwaarden" && item.contentSteps && (
                   <div className="space-y-2 text-sm text-muted-foreground mb-4">
                     {item.contentSteps.map((step, i) => <p key={i}>{step}</p>)}
+                     <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                    </div>
                   </div>
                 )}
 
@@ -407,14 +401,6 @@ function OuderWelcomePageContent() {
                         <Link href="/pricing">Bekijk alle details en jaaropties</Link>
                     </Button>
                   </div>
-                ) : item.id === "belangrijke-voorwaarden" ? (
-                    <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row gap-2">
-                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                             <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                        </div>
-                    </div>
                 ) : (
                   item.link && item.linkText && (
                     <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}>
