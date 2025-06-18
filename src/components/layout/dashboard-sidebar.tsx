@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -29,7 +30,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake // Added HeartHandshake for coach
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -45,7 +46,7 @@ interface NavItem {
   icon: React.ElementType;
   adminOnly?: boolean;
   tutorOnly?: boolean;
-  coachOnly?: boolean; // Added coachOnly
+  coachOnly?: boolean; 
   leerlingOnly?: boolean;
   ouderOnly?: boolean;
   sectionTitle?: string;
@@ -125,19 +126,19 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
   // Tutor specific section
-  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
+  { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
 
   // Coach specific section
-  { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "Coach Portaal" },
+  { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "COACH PORTAAL" },
   { href: '/dashboard/coach/availability', label: 'Mijn Beschikbaarheid (Coach)', icon: Clock, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
   { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
   { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
 
   // Admin specific section
-  { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
+  { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
   { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: UsersIconLucide, adminOnly: true },
   { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
   { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
@@ -262,16 +263,16 @@ function SidebarNavigationContent() {
             let renderSectionHeader = false;
             if (item.sectionTitle) { 
                 if (item.sectionTitle !== currentSectionTitleDisplayed) { 
-                    if (currentDashboardRole === 'admin' && item.sectionTitle === "Admin Dashboard") {
+                    if (currentDashboardRole === 'admin' && item.sectionTitle === "ADMIN DASHBOARD") {
                         renderSectionHeader = true;
-                    } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "Tutor Portaal") {
+                    } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "TUTOR PORTAAL") {
                         renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'coach' && item.sectionTitle === "Coach Portaal") {
+                    } else if (currentDashboardRole === 'coach' && item.sectionTitle === "COACH PORTAAL") {
                         renderSectionHeader = true; 
                     } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL") {
                         renderSectionHeader = true;
                     } else if (currentDashboardRole === 'leerling') {
-                         if (item.sectionTitle !== "Admin Dashboard" && item.sectionTitle !== "Tutor Portaal" && item.sectionTitle !== "OUDER PORTAAL" && item.sectionTitle !== "Coach Portaal") {
+                         if (item.sectionTitle !== "ADMIN DASHBOARD" && item.sectionTitle !== "TUTOR PORTAAL" && item.sectionTitle !== "OUDER PORTAAL" && item.sectionTitle !== "COACH PORTAAL") {
                             renderSectionHeader = true; 
                         }
                     }
@@ -411,3 +412,4 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
+
