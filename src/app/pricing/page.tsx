@@ -22,13 +22,16 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
     featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // Start all false
+      startAssessment: true, 
+      basicReflectionToolLimited: true, 
+      basicPdfOverview: true, 
+      accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Gezin Plan - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
@@ -36,11 +39,15 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      // Adding a few more for a total of 12+
+      aiPoweredInsights: true,
+      advancedAnalyticsTrends: false, // Example of one turned off
+      exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
    {
-    id: 'family_guide_yearly', name: 'Gezin Plan - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year', 
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year', 
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: { 
        ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
@@ -49,6 +56,8 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
+      aiPoweredInsights: true,
+      exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
@@ -120,7 +129,7 @@ const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | n
     return null;
 }
 
-const MAX_FEATURES_TO_DISPLAY_ON_CARD = 7;
+const MAX_FEATURES_TO_DISPLAY_ON_CARD = 12;
 
 export default function PricingPage() {
   const router = useRouter();
@@ -145,7 +154,7 @@ export default function PricingPage() {
             featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0)),
-            isPopular: plan.isPopular ?? false, 
+            isPopular: plan.isPopular ?? false,
             tagline: plan.tagline ?? '',
           };
         });

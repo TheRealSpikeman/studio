@@ -27,13 +27,13 @@ const currentParent = {
 
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    tagline: 'Start direct, geen kosten.',
-    featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true,
-      basicReflectionToolLimited: true,
-      basicPdfOverview: true,
+    id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    tagline: 'Proef de kracht van zelfinzicht.',
+    featureAccess: { 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // Start all false
+      startAssessment: true, 
+      basicReflectionToolLimited: true, 
+      basicPdfOverview: true, 
       accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
@@ -47,6 +47,8 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      aiPoweredInsights: true,
+      exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
@@ -60,6 +62,8 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
+      aiPoweredInsights: true,
+      exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
@@ -67,8 +71,8 @@ const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), 
-      noProgressAnalytics: false, 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: false,
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
   },
@@ -120,7 +124,7 @@ const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | n
     return null;
 }
 
-const MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME = 5;
+const MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME = 12;
 
 
 function OuderWelcomePageContent() {
@@ -410,7 +414,7 @@ function OuderWelcomePageContent() {
                                       {featuresToDisplayOnCard.map((appFeature) => (
                                         <li key={appFeature.id} className="flex items-start justify-center text-left">
                                           <CheckCircle2 className="mr-2 mt-[3px] h-3.5 w-3.5 flex-shrink-0 text-green-500" />
-                                          <span className="text-xs leading-tight">{appFeature.label}</span>
+                                          <span className="text-xs leading-snug">{appFeature.label}</span>
                                         </li>
                                       ))}
                                       {hasMoreFeaturesThanDisplayed && (
