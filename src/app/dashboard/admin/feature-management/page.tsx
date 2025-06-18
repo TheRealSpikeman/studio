@@ -15,6 +15,7 @@ import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRI
 export default function FeatureManagementPage() {
   const { toast } = useToast();
   const [features, setFeatures] = useState<AppFeature[]>([]);
+  const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [featureToEdit, setFeatureToEdit] = useState<AppFeature | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,16 +38,24 @@ export default function FeatureManagementPage() {
         setFeatures(DEFAULT_APP_FEATURES);
         localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
       }
+
+      const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+      if (storedPlansRaw) {
+        setAllSubscriptionPlans(JSON.parse(storedPlansRaw));
+      } else {
+        setAllSubscriptionPlans([]); // Or load initial default plans if necessary
+      }
+
     } catch (error) {
-      console.error("Error loading features from localStorage:", error);
+      console.error("Error loading features or plans from localStorage:", error);
       setFeatures(DEFAULT_APP_FEATURES); // Fallback to defaults
       localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+      setAllSubscriptionPlans([]);
     }
     setIsLoading(false);
   }, []);
 
   const handleSaveFeature = (featureFormData: FeatureFormData) => {
-    // 1. Save/Update the feature itself
     const featureCoreData: AppFeature = {
         id: featureFormData.id,
         label: featureFormData.label,
@@ -56,10 +65,10 @@ export default function FeatureManagementPage() {
     };
 
     let updatedFeaturesList;
-    if (featureToEdit) { // Editing existing feature
+    if (featureToEdit) { 
       updatedFeaturesList = features.map(f => f.id === featureCoreData.id ? featureCoreData : f);
       toast({ title: "Feature Bijgewerkt", description: `Feature "${featureCoreData.label}" is succesvol bijgewerkt.` });
-    } else { // Adding new feature
+    } else { 
       if (features.some(f => f.id === featureCoreData.id)) {
         toast({ title: "Fout", description: `Een feature met ID "${featureCoreData.id}" bestaat al. Kies een uniek ID.`, variant: "destructive" });
         return;
@@ -70,7 +79,6 @@ export default function FeatureManagementPage() {
     setFeatures(updatedFeaturesList);
     localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeaturesList));
 
-    // 2. Update subscription plans based on linkedPlans
     try {
         const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
         let plansToUpdate: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
@@ -78,7 +86,7 @@ export default function FeatureManagementPage() {
         const linkedPlanIdsSet = new Set(featureFormData.linkedPlans || []);
 
         plansToUpdate = plansToUpdate.map(plan => {
-            const newFeatureAccess = { ...(plan.featureAccess || {}) }; // Ensure featureAccess exists
+            const newFeatureAccess = { ...(plan.featureAccess || {}) }; 
             if (linkedPlanIdsSet.has(plan.id)) {
                 newFeatureAccess[featureId] = true;
             } else {
@@ -87,6 +95,7 @@ export default function FeatureManagementPage() {
             return { ...plan, featureAccess: newFeatureAccess };
         });
         localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plansToUpdate));
+        setAllSubscriptionPlans(plansToUpdate); // Update local state of plans for the table
         toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt in de abonnementen.`})
     } catch (error) {
         console.error("Error updating subscription plans with feature linkages:", error);
@@ -103,14 +112,23 @@ export default function FeatureManagementPage() {
   };
 
   const handleDeleteFeature = (featureId: string) => {
-    // Note: This only deletes the feature. It does not automatically remove it from plans' featureAccess.
-    // That might be desired to prevent breaking existing plan configurations if a feature is accidentally deleted.
-    // Or, a more advanced version could offer to clean up linkages.
     const featureLabel = features.find(f => f.id === featureId)?.label || featureId;
+    
+    const updatedPlans = allSubscriptionPlans.map(plan => {
+        const newFeatureAccess = { ...plan.featureAccess };
+        if (newFeatureAccess.hasOwnProperty(featureId)) {
+            delete newFeatureAccess[featureId];
+        }
+        return { ...plan, featureAccess: newFeatureAccess };
+    });
+    setAllSubscriptionPlans(updatedPlans);
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
+    
     const updatedFeatures = features.filter(f => f.id !== featureId);
     setFeatures(updatedFeatures);
     localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeatures));
-    toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" is verwijderd. Dit verwijdert de feature niet automatisch uit bestaande abonnementen.` });
+    
+    toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" en de koppelingen in abonnementen zijn verwijderd.` });
   };
 
   const handleAddNewFeature = () => {
@@ -149,6 +167,7 @@ export default function FeatureManagementPage() {
           </div>
           <FeatureTable
             features={features}
+            allSubscriptionPlans={allSubscriptionPlans}
             onEditFeature={handleEditFeature}
             onDeleteFeature={handleDeleteFeature}
           />

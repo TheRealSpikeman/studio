@@ -2,16 +2,17 @@
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
-import type { AppFeature } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Edit, Trash2, MoreVertical, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FeatureTableProps {
   features: AppFeature[];
+  allSubscriptionPlans: SubscriptionPlan[];
   onEditFeature: (feature: AppFeature) => void;
   onDeleteFeature: (featureId: string) => void;
 }
@@ -21,7 +22,7 @@ const getAudienceBadgeVariant = (audience: string): "default" | "secondary" | "o
     case 'leerling': return 'default';
     case 'ouder': return 'secondary';
     case 'platform': return 'outline';
-    case 'beide': return 'outline'; // Using outline for 'beide' too
+    case 'beide': return 'outline';
     default: return 'outline';
   }
 };
@@ -36,71 +37,91 @@ const getAudienceBadgeClasses = (audience: string): string => {
   }
 };
 
-export function FeatureTable({ features, onEditFeature, onDeleteFeature }: FeatureTableProps) {
+export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, onDeleteFeature }: FeatureTableProps) {
   return (
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Label (Titel)</TableHead>
-            <TableHead>Omschrijving</TableHead>
-            <TableHead>Doelgroep</TableHead>
-            <TableHead>Categorie</TableHead>
+            <TableHead className="min-w-[150px]">ID</TableHead>
+            <TableHead className="min-w-[200px]">Label (Titel)</TableHead>
+            <TableHead className="min-w-[250px]">Omschrijving</TableHead>
+            <TableHead className="min-w-[120px]">Doelgroep</TableHead>
+            <TableHead className="min-w-[120px]">Categorie</TableHead>
+            <TableHead className="min-w-[200px]">Gekoppelde Plannen</TableHead>
             <TableHead className="text-right w-[80px]">Acties</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {features.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
+              <TableCell colSpan={7} className="h-24 text-center">
                 Geen features gevonden. Voeg er een toe om te beginnen.
               </TableCell>
             </TableRow>
           )}
-          {features.map((feature) => (
-            <TableRow key={feature.id}>
-              <TableCell className="font-mono text-xs text-muted-foreground">{feature.id}</TableCell>
-              <TableCell className="font-medium">{feature.label}</TableCell>
-              <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                {feature.description || '-'}
-              </TableCell>
-              <TableCell>
-                {feature.targetAudience.map(audience => (
-                  <Badge 
-                    key={audience} 
-                    variant={getAudienceBadgeVariant(audience)} 
-                    className={cn("mr-1 mb-1 text-[10px] px-1.5 py-0 leading-tight", getAudienceBadgeClasses(audience))}
-                  >
-                    {audience.charAt(0).toUpperCase() + audience.slice(1)}
-                  </Badge>
-                ))}
-              </TableCell>
-              <TableCell>
-                {feature.category ? (
-                  <Badge variant="outline" className="text-xs">{feature.category}</Badge>
-                ) : '-'}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Acties voor {feature.label}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEditFeature(feature)}>
-                      <Edit className="mr-2 h-4 w-4" /> Bewerken
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onDeleteFeature(feature.id)} className="text-destructive focus:text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+          {features.map((feature) => {
+            const linkedPlans = allSubscriptionPlans.filter(
+              (plan) => plan.featureAccess && plan.featureAccess[feature.id]
+            );
+            return (
+              <TableRow key={feature.id}>
+                <TableCell className="font-mono text-xs text-muted-foreground">{feature.id}</TableCell>
+                <TableCell className="font-medium">{feature.label}</TableCell>
+                <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                  {feature.description || '-'}
+                </TableCell>
+                <TableCell>
+                  {feature.targetAudience.map(audience => (
+                    <Badge 
+                      key={audience} 
+                      variant={getAudienceBadgeVariant(audience)} 
+                      className={cn("mr-1 mb-1 text-[10px] px-1.5 py-0 leading-tight", getAudienceBadgeClasses(audience))}
+                    >
+                      {audience.charAt(0).toUpperCase() + audience.slice(1)}
+                    </Badge>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {feature.category ? (
+                    <Badge variant="outline" className="text-xs">{feature.category}</Badge>
+                  ) : '-'}
+                </TableCell>
+                <TableCell>
+                  {linkedPlans.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {linkedPlans.map(plan => (
+                        <Badge key={plan.id} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary/90">
+                           <Link2 className="h-3 w-3 mr-1"/>
+                           {plan.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Acties voor {feature.label}</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEditFeature(feature)}>
+                        <Edit className="mr-2 h-4 w-4" /> Bewerken
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDeleteFeature(feature.id)} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
