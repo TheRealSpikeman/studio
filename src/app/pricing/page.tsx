@@ -7,12 +7,12 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle } from 'lucide-react'; 
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; 
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page';
 import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -21,11 +21,11 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
-    featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // Start all false
-      startAssessment: true, 
-      basicReflectionToolLimited: true, 
-      basicPdfOverview: true, 
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true,
+      basicReflectionToolLimited: true,
+      basicPdfOverview: true,
       accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
@@ -35,23 +35,21 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
-      // Adding a few more for a total of 12+
       aiPoweredInsights: true,
-      advancedAnalyticsTrends: false, // Example of one turned off
       exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
    {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year', 
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
-    featureAccess: { 
+    featureAccess: {
        ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
+      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true,
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
@@ -61,24 +59,24 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
-  {
+    {
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
-    featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), 
-      noProgressAnalytics: false, 
+    featureAccess: {
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // All true for premium
+      noProgressAnalytics: false,
     },
-    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
-  { 
-    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year', 
+  {
+    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
     tagline: 'Het meest complete pakket met maximale korting!',
-    featureAccess: { 
+    featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: false, 
-      yearlyDiscount15: true, 
+      noProgressAnalytics: false,
+      yearlyDiscount15: true,
     },
-    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
 ];
 
@@ -108,8 +106,8 @@ const faqItems = [
 const getPlanIcon = (planId: string): React.ElementType => {
     if (planId.includes('premium')) return Star;
     if (planId.includes('family_guide') || planId.includes('gezin')) return Users;
-    if (planId.includes('coaching_tools')) return Sparkles; 
-    return Sparkles; 
+    if (planId.includes('coaching_tools')) return Sparkles;
+    return Sparkles;
 };
 
 const getMonthlyEquivalent = (price: number, interval: 'month' | 'year' | 'once'): string | null => {
@@ -129,7 +127,7 @@ const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | n
     return null;
 }
 
-const MAX_FEATURES_TO_DISPLAY_ON_CARD = 12;
+const MAX_FEATURES_TO_DISPLAY_ON_CARD = 16;
 
 export default function PricingPage() {
   const router = useRouter();
@@ -145,9 +143,9 @@ export default function PricingPage() {
         activePlans = parsedPlans.filter(p => p.active).map(plan => {
           const migratedFeatureAccess: Record<string, boolean> = {};
           ALL_APP_FEATURES.forEach(appFeature => {
-            migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
-              ? plan.featureAccess[appFeature.id] 
-              : false; 
+            migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean')
+              ? plan.featureAccess[appFeature.id]
+              : false;
           });
           return {
             ...plan,
@@ -190,12 +188,12 @@ export default function PricingPage() {
     if (plan.billingInterval === 'year') return 'p/gezin/jaar';
     return '';
   }
-  
+
   const getPlanYearlyOptionText = (plan: SubscriptionPlan): string | undefined => {
     if (plan.billingInterval === 'month' && plan.price > 0) {
-        const yearlyEquivalentPlan = plans.find(p => 
+        const yearlyEquivalentPlan = plans.find(p =>
             p.billingInterval === 'year' &&
-            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') && 
+            p.id.replace('_monthly', '_monthly') === plan.id.replace('_monthly', '_monthly') &&
             p.maxChildren === plan.maxChildren
         );
         if (yearlyEquivalentPlan) {
@@ -208,9 +206,9 @@ export default function PricingPage() {
 
   const getPlanYearlySavingsHighlight = (plan: SubscriptionPlan): string | undefined => {
     if (plan.billingInterval === 'month' && plan.price > 0) {
-       const yearlyEquivalentPlan = plans.find(p => 
+       const yearlyEquivalentPlan = plans.find(p =>
             p.billingInterval === 'year' &&
-            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') &&
+            p.id.replace('_monthly', '_monthly') === plan.id.replace('_monthly', '_monthly') &&
             p.maxChildren === plan.maxChildren
         );
         if (yearlyEquivalentPlan) {
@@ -220,7 +218,7 @@ export default function PricingPage() {
     }
     return undefined;
   }
-  
+
   const getYearlyPlanIdForMonthly = (monthlyPlanId: string): string | undefined => {
     const baseName = monthlyPlanId.replace('_monthly', '');
     return plans.find(p => p.id === `${baseName}_yearly`)?.id;
@@ -230,7 +228,7 @@ export default function PricingPage() {
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
   }
-  
+
   const displayPlans = plans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once'));
 
 
@@ -300,10 +298,10 @@ export default function PricingPage() {
                     </CardHeader>
                     <CardContent className="flex-grow space-y-3 mt-1">
                       <p className="mb-3 text-sm text-muted-foreground">{plan.description}</p>
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-1">
                         {featuresToDisplayOnCard.map((appFeature) => (
                               <li key={appFeature.id} className="flex items-start text-left">
-                              <CheckCircle2 className="mr-2 mt-[3px] h-4 w-4 flex-shrink-0 text-green-500" />
+                              <CheckCircle2 className="mr-2 mt-[2px] h-4 w-4 flex-shrink-0 text-green-500" />
                               <span className="text-sm leading-snug text-muted-foreground">
                                   {appFeature.label}
                               </span>
@@ -424,7 +422,7 @@ export default function PricingPage() {
             </div>
           </div>
         </section>
-        
+
         <section className="py-16 md:py-20 bg-primary/5">
           <div className="container max-w-4xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-8">
@@ -458,4 +456,3 @@ export default function PricingPage() {
     </div>
   );
 }
-    
