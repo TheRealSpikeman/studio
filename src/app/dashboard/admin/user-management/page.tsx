@@ -219,12 +219,20 @@ export default function UserManagementPage() {
         onSave={handleSaveUser}
       />
 
-      <UserDeleteAlertDialog
-        isOpen={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        user={selectedUser}
-        onConfirmDelete={confirmDeleteUser}
-      />
+      {selectedUser && (
+        <UserDeleteAlertDialog
+          isOpen={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          dialogTitle="Gebruiker Verwijderen?"
+          dialogDescription={
+            <>
+              Weet u zeker dat u gebruiker <strong>{selectedUser.name}</strong> ({selectedUser.email}) definitief wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.
+            </>
+          }
+          confirmButtonText="Ja, verwijder gebruiker"
+          onConfirm={confirmDeleteUser}
+        />
+      )}
     </div>
   );
 }

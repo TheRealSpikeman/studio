@@ -51,7 +51,7 @@ export default function TutorManagementPage() {
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all');
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Or "Deactivate" modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<User | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,28 +79,23 @@ export default function TutorManagementPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleDeactivateTutor = (tutor: User) => { // Placeholder for deactivation
+  const handleDeactivateTutorClick = (tutor: User) => { 
     setSelectedTutor(tutor);
-    // For now, using delete dialog as a stand-in for a "deactivate" or "reject" confirmation
-    setIsDeleteModalOpen(true); 
-    // Actual implementation might involve a status change to 'geblokkeerd' or 'rejected'
+    setIsConfirmModalOpen(true); 
   };
 
   const confirmDeactivateTutor = () => {
     if (selectedTutor) {
-      // Simulate deactivation/rejection by changing status or filtering out
-      // In a real app, this would be an API call to update status
       setTutors(prevTutors => prevTutors.map(t => 
         t.id === selectedTutor.id ? { ...t, status: 'geblokkeerd' as UserStatus } : t
       ));
-      toast({ title: "Tutor Gedeactiveerd", description: `Tutor ${selectedTutor.name} is gedeactiveerd (simulatie).` });
+      toast({ title: "Tutor Gedeactiveerd", description: `Tutor ${selectedTutor.name} is gedeactiveerd.` });
     }
-    setIsDeleteModalOpen(false);
+    setIsConfirmModalOpen(false);
     setSelectedTutor(null);
   };
 
   const handleSaveTutor = (tutorData: User) => {
-    // Conceptual: If role is 'tutor' and status was 'pending_approval' and now 'actief', send approval email.
     const originalTutor = tutors.find(u => u.id === selectedTutor?.id);
     if (originalTutor?.role === 'tutor' && originalTutor?.status === 'pending_approval' && tutorData.status === 'actief') {
       console.log(`Tutor ${tutorData.email} approved. Sending approval email.`);
@@ -134,7 +129,6 @@ export default function TutorManagementPage() {
                 Beheer tutor profielen, goedkeuringen, en prestaties. Totaal {filteredTutors.length} tutors gevonden.
               </CardDescription>
             </div>
-            {/* "Nieuwe Tutor Toevoegen" might be different from general user creation, often tutors apply. */}
           </div>
         </CardHeader>
         <CardContent>
@@ -166,8 +160,7 @@ export default function TutorManagementPage() {
           <TutorManagementTable
             tutors={paginatedTutors}
             onEditTutor={handleEditTutor}
-            onDeactivateTutor={handleDeactivateTutor}
-            // Other actions like 'Reset Password' can be added to dropdown in TutorManagementTable
+            onDeactivateTutor={handleDeactivateTutorClick}
           />
 
           {totalPages > 1 && (
@@ -201,16 +194,26 @@ export default function TutorManagementPage() {
         isOpen={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         user={selectedTutor}
-        isAddingNewUser={false} // Tutors apply, admins typically don't add them from scratch here
+        isAddingNewUser={false} 
         onSave={handleSaveTutor}
       />
 
-      <UserDeleteAlertDialog
-        isOpen={isDeleteModalOpen} // Re-using for "Deactivate" for now
-        onOpenChange={setIsDeleteModalOpen}
-        user={selectedTutor}
-        onConfirmDelete={confirmDeactivateTutor} // This function should reflect the actual action (e.g., deactivate)
-      />
+      {selectedTutor && (
+        <UserDeleteAlertDialog
+            isOpen={isConfirmModalOpen}
+            onOpenChange={setIsConfirmModalOpen}
+            dialogTitle="Tutor Deactiveren?"
+            dialogDescription={
+                <>
+                Weet u zeker dat u tutor <strong>{selectedTutor.name}</strong> ({selectedTutor.email}) wilt deactiveren? 
+                De tutor zal niet langer kunnen inloggen of lessen kunnen geven.
+                </>
+            }
+            confirmButtonText="Ja, deactiveer tutor"
+            confirmButtonVariant="destructive"
+            onConfirm={confirmDeactivateTutor}
+        />
+      )}
     </div>
   );
 }

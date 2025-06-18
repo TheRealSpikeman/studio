@@ -8,28 +8,37 @@ import { Button } from '@/components/ui/button';
 interface UserDeleteAlertDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  user: User | null;
-  onConfirmDelete: () => void;
+  dialogTitle: string;
+  dialogDescription: React.ReactNode;
+  confirmButtonText: string;
+  confirmButtonVariant?: 'default' | 'destructive';
+  onConfirm: () => void; // Changed from onConfirmDelete to generic onConfirm
 }
 
-export function UserDeleteAlertDialog({ isOpen, onOpenChange, user, onConfirmDelete }: UserDeleteAlertDialogProps) {
-  if (!user) return null;
-
+export function UserDeleteAlertDialog({ 
+  isOpen, 
+  onOpenChange, 
+  dialogTitle,
+  dialogDescription,
+  confirmButtonText,
+  confirmButtonVariant = 'destructive',
+  onConfirm 
+}: UserDeleteAlertDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Gebruiker Verwijderen</AlertDialogTitle>
+          <AlertDialogTitle>{dialogTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            Weet je zeker dat je gebruiker <strong>{user.name}</strong> ({user.email}) wilt verwijderen? Deze actie is onomkeerbaar.
+            {dialogDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
             <Button variant="outline">Annuleren</Button>
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirmDelete} asChild>
-            <Button variant="destructive">Verwijderen</Button>
+          <AlertDialogAction onClick={onConfirm} asChild>
+            <Button variant={confirmButtonVariant}>{confirmButtonText}</Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
