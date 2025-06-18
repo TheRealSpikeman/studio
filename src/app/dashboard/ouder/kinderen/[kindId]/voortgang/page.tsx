@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx
 "use client";
 
@@ -8,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown } from 'lucide-react';
+import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown, Bot, Loader2 } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { compareParentChildInsights } from '@/ai/flows/compare-parent-child-insights-flow'; // Nieuwe import
+import { useToast } from '@/hooks/use-toast'; // Toast voor feedback
 
 interface QuizResult {
   quizId: string;
@@ -46,7 +49,9 @@ interface ChildProgressData {
   id: string; // kindId
   name: string;
   avatarUrl?: string;
+  ageGroup?: "12-14" | "15-18" | "adult"; // Toegevoegd voor AI flow
   recentQuizzes: QuizResult[];
+  parentObservationsSummary?: string; // Dummy data voor "Ken je Kind"
   tutorFeedback: TutorFeedback[];
   activityData: ActivityPoint[];
   goals?: Goal[];
@@ -57,10 +62,12 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     id: 'child1',
     name: 'Sofie de Tester',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
+    ageGroup: '12-14',
     recentQuizzes: [
       { quizId: 'neuro1', title: 'Basis Neuroprofiel (12-14 jr)', dateCompleted: new Date(Date.now() - 5 * 86400000).toISOString(), summary: 'Sofie laat een sterk ontwikkeld empathisch vermogen zien en een goed oog voor detail. Concentratie bij routineuze taken is een aandachtspunt.', isShared: true, reportLink: '#' },
       { quizId: 'focus1', title: 'Focus & Planning Quiz', dateCompleted: new Date(Date.now() - 12 * 86400000).toISOString(), summary: 'Resultaten wijzen op een behoefte aan meer structuur in planning. Tips voor Pomodoro techniek gegeven.', isShared: true },
     ],
+    parentObservationsSummary: "Ouder merkt op dat Sofie soms moeite heeft met beginnen aan huiswerk, maar heel creatief kan zijn. Soms gevoelig voor drukte.",
     tutorFeedback: [
       { feedbackId: 'fb1', date: new Date(Date.now() - 3 * 86400000).toISOString(), tutorName: 'Mevr. Jansen', lessonSubject: 'Wiskunde A', comment: 'Sofie was vandaag erg betrokken en stelde goede vragen over algebra. We hebben de basis van vergelijkingen oplossen doorgenomen. Huiswerk: oefeningen 1 t/m 5.' },
       { feedbackId: 'fb2', date: new Date(Date.now() - 10 * 86400000).toISOString(), tutorName: 'Dhr. Pietersen', lessonSubject: 'Engels Grammatica', comment: 'De onregelmatige werkwoorden blijven lastig. Extra oefening met de lijst is aanbevolen. Goed gewerkt aan de uitspraak.' },
@@ -78,9 +85,11 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     id: 'child2',
     name: 'Max de Tester',
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
+    ageGroup: '15-18',
     recentQuizzes: [
       { quizId: 'neuro2', title: 'Basis Neuroprofiel (15-18 jr)', dateCompleted: new Date(Date.now() - 8 * 86400000).toISOString(), summary: 'Max is een creatieve denker en komt snel tot oplossingen. Het vasthouden van aandacht bij langere uitleg kan een uitdaging zijn.', isShared: false },
     ],
+    parentObservationsSummary: "Ouder ziet dat Max slim is maar snel afgeleid en moeite heeft met motivatie voor school. Wel erg sociaal.",
     tutorFeedback: [
       { feedbackId: 'fb3', date: new Date(Date.now() - 6 * 86400000).toISOString(), tutorName: 'Mevr. de Wit', lessonSubject: 'Nederlands', comment: 'Tekstanalyse van gedichten ging goed. Max kan zijn argumenten goed onderbouwen. Focus volgende keer op synoniemen.' },
     ],
@@ -97,8 +106,11 @@ export default function KindVoortgangPage() {
   const params = useParams();
   const router = useRouter();
   const kindId = params.kindId as string;
+  const { toast } = useToast();
   const [childData, setChildData] = useState<ChildProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [vergelijkendAdvies, setVergelijkendAdvies] = useState<string | null>(null);
+  const [isLoadingVergelijkendAdvies, setIsLoadingVergelijkendAdvies] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -112,6 +124,35 @@ export default function KindVoortgangPage() {
   }, [kindId]);
 
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+
+  const handleGenereerVergelijkendAdvies = async () => {
+    if (!childData || !childData.parentObservationsSummary || childData.recentQuizzes.length === 0 || !childData.recentQuizzes[0].isShared) {
+      toast({
+        title: "Onvoldoende gegevens",
+        description: "Zorg ervoor dat de 'Ken je Kind' quiz is voltooid en de resultaten van de kind-zelfreflectie gedeeld zijn.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsLoadingVergelijkendAdvies(true);
+    setVergelijkendAdvies(null);
+    try {
+      const input = {
+        childName: childData.name,
+        childAgeGroup: childData.ageGroup || "onbekend",
+        parentObservations: childData.parentObservationsSummary,
+        childSelfReflection: childData.recentQuizzes[0].summary, // Neem de meest recente gedeelde quiz
+      };
+      const result = await compareParentChildInsights(input);
+      setVergelijkendAdvies(result.parentingAdvice);
+    } catch (error) {
+      console.error("Error generating comparative advice:", error);
+      setVergelijkendAdvies("Kon het vergelijkend advies niet genereren. Probeer het later opnieuw.");
+      toast({ title: "Fout", description: "Kon advies niet genereren.", variant: "destructive" });
+    } finally {
+      setIsLoadingVergelijkendAdvies(false);
+    }
+  };
 
   if (isLoading) {
     return <div className="p-8 text-center">Voortgangsgegevens laden...</div>;
@@ -131,6 +172,10 @@ export default function KindVoortgangPage() {
       </div>
     );
   }
+
+  const canGenerateComparativeAdvice = 
+    childData.parentObservationsSummary && 
+    childData.recentQuizzes.some(q => q.isShared);
 
   return (
     <div className="space-y-8">
@@ -152,7 +197,51 @@ export default function KindVoortgangPage() {
         </Button>
       </div>
 
-      <Accordion type="multiple" defaultValue={["quiz-results-section", "tutor-feedback-section"]} className="w-full space-y-6">
+      <Accordion type="multiple" defaultValue={["quiz-results-section", "tutor-feedback-section", "comparative-analysis-section"]} className="w-full space-y-6">
+        
+        <AccordionItem value="comparative-analysis-section" className="border-0">
+          <Card className="shadow-lg">
+            <AccordionTrigger className="hover:no-underline w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-primary [&[data-state=open]>svg]:rotate-180 p-6">
+              <div className="flex-1 text-left">
+                <CardTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary"/>Vergelijkende Analyse & Advies (AI)</CardTitle>
+                <CardDescription>AI-gegenereerd advies op basis van uw observaties en de zelfreflectie van {childData.name}.</CardDescription>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <CardContent className="space-y-4 pt-6">
+                {!canGenerateComparativeAdvice && (
+                  <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
+                    <FileText className="h-5 w-5 !text-blue-600"/>
+                    <AlertTitleUi className="text-blue-700 font-semibold">Nog niet beschikbaar</AlertTitleUi>
+                    <AlertDescUi className="text-blue-600">
+                      Om dit advies te genereren, dient u eerst de "Ken je Kind" vragenlijst voor {childData.name} in te vullen en dient {childData.name} de basis zelfreflectie tool te voltooien en de resultaten te delen.
+                      <br />
+                      <Button variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800" disabled>Start "Ken je Kind" test (binnenkort hier)</Button>
+                    </AlertDescUi>
+                  </Alert>
+                )}
+                {canGenerateComparativeAdvice && !vergelijkendAdvies && (
+                  <Button onClick={handleGenereerVergelijkendAdvies} disabled={isLoadingVergelijkendAdvies}>
+                    {isLoadingVergelijkendAdvies && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Genereer Advies
+                  </Button>
+                )}
+                {isLoadingVergelijkendAdvies && (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="ml-2 text-muted-foreground">Advies wordt gegenereerd...</p>
+                  </div>
+                )}
+                {vergelijkendAdvies && (
+                  <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-md border">
+                    <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/\n/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
+                  </div>
+                )}
+              </CardContent>
+            </AccordionContent>
+          </Card>
+        </AccordionItem>
+
         <AccordionItem value="quiz-results-section" className="border-0">
           <Card className="shadow-lg">
             <AccordionTrigger className="hover:no-underline w-full rounded-t-lg data-[state=closed]:rounded-b-lg [&>svg]:h-5 [&>svg]:w-5 [&>svg]:text-primary [&[data-state=open]>svg]:rotate-180 p-6">
@@ -258,3 +347,4 @@ export default function KindVoortgangPage() {
     </div>
   );
 }
+
