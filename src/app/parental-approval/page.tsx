@@ -71,23 +71,22 @@ function ApprovalContent() {
     router.push(`/verify-email?parentApproved=true&teenEmail=${encodeURIComponent(teenEmail || 'onbekend')}&userType=parent&newRegistration=true`);
   }
   
-  // Dummy check. In a real app, token validation would happen on the server.
-  // if (!approvalToken) { 
-  //   return (
-  //       <Card className="w-full max-w-lg shadow-xl text-center">
-  //           <CardHeader>
-  //               <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-3" />
-  //               <CardTitle className="text-2xl font-bold text-destructive">Ongeldige Link</CardTitle>
-  //           </CardHeader>
-  //           <CardContent>
-  //               <p className="text-muted-foreground">
-  //                   Deze goedkeuringslink is ongeldig of verlopen. Vraag uw kind om de uitnodiging opnieuw te sturen of neem contact op met support.
-  //               </p>
-  //               <Button asChild className="mt-6"><Link href="/">Terug naar Home</Link></Button>
-  //           </CardContent>
-  //       </Card>
-  //   );
-  // }
+  if (!teenEmail) { 
+    return (
+        <Card className="w-full max-w-lg shadow-xl text-center">
+            <CardHeader>
+                <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-3" />
+                <CardTitle className="text-2xl font-bold text-destructive">Ongeldige Link</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">
+                    Deze goedkeuringslink is niet compleet. De informatie over het kind ontbreekt. Vraag uw kind om de uitnodiging opnieuw te sturen of neem contact op met support.
+                </p>
+                <Button asChild className="mt-6"><Link href="/">Terug naar Home</Link></Button>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-lg shadow-xl">
@@ -95,7 +94,7 @@ function ApprovalContent() {
         <ShieldCheck className="mx-auto h-12 w-12 text-primary mb-3" />
         <CardTitle className="text-2xl font-bold">Goedkeuring & Ouder Account Aanmaken</CardTitle>
         <CardDescription>
-          {teenName} ({teenEmail || 'onbekend e-mailadres'}) wil graag MindNavigator gebruiken. Geef hieronder toestemming en maak uw eigen ouderaccount aan om {teenName} te ondersteunen.
+          {teenName} ({teenEmail}) wil graag MindNavigator gebruiken. Geef hieronder toestemming en maak uw eigen ouderaccount aan om {teenName} te ondersteunen.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

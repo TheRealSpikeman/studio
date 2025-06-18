@@ -189,7 +189,8 @@ function SidebarNavigationContent() {
         setIsOuderOnboardingPending(!onboardingCompleted);
 
         if (currentDashboardRole === 'leerling') {
-            const communityAccessAllowed = JSON.parse(localStorage.getItem('communityAccess_child1') ?? 'true');
+            // Replace with actual logic if community access is controlled by settings
+            const communityAccessAllowed = JSON.parse(localStorage.getItem(`privacySettings_child1_allowCommunityAccess`) ?? 'true');
             setShowCommunityNavItemForLeerling(communityAccessAllowed);
         } else {
             setShowCommunityNavItemForLeerling(true);
