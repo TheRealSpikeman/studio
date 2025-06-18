@@ -7,13 +7,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -61,7 +62,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
   },
   'family_guide_monthly': {
     id: 'family_guide_monthly',
-    name: 'Familie Coaching - Maandelijks',
+    name: 'Familie Coaching',
     icon: Users,
     shortDescription: 'Coaching, alle tools, en tot 3 kinderen.',
     price: '€19,99',
@@ -90,7 +91,7 @@ const planDetailsMap: Record<string, PlanDisplayDetails> = {
   },
   'premium_family_monthly': {
     id: 'premium_family_monthly',
-    name: 'Premium Familie - Maandelijks',
+    name: 'Premium Familie',
     icon: Star,
     shortDescription: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.',
     price: '€39,99',
@@ -124,6 +125,8 @@ interface Actiepunt {
   link?: string;
   linkText?: string;
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
+  contentHeader?: string;
+  contentSteps?: string[];
 }
 
 function OuderWelcomePageContent() {
@@ -169,21 +172,25 @@ function OuderWelcomePageContent() {
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('plan', planId);
     window.history.pushState({ path: newUrl.href }, '', newUrl.href);
-    router.replace(newUrl.href, { scroll: false });
+    router.replace(newUrl.href, { scroll: false }); // Use replace to avoid history pollution for simple plan switch
   };
   
   const getAbonnementActiepunt = (): Actiepunt => {
     const gekozenPlanDetails = planParam && planDetailsMap[planParam];
-    let title = "Abonnementen & Toegang";
-    let description = `Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`;
+    let title = "Stap 1: Kies een Abonnement";
+    let description = `Kies het plan dat het beste bij uw gezin past. Elk plan start met een gratis proefperiode van 14 dagen. Dit activeert de overige instellingen.`;
+    let contentHeader = "Selecteer hieronder een plan. Na uw keuze worden de andere instelopties actief.";
     
     if (gekozenPlanDetails) {
       title = gekozenPlanDetails.id === 'free_start' 
-        ? "Je Gebruikt het Gratis Start Plan" 
-        : `Actief Plan (Voorlopig): ${gekozenPlanDetails.name}`;
+        ? "Stap 1: U Heeft Gekozen voor Gratis Ontdekking" 
+        : `Stap 1: Uw Keuze - ${gekozenPlanDetails.name}`;
       description = gekozenPlanDetails.id === 'free_start'
-        ? `Met het gratis plan kan uw kind een basis assessment doen. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
+        ? `U start met het gratis plan waarmee uw kind een basis assessment kan doen. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
         : `U heeft gekozen voor '${gekozenPlanDetails.name}'. Dit plan stelt u in staat om ${gekozenPlanDetails.maxChildrenText} aan te sluiten. Bevestig hieronder uw keuze of selecteer een ander plan.`;
+      contentHeader = gekozenPlanDetails.id === 'free_start' 
+        ? "U kunt hieronder nog steeds kiezen voor een uitgebreider betaald plan, of doorgaan met de gratis optie."
+        : "Bevestig hieronder uw keuze of selecteer een ander plan. De volgende stappen worden actief na bevestiging.";
     }
 
     return {
@@ -191,76 +198,66 @@ function OuderWelcomePageContent() {
       title: title,
       description: description,
       icon: CreditCard,
+      contentHeader: contentHeader,
     };
   };
 
   const actiepuntenConfig: Actiepunt[] = [
     {
-      id: "bekijk-abonnementen", // Dynamisch
-      title: "Abonnementen & Toegang",
-      description: "Kies een plan om toegang te krijgen tot alle functies.",
-      icon: CreditCard,
-    },
-     {
       id: "belangrijke-voorwaarden",
-      title: "Belangrijke Voorwaarden & Privacy",
-      description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten. Door MindNavigator te gebruiken, bent u akkoord gegaan met onze voorwaarden tijdens uw registratie.",
-      icon: ScrollText, // Gebruik ScrollText voor documenten
-    },
-    {
-      id: "privacy-delen",
-      title: "Privacy & Deelinstellingen Kinderen",
-      description: "Bekijk en beheer hier per kind de deelinstellingen voor resultaten en communicatie. Lees ook onze tips over respectvolle communicatie en het waarborgen van autonomie.",
-      icon: ShieldCheck,
-      link: "/dashboard/ouder/privacy-instellingen",
-      linkText: "Beheer Privacy & Delen",
-      buttonVariant: 'outline',
+      title: "Stap 2: Belangrijke Voorwaarden & Privacy",
+      description: "Bekijk de kernpunten van onze voorwaarden en privacybeleid. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
+      icon: ScrollText,
+      contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
     },
     {
       id: "ken-je-kind",
-      title: 'Doe de "Ken je Kind" Test',
-      description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen. Dit helpt u ook bij het invullen van het profiel van uw kind.',
+      title: 'Stap 3: Doe de "Ken je Kind" Test (Optioneel, ca. 5 min)',
+      description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
       icon: FileText,
       link: "/quiz/ouder-symptomen-check",
       linkText: 'Start "Ken je Kind" Test',
       buttonVariant: 'default',
+      contentHeader: "Deze test geeft u een eerste indruk en kan helpen bij het invullen van het kinderprofiel. De resultaten zijn alleen voor u.",
     },
     {
       id: "voeg-kind-toe",
-      title: 'Voeg uw Kind(eren) Toe',
-      description: "Koppel de accounts van uw kinderen aan uw ouderaccount. Uw kind ontvangt een e-mail om het eigen account te activeren en te koppelen. Na activatie kunt u de voortgang volgen, instellingen beheren, en hen koppelen aan geselecteerde begeleiders.",
+      title: 'Stap 4: Voeg uw Kind(eren) Toe',
+      description: "Maak profielen aan en nodig uw kinderen uit. Na activatie kunt u de voortgang volgen en instellingen beheren.",
       icon: UserPlus,
+      contentHeader: "Na het toevoegen ontvangt uw kind een e-mail om het account te activeren. Daarna kunt u de voortgang volgen en instellingen beheren.",
+    },
+    {
+      id: "privacy-delen",
+      title: "Stap 5: Privacy & Deelinstellingen Kinderen",
+      description: "Beheer per kind de deelinstellingen voor resultaten en communicatie met u en eventuele begeleiders.",
+      icon: ShieldCheck,
+      link: "/dashboard/ouder/privacy-instellingen",
+      linkText: "Beheer Privacy & Delen",
+      buttonVariant: 'outline',
+      contentHeader: "Stel hier de privacyvoorkeuren in. Deze instellingen bepalen welke informatie zichtbaar is voor u en, indien van toepassing, voor gekoppelde tutors of coaches."
     },
   ];
   
   const getSortedActiepunten = () => {
     const abonnementActiepunt = getAbonnementActiepunt();
-    const voorwaardenActiepunt = actiepuntenConfig.find(ap => ap.id === "belangrijke-voorwaarden")!;
-    const privacyActiepunt = actiepuntenConfig.find(ap => ap.id === "privacy-delen")!;
-    const kenJeKindActiepunt = actiepuntenConfig.find(ap => ap.id === "ken-je-kind")!;
-    const voegKindToeActiepunt = actiepuntenConfig.find(ap => ap.id === "voeg-kind-toe")!;
-
+    const andereActiepunten = actiepuntenConfig;
 
     if (!hasChosenPlan) {
       return [
         abonnementActiepunt,
-        voorwaardenActiepunt,
-        privacyActiepunt,
-        kenJeKindActiepunt,
-        voegKindToeActiepunt,
+        ...andereActiepunten,
       ];
     }
+    // Als plan gekozen is, abonnement onderaan, andere stappen eerst.
     return [
-      kenJeKindActiepunt,
-      voegKindToeActiepunt,
-      privacyActiepunt,
-      voorwaardenActiepunt,
-      abonnementActiepunt,
-    ].filter(Boolean) as Actiepunt[];
+      ...andereActiepunten.filter(ap => ap.id !== "bekijk-abonnementen"),
+      abonnementActiepunt, 
+    ];
   };
   
   const sortedActiepunten = getSortedActiepunten();
-  const defaultOpenAccordionItem = !hasChosenPlan ? "bekijk-abonnementen" : (planParam ? "bekijk-abonnementen" : "ken-je-kind");
+  const defaultOpenAccordionItem = !hasChosenPlan ? "bekijk-abonnementen" : "ken-je-kind";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -268,12 +265,22 @@ function OuderWelcomePageContent() {
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Welkom bij MindNavigator, {currentParent.name}!
         </h1>
-        <p className="text-lg text-muted-foreground mt-2 mb-8">
-          Wij helpen u uw kind beter te begrijpen en te ondersteunen op hun pad naar zelfontdekking en groei.
+        <p className="text-lg text-muted-foreground mt-2 mb-6">
+          Wij helpen u uw kind beter te begrijpen en te ondersteunen.
         </p>
-        <p className="text-base text-foreground/90 leading-relaxed mb-10">
-          Als ouder speelt u een cruciale rol. MindNavigator biedt u de tools en inzichten om uw kind(eren) optimaal te begeleiden. Doorloop onderstaande stappen om te starten.
-        </p>
+        
+        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-left shadow-sm">
+          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2"><Compass className="h-6 w-6"/>Stel uw Ouder Dashboard in (~10-15 min)</h2>
+          <p className="text-sm mb-3 text-blue-800">Doorloop de onderstaande actiepunten om MindNavigator optimaal voor uw gezin in te richten:</p>
+          <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
+            <li><strong>Kies een Abonnement:</strong> Selecteer een plan (start gratis!). Dit activeert de overige instellingen.</li>
+            <li><strong>Belangrijke Info:</strong> Neem kennis van onze voorwaarden en hoe wij met privacy omgaan.</li>
+            <li><strong>'Ken je Kind' Test (Optioneel):</strong> Krijg eerste inzichten die helpen bij het instellen en gesprekken.</li>
+            <li><strong>Kind(eren) Toevoegen:</strong> Maak profielen aan. Uw kind ontvangt een e-mail om het account te activeren.</li>
+            <li><strong>Privacy & Delen Instellen:</strong> Bepaal per kind wat er gedeeld mag worden.</li>
+          </ol>
+          <p className="mt-3 text-sm text-blue-800">Na deze stappen is uw Ouder Dashboard klaar voor gebruik!</p>
+        </div>
         
         {!hasChosenPlan && (
            <Alert variant="default" className="mb-6 bg-orange-50 border-orange-300 text-orange-700 text-left">
@@ -306,6 +313,8 @@ function OuderWelcomePageContent() {
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6 pt-0">
                 <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                {item.contentHeader && <p className="text-sm font-medium text-foreground mb-4">{item.contentHeader}</p>}
+
                 {item.id === "voeg-kind-toe" ? (
                   <AddChildForm
                     key={addChildFormKey} 
@@ -314,25 +323,7 @@ function OuderWelcomePageContent() {
                   />
                 ) : item.id === "bekijk-abonnementen" ? (
                   <div className="space-y-6">
-                    {planParam && planDetailsMap[planParam] && planDetailsMap[planParam].id !== 'free_start' && (
-                        <Alert variant="default" className="bg-green-50 border-green-300 text-green-700">
-                            <CheckCircle2 className="h-5 w-5 !text-green-600" />
-                            <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {planDetailsMap[planParam]?.name}</AlertTitleUi>
-                            <AlertDescUi className="text-green-600">
-                                Dit plan staat u toe om {planDetailsMap[planParam]?.maxChildrenText} aan te sluiten.
-                                Bevestig hieronder uw keuze of selecteer een ander plan.
-                            </AlertDescUi>
-                        </Alert>
-                    )}
-                     {planParam && planDetailsMap[planParam] && planDetailsMap[planParam].id === 'free_start' && (
-                        <Alert variant="default" className="bg-blue-50 border-blue-300 text-blue-700">
-                            <Info className="h-5 w-5 !text-blue-600" />
-                            <AlertTitleUi className="text-blue-700 font-semibold">U heeft gekozen voor: {planDetailsMap[planParam]?.name}</AlertTitleUi>
-                            <AlertDescUi className="text-blue-600">
-                                Met het gratis plan kan uw kind een basis assessment doen en kunt u {planDetailsMap[planParam]?.maxChildrenText} aansluiten. Overweeg een upgrade voor volledige toegang tot alle tools en coaching.
-                            </AlertDescUi>
-                        </Alert>
-                    )}
+                    {/* Plan details and selection logic as before, but now with contentHeader */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {Object.values(planDetailsMap).filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => ( 
                             <Card key={plan.id} className={cn(
@@ -396,19 +387,7 @@ function OuderWelcomePageContent() {
           })}
         </Accordion>
         
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 text-left mb-10 shadow">
-          <h3 className="text-lg font-semibold text-blue-700 mb-2 flex items-center gap-2">
-            <Info className="h-5 w-5" />
-            Belangrijk om te weten
-          </h3>
-          <ul className="list-disc list-inside text-sm text-blue-800 space-y-1 pl-2">
-            <li>MindNavigator is een tool voor zelfinzicht en biedt <strong>geen</strong> medische diagnoses.</li>
-            <li>Privacy van u en uw kind staat voorop. Beheer toestemmingen in uw dashboard.</li>
-            <li>Resultaten en inzichten zijn bedoeld als startpunt voor gesprek en begrip.</li>
-          </ul>
-        </div>
-        
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 mt-10">
            <Button 
             onClick={handleCompleteOnboarding} 
             className="w-full max-w-xs" 
@@ -433,3 +412,4 @@ export default function OuderWelcomePage() {
     </Suspense>
   );
 }
+
