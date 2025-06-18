@@ -2,15 +2,17 @@
 // src/app/dashboard/admin/feature-management/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, ListFilter, Package } from 'lucide-react';
+import { PlusCircle, Package, Search, ListFilter } from 'lucide-react';
 import { FeatureTable } from '@/components/admin/feature-management/FeatureTable';
 import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feature-management/FeatureFormDialog';
 import { useToast } from '@/hooks/use-toast';
-import type { AppFeature, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/page';
 import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FeatureManagementPage() {
   const { toast } = useToast();
@@ -19,6 +21,12 @@ export default function FeatureManagementPage() {
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [featureToEdit, setFeatureToEdit] = useState<AppFeature | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [targetAudienceFilter, setTargetAudienceFilter] = useState<TargetAudience | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | 'all'>('all');
+  const [linkedPlanFilter, setLinkedPlanFilter] = useState<string | 'all'>('all');
 
   useEffect(() => {
     setIsLoading(true);
@@ -43,7 +51,7 @@ export default function FeatureManagementPage() {
       const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
       if (storedPlansRaw) {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        setAllSubscriptionPlans(parsedPlans.sort((a, b) => a.id.localeCompare(b.id))); // Sort plans by ID for consistent color mapping
+        setAllSubscriptionPlans(parsedPlans.filter(p => p.active).sort((a, b) => a.id.localeCompare(b.id)));
       } else {
         setAllSubscriptionPlans([]); 
       }
@@ -57,6 +65,37 @@ export default function FeatureManagementPage() {
     }
     setIsLoading(false);
   }, []);
+
+  const uniqueTargetAudiences = useMemo(() => {
+    const audiences = new Set<TargetAudience>();
+    features.forEach(f => f.targetAudience.forEach(ta => audiences.add(ta)));
+    return Array.from(audiences).sort();
+  }, [features]);
+
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    features.forEach(f => { if (f.category) categories.add(f.category) });
+    return Array.from(categories).sort();
+  }, [features]);
+
+  const filteredFeatures = useMemo(() => {
+    return features.filter(feature => {
+      const matchesSearch = searchTerm === '' ||
+        feature.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        feature.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (feature.description && feature.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesAudience = targetAudienceFilter === 'all' || feature.targetAudience.includes(targetAudienceFilter);
+      
+      const matchesCategory = categoryFilter === 'all' || feature.category === categoryFilter;
+      
+      const matchesPlan = linkedPlanFilter === 'all' || 
+        allSubscriptionPlans.find(plan => plan.id === linkedPlanFilter && plan.featureAccess && plan.featureAccess[feature.id]);
+
+      return matchesSearch && matchesAudience && matchesCategory && matchesPlan;
+    });
+  }, [features, searchTerm, targetAudienceFilter, categoryFilter, linkedPlanFilter, allSubscriptionPlans]);
+
 
   const handleSaveFeature = (featureFormData: FeatureFormData) => {
     const featureCoreData: AppFeature = {
@@ -79,8 +118,9 @@ export default function FeatureManagementPage() {
       updatedFeaturesList = [featureCoreData, ...features];
       toast({ title: "Feature Toegevoegd", description: `Feature "${featureCoreData.label}" is succesvol toegevoegd.` });
     }
-    setFeatures(updatedFeaturesList.sort((a, b) => a.label.localeCompare(b.label)));
-    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeaturesList));
+    const sortedUpdatedFeatures = updatedFeaturesList.sort((a, b) => a.label.localeCompare(b.label));
+    setFeatures(sortedUpdatedFeatures);
+    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(sortedUpdatedFeatures));
 
     try {
         const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
@@ -93,12 +133,14 @@ export default function FeatureManagementPage() {
             if (linkedPlanIdsSet.has(plan.id)) {
                 newFeatureAccess[featureId] = true;
             } else {
-                newFeatureAccess[featureId] = false;
+                // Only explicitly set to false if the feature existed in the plan before, to avoid polluting featureAccess with all features
+                // However, for simplicity and direct control from feature form, we set it explicitly.
+                newFeatureAccess[featureId] = false; 
             }
             return { ...plan, featureAccess: newFeatureAccess };
         });
         localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plansToUpdate));
-        setAllSubscriptionPlans(plansToUpdate.sort((a, b) => a.id.localeCompare(b.id))); // Update local state of plans and sort
+        setAllSubscriptionPlans(plansToUpdate.filter(p => p.active).sort((a, b) => a.id.localeCompare(b.id)));
         toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt in de abonnementen.`})
     } catch (error) {
         console.error("Error updating subscription plans with feature linkages:", error);
@@ -124,12 +166,14 @@ export default function FeatureManagementPage() {
         }
         return { ...plan, featureAccess: newFeatureAccess };
     });
-    setAllSubscriptionPlans(updatedPlans.sort((a,b) => a.id.localeCompare(b.id))); // Sort after update
-    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
+    const sortedUpdatedPlans = updatedPlans.sort((a,b) => a.id.localeCompare(b.id));
+    setAllSubscriptionPlans(sortedUpdatedPlans);
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(sortedUpdatedPlans));
     
     const updatedFeatures = features.filter(f => f.id !== featureId);
-    setFeatures(updatedFeatures.sort((a, b) => a.label.localeCompare(b.label))); // Sort after update
-    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeatures));
+    const sortedUpdatedFeatures = updatedFeatures.sort((a, b) => a.label.localeCompare(b.label));
+    setFeatures(sortedUpdatedFeatures);
+    localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(sortedUpdatedFeatures));
     
     toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" en de koppelingen in abonnementen zijn verwijderd.` });
   };
@@ -163,14 +207,47 @@ export default function FeatureManagementPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <Button variant="outline" disabled>
-              <ListFilter className="mr-2 h-4 w-4" /> Filters (binnenkort)
-            </Button>
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Zoek feature..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={targetAudienceFilter} onValueChange={(value) => setTargetAudienceFilter(value as TargetAudience | 'all')}>
+              <SelectTrigger><SelectValue placeholder="Filter op doelgroep" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Doelgroepen</SelectItem>
+                {uniqueTargetAudiences.map(audience => (
+                  <SelectItem key={audience} value={audience}>{audience.charAt(0).toUpperCase() + audience.slice(1)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger><SelectValue placeholder="Filter op categorie" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Categorieën</SelectItem>
+                {uniqueCategories.map(category => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={linkedPlanFilter} onValueChange={setLinkedPlanFilter}>
+              <SelectTrigger><SelectValue placeholder="Filter op gekoppeld plan" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle/Geen Gekoppeld Plan</SelectItem>
+                {allSubscriptionPlans.map(plan => (
+                  <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <FeatureTable
-            features={features}
-            allSubscriptionPlans={allSubscriptionPlans} // Pass the sorted list
+            features={filteredFeatures}
+            allSubscriptionPlans={allSubscriptionPlans}
             onEditFeature={handleEditFeature}
             onDeleteFeature={handleDeleteFeature}
           />
