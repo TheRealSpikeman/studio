@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -7,82 +8,88 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star } from 'lucide-react';
+import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
 export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-  billingInterval: 'month' | 'year' | 'once';
+  id: string; // uniek, bijv. 'free_start', 'family_guide_monthly'
+  name: string; // Publieke naam
   description: string;
-  features: string[];
-  active: boolean;
-  maxChildren?: number; 
-  isPopular?: boolean;  
+  price: number; // Numerieke prijs
+  currency: string; // bijv. "EUR"
+  billingInterval: 'month' | 'year' | 'once';
+  features: string[]; // Array van feature strings
+  active: boolean; // Is het plan selecteerbaar?
+  trialPeriodDays?: number; // Aantal dagen gratis proefperiode
+  maxChildren?: number; // Maximaal aantal kinderen (0 of undefined voor ongelimiteerd/niet van toepassing)
+  isPopular?: boolean; // Voor highlighting
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'free_start',
-    name: 'Gratis Start',
+    name: 'Gratis Ontdekking',
+    description: 'Basis zelfreflectie tool & PDF overzicht.',
     price: 0,
     currency: 'EUR',
     billingInterval: 'once',
-    description: 'Basis neurodiversiteit quiz en PDF rapport.',
-    features: ['Basis Neurodiversiteit Quiz', 'Uitgebreid PDF Rapport'],
+    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
     active: true,
+    trialPeriodDays: 0,
     maxChildren: 1, 
     isPopular: false,
   },
   {
-    id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
-    price: 3.99,
+    id: 'family_guide_monthly',
+    name: 'Familie Coaching - Maandelijks',
+    description: 'Coaching, alle tools, en tot 3 kinderen.',
+    price: 19.99,
     currency: 'EUR',
     billingInterval: 'month',
-    description: 'Alle quizzen, coaching hub & huiswerk tools.',
-    features: ['Alle Quizzen', 'Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
+    features: ['Start-assessment inbegrepen', 'Dagelijkse coaching berichten (gepersonaliseerd)', 'Alle zelfreflectie instrumenten (unlimited)', 'Interactieve dagboek en reflectie-oefeningen', 'Huiswerk planner en focus tools (Pomodoro)', 'Motivatie tracking met voortgangsvisualisatie', 'Uitgebreide PDF overzichten met diepgaande insights', 'Sessies boeken en betalen bij coaches & tutors', 'Direct contact en communicatie met professionals', 'Review en rating systeem', 'Sessie planning met automatische herinneringen', 'Voortgangsvolging en trends van uw kind', 'Familie insights en gepersonaliseerde aanbevelingen', 'Tot 3 kinderen inbegrepen', 'Communicatie met gekoppelde coaches en tutors'],
     active: true,
-    maxChildren: 1,
+    trialPeriodDays: 14,
+    maxChildren: 3,
     isPopular: true,
   },
   {
-    id: 'coaching_tools_yearly', // Uniek ID voor jaarplan
-    name: 'Coaching & Tools - Jaarlijks',
-    price: 40.70, // Jaarprijs met 15% korting
+    id: 'family_guide_yearly',
+    name: 'Familie Coaching - Jaarlijks',
+    description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.',
+    price: (19.99 * 12 * 0.85), // Circa 203.88
     currency: 'EUR',
     billingInterval: 'year',
-    description: 'Alle quizzen, coaching hub & huiswerk tools met 15% korting.',
-    features: ['Alle Quizzen (15% korting)', 'Coaching Hub', 'Huiswerk Tools', 'Uitgebreid PDF Rapport'],
+    features: ['Alle features van Familie Coaching - Maandelijks', '15% korting bij jaarlijkse betaling'],
     active: true,
-    maxChildren: 1,
+    trialPeriodDays: 14,
+    maxChildren: 3,
     isPopular: false,
   },
   {
-    id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    price: 9.99,
+    id: 'premium_family_monthly',
+    name: 'Premium Familie - Maandelijks',
+    description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.',
+    price: 39.99,
     currency: 'EUR',
     billingInterval: 'month',
-    description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools.',
-    features: ['Alles van Coaching & Tools (3 kinderen)', 'Toegang tot Coaches & Tutors', 'Uitgebreid Ouder Dashboard'],
+    features: ['Start-assessment inbegrepen', 'Uitgebreide assessment analyse & rapportage', 'Alles van Familie Coaching PLUS:', 'AI-powered insights en gepersonaliseerde aanbevelingen', 'Advanced analytics en trendanalyse', 'Exclusieve coaching modules en premium content', 'Prioriteit algoritme voor beste coach matching', 'Prioriteit booking bij populaire coaches & tutors', 'Extended zoekfilters en matching criteria', 'Bulk session planning voor gemak', 'Premium support (24u response tijd)', 'Unlimited kinderen (geen limiet meer)', 'Maandelijkse familie coaching calls (30 min)', 'School integratie tools en rapportage', 'Advanced ouder training modules'],
     active: true,
-    maxChildren: 3,
-    isPopular: true,
+    trialPeriodDays: 14,
+    maxChildren: 0, // 0 for unlimited
+    isPopular: false,
   },
   {
-    id: 'family_guide_yearly', // Uniek ID voor jaarplan
-    name: 'Gezins Gids - Jaarlijks',
-    price: 101.90, // Jaarprijs met 15% korting
+    id: 'premium_family_yearly',
+    name: 'Premium Familie - Jaarlijks',
+    description: 'Alles van Premium Familie met 15% jaarkorting.',
+    price: (39.99 * 12 * 0.85), // Circa 407.88
     currency: 'EUR',
     billingInterval: 'year',
-    description: 'Alles van Coaching & Tools (max. 3 kinderen) + ouder dashboard en tutor pools met 15% korting.',
-    features: ['Alles van Coaching & Tools (3 kinderen, 15% korting)', 'Toegang tot Coaches & Tutors', 'Uitgebreid Ouder Dashboard'],
+    features: ['Alle features van Premium Familie - Maandelijks', '15% korting bij jaarlijkse betaling'],
     active: true,
-    maxChildren: 3,
+    trialPeriodDays: 14,
+    maxChildren: 0, // 0 for unlimited
     isPopular: false,
   },
 ];
@@ -92,26 +99,29 @@ export default function SubscriptionManagementPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
   useEffect(() => {
-    const storedPlans = localStorage.getItem('subscriptionPlans');
-    if (storedPlans) {
+    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    if (storedPlansRaw) {
       try {
-        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlans);
-        // Voeg default waarden toe voor nieuwe velden als ze ontbreken
+        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+        // Migrate old plans: add new fields with defaults if missing
         const migratedPlans = parsedPlans.map(plan => ({
-          ...plan,
-          maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)), // Default voor gezinsplannen of gratis
-          isPopular: plan.isPopular ?? false,
+            ...plan,
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
+            isPopular: plan.isPopular ?? false,
         }));
         setPlans(migratedPlans);
+        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) {
+            localStorage.setItem('subscriptionPlans', JSON.stringify(migratedPlans));
+        }
       } catch (error) {
         console.error("Error parsing subscription plans from localStorage:", error);
-        // Fallback to initial if parsing fails
-        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
         setPlans(initialSubscriptionPlans);
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
       }
     } else {
-      localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
       setPlans(initialSubscriptionPlans);
+      localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlans));
     }
   }, []);
 
@@ -158,6 +168,8 @@ export default function SubscriptionManagementPage() {
                   <TableHead>ID</TableHead>
                   <TableHead>Prijs</TableHead>
                   <TableHead>Interval</TableHead>
+                  <TableHead>Proefperiode</TableHead>
+                  <TableHead>Max. Kinderen</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Populair</TableHead>
                   <TableHead className="text-right">Acties</TableHead>
@@ -165,7 +177,7 @@ export default function SubscriptionManagementPage() {
               </TableHeader>
               <TableBody>
                 {plans.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
                 )}
                 {plans.map((plan) => (
                   <TableRow key={plan.id}>
@@ -173,8 +185,11 @@ export default function SubscriptionManagementPage() {
                     <TableCell className="text-xs text-muted-foreground">{plan.id}</TableCell>
                     <TableCell>{formatPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
                     <TableCell>{plan.billingInterval}</TableCell>
+                    <TableCell>{plan.trialPeriodDays ? `${plan.trialPeriodDays} dagen` : 'N.v.t.'}</TableCell>
+                    <TableCell>{plan.maxChildren === 0 ? 'Onbeperkt' : (plan.maxChildren || 'N.v.t.')}</TableCell>
                     <TableCell>
                       <Badge variant={plan.active ? 'default' : 'secondary'} className={plan.active ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
+                        {plan.active ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
                         {plan.active ? 'Actief' : 'Inactief'}
                       </Badge>
                     </TableCell>
@@ -208,3 +223,4 @@ export default function SubscriptionManagementPage() {
     </div>
   );
 }
+    

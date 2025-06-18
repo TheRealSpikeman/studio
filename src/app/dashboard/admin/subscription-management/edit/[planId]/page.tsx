@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
 "use client";
 
@@ -25,6 +26,7 @@ export default function EditSubscriptionPlanPage() {
         if (foundPlan) {
             const planWithDefaults: SubscriptionPlan = {
                 ...foundPlan,
+                trialPeriodDays: foundPlan.trialPeriodDays ?? (foundPlan.price === 0 ? 0 : 14),
                 maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
                 isPopular: foundPlan.isPopular ?? false,
             };
@@ -59,3 +61,4 @@ export default function EditSubscriptionPlanPage() {
   
   return <NewSubscriptionPlanPage planData={planData} />;
 }
+    

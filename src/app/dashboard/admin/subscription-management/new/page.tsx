@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/new/page.tsx
 "use client";
 
@@ -19,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,7 @@ const planFormSchema = z.object({
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
   features: z.string().min(1, { message: "Voeg minimaal één feature toe (één per regel)." }),
   active: z.boolean().default(true),
+  trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen mag niet negatief zijn.").optional(),
   isPopular: z.boolean().default(false),
 });
@@ -54,6 +56,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     defaultValues: isEditMode && planData ? {
       ...planData,
       features: planData.features.join('\n'),
+      trialPeriodDays: planData.trialPeriodDays ?? 0,
       maxChildren: planData.maxChildren ?? 0,
       isPopular: planData.isPopular ?? false,
     } : {
@@ -65,6 +68,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
       billingInterval: undefined,
       features: "",
       active: true,
+      trialPeriodDays: 0,
       maxChildren: 0,
       isPopular: false,
     },
@@ -74,6 +78,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     const planToSave: SubscriptionPlan = {
       ...data,
       features: data.features.split('\n').map(f => f.trim()).filter(f => f.length > 0),
+      trialPeriodDays: data.trialPeriodDays,
       maxChildren: data.maxChildren,
       isPopular: data.isPopular,
     };
@@ -185,6 +190,18 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="trialPeriodDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dagen)</FormLabel>
+                  <FormControl><Input type="number" min="0" placeholder="Bijv. 14" {...field} /></FormControl>
+                  <FormDescription className="text-xs">Aantal dagen gratis proefperiode. Voer 0 in voor geen proefperiode.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
              <FormField
               control={form.control}
               name="maxChildren"
@@ -237,3 +254,4 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     </Form>
   );
 }
+    

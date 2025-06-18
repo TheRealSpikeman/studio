@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/abonnementen/page.tsx
 "use client";
 
@@ -25,7 +26,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_sofie',
     childName: 'Sofie de Tester',
-    planId: 'coaching_tools_monthly', // Matches planId from admin section
+    planId: 'family_guide_monthly', // Matches planId from admin section
     status: 'actief',
     nextBillingDate: new Date(Date.now() + 20 * 86400000).toISOString(), // Approx 20 days from now
   },
@@ -38,7 +39,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_lisa',
     childName: 'Lisa Voorbeeld',
-    planId: 'coaching_tools_yearly', // Matches planId from admin section
+    planId: 'family_guide_yearly', // Matches planId from admin section
     status: 'verlopen',
     endDate: new Date(Date.now() - 30 * 86400000).toISOString(), // Approx 30 days ago
   },
@@ -66,18 +67,29 @@ const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'y
 export default function AbonnementenPage() {
   const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [childSubscriptions, setChildSubscriptions] = useState<ChildSubscription[]>(initialChildSubscriptions);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedPlans = localStorage.getItem('subscriptionPlans');
-    if (storedPlans) {
+    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    if (storedPlansRaw) {
       try {
-        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlans);
+        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         setAllSubscriptionPlans(parsedPlans);
       } catch (error) {
         console.error("Error parsing subscription plans from localStorage:", error);
+        // Fallback or set empty if needed
+        setAllSubscriptionPlans([]);
       }
+    } else {
+      // Handle case where no plans are in localStorage (e.g., set defaults or show message)
+      setAllSubscriptionPlans([]);
     }
+    setIsLoading(false);
   }, []);
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -131,7 +143,7 @@ export default function AbonnementenPage() {
                 <div className="flex gap-2 w-full sm:w-auto">
                   {sub.status === 'geen' || sub.status === 'verlopen' ? (
                       <Button size="sm" className="w-full sm:w-auto" asChild>
-                          <Link href="/#pricing">
+                          <Link href="/pricing">
                               <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement
                           </Link>
                       </Button>
@@ -147,7 +159,7 @@ export default function AbonnementenPage() {
         </CardContent>
          <CardFooter className="border-t pt-6">
              <Button asChild>
-                <Link href="/#pricing">
+                <Link href="/pricing">
                     <ShoppingCart className="mr-2 h-4 w-4" /> Bekijk alle abonnementen
                 </Link>
              </Button>
@@ -185,3 +197,4 @@ export default function AbonnementenPage() {
     </div>
   );
 }
+    

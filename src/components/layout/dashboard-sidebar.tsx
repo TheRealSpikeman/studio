@@ -146,7 +146,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
     ]
   },
-   { href: '/dashboard/admin/subscription-management', label: 'Abonnementenbeheer', icon: CreditCard, adminOnly: true },
+  { href: '/dashboard/admin/subscription-management', label: 'Abonnementenbeheer', icon: CreditCard, adminOnly: true },
   {
     href: '/dashboard/admin/content-management',
     label: 'Content Management',
@@ -397,3 +397,5 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
+
+    

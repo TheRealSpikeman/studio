@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -11,124 +12,37 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescUi } from "@/components/ui/alert";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // Added import
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useEffect, useState } from 'react';
+import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page'; // Import type
 
-
-interface PlanFeature {
-  text: string;
-  included: boolean;
-  tooltip?: string;
-}
-
-interface Plan {
-  name: string;
-  price: string;
-  priceDetail: string;
-  features: PlanFeature[];
-  ctaText: string;
-  ctaBaseLink: string;
-  isPopular?: boolean;
-  yearlyOptionText?: string;
-  yearlySavingsHighlight?: string;
-  planId: string;
-  highlightClass?: string;
-  extraInfo?: string;
-  icon: React.ElementType;
-  colorClass?: string;
-}
-
-const yearlyCoachingPrice = (19.99 * 12 * 0.85).toFixed(2); // Assume 15% discount
-const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12).toFixed(2);
-const yearlySavingsCoaching = ((19.99 * 12) - parseFloat(yearlyCoachingPrice)).toFixed(2);
-
-const yearlyPremiumPrice = (39.99 * 12 * 0.85).toFixed(2); // Assume 15% discount
-const monthlyEquivalentForYearlyPremium = (parseFloat(yearlyPremiumPrice) / 12).toFixed(2);
-const yearlySavingsPremium = ((39.99 * 12) - parseFloat(yearlyPremiumPrice)).toFixed(2);
-
-const plansData: Plan[] = [
+// Default plans if localStorage is empty
+const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
-    name: 'Gratis Ontdekking',
-    icon: Sparkles,
-    price: 'Gratis',
-    priceDetail: 'Proef de kracht',
-    features: [
-      { text: 'Start-assessment inbegrepen', included: true },
-      { text: 'Wekelijkse motivatie-email met praktische tips', included: true },
-      { text: 'Basis zelfreflectie tool (beperkte toegang)', included: true },
-      { text: 'Sample coaching content (5 voorbeeldberichten)', included: true },
-      { text: 'Basis PDF overzicht van sterke punten', included: true },
-      { text: 'Browse coaches & tutors (profielen bekijken)', included: true },
-      { text: 'Tarieven en specialisaties zien', included: true },
-      { text: 'Geen sessies boeken', included: false },
-      { text: 'Account beheer en basisinstellingen', included: true },
-      { text: 'Geen voortgangsanalytics', included: false },
-    ],
-    ctaText: 'Start gratis ontdekking',
-    ctaBaseLink: '/quizzes', // Ga direct naar de quizzen pagina voor de assessment
-    planId: 'free_start',
-    colorClass: "border-gray-300 hover:border-gray-400",
+    id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Sample coaching content (5 voorbeeldberichten)', 'Basis PDF overzicht van sterke punten', 'Browse coaches & tutors (profielen bekijken)', 'Tarieven en specialisaties zien', 'Geen sessies boeken', 'Account beheer en basisinstellingen', 'Geen voortgangsanalytics'],
+    active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    name: 'Familie Coaching',
-    icon: Users,
-    price: '€19,99',
-    priceDetail: 'p/gezin/maand',
-    features: [
-      { text: 'Start-assessment inbegrepen', included: true },
-      { text: 'Dagelijkse coaching berichten (gepersonaliseerd)', included: true },
-      { text: 'Alle zelfreflectie instrumenten (unlimited)', included: true },
-      { text: 'Interactieve dagboek en reflectie-oefeningen', included: true },
-      { text: 'Huiswerk planner en focus tools (Pomodoro)', included: true },
-      { text: 'Motivatie tracking met voortgangsvisualisatie', included: true },
-      { text: 'Uitgebreide PDF overzichten met diepgaande insights', included: true },
-      { text: 'Sessies boeken en betalen bij coaches & tutors', included: true },
-      { text: 'Direct contact en communicatie met professionals', included: true },
-      { text: 'Review en rating systeem', included: true },
-      { text: 'Sessie planning met automatische herinneringen', included: true },
-      { text: 'Voortgangsvolging en trends van uw kind', included: true },
-      { text: 'Familie insights en gepersonaliseerde aanbevelingen', included: true },
-      { text: 'Tot 3 kinderen inbegrepen', included: true },
-      { text: 'Communicatie met gekoppelde coaches en tutors', included: true },
-    ],
-    ctaText: 'Kies Familie Coaching',
-    ctaBaseLink: '/signup',
-    isPopular: true,
-    planId: 'family_guide_monthly', 
-    yearlyOptionText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (€${monthlyEquivalentForYearlyCoaching}/mnd)`,
-    yearlySavingsHighlight: `bespaar €${yearlySavingsCoaching}`,
-    highlightClass: "border-primary ring-2 ring-primary/50",
-    colorClass: "border-primary hover:border-primary/80",
+    id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    features: ['Start-assessment inbegrepen', 'Dagelijkse coaching berichten (gepersonaliseerd)', 'Alle zelfreflectie instrumenten (unlimited)', 'Interactieve dagboek en reflectie-oefeningen', 'Huiswerk planner en focus tools (Pomodoro)', 'Motivatie tracking met voortgangsvisualisatie', 'Uitgebreide PDF overzichten met diepgaande insights', 'Sessies boeken en betalen bij coaches & tutors', 'Direct contact en communicatie met professionals', 'Review en rating systeem', 'Sessie planning met automatische herinneringen', 'Voortgangsvolging en trends van uw kind', 'Familie insights en gepersonaliseerde aanbevelingen', 'Tot 3 kinderen inbegrepen', 'Communicatie met gekoppelde coaches en tutors'],
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
-    name: 'Premium Familie',
-    icon: Star,
-    price: '€39,99',
-    priceDetail: 'p/gezin/maand',
-    features: [
-      { text: 'Start-assessment inbegrepen', included: true },
-      { text: 'Uitgebreide assessment analyse & rapportage', included: true },
-      { text: 'Alles van Familie Coaching PLUS:', included: true, tooltip: "Omvat alle digitale tools, coaching en platformtoegang van het Familie Coaching plan." },
-      { text: 'AI-powered insights en gepersonaliseerde aanbevelingen', included: true },
-      { text: 'Advanced analytics en trendanalyse', included: true },
-      { text: 'Exclusieve coaching modules en premium content', included: true },
-      { text: 'Prioriteit algoritme voor beste coach matching', included: true },
-      { text: 'Prioriteit booking bij populaire coaches & tutors', included: true },
-      { text: 'Extended zoekfilters en matching criteria', included: true },
-      { text: 'Bulk session planning voor gemak', included: true },
-      { text: 'Premium support (24u response tijd)', included: true },
-      { text: 'Unlimited kinderen (geen limiet meer)', included: true },
-      { text: 'Maandelijkse familie coaching calls (30 min)', included: true },
-      { text: 'School integratie tools en rapportage', included: true },
-      { text: 'Advanced ouder training modules', included: true },
-    ],
-    ctaText: 'Kies Premium Familie',
-    ctaBaseLink: '/signup',
-    planId: 'premium_family_monthly',
-    yearlyOptionText: `Of kies jaarlijks: €${yearlyPremiumPrice}/jaar (€${monthlyEquivalentForYearlyPremium}/mnd)`,
-    yearlySavingsHighlight: `bespaar €${yearlySavingsPremium}`,
-    colorClass: "border-accent hover:border-accent/80",
+    id: 'family_guide_yearly', name: 'Familie Coaching - Jaarlijks', description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.', price: (19.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
+    features: ['Alle features van Familie Coaching - Maandelijks', '15% korting bij jaarlijkse betaling'], active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
+  },
+  {
+    id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    features: ['Start-assessment inbegrepen', 'Uitgebreide assessment analyse & rapportage', 'Alles van Familie Coaching PLUS:', 'AI-powered insights en gepersonaliseerde aanbevelingen', 'Advanced analytics en trendanalyse', 'Exclusieve coaching modules en premium content', 'Prioriteit algoritme voor beste coach matching', 'Prioriteit booking bij populaire coaches & tutors', 'Extended zoekfilters en matching criteria', 'Bulk session planning voor gemak', 'Premium support (24u response tijd)', 'Unlimited kinderen (geen limiet meer)', 'Maandelijkse familie coaching calls (30 min)', 'School integratie tools en rapportage', 'Advanced ouder training modules'],
+    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+  },
+  {
+    id: 'premium_family_yearly', name: 'Premium Familie - Jaarlijks', description: 'Alles van Premium Familie met 15% jaarkorting.', price: (39.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
+    features: ['Alle features van Premium Familie - Maandelijks', '15% korting bij jaarlijkse betaling'], active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
 ];
+
 
 const faqItems = [
   {
@@ -153,22 +67,118 @@ const faqItems = [
   },
 ];
 
+const getPlanIcon = (planId: string): React.ElementType => {
+    if (planId.includes('premium')) return Star;
+    if (planId.includes('family') || planId.includes('gezin')) return Users;
+    if (planId.includes('coaching')) return Sparkles; // Fallback als 'family' niet matched
+    return Sparkles; // Default voor free_start etc.
+};
+
+const getMonthlyEquivalent = (price: number, interval: 'month' | 'year' | 'once'): string | null => {
+    if (interval === 'year' && price > 0) {
+        return (price / 12).toFixed(2);
+    }
+    return null;
+};
+const getYearlySavings = (monthlyPrice: number, yearlyPrice: number): string | null => {
+    if (monthlyPrice > 0 && yearlyPrice > 0) {
+        const totalMonthlyCost = monthlyPrice * 12;
+        const savings = totalMonthlyCost - yearlyPrice;
+        if (savings > 0) {
+            return savings.toFixed(2);
+        }
+    }
+    return null;
+}
+
 export default function PricingPage() {
   const router = useRouter();
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handlePlanSelection = (plan: Plan, isYearlySelected?: boolean) => {
-    let targetPlanId = plan.planId;
-    if (isYearlySelected) {
-      if (plan.planId === 'family_guide_monthly') targetPlanId = 'family_guide_yearly';
-      if (plan.planId === 'premium_family_monthly') targetPlanId = 'premium_family_yearly';
-    }
-
-    if (targetPlanId === 'free_start') {
-      router.push(plan.ctaBaseLink); // Linkt naar /quizzes of assessment start
+  useEffect(() => {
+    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    let activePlans: SubscriptionPlan[] = [];
+    if (storedPlansRaw) {
+      try {
+        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+        activePlans = parsedPlans.filter(p => p.active).map(plan => ({
+            ...plan,
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : (plan.price === 0 ? 1 : 0)),
+            isPopular: plan.isPopular ?? false,
+        }));
+      } catch (e) {
+        console.error("Error parsing plans from localStorage, using defaults", e);
+        activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
+      }
     } else {
-      router.push(`${plan.ctaBaseLink}?plan=${targetPlanId}`);
+      activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
+      localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
+    }
+    setPlans(activePlans);
+    setIsLoading(false);
+  }, []);
+
+
+  const handlePlanSelection = (planId: string) => {
+    if (planId === 'free_start') {
+      router.push('/quizzes'); // Of een andere startpagina voor gratis plan
+    } else {
+      router.push(`/signup?plan=${planId}`);
     }
   };
+
+  const getPlanPriceDetail = (plan: SubscriptionPlan): string => {
+    if (plan.price === 0) return 'Proef de kracht';
+    if (plan.billingInterval === 'month') return 'p/gezin/maand';
+    if (plan.billingInterval === 'year') return 'p/gezin/jaar';
+    return '';
+  }
+
+  const getPlanYearlyOptionText = (plan: SubscriptionPlan): string | undefined => {
+    if (plan.billingInterval === 'month' && plan.price > 0) {
+        const yearlyEquivalentPlan = plans.find(p => 
+            p.billingInterval === 'year' &&
+            p.name.toLowerCase().includes(plan.name.split(' - ')[0].toLowerCase()) && // Match on base name
+            p.maxChildren === plan.maxChildren
+        );
+        if (yearlyEquivalentPlan) {
+            const monthlyEq = getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year');
+            return `Of kies jaarlijks: €${yearlyEquivalentPlan.price.toFixed(2)}/jaar (${monthlyEq ? `€${monthlyEq}/mnd` : ''})`;
+        }
+    }
+    return undefined;
+  }
+
+  const getPlanYearlySavingsHighlight = (plan: SubscriptionPlan): string | undefined => {
+    if (plan.billingInterval === 'month' && plan.price > 0) {
+       const yearlyEquivalentPlan = plans.find(p => 
+            p.billingInterval === 'year' &&
+            p.name.toLowerCase().includes(plan.name.split(' - ')[0].toLowerCase()) &&
+            p.maxChildren === plan.maxChildren
+        );
+        if (yearlyEquivalentPlan) {
+            const savings = getYearlySavings(plan.price, yearlyEquivalentPlan.price);
+            if (savings) return `bespaar €${savings}`;
+        }
+    }
+    return undefined;
+  }
+  
+  const getYearlyPlanIdForMonthly = (monthlyPlanId: string): string | undefined => {
+    if (monthlyPlanId === 'family_guide_monthly') return 'family_guide_yearly';
+    if (monthlyPlanId === 'premium_family_monthly') return 'premium_family_yearly';
+    return undefined;
+  }
+
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
+  }
+  
+  const displayPlans = plans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once'));
 
 
   return (
@@ -182,6 +192,9 @@ export default function PricingPage() {
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
               Start gratis om de basis te ontdekken, of kies voor volledige digitale coaching en ondersteuning voor uw kind en uzelf. Registratie en beheer via uw ouderaccount. Elk pad begint met een persoonlijke assessment.
+              {plans.some(p => p.trialPeriodDays && p.trialPeriodDays > 0 && p.price > 0) && (
+                <span className="block mt-2 font-semibold text-primary">Alle betaalde plannen starten met een gratis proefperiode!</span>
+              )}
             </p>
           </div>
         </section>
@@ -189,12 +202,18 @@ export default function PricingPage() {
         <section className="pb-16 md:pb-24">
           <div className="container">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-              {plansData.map((plan) => (
+              {displayPlans.map((plan) => {
+                const Icon = getPlanIcon(plan.id);
+                const yearlyOptionText = getPlanYearlyOptionText(plan);
+                const yearlySavingsHighlight = getPlanYearlySavingsHighlight(plan);
+                const yearlyPlanId = getYearlyPlanIdForMonthly(plan.id);
+
+                return (
                 <Card
-                  key={plan.planId}
+                  key={plan.id}
                   className={cn(
                     `flex flex-col shadow-lg relative border-2 hover:shadow-xl transition-all duration-300`,
-                    plan.highlightClass || plan.colorClass || 'border-border'
+                    plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border"
                   )}
                 >
                   {plan.isPopular && (
@@ -205,75 +224,65 @@ export default function PricingPage() {
                     </div>
                   )}
                   <CardHeader className="text-center pt-10">
-                    <plan.icon className="mx-auto h-12 w-12 text-primary mb-3" />
+                    <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
                     <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
                     <p className="text-4xl font-bold text-primary">
-                      {plan.price}
+                      {plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}
                     </p>
-                    <p className="text-sm font-normal text-muted-foreground -mt-1"> {plan.priceDetail}</p>
-                    {plan.name === "Familie Coaching" && (
+                    <p className="text-sm font-normal text-muted-foreground -mt-1"> {getPlanPriceDetail(plan)}</p>
+                    {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
+                         <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                    )}
+                    {plan.id === "family_guide_monthly" && (
                         <p className="text-xs text-green-600 font-medium mt-1">€0,66 per dag - minder dan een kopje koffie!</p>
                     )}
-                    {plan.name === "Premium Familie" && (
+                    {plan.id === "premium_family_monthly" && (
                         <p className="text-xs text-green-600 font-medium mt-1">Voor gezinnen die het beste willen - €1,33 per dag!</p>
                     )}
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3 mt-1">
                     <ul className="space-y-2.5">
-                      {plan.features.map((feature, idx) => (
+                      {plan.features.map((featureText, idx) => (
                         <li key={idx} className="flex items-start text-left">
-                          {feature.included ? (
-                            <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 text-green-500 flex-shrink-0" />
-                          ) : (
-                            <XCircle className="mr-2.5 mt-0.5 h-5 w-5 text-red-500 flex-shrink-0" />
-                          )}
+                          <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 text-green-500 flex-shrink-0" />
                           <span className="text-muted-foreground text-sm leading-snug">
-                            {feature.text}
-                            {feature.tooltip && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="inline-block h-3 w-3 ml-1 text-muted-foreground/70 cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-xs">
-                                    <p>{feature.tooltip}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
+                            {featureText}
                           </span>
                         </li>
                       ))}
                     </ul>
-                    {plan.extraInfo && (
-                      <p className="text-xs text-muted-foreground text-center pt-2">{plan.extraInfo}</p>
-                    )}
+                     {plan.maxChildren !== undefined && (
+                         <p className="text-xs text-muted-foreground text-center pt-2">
+                            {plan.maxChildren === 0 ? 'Onbeperkt aantal kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''} inbegrepen.`}
+                        </p>
+                     )}
                   </CardContent>
                   <CardFooter className="mt-auto pt-5 pb-6 flex flex-col gap-2.5">
                     <Button
-                      onClick={() => handlePlanSelection(plan)}
+                      onClick={() => handlePlanSelection(plan.id)}
                       className="w-full h-12 text-base font-semibold"
-                      variant={plan.planId === 'free_start' ? 'outline' : (plan.isPopular ? 'default' : 'secondary')}
+                      variant={plan.id === 'free_start' ? 'outline' : (plan.isPopular ? 'default' : 'secondary')}
                     >
-                      {plan.ctaText}
+                      {plan.id === 'free_start' ? 'Start gratis ontdekking' : `Kies ${plan.name.replace(' - Maandelijks', '')}`}
                     </Button>
-                    {plan.yearlyOptionText && (
+                    {yearlyOptionText && yearlyPlanId && (
                       <div className="text-center mt-1.5">
                         <Button
-                          onClick={() => handlePlanSelection(plan, true)}
+                          onClick={() => handlePlanSelection(yearlyPlanId)}
                           variant="link"
                           className="h-auto text-xs text-primary py-1 px-2 text-center flex-wrap justify-center items-baseline leading-tight"
                         >
-                          <span>{plan.yearlyOptionText}</span>
-                          {plan.yearlySavingsHighlight && (
-                            <span className="text-accent font-semibold ml-1">- {plan.yearlySavingsHighlight}</span>
+                          <span>{yearlyOptionText}</span>
+                          {yearlySavingsHighlight && (
+                            <span className="text-accent font-semibold ml-1">- {yearlySavingsHighlight}</span>
                           )}
                         </Button>
                       </div>
                     )}
                   </CardFooter>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -369,4 +378,4 @@ export default function PricingPage() {
     </div>
   );
 }
-
+    
