@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Sparkles, CheckSquare, FileText, Info, CreditCard, ArrowRight, UserPlus } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
@@ -67,8 +67,8 @@ export default function OuderWelcomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl text-center">
-        <Sparkles className="mx-auto h-14 w-14 text-primary mb-4" />
-        <h1 className="text-3xl font-bold text-foreground">
+        {/* Sparkles icon removed from here */}
+        <h1 className="text-3xl font-bold text-foreground mb-4">
           Welkom bij MindNavigator, {currentParent.name}!
         </h1>
         <p className="text-lg text-muted-foreground mt-2 mb-8">
