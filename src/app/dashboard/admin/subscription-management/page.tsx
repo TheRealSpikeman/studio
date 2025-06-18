@@ -12,7 +12,7 @@ import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircl
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
-export type TargetAudience = 'leerling' | 'ouder' | 'platform' | 'beide';
+export type TargetAudience = 'leerling' | 'ouder' | 'platform' | 'beide' | 'tutor' | 'coach';
 
 export interface AppFeature {
   id: string;
@@ -74,7 +74,7 @@ export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  shortName?: string; // Nieuw veld voor afkorting
+  shortName?: string;
   description: string;
   tagline?: string;
   price: number;
@@ -171,7 +171,7 @@ export default function SubscriptionManagementPage() {
           };
         });
         setPlans(migratedPlans);
-        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) { // Check if migration actually changed something
+        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) { 
             localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(migratedPlans));
         }
       } catch (error) {

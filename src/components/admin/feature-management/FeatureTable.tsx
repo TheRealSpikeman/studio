@@ -1,7 +1,8 @@
+
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
-import type { AppFeature, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/page';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,20 +17,23 @@ interface FeatureTableProps {
   onDeleteFeature: (featureId: string) => void;
 }
 
-const getAudienceBadgeVariant = (audience: string): "default" | "secondary" | "outline" => {
+const getAudienceBadgeVariant = (audience: TargetAudience): "default" | "secondary" | "outline" => {
   switch (audience) {
-    case 'leerling': return 'default';
+    case 'leerling': return 'default'; 
     case 'ouder': return 'secondary';
+    case 'tutor': return 'default';
+    case 'coach': return 'secondary';
     case 'platform': return 'outline';
-    case 'beide': return 'outline';
+    case 'beide': return 'outline'; 
     default: return 'outline';
   }
 };
-
-const getAudienceBadgeClasses = (audience: string): string => {
+const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   switch (audience) {
     case 'leerling': return 'bg-blue-100 text-blue-700 border-blue-300';
     case 'ouder': return 'bg-green-100 text-green-700 border-green-300';
+    case 'tutor': return 'bg-violet-100 text-violet-700 border-violet-300';
+    case 'coach': return 'bg-cyan-100 text-cyan-700 border-cyan-300';
     case 'platform': return 'bg-gray-100 text-gray-700 border-gray-300';
     case 'beide': return 'bg-purple-100 text-purple-700 border-purple-300';
     default: return '';
@@ -107,9 +111,9 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                         return (
                             <Badge 
                                 key={plan.id} 
-                                variant="outline" // Use outline variant to avoid default hover bg
+                                variant="outline" 
                                 className={cn(
-                                  "text-[10px] px-1.5 py-0 leading-tight flex items-center", // Removed transition-none
+                                  "text-[10px] px-1.5 py-0 leading-tight flex items-center",
                                   colorClass
                                 )}
                                 title={plan.name}

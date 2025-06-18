@@ -35,6 +35,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },
   { id: 'ouder', label: 'Ouder' },
+  { id: 'tutor', label: 'Tutor' },
+  { id: 'coach', label: 'Coach' },
   { id: 'platform', label: 'Platform (algemeen)' },
   { id: 'beide', label: 'Beide (Leerling & Ouder)' },
 ];
@@ -45,7 +47,7 @@ const featureFormSchema = z.object({
   description: z.string().optional(),
   targetAudience: z.array(z.string() as z.ZodType<TargetAudience[], any>).min(1, { message: "Selecteer minimaal één doelgroep." }),
   category: z.string().optional(),
-  linkedPlans: z.array(z.string()).optional(), // IDs of plans this feature is linked to
+  linkedPlans: z.array(z.string()).optional(), 
 });
 
 export type FeatureFormData = z.infer<typeof featureFormSchema>;
@@ -76,19 +78,17 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
 
   useEffect(() => {
     if (isOpen) {
-      // Load all subscription plans
       try {
         const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
         const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
-        setAllSubscriptionPlans(loadedPlans.filter(p => p.active)); // Only show active plans to link to
+        setAllSubscriptionPlans(loadedPlans.filter(p => p.active)); 
       } catch (error) {
         console.error("Error loading subscription plans:", error);
         setAllSubscriptionPlans([]);
       }
 
       let initialLinkedPlans: string[] = [];
-      if (feature) { // Editing existing feature
-        // Determine which plans this feature is currently linked to
+      if (feature) { 
         const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
         const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
         initialLinkedPlans = loadedPlans
@@ -103,7 +103,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
           category: feature.category || "",
           linkedPlans: initialLinkedPlans,
         });
-      } else { // Adding new feature
+      } else { 
         form.reset({
           id: "",
           label: "",
@@ -260,7 +260,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-normal cursor-pointer flex-1">
-                                  {plan.name} <span className="text-xs text-muted-foreground">({plan.id})</span>
+                                  {plan.name} <span className="text-xs text-muted-foreground">({plan.shortName || plan.id})</span>
                                 </FormLabel>
                               </FormItem>
                             )}
