@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -37,6 +38,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 
+const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1'; // Key for localStorage
+
 interface NavItem {
   href: string;
   label: string;
@@ -66,7 +69,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '/dashboard/leerling/lessons', // Directe link voor leerling lessen overzicht
+    href: '/dashboard/leerling/lessons', 
     label: 'Mijn Lessen',
     icon: BookOpenCheck, 
     leerlingOnly: true,
@@ -121,13 +124,11 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheckIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
 
-
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "Tutor Portaal" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
   { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
-
 
   // Admin specific section
   { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "Admin Dashboard" },
@@ -171,16 +172,19 @@ function SidebarNavigationContent() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
   const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
+  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && currentDashboardRole === 'leerling') {
-      // Gebruik een placeholder/mock ID voor de leerling, bv. 'child1'
-      // In een echte app zou dit de ID van de ingelogde leerling zijn.
-      const communityAccessAllowed = JSON.parse(localStorage.getItem('communityAccess_child1') ?? 'true');
-      setShowCommunityNavItemForLeerling(communityAccessAllowed);
-    } else {
-      // Voor andere rollen, of als localStorage niet beschikbaar is, toon het item (als de rol 'leerling' is en het item leerlingOnly is)
-      setShowCommunityNavItemForLeerling(true);
+    if (typeof window !== 'undefined') {
+        const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true';
+        setIsOuderOnboardingPending(!onboardingCompleted);
+
+        if (currentDashboardRole === 'leerling') {
+            const communityAccessAllowed = JSON.parse(localStorage.getItem('communityAccess_child1') ?? 'true');
+            setShowCommunityNavItemForLeerling(communityAccessAllowed);
+        } else {
+            setShowCommunityNavItemForLeerling(true);
+        }
     }
   }, [currentDashboardRole]);
 
@@ -233,7 +237,6 @@ function SidebarNavigationContent() {
             } else if (currentDashboardRole === 'tutor') {
               showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly;
             } else if (currentDashboardRole === 'leerling') {
-              // Specifieke check voor community forum link
               if (item.href === '/dashboard/community') {
                 showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly;
               } else {
@@ -304,6 +307,7 @@ function SidebarNavigationContent() {
               isParentHighlighted = true;
             }
 
+            const itemIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && item.href !== '/dashboard/profile';
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -313,34 +317,44 @@ function SidebarNavigationContent() {
                     </SidebarGroup>
                 )}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isParentHighlighted && !item.isSubItem} tooltip={item.label}>
-                    <Link href={item.href} className="flex items-center"> {/* Added flex and items-center */}
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isParentHighlighted && !item.isSubItem} 
+                    tooltip={item.label}
+                    disabled={itemIsDisabled}
+                  >
+                    <Link href={itemIsDisabled ? '#' : item.href} aria-disabled={itemIsDisabled} className={itemIsDisabled ? 'pointer-events-none' : ''}>
                       <item.icon />
-                      <span className="group-data-[collapsible=icon]:hidden flex-grow"> {/* Added flex-grow */}
+                      <span className="group-data-[collapsible=icon]:hidden flex-grow">
                         {item.label}
                       </span>
-                       {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
+                       {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && !itemIsDisabled && (
                         <span
                           title="Facturatie actie vereist"
-                          className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden" // Adjusted margin and added min-w-0
+                          className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden"
                         />
                       )}
                     </Link>
                   </SidebarMenuButton>
-                  {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages) && (
+                  {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && !itemIsDisabled) && (
                     <SidebarMenuBadge title="Nieuwe berichten"></SidebarMenuBadge>
                   )}
                 </SidebarMenuItem>
 
-                {isParentExpanded && item.children && visibleChildren.length > 0 && (
+                {isParentExpanded && item.children && visibleChildren.length > 0 && !itemIsDisabled && (
                   <SidebarMenuSub>
                     {visibleChildren.map((child, childIndex) => {
                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
                        const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
+                       const childIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile';
                       return (
                         <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
-                          <SidebarMenuSubButton asChild isActive={isChildActive || isExactLessenOverzichtActive}>
-                            <Link href={child.href}>
+                          <SidebarMenuSubButton 
+                            asChild 
+                            isActive={isChildActive || isExactLessenOverzichtActive}
+                            disabled={childIsDisabled}
+                           >
+                            <Link href={childIsDisabled ? '#' : child.href} aria-disabled={childIsDisabled} className={childIsDisabled ? 'pointer-events-none' : ''}>
                               <child.icon />
                               {child.label}
                             </Link>
