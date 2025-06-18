@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -6,7 +7,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -15,33 +16,32 @@ import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscri
 import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 
 // Initial default plans (will be overridden by localStorage if available)
-// Updated featureAccess according to image for the first 3 plans.
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
     id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // Start all false
-      startAssessment: true, 
-      basicReflectionToolLimited: true, 
-      accountManagement: true, 
-      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true,
+      basicReflectionToolLimited: true,
+      accountManagement: true,
+      noProgressAnalytics: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
     id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { // More comprehensive set
+    featureAccess: { 
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
-      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false, // Means HAS progress analytics
+      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false, 
       dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, communicationWithLinkedProfessionals: true,
     },
     active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
   },
-  {
+   {
     id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
-    featureAccess: { // Mirror monthly, add yearly discount feature if available
+    featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
       browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
@@ -53,19 +53,18 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   },
   {
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { // Based on image interpretation: the Gezin plan in image had all X's for the listed 10. This is weird.
-                     // For a better user experience, let's assume it HAS the core features and parent features.
+    featureAccess: { 
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
       browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
       dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
     },
-    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true, // Set as popular by default
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
-    featureAccess: { // Mirror monthly family guide
+    featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
       browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
@@ -77,9 +76,9 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   },
    {
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { // All base 10 features from image are true
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // Default all to true for premium
-      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+    featureAccess: { 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
+      noProgressAnalytics: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
@@ -157,16 +156,22 @@ export default function PricingPage() {
             featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false,
+            isPopular: plan.isPopular ?? false, // Default to false if not present
           };
         });
       } catch (e) {
         console.error("Error parsing plans from localStorage, using defaults", e);
-        activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
+        activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
+            ...plan,
+             isPopular: plan.isPopular ?? false,
+        }));
         localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
       }
     } else {
-      activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
+      activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
+            ...plan,
+             isPopular: plan.isPopular ?? false,
+        }));
       localStorage.setItem('subscriptionPlans', JSON.stringify(initialSubscriptionPlansForPricing));
     }
     setPlans(activePlans);
