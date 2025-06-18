@@ -1,3 +1,4 @@
+
 // src/components/admin/tutor-management/TutorManagementTable.tsx
 "use client";
 
@@ -22,7 +23,7 @@ const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "d
   switch (status) {
     case 'actief': return 'default'; // Green
     case 'pending_approval': return 'secondary'; // Orange
-    case 'pending_onboarding': return 'outline'; // Blueish
+    case 'pending_onboarding': return 'secondary'; // Was 'outline', nu oranje-achtig
     case 'geblokkeerd': return 'destructive'; // Red
     case 'rejected': return 'destructive'; // Red
     default: return 'outline';
@@ -33,7 +34,7 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
   switch (status) {
     case 'actief': return 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200';
     case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
-    case 'pending_onboarding': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
+    case 'pending_onboarding': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200'; // Nieuwe oranje stijl
     case 'geblokkeerd': return 'bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300'; // More neutral for blocked/inactive
     case 'rejected': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
     default: return '';

@@ -1,3 +1,4 @@
+
 // src/app/dashboard/tutor/availability/page.tsx
 "use client";
 
@@ -79,27 +80,25 @@ export default function TutorAvailabilityPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    if (selectedDateForWeekEditing) {
-        const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-        setCurrentEditingWeekMonday(newMonday);
-        const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-        setActiveTabDateKey(newlySelectedDateKey);
+    const dateToProcess = selectedDateForWeekEditing || startOfDay(new Date());
+    
+    if (!selectedDateForWeekEditing) {
+        setSelectedDateForWeekEditing(dateToProcess); // Set initial selection, which will trigger this effect again
     } else {
-        // Initialize with today if no date is selected
-        const today = startOfDay(new Date());
-        setSelectedDateForWeekEditing(today);
-        // activeTabDateKey will be set by the above selectedDateForWeekEditing change in the next effect cycle
+        const newMonday = startOfWeek(dateToProcess, { weekStartsOn: 1 });
+        setCurrentEditingWeekMonday(newMonday);
+        setActiveTabDateKey(format(dateToProcess, 'yyyy-MM-dd'));
     }
   }, [selectedDateForWeekEditing, isClient]);
 
 
   useEffect(() => {
-    if (activeTabDateKey) {
+    if (activeTabDateKey && isClient) {
       setSlotsForActiveTab(specificDateAvailability[activeTabDateKey]?.map(slot => ({...slot, id: slot.id || Date.now().toString() + Math.random()})) || []);
-    } else {
+    } else if (isClient) { // Zorg ervoor dat dit alleen op de client gebeurt om hydration te voorkomen
       setSlotsForActiveTab([]);
     }
-  }, [activeTabDateKey, specificDateAvailability]);
+  }, [activeTabDateKey, specificDateAvailability, isClient]);
 
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {

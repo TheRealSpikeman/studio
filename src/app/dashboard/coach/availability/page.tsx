@@ -1,3 +1,4 @@
+
 // src/app/dashboard/coach/availability/page.tsx
 // Initial content copied from tutor/availability, then adjusted.
 "use client";
@@ -80,25 +81,25 @@ export default function CoachAvailabilityPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    if (selectedDateForWeekEditing) {
-        const newMonday = startOfWeek(selectedDateForWeekEditing, { weekStartsOn: 1 });
-        setCurrentEditingWeekMonday(newMonday);
-        const newlySelectedDateKey = format(selectedDateForWeekEditing, 'yyyy-MM-dd');
-        setActiveTabDateKey(newlySelectedDateKey);
+    const dateToProcess = selectedDateForWeekEditing || startOfDay(new Date());
+    
+    if (!selectedDateForWeekEditing) {
+        setSelectedDateForWeekEditing(dateToProcess); 
     } else {
-        const today = startOfDay(new Date());
-        setSelectedDateForWeekEditing(today);
+        const newMonday = startOfWeek(dateToProcess, { weekStartsOn: 1 });
+        setCurrentEditingWeekMonday(newMonday);
+        setActiveTabDateKey(format(dateToProcess, 'yyyy-MM-dd'));
     }
   }, [selectedDateForWeekEditing, isClient]);
 
 
   useEffect(() => {
-    if (activeTabDateKey) {
+    if (activeTabDateKey && isClient) {
       setSlotsForActiveTab(specificDateAvailability[activeTabDateKey]?.map(slot => ({...slot, id: slot.id || Date.now().toString() + Math.random()})) || []);
-    } else {
+    } else if (isClient) {
       setSlotsForActiveTab([]);
     }
-  }, [activeTabDateKey, specificDateAvailability]);
+  }, [activeTabDateKey, specificDateAvailability, isClient]);
 
 
   const handleTimeSlotChange = (day: keyof WeeklyAvailability, index: number, field: 'start' | 'end', value: string) => {
