@@ -54,7 +54,7 @@ const platformFeatures: Feature[] = [
     title: '1-op-1 Begeleiding (Optioneel)',
     descriptionFull: 'Koppel uw kind aan gekwalificeerde tutors of coaches voor persoonlijke hulp, afgestemd op hun assessmentprofiel en behoeften.',
     link: '/features/een-op-een-begeleiding',
-    linkText: 'Vind een Begeleider',
+    linkText: 'Meer over Begeleiding',
     colorClass: 'bg-accent/10 border-accent/30 hover:shadow-md',
   },
   {
