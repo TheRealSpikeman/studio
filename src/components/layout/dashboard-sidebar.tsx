@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -30,7 +29,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -53,6 +52,7 @@ interface NavItem {
   isSubItem?: boolean;
   parent?: string;
   children?: NavItem[];
+  isOuderOnboardingLink?: boolean; // New property
 }
 
 const navItems: NavItem[] = [
@@ -102,6 +102,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   
   // Ouder Items
+  { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, // New onboarding link
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
@@ -180,7 +181,7 @@ function SidebarNavigationContent() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
   const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
-  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true);
+  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true); // State for ouder onboarding
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -242,19 +243,24 @@ function SidebarNavigationContent() {
           {navItems.map((item, index) => {
             let showItem = false;
             if (currentDashboardRole === 'admin') {
-              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly;
+              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
             } else if (currentDashboardRole === 'tutor') {
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly;
+              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
             } else if (currentDashboardRole === 'coach') {
-              showItem = (!!item.coachOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.tutorOnly;
+              showItem = (!!item.coachOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.tutorOnly && !item.isOuderOnboardingLink;
             } else if (currentDashboardRole === 'leerling') {
               if (item.href === '/dashboard/community') {
-                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
+                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
               } else {
-                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
+                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
               }
             } else if (currentDashboardRole === 'ouder') {
-              showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
+              if (item.isOuderOnboardingLink) {
+                showItem = isOuderOnboardingPending; // Show onboarding link only if pending
+              } else {
+                // Hide other ouderOnly links if onboarding is pending, except for profile
+                showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
+              }
             }
 
 
@@ -322,7 +328,11 @@ function SidebarNavigationContent() {
               isParentHighlighted = true;
             }
 
-            const itemIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && item.href !== '/dashboard/profile';
+            // Disable parent items if ouder onboarding is pending, unless it's the onboarding link or profile
+            const itemIsDisabled = currentDashboardRole === 'ouder' && 
+                                   isOuderOnboardingPending && 
+                                   !item.isOuderOnboardingLink &&
+                                   item.href !== '/dashboard/profile';
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -334,11 +344,14 @@ function SidebarNavigationContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={isParentHighlighted && !item.isSubItem} 
+                    isActive={(isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending)) && !item.isSubItem} 
                     tooltip={item.label}
                     disabled={itemIsDisabled}
+                    className={cn(
+                        item.isOuderOnboardingLink && isOuderOnboardingPending && "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse"
+                    )}
                   >
-                    <Link href={itemIsDisabled ? '#' : item.href} aria-disabled={itemIsDisabled} className={itemIsDisabled ? 'pointer-events-none' : ''}>
+                    <Link href={itemIsDisabled ? '#' : item.href} aria-disabled={itemIsDisabled} className={itemIsDisabled ? 'pointer-events-none opacity-50' : ''}>
                       <item.icon />
                       <span className="group-data-[collapsible=icon]:hidden flex-grow">
                         {item.label}
@@ -361,6 +374,7 @@ function SidebarNavigationContent() {
                     {visibleChildren.map((child, childIndex) => {
                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
                        const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
+                       // Disable child items if ouder onboarding is pending, unless it's the profile link
                        const childIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile';
                       return (
                         <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
@@ -369,7 +383,7 @@ function SidebarNavigationContent() {
                             isActive={isChildActive || isExactLessenOverzichtActive}
                             disabled={childIsDisabled}
                            >
-                            <Link href={childIsDisabled ? '#' : child.href} aria-disabled={childIsDisabled} className={childIsDisabled ? 'pointer-events-none' : ''}>
+                            <Link href={childIsDisabled ? '#' : child.href} aria-disabled={childIsDisabled} className={childIsDisabled ? 'pointer-events-none opacity-50' : ''}>
                               <child.icon />
                               {child.label}
                             </Link>
