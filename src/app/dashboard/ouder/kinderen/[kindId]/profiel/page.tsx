@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users as UsersIcon, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle, HelpCircle, CheckSquare, BookOpen, ImageUp, Trash2, Save, MessageSquare, MessageCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Cake, School, GraduationCap, Target, Users as UsersIcon, Share2, Edit, Link2, Info, ShieldAlert, AlertTriangle, HelpCircle, CheckSquare, BookOpen, ImageUp, Trash2, Save, MessageSquare, MessageCircle, MapPin } from 'lucide-react';
 import { allHomeworkSubjects, type SubjectOption } from '@/lib/quiz-data/subject-data';
 import type { User as UserType, AgeGroup } from '@/types/user';
 import { Input } from '@/components/ui/input';
@@ -100,7 +100,7 @@ const dummyChildren: Child[] = [
     helpSubjects: ['wiskunde', 'nederlands'],
     hulpvraagType: ['tutor', 'coach'],
     leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.',
-    voorkeurTutor: 'Geselecteerd: Ervaring met faalangst, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met faalangst, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor1'],
   },
@@ -142,7 +142,7 @@ const dummyChildren: Child[] = [
     helpSubjects: [],
     hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
-    voorkeurTutor: 'Geselecteerd: Vrouw, Ervaring met faalangst.',
+    voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.',
     deelResultatenMetTutor: true,
     linkedTutorIds: ['tutor2', 'tutor3'],
   },
@@ -444,7 +444,14 @@ export default function KindProfielPage() {
                           <FormField control={control} name="lastName" render={({ field }) => (<FormItem><div><FormLabel htmlFor="lastNameEdit">Achternaam</FormLabel><Input id="lastNameEdit" {...field} /></div><FormMessage/></FormItem>)} />
                           <FormField control={control} name="ageGroup" render={({ field }) => (<FormItem>
                               <FormLabel htmlFor="ageGroupEdit">Leeftijdsgroep</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}><SelectTrigger id="ageGroupEdit"><SelectValue /></SelectTrigger><SelectContent>{ageGroupOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage/>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="ageGroupEdit" className="pl-10 relative">
+                                  <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>{ageGroupOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                              </Select>
+                              <FormMessage/>
                           </FormItem>)} />
                           <FormField control={control} name="childEmail" render={({ field }) => (<FormItem><div><FormLabel htmlFor="childEmailEdit">E-mail Kind</FormLabel><Input id="childEmailEdit" type="email" {...field} /></div><FormMessage/></FormItem>)} />
                           <FormField control={control} name="avatarUrl" render={({ field }) => (<FormItem>
@@ -473,7 +480,14 @@ export default function KindProfielPage() {
                     <CardContent className="space-y-4 text-sm">
                         <FormField control={control} name="schoolType" render={({ field }) => (<FormItem>
                             <FormLabel htmlFor="schoolTypeEdit">Schooltype</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}><SelectTrigger id="schoolTypeEdit"><SelectValue placeholder="Kies schooltype" /></SelectTrigger><SelectContent>{schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent></Select><FormMessage/>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger id="schoolTypeEdit" className="pl-10 relative">
+                                <School className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <SelectValue placeholder="Kies schooltype" />
+                              </SelectTrigger>
+                              <SelectContent>{schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent>
+                            </Select>
+                            <FormMessage/>
                         </FormItem>)} />
                          {watchedSchoolType === "Anders" && (
                             <FormField control={form.control} name="otherSchoolType" render={({ field }) => (
@@ -607,7 +621,7 @@ export default function KindProfielPage() {
                     <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><User className="h-6 w-6 text-primary"/>Persoonlijke Gegevens</CardTitle></CardHeader>
                     <CardContent className="space-y-3 text-sm">
                         <div><strong className="font-medium text-foreground/80">Volledige Naam:</strong> <span className="text-foreground">{childData?.firstName} {childData?.lastName}</span></div>
-                        <div><strong className="font-medium text-foreground/80">Leeftijdscategorie:</strong> <span className="text-foreground">{childData?.ageGroup || 'N.v.t.'}</span></div>
+                        <div><strong className="font-medium text-foreground/80">Leeftijdsgroep:</strong> <span className="text-foreground">{childData?.ageGroup || 'N.v.t.'}</span></div>
                         <div><strong className="font-medium text-foreground/80">E-mail Kind:</strong> <span className="text-foreground">{childData?.childEmail || 'Niet opgegeven'}</span></div>
                         <div>
                             <strong className="font-medium text-foreground/80">Abonnement Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData!.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData!.subscriptionStatus)}>{childData!.subscriptionStatus.charAt(0).toUpperCase() + childData!.subscriptionStatus.slice(1)}</Badge>

@@ -169,7 +169,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                         <FormLabel>Leeftijd kind</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10 relative">
                                 <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <SelectValue placeholder="Selecteer leeftijd" />
                             </SelectTrigger>
@@ -213,7 +213,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                         <FormLabel>Type school</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""} >
                             <FormControl>
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10 relative">
                                 <School className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <SelectValue placeholder="Selecteer schooltype" />
                             </SelectTrigger>

@@ -410,8 +410,9 @@ export default function ProfilePage() {
                     onValueChange={setUserAgeString}
                     disabled={!isEditing}
                 >
-                    <SelectTrigger id="userAgeSelect" className="mt-1">
-                    <SelectValue placeholder="Selecteer je leeftijd" />
+                    <SelectTrigger id="userAgeSelect" className="mt-1 pl-10 relative">
+                      <Cake className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <SelectValue placeholder="Selecteer je leeftijd" />
                     </SelectTrigger>
                     <SelectContent>
                     <SelectItem value={NO_AGE_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
@@ -470,7 +471,8 @@ export default function ProfilePage() {
                 <Label htmlFor="country">Land</Label>
                 {isEditing ? (
                   <Select value={country} onValueChange={setCountry} disabled={!isEditing}>
-                    <SelectTrigger id="country" className="mt-1">
+                    <SelectTrigger id="country" className="mt-1 pl-10 relative">
+                      <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <SelectValue placeholder="Selecteer een land" />
                     </SelectTrigger>
                     <SelectContent>
@@ -494,7 +496,8 @@ export default function ProfilePage() {
                     onValueChange={setSelectedCountryCode}
                     disabled={!isEditing}
                   >
-                    <SelectTrigger id="countryCode">
+                    <SelectTrigger id="countryCode" className="pl-10 relative">
+                      <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <SelectValue placeholder="Landcode" />
                     </SelectTrigger>
                     <SelectContent>
@@ -561,7 +564,7 @@ export default function ProfilePage() {
                         <button
                             key={avatar.id}
                             onClick={() => handleSelectPredefinedAvatar(avatar.src)}
-                            className={`rounded-md overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary
+                            className={`rounded-md overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary w-16 h-16
                                 ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
                             title={avatar.alt}
                         >
@@ -604,7 +607,8 @@ export default function ProfilePage() {
               <div>
                 <Label htmlFor="schoolType">Type school</Label>
                 <Select value={schoolType} onValueChange={setSchoolType} disabled={!isEditing}>
-                  <SelectTrigger id="schoolType" className="mt-1">
+                  <SelectTrigger id="schoolType" className="mt-1 pl-10 relative">
+                    <School className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <SelectValue placeholder="Selecteer schooltype" />
                   </SelectTrigger>
                   <SelectContent>
@@ -771,4 +775,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
