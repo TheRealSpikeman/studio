@@ -23,9 +23,9 @@ import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow';
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
-    id: 'teen-neuro-15-18', title: 'Basis Neuroprofiel (15-18 jr)', 
+    id: 'teen-neuro-15-18', title: 'Basis Zelfreflectie (15-18 jr)', 
     description: 'Algemene neurodiversiteitstest voor oudere tieners, ontdek jouw unieke eigenschappen.', 
-    audience: ['15-18'], category: 'Basis', status: 'published', 
+    audience: ['Tiener (15-18 jr, voor zichzelf)'], category: 'Basis', status: 'published', 
     questions: [
         {id:'q_tn_1518_1', text:'Ik merk dat mijn gedachten afdwalen, zelfs als ik probeer te focussen op schoolwerk.', weight: 2}, 
         {id:'q_tn_1518_2', text:'Na een lange schooldag heb ik echt tijd nodig om bij te komen.', weight: 1},
@@ -38,9 +38,9 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     thumbnailUrl: 'https://picsum.photos/seed/teenquiz1518/400/200'
   },
   { 
-    id: 'teen-neuro-12-14', title: 'Basis Neuroprofiel (12-14 jr)', 
+    id: 'teen-neuro-12-14', title: 'Basis Zelfreflectie (12-14 jr)', 
     description: 'Speciaal voor 12-14 jaar, ontdek jouw unieke eigenschappen.', 
-    audience: ['12-14'], category: 'Basis', status: 'published', 
+    audience: ['Tiener (12-14 jr, voor zichzelf)'], category: 'Basis', status: 'published', 
     questions: [
       {id:'q_tn_1214_1', text:'Dwalen je gedachten makkelijk af als je je probeert te concentreren?', weight: 2},
       {id:'q_tn_1214_2', text:'Heb je na een drukke schooldag tijd voor jezelf nodig om bij te komen?', weight: 1}
@@ -50,10 +50,23 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     slug: 'basis-neuro-12-14',
     thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200'
   },
+   { 
+    id: 'ouder-ken-je-kind-6-11', title: 'Ken je Kind (6-11 jr)', 
+    description: 'Vragenlijst voor ouders om gedrag en kenmerken van hun kind (6-11 jr) beter te begrijpen.', 
+    audience: ['Ouder (over kind 6-11 jr)'], category: 'Ouder Observatie', status: 'concept', 
+    questions: [
+        {id:'q_okk_611_1', text:'Hoe vaak merkt u dat uw kind moeite heeft met stilzitten tijdens maaltijden of rustige activiteiten?', weight: 1}, 
+        {id:'q_okk_611_2', text:'In welke mate lijkt uw kind details op te merken die anderen vaak ontgaan?', weight: 2},
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    slug: 'ken-je-kind-6-11',
+    thumbnailUrl: 'https://picsum.photos/seed/kenjekind611/400/200'
+  },
   { 
-    id: 'exam-stress-planning', title: 'Examenvrees & Planning', 
+    id: 'exam-stress-planning', title: 'Examenvrees & Planning (Tieners)', 
     description: 'Leer stress te beheersen en je planning scherp te houden voor examens.', 
-    audience: ['15-18', '12-14'], category: 'Thema', status: 'concept', 
+    audience: ['Tiener (15-18 jr, voor zichzelf)', 'Tiener (12-14 jr, voor zichzelf)'], category: 'Thema', status: 'concept', 
     questions: [
       {id:'q_esp_1', text:'Maak je je veel zorgen over toetsen, zelfs als je goed hebt geleerd?', weight: 3},
       {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met leren voor een examen?', weight: 2}
@@ -64,9 +77,9 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     thumbnailUrl: 'https://picsum.photos/seed/examstress/400/200'
   },
   { 
-    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding', 
+    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding (Alle)', 
     description: 'Ontdek hoe social media en andere digitale afleidingen je concentratie beïnvloeden.', 
-    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'published', 
+    audience: ['Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'published', 
     questions: [
       {id:'q_fdd_1', text:'Raak je snel afgeleid door meldingen op je telefoon tijdens het huiswerk?', weight: 1},
       {id:'q_fdd_2', text:'Hoe vaak controleer je social media terwijl je eigenlijk zou moeten studeren?', weight: 2}
@@ -76,57 +89,36 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     slug: 'focus-digitale-afleiding',
     thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200'
   },
-   { 
-    id: 'social-anxiety-friendships', title: 'Sociale Angst & Vriendschap', 
-    description: 'Verken hoe je je voelt in sociale situaties en bij het maken van vrienden.', 
-    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'concept', 
-    questions: [
-        {id:'q_saf_1', text:'Vind je het spannend om nieuwe mensen te ontmoeten?', weight: 2},
-        {id:'q_saf_2', text:'Maak je je zorgen over wat anderen van je denken in een groep?', weight: 3}
-    ],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 6).toISOString(), 
-    createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
-    slug: 'sociale-angst-vriendschap',
-    thumbnailUrl: 'https://picsum.photos/seed/socialanxiety/400/200'
-  },
-  { 
-    id: 'motivation-goals', title: 'Motivatie & Doelen Stellen', 
-    description: 'Leer hoe je gemotiveerd blijft en effectieve doelen kunt stellen voor jezelf.', 
-    audience: ['12-14', '15-18', 'all'], category: 'Thema', status: 'published', 
-    questions: [
-        {id:'q_md_1', text:'Vind je het moeilijk om gemotiveerd te blijven voor schoolwerk dat je niet leuk vindt?', weight: 1},
-        {id:'q_md_2', text:'Stel je vaak doelen voor jezelf, maar vind je het lastig om ze te bereiken?', weight: 2}
-    ],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 4).toISOString(), 
-    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-    slug: 'motivatie-doelen-quiz',
-    thumbnailUrl: 'https://picsum.photos/seed/motivationgoals/400/200'
-  },
 ];
 
 const ITEMS_PER_PAGE = 10;
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
-  { id: '12-14', label: '12-14 jaar' },
-  { id: '15-18', label: '15-18 jaar' },
-  { id: 'adult', label: 'Volwassene' },
-  { id: 'all', label: 'Algemeen (alle leeftijden)' },
+  { id: 'Tiener (12-14 jr, voor zichzelf)', label: 'Tiener (12-14 jr, voor zichzelf)' },
+  { id: 'Tiener (15-18 jr, voor zichzelf)', label: 'Tiener (15-18 jr, voor zichzelf)' },
+  { id: 'Volwassene (18+, voor zichzelf)', label: 'Volwassene (18+, voor zichzelf)' },
+  { id: 'Algemeen (alle leeftijden, voor zichzelf)', label: 'Algemeen (alle leeftijden, voor zichzelf)' },
+  { id: 'Ouder (over kind 6-11 jr)', label: 'Ouder (over kind 6-11 jr)' },
+  { id: 'Ouder (over kind 12-14 jr)', label: 'Ouder (over kind 12-14 jr)' },
+  { id: 'Ouder (over kind 15-18 jr)', label: 'Ouder (over kind 15-18 jr)' },
 ];
 
-const categoryOptions: { id: QuizCategory | string; label: string }[] = [
-  { id: 'Basis', label: 'Basis Quiz' },
-  { id: 'ADD', label: 'ADD' },
-  { id: 'ADHD', label: 'ADHD' },
-  { id: 'HSP', label: 'HSP' },
-  { id: 'ASS', label: 'ASS' },
-  { id: 'AngstDepressie', label: 'Angst/Depressie' },
-  { id: 'Thema', label: 'Thema (bijv. Pers. Groei, Sociale Vaardigheden)' },
+const categoryOptions: { id: QuizCategory; label: string }[] = [
+  { id: 'Basis', label: 'Basis Zelfreflectie (Kind/Tiener)' },
+  { id: 'Thema', label: 'Thematische Quiz (Kind/Tiener)' },
+  { id: 'Ouder Observatie', label: 'Ouder Observatie (Ken je Kind)' },
+  { id: 'ADD', label: 'Subtest: ADD Kenmerken' },
+  { id: 'ADHD', label: 'Subtest: ADHD Kenmerken' },
+  { id: 'HSP', label: 'Subtest: HSP Kenmerken' },
+  { id: 'ASS', label: 'Subtest: ASS Kenmerken' },
+  { id: 'AngstDepressie', label: 'Subtest: Angst/Depressie Kenmerken' },
 ];
 
 const numQuestionsOptions = [
   { id: 5, label: '5 vragen' },
   { id: 10, label: '10 vragen' },
   { id: 15, label: '15 vragen' },
+  { id: 20, label: '20 vragen' },
 ];
 
 const difficultyOptions = [
@@ -137,8 +129,8 @@ const difficultyOptions = [
 
 const aiQuizFormSchema = z.object({
   topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
-  audience: z.string({ required_error: "Selecteer een doelgroep." }),
-  category: z.string({ required_error: "Selecteer een domein/categorie." }),
+  audience: z.string({ required_error: "Selecteer een doelgroep." }) as z.ZodType<QuizAudience>,
+  category: z.string({ required_error: "Selecteer een domein/categorie." }) as z.ZodType<QuizCategory>,
   numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
   difficulty: z.string({ required_error: "Selecteer een moeilijkheidsgraad."}),
 });
@@ -156,11 +148,10 @@ export default function QuizManagementPage() {
   const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
 
   useEffect(() => {
-    const loadedQuizzes: QuizAdmin[] = []; // Start with an empty array
+    const loadedQuizzes: QuizAdmin[] = []; 
     try {
       const existingDummyIds = new Set(DUMMY_QUIZZES.map(q => q.id));
       
-      // Add DUMMY_QUIZZES first
       DUMMY_QUIZZES.forEach(q => loadedQuizzes.push(q));
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -172,13 +163,9 @@ export default function QuizManagementPage() {
             const questionsWithWeight = storedQuiz.questions.map(q => ({...q, weight: q.weight ?? 1}));
             const quizToAdd = {...storedQuiz, questions: questionsWithWeight};
 
-            // Only add if ID is not already in DUMMY_QUIZZES or loadedQuizzes
             if (!existingDummyIds.has(quizToAdd.id) && !loadedQuizzes.find(q => q.id === quizToAdd.id)) {
               loadedQuizzes.push(quizToAdd);
             } else if (loadedQuizzes.find(q => q.id === quizToAdd.id)) {
-              // If an AI quiz from localStorage has the same ID as one already loaded (e.g. from DUMMY_QUIZZES),
-              // potentially update it, or decide on a conflict resolution strategy.
-              // For now, let's assume localStorage is more up-to-date for AI quizzes.
               const index = loadedQuizzes.findIndex(q => q.id === quizToAdd.id);
               if (index !== -1) {
                 loadedQuizzes[index] = quizToAdd;
@@ -190,11 +177,10 @@ export default function QuizManagementPage() {
     } catch (error) {
         console.error("Error loading quizzes from localStorage:", error);
     }
-    // Ensure all quizzes (dummy or loaded) have default weights for questions if missing.
     setQuizzes(loadedQuizzes.map(q => ({
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
-        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200` // Fallback thumbnailUrl
+        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200` 
     })));
   }, []);
 
@@ -253,12 +239,11 @@ export default function QuizManagementPage() {
       description: `Onderwerp: ${data.topic}. Een ogenblik geduld.`,
     });
     
-
     try {
-      const aiInput = {
+      const aiInput = { // Stuur de waarde van de selectie, niet het label
         topic: data.topic,
-        audience: audienceOptions.find(opt => opt.id === data.audience)?.label || data.audience,
-        category: categoryOptions.find(opt => opt.id === data.category)?.label || data.category,
+        audience: data.audience, // Gebruik de ID/value van de audience optie
+        category: data.category, // Gebruik de ID/value van de category optie
         numQuestions: data.numQuestions,
         difficulty: data.difficulty,
       };
@@ -273,14 +258,14 @@ export default function QuizManagementPage() {
         id: newQuizId,
         title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
         description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}). Pas de titel en beschrijving eventueel aan.`,
-        audience: [data.audience as QuizAudience],
-        category: data.category as QuizCategory,
+        audience: [data.audience],
+        category: data.category,
         status: 'concept',
         questions: aiResult.questions.map((q, i) => ({
           id: `ai-q${i+1}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`,
           text: q.text,
           example: q.example,
-          weight: q.weight ?? 1 // Ensure weight defaults to 1 if not provided by AI
+          weight: q.weight ?? 1 
         })),
         lastUpdatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -399,7 +384,7 @@ export default function QuizManagementPage() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl>
                               <SelectContent>
-                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id.toString()}>{opt.label}</SelectItem>)}
+                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -483,7 +468,7 @@ export default function QuizManagementPage() {
               <SelectTrigger><SelectValue placeholder="Filter op categorie" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle Categorieën</SelectItem>
-                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id.toString()}>{opt.label}</SelectItem>)}
+                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -493,7 +478,7 @@ export default function QuizManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Titel</TableHead>
-                  <TableHead className="min-w-[100px]">Doelgroep</TableHead>
+                  <TableHead className="min-w-[200px]">Doelgroep</TableHead>
                   <TableHead>Categorie</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="min-w-[80px]">Vragen</TableHead>
@@ -540,8 +525,8 @@ export default function QuizManagementPage() {
                              asChild={quiz.status !== 'concept'}
                           >
                             <Link 
-                              href={quiz.slug && quiz.slug.startsWith('teen-neurodiversity-quiz') // Special case for the generic teen quiz
-                                      ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || '15-18'}` 
+                              href={quiz.slug && quiz.slug.startsWith('teen-neurodiversity-quiz') 
+                                      ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || 'Tiener (15-18 jr, voor zichzelf)'}` 
                                       : `/quiz/${quiz.slug || quiz.id}`
                                     }
                               target="_blank" 

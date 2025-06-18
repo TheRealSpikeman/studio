@@ -27,20 +27,24 @@ import type { QuizAudience, QuizCategory, QuizStatusAdmin } from '@/types/quiz-a
 import React from "react"; // Import React for useRef
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
-  { id: '12-14', label: '12-14 jaar' },
-  { id: '15-18', label: '15-18 jaar' },
-  { id: 'adult', label: 'Volwassene' },
-  { id: 'all', label: 'Algemeen (alle leeftijden)' },
+  { id: 'Tiener (12-14 jr, voor zichzelf)', label: 'Tiener (12-14 jr, voor zichzelf)' },
+  { id: 'Tiener (15-18 jr, voor zichzelf)', label: 'Tiener (15-18 jr, voor zichzelf)' },
+  { id: 'Volwassene (18+, voor zichzelf)', label: 'Volwassene (18+, voor zichzelf)' },
+  { id: 'Algemeen (alle leeftijden, voor zichzelf)', label: 'Algemeen (alle leeftijden, voor zichzelf)' },
+  { id: 'Ouder (over kind 6-11 jr)', label: 'Ouder (over kind 6-11 jr)' },
+  { id: 'Ouder (over kind 12-14 jr)', label: 'Ouder (over kind 12-14 jr)' },
+  { id: 'Ouder (over kind 15-18 jr)', label: 'Ouder (over kind 15-18 jr)' },
 ];
 
 const categoryOptions: { id: QuizCategory; label: string }[] = [
-  { id: 'Basis', label: 'Basis Quiz' },
-  { id: 'ADD', label: 'ADD Subtest' },
-  { id: 'ADHD', label: 'ADHD Subtest' },
-  { id: 'HSP', label: 'HSP Subtest' },
-  { id: 'ASS', label: 'ASS Subtest' },
-  { id: 'AngstDepressie', label: 'Angst/Depressie Subtest' },
-  { id: 'Thema', label: 'Thematische Quiz (bijv. Examenvrees)' },
+  { id: 'Basis', label: 'Basis Zelfreflectie (Kind/Tiener)' },
+  { id: 'Thema', label: 'Thematische Quiz (Kind/Tiener)' },
+  { id: 'Ouder Observatie', label: 'Ouder Observatie (Ken je Kind)' },
+  { id: 'ADD', label: 'Subtest: ADD Kenmerken' },
+  { id: 'ADHD', label: 'Subtest: ADHD Kenmerken' },
+  { id: 'HSP', label: 'Subtest: HSP Kenmerken' },
+  { id: 'ASS', label: 'Subtest: ASS Kenmerken' },
+  { id: 'AngstDepressie', label: 'Subtest: Angst/Depressie Kenmerken' },
 ];
 
 // Subtest IDs should align with QuizCategory values for subtests
@@ -55,8 +59,8 @@ const subtestProfileOptions = [
 const quizFormSchema = z.object({
   title: z.string().min(3, { message: "Titel moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
-  audience: z.array(z.string()).min(1, { message: "Selecteer minimaal één doelgroep." }),
-  category: z.string({ required_error: "Selecteer een categorie." }),
+  audience: z.array(z.string() as z.ZodType<QuizAudience[]>).min(1, { message: "Selecteer minimaal één doelgroep." }),
+  category: z.string({ required_error: "Selecteer een categorie." }) as z.ZodType<QuizCategory>,
   status: z.enum(['concept', 'published'] as [QuizStatusAdmin, ...QuizStatusAdmin[]], { required_error: "Selecteer een status." }),
   slug: z.string().optional(),
   metaTitle: z.string().optional(),
@@ -139,29 +143,14 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
     let finalThumbnailUrl = data.thumbnailUrl;
 
     if (data.uploadedImage) {
-      // Simulate image upload and get URL
-      // In a real app, you would upload to Firebase Storage or similar
-      // For now, we'll use a placeholder logic or simply use the data URI for preview
       console.log("Simulating image upload for:", data.uploadedImage.name);
-      // This is where you'd get the actual URL after upload
-      // For demo, we'll use the preview if no URL is manually entered.
-      // If you had an upload service:
-      // finalThumbnailUrl = await uploadImageToCloudService(data.uploadedImage);
-      // For this example, if a file is uploaded, and thumbnailUrl is empty, we might clear it
-      // or expect the backend to handle the uploaded file.
-      // Let's assume for now the `imagePreview` (data URI) could be used or a real URL is obtained.
-      // If `thumbnailUrl` is manually set, it takes precedence.
-      // If an image was uploaded and `thumbnailUrl` is empty, use the preview.
       if (imagePreview && !data.thumbnailUrl) {
-         // This is tricky. For a real app, `finalThumbnailUrl` should be the result of an upload.
-         // For this demo, we'll just use a placeholder if an image was selected and no URL given.
-         // Or let the localStorage save the imagePreview (Data URI)
-         finalThumbnailUrl = imagePreview; // This could be a data URI
+         finalThumbnailUrl = imagePreview; 
       }
     }
     
     const saveData = { ...data, thumbnailUrl: finalThumbnailUrl };
-    delete saveData.uploadedImage; // Don't save the file object directly
+    delete saveData.uploadedImage; 
 
     console.log("Quiz data submitted for saving:", saveData);
 
@@ -180,7 +169,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
         const quizIdToUse = quizData?.id || `ai-${Date.now()}`;
         try {
             const quizForStorage = {
-                ...quizData, // existing data if editing
+                ...quizData, 
                 ...saveData, 
                 id: quizIdToUse,
                 lastUpdatedAt: new Date().toISOString(),
@@ -252,7 +241,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                 render={() => (
                     <FormItem className="space-y-2">
                     <FormLabel>Doelgroep(en)</FormLabel>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {audienceOptions.map((item) => (
                         <FormField
                         key={item.id}
@@ -344,7 +333,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                 <FormField
                     control={form.control}
                     name="uploadedImage"
-                    render={({ field }) => ( // field is not directly used for input type file by react-hook-form in the same way
+                    render={({ field }) => ( 
                         <FormItem>
                             <FormLabel>Of upload een afbeelding</FormLabel>
                             <FormControl>
@@ -466,7 +455,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                     <FormField
                         control={form.control}
                         name={`subtestConfigs.${index}.threshold`}
-                        render={({ field: fld }) => ( // Removed defaultValue from here
+                        render={({ field: fld }) => ( 
                         <FormItem>
                             <FormLabel className="text-xs">Drempelwaarde (0-4)</FormLabel>
                             <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} /></FormControl>
@@ -525,8 +514,8 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             <Save className="mr-2 h-4 w-4" /> 
             {isEditMode && currentStatus === 'published' ? 'Quiz Bijwerken & Publiceren' : 
              isEditMode && currentStatus === 'concept' ? 'Concept Bijwerken' :
-             !isEditMode && form.getValues("status") === 'published' ? 'Publiceren' : // Check current value for new quiz
-             !isEditMode && form.getValues("status") === 'concept' ? 'Publiceren' : // Check current value for new quiz (button will set to published)
+             !isEditMode && form.getValues("status") === 'published' ? 'Publiceren' : 
+             !isEditMode && form.getValues("status") === 'concept' ? 'Publiceren' : 
              'Publiceren'
             }
           </Button>
@@ -535,3 +524,4 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
     </Form>
   );
 }
+

@@ -15,8 +15,17 @@ export interface QuizAdminQuestion {
   weight?: number; // New: For weighted scoring (e.g., 1, 2, 3)
 }
 
-export type QuizAudience = '12-14' | '15-18' | 'adult' | 'all';
-export type QuizCategory = 'Basis' | 'ADD' | 'ADHD' | 'HSP' | 'ASS' | 'AngstDepressie' | 'Thema';
+// Updated QuizAudience type
+export type QuizAudience = 
+  | 'Tiener (12-14 jr, voor zichzelf)' 
+  | 'Tiener (15-18 jr, voor zichzelf)' 
+  | 'Volwassene (18+, voor zichzelf)' 
+  | 'Algemeen (alle leeftijden, voor zichzelf)'
+  | 'Ouder (over kind 6-11 jr)'
+  | 'Ouder (over kind 12-14 jr)'
+  | 'Ouder (over kind 15-18 jr)';
+
+export type QuizCategory = 'Basis' | 'ADD' | 'ADHD' | 'HSP' | 'ASS' | 'AngstDepressie' | 'Thema' | 'Ouder Observatie'; // Added Ouder Observatie
 export type QuizStatusAdmin = 'concept' | 'published';
 
 export interface QuizSubtestConfig {
@@ -39,8 +48,4 @@ export interface QuizAdmin {
   thumbnailUrl?: string;
   lastUpdatedAt: string; // ISO date string
   createdAt: string; // ISO date string
-  // Conceptual fields for AI generation context, not directly stored yet unless needed for display
-  // difficultyLevel?: 'laag' | 'gemiddeld' | 'hoog';
-  // weightingScheme?: string; 
 }
-

@@ -10,18 +10,17 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { QuizAudience } from '@/types/quiz-admin'; // Import QuizAudience type
 
 const GenerateAiQuizInputSchema = z.object({
   topic: z.string().describe('The main topic or theme of the quiz.'),
-  audience: z
-    .string()
-    .describe(
-      'The target age group for the quiz (e.g., "12-14 jaar", "15-18 jaar").'
-    ),
+  audience: z.custom<QuizAudience>().describe(
+    'The target audience for the quiz (e.g., "Tiener (12-14 jr, voor zichzelf)", "Ouder (over kind 6-11 jr)"). This determines who is answering and about whom.'
+  ),
   category: z
     .string()
     .describe(
-      'The specific domain or category the quiz falls into (e.g., "ADD", "Examenvrees").'
+      'The specific domain or category the quiz falls into (e.g., "ADD", "Examenvrees", "Ouder Observatie").'
     ),
   numQuestions: z
     .number()
@@ -69,7 +68,7 @@ const prompt = ai.definePrompt({
   name: 'generateAiQuizPrompt',
   input: {schema: GenerateAiQuizInputSchema},
   output: {schema: GenerateAiQuizOutputSchema},
-  prompt: `You are an expert in creating educational quiz questions for neurodiversity topics, tailored for specific age groups and difficulty levels in Dutch.
+  prompt: `You are an expert in creating educational quiz questions in Dutch, tailored for specific target audiences and difficulty levels, with a focus on neurodiversity and personal development.
 
 Your task is to generate a set of quiz questions based on the following criteria:
 Topic: {{{topic}}}
@@ -86,12 +85,27 @@ For each question:
    - For 'gemiddeld' (medium) difficulty, weights should mostly be 2 or 3, but can range from 1 to 4.
    - For 'hoog' (high) difficulty, weights should mostly be 3 or 4, but can range from 2 to 5.
 
-The questions should help users reflect on the given topic and domain in the context of their neurodiversity and personal growth. When the category is 'Thema (algemeen)' or the topic is about personal development, the questions should explicitly guide the user towards self-discovery, understanding their behaviors, and identifying opportunities for personal growth.
-The answer options for all questions will be fixed and provided separately in the application (Nooit, Soms, Vaak, Altijd). You DO NOT need to generate answer options.
+The answer options for all questions will be fixed and provided separately in the application (e.g., Nooit, Soms, Vaak, Altijd, or similar Likert scale). You DO NOT need to generate answer options.
+
+Specific instructions based on Target Audience:
+{{#if (stringIncludes audience "voor zichzelf")}}
+  The questions should help the user (a tiener or volwassene) reflect on THEMSELVES regarding the given topic and domain in the context of their neurodiversity and personal growth.
+  When the category is 'Thema (algemeen)' or the topic is about personal development, the questions should explicitly guide the user towards self-discovery, understanding their behaviors, and identifying opportunities for personal growth.
+  Example for "Tiener (12-14 jr, voor zichzelf)" on "Focus": "Merk je dat je gedachten afdwalen als je huiswerk maakt?"
+{{/if}}
+{{#if (stringIncludes audience "Ouder (over kind")}}
+  The questions should be phrased for a PARENT to answer ABOUT THEIR CHILD. They should focus on observable behaviors and patterns of the child.
+  Example for "Ouder (over kind 6-11 jr)" on "Routine": "Hoe vaak merkt u dat uw kind van slag raakt bij onverwachte veranderingen in de dagelijkse routine?"
+  The questions should help the parent reflect on their child's behavior, challenges, and strengths related to the {{{topic}}} within the {{{category}}}.
+{{/if}}
+
 Focus on creating thoughtful questions that encourage self-reflection relevant to the {{{audience}}} on the {{{topic}}} within the {{{category}}}.
-Make sure the language used is appropriate for the specified {{{audience}}}.
+Make sure the language used is appropriate for the specified {{{audience}}} (either for the person themselves or for a parent answering about their child).
 Ensure you generate exactly {{{numQuestions}}} questions.
 `,
+  custom: {
+    stringIncludes: (text: string, substring: string) => text.includes(substring),
+  }
 });
 
 const generateAiQuizFlow = ai.defineFlow(
