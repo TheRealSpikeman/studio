@@ -147,7 +147,9 @@ export default function AdminSettingsPage() {
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Notificatie &amp; E-mail Templates</CardTitle>
-              <CardDescription>Beheer de inhoud van automatische e-mails en notificaties.</CardDescription>
+              <CardDescription>
+                Overzicht van typen automatische e-mails. Het daadwerkelijke beheer van templates en verzending zal waarschijnlijk via een gespecialiseerde externe dienst (bijv. SendGrid, Hubspot) verlopen.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between rounded-lg border p-4">
@@ -159,7 +161,10 @@ export default function AdminSettingsPage() {
                     </div>
                     <Switch id="adminNotifications" checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
                 </div>
-                <Button variant="outline" disabled><Mail className="mr-2 h-4 w-4" /> Beheer E-mail Templates</Button>
+                <Button variant="outline" disabled><Mail className="mr-2 h-4 w-4" /> Beheer E-mail Templates (Concept)</Button>
+                 <p className="text-xs text-muted-foreground italic">
+                  Voorbeelden van e-mails die verstuurd moeten worden: registratiebevestiging, wachtwoord reset, ouderlijke goedkeuring, lesbevestigingen, notificatie voltooid assessment, etc.
+                </p>
             </CardContent>
           </Card>
         </TabsContent>
