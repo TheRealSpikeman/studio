@@ -1,4 +1,3 @@
-
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
@@ -108,7 +107,7 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                         return (
                             <Badge 
                                 key={plan.id} 
-                                className={cn("text-xs px-1.5 py-0.5 flex items-center", colorClass)}
+                                className={cn("text-[10px] px-1.5 py-0 leading-tight flex items-center", colorClass)}
                                 title={plan.name} // Tooltip met volledige naam
                             >
                                <Link2 className="h-3 w-3 mr-1"/>
