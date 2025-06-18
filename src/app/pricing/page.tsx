@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -18,8 +17,9 @@ import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscri
 import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
 
 
+// Default features for "Gratis Start"
 const defaultFeatureAccessFree: Record<string, boolean> = {};
-ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false); // Base for free
+ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false);
 defaultFeatureAccessFree.startAssessment = true;
 defaultFeatureAccessFree.weeklyMotivationEmail = true;
 defaultFeatureAccessFree.basicReflectionToolLimited = true;
@@ -30,70 +30,56 @@ defaultFeatureAccessFree.viewProfessionalRates = true;
 defaultFeatureAccessFree.accountManagement = true;
 defaultFeatureAccessFree.noProgressAnalytics = true;
 
+// Default features for "Coaching & Tools" (based on image, assuming more than free)
+const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; // Start with free, then enable more
+defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
+defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
+defaultFeatureAccessCoachingTools.interactiveJournal = true;
+defaultFeatureAccessCoachingTools.planningFocusTools = true;
+defaultFeatureAccessCoachingTools.motivationTracking = true;
+defaultFeatureAccessCoachingTools.extensivePdfReports = true;
+defaultFeatureAccessCoachingTools.bookSessions = true; // Implied by "Browse coaches & tutors" on the plan
+defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
+defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
+defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
+// Family specific features are off for this plan
+defaultFeatureAccessCoachingTools.childProgressTracking = false;
+defaultFeatureAccessCoachingTools.familyInsights = false;
+defaultFeatureAccessCoachingTools.max3ChildrenIncluded = false; 
+defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; // Assuming linked professionals are still relevant
 
-const defaultFeatureAccessFamily: Record<string, boolean> = {};
-ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFamily[f.id] = false); // Base for family
-defaultFeatureAccessFamily.startAssessment = true;
-defaultFeatureAccessFamily.weeklyMotivationEmail = true;
-defaultFeatureAccessFamily.dailyPersonalizedCoaching = true;
-defaultFeatureAccessFamily.allReflectionToolsUnlimited = true;
-defaultFeatureAccessFamily.interactiveJournal = true;
-defaultFeatureAccessFamily.planningFocusTools = true;
-defaultFeatureAccessFamily.motivationTracking = true;
-defaultFeatureAccessFamily.extensivePdfReports = true;
-defaultFeatureAccessFamily.bookSessions = true;
-defaultFeatureAccessFamily.directProfessionalCommunication = true;
-defaultFeatureAccessFamily.reviewRatingSystem = true;
-defaultFeatureAccessFamily.sessionPlanningReminders = true;
-defaultFeatureAccessFamily.childProgressTracking = true;
-defaultFeatureAccessFamily.familyInsights = true;
-defaultFeatureAccessFamily.max3ChildrenIncluded = true;
-defaultFeatureAccessFamily.communicationWithLinkedProfessionals = true;
-defaultFeatureAccessFamily.accountManagement = true;
+// Default features for "Gezins Gids" (based on image, more than Coaching & Tools)
+const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools }; // Start with Coaching & Tools
+defaultFeatureAccessGezinsGids.childProgressTracking = true;
+defaultFeatureAccessGezinsGids.familyInsights = true;
+defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true; // This specific feature for the plan text
+// Other premium features remain false unless specified.
 
-
-const defaultFeatureAccessPremium: Record<string, boolean> = { ...defaultFeatureAccessFamily }; // Start with family access
-defaultFeatureAccessPremium.extensiveAssessmentAnalysis = true;
-defaultFeatureAccessPremium.aiPoweredInsights = true;
-defaultFeatureAccessPremium.advancedAnalyticsTrends = true;
-defaultFeatureAccessPremium.exclusiveCoachingModules = true;
-defaultFeatureAccessPremium.priorityMatchingAlgorithm = true;
-defaultFeatureAccessPremium.priorityBooking = true;
-defaultFeatureAccessPremium.extendedSearchFilters = true;
-defaultFeatureAccessPremium.bulkSessionPlanning = true;
-defaultFeatureAccessPremium.premiumSupport24h = true;
-defaultFeatureAccessPremium.unlimitedChildren = true;
-defaultFeatureAccessPremium.monthlyFamilyCoachingCalls = true;
-defaultFeatureAccessPremium.schoolIntegrationReporting = true;
-defaultFeatureAccessPremium.advancedParentTrainingModules = true;
-defaultFeatureAccessPremium.max3ChildrenIncluded = false; // Premium has unlimited
-
-// Default plans if localStorage is empty
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
     featureAccess: defaultFeatureAccessFree,
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessFamily,
+    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: defaultFeatureAccessCoachingTools,
+    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
+  },
+  {
+    id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
+    featureAccess: {...defaultFeatureAccessCoachingTools, yearlyDiscount15: true},
+    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
+  },
+  {
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: defaultFeatureAccessGezinsGids,
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
-    id: 'family_guide_yearly', name: 'Familie Coaching - Jaarlijks', description: 'Coaching, alle tools, tot 3 kinderen met 15% jaarkorting.', price: (19.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessFamily, yearlyDiscount15: true},
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
+    featureAccess: {...defaultFeatureAccessGezinsGids, yearlyDiscount15: true},
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
-  },
-  {
-    id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessPremium,
-    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
-  },
-  {
-    id: 'premium_family_yearly', name: 'Premium Familie - Jaarlijks', description: 'Alles van Premium Familie met 15% jaarkorting.', price: (39.99 * 12 * 0.85), currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessPremium, yearlyDiscount15: true },
-    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
   },
 ];
 
@@ -101,7 +87,7 @@ const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
 const faqItems = [
   {
     question: "Wat is het verschil tussen de plannen?",
-    answer: "Gratis: Proef de basis digitale tools (beperkt). Familie Coaching: Complete digitale ondersteuning + marktplaats toegang voor max 3 kinderen. Premium Familie: Alles van Familie Coaching + premium features + unlimited kinderen + maandelijkse familie coaching calls.",
+    answer: "Gratis: Proef de basis digitale tools (beperkt). Coaching & Tools: Complete digitale ondersteuning & tools voor onbeperkt aantal kinderen. Gezins Gids: Alles van Coaching & Tools, plus specifieke gezinsfunctionaliteiten voor tot 3 kinderen (met optie voor meer).",
   },
   {
     question: "Zijn 1-op-1 coaching sessies inbegrepen?",
@@ -113,18 +99,18 @@ const faqItems = [
   },
   {
     question: "Hoeveel kinderen kan ik toevoegen?",
-    answer: "Familie Coaching: Tot 3 kinderen. Premium Familie: Onbeperkt aantal kinderen. Heeft u meer dan 3 kinderen en wilt u het Familie Coaching plan? Neem dan contact op voor een aangepast aanbod.",
+    answer: "Gratis Start: 1 kind. Coaching & Tools: Onbeperkt. Gezins Gids: Tot 3 kinderen (uitbreidbaar tegen meerprijs). Heeft u meer dan 3 kinderen en wilt u het Gezins Gids plan? Neem dan contact op voor een aangepast aanbod.",
   },
   {
     question: "Hoe werkt de jaarlijkse betaling?",
-    answer: "Bij een jaarlijkse betaling betaalt u voor 12 maanden vooruit en ontvangt u een korting (gelijk aan ongeveer 2 maanden gratis). Uw abonnement wordt dan jaarlijks verlengd, tenzij u opzegt.",
+    answer: "Bij een jaarlijkse betaling betaalt u voor 12 maanden vooruit en ontvangt u een korting. Uw abonnement wordt dan jaarlijks verlengd, tenzij u opzegt.",
   },
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('premium')) return Star;
-    if (planId.includes('family') || planId.includes('gezin')) return Users;
-    if (planId.includes('coaching')) return Sparkles; 
+    if (planId.includes('premium')) return Star; // Should not occur with current defaults
+    if (planId.includes('family_guide') || planId.includes('gezin')) return Users;
+    if (planId.includes('coaching_tools')) return Sparkles; 
     return Sparkles; 
 };
 
@@ -163,11 +149,15 @@ export default function PricingPage() {
           return {
             ...plan,
             featureAccess: plan.featureAccess || defaultAccessForMigration,
-            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
-            maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : (plan.price === 0 ? 1 : 0)),
-            isPopular: plan.isPopular ?? false,
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
+            isPopular: plan.isPopular ?? (plan.id === 'family_guide_monthly'),
           };
         });
+         // Ensure the default popular flag is set if plans are loaded from storage
+        if (activePlans.some(p => p.id === 'family_guide_monthly' && p.isPopular !== true)) {
+          activePlans = activePlans.map(p => p.id === 'family_guide_monthly' ? { ...p, isPopular: true } : p);
+        }
       } catch (e) {
         console.error("Error parsing plans from localStorage, using defaults", e);
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active);
@@ -183,8 +173,6 @@ export default function PricingPage() {
 
 
   const handlePlanSelection = (planId: string) => {
-    // For all plans, redirect to signup and pass the planId.
-    // The signup page will handle the logic (e.g., direct to quiz for free, or to parent approval for paid)
     router.push(`/signup?plan=${planId}`);
   };
 
@@ -194,12 +182,12 @@ export default function PricingPage() {
     if (plan.billingInterval === 'year') return 'p/gezin/jaar';
     return '';
   }
-
+  
   const getPlanYearlyOptionText = (plan: SubscriptionPlan): string | undefined => {
     if (plan.billingInterval === 'month' && plan.price > 0) {
         const yearlyEquivalentPlan = plans.find(p => 
             p.billingInterval === 'year' &&
-            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') && // Ensure base name matches
+            p.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly') && 
             p.maxChildren === plan.maxChildren
         );
         if (yearlyEquivalentPlan) {
@@ -230,11 +218,13 @@ export default function PricingPage() {
     return plans.find(p => p.id === `${baseName}_yearly`)?.id;
   }
 
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
   }
   
   const displayPlans = plans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once'));
+
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -289,15 +279,15 @@ export default function PricingPage() {
                          <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
                     )}
                     {plan.id === "family_guide_monthly" && (
-                        <p className="text-xs text-green-600 font-medium mt-1">€0,66 per dag - minder dan een kopje koffie!</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">€0,33 per dag - minder dan een kopje koffie!</p>
                     )}
-                    {plan.id === "premium_family_monthly" && (
-                        <p className="text-xs text-green-600 font-medium mt-1">Voor gezinnen die het beste willen - €1,33 per dag!</p>
+                    {plan.id === "coaching_tools_monthly" && (
+                        <p className="text-xs text-green-600 font-medium mt-1">Slechts €0,13 per dag voor uitgebreide tools!</p>
                     )}
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3 mt-1">
                     <ul className="space-y-2.5">
-                       {ALL_APP_FEATURES.slice(0, 10).map((appFeature) => { // Toon eerste ~10 features, of maak een selectie
+                       {ALL_APP_FEATURES.slice(0, 10).map((appFeature) => { 
                         const hasFeature = plan.featureAccess[appFeature.id];
                         const FeatureIcon = hasFeature ? CheckCircle2 : XCircle;
                         const featureColor = hasFeature ? 'text-green-500' : 'text-red-500';
@@ -401,7 +391,7 @@ export default function PricingPage() {
                 <CardContent className="text-sm text-yellow-800 space-y-1">
                   <p>Maandelijks opzegbaar (bij maandabonnement).</p>
                   <p>Geen langdurige binding of opstartkosten.</p>
-                  <p>Probeer 14 dagen gratis bij elk betaald plan.</p>
+                  <p>Probeer tot 180 dagen gratis bij elk betaald plan.</p>
                 </CardContent>
               </Card>
             </div>
@@ -416,7 +406,7 @@ export default function PricingPage() {
             <div className="grid md:grid-cols-3 gap-6 text-left">
                 <div className="p-6 bg-card rounded-lg shadow-md border border-border">
                     <h3 className="font-semibold text-lg text-primary mb-1">Betaalbare Digitale Ondersteuning</h3>
-                    <p className="text-sm text-muted-foreground">MindNavigator Familie: €19,99/maand voor het hele gezin. Traditionele coaching: vaak €100-150/uur per kind. Bespaar honderden euro's per maand.</p>
+                    <p className="text-sm text-muted-foreground">MindNavigator (betaalde plannen): vanaf €3.99/maand. Traditionele coaching: vaak €100-150/uur per kind. Bespaar honderden euro's per maand.</p>
                 </div>
                  <div className="p-6 bg-card rounded-lg shadow-md border border-border">
                     <h3 className="font-semibold text-lg text-primary mb-1">Direct Beschikbaar, Geen Wachttijden</h3>
@@ -429,7 +419,7 @@ export default function PricingPage() {
             </div>
             <Button size="lg" asChild className="mt-10 shadow-md hover:shadow-lg transition-shadow px-8 py-3">
                 <Link href="/signup?plan=family_guide_monthly">
-                    Start met Familie Coaching
+                    Start met Gezins Gids
                 </Link>
             </Button>
             <p className="text-xs text-muted-foreground mt-3">14 dagen gratis proberen, daarna maandelijks opzegbaar.</p>

@@ -25,6 +25,7 @@ const currentParent = {
   name: "Ouder Tester", 
 };
 
+// Default features for "Gratis Start"
 const defaultFeatureAccessFree: Record<string, boolean> = {};
 ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFree[f.id] = false);
 defaultFeatureAccessFree.startAssessment = true;
@@ -37,59 +38,52 @@ defaultFeatureAccessFree.viewProfessionalRates = true;
 defaultFeatureAccessFree.accountManagement = true;
 defaultFeatureAccessFree.noProgressAnalytics = true;
 
+// Default features for "Coaching & Tools" (based on image, assuming more than free)
+const defaultFeatureAccessCoachingTools: Record<string, boolean> = { ...defaultFeatureAccessFree }; 
+defaultFeatureAccessCoachingTools.dailyPersonalizedCoaching = true;
+defaultFeatureAccessCoachingTools.allReflectionToolsUnlimited = true;
+defaultFeatureAccessCoachingTools.interactiveJournal = true;
+defaultFeatureAccessCoachingTools.planningFocusTools = true;
+defaultFeatureAccessCoachingTools.motivationTracking = true;
+defaultFeatureAccessCoachingTools.extensivePdfReports = true;
+defaultFeatureAccessCoachingTools.bookSessions = true; 
+defaultFeatureAccessCoachingTools.directProfessionalCommunication = true;
+defaultFeatureAccessCoachingTools.reviewRatingSystem = true;
+defaultFeatureAccessCoachingTools.sessionPlanningReminders = true;
+defaultFeatureAccessCoachingTools.communicationWithLinkedProfessionals = true; 
 
-const defaultFeatureAccessFamily: Record<string, boolean> = {};
-ALL_APP_FEATURES.forEach(f => defaultFeatureAccessFamily[f.id] = false);
-defaultFeatureAccessFamily.startAssessment = true;
-defaultFeatureAccessFamily.weeklyMotivationEmail = true;
-defaultFeatureAccessFamily.dailyPersonalizedCoaching = true;
-defaultFeatureAccessFamily.allReflectionToolsUnlimited = true;
-defaultFeatureAccessFamily.interactiveJournal = true;
-defaultFeatureAccessFamily.planningFocusTools = true;
-defaultFeatureAccessFamily.motivationTracking = true;
-defaultFeatureAccessFamily.extensivePdfReports = true;
-defaultFeatureAccessFamily.bookSessions = true;
-defaultFeatureAccessFamily.directProfessionalCommunication = true;
-defaultFeatureAccessFamily.reviewRatingSystem = true;
-defaultFeatureAccessFamily.sessionPlanningReminders = true;
-defaultFeatureAccessFamily.childProgressTracking = true;
-defaultFeatureAccessFamily.familyInsights = true;
-defaultFeatureAccessFamily.max3ChildrenIncluded = true;
-defaultFeatureAccessFamily.communicationWithLinkedProfessionals = true;
-defaultFeatureAccessFamily.accountManagement = true;
-
-const defaultFeatureAccessPremium: Record<string, boolean> = { ...defaultFeatureAccessFamily };
-defaultFeatureAccessPremium.extensiveAssessmentAnalysis = true;
-defaultFeatureAccessPremium.aiPoweredInsights = true;
-defaultFeatureAccessPremium.advancedAnalyticsTrends = true;
-defaultFeatureAccessPremium.exclusiveCoachingModules = true;
-defaultFeatureAccessPremium.priorityMatchingAlgorithm = true;
-defaultFeatureAccessPremium.priorityBooking = true;
-defaultFeatureAccessPremium.extendedSearchFilters = true;
-defaultFeatureAccessPremium.bulkSessionPlanning = true;
-defaultFeatureAccessPremium.premiumSupport24h = true;
-defaultFeatureAccessPremium.unlimitedChildren = true;
-defaultFeatureAccessPremium.monthlyFamilyCoachingCalls = true;
-defaultFeatureAccessPremium.schoolIntegrationReporting = true;
-defaultFeatureAccessPremium.advancedParentTrainingModules = true;
-defaultFeatureAccessPremium.max3ChildrenIncluded = false;
+// Default features for "Gezins Gids" (based on image, more than Coaching & Tools)
+const defaultFeatureAccessGezinsGids: Record<string, boolean> = { ...defaultFeatureAccessCoachingTools };
+defaultFeatureAccessGezinsGids.childProgressTracking = true;
+defaultFeatureAccessGezinsGids.familyInsights = true;
+defaultFeatureAccessGezinsGids.max3ChildrenIncluded = true;
 
 
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
     featureAccess: defaultFeatureAccessFree,
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Familie Coaching - Maandelijks', description: 'Coaching, alle tools, en tot 3 kinderen.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessFamily,
+    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: defaultFeatureAccessCoachingTools,
+    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
+  },
+   {
+    id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
+    featureAccess: {...defaultFeatureAccessCoachingTools, yearlyDiscount15: true},
+    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
+  },
+  {
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: defaultFeatureAccessGezinsGids,
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
-    id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', description: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessPremium,
-    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
+    featureAccess: {...defaultFeatureAccessGezinsGids, yearlyDiscount15: true},
+    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
 ];
 
@@ -148,6 +142,7 @@ function OuderWelcomePageContent() {
     const ensureFullFeatureAccess = (plan: SubscriptionPlan): SubscriptionPlan => {
         const migratedFeatureAccess: Record<string, boolean> = {};
         ALL_APP_FEATURES.forEach(appFeature => {
+            // Use the feature value from the plan if it exists, otherwise default to false.
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
             ? plan.featureAccess[appFeature.id] 
             : false;
@@ -155,9 +150,9 @@ function OuderWelcomePageContent() {
         return {
             ...plan,
             featureAccess: migratedFeatureAccess,
-            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
-            maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : (plan.price === 0 ? 1 : 0)),
-            isPopular: plan.isPopular ?? false,
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
+            isPopular: plan.isPopular ?? (plan.id === 'family_guide_monthly'),
         };
     };
 
@@ -165,6 +160,9 @@ function OuderWelcomePageContent() {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
         loadedPlans = parsedPlans.map(ensureFullFeatureAccess);
+        if (loadedPlans.some(p => p.id === 'family_guide_monthly' && p.isPopular !== true)) {
+          loadedPlans = loadedPlans.map(p => p.id === 'family_guide_monthly' ? { ...p, isPopular: true } : p);
+        }
       } catch (e) {
         console.error("Error parsing plans from localStorage on welcome page, using defaults", e);
         loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
@@ -178,6 +176,7 @@ function OuderWelcomePageContent() {
     setAvailablePlans(loadedPlans.filter(p => p.active));
     setIsLoadingPlans(false);
   }, []);
+
 
   const handleCompleteOnboarding = () => {
     if (!hasChosenPlan) {
@@ -211,7 +210,7 @@ function OuderWelcomePageContent() {
     router.replace(newUrl.href, { scroll: false }); 
   };
   
-  const getActiepuntenConfig = (): Actiepunt[] => {
+ const getActiepuntenConfig = (): Actiepunt[] => {
     let currentStep = 1;
     const config: Actiepunt[] = [];
     const alertMessage = "Kies eerst een plan (zie stap hieronder) om deze actie te kunnen doorlopen.";
@@ -230,7 +229,7 @@ function OuderWelcomePageContent() {
     const voorwaardenActiepuntData: Omit<Actiepunt, 'stepNumber' | 'title'> = {
         id: "belangrijke-voorwaarden",
         description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
-        contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
+        contentHeader: "Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
         contentSteps: [
             `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie op [Datum, Tijdstip van registratie].`,
             "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
@@ -238,7 +237,7 @@ function OuderWelcomePageContent() {
     };
 
     const andereActiepuntenData: Omit<Actiepunt, 'stepNumber' | 'title'>[] = [
-      {
+       {
         id: "ken-je-kind",
         description: 'Doe een korte test (optioneel, ca. 5 min) om een eerste indruk te krijgen van mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
         link: "/quiz/ouder-symptomen-check",
@@ -377,7 +376,7 @@ function OuderWelcomePageContent() {
                 ) : item.id === "bekijk-abonnementen" ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {availablePlans.filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => { 
+                        {availablePlans.filter(p => p.billingInterval === 'month' || p.billingInterval === 'once').map(plan => { 
                             const PlanIcon = getPlanIcon(plan.id);
                             const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
                             const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
@@ -477,4 +476,3 @@ export default function OuderWelcomePage() {
   );
 }
     
-
