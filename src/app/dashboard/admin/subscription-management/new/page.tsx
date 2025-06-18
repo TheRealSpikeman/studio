@@ -267,27 +267,27 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                         <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
                     </Button>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1"> {/* Adjusted gap */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">
                     {ALL_APP_FEATURES.map((feature) => (
                         <FormField
                         key={feature.id}
                         control={form.control}
                         name={`featureAccess.${feature.id}`}
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-2.5 py-2"> {/* Adjusted spacing */}
-                                <FormControl className="mt-0.5"> {/* Align checkbox with first line of text */}
+                            <FormItem className="flex flex-row items-start space-x-2.5 py-2">
+                                <FormControl className="mt-0.5">
                                     <Checkbox
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    id={`feature-${feature.id}`}
+                                    // Removed explicit id here: id={`feature-${feature.id}`}
                                     />
                                 </FormControl>
-                                <div className="space-y-0"> {/* Reduced space between label and description */}
-                                    <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-normal cursor-pointer leading-snug"> {/* Adjusted leading */}
+                                <div className="space-y-0">
+                                    <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-normal cursor-pointer leading-snug">
                                     {feature.label}
                                     </FormLabel>
                                     {feature.description && (
-                                    <FormDescription className="text-xs text-muted-foreground leading-tight"> {/* Adjusted leading */}
+                                    <FormDescription className="text-xs text-muted-foreground leading-tight">
                                         {feature.description}
                                     </FormDescription>
                                     )}
