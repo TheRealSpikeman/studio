@@ -107,7 +107,10 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                         return (
                             <Badge 
                                 key={plan.id} 
-                                className={cn("text-[10px] px-1.5 py-0 leading-tight flex items-center", colorClass)}
+                                className={cn(
+                                  "text-[10px] px-1.5 py-0 leading-tight flex items-center transition-none", // Added transition-none
+                                  colorClass
+                                )}
                                 title={plan.name} // Tooltip met volledige naam
                             >
                                <Link2 className="h-3 w-3 mr-1"/>
