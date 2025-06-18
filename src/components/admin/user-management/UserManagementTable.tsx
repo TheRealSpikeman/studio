@@ -1,3 +1,4 @@
+
 // src/components/admin/user-management/UserManagementTable.tsx
 "use client";
 
@@ -15,7 +16,7 @@ interface UserManagementTableProps {
   users: User[];
   onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
-  showAgeGroupColumn?: boolean; 
+  showAgeGroupColumn?: boolean;
 }
 
 const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -24,9 +25,9 @@ const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "d
     case 'niet geverifieerd': return 'secondary';
     case 'wacht_op_ouder_goedkeuring': return 'secondary';
     case 'geblokkeerd': return 'destructive';
-    case 'pending_onboarding': return 'outline'; 
-    case 'pending_approval': return 'secondary'; 
-    case 'rejected': return 'destructive'; 
+    case 'pending_onboarding': return 'outline';
+    case 'pending_approval': return 'secondary';
+    case 'rejected': return 'destructive';
     default: return 'outline';
   }
 };
@@ -39,15 +40,15 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
     case 'geblokkeerd': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
     case 'pending_onboarding': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
     case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
-    case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300'; 
+    case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300';
     default: return '';
   }
 }
 
 const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destructive" | "outline" => {
     switch (role) {
-      case 'admin': return 'default'; 
-      case 'coach': return 'default'; 
+      case 'admin': return 'default';
+      case 'coach': return 'default';
       case 'leerling': return 'outline';
       case 'tutor': return 'default';
       case 'ouder': return 'secondary';
@@ -58,16 +59,16 @@ const getRoleBadgeVariant = (role: UserRole): "default" | "secondary" | "destruc
 const getRoleBadgeClasses = (role: UserRole): string => {
     switch (role) {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
-      case 'coach': return 'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200'; 
-      case 'tutor': return 'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200'; 
-      case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200'; 
+      case 'coach': return 'bg-cyan-100 text-cyan-700 border-cyan-300 hover:bg-cyan-200'; // Updated for coach
+      case 'tutor': return 'bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-200'; // Ensure this is applied
+      case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200';
       default: return ''; // Leerling gets default outline styling
     }
 }
 
 
 export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGroupColumn = false }: UserManagementTableProps) {
-  
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
   }
@@ -76,7 +77,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
     const text = status.replace(/_/g, ' ');
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
-  
+
   const formatRoleText = (role: UserRole): string => {
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
@@ -117,7 +118,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
               <TableCell className="font-medium">{user.name} {user.parentId && <span className="text-xs text-muted-foreground">(Kind van {user.parentId})</span>}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <Badge 
+                <Badge
                     variant={getStatusBadgeVariant(user.status)}
                     className={cn(getStatusBadgeClasses(user.status))}
                 >
@@ -125,7 +126,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge 
+                <Badge
                     variant={getRoleBadgeVariant(user.role)}
                     className={cn(getRoleBadgeClasses(user.role))}
                 >
@@ -133,7 +134,7 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
                 </Badge>
               </TableCell>
               {showAgeGroupColumn && (
-                <TableCell>{user.ageGroup ? `${user.ageGroup} jaar` : 'N/A'}</TableCell>
+                <TableCell>{user.ageGroup ? `${user.ageGroup} jaar` : '-'} </TableCell>
               )}
               <TableCell>
                 <FormattedDateCell isoDateString={user.lastLogin} dateFormatPattern="Pp" />

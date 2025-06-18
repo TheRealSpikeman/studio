@@ -1,3 +1,4 @@
+
 // src/components/admin/user-management/FormattedDateCell.tsx
 "use client";
 
@@ -6,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
 interface FormattedDateCellProps {
-  isoDateString: string;
+  isoDateString?: string; // Make it optional
   dateFormatPattern: 'P' | 'Pp' | string; // Allow specific patterns or any string
 }
 
@@ -14,24 +15,23 @@ export function FormattedDateCell({ isoDateString, dateFormatPattern }: Formatte
   const [clientFormattedDate, setClientFormattedDate] = useState<string | null>(null);
 
   useEffect(() => {
-    // Ensure this effect runs only on the client after hydration
     if (isoDateString) {
       try {
-        const date = parseISO(isoDateString); // Use parseISO for ISO strings
+        const date = parseISO(isoDateString); 
         setClientFormattedDate(format(date, dateFormatPattern, { locale: nl }));
       } catch (e) {
-        console.error("Failed to format date:", e);
-        setClientFormattedDate("Ongeldige datum"); // Fallback for invalid dates
+        console.error("Failed to format date:", e, "Input was:", isoDateString);
+        setClientFormattedDate("-"); // Fallback for invalid dates
       }
     } else {
-      setClientFormattedDate("N/A");
+      setClientFormattedDate("-"); // Show hyphen if no date string is provided
     }
   }, [isoDateString, dateFormatPattern]);
 
-  // Render a placeholder or nothing on the server and initial client render
-  // to prevent mismatch. The actual formatted date will appear after mount.
   if (clientFormattedDate === null) {
-    return <span className="text-muted-foreground text-xs">Laden...</span>; // Or simply return null
+    // Show a placeholder while client-side formatting is happening, 
+    // or if the initial isoDateString was undefined and effect hasn't run.
+    return <span className="text-xs text-muted-foreground">-</span>; 
   }
 
   return <>{clientFormattedDate}</>;

@@ -1,3 +1,4 @@
+
 // src/components/admin/user-management/UserEditDialog.tsx
 "use client";
 
@@ -16,19 +17,20 @@ import * as z from 'zod';
 import { useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users, HeartHandshake } from 'lucide-react'; 
+import { CalendarIcon, UserCircle, Settings, ShieldCheck, ImageUp, CheckCircle, XCircle, Briefcase, Cake, Contact, Users, HeartHandshake, ExternalLink } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 const ageGroupValues = ["12-14", "15-18", "adult"] as const;
-const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder']; 
+const userRoleValues: [UserRole, ...UserRole[]] = ['admin', 'coach', 'leerling', 'tutor', 'ouder'];
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Naam moet minimaal 2 tekens bevatten."),
   email: z.string().email("Ongeldig e-mailadres."),
-  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring']), 
+  status: z.enum(['actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring']),
   role: z.enum(userRoleValues),
   ageGroup: z.enum(ageGroupValues).optional(),
   avatarUrl: z.string().url("Ongeldige URL voor avatar.").optional().or(z.literal('')),
@@ -39,12 +41,11 @@ const userFormSchema = z.object({
   confirmPassword: z.string().optional().or(z.literal('')),
   tutorDetails_bio: z.string().optional(),
   tutorDetails_subjects: z.array(z.string()).optional(),
-  tutorDetails_hourlyRate: z.coerce.number().optional(),
+  tutorDetails_hourlyRate: z.coerce.number().min(0, "Uurtarief mag niet negatief zijn.").optional(),
   tutorDetails_availability: z.string().optional(),
-  tutorDetails_cvUrl: z.string().url().optional().or(z.literal('')),
-  tutorDetails_vogUrl: z.string().url().optional().or(z.literal('')),
-  parentId: z.string().optional().or(z.literal('')), 
-  // children: z.array(z.string()).optional(), 
+  tutorDetails_cvUrl: z.string().url("Ongeldige URL voor CV.").optional().or(z.literal('')),
+  tutorDetails_vogUrl: z.string().url("Ongeldige URL voor VOG.").optional().or(z.literal('')),
+  parentId: z.string().optional().or(z.literal('')),
 }).refine(data => {
     if (data.password && data.password.length > 0 && data.password.length < 8) return false;
     return true;
@@ -68,6 +69,7 @@ interface UserEditDialogProps {
 }
 
 export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, onSave }: UserEditDialogProps) {
+  const { toast } = useToast();
   const { register, handleSubmit, control, reset, formState: { errors }, setValue, watch } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
@@ -80,9 +82,11 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
   });
 
   const currentRole = watch("role");
+  const currentStatus = watch("status");
+  const isTutorPendingApproval = currentRole === 'tutor' && user?.status === 'pending_approval';
 
   useEffect(() => {
-    if (isOpen) { 
+    if (isOpen) {
       if (user && !isAddingNewUser) {
         reset({
           name: user.name, email: user.email, status: user.status, role: user.role,
@@ -132,22 +136,22 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
         vogUrl: data.tutorDetails_vogUrl,
       } : undefined,
       parentId: data.role === 'leerling' ? (data.parentId || undefined) : undefined,
-      children: data.role === 'ouder' ? (user?.children || []) : undefined, 
+      children: data.role === 'ouder' ? (user?.children || []) : undefined,
     };
     onSave(processedData as User);
   };
 
   const handleApproveTutor = () => {
     if (user && user.role === 'tutor' && user.status === 'pending_approval') {
-      setValue('status', 'actief'); 
-      handleSubmit(onSubmit)(); 
+      setValue('status', 'actief');
+      handleSubmit(onSubmit)();
     }
   };
-  
+
   const handleRejectTutor = () => {
      if (user && user.role === 'tutor' && user.status === 'pending_approval') {
-      setValue('status', 'rejected'); 
-      handleSubmit(onSubmit)(); 
+      setValue('status', 'rejected');
+      handleSubmit(onSubmit)();
     }
   };
 
@@ -160,7 +164,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           <DialogTitle>{isAddingNewUser ? 'Nieuwe Gebruiker Toevoegen' : 'Gebruiker Bewerken'}</DialogTitle>
           {!isAddingNewUser && user && <DialogDescription>ID: {user.id} | Aangemaakt: {user.createdAt ? format(parseISO(user.createdAt), 'Pp', { locale: nl }) : 'N/A'}</DialogDescription>}
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="flex-grow overflow-y-auto space-y-4 pr-2">
           <Tabs defaultValue="profile" className="w-full">
             <TabsList className={cn("grid w-full grid-cols-3", (currentRole === 'tutor' || currentRole === 'ouder' || currentRole === 'coach') && "md:grid-cols-4")}>
@@ -253,7 +257,7 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                   name="status"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value} disabled={(user?.role === 'tutor' || user?.role === 'coach') && user?.status === 'pending_approval'}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isTutorPendingApproval}>
                       <SelectTrigger id="status"><SelectValue placeholder="Selecteer status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="actief">Actief</SelectItem>
@@ -337,28 +341,28 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                 </div>
               </TabsContent>
             )}
-            
+
             {currentRole === 'tutor' && (
               <TabsContent value="tutorSpecific" className="space-y-4 pt-2">
                 <CardTitle className="text-lg">Tutor Specifieke Informatie</CardTitle>
-                <div><Label>Bio:</Label><Textarea {...register("tutorDetails_bio")} readOnly={user?.status === 'pending_approval'} /></div>
-                <div><Label>Uurtarief:</Label><Input type="number" {...register("tutorDetails_hourlyRate")} readOnly={user?.status === 'pending_approval'} /></div>
-                <div><Label>Beschikbaarheid:</Label><Textarea {...register("tutorDetails_availability")} readOnly={user?.status === 'pending_approval'} /></div>
+                <div><Label htmlFor="tutorDetails_bio">Bio/Motivatie:</Label><Textarea id="tutorDetails_bio" {...register("tutorDetails_bio")} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} /></div>
+                <div><Label htmlFor="tutorDetails_hourlyRate">Uurtarief (€):</Label><Input id="tutorDetails_hourlyRate" type="number" {...register("tutorDetails_hourlyRate")} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} /></div>
+                <div><Label htmlFor="tutorDetails_availability">Beschikbaarheid:</Label><Textarea id="tutorDetails_availability" {...register("tutorDetails_availability")} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} /></div>
                 <div>
-                    <Label>Vakken (komma-gescheiden):</Label>
-                    <Input {...register("tutorDetails_subjects", {setValueAs: v => typeof v === 'string' ? v.split(',').map((s:string) => s.trim()).filter(Boolean) : v})} readOnly={user?.status === 'pending_approval'} />
+                    <Label htmlFor="tutorDetails_subjects">Vakken (komma-gescheiden):</Label>
+                    <Input id="tutorDetails_subjects" {...register("tutorDetails_subjects", {setValueAs: v => typeof v === 'string' ? v.split(',').map((s:string) => s.trim()).filter(Boolean) : v})} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} />
                 </div>
                 <div>
-                    <Label>CV URL:</Label>
-                    <Input {...register("tutorDetails_cvUrl")} readOnly={user?.status === 'pending_approval'} />
-                    {user?.tutorDetails?.cvUrl && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={user.tutorDetails.cvUrl} target="_blank" rel="noopener noreferrer">Bekijk CV</a></Button>}
+                    <Label htmlFor="tutorDetails_cvUrl">CV URL:</Label>
+                    <Input id="tutorDetails_cvUrl" {...register("tutorDetails_cvUrl")} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} />
+                    {watch("tutorDetails_cvUrl") && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={watch("tutorDetails_cvUrl")!} target="_blank" rel="noopener noreferrer">Bekijk CV <ExternalLink className="h-3 w-3 inline-block ml-1"/></a></Button>}
                 </div>
                 <div>
-                    <Label>VOG URL:</Label>
-                    <Input {...register("tutorDetails_vogUrl")} readOnly={user?.status === 'pending_approval'} />
-                    {user?.tutorDetails?.vogUrl && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={user.tutorDetails.vogUrl} target="_blank" rel="noopener noreferrer">Bekijk VOG</a></Button>}
+                    <Label htmlFor="tutorDetails_vogUrl">VOG URL:</Label>
+                    <Input id="tutorDetails_vogUrl" {...register("tutorDetails_vogUrl")} readOnly={isTutorPendingApproval && currentStatus === 'pending_approval'} />
+                    {watch("tutorDetails_vogUrl") && <Button variant="link" asChild className="p-0 h-auto text-xs"><a href={watch("tutorDetails_vogUrl")!} target="_blank" rel="noopener noreferrer">Bekijk VOG <ExternalLink className="h-3 w-3 inline-block ml-1"/></a></Button>}
                 </div>
-                 {user?.status === 'pending_approval' && ( 
+                 {isTutorPendingApproval && (
                     <div className="flex gap-2 mt-4 pt-4 border-t">
                         <Button onClick={handleApproveTutor} className="bg-green-500 hover:bg-green-600">
                             <CheckCircle className="mr-2 h-4 w-4"/> Goedkeuren & Opslaan
@@ -396,10 +400,9 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
           <DialogClose asChild>
             <Button variant="outline">Annuleren</Button>
           </DialogClose>
-          {!(user?.role === 'tutor' && user?.status === 'pending_approval') && 
-           !(user?.role === 'coach' && user?.status === 'pending_approval')}
-            <Button type="submit" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
-          
+          {!isTutorPendingApproval && (
+             <Button type="button" onClick={handleSubmit(onSubmit)}>Opslaan</Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
