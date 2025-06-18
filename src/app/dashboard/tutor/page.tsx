@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 const MOCKED_CURRENT_TUTOR = {
   isLoggedIn: true, // Assume logged in to reach this page
   role: 'tutor' as 'tutor' | 'admin', // Role must be tutor or admin
-  status: 'actief' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Current status of the tutor
+  status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Current status of the tutor
 };
 
 interface DashboardItem {
