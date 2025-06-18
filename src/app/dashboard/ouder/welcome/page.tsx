@@ -13,6 +13,8 @@ import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChild
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import type { ElementType } from 'react';
+
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -24,53 +26,97 @@ interface PlanDisplayDetails {
   id: string;
   name: string;
   shortDescription: string;
-  icon: React.ElementType;
+  icon: ElementType;
   ctaText: string;
   ctaBaseLink: string;
   colorClass?: string;
   price?: string; 
   features?: string[];
   maxChildrenText: string;
+  isPopular?: boolean;
+  highlightClass?: string;
+  yearlyOptionText?: string;
+  yearlySavingsHighlight?: string;
 }
 
-const welcomePagePlans: PlanDisplayDetails[] = [
-  {
+const yearlyCoachingPrice = (19.99 * 12 * 0.85).toFixed(2); 
+const monthlyEquivalentForYearlyCoaching = (parseFloat(yearlyCoachingPrice) / 12).toFixed(2);
+const yearlySavingsCoaching = ((19.99 * 12) - parseFloat(yearlyCoachingPrice)).toFixed(2);
+
+const yearlyPremiumPrice = (39.99 * 12 * 0.85).toFixed(2); 
+const monthlyEquivalentForYearlyPremium = (parseFloat(yearlyPremiumPrice) / 12).toFixed(2);
+const yearlySavingsPremium = ((39.99 * 12) - parseFloat(yearlyPremiumPrice)).toFixed(2);
+
+const planDetailsMap: Record<string, PlanDisplayDetails> = {
+  'free_start': {
     id: 'free_start',
     name: 'Gratis Ontdekking',
     icon: Sparkles,
     shortDescription: 'Basis zelfreflectie tool & PDF overzicht.',
     price: 'Gratis',
-    features: ['Start-assessment', 'Basis PDF overzicht'],
+    features: ['Start-assessment', 'Wekelijkse motivatie-email', 'Basis zelfreflectie tool (beperkt)', 'Basis PDF overzicht'],
     ctaText: 'Start gratis',
     ctaBaseLink: '/quizzes',
     colorClass: "border-gray-300 hover:border-gray-400",
     maxChildrenText: "voor 1 kind",
   },
-  {
+  'family_guide_monthly': {
     id: 'family_guide_monthly',
-    name: 'Familie Coaching',
+    name: 'Familie Coaching - Maandelijks',
     icon: Users,
     shortDescription: 'Coaching, alle tools, en tot 3 kinderen.',
     price: '€19,99/mnd',
-    features: ['Alle tools & coaching', 'Tot 3 kinderen', 'Ouder Dashboard'],
+    features: ['Alle tools & coaching', 'Tot 3 kinderen', 'Ouder Dashboard', 'Voortgang volgen'],
     ctaText: 'Kies Familie Coaching',
     ctaBaseLink: '/signup',
+    isPopular: true,
+    highlightClass: "border-primary ring-2 ring-primary/50",
+    colorClass: "border-primary hover:border-primary/80",
+    yearlyOptionText: `Of kies jaarlijks: €${yearlyCoachingPrice}/jaar (€${monthlyEquivalentForYearlyCoaching}/mnd)`,
+    yearlySavingsHighlight: `bespaar €${yearlySavingsCoaching}`,
+    maxChildrenText: "voor maximaal 3 kinderen",
+  },
+   'family_guide_yearly': { // Toegevoegd voor de URL param
+    id: 'family_guide_yearly',
+    name: 'Familie Coaching - Jaarlijks',
+    icon: Users,
+    shortDescription: 'Coaching, alle tools, en tot 3 kinderen met jaarkorting.',
+    price: `€${yearlyCoachingPrice}/jaar`,
+    features: ['Alle tools & coaching (15% korting)', 'Tot 3 kinderen', 'Ouder Dashboard', 'Voortgang volgen'],
+    ctaText: 'Kies Jaarlijks Familie Coaching',
+    ctaBaseLink: '/signup',
+    isPopular: false,
     colorClass: "border-primary hover:border-primary/80",
     maxChildrenText: "voor maximaal 3 kinderen",
   },
-  {
+  'premium_family_monthly': {
     id: 'premium_family_monthly',
-    name: 'Premium Familie',
+    name: 'Premium Familie - Maandelijks',
     icon: Star,
-    shortDescription: 'Alles van Familie Coaching, plus premium features en unlimited kinderen.',
+    shortDescription: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen.',
     price: '€39,99/mnd',
-    features: ['Alles van Familie Coaching', 'Premium features & support', 'Unlimited kinderen'],
+    features: ['Alles van Familie Coaching', 'Premium features & support', 'Onbeperkt kinderen', 'Maandelijkse familie coaching calls'],
     ctaText: 'Kies Premium',
+    ctaBaseLink: '/signup',
+    colorClass: "border-accent hover:border-accent/80",
+    yearlyOptionText: `Of kies jaarlijks: €${yearlyPremiumPrice}/jaar (€${monthlyEquivalentForYearlyPremium}/mnd)`,
+    yearlySavingsHighlight: `bespaar €${yearlySavingsPremium}`,
+    maxChildrenText: "voor een onbeperkt aantal kinderen",
+  },
+  'premium_family_yearly': { // Toegevoegd voor de URL param
+    id: 'premium_family_yearly',
+    name: 'Premium Familie - Jaarlijks',
+    icon: Star,
+    shortDescription: 'Alles van Familie Coaching, plus premium features en onbeperkt kinderen met jaarkorting.',
+    price: `€${yearlyPremiumPrice}/jaar`,
+    features: ['Alles van Familie Coaching (15% korting)', 'Premium features & support', 'Onbeperkt kinderen', 'Maandelijkse familie coaching calls'],
+    ctaText: 'Kies Jaarlijks Premium',
     ctaBaseLink: '/signup',
     colorClass: "border-accent hover:border-accent/80",
     maxChildrenText: "voor een onbeperkt aantal kinderen",
   },
-];
+};
+
 
 function OuderWelcomePageContent() {
   const router = useRouter();
@@ -80,7 +126,7 @@ function OuderWelcomePageContent() {
   const [addChildFormKey, setAddChildFormKey] = useState(0);
 
   const planParam = searchParams.get('plan');
-  const hasChosenPlan = !!planParam && welcomePagePlans.some(p => p.id === planParam);
+  const hasChosenPlan = !!planParam && !!planDetailsMap[planParam];
 
   useEffect(() => {
     setIsClient(true);
@@ -112,9 +158,42 @@ function OuderWelcomePageContent() {
   };
 
   const handlePlanCTAClick = (planId: string, ctaBaseLink: string) => {
-    router.push(`${ctaBaseLink}?plan=${planId}`);
+     // Update URL without full page reload, this will trigger useEffect in this component
+     // to re-evaluate hasChosenPlan and defaultOpenAccordionItem
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('plan', planId);
+    window.history.pushState({ path: newUrl.href }, '', newUrl.href);
+
+    // Manually trigger a re-render or state update if necessary for Accordion to open correctly
+    // For example, if you have a state variable for the open accordion item:
+    // setDefaultOpenAccordionItem('bekijk-abonnementen'); // or whatever the ID is
+    // Or, if not using such state, you might not need to do anything extra here
+    // as the component will re-render due to searchParams change if you make it a dependency
+    // as the component will re-render due to searchParams change if you make it a dependency
   };
   
+  const getAbonnementActiepunt = () => {
+    const gekozenPlanDetails = planParam && planDetailsMap[planParam];
+    let title = "Abonnementen & Toegang";
+    let description = `Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`;
+    
+    if (gekozenPlanDetails) {
+      title = gekozenPlanDetails.id === 'free_start' 
+        ? "Je Gebruikt het Gratis Start Plan" 
+        : `Actief Plan (Voorlopig): ${gekozenPlanDetails.name}`;
+      description = gekozenPlanDetails.id === 'free_start'
+        ? `Met het gratis plan kan uw kind een basis assessment doen. Dit plan is voor ${gekozenPlanDetails.maxChildrenText}. Overweeg een upgrade voor volledige toegang.`
+        : `U heeft gekozen voor '${gekozenPlanDetails.name}'. Dit plan is ${gekozenPlanDetails.maxChildrenText}. Bevestig hieronder uw keuze of selecteer een ander plan.`;
+    }
+
+    return {
+      id: "bekijk-abonnementen",
+      title: title,
+      description: description,
+      icon: CreditCard,
+    };
+  };
+
   const actiepuntenBasis = [
     {
       id: "ken-je-kind",
@@ -131,13 +210,22 @@ function OuderWelcomePageContent() {
       description: 'Koppel de accounts van uw kinderen aan uw ouderaccount om hun voortgang te volgen en instellingen te beheren. Het kind ontvangt een e-mail om de uitnodiging te bevestigen. Na activatie kunt u de profielinformatie van uw kind verder aanvullen.',
       icon: UserPlus,
     },
-    {
-      id: "bekijk-abonnementen",
-      title: 'Abonnementen & Toegang',
-      description: `Kies of bevestig het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`,
-      icon: CreditCard,
-    },
+    getAbonnementActiepunt(),
   ];
+  
+  const getSortedActiepunten = () => {
+    if (!hasChosenPlan) {
+      return [
+        actiepuntenBasis.find(ap => ap.id === "bekijk-abonnementen")!,
+        actiepuntenBasis.find(ap => ap.id === "ken-je-kind")!,
+        actiepuntenBasis.find(ap => ap.id === "voeg-kind-toe")!,
+      ];
+    }
+    return actiepuntenBasis;
+  };
+  
+  const sortedActiepunten = getSortedActiepunten();
+  const defaultOpenAccordionItem = !hasChosenPlan ? "bekijk-abonnementen" : (planParam ? "bekijk-abonnementen" : "ken-je-kind");
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -162,16 +250,19 @@ function OuderWelcomePageContent() {
             </Alert>
         )}
         
-        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={!hasChosenPlan ? "bekijk-abonnementen" : (planParam ? "bekijk-abonnementen" : "ken-je-kind")}>
-          {actiepuntenBasis.map((item) => (
+        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
+          {sortedActiepunten.map((item) => {
+             const isDisabled = !hasChosenPlan && item.id !== "bekijk-abonnementen";
+            return (
             <AccordionItem
               key={item.id}
               value={item.id}
               className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl"
+              disabled={isDisabled}
             >
               <AccordionTrigger 
-                className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary"
-                disabled={!hasChosenPlan && item.id !== "bekijk-abonnementen"}
+                className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+                disabled={isDisabled}
               >
                 <div className="flex items-center gap-3">
                   <item.icon className="h-7 w-7 text-primary" />
@@ -188,34 +279,44 @@ function OuderWelcomePageContent() {
                   />
                 ) : item.id === "bekijk-abonnementen" ? (
                   <div className="space-y-6">
-                    {planParam && welcomePagePlans.find(p => p.id === planParam) && (
+                    {planParam && planDetailsMap[planParam] && planDetailsMap[planParam].id !== 'free_start' && (
                         <Alert variant="default" className="bg-green-50 border-green-300 text-green-700">
                             <CheckCircle2 className="h-5 w-5 !text-green-600" />
-                            <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {welcomePagePlans.find(p => p.id === planParam)?.name}</AlertTitleUi>
+                            <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {planDetailsMap[planParam]?.name}</AlertTitleUi>
                             <AlertDescUi className="text-green-600">
-                                Dit plan staat u toe om {welcomePagePlans.find(p => p.id === planParam)?.maxChildrenText} aan te sluiten.
+                                Dit plan staat u toe om {planDetailsMap[planParam]?.maxChildrenText} aan te sluiten.
                                 Bevestig hieronder of kies een ander plan.
                             </AlertDescUi>
                         </Alert>
                     )}
+                     {planParam && planDetailsMap[planParam] && planDetailsMap[planParam].id === 'free_start' && (
+                        <Alert variant="default" className="bg-blue-50 border-blue-300 text-blue-700">
+                            <Info className="h-5 w-5 !text-blue-600" />
+                            <AlertTitleUi className="text-blue-700 font-semibold">U heeft gekozen voor: {planDetailsMap[planParam]?.name}</AlertTitleUi>
+                            <AlertDescUi className="text-blue-600">
+                                Met het gratis plan kan uw kind een basis assessment doen en kunt u {planDetailsMap[planParam]?.maxChildrenText} aansluiten. Overweeg een upgrade voor volledige toegang tot alle tools en coaching.
+                            </AlertDescUi>
+                        </Alert>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {welcomePagePlans.map(plan => (
+                        {Object.values(planDetailsMap).filter(p => ['free_start', 'family_guide_monthly', 'premium_family_monthly'].includes(p.id)).map(plan => ( // Filter to show only base monthly/free plans here
                             <Card key={plan.id} className={cn(
                                 "flex flex-col text-center transition-all duration-200",
                                 plan.colorClass,
-                                planParam === plan.id ? "ring-2 ring-primary shadow-2xl scale-105" : "hover:shadow-lg"
+                                planParam === plan.id ? (plan.highlightClass || "ring-2 ring-primary shadow-2xl scale-105") : "hover:shadow-lg"
                             )}>
                                 <CardHeader className="pb-2">
                                     <plan.icon className="mx-auto h-8 w-8 text-primary mb-2"/>
-                                    <CardTitle className="text-md font-semibold">{plan.name}</CardTitle>
-                                    {plan.price && <p className="text-sm font-bold text-primary">{plan.price}</p>}
+                                    <CardTitle className="text-md font-semibold">{plan.name.replace(' - Maandelijks', '')}</CardTitle>
+                                    {plan.price && <p className="text-sm font-bold text-primary">{plan.price === 'Gratis' ? plan.price : `${plan.price}/mnd`}</p>}
                                 </CardHeader>
                                 <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                   <p className="mb-2">{plan.shortDescription}</p>
                                   <p className="mb-2 font-medium">Max. kinderen: {plan.maxChildrenText}.</p>
                                   {plan.features && plan.features.length > 0 && (
                                     <ul className="list-none p-0 text-left">
-                                      {plan.features.map(f => <li key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0"/>{f}</li>)}
+                                      {plan.features.slice(0,3).map(f => <li key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0"/>{f}</li>)}
+                                      {plan.features.length > 3 && <li>... en meer</li>}
                                     </ul>
                                   )}
                                 </CardContent>
@@ -226,17 +327,20 @@ function OuderWelcomePageContent() {
                                       variant={planParam === plan.id ? "default" : "outline"}
                                       onClick={() => handlePlanCTAClick(plan.id, plan.ctaBaseLink)}
                                     >
-                                      {planParam === plan.id ? "Bevestig & Activeer" : plan.ctaText}
+                                      {planParam === plan.id ? "Gekozen" : "Kies dit Plan"}
                                     </Button>
                                 </CardFooter>
                             </Card>
                         ))}
                     </div>
+                     <Button variant="link" asChild className="p-0 h-auto mt-4">
+                        <Link href="/pricing">Bekijk alle details en jaaropties</Link>
+                    </Button>
                   </div>
                 ) : (
                   item.link && item.linkText && (
-                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto">
-                      <Link href={item.link}>
+                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}>
+                      <Link href={isDisabled ? '#' : item.link}>
                         {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -244,7 +348,8 @@ function OuderWelcomePageContent() {
                 )}
               </AccordionContent>
             </AccordionItem>
-          ))}
+            );
+          })}
         </Accordion>
         
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 text-left mb-10 shadow">
@@ -285,3 +390,4 @@ export default function OuderWelcomePage() {
     </Suspense>
   );
 }
+
