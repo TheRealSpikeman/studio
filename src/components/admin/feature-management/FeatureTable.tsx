@@ -107,14 +107,15 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                         return (
                             <Badge 
                                 key={plan.id} 
+                                variant="outline" // Use outline variant to avoid default hover bg
                                 className={cn(
-                                  "text-[10px] px-1.5 py-0 leading-tight flex items-center transition-none", // Added transition-none
+                                  "text-[10px] px-1.5 py-0 leading-tight flex items-center", // Removed transition-none
                                   colorClass
                                 )}
-                                title={plan.name} // Tooltip met volledige naam
+                                title={plan.name}
                             >
                                <Link2 className="h-3 w-3 mr-1"/>
-                               {plan.shortName || plan.name} {/* Gebruik shortName indien beschikbaar */}
+                               {plan.shortName || plan.name}
                             </Badge>
                         );
                       })}
