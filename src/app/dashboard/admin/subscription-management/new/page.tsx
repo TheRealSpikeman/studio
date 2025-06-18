@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -80,10 +80,15 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     },
   });
 
+  const handleSelectAllFeatures = (select: boolean) => {
+    ALL_APP_FEATURES.forEach(feature => {
+      form.setValue(`featureAccess.${feature.id}`, select);
+    });
+  };
+
   const onSubmit = (data: PlanFormData) => {
     const planToSave: SubscriptionPlan = {
       ...data,
-      // features array is removed, featureAccess is already in data
       trialPeriodDays: data.trialPeriodDays,
       maxChildren: data.maxChildren,
       isPopular: data.isPopular,
@@ -249,6 +254,14 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 <CardDescription>Vink aan welke features in dit abonnement inbegrepen zijn.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
+                <div className="flex gap-2 mb-4">
+                    <Button type="button" variant="outline" size="sm" onClick={() => handleSelectAllFeatures(true)}>
+                        <CheckSquare className="mr-2 h-4 w-4" /> Selecteer Alles
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => handleSelectAllFeatures(false)}>
+                        <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
+                    </Button>
+                </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
                     {ALL_APP_FEATURES.map((feature) => (
                         <FormField
