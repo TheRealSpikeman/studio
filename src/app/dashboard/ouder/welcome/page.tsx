@@ -6,21 +6,22 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, Edit } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm'; // Importeer AddChildForm
+import { useToast } from '@/hooks/use-toast'; // Importeer useToast
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
-// Dummy user data - in a real app, this would come from context/auth
 const currentParent = {
   name: "Ouder Tester", 
 };
 
-const actiepunten = [
+const actiepuntenBasis = [
     {
       id: "ken-je-kind",
       title: 'Doe de "Ken je Kind" Test',
-      description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
+      description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen. Dit helpt u ook bij het invullen van het profiel van uw kind.',
       icon: FileText,
       link: "/quiz/ouder-symptomen-check", 
       linkText: 'Start "Ken je Kind" Test',
@@ -28,22 +29,19 @@ const actiepunten = [
       disabled: false,
     },
     {
-      id: "voeg-kind-toe",
+      id: "voeg-kind-toe", // Dit item krijgt nu het formulier
       title: 'Voeg uw Kind(eren) Toe',
-      description: 'Koppel de accounts van uw kinderen aan uw ouderaccount om hun voortgang te volgen en instellingen te beheren.',
+      description: 'Koppel de accounts van uw kinderen aan uw ouderaccount om hun voortgang te volgen en instellingen te beheren. U ontvangt een e-mail om de uitnodiging te bevestigen. Na activatie kunt u de profielinformatie van uw kind verder aanvullen.',
       icon: UserPlus,
-      link: "/dashboard/ouder/kinderen",
-      linkText: 'Ga naar Mijn Kinderen',
-      buttonVariant: 'outline' as 'outline',
-      disabled: false,
+      // Link en linkText zijn niet meer nodig voor de knop binnen dit item
     },
     {
       id: "bekijk-abonnementen",
       title: 'Ontdek onze Abonnementen',
-      description: 'Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en 1-op-1 begeleiding.',
+      description: 'Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en 1-op-1 begeleiding. Start met een gratis proefperiode voor elk betaald plan.',
       icon: CreditCard,
       link: "/#pricing",
-      linkText: 'Bekijk Abonnementen',
+      linkText: 'Bekijk Abonnementen & Start Proef',
       buttonVariant: 'outline' as 'outline',
       disabled: false,
     },
@@ -52,6 +50,8 @@ const actiepunten = [
 export default function OuderWelcomePage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const { toast } = useToast();
+  const [addChildFormKey, setAddChildFormKey] = useState(0); // Key om AddChildForm te resetten
 
   useEffect(() => {
     setIsClient(true);
@@ -63,11 +63,23 @@ export default function OuderWelcomePage() {
     }
     router.push('/dashboard/ouder');
   };
+
+  const handleSaveChildOnWelcome = (data: AddChildFormData) => {
+    console.log("Kind toegevoegd via welkomstpagina (simulatie):", data);
+    // TODO: Hier zou de logica komen om het kind daadwerkelijk toe te voegen aan de backend.
+    // En om een uitnodigingsmail te sturen.
+    toast({
+      title: "Kind Succesvol Toegevoegd (Simulatie)",
+      description: `${data.firstName} ${data.lastName} is toegevoegd. Een uitnodigingsmail is (gesimuleerd) verstuurd naar ${data.childEmail}. U kunt hieronder nog een kind toevoegen of doorgaan.`,
+      duration: 8000,
+    });
+    setAddChildFormKey(prevKey => prevKey + 1); // Forceer re-render van AddChildForm
+  };
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl text-center">
-        {/* Sparkles icon removed from here */}
+        
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Welkom bij MindNavigator, {currentParent.name}!
         </h1>
@@ -80,7 +92,7 @@ export default function OuderWelcomePage() {
         </p>
         
         <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10">
-          {actiepunten.map((item, index) => (
+          {actiepuntenBasis.map((item) => (
             <AccordionItem 
               key={item.id} 
               value={item.id} 
@@ -94,11 +106,21 @@ export default function OuderWelcomePage() {
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6 pt-0">
                 <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
-                <Button asChild variant={item.buttonVariant} className="w-full sm:w-auto" disabled={item.disabled}>
-                  <Link href={item.link}>
-                    {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                {item.id === "voeg-kind-toe" ? (
+                  <AddChildForm 
+                    key={addChildFormKey} // Om reset mogelijk te maken
+                    onSave={handleSaveChildOnWelcome} 
+                    onCancel={() => { /* Blijf in het accordeon, reset wordt afgehandeld door key */ }} 
+                  />
+                ) : (
+                  item.link && item.linkText && (
+                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={item.disabled}>
+                      <Link href={item.link}>
+                        {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )
+                )}
               </AccordionContent>
             </AccordionItem>
           ))}
