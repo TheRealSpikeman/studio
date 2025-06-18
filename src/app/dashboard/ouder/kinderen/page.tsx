@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/kinderen/page.tsx
 "use client";
 
@@ -17,12 +18,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { // Added hulpvraagType
+interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { 
   firstName: string;
   lastName: string;
   age?: number;
   childEmail?: string;
   schoolType?: string;
+  otherSchoolType?: string; // Nieuw
   className?: string;
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
@@ -84,6 +86,8 @@ const dummyChildren: Child[] = [
     subscriptionStatus: 'uitgenodigd',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
+    schoolType: 'Anders',
+    otherSchoolType: 'Internationale School',
     helpSubjects: [],
     hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
@@ -120,11 +124,11 @@ export default function BeheerKinderenPage() {
   const handleSaveChild = (data: AddChildFormData) => {
     const childAge = parseInt(data.age, 10);
     let derivedAgeGroup: '12-14' | '15-18' | 'adult' = '12-14';
-    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; // Technically, system should handle this, but for display
+    if (childAge >= 10 && childAge <= 11) derivedAgeGroup = 'adult'; 
     else if (childAge >= 12 && childAge <= 14) derivedAgeGroup = '12-14';
     else if (childAge >= 15 && childAge <= 18) derivedAgeGroup = '15-18';
-    else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult'; // Example if older teens allowed
-    else derivedAgeGroup = 'adult'; // Default or error case
+    else if (childAge >= 19 && childAge <= 20) derivedAgeGroup = 'adult'; 
+    else derivedAgeGroup = 'adult'; 
 
     let leerdoelenString = "";
     if (data.selectedLeerdoelen && data.selectedLeerdoelen.length > 0) {
@@ -151,6 +155,7 @@ export default function BeheerKinderenPage() {
       ageGroup: derivedAgeGroup,
       childEmail: data.childEmail,
       schoolType: data.schoolType,
+      otherSchoolType: data.schoolType === "Anders" ? data.otherSchoolType : undefined,
       className: data.className,
       subscriptionStatus: 'uitgenodigd',
       avatarUrl: `https://placehold.co/80x80.png?text=${data.firstName[0]}${data.lastName[0]}`,
@@ -268,7 +273,9 @@ export default function BeheerKinderenPage() {
                 {(child.schoolType || child.className) && (
                      <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <School className="h-3.5 w-3.5"/>
-                        {child.schoolType}{child.schoolType && child.className ? ', ' : ''}{child.className}
+                        {child.schoolType === "Anders" ? `Anders: ${child.otherSchoolType || 'Niet gespecificeerd'}` : child.schoolType}
+                        {child.schoolType && child.className && child.schoolType !== "Anders" ? ', ' : ''}
+                        {child.className && child.schoolType !== "Anders" ? child.className : ''}
                     </p>
                 )}
                 {child.helpSubjects && child.helpSubjects.length > 0 && (
@@ -363,4 +370,3 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
-

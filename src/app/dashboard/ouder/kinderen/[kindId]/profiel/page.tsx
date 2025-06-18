@@ -33,6 +33,7 @@ interface Child extends Pick<UserType, 'id' | 'name' | 'ageGroup' | 'avatarUrl' 
   age?: number; 
   childEmail?: string;
   schoolType?: string;
+  otherSchoolType?: string; // Nieuw veld
   className?: string;
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
@@ -57,6 +58,7 @@ const editableChildFormSchema = z.object({
     ageGroup: z.enum(['12-14', '15-18', 'adult']),
     childEmail: z.string().email({ message: "Voer een geldig e-mailadres in." }).optional().or(z.literal('')),
     schoolType: z.string().optional(),
+    otherSchoolType: z.string().optional(),
     className: z.string().optional(),
     helpSubjects: z.array(z.string()).optional(),
     hulpvraagType: z.array(z.enum(['tutor', 'coach'])).optional(),
@@ -66,6 +68,14 @@ const editableChildFormSchema = z.object({
     otherTutorPreference: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
     deelResultatenMetTutor: z.boolean().optional(),
     avatarUrl: z.string().url({ message: "Ongeldige URL." }).nullable().optional(),
+}).refine(data => {
+  if (data.schoolType === "Anders" && (!data.otherSchoolType || data.otherSchoolType.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Specificatie voor 'Ander schooltype' is vereist.",
+  path: ["otherSchoolType"], 
 });
 
 type EditableChildData = z.infer<typeof editableChildFormSchema>;
@@ -127,6 +137,8 @@ const dummyChildren: Child[] = [
     planName: 'Gratis Start',
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
+    schoolType: 'Anders', // Voorbeeld voor 'Anders'
+    otherSchoolType: 'Internationale School', // Specificatie
     helpSubjects: [],
     hulpvraagType: ['coach'],
     leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.',
@@ -232,6 +244,7 @@ export default function KindProfielPage() {
       ageGroup: '12-14',
       childEmail: "",
       schoolType: "",
+      otherSchoolType: "",
       className: "",
       helpSubjects: [],
       hulpvraagType: [],
@@ -246,6 +259,8 @@ export default function KindProfielPage() {
 
   const { reset, control, handleSubmit, watch, setValue } = form;
   const editableChildData = watch(); 
+  const watchedSchoolType = watch("schoolType");
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -280,6 +295,7 @@ export default function KindProfielPage() {
         ageGroup: childData.ageGroup || '12-14',
         childEmail: childData.childEmail || '',
         schoolType: childData.schoolType || '',
+        otherSchoolType: childData.otherSchoolType || '',
         className: childData.className || '',
         helpSubjects: childData.helpSubjects || [],
         hulpvraagType: childData.hulpvraagType || [],
@@ -327,7 +343,7 @@ export default function KindProfielPage() {
 
     let tutorPreferencesString = "";
     if (data.selectedTutorPreferences && data.selectedTutorPreferences.length > 0) {
-      tutorPreferencesString += `Geselecteerd: ${data.selectedTutorPreferences.join(', ')}. `;
+      tutorPreferencesString += `Geselecteerde voorkeuren: ${data.selectedTutorPreferences.join(', ')}. `;
     }
     if (data.otherTutorPreference) {
       tutorPreferencesString += `Overig: ${data.otherTutorPreference}`;
@@ -341,6 +357,7 @@ export default function KindProfielPage() {
       ageGroup: data.ageGroup,
       childEmail: data.childEmail,
       schoolType: data.schoolType,
+      otherSchoolType: data.schoolType === "Anders" ? data.otherSchoolType : undefined,
       className: data.className,
       helpSubjects: data.helpSubjects,
       hulpvraagType: data.hulpvraagType,
@@ -458,6 +475,15 @@ export default function KindProfielPage() {
                             <FormLabel htmlFor="schoolTypeEdit">Schooltype</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}><SelectTrigger id="schoolTypeEdit"><SelectValue placeholder="Kies schooltype" /></SelectTrigger><SelectContent>{schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent></Select><FormMessage/>
                         </FormItem>)} />
+                         {watchedSchoolType === "Anders" && (
+                            <FormField control={form.control} name="otherSchoolType" render={({ field }) => (
+                                <FormItem className="mt-2">
+                                    <FormLabel htmlFor="otherSchoolTypeEdit">Specificatie ander schooltype</FormLabel>
+                                    <Input id="otherSchoolTypeEdit" {...field} placeholder="Bijv. Thuisonderwijs" />
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                         )}
                         <FormField control={control} name="className" render={({ field }) => (<FormItem><div><FormLabel htmlFor="classNameEdit">Klas</FormLabel><Input id="classNameEdit" {...field} /></div><FormMessage/></FormItem>)} />
                     </CardContent>
                   </Card>
@@ -592,7 +618,7 @@ export default function KindProfielPage() {
                 <Card className="shadow-lg">
                     <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><School className="h-6 w-6 text-primary"/>Schoolinformatie</CardTitle></CardHeader>
                     <CardContent className="space-y-3 text-sm">
-                        <p><strong className="font-medium text-foreground/80">Schooltype:</strong> <span className="text-foreground">{childData?.schoolType || 'Niet opgegeven'}</span></p>
+                        <p><strong className="font-medium text-foreground/80">Schooltype:</strong> <span className="text-foreground">{childData?.schoolType === "Anders" ? `Anders: ${childData.otherSchoolType || 'Niet gespecificeerd'}` : (childData?.schoolType || 'Niet opgegeven')}</span></p>
                         <p><strong className="font-medium text-foreground/80">Klas:</strong> <span className="text-foreground">{childData?.className || 'Niet opgegeven'}</span></p>
                     </CardContent>
                 </Card>
@@ -709,4 +735,3 @@ export default function KindProfielPage() {
     </div>
   );
 }
-

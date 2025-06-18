@@ -3,7 +3,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // Added Controller
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,14 +57,23 @@ const addChildFormSchema = z.object({
   age: z.string().min(1, { message: "Selecteer een leeftijd." }),
   childEmail: z.string().email({ message: "Voer een geldig e-mailadres voor het kind in." }),
   schoolType: z.string().optional(),
+  otherSchoolType: z.string().optional(),
   className: z.string().optional(),
   helpSubjects: z.array(z.string()).optional(),
-  hulpvraagType: z.array(z.enum(['tutor', 'coach'])).optional(), // Nieuw veld
+  hulpvraagType: z.array(z.enum(['tutor', 'coach'])).optional(),
   selectedLeerdoelen: z.array(z.string()).optional(),
   otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
   selectedTutorPreferences: z.array(z.string()).optional(),
   otherTutorPreference: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
   deelResultatenMetTutor: z.boolean().optional(),
+}).refine(data => {
+  if (data.schoolType === "Anders" && (!data.otherSchoolType || data.otherSchoolType.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Specificatie voor 'Ander schooltype' is vereist.",
+  path: ["otherSchoolType"], 
 });
 
 export type AddChildFormData = z.infer<typeof addChildFormSchema>;
@@ -83,9 +92,10 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
       age: undefined,
       childEmail: "",
       schoolType: "",
+      otherSchoolType: "",
       className: "",
       helpSubjects: [],
-      hulpvraagType: [], // Init als lege array
+      hulpvraagType: [],
       selectedLeerdoelen: [],
       otherLeerdoelen: "",
       selectedTutorPreferences: [],
@@ -94,10 +104,13 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     },
   });
 
+  const watchedSchoolType = form.watch("schoolType");
+
   function onSubmit(values: AddChildFormData) {
     const dataToSave = {
       ...values,
       schoolType: values.schoolType === NOT_SPECIFIED_VALUE ? "" : values.schoolType,
+      otherSchoolType: values.schoolType === "Anders" ? values.otherSchoolType : "",
     };
     onSave(dataToSave);
   }
@@ -191,7 +204,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                     )}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormField
                     control={form.control}
                     name="schoolType"
@@ -207,7 +220,7 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                             </FormControl>
                             <SelectContent>
                             {schoolTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                            <SelectItem value={NOT_SPECIFIED_VALUE}>Niet opgegeven / Anders</SelectItem>
+                            <SelectItem value={NOT_SPECIFIED_VALUE}>Niet opgegeven</SelectItem>
                             </SelectContent>
                         </Select>
                         <FormDescription className="text-xs pt-1 flex items-center gap-1">
@@ -237,6 +250,22 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
                     )}
                     />
                 </div>
+                {watchedSchoolType === "Anders" && (
+                  <FormField
+                    control={form.control}
+                    name="otherSchoolType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specificatie ander schooltype</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Bijv. Thuisonderwijs, Buitenlandse school" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
 
                 <FormField
                   control={form.control}
@@ -554,4 +583,3 @@ export function AddChildForm({ onSave, onCancel }: AddChildFormProps) {
     </Card>
   );
 }
-
