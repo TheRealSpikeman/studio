@@ -21,11 +21,11 @@ interface TutorManagementTableProps {
 
 const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
-    case 'actief': return 'default'; // Green
-    case 'pending_approval': return 'secondary'; // Orange
-    case 'pending_onboarding': return 'secondary'; // Was 'outline', nu oranje-achtig
-    case 'geblokkeerd': return 'destructive'; // Red
-    case 'rejected': return 'destructive'; // Red
+    case 'actief': return 'default'; 
+    case 'pending_approval': return 'secondary'; 
+    case 'pending_onboarding': return 'secondary'; 
+    case 'geblokkeerd': return 'outline'; // Changed to outline for neutral gray
+    case 'rejected': return 'destructive'; 
     default: return 'outline';
   }
 };
@@ -34,8 +34,8 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
   switch (status) {
     case 'actief': return 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200';
     case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
-    case 'pending_onboarding': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200'; // Nieuwe oranje stijl
-    case 'geblokkeerd': return 'bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300'; // More neutral for blocked/inactive
+    case 'pending_onboarding': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
+    case 'geblokkeerd': return 'bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300'; // Neutral gray
     case 'rejected': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
     default: return '';
   }
@@ -162,3 +162,4 @@ export function TutorManagementTable({ tutors, onEditTutor, onDeactivateTutor }:
     </div>
   );
 }
+

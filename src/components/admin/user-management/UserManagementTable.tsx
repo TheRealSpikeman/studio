@@ -24,8 +24,8 @@ const getStatusBadgeVariant = (status: UserStatus): "default" | "secondary" | "d
     case 'actief': return 'default';
     case 'niet geverifieerd': return 'secondary';
     case 'wacht_op_ouder_goedkeuring': return 'secondary';
-    case 'geblokkeerd': return 'destructive';
-    case 'pending_onboarding': return 'secondary'; // Was 'outline', nu oranje-achtig
+    case 'geblokkeerd': return 'outline'; // Changed to outline or secondary for less aggressive color
+    case 'pending_onboarding': return 'secondary';
     case 'pending_approval': return 'secondary';
     case 'rejected': return 'destructive';
     default: return 'outline';
@@ -37,8 +37,8 @@ const getStatusBadgeClasses = (status: UserStatus): string => {
     case 'actief': return 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200';
     case 'niet geverifieerd': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
     case 'wacht_op_ouder_goedkeuring': return 'bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200';
-    case 'geblokkeerd': return 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200';
-    case 'pending_onboarding': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200'; // Nieuwe oranje stijl
+    case 'geblokkeerd': return 'bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300'; // Neutral gray
+    case 'pending_onboarding': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
     case 'pending_approval': return 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200';
     case 'rejected': return 'bg-red-200 text-red-800 border-red-400 hover:bg-red-300';
     default: return '';
@@ -60,6 +60,7 @@ const getRoleBadgeClasses = (role: UserRole): string => {
     switch (role) {
       case 'admin': return 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30';
       case 'coach': return 'bg-cyan-100 text-cyan-700 border-cyan-300 hover:bg-cyan-200';
+      case 'leerling': return 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200';
       case 'tutor': return 'bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-200'; 
       case 'ouder': return 'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200';
       default: return ''; 
