@@ -35,7 +35,7 @@ export default function OuderWelcomePage() {
       title: 'Doe de "Ken je Kind" Test',
       description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
       icon: FileText,
-      link: "/quiz/ouder-symptomen-check", // Placeholder link
+      link: "/quiz/ouder-symptomen-check", 
       linkText: 'Start "Ken je Kind" Test',
       buttonVariant: 'default' as 'default',
       disabled: false,
@@ -77,26 +77,22 @@ export default function OuderWelcomePage() {
             Als ouder speelt u een cruciale rol. MindNavigator biedt u de tools en inzichten om uw kind(eren) optimaal te begeleiden. Hier zijn een paar belangrijke eerste stappen:
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 text-left">
+          <div className="space-y-6 text-left">
             {actiepunten.map((item, index) => (
-              <Card key={index} className="bg-muted/40 border shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-xl font-semibold text-primary flex items-center gap-2">
-                    <item.icon className="h-6 w-6" />
-                    {item.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </CardContent>
-                <CardFooter>
+              <div key={index} className="bg-muted/40 border shadow-sm rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <item.icon className="h-7 w-7 text-primary" />
+                  <h3 className="text-xl font-semibold text-primary">{item.title}</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                <div className="mt-auto">
                   <Button asChild variant={item.buttonVariant} className="w-full sm:w-auto" disabled={item.disabled}>
                     <Link href={item.link}>
                       {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
