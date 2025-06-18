@@ -1,105 +1,92 @@
-
-// src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, PlusCircle, Edit, Trash2, MoreVertical, CheckCircle, XCircle, Star } from 'lucide-react';
-import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, BookOpen, UserPlus, Settings, BarChart3, CreditCard, Edit, Mail, School, Info, Cake, GraduationCap, Trash2, TrendingUp, Target, Users, Share2, Link2, HelpCircle, Sparkles, Star, CheckCircle2, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle, Package, FileText as FileTextIcon } from 'lucide-react'; // Renamed FileText to FileTextIcon
+import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export type TargetAudience = 'leerling' | 'ouder' | 'platform' | 'beide' | 'tutor' | 'coach';
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v2';
+export const LOCAL_STORAGE_FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
-export interface AppFeature {
-  id: string;
-  label: string;
-  description?: string;
-  targetAudience: TargetAudience[];
-  category?: string;
-}
+// Subscription Plan Types & Zod Schema
+const appFeatureSchema = z.object({
+    id: z.string(),
+    label: z.string(),
+    description: z.string().optional(),
+    adminOnly: z.boolean().optional(),
+});
+export type AppFeature = z.infer<typeof appFeatureSchema>;
 
+const subscriptionPlanSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  shortName: z.string().optional(),
+  description: z.string(),
+  price: z.number(),
+  currency: z.string(),
+  billingInterval: z.enum(['month', 'year', 'once']),
+  featureAccess: z.record(z.string(), z.boolean()).optional(), // Generic access control based on feature IDs
+  active: z.boolean(),
+  trialPeriodDays: z.number().optional(),
+  maxChildren: z.number().optional(),
+  isPopular: z.boolean().optional(),
+  tagline: z.string().optional(),
+});
+export type SubscriptionPlan = z.infer<typeof subscriptionPlanSchema>;
+
+// Initial/Default App Features
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
-  // Kolom 1 uit screenshot (features van de afbeelding)
-  { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
-  { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.', targetAudience: ['leerling'], category: 'Coaching' },
-  { id: 'professionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' }, 
-  { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.', targetAudience: ['leerling'], category: 'Tools' },
-  { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
-  { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.', targetAudience: ['leerling', 'ouder'], category: 'Tools' },
-  { id: 'max3ChildrenIncluded', label: 'Tot 3 kinderen inbegrepen', description: 'Standaard voor familieplannen.', targetAudience: ['ouder', 'platform'], category: 'Account' },
-  { id: 'extensiveAssessmentAnalysis', label: 'Uitgebreide assessment analyse & rapportage', description: 'Nog diepere analyse van de start-assessment.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
-  { id: 'exclusiveCoachingModules', label: 'Exclusieve coaching modules en premium content', description: 'Toegang tot extra coaching materiaal.', targetAudience: ['leerling'], category: 'Coaching' },
-  { id: 'extendedSearchFilters', label: 'Extended zoekfilters en matching criteria', description: 'Meer filteropties bij het zoeken.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'unlimitedChildren', label: 'Unlimited kinderen (geen limiet meer)', description: 'Onbeperkt aantal kinderen voor premium plannen.', targetAudience: ['ouder', 'platform'], category: 'Account' },
-  { id: 'advancedParentTrainingModules', label: 'Advanced ouder training modules', description: 'Extra training materiaal voor ouders.', targetAudience: ['ouder'], category: 'Coaching' },
-
-  // Kolom 2 uit screenshot
-  { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie-email', description: 'Regelmatige e-mails met tips en motivatie.', targetAudience: ['leerling'], category: 'Coaching' },
-  { id: 'basicPdfOverview', label: 'Basis PDF overzicht van sterke punten', description: 'Een eenvoudig PDF rapport van de assessment.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
-  { id: 'bookPaySessions', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'dailyPersonalizedCoaching', label: 'Dagelijkse coaching berichten (gepersonaliseerd)', description: 'Gepersonaliseerde coaching op basis van profiel.', targetAudience: ['leerling'], category: 'Coaching' },
-  { id: 'homeworkPlannerFocusTools', label: 'Huiswerk planner en focus tools (Pomodoro)', description: 'Tools voor planning en concentratie.', targetAudience: ['leerling'], category: 'Tools' },
-  { id: 'directCommunicationProfessionals', label: 'Direct contact en communicatie met professionals', description: 'Berichten sturen naar gekoppelde professionals.', targetAudience: ['beide'], category: 'Communicatie' },
-  { id: 'childProgressTracking', label: 'Voortgangsvolging en trends van uw kind', description: 'Inzicht in de voortgang van het kind (voor ouders).', targetAudience: ['ouder'], category: 'Analytics' },
-  { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met gekoppelde coaches en tutors', description: 'Directe communicatie met begeleiders.', targetAudience: ['ouder'], category: 'Communicatie' },
-  { id: 'aiPoweredInsights', label: 'AI-powered insights en gepersonaliseerde aanbevelingen', description: 'Geavanceerde AI-aanbevelingen.', targetAudience: ['leerling', 'ouder'], category: 'Coaching' },
-  { id: 'priorityCoachMatching', label: 'Prioriteit algoritme voor beste coach matching', description: 'Voorrang bij het matchen met professionals.', targetAudience: ['ouder', 'platform'], category: 'Professionals' },
-  { id: 'bulkSessionPlanning', label: 'Bulk session planning voor gemak', description: 'Plan meerdere sessies tegelijk.', targetAudience: ['ouder'], category: 'Tools' },
-  { id: 'monthlyFamilyCoachingCalls', label: 'Maandelijkse familie coaching calls (30 min)', description: 'Live coaching sessies voor het gezin.', targetAudience: ['ouder'], category: 'Coaching' },
-
-  // Kolom 3 uit screenshot
-  { id: 'basicReflectionToolLimited', label: 'Basis zelfreflectie tool (beperkt)', description: 'Toegang tot een beperkte versie van de basis tool.', targetAudience: ['leerling'], category: 'Assessment' },
-  { id: 'browseProfessionals', label: 'Browse coaches & tutors (profielen bekijken)', description: 'Mogelijkheid om profielen van professionals te zien.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'accountManagement', label: 'Account beheer en basisinstellingen', description: 'Toegang tot standaard accountbeheer.', targetAudience: ['platform'], category: 'Account' },
-  { id: 'allReflectionToolsUnlimited', label: 'Alle zelfreflectie instrumenten (unlimited)', description: 'Onbeperkte toegang tot alle tools.', targetAudience: ['leerling'], category: 'Assessment' },
-  { id: 'motivationTracking', label: 'Motivatie tracking met voortgangsvisualisatie', description: 'Volg en visualiseer motivatie.', targetAudience: ['leerling'], category: 'Tools' },
-  { id: 'reviewRatingSystem', label: 'Review en rating systeem', description: 'Beoordeel professionals.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'familyInsights', label: 'Familie insights en gepersonaliseerde aanbevelingen', description: 'Inzichten voor het hele gezin.', targetAudience: ['ouder'], category: 'Coaching' },
-  { id: 'yearlyDiscount15', label: '15% korting bij jaarlijkse betaling', description: 'Korting voor jaarplannen.', targetAudience: ['platform'], category: 'Voordeel' },
-  { id: 'advancedAnalyticsTrends', label: 'Advanced analytics en trendanalyse', description: 'Gedetailleerde statistieken en trends.', targetAudience: ['ouder'], category: 'Analytics' },
-  { id: 'priorityBookingProfessionals', label: 'Prioriteit booking bij populaire coaches & tutors', description: 'Eerder toegang tot populaire professionals.', targetAudience: ['ouder', 'platform'], category: 'Professionals' },
-  { id: 'premiumSupport24h', label: 'Premium support (24u response tijd)', description: 'Snellere klantenservice.', targetAudience: ['platform'], category: 'Support' },
-  { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.', targetAudience: ['ouder', 'platform'], category: 'Tools' },
+    { id: 'startAssessment', label: 'Start Neurodivergentie Assessment', description: 'Toegang tot de eerste assessment.' },
+    { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie email', description: 'Wekelijkse e-mails vol tips voor zelfreflectie' },
+    { id: 'basicReflectionToolLimited', label: 'Zelfreflectie Tools (basis, beperkt)', description: 'Basistools voor zelfreflectie' },
+    { id: 'allReflectionToolsUnlimited', label: 'Zelfreflectie Tools (alles, onbeperkt)', description: 'Toegang tot alle zelfreflectietools.' },
+    { id: 'interactiveJournal', label: 'Interactief Dagboek', description: 'Interactief dagboek om ideeën te ordenen.' },
+    { id: 'homeworkPlannerFocusTools', label: 'Huiswerk Planner & Focus Tools', description: 'Tools om huiswerk te plannen en beter te focussen.' },
+    { id: 'motivationTracking', label: 'Motivatie Tracker', description: 'Tool om persoonlijke motivatie te monitoren.' },
+    { id: 'basicPdfOverview', label: 'PDF rapportages (basis)', description: 'PDF export van de assessment resultaten (basis).' },
+    { id: 'extensivePdfReports', label: 'PDF rapportages (uitgebreid)', description: 'PDF export van de assessment resultaten (uitgebreid).' },
+    { id: 'noProgressAnalytics', label: 'Geen voortgangsanalyse', description: 'Gebruikers kunnen voortgangsanalyse uitzetten', adminOnly: true },
+    { id: 'childProgressTracking', label: 'Kind voortgang volgen', description: 'Voortgang volgen van een kind.' },
+    { id: 'familyInsights', label: 'Familie inzichten', description: 'Inzichten over het hele gezin.' },
+    { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met tutors/coaches', description: 'Direct communiceren met gekoppelde begeleiders.' },
+    { id: 'browseProfessionals', label: 'Browse Geregistreerde Professionals', description: 'Browse door geregistreerde professionals.' },
+    { id: 'professionalRates', label: 'Inzien Tarieven Professionals', description: 'Inzien van de tarieven van geregistreerde professionals.' },
+    { id: 'bookPaySessions', label: 'Sessie Boeken & Betalen', description: 'Mogelijkheid tot het boeken en betalen van sessies.' },
+    { id: 'sessionPlanningReminders', label: 'Sessie Planning & Reminders', description: 'Sessie planning met automatische reminders.' },
+    { id: 'aiPoweredInsights', label: 'AI gedreven inzichten', description: 'AI gedreven inzichten voor kind en ouder' },
+    { id: 'exclusiveCoachingModules', label: 'Exclusive coaching modules', description: 'Exclusieve coaching modules' },
+    { id: 'accountManagement', label: 'Accountbeheer', description: 'Toegang tot accountbeheer' },
+    { id: 'max3ChildrenIncluded', label: 'Max 3 kinderen', description: 'Account heeft tot 3 kinderen' },
+    { id: 'max4ChildrenIncluded', label: 'Max 4 kinderen', description: 'Account heeft tot 4 kinderen' },
+    { id: 'yearlyDiscount15', label: '15% jaarkorting', description: '15% korting voor jaarabonnement', adminOnly: true },
 ];
 
-export const LOCAL_STORAGE_FEATURES_KEY = 'mindnavigator_app_features';
-export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans';
-
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  shortName?: string;
-  description: string;
-  tagline?: string;
-  price: number;
-  currency: string;
-  billingInterval: 'month' | 'year' | 'once';
-  featureAccess: Record<string, boolean>; 
-  active: boolean;
-  trialPeriodDays?: number;
-  maxChildren?: number;
-  isPopular?: boolean;
-}
-
-const initialSubscriptionPlans: SubscriptionPlan[] = [
+// Default Subscription Plans
+const initialDefaultPlans: SubscriptionPlan[] = [ 
   {
     id: 'free_start', name: 'Gratis Start', shortName: 'Gratis', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    tagline: 'Proef de kracht van zelfinzicht.',
     featureAccess: { 
-      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
+      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])), 
       startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
     id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezin M', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
@@ -112,7 +99,6 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
   },
    {
     id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', shortName: 'Gezin J', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
-    tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
        ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
       startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
@@ -124,9 +110,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
-    {
+  {
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', shortName: 'Prem M', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
       noProgressAnalytics: false, 
@@ -135,7 +120,6 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
   },
   {
     id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', shortName: 'Prem J', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
-    tagline: 'Het meest complete pakket met maximale korting!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
       noProgressAnalytics: false, 
@@ -146,143 +130,341 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
 ];
 
 export default function SubscriptionManagementPage() {
-  const { toast } = useToast();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+    const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
+    const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
 
-  useEffect(() => {
-    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-    if (storedPlansRaw) {
-      try {
-        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        const migratedPlans = parsedPlans.map(plan => {
-          const defaultAccess: Record<string,boolean> = {};
-          DEFAULT_APP_FEATURES.forEach(f => {
-            defaultAccess[f.id] = plan.featureAccess?.[f.id] || false;
-          }); 
-          
-          return {
-            ...plan,
-            shortName: plan.shortName ?? '',
-            featureAccess: defaultAccess,
-            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
-            maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
-            isPopular: plan.isPopular ?? false,
-            tagline: plan.tagline || '',
-          };
-        });
-        setPlans(migratedPlans);
-        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) { 
-            localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(migratedPlans));
+    useEffect(() => {
+        setIsLoading(true);
+        const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
+        let loadedFeatures = DEFAULT_APP_FEATURES;
+        if (storedFeaturesRaw) {
+          try {
+            loadedFeatures = JSON.parse(storedFeaturesRaw);
+          } catch (e) {
+            console.error("Error parsing features from localStorage, using defaults", e);
+            localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+          }
+        } else {
+          localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
         }
-      } catch (error) {
-        console.error("Error parsing subscription plans from localStorage:", error);
-        setPlans(initialSubscriptionPlans); 
-        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlans));
-      }
-    } else {
-      setPlans(initialSubscriptionPlans);
-      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlans));
-    }
-  }, []);
+        setAllAppFeatures(loadedFeatures);
 
-  const handleDeletePlan = (planId: string) => {
-    const updatedPlans = plans.filter(plan => plan.id !== planId);
-    setPlans(updatedPlans);
-    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
-    toast({ title: "Abonnement Verwijderd", description: `Abonnement met ID ${planId} is verwijderd.` });
-  };
-  
-  const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2)}${intervalText}`;
-  };
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        let loadedPlans: SubscriptionPlan[] = [];
 
-  return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                <CreditCard className="h-6 w-6 text-primary" />
-                Abonnementenbeheer
-              </CardTitle>
-              <CardDescription>
-                Beheer hier de abonnementsplannen die beschikbaar zijn voor gebruikers.
-              </CardDescription>
-            </div>
-            <Button asChild>
-              <Link href="/dashboard/admin/subscription-management/new">
-                <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement Toevoegen
-              </Link>
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Naam</TableHead>
-                  <TableHead>Afkorting</TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Prijs</TableHead>
-                  <TableHead>Interval</TableHead>
-                  <TableHead>Proefperiode</TableHead>
-                  <TableHead>Max. Kinderen</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Populair</TableHead>
-                  <TableHead className="text-right">Acties</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {plans.length === 0 && (
-                  <TableRow><TableCell colSpan={10} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
-                )}
-                {plans.map((plan) => (
-                  <TableRow key={plan.id}>
-                    <TableCell className="font-medium">{plan.name}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{plan.shortName || '-'}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{plan.id}</TableCell>
-                    <TableCell>{formatPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
-                    <TableCell>{plan.billingInterval}</TableCell>
-                    <TableCell>{plan.trialPeriodDays ? `${plan.trialPeriodDays} dagen` : 'N.v.t.'}</TableCell>
-                    <TableCell>{plan.maxChildren === 0 ? 'Onbeperkt' : (plan.maxChildren || 'N.v.t.')}</TableCell>
-                    <TableCell>
-                      <Badge variant={plan.active ? 'default' : 'secondary'} className={plan.active ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300'}>
-                        {plan.active ? <CheckCircle className="mr-1 h-3 w-3"/> : <XCircle className="mr-1 h-3 w-3"/>}
-                        {plan.active ? 'Actief' : 'Inactief'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {plan.isPopular && <Star className="h-5 w-5 text-yellow-500 fill-yellow-400" />}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" /><span className="sr-only">Acties</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}><Edit className="mr-2 h-4 w-4" />Bewerken</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeletePlan(plan.id)} className="text-destructive focus:text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />Verwijderen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+        const ensureFullFeatureAccess = (plan: SubscriptionPlan): SubscriptionPlan => {
+            const migratedFeatureAccess: Record<string, boolean> = {};
+            loadedFeatures.forEach(appFeature => {
+                migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean')
+                ? plan.featureAccess[appFeature.id]
+                : false;
+            });
+            return {
+                ...plan,
+                shortName: plan.shortName ?? '',
+                featureAccess: migratedFeatureAccess,
+                trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
+                maxChildren: plan.maxChildren ?? (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0)),
+                isPopular: plan.isPopular ?? false,
+                tagline: plan.tagline ?? '',
+            };
+        };
+
+        if (storedPlansRaw) {
+          try {
+            const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+            loadedPlans = parsedPlans.map(ensureFullFeatureAccess);
+          } catch (e) {
+            console.error("Error parsing plans from localStorage, using defaults", e);
+            loadedPlans = initialDefaultPlans.map(ensureFullFeatureAccess);
+            localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+          }
+        } else {
+          loadedPlans = initialDefaultPlans.map(ensureFullFeatureAccess);
+          localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+        }
+
+        setAvailablePlans(loadedPlans);
+        setIsLoading(false);
+    }, []);
+
+    const handleSavePlans = (updatedPlans: SubscriptionPlan[]) => {
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
+        setAvailablePlans(updatedPlans);
+        toast({
+            title: "Plannen Opgeslagen",
+            description: "De wijzigingen zijn opgeslagen in de lokale storage.",
+        });
+    };
+
+    return (
+        <div className="container mx-auto py-10">
+            <h1 className="text-3xl font-bold mb-6">Abonnement Beheer (Admin)</h1>
+            <p className="mb-4">Hier kunt u de abonnementen en bijbehorende features beheren. Wijzigingen worden opgeslagen in de lokale storage.</p>
+            {isLoading ? (
+                <div>Laden...</div>
+            ) : (
+                <SubscriptionPlanList plans={availablePlans} allAppFeatures={allAppFeatures} onSave={handleSavePlans} />
+            )}
+        </div>
+    );
 }
-    
+
+interface SubscriptionPlanListProps {
+    plans: SubscriptionPlan[];
+    allAppFeatures: AppFeature[];
+    onSave: (updatedPlans: SubscriptionPlan[]) => void;
+}
+
+function SubscriptionPlanList({ plans, allAppFeatures, onSave }: SubscriptionPlanListProps) {
+    const [editablePlanId, setEditablePlanId] = useState<string | null>(null);
+
+    const handleEditPlan = (planId: string) => {
+        setEditablePlanId(planId);
+    };
+
+    const handleCancelEdit = () => {
+        setEditablePlanId(null);
+    };
+
+    const handleSavePlan = (updatedPlan: SubscriptionPlan) => {
+        const updatedPlans = plans.map(plan => plan.id === updatedPlan.id ? updatedPlan : plan);
+        onSave(updatedPlans);
+        setEditablePlanId(null);
+    };
+
+    return (
+        <div className="space-y-4">
+            {plans.map(plan => (
+                <div key={plan.id} className="border rounded-md p-4">
+                    {editablePlanId === plan.id ? (
+                        <SubscriptionPlanEditForm plan={plan} allAppFeatures={allAppFeatures} onSave={handleSavePlan} onCancel={handleCancelEdit} />
+                    ) : (
+                        <>
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 className="text-xl font-semibold">{plan.name}</h3>
+                                    <p className="text-muted-foreground">{plan.description}</p>
+                                </div>
+                                <div>
+                                    <Button variant="outline" size="sm" onClick={() => handleEditPlan(plan.id)}>
+                                        <Edit className="mr-2 h-4 w-4" /> Bewerken
+                                    </Button>
+                                </div>
+                            </div>
+                            <ul className="list-disc list-inside text-sm">
+                                {DEFAULT_APP_FEATURES.filter(feature => plan.featureAccess && plan.featureAccess[feature.id]).map(feature => (
+                                    <li key={feature.id}>{feature.label}</li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
+
+interface SubscriptionPlanEditFormProps {
+    plan: SubscriptionPlan;
+    allAppFeatures: AppFeature[];
+    onSave: (updatedPlan: SubscriptionPlan) => void;
+    onCancel: () => void;
+}
+
+function SubscriptionPlanEditForm({ plan, allAppFeatures, onSave, onCancel }: SubscriptionPlanEditFormProps) {
+    const form = useForm<SubscriptionPlan>({
+        resolver: zodResolver(subscriptionPlanSchema),
+        defaultValues: plan,
+        mode: "onChange"
+    });
+
+    const { handleSubmit } = form;
+
+    const onSubmit = (data: SubscriptionPlan) => {
+        onSave(data);
+    };
+
+    return (
+        <Form {...form}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Naam</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Naam" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="shortName"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Korte naam</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Korte naam" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Beschrijving</FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Beschrijving" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Prijs</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="Prijs" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Valuta</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Valuta" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="billingInterval"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Factuur Interval</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="month">Maandelijks</SelectItem>
+                                    <SelectItem value="year">Jaarlijks</SelectItem>
+                                    <SelectItem value="once">Eenmalig</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="trialPeriodDays"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Trial dagen</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="Trial dagen" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="maxChildren"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Maximum aantal kinderen</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="Maximum aantal kinderen" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="isPopular"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-md border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel>Populair</FormLabel>
+                                <FormDescription>Is dit een populair abonnement?</FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-md border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel>Actief</FormLabel>
+                                <FormDescription>Is dit abonnement actief?</FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <div>
+                    <FormLabel>Feature Toegang</FormLabel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {allAppFeatures.map((feature) => (
+                            <FormField
+                                key={feature.id}
+                                control={form.control}
+                                name={`featureAccess.${feature.id}`}
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-2 rounded-md border p-2">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={plan.featureAccess ? !!plan.featureAccess[feature.id] : false}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <FormLabel className="text-sm font-normal">{feature.label}</FormLabel>
+                                    </FormItem>
+                                )}
+                            />
+                        ))}
+                    </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                    <Button variant="ghost" onClick={onCancel}>
+                        Annuleren
+                    </Button>
+                    <Button type="submit">
+                        Opslaan
+                    </Button>
+                </div>
+            </form>
+        </Form>
+    );
+}

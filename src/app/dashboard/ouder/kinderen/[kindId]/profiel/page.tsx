@@ -1,5 +1,3 @@
-
-// src/app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -92,8 +90,8 @@ const dummyChildren: Child[] = [
     ageGroup: '12-14',
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     subscriptionStatus: 'actief',
-    planId: 'family_guide_monthly', // Aangepast
-    planName: 'Gezins Gids - Maandelijks', // Aangepast
+    planId: 'family_guide_monthly', 
+    planName: 'Gezins Gids - Maandelijks', 
     lastActivity: 'Quiz "Basis Neuroprofiel" voltooid',
     childEmail: 'sofie.tester@example.com',
     schoolType: 'HAVO',
@@ -133,9 +131,9 @@ const dummyChildren: Child[] = [
     name: 'Lisa Voorbeeld',
     age: 12,
     ageGroup: '12-14',
-    subscriptionStatus: 'uitgenodigd',
-    planId: 'free_start',
-    planName: 'Gratis Start',
+    subscriptionStatus: 'geen', // Aangepast voor test
+    planId: undefined, // Aangepast voor test
+    planName: undefined, // Aangepast voor test
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     schoolType: 'Anders', 
@@ -225,8 +223,6 @@ const isTutorServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
 
 const isCoachServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
   if (!planId) return false;
-  // Aanname: alle family_guide en premium plannen dekken coaching.
-  // Als er specifieke "coaching_tools" plannen zijn, moeten die hier ook gecheckt worden.
   return planId.includes('family_guide') || planId.includes('premium_family') || planId.includes('coaching_tools');
 };
 
@@ -637,6 +633,7 @@ export default function KindProfielPage() {
                         <div>
                             <strong className="font-medium text-foreground/80">Abonnement Status:</strong> <Badge variant={getSubscriptionBadgeVariant(childData!.subscriptionStatus)} className={getSubscriptionBadgeClasses(childData!.subscriptionStatus)}>{childData!.subscriptionStatus.charAt(0).toUpperCase() + childData!.subscriptionStatus.slice(1)}</Badge>
                             {childData.planName && <span className="text-xs text-muted-foreground"> ({childData.planName})</span>}
+                            {!childData.planName && childData.subscriptionStatus === 'geen' && <span className="text-xs text-muted-foreground"> (Nog geen abonnement)</span>}
                         </div>
                     </CardContent>
                 </Card>
@@ -678,7 +675,7 @@ export default function KindProfielPage() {
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                 <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                 <AlertDescUi>
-                                    Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen tutorbegeleiding. Om een tutor te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
+                                    Het huidige abonnement '{childData.planName || 'Nog geen abonnement'}' dekt geen tutorbegeleiding. Om een tutor te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                     <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                 </AlertDescUi>
                             </Alert>
@@ -728,7 +725,7 @@ export default function KindProfielPage() {
                                 <AlertTriangle className="h-5 w-5 !text-orange-600" />
                                 <AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi>
                                 <AlertDescUi>
-                                     Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
+                                     Het huidige abonnement '{childData.planName || 'Nog geen abonnement'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.
                                     <Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button>
                                 </AlertDescUi>
                             </Alert>
@@ -760,3 +757,4 @@ export default function KindProfielPage() {
     </div>
   );
 }
+

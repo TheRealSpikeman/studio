@@ -1,5 +1,3 @@
-
-// src/app/dashboard/ouder/kinderen/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -83,7 +81,7 @@ const dummyChildren: Child[] = [
     name: 'Lisa Voorbeeld',
     age: 12,
     ageGroup: '12-14',
-    subscriptionStatus: 'uitgenodigd',
+    subscriptionStatus: 'geen', // Updated
     lastActivity: 'Coaching tip van gisteren bekeken',
     childEmail: 'lisa.voorbeeld@example.com',
     schoolType: 'Anders',
@@ -370,3 +368,4 @@ export default function BeheerKinderenPage() {
     </div>
   );
 }
+

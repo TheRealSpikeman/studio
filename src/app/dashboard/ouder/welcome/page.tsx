@@ -1,5 +1,3 @@
-
-// src/app/dashboard/ouder/welcome/page.tsx
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
@@ -522,3 +520,4 @@ export default function OuderWelcomePage() {
     </Suspense>
   );
 }
+
