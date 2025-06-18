@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2, HelpCircle, ExternalLink, ScrollText, Compass, Percent, ListChecks, XCircle } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
@@ -35,66 +35,56 @@ const defaultFeatureAccessFree: Record<string, boolean> = {
 };
 
 const defaultFeatureAccessCoachingTools: Record<string, boolean> = {
-  ...defaultFeatureAccessFree,
-  weeklyMotivationEmail: true,
-  sampleCoachingContent: true,
-  basicPdfOverview: true,
-  browseProfessionals: true,
-  viewProfessionalRates: true,
-  dailyPersonalizedCoaching: true,
-  allReflectionToolsUnlimited: true,
-  interactiveJournal: true,
-  planningFocusTools: true,
-  motivationTracking: true,
+  ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+  startAssessment: true, 
+  weeklyMotivationEmail: true, 
+  basicReflectionToolLimited: false, 
+  sampleCoachingContent: true, 
+  basicPdfOverview: true, 
+  browseProfessionals: true, 
+  viewProfessionalRates: true, 
+  bookSessions: true, 
+  accountManagement: true, 
+  noProgressAnalytics: false, 
+  dailyPersonalizedCoaching: true, 
+  allReflectionToolsUnlimited: true, 
+  interactiveJournal: true, 
+  planningFocusTools: true, 
+  motivationTracking: true, 
   extensivePdfReports: true,
-  bookSessions: true,
-  directProfessionalCommunication: true,
-  reviewRatingSystem: true,
-  sessionPlanningReminders: true,
+  directProfessionalCommunication: true, 
+  reviewRatingSystem: true, 
+  sessionPlanningReminders: true, 
   communicationWithLinkedProfessionals: true,
-  noProgressAnalytics: false, // HAS progress analytics
 };
 
 const defaultFeatureAccessGezinsGids: Record<string, boolean> = {
-  ...defaultFeatureAccessCoachingTools,
+  ...defaultFeatureAccessCoachingTools, // Inherits all from Coaching & Tools
   childProgressTracking: true,
   familyInsights: true,
-  max3ChildrenIncluded: true,
+  max3ChildrenIncluded: true, // Example of a specific Gezins Gids feature
+  // Other Gezins Gids specific features can be set to true here
 };
 
 const initialDefaultPlansForWelcome: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     featureAccess: defaultFeatureAccessFree,
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: defaultFeatureAccessCoachingTools,
-    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
-  },
-   {
-    id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessCoachingTools, yearlyDiscount15: true},
-    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
-  },
-  {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete ondersteuning voor het hele gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     featureAccess: defaultFeatureAccessGezinsGids,
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
   {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {...defaultFeatureAccessGezinsGids, yearlyDiscount15: true},
-    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
-  },
-   {
-    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { // All base 10 features from image are true
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: true, // "Geen voortgangsanalytics" is AAN
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alle features en ongelimiteerd kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: { 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // All true for premium
+      noProgressAnalytics: false, // Explicitly ensure analytics is on for premium
     },
-    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+    active: true, trialPeriodDays: 14, maxChildren: 4, // Image shows "Tot 4 kinderen inbegrepen"
+    isPopular: false, 
   },
 ];
 
@@ -159,14 +149,14 @@ function OuderWelcomePageContent() {
         ALL_APP_FEATURES.forEach(appFeature => {
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
             ? plan.featureAccess[appFeature.id] 
-            : false; // Ensures all features from ALL_APP_FEATURES are present, defaulting to false
+            : false;
         });
         return {
             ...plan,
             featureAccess: migratedFeatureAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
             maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
-            isPopular: typeof plan.isPopular === 'boolean' ? plan.isPopular : false,
+            isPopular: plan.isPopular ?? false, // Ensure isPopular defaults to false if not present
         };
     };
 
@@ -242,7 +232,7 @@ function OuderWelcomePageContent() {
         description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
         contentHeader: "Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
         contentSteps: [
-            `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie op [Datum, Tijdstip van registratie].`,
+            `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie.`,
             "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
         ],
     };
@@ -342,140 +332,157 @@ function OuderWelcomePageContent() {
             </Alert>
         )}
         
-        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
-          {sortedActiepunten.map((item) => {
-             const isDisabled = !hasChosenPlan && !["bekijk-abonnementen", "belangrijke-voorwaarden"].includes(item.id);
-            return (
-            <AccordionItem
-              key={item.id}
-              value={item.id}
-              className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl"
-              disabled={isDisabled}
-            >
-              <AccordionTrigger 
-                className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+        <TooltipProvider>
+          <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
+            {sortedActiepunten.map((item) => {
+              const isDisabled = !hasChosenPlan && !["bekijk-abonnementen", "belangrijke-voorwaarden"].includes(item.id);
+              return (
+              <AccordionItem
+                key={item.id}
+                value={item.id}
+                className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl"
                 disabled={isDisabled}
               >
-                <div className="flex items-center gap-3">
-                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
-                    {item.stepNumber}
-                  </div>
-                  {item.title}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-6 pt-0">
-                <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
-                {item.contentHeader && <p className="text-sm font-medium text-foreground mb-4">{item.contentHeader}</p>}
-                
-                {item.id === "belangrijke-voorwaarden" && item.contentSteps && (
-                  <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                    {item.contentSteps.map((step, i) => <p key={i}>{step}</p>)}
-                     <div className="flex flex-col sm:flex-row gap-2 mt-3">
-                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                         <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                <AccordionTrigger 
+                  className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+                  disabled={isDisabled}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
+                      {item.stepNumber}
                     </div>
+                    {item.title}
                   </div>
-                )}
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-0">
+                  <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                  {item.contentHeader && <p className="text-sm font-medium text-foreground mb-4">{item.contentHeader}</p>}
+                  
+                  {item.id === "belangrijke-voorwaarden" && item.contentSteps && (
+                    <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                      {item.contentSteps.map((step, i) => <p key={i}>{step}</p>)}
+                      <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                          <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                          <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                          <Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                      </div>
+                    </div>
+                  )}
 
-                {item.id === "voeg-kind-toe" ? (
-                  <AddChildForm
-                    key={addChildFormKey} 
-                    onSave={handleSaveChildOnWelcome}
-                    onCancel={() => { /* Blijf in het accordeon */ }}
-                  />
-                ) : item.id === "bekijk-abonnementen" ? (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {availablePlans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once')).map(plan => { 
-                            const PlanIcon = getPlanIcon(plan.id);
-                            const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.active && yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
-                            const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
-                            const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
-                            
-                            const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
-                              (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
-                            );
-                            const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
-                            const hasMoreFeaturesThanDisplayed = activeFeaturesForPlan.length > MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME;
+                  {item.id === "voeg-kind-toe" ? (
+                    <AddChildForm
+                      key={addChildFormKey} 
+                      onSave={handleSaveChildOnWelcome}
+                      onCancel={() => { /* Blijf in het accordeon */ }}
+                    />
+                  ) : item.id === "bekijk-abonnementen" ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {availablePlans.filter(p => p.active && (p.billingInterval === 'month' || p.billingInterval === 'once')).map(plan => { 
+                              const PlanIcon = getPlanIcon(plan.id);
+                              const yearlyEquivalentPlan = plan.billingInterval === 'month' ? availablePlans.find(yp => yp.active && yp.billingInterval === 'year' && yp.id.replace('_yearly', '_monthly') === plan.id.replace('_monthly', '_monthly')) : undefined;
+                              const monthlyEq = yearlyEquivalentPlan ? getMonthlyEquivalent(yearlyEquivalentPlan.price, 'year') : null;
+                              const savings = yearlyEquivalentPlan ? getYearlySavings(plan.price, yearlyEquivalentPlan.price) : null;
+                              
+                              const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                                (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
+                              );
+                              const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
+                              const hiddenFeatures = activeFeaturesForPlan.slice(MAX_FEATURES_TO_DISPLAY_ON_CARD_WELCOME);
+                              const hasMoreFeaturesThanDisplayed = hiddenFeatures.length > 0;
 
-                            return (
-                            <Card key={plan.id} className={cn(
-                                "flex flex-col text-center transition-all duration-200 border-2",
-                                plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border",
-                                planParam === plan.id ? (plan.isPopular ? "ring-2 ring-primary/50 shadow-2xl scale-105" : "border-primary ring-2 ring-primary/30 shadow-2xl scale-105") : "hover:shadow-lg"
-                            )}>
-                                <CardHeader className="pb-2">
-                                    <PlanIcon className="mx-auto h-8 w-8 text-primary mb-2"/>
-                                    <CardTitle className="text-md font-semibold">{plan.name.replace(' - Maandelijks', '')}</CardTitle>
-                                    {plan.price !== undefined && <p className="text-2xl font-bold text-primary">{plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}</p>}
-                                    <p className="text-xs font-normal text-muted-foreground -mt-1"> {plan.price === 0 ? 'Proef de kracht' : plan.billingInterval === 'month' ? 'p/gezin/maand' : 'eenmalig'}</p>
-                                    {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
-                                      <p className="text-xs text-green-600 font-medium">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                              return (
+                              <Card key={plan.id} className={cn(
+                                  "flex flex-col text-center transition-all duration-200 border-2",
+                                  plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border",
+                                  planParam === plan.id ? (plan.isPopular ? "ring-2 ring-primary/50 shadow-2xl scale-105" : "border-primary ring-2 ring-primary/30 shadow-2xl scale-105") : "hover:shadow-lg"
+                              )}>
+                                  <CardHeader className="pb-2">
+                                      <PlanIcon className="mx-auto h-8 w-8 text-primary mb-2"/>
+                                      <CardTitle className="text-md font-semibold">{plan.name.replace(' - Maandelijks', '')}</CardTitle>
+                                      {plan.price !== undefined && <p className="text-2xl font-bold text-primary">{plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}</p>}
+                                      <p className="text-xs font-normal text-muted-foreground -mt-1"> {plan.price === 0 ? 'Proef de kracht' : plan.billingInterval === 'month' ? 'p/gezin/maand' : 'eenmalig'}</p>
+                                      {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
+                                        <p className="text-xs text-green-600 font-medium">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                                      )}
+                                  </CardHeader>
+                                  <CardContent className="text-xs text-muted-foreground flex-grow space-y-1.5">
+                                    <p className="mb-2 text-sm">{plan.description}</p>
+                                    <ul className="space-y-1">
+                                      {featuresToDisplayOnCard.map((appFeature) => (
+                                        <li key={appFeature.id} className="flex items-center justify-center gap-1.5">
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                                          <span className="text-xs leading-tight">{appFeature.label}</span>
+                                        </li>
+                                      ))}
+                                      {hasMoreFeaturesThanDisplayed && (
+                                        <li className="text-xs text-muted-foreground/80 text-center pt-0.5">
+                                          <Tooltip delayDuration={300}>
+                                            <TooltipTrigger asChild>
+                                              <span className="cursor-help underline decoration-dashed hover:text-primary">
+                                                ... en {hiddenFeatures.length} andere feature{hiddenFeatures.length > 1 ? 's' : ''}!
+                                              </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="w-56 bg-popover p-2 rounded-md shadow-lg border text-popover-foreground">
+                                              <p className="font-semibold mb-1.5 text-sm">Extra features:</p>
+                                              <ul className="list-disc list-inside space-y-0.5 text-xs">
+                                                {hiddenFeatures.map(hf => <li key={hf.id}>{hf.label}</li>)}
+                                              </ul>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </li>
+                                      )}
+                                      {activeFeaturesForPlan.length === 0 && (
+                                        <li className="text-xs text-muted-foreground/80 text-center pt-0.5">Basisfunctionaliteit.</li>
+                                      )}
+                                    </ul>
+                                    {plan.maxChildren !== undefined && (
+                                        <p className="text-xs text-muted-foreground pt-1.5">
+                                            {plan.maxChildren === 0 ? 'Onbeperkt kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''}`}
+                                        </p>
                                     )}
-                                </CardHeader>
-                                <CardContent className="text-xs text-muted-foreground flex-grow space-y-1.5">
-                                  <p className="mb-2 text-sm">{plan.description}</p>
-                                  <ul className="space-y-1">
-                                    {featuresToDisplayOnCard.map((appFeature) => (
-                                      <li key={appFeature.id} className="flex items-center justify-center gap-1.5">
-                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                                        <span className="text-xs leading-tight">{appFeature.label}</span>
-                                      </li>
-                                    ))}
-                                    {hasMoreFeaturesThanDisplayed && (
-                                      <li className="text-xs text-muted-foreground/80 text-center pt-0.5">... en meer!</li>
-                                    )}
-                                    {activeFeaturesForPlan.length === 0 && (
-                                      <li className="text-xs text-muted-foreground/80 text-center pt-0.5">Basisfunctionaliteit.</li>
-                                    )}
-                                  </ul>
-                                  {plan.maxChildren !== undefined && (
-                                      <p className="text-xs text-muted-foreground pt-1.5">
-                                          {plan.maxChildren === 0 ? 'Onbeperkt kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''}`}
-                                      </p>
+                                  </CardContent>
+                                  <CardFooter className="pt-3 pb-4">
+                                      <Button 
+                                        size="sm" 
+                                        className="w-full" 
+                                        variant={planParam === plan.id ? (plan.id === 'free_start' ? "default" : "default") : "outline"}
+                                        onClick={() => handlePlanCTAClick(plan.id)}
+                                      >
+                                        {planParam === plan.id ? (plan.id === 'free_start' ? "Gratis Gekozen" : "Bevestig Keuze") : "Kies dit Plan"}
+                                      </Button>
+                                  </CardFooter>
+                                  {yearlyEquivalentPlan && (
+                                      <div className="text-center text-xs p-2 border-t">
+                                          <Button variant="link" className="p-0 h-auto text-xs text-primary" onClick={() => handlePlanCTAClick(yearlyEquivalentPlan.id)}>
+                                              Ook jaarlijks: €{yearlyEquivalentPlan.price.toFixed(2)} (${monthlyEq ? `€${monthlyEq}/mnd` : ''})
+                                              {savings && parseFloat(savings) > 0 && <span className="text-accent font-semibold ml-1">- bespaar €{savings}</span>}
+                                          </Button>
+                                      </div>
                                   )}
-                                </CardContent>
-                                <CardFooter className="pt-3 pb-4">
-                                    <Button 
-                                      size="sm" 
-                                      className="w-full" 
-                                      variant={planParam === plan.id ? (plan.id === 'free_start' ? "default" : "default") : "outline"}
-                                      onClick={() => handlePlanCTAClick(plan.id)}
-                                    >
-                                      {planParam === plan.id ? (plan.id === 'free_start' ? "Gratis Gekozen" : "Bevestig Keuze") : "Kies dit Plan"}
-                                    </Button>
-                                </CardFooter>
-                                {yearlyEquivalentPlan && (
-                                    <div className="text-center text-xs p-2 border-t">
-                                        <Button variant="link" className="p-0 h-auto text-xs text-primary" onClick={() => handlePlanCTAClick(yearlyEquivalentPlan.id)}>
-                                            Ook jaarlijks: €{yearlyEquivalentPlan.price.toFixed(2)} (${monthlyEq ? `€${monthlyEq}/mnd` : ''})
-                                            {savings && parseFloat(savings) > 0 && <span className="text-accent font-semibold ml-1">- bespaar €{savings}</span>}
-                                        </Button>
-                                    </div>
-                                )}
-                            </Card>
-                        );
-                       })}
+                              </Card>
+                          );
+                        })}
+                      </div>
+                      <Button variant="link" asChild className="p-0 h-auto mt-4">
+                          <Link href="/pricing">Bekijk alle details en jaaropties</Link>
+                      </Button>
                     </div>
-                     <Button variant="link" asChild className="p-0 h-auto mt-4">
-                        <Link href="/pricing">Bekijk alle details en jaaropties</Link>
-                    </Button>
-                  </div>
-                ) : (
-                  item.link && item.linkText && (
-                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}>
-                      <Link href={isDisabled ? '#' : item.link}>
-                        {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  )
-                )}
-              </AccordionContent>
-            </AccordionItem>
-            );
-          })}
-        </Accordion>
+                  ) : (
+                    item.link && item.linkText && (
+                      <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}>
+                        <Link href={isDisabled ? '#' : item.link}>
+                          {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    )
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </TooltipProvider>
         
         <div className="flex flex-col items-center gap-3 mt-10">
            <Button 
@@ -503,3 +510,4 @@ export default function OuderWelcomePage() {
   );
 }
     
+

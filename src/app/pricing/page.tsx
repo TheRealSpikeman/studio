@@ -7,87 +7,115 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks } from 'lucide-react'; // Added ShieldCheck
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; 
 import { ALL_APP_FEATURES } from '@/app/dashboard/admin/subscription-management/page';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 // Initial default plans (will be overridden by localStorage if available)
+// Updated to match the image structure: Gratis Start, Gezin Plan - Maandelijks, Premium Plan - Maandelijks
 const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht van zelfinzicht. Perfect om te ontdekken hoe MindNavigator werkt.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', description: 'Proef de kracht', price: 0, currency: 'EUR', billingInterval: 'once',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])), // All false by default
       startAssessment: true,
       basicReflectionToolLimited: true,
-      accountManagement: true,
-      noProgressAnalytics: true,
     },
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', description: 'Volledige digitale coaching, alle tools en ongelimiteerd kinderen per gezin.', price: 3.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { 
+    id: 'family_guide_monthly', name: 'Gezin Plan - Maandelijks', description: 'Slechts €0,13 per dag voor uitgebreide tools!', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: { // Features for Gezins Gids - Maandelijks
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
-      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false, 
-      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, communicationWithLinkedProfessionals: true,
-    },
-    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
-  },
-   {
-    id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', description: 'Dezelfde complete digitale coaching en tools, met jaarkorting.', price: 40.70, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
-      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
-      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, communicationWithLinkedProfessionals: true,
-      yearlyDiscount15: true, 
-    },
-    active: true, trialPeriodDays: 180, maxChildren: 0, isPopular: false,
-  },
-  {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Alle coaching & tools, plus specifieke gezinsfunctionaliteiten en tot 3 kinderen.', price: 9.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
-      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
-      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+      startAssessment: true, 
+      weeklyMotivationEmail: true, 
+      allReflectionToolsUnlimited: true, 
+      interactiveJournal: true, 
+      planningFocusTools: true, 
+      motivationTracking: true,
+      extensivePdfReports: true, 
+      childProgressTracking: true, 
+      familyInsights: true, 
+      communicationWithLinkedProfessionals: true, 
+      accountManagement: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
-  {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 101.90, currency: 'EUR', billingInterval: 'year',
-    featureAccess: {
+   { // Yearly version of Gezin Plan - Maandelijks
+    id: 'family_guide_yearly', name: 'Gezin Plan - Jaarlijks', description: 'Alle voordelen van Gezins Gids Maandelijks, met een aantrekkelijke jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year', // 19.99 * 12 * 0.8 = 191.90, example image uses 191.88 (saving 48.00 from 239.88)
+    featureAccess: { 
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, basicReflectionToolLimited: true, sampleCoachingContent: true, basicPdfOverview: true,
-      browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, accountManagement: true, noProgressAnalytics: false,
-      dailyPersonalizedCoaching: true, allReflectionToolsUnlimited: true, interactiveJournal: true, planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      directProfessionalCommunication: true, reviewRatingSystem: true, sessionPlanningReminders: true, childProgressTracking: true, familyInsights: true, max3ChildrenIncluded: true, communicationWithLinkedProfessionals: true,
+      startAssessment: true, 
+      weeklyMotivationEmail: true, 
+      allReflectionToolsUnlimited: true, 
+      interactiveJournal: true, 
+      planningFocusTools: true, 
+      motivationTracking: true,
+      extensivePdfReports: true, 
+      childProgressTracking: true, 
+      familyInsights: true, 
+      communicationWithLinkedProfessionals: true, 
+      accountManagement: true,
       yearlyDiscount15: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
-   {
-    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en onbeperkt kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    featureAccess: { 
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: true,
+  {
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: '€0,33 per dag - minder dan een kopje koffie!', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    featureAccess: { // All 10 base features from image are true
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true,
+      weeklyMotivationEmail: true,
+      basicReflectionToolLimited: true, // Corresponds to "Basis zelfreflectie tool (beperkt)" in image for Premium
+      sampleCoachingContent: true,
+      basicPdfOverview: true,
+      browseProfessionals: true,
+      viewProfessionalRates: true,
+      dailyPersonalizedCoaching: true, // Assuming this is part of "en meer"
+      allReflectionToolsUnlimited: true, // Assuming this is part of "en meer"
+      interactiveJournal: true, // Assuming this is part of "en meer"
+      // Add other premium features here if the 10 from image is a subset
+      accountManagement: true,
+      noProgressAnalytics: false, // Premium should have analytics
+      extensiveAssessmentAnalysis: true, // Example of a premium feature
+      aiPoweredInsights: true, // Example of a premium feature
     },
-    active: true, trialPeriodDays: 14, maxChildren: 0, isPopular: false,
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
+  },
+  { // Yearly version of Premium Plan
+    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alle voordelen van Premium Plan, met 15% jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year', // 39.99 * 12 * 0.75 for 25% off? Image says 360, saving 119.88 from 479.88 (so approx 25% off)
+    featureAccess: { 
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
+      startAssessment: true,
+      weeklyMotivationEmail: true,
+      basicReflectionToolLimited: true,
+      sampleCoachingContent: true,
+      basicPdfOverview: true,
+      browseProfessionals: true,
+      viewProfessionalRates: true,
+      dailyPersonalizedCoaching: true, 
+      allReflectionToolsUnlimited: true, 
+      interactiveJournal: true, 
+      accountManagement: true,
+      noProgressAnalytics: false, 
+      extensiveAssessmentAnalysis: true, 
+      aiPoweredInsights: true, 
+      yearlyDiscount15: true, // Assuming 15% is the standard yearly discount text
+    },
+    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false, 
   },
 ];
 
 const faqItems = [
   {
     question: "Wat is het verschil tussen de plannen?",
-    answer: "Gratis: Proef de basis digitale tools (beperkt). Coaching & Tools: Complete digitale ondersteuning & tools voor onbeperkt aantal kinderen. Gezins Gids: Alles van Coaching & Tools, plus specifieke gezinsfunctionaliteiten voor tot 3 kinderen (met optie voor meer).",
+    answer: "Gratis: Proef de basis digitale tools (beperkt). Gezins Gids: Complete digitale ondersteuning & tools voor het gezin (tot 3 kinderen), inclusief ouder-dashboard. Premium Plan: Alles van Gezins Gids, plus extra premium features en tot 4 kinderen (of meer, afhankelijk van configuratie).",
   },
   {
     question: "Zijn 1-op-1 coaching sessies inbegrepen?",
@@ -99,7 +127,7 @@ const faqItems = [
   },
   {
     question: "Hoeveel kinderen kan ik toevoegen?",
-    answer: "Gratis Start: 1 kind. Coaching & Tools: Onbeperkt. Gezins Gids: Tot 3 kinderen (uitbreidbaar tegen meerprijs). Heeft u meer dan 3 kinderen en wilt u het Gezins Gids plan? Neem dan contact op voor een aangepast aanbod.",
+    answer: "Gratis Start: 1 kind. Gezins Gids: Tot 3 kinderen (kan verschillen per exacte planconfiguratie). Premium Plan: Meestal 4 of meer, afhankelijk van de exacte configuratie.",
   },
   {
     question: "Hoe werkt de jaarlijkse betaling?",
@@ -149,13 +177,13 @@ export default function PricingPage() {
           ALL_APP_FEATURES.forEach(appFeature => {
             migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
               ? plan.featureAccess[appFeature.id] 
-              : false; // Default to false if feature not in stored plan
+              : false; 
           });
           return {
             ...plan,
             featureAccess: migratedFeatureAccess,
-            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)),
-            maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))),
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : (plan.id.includes('coaching_tools') ? 180 : 14)), // Fallback logic retained
+            maxChildren: plan.maxChildren ?? (plan.id.includes('coaching_tools') ? 0 : (plan.id.includes('family_guide') ? 3 : (plan.price === 0 ? 1 : 0))), // Fallback logic retained
             isPopular: plan.isPopular ?? false, // Default to false if not present
           };
         });
@@ -253,101 +281,122 @@ export default function PricingPage() {
 
         <section className="pb-16 md:pb-24">
           <div className="container">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-              {displayPlans.map((plan) => {
-                const Icon = getPlanIcon(plan.id);
-                const yearlyOptionText = getPlanYearlyOptionText(plan);
-                const yearlySavingsHighlight = getPlanYearlySavingsHighlight(plan);
-                const yearlyPlanId = getYearlyPlanIdForMonthly(plan.id);
+            <TooltipProvider>
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                {displayPlans.map((plan) => {
+                  const Icon = getPlanIcon(plan.id);
+                  const yearlyOptionText = getPlanYearlyOptionText(plan);
+                  const yearlySavingsHighlight = getPlanYearlySavingsHighlight(plan);
+                  const yearlyPlanId = getYearlyPlanIdForMonthly(plan.id);
 
-                const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
-                  (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
-                );
-                const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD);
-                const hasMoreFeaturesThanDisplayed = activeFeaturesForPlan.length > MAX_FEATURES_TO_DISPLAY_ON_CARD;
+                  const activeFeaturesForPlan = ALL_APP_FEATURES.filter(
+                    (appFeature) => plan.featureAccess && plan.featureAccess[appFeature.id]
+                  );
+                  const featuresToDisplayOnCard = activeFeaturesForPlan.slice(0, MAX_FEATURES_TO_DISPLAY_ON_CARD);
+                  const hiddenFeatures = activeFeaturesForPlan.slice(MAX_FEATURES_TO_DISPLAY_ON_CARD);
+                  const hasMoreFeaturesThanDisplayed = hiddenFeatures.length > 0;
 
-                return (
-                <Card
-                  key={plan.id}
-                  className={cn(
-                    `flex flex-col shadow-lg relative border-2 hover:shadow-xl transition-all duration-300`,
-                    plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border"
-                  )}
-                >
-                  {plan.isPopular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
-                        <Star className="h-4 w-4 fill-current" /> Meest gekozen
-                      </span>
-                    </div>
-                  )}
-                  <CardHeader className="text-center pt-10">
-                    <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
-                    <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
-                    <p className="text-4xl font-bold text-primary">
-                      {plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}
-                    </p>
-                    <p className="text-sm font-normal text-muted-foreground -mt-1"> {getPlanPriceDetail(plan)}</p>
-                    {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
-                         <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                  return (
+                  <Card
+                    key={plan.id}
+                    className={cn(
+                      `flex flex-col shadow-lg relative border-2 hover:shadow-xl transition-all duration-300`,
+                      plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border"
                     )}
-                    {plan.id === "family_guide_monthly" && (
-                        <p className="text-xs text-green-600 font-medium mt-1">€0,33 per dag - minder dan een kopje koffie!</p>
-                    )}
-                    {plan.id === "coaching_tools_monthly" && (
-                        <p className="text-xs text-green-600 font-medium mt-1">Slechts €0,13 per dag voor uitgebreide tools!</p>
-                    )}
-                  </CardHeader>
-                  <CardContent className="flex-grow space-y-3 mt-1">
-                    <ul className="space-y-2.5">
-                       {featuresToDisplayOnCard.map((appFeature) => (
-                            <li key={appFeature.id} className="flex items-start text-left">
-                            <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                            <span className="text-sm leading-snug text-muted-foreground">
-                                {appFeature.label}
-                            </span>
-                            </li>
-                        ))}
-                        {hasMoreFeaturesThanDisplayed && (
-                           <li className="text-xs text-muted-foreground text-center pt-1">... en meer!</li>
-                        )}
-                         {activeFeaturesForPlan.length === 0 && (
-                             <li className="text-sm text-muted-foreground text-center pt-1">Basisfunctionaliteit inbegrepen.</li>
-                         )}
-                    </ul>
-                     {plan.maxChildren !== undefined && (
-                         <p className="text-xs text-muted-foreground text-center pt-2">
-                            {plan.maxChildren === 0 ? 'Onbeperkt aantal kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''} inbegrepen.`}
-                        </p>
-                     )}
-                  </CardContent>
-                  <CardFooter className="mt-auto pt-5 pb-6 flex flex-col gap-2.5">
-                    <Button
-                      onClick={() => handlePlanSelection(plan.id)}
-                      className="w-full h-12 text-base font-semibold"
-                      variant={plan.isPopular ? 'default' : (plan.id === 'free_start' ? 'outline' : 'secondary')}
-                    >
-                      {plan.id === 'free_start' ? 'Start gratis ontdekking' : `Kies ${plan.name.replace(' - Maandelijks', '')}`}
-                    </Button>
-                    {yearlyOptionText && yearlyPlanId && (
-                      <div className="text-center mt-1.5">
-                        <Button
-                          onClick={() => handlePlanSelection(yearlyPlanId)}
-                          variant="link"
-                          className="h-auto text-xs text-primary py-1 px-2 text-center flex-wrap justify-center items-baseline leading-tight"
-                        >
-                          <span>{yearlyOptionText}</span>
-                          {yearlySavingsHighlight && (
-                            <span className="text-accent font-semibold ml-1">- {yearlySavingsHighlight}</span>
-                          )}
-                        </Button>
+                  >
+                    {plan.isPopular && (
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
+                          <Star className="h-4 w-4 fill-current" /> Meest gekozen
+                        </span>
                       </div>
                     )}
-                  </CardFooter>
-                </Card>
-                );
-              })}
-            </div>
+                    <CardHeader className="text-center pt-10">
+                      <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
+                      <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
+                      <p className="text-4xl font-bold text-primary">
+                        {plan.price === 0 ? 'Gratis' : `€${plan.price.toFixed(2)}`}
+                      </p>
+                      <p className="text-sm font-normal text-muted-foreground -mt-1"> {getPlanPriceDetail(plan)}</p>
+                      {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
+                          <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                      )}
+                      {plan.id === "family_guide_monthly" && (
+                          <p className="text-xs text-green-600 font-medium mt-1">€0,67 per dag - minder dan een kopje koffie!</p>
+                      )}
+                       {plan.id === "premium_family_monthly" && (
+                          <p className="text-xs text-green-600 font-medium mt-1">€1,33 per dag voor ultieme ondersteuning!</p>
+                      )}
+                      {plan.id === "coaching_tools_monthly" && (
+                          <p className="text-xs text-green-600 font-medium mt-1">Slechts €0,13 per dag voor uitgebreide tools!</p>
+                      )}
+                    </CardHeader>
+                    <CardContent className="flex-grow space-y-3 mt-1">
+                      <p className="mb-2 text-sm text-muted-foreground">{plan.description}</p>
+                      <ul className="space-y-2.5">
+                        {featuresToDisplayOnCard.map((appFeature) => (
+                              <li key={appFeature.id} className="flex items-start text-left">
+                              <CheckCircle2 className="mr-2.5 mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                              <span className="text-sm leading-snug text-muted-foreground">
+                                  {appFeature.label}
+                              </span>
+                              </li>
+                          ))}
+                          {hasMoreFeaturesThanDisplayed && (
+                            <li className="text-xs text-muted-foreground text-center pt-1">
+                              <Tooltip delayDuration={300}>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help underline decoration-dashed hover:text-primary">
+                                    ... en {hiddenFeatures.length} andere feature{hiddenFeatures.length > 1 ? 's' : ''}!
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent className="w-64 bg-popover p-3 rounded-md shadow-lg border text-popover-foreground">
+                                  <p className="font-semibold mb-2">Extra features:</p>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    {hiddenFeatures.map(hf => <li key={hf.id}>{hf.label}</li>)}
+                                  </ul>
+                                </TooltipContent>
+                              </Tooltip>
+                            </li>
+                          )}
+                          {activeFeaturesForPlan.length === 0 && (
+                              <li className="text-sm text-muted-foreground text-center pt-1">Basisfunctionaliteit inbegrepen.</li>
+                          )}
+                      </ul>
+                      {plan.maxChildren !== undefined && (
+                          <p className="text-xs text-muted-foreground text-center pt-2">
+                              {plan.maxChildren === 0 ? 'Onbeperkt aantal kinderen' : `Tot ${plan.maxChildren} kind${plan.maxChildren !== 1 ? 'eren' : ''} inbegrepen.`}
+                          </p>
+                      )}
+                    </CardContent>
+                    <CardFooter className="mt-auto pt-5 pb-6 flex flex-col gap-2.5">
+                      <Button
+                        onClick={() => handlePlanSelection(plan.id)}
+                        className="w-full h-12 text-base font-semibold"
+                        variant={plan.isPopular ? 'default' : (plan.id === 'free_start' ? 'outline' : 'secondary')}
+                      >
+                        {plan.id === 'free_start' ? 'Start gratis ontdekking' : `Kies ${plan.name.replace(' - Maandelijks', '')}`}
+                      </Button>
+                      {yearlyOptionText && yearlyPlanId && (
+                        <div className="text-center mt-1.5">
+                          <Button
+                            onClick={() => handlePlanSelection(yearlyPlanId)}
+                            variant="link"
+                            className="h-auto text-xs text-primary py-1 px-2 text-center flex-wrap justify-center items-baseline leading-tight"
+                          >
+                            <span>{yearlyOptionText}</span>
+                            {yearlySavingsHighlight && (
+                              <span className="text-accent font-semibold ml-1">- {yearlySavingsHighlight}</span>
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </CardFooter>
+                  </Card>
+                  );
+                })}
+              </div>
+            </TooltipProvider>
           </div>
         </section>
 
@@ -443,3 +492,4 @@ export default function PricingPage() {
   );
 }
     
+
