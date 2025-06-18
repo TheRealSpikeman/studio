@@ -143,18 +143,39 @@ function OuderWelcomePageContent() {
   useEffect(() => {
     setIsClient(true);
     const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    let loadedPlans: SubscriptionPlan[] = [];
+
+    const ensureFullFeatureAccess = (plan: SubscriptionPlan): SubscriptionPlan => {
+        const migratedFeatureAccess: Record<string, boolean> = {};
+        ALL_APP_FEATURES.forEach(appFeature => {
+            migratedFeatureAccess[appFeature.id] = (plan.featureAccess && typeof plan.featureAccess[appFeature.id] === 'boolean') 
+            ? plan.featureAccess[appFeature.id] 
+            : false;
+        });
+        return {
+            ...plan,
+            featureAccess: migratedFeatureAccess,
+            trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
+            maxChildren: plan.maxChildren ?? (plan.id.includes('family') ? 3 : (plan.price === 0 ? 1 : 0)),
+            isPopular: plan.isPopular ?? false,
+        };
+    };
+
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        setAvailablePlans(parsedPlans.filter(p => p.active));
+        loadedPlans = parsedPlans.map(ensureFullFeatureAccess);
       } catch (e) {
-        setAvailablePlans(initialDefaultPlansForWelcome.filter(p => p.active));
+        console.error("Error parsing plans from localStorage on welcome page, using defaults", e);
+        loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
+        localStorage.setItem('subscriptionPlans', JSON.stringify(initialDefaultPlansForWelcome)); 
       }
     } else {
-      setAvailablePlans(initialDefaultPlansForWelcome.filter(p => p.active));
-      // Save defaults if nothing is in localStorage yet
+      loadedPlans = initialDefaultPlansForWelcome.map(ensureFullFeatureAccess);
       localStorage.setItem('subscriptionPlans', JSON.stringify(initialDefaultPlansForWelcome));
     }
+    
+    setAvailablePlans(loadedPlans.filter(p => p.active));
     setIsLoadingPlans(false);
   }, []);
 
@@ -198,11 +219,7 @@ function OuderWelcomePageContent() {
 
     const abonnementActiepuntData: Omit<Actiepunt, 'stepNumber' | 'title'> = {
       id: "bekijk-abonnementen",
-      description: hasChosenPlan && chosenPlanDetails
-        ? chosenPlanDetails.id === 'free_start' 
-          ? `U start met het gratis plan waarmee uw kind een basis assessment kan doen. Dit plan is voor max. ${chosenPlanDetails.maxChildren === 1 ? '1 kind' : `${chosenPlanDetails.maxChildren} kinderen`}. Overweeg een upgrade voor volledige toegang.`
-          : `U heeft interesse getoond in het '${chosenPlanDetails.name}' abonnement. Dit plan stelt u in staat om max. ${chosenPlanDetails.maxChildren === 0 ? 'een onbeperkt aantal' : chosenPlanDetails.maxChildren} kinderen aan te sluiten. Bevestig hieronder uw keuze of selecteer een ander plan.`
-        : "Kies het plan dat het beste bij uw gezin past. Elk betaald plan start met een gratis proefperiode. Dit activeert de overige instellingen.",
+      description: "Kies een abonnement om te starten. Met 'Gratis Ontdekking' kan uw kind de basisassessment doen. Voor volledige coaching en tools is een betaald plan nodig.",
       contentHeader: hasChosenPlan && chosenPlanDetails
         ? chosenPlanDetails.id === 'free_start' 
           ? "U kunt hieronder nog steeds kiezen voor een uitgebreider betaald plan, of doorgaan met de gratis optie."
@@ -212,8 +229,8 @@ function OuderWelcomePageContent() {
     
     const voorwaardenActiepuntData: Omit<Actiepunt, 'stepNumber' | 'title'> = {
         id: "belangrijke-voorwaarden",
-        description: "Bekijk de kernpunten van onze voorwaarden en privacybeleid. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
-        contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
+        description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
+        contentHeader: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten. Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
         contentSteps: [
             `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie op [Datum, Tijdstip van registratie].`,
             "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
@@ -222,16 +239,8 @@ function OuderWelcomePageContent() {
 
     const andereActiepuntenData: Omit<Actiepunt, 'stepNumber' | 'title'>[] = [
       {
-        id: "privacy-delen",
-        description: "Bekijk en beheer hier per kind de deelinstellingen voor resultaten en communicatie. Lees ook onze tips over respectvolle communicatie en het waarborgen van autonomie.",
-        link: "/dashboard/ouder/privacy-instellingen",
-        linkText: "Beheer Privacy & Delen",
-        buttonVariant: 'outline',
-        contentHeader: hasChosenPlan ? "Stel hier de privacyvoorkeuren in. Deze instellingen bepalen welke informatie zichtbaar is voor u en, indien van toepassing, voor gekoppelde tutors of coaches." : alertMessage,
-      },
-      {
         id: "ken-je-kind",
-        description: 'Krijg een eerste indruk van de mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen (optioneel, ca. 5 min).',
+        description: 'Doe een korte test (optioneel, ca. 5 min) om een eerste indruk te krijgen van mogelijke neurodivergente kenmerken van uw kind en hoe u hen kunt ondersteunen.',
         link: "/quiz/ouder-symptomen-check",
         linkText: 'Start "Ken je Kind" Test',
         buttonVariant: 'default',
@@ -241,6 +250,14 @@ function OuderWelcomePageContent() {
         id: "voeg-kind-toe",
         description: "Maak profielen aan voor uw kinderen. Na het toevoegen ontvangt uw kind een e-mail om het eigen account te activeren en te koppelen. Hierna kunt u de voortgang volgen, privacy-instellingen beheren en eventueel begeleiders koppelen. Deze stap is essentieel om de MindNavigator tools voor uw kind(eren) te kunnen gebruiken.",
         contentHeader: hasChosenPlan ? "Na het toevoegen ontvangt uw kind een e-mail om het account te activeren. Daarna kunt u de voortgang volgen en instellingen beheren." : alertMessage,
+      },
+      {
+        id: "privacy-delen",
+        description: "Bekijk en beheer hier per kind de deelinstellingen voor resultaten en communicatie. Lees ook onze tips over respectvolle communicatie en het waarborgen van autonomie.",
+        link: "/dashboard/ouder/privacy-instellingen",
+        linkText: "Beheer Privacy & Delen",
+        buttonVariant: 'outline',
+        contentHeader: hasChosenPlan ? "Stel hier de privacyvoorkeuren in. Deze instellingen bepalen welke informatie zichtbaar is voor u en, indien van toepassing, voor gekoppelde tutors of coaches." : alertMessage,
       },
     ];
     
@@ -330,7 +347,7 @@ function OuderWelcomePageContent() {
                 disabled={isDisabled}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
+                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
                     {item.stepNumber}
                   </div>
                   {item.title}
@@ -383,7 +400,7 @@ function OuderWelcomePageContent() {
                                 <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                   <p className="mb-2">{plan.description}</p>
                                   {ALL_APP_FEATURES.slice(0,3).map((appFeature) => {
-                                    const hasFeature = plan.featureAccess[appFeature.id];
+                                    const hasFeature = plan.featureAccess && plan.featureAccess[appFeature.id];
                                     return (
                                       <p key={appFeature.id} className={cn("flex items-center justify-center gap-1.5", hasFeature ? 'text-green-600' : 'text-muted-foreground/70 line-through')}>
                                         {hasFeature ? <CheckCircle2 className="h-3.5 w-3.5"/> : <XCircle className="h-3.5 w-3.5"/>}
@@ -460,3 +477,4 @@ export default function OuderWelcomePage() {
   );
 }
     
+
