@@ -87,9 +87,7 @@ export function Footer() {
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
               Help tieners 12–18 jaar met hun huiswerk, bepaal je eigen tarief en uren.
             </p>
-            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
-              <Link href="/word-tutor">Meer informatie & Aanmelden</Link>
-            </Button>
+            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0"><Link href="/word-tutor">Meer informatie & Aanmelden</Link></Button>
           </div>
 
         </div>

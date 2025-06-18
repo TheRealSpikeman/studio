@@ -29,21 +29,18 @@ export function Header() {
             <Button variant="ghost" asChild key={link.href}><Link href={link.href}>{link.label}</Link></Button>
           ))}
           <Button variant="link" asChild><Link href="/login">Inloggen</Link></Button>
-          <Button asChild><Link href="/signup">Aanmelden</Link></Button>
+          <Button asChild><Link href="/quizzes">Aanmelden</Link></Button>
         </nav>
         {/* Mobile Navigation */}
         <div className="md:hidden">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Open menu</span>
-              </Button></DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><Menu className="h-6 w-6" /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               {navLinks.map((link) => (
                 <DropdownMenuItem key={link.href} asChild><Link href={link.href}>{link.label}</Link></DropdownMenuItem>
               ))}
               <DropdownMenuItem asChild><Link href="/login">Inloggen</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/signup" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/quizzes" className="font-semibold text-primary">Aanmelden</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
