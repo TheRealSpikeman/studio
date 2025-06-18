@@ -6,10 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, Edit } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, Edit, Users, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils'; // Import cn utility
+import { Badge } from '@/components/ui/badge'; // Import Badge
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -18,19 +21,52 @@ const currentParent = {
 };
 
 interface PlanDisplayDetails {
+  id: string;
   name: string;
-  maxChildrenText?: string;
+  shortDescription: string;
+  icon: React.ElementType;
+  ctaText: string;
+  ctaBaseLink: string;
+  colorClass?: string;
+  price?: string; // Optioneel voor de weergave
+  features?: string[]; // Kernfeatures voor weergave
 }
 
-const planDetailsMap: Record<string, PlanDisplayDetails> = {
-  coaching_tools_monthly: { name: "Coaching & Tools - Maandelijks", maxChildrenText: "1 kind" },
-  coaching_tools_yearly: { name: "Coaching & Tools - Jaarlijks", maxChildrenText: "1 kind" },
-  family_guide_monthly: { name: "Gezins Gids - Maandelijks", maxChildrenText: "tot 3 kinderen" },
-  family_guide_yearly: { name: "Gezins Gids - Jaarlijks", maxChildrenText: "tot 3 kinderen" },
-  premium_family_monthly: { name: "Premium Familie - Maandelijks", maxChildrenText: "een onbeperkt aantal kinderen" }, // Nieuw toegevoegd
-  premium_family_yearly: { name: "Premium Familie - Jaarlijks", maxChildrenText: "een onbeperkt aantal kinderen" }, // Nieuw toegevoegd
-  free_start: { name: "Gratis Ontdekking", maxChildrenText: "1 kind (voor de basistool)" }
-};
+const welcomePagePlans: PlanDisplayDetails[] = [
+  {
+    id: 'free_start',
+    name: 'Gratis Ontdekking',
+    icon: Sparkles,
+    shortDescription: 'Basis zelfreflectie tool & PDF overzicht.',
+    price: 'Gratis',
+    features: ['Start-assessment', 'Basis PDF overzicht'],
+    ctaText: 'Start gratis',
+    ctaBaseLink: '/quizzes',
+    colorClass: "border-gray-300 hover:border-gray-400",
+  },
+  {
+    id: 'family_guide_monthly',
+    name: 'Familie Coaching',
+    icon: Users,
+    shortDescription: 'Coaching, alle tools, en tot 3 kinderen.',
+    price: '€19,99/mnd',
+    features: ['Alle tools & coaching', 'Tot 3 kinderen', 'Ouder Dashboard'],
+    ctaText: 'Kies Familie Coaching',
+    ctaBaseLink: '/signup',
+    colorClass: "border-primary hover:border-primary/80",
+  },
+  {
+    id: 'premium_family_monthly',
+    name: 'Premium Familie',
+    icon: Star,
+    shortDescription: 'Alles van Familie Coaching, plus premium features en unlimited kinderen.',
+    price: '€39,99/mnd',
+    features: ['Alles van Familie Coaching', 'Premium features & support', 'Unlimited kinderen'],
+    ctaText: 'Kies Premium',
+    ctaBaseLink: '/signup',
+    colorClass: "border-accent hover:border-accent/80",
+  },
+];
 
 function OuderWelcomePageContent() {
   const router = useRouter();
@@ -40,7 +76,6 @@ function OuderWelcomePageContent() {
   const [addChildFormKey, setAddChildFormKey] = useState(0);
 
   const planParam = searchParams.get('plan');
-  const planDetails = planParam && planDetailsMap[planParam] ? planDetailsMap[planParam] : null;
 
   useEffect(() => {
     setIsClient(true);
@@ -82,45 +117,21 @@ function OuderWelcomePageContent() {
     },
     {
       id: "bekijk-abonnementen",
-      title: 'Ontdek onze Abonnementen',
-      description: 'Kies het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en 1-op-1 begeleiding. Start met een gratis proefperiode voor elk betaald plan.',
+      title: 'Abonnementen & Toegang',
+      description: `Kies of bevestig het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`,
       icon: CreditCard,
-      link: `/#pricing`,
-      linkText: 'Bekijk Abonnementen & Start Proef',
-      buttonVariant: 'outline' as 'outline',
       disabled: false,
     },
   ];
 
-  const getAbonnementActiepunt = () => {
-    const defaultItem = actiepuntenBasis.find(item => item.id === "bekijk-abonnementen")!;
-    if (planParam && planDetails) {
-      if (planParam === 'free_start') {
-        return {
-          ...defaultItem,
-          title: "U Gebruikt de Gratis Ontdekking",
-          description: `Met het gratis plan kunt u de basis zelfreflectie tool gebruiken. ${planDetails.maxChildrenText ? `Dit plan is voor ${planDetails.maxChildrenText}. ` : ''}Ontdek de uitgebreidere mogelijkheden van onze betaalde plannen.`,
-          linkText: "Bekijk Betaalde Plannen",
-          link: `/#pricing`,
-          buttonVariant: 'outline' as 'outline',
-        };
-      } else {
-        return {
-          ...defaultItem,
-          title: `Activeer uw Gekozen Plan: ${planDetails.name}`,
-          description: `U heeft interesse getoond in het "${planDetails.name}" abonnement. ${planDetails.maxChildrenText ? `Dit plan stelt u in staat om ${planDetails.maxChildrenText} aan te sluiten. ` : ''}Voltooi de activatie om toegang te krijgen tot alle bijbehorende functies voor uw gezin.`,
-          link: `/signup?plan=${planParam}`,
-          linkText: `Activeer ${planDetails.name}`,
-          buttonVariant: 'default' as 'default',
-        };
-      }
+  const handlePlanCTAClick = (planId: string, ctaBaseLink: string) => {
+    if (planId === 'free_start') {
+      router.push(ctaBaseLink);
+    } else {
+      router.push(`${ctaBaseLink}?plan=${planId}`);
     }
-    return defaultItem;
   };
 
-  const aangepasteActiepunten = actiepuntenBasis.map(item => 
-    item.id === "bekijk-abonnementen" ? getAbonnementActiepunt() : item
-  );
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -135,8 +146,8 @@ function OuderWelcomePageContent() {
           Als ouder speelt u een cruciale rol. MindNavigator biedt u de tools en inzichten om uw kind(eren) optimaal te begeleiden. Hier zijn een paar belangrijke eerste stappen:
         </p>
         
-        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10">
-          {aangepasteActiepunten.map((item) => (
+        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={planParam ? "bekijk-abonnementen" : "ken-je-kind"}>
+          {actiepuntenBasis.map((item) => (
             <AccordionItem
               key={item.id}
               value={item.id}
@@ -156,6 +167,52 @@ function OuderWelcomePageContent() {
                     onSave={handleSaveChildOnWelcome}
                     onCancel={() => { /* Blijf in het accordeon, reset wordt afgehandeld door key */ }}
                   />
+                ) : item.id === "bekijk-abonnementen" ? (
+                  <div className="space-y-6">
+                    {planParam && welcomePagePlans.find(p => p.id === planParam) && (
+                        <Alert variant="default" className="bg-green-50 border-green-300 text-green-700">
+                            <CheckCircle2 className="h-5 w-5 !text-green-600" />
+                            <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {welcomePagePlans.find(p => p.id === planParam)?.name}</AlertTitleUi>
+                            <AlertDescUi className="text-green-600">
+                                U kunt dit plan hieronder bevestigen, of een ander plan kiezen.
+                            </AlertDescUi>
+                        </Alert>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {welcomePagePlans.map(plan => (
+                            <Card key={plan.id} className={cn(
+                                "flex flex-col text-center transition-all duration-200",
+                                plan.colorClass,
+                                planParam === plan.id ? "ring-2 ring-primary shadow-2xl scale-105" : "hover:shadow-lg"
+                            )}>
+                                <CardHeader className="pb-2">
+                                    <plan.icon className="mx-auto h-8 w-8 text-primary mb-2"/>
+                                    <CardTitle className="text-md font-semibold">{plan.name}</CardTitle>
+                                    {plan.price && <p className="text-sm font-bold text-primary">{plan.price}</p>}
+                                </CardHeader>
+                                <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
+                                  <p className="mb-2">{plan.shortDescription}</p>
+                                  {plan.features && plan.features.length > 0 && (
+                                    <ul className="list-none p-0 text-left">
+                                      {plan.features.map(f => <li key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0"/>{f}</li>)}
+                                    </ul>
+                                  )}
+                                </CardContent>
+                                <CardFooter className="pt-3">
+                                    <Button 
+                                      size="sm" 
+                                      className="w-full" 
+                                      variant={planParam === plan.id ? "default" : "outline"}
+                                      onClick={() => handlePlanCTAClick(plan.id, plan.ctaBaseLink)}
+                                    >
+                                      {planParam === plan.id ? "Bevestig & Activeer" : plan.ctaText}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center mt-4">1-op-1 begeleidingstarieven variëren per professional en worden apart verrekend.</p>
+                  </div>
                 ) : (
                   item.link && item.linkText && (
                     <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={item.disabled}>
@@ -198,9 +255,9 @@ function OuderWelcomePageContent() {
 
 export default function OuderWelcomePage() {
   return (
-    // Gebruik Suspense hier om de client-side searchParams hook correct te laten werken
     <Suspense fallback={<div>Pagina laden...</div>}>
       <OuderWelcomePageContent />
     </Suspense>
   );
 }
+
