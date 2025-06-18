@@ -25,13 +25,13 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { SubscriptionPlan } from "../page"; 
-import { ALL_APP_FEATURES, type AppFeature } from "../page"; // Import defined features
+import { ALL_APP_FEATURES, type AppFeature } from "../page"; 
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
-  tagline: z.string().optional(), // Nieuw marketing tagline veld
+  tagline: z.string().optional(),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
@@ -267,31 +267,31 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                         <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
                     </Button>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1"> {/* Adjusted gap */}
                     {ALL_APP_FEATURES.map((feature) => (
                         <FormField
                         key={feature.id}
                         control={form.control}
                         name={`featureAccess.${feature.id}`}
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 bg-muted/30 hover:bg-muted/50 transition-colors">
-                            <FormControl>
-                                <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                id={`feature-${feature.id}`}
-                                />
-                            </FormControl>
-                            <div className="space-y-0.5 leading-none">
-                                <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-medium cursor-pointer">
-                                {feature.label}
-                                </FormLabel>
-                                {feature.description && (
-                                <FormDescription className="text-xs text-muted-foreground">
-                                    {feature.description}
-                                </FormDescription>
-                                )}
-                            </div>
+                            <FormItem className="flex flex-row items-start space-x-2.5 py-2"> {/* Adjusted spacing */}
+                                <FormControl className="mt-0.5"> {/* Align checkbox with first line of text */}
+                                    <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    id={`feature-${feature.id}`}
+                                    />
+                                </FormControl>
+                                <div className="space-y-0"> {/* Reduced space between label and description */}
+                                    <FormLabel htmlFor={`feature-${feature.id}`} className="text-sm font-normal cursor-pointer leading-snug"> {/* Adjusted leading */}
+                                    {feature.label}
+                                    </FormLabel>
+                                    {feature.description && (
+                                    <FormDescription className="text-xs text-muted-foreground leading-tight"> {/* Adjusted leading */}
+                                        {feature.description}
+                                    </FormDescription>
+                                    )}
+                                </div>
                             </FormItem>
                         )}
                         />

@@ -15,33 +15,39 @@ import { useToast } from '@/hooks/use-toast';
 export interface AppFeature {
   id: string;
   label: string;
-  description?: string; // Optional description for admin UI
+  description?: string; 
 }
 
-// ALL_APP_FEATURES is now defined here to be easily exportable and usable by other components
+// Updated ALL_APP_FEATURES based on the provided screenshot
 export const ALL_APP_FEATURES: AppFeature[] = [
   { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.' },
   { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie-email', description: 'Regelmatige e-mails met tips en motivatie.' },
   { id: 'basicReflectionToolLimited', label: 'Basis zelfreflectie tool (beperkt)', description: 'Toegang tot een beperkte versie van de basis tool.' },
+
   { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.' },
   { id: 'basicPdfOverview', label: 'Basis PDF overzicht van sterke punten', description: 'Een eenvoudig PDF rapport van de assessment.' },
   { id: 'browseProfessionals', label: 'Browse coaches & tutors (profielen bekijken)', description: 'Mogelijkheid om profielen van professionals te zien.' },
+
   { id: 'viewProfessionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.' },
-  { id: 'bookSessions', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.' },
+  { id: 'sessionsBookPay', label: 'Sessies boeken en betalen bij coaches & tutors', description: 'Mogelijkheid om 1-op-1 sessies te boeken.' },
   { id: 'accountManagement', label: 'Account beheer en basisinstellingen', description: 'Toegang tot standaard accountbeheer.' },
-  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.' },
   
+  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.' },
   { id: 'dailyPersonalizedCoaching', label: 'Dagelijkse coaching berichten (gepersonaliseerd)', description: 'Gepersonaliseerde coaching op basis van profiel.' },
   { id: 'allReflectionToolsUnlimited', label: 'Alle zelfreflectie instrumenten (unlimited)', description: 'Onbeperkte toegang tot alle tools.' },
+
   { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.' },
   { id: 'planningFocusTools', label: 'Huiswerk planner en focus tools (Pomodoro)', description: 'Tools voor planning en concentratie.' },
   { id: 'motivationTracking', label: 'Motivatie tracking met voortgangsvisualisatie', description: 'Volg en visualiseer motivatie.' },
+
   { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.' },
   { id: 'directProfessionalCommunication', label: 'Direct contact en communicatie met professionals', description: 'Berichten sturen naar gekoppelde professionals.' },
   { id: 'reviewRatingSystem', label: 'Review en rating systeem', description: 'Beoordeel professionals.' },
+
   { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.' },
   { id: 'childProgressTracking', label: 'Voortgangsvolging en trends van uw kind', description: 'Inzicht in de voortgang van het kind (voor ouders).' },
   { id: 'familyInsights', label: 'Familie insights en gepersonaliseerde aanbevelingen', description: 'Inzichten voor het hele gezin.' },
+
   { id: 'max3ChildrenIncluded', label: 'Tot 3 kinderen inbegrepen', description: 'Standaard voor familieplannen.' },
   { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met gekoppelde coaches en tutors', description: 'Directe communicatie met begeleiders.' },
   { id: 'yearlyDiscount15', label: '15% korting bij jaarlijkse betaling', description: 'Korting voor jaarplannen.' },
@@ -49,12 +55,15 @@ export const ALL_APP_FEATURES: AppFeature[] = [
   { id: 'extensiveAssessmentAnalysis', label: 'Uitgebreide assessment analyse & rapportage', description: 'Nog diepere analyse van de start-assessment.' },
   { id: 'aiPoweredInsights', label: 'AI-powered insights en gepersonaliseerde aanbevelingen', description: 'Geavanceerde AI-aanbevelingen.' },
   { id: 'advancedAnalyticsTrends', label: 'Advanced analytics en trendanalyse', description: 'Gedetailleerde statistieken en trends.' },
+
   { id: 'exclusiveCoachingModules', label: 'Exclusieve coaching modules en premium content', description: 'Toegang tot extra coaching materiaal.' },
   { id: 'priorityMatchingAlgorithm', label: 'Prioriteit algoritme voor beste coach matching', description: 'Voorrang bij het matchen met professionals.' },
   { id: 'priorityBooking', label: 'Prioriteit booking bij populaire coaches & tutors', description: 'Eerder toegang tot populaire professionals.' },
+
   { id: 'extendedSearchFilters', label: 'Extended zoekfilters en matching criteria', description: 'Meer filteropties bij het zoeken.' },
   { id: 'bulkSessionPlanning', label: 'Bulk session planning voor gemak', description: 'Plan meerdere sessies tegelijk.' },
   { id: 'premiumSupport24h', label: 'Premium support (24u response tijd)', description: 'Snellere klantenservice.' },
+  
   { id: 'unlimitedChildren', label: 'Unlimited kinderen (geen limiet meer)', description: 'Onbeperkt aantal kinderen voor premium plannen.' },
   { id: 'monthlyFamilyCoachingCalls', label: 'Maandelijkse familie coaching calls (30 min)', description: 'Live coaching sessies voor het gezin.' },
   { id: 'schoolIntegrationReporting', label: 'School integratie tools en rapportage', description: 'Integratie met school systemen.' },
@@ -69,17 +78,17 @@ export interface SubscriptionPlan {
   price: number;
   currency: string;
   billingInterval: 'month' | 'year' | 'once';
-  featureAccess: Record<string, boolean>; // Key is AppFeature.id
+  featureAccess: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   maxChildren?: number;
   isPopular?: boolean;
-  tagline?: string; // Nieuw marketing tagline veld
+  tagline?: string;
 }
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Ontdekking', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
     featureAccess: { 
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
@@ -88,7 +97,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Gezin Plan - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
@@ -96,11 +105,12 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
       planningFocusTools: true, motivationTracking: true, extensivePdfReports: true,
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true, // Based on image, these high-value features included
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
    {
-    id: 'family_guide_yearly', name: 'Gezin Plan - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
        ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, false])),
@@ -109,6 +119,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
       childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
       max3ChildrenIncluded: true, browseProfessionals: true, viewProfessionalRates: true, bookSessions: true, sessionPlanningReminders: true,
       yearlyDiscount15: true,
+      aiPoweredInsights: true, exclusiveCoachingModules: true,
     },
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
@@ -116,8 +127,8 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
-      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), // All true for premium
-      noProgressAnalytics: false, // Explicitly ensure analytics is on for premium
+      ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])), 
+      noProgressAnalytics: false, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
@@ -127,7 +138,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     featureAccess: {
       ...Object.fromEntries(ALL_APP_FEATURES.map(f => [f.id, true])),
       noProgressAnalytics: false, 
-      yearlyDiscount15: true, // Ensure yearly discount flag is set for this plan specifically too
+      yearlyDiscount15: true, 
     },
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
@@ -152,7 +163,7 @@ export default function SubscriptionManagementPage() {
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
             isPopular: plan.isPopular ?? false,
-            tagline: plan.tagline || '', // Add tagline
+            tagline: plan.tagline || '',
           };
         });
         setPlans(migratedPlans);
