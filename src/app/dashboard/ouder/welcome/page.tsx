@@ -7,12 +7,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { FileText, Info, CreditCard, ArrowRight, UserPlus, Edit, Users, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { FileText, Info, CreditCard, ArrowRight, UserPlus, ShieldCheck, Sparkles, Users, Star, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils'; // Import cn utility
-import { Badge } from '@/components/ui/badge'; // Import Badge
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
@@ -28,8 +28,9 @@ interface PlanDisplayDetails {
   ctaText: string;
   ctaBaseLink: string;
   colorClass?: string;
-  price?: string; // Optioneel voor de weergave
-  features?: string[]; // Kernfeatures voor weergave
+  price?: string; 
+  features?: string[];
+  maxChildrenText: string;
 }
 
 const welcomePagePlans: PlanDisplayDetails[] = [
@@ -43,6 +44,7 @@ const welcomePagePlans: PlanDisplayDetails[] = [
     ctaText: 'Start gratis',
     ctaBaseLink: '/quizzes',
     colorClass: "border-gray-300 hover:border-gray-400",
+    maxChildrenText: "voor 1 kind",
   },
   {
     id: 'family_guide_monthly',
@@ -54,6 +56,7 @@ const welcomePagePlans: PlanDisplayDetails[] = [
     ctaText: 'Kies Familie Coaching',
     ctaBaseLink: '/signup',
     colorClass: "border-primary hover:border-primary/80",
+    maxChildrenText: "voor maximaal 3 kinderen",
   },
   {
     id: 'premium_family_monthly',
@@ -65,6 +68,7 @@ const welcomePagePlans: PlanDisplayDetails[] = [
     ctaText: 'Kies Premium',
     ctaBaseLink: '/signup',
     colorClass: "border-accent hover:border-accent/80",
+    maxChildrenText: "voor een onbeperkt aantal kinderen",
   },
 ];
 
@@ -76,12 +80,21 @@ function OuderWelcomePageContent() {
   const [addChildFormKey, setAddChildFormKey] = useState(0);
 
   const planParam = searchParams.get('plan');
+  const hasChosenPlan = !!planParam && welcomePagePlans.some(p => p.id === planParam);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   const handleCompleteOnboarding = () => {
+    if (!hasChosenPlan) {
+      toast({
+        title: "Kies eerst een plan",
+        description: "Selecteer een abonnement voordat u verder gaat naar het dashboard.",
+        variant: "destructive"
+      });
+      return;
+    }
     if (typeof window !== 'undefined') {
       localStorage.setItem(ONBOARDING_KEY_OUDER, 'true');
     }
@@ -98,6 +111,10 @@ function OuderWelcomePageContent() {
     setAddChildFormKey(prevKey => prevKey + 1);
   };
 
+  const handlePlanCTAClick = (planId: string, ctaBaseLink: string) => {
+    router.push(`${ctaBaseLink}?plan=${planId}`);
+  };
+  
   const actiepuntenBasis = [
     {
       id: "ken-je-kind",
@@ -107,7 +124,6 @@ function OuderWelcomePageContent() {
       link: "/quiz/ouder-symptomen-check",
       linkText: 'Start "Ken je Kind" Test',
       buttonVariant: 'default' as 'default',
-      disabled: false,
     },
     {
       id: "voeg-kind-toe",
@@ -120,18 +136,8 @@ function OuderWelcomePageContent() {
       title: 'Abonnementen & Toegang',
       description: `Kies of bevestig het plan dat het beste bij uw gezin past voor volledige toegang tot coaching, tools en optionele 1-op-1 begeleiding. Elk plan start met een gratis proefperiode.`,
       icon: CreditCard,
-      disabled: false,
     },
   ];
-
-  const handlePlanCTAClick = (planId: string, ctaBaseLink: string) => {
-    if (planId === 'free_start') {
-      router.push(ctaBaseLink);
-    } else {
-      router.push(`${ctaBaseLink}?plan=${planId}`);
-    }
-  };
-
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -146,14 +152,27 @@ function OuderWelcomePageContent() {
           Als ouder speelt u een cruciale rol. MindNavigator biedt u de tools en inzichten om uw kind(eren) optimaal te begeleiden. Hier zijn een paar belangrijke eerste stappen:
         </p>
         
-        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={planParam ? "bekijk-abonnementen" : "ken-je-kind"}>
+        {!hasChosenPlan && (
+           <Alert variant="default" className="mb-6 bg-orange-50 border-orange-300 text-orange-700 text-left">
+                <Info className="h-5 w-5 !text-orange-600" />
+                <AlertTitleUi className="text-orange-700 font-semibold">Actie Vereist: Kies een Plan</AlertTitleUi>
+                <AlertDescUi className="text-orange-600">
+                    Om verder te gaan en de andere functies te gebruiken, selecteer hieronder eerst een van onze plannen. U kunt gratis starten om de basis te ontdekken.
+                </AlertDescUi>
+            </Alert>
+        )}
+        
+        <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={!hasChosenPlan ? "bekijk-abonnementen" : (planParam ? "bekijk-abonnementen" : "ken-je-kind")}>
           {actiepuntenBasis.map((item) => (
             <AccordionItem
               key={item.id}
               value={item.id}
               className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl"
             >
-              <AccordionTrigger className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
+              <AccordionTrigger 
+                className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary"
+                disabled={!hasChosenPlan && item.id !== "bekijk-abonnementen"}
+              >
                 <div className="flex items-center gap-3">
                   <item.icon className="h-7 w-7 text-primary" />
                   {item.title}
@@ -174,7 +193,8 @@ function OuderWelcomePageContent() {
                             <CheckCircle2 className="h-5 w-5 !text-green-600" />
                             <AlertTitleUi className="text-green-700 font-semibold">Uw voorlopige keuze: {welcomePagePlans.find(p => p.id === planParam)?.name}</AlertTitleUi>
                             <AlertDescUi className="text-green-600">
-                                U kunt dit plan hieronder bevestigen, of een ander plan kiezen.
+                                Dit plan staat u toe om {welcomePagePlans.find(p => p.id === planParam)?.maxChildrenText} aan te sluiten.
+                                Bevestig hieronder of kies een ander plan.
                             </AlertDescUi>
                         </Alert>
                     )}
@@ -192,6 +212,7 @@ function OuderWelcomePageContent() {
                                 </CardHeader>
                                 <CardContent className="text-xs text-muted-foreground flex-grow space-y-1">
                                   <p className="mb-2">{plan.shortDescription}</p>
+                                  <p className="mb-2 font-medium">Max. kinderen: {plan.maxChildrenText}.</p>
                                   {plan.features && plan.features.length > 0 && (
                                     <ul className="list-none p-0 text-left">
                                       {plan.features.map(f => <li key={f} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0"/>{f}</li>)}
@@ -211,11 +232,10 @@ function OuderWelcomePageContent() {
                             </Card>
                         ))}
                     </div>
-                    <p className="text-xs text-muted-foreground text-center mt-4">1-op-1 begeleidingstarieven variëren per professional en worden apart verrekend.</p>
                   </div>
                 ) : (
                   item.link && item.linkText && (
-                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={item.disabled}>
+                    <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto">
                       <Link href={item.link}>
                         {item.linkText} <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
@@ -240,7 +260,12 @@ function OuderWelcomePageContent() {
         </div>
         
         <div className="flex flex-col items-center gap-3">
-           <Button onClick={handleCompleteOnboarding} className="w-full max-w-xs" size="lg">
+           <Button 
+            onClick={handleCompleteOnboarding} 
+            className="w-full max-w-xs" 
+            size="lg"
+            disabled={!hasChosenPlan}
+          >
             Doorgaan naar mijn Ouder Dashboard
           </Button>
           <Link href="/for-parents" className="text-xs text-primary hover:underline">
@@ -260,4 +285,3 @@ export default function OuderWelcomePage() {
     </Suspense>
   );
 }
-
