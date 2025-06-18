@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 interface FeatureTableProps {
   features: AppFeature[];
-  allSubscriptionPlans: SubscriptionPlan[];
+  allSubscriptionPlans: SubscriptionPlan[]; // Expects a sorted list for consistent color mapping
   onEditFeature: (feature: AppFeature) => void;
   onDeleteFeature: (featureId: string) => void;
 }
@@ -36,6 +36,18 @@ const getAudienceBadgeClasses = (audience: string): string => {
     default: return '';
   }
 };
+
+const planBadgeColorClasses = [
+  'bg-sky-100 text-sky-700 border-sky-300',
+  'bg-amber-100 text-amber-700 border-amber-300',
+  'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'bg-rose-100 text-rose-700 border-rose-300',
+  'bg-violet-100 text-violet-700 border-violet-300',
+  'bg-lime-100 text-lime-700 border-lime-300',
+  'bg-pink-100 text-pink-700 border-pink-300',
+  'bg-cyan-100 text-cyan-700 border-cyan-300',
+  'bg-orange-100 text-orange-700 border-orange-300', // Added orange
+];
 
 export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, onDeleteFeature }: FeatureTableProps) {
   return (
@@ -90,12 +102,19 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                 <TableCell>
                   {linkedPlans.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {linkedPlans.map(plan => (
-                        <Badge key={plan.id} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary/90">
-                           <Link2 className="h-3 w-3 mr-1"/>
-                           {plan.name}
-                        </Badge>
-                      ))}
+                      {linkedPlans.map(plan => {
+                        const planIndex = allSubscriptionPlans.findIndex(p => p.id === plan.id);
+                        const colorClass = planBadgeColorClasses[planIndex % planBadgeColorClasses.length];
+                        return (
+                            <Badge 
+                                key={plan.id} 
+                                className={cn("text-xs px-1.5 py-0.5 flex items-center", colorClass)}
+                            >
+                               <Link2 className="h-3 w-3 mr-1"/>
+                               {plan.name}
+                            </Badge>
+                        );
+                      })}
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>

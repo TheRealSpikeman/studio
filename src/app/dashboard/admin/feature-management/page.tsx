@@ -33,23 +33,26 @@ export default function FeatureManagementPage() {
             targetAudience: feat.targetAudience && Array.isArray(feat.targetAudience) ? feat.targetAudience : ['leerling'],
             category: feat.category || 'Algemeen',
         } as AppFeature));
-        setFeatures(completeFeatures);
+        setFeatures(completeFeatures.sort((a, b) => a.label.localeCompare(b.label)));
       } else {
-        setFeatures(DEFAULT_APP_FEATURES);
-        localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+        const sortedDefaultFeatures = DEFAULT_APP_FEATURES.sort((a, b) => a.label.localeCompare(b.label));
+        setFeatures(sortedDefaultFeatures);
+        localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(sortedDefaultFeatures));
       }
 
       const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
       if (storedPlansRaw) {
-        setAllSubscriptionPlans(JSON.parse(storedPlansRaw));
+        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+        setAllSubscriptionPlans(parsedPlans.sort((a, b) => a.id.localeCompare(b.id))); // Sort plans by ID for consistent color mapping
       } else {
-        setAllSubscriptionPlans([]); // Or load initial default plans if necessary
+        setAllSubscriptionPlans([]); 
       }
 
     } catch (error) {
       console.error("Error loading features or plans from localStorage:", error);
-      setFeatures(DEFAULT_APP_FEATURES); // Fallback to defaults
-      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
+      const sortedDefaultFeatures = DEFAULT_APP_FEATURES.sort((a, b) => a.label.localeCompare(b.label));
+      setFeatures(sortedDefaultFeatures); 
+      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(sortedDefaultFeatures));
       setAllSubscriptionPlans([]);
     }
     setIsLoading(false);
@@ -76,7 +79,7 @@ export default function FeatureManagementPage() {
       updatedFeaturesList = [featureCoreData, ...features];
       toast({ title: "Feature Toegevoegd", description: `Feature "${featureCoreData.label}" is succesvol toegevoegd.` });
     }
-    setFeatures(updatedFeaturesList);
+    setFeatures(updatedFeaturesList.sort((a, b) => a.label.localeCompare(b.label)));
     localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeaturesList));
 
     try {
@@ -95,7 +98,7 @@ export default function FeatureManagementPage() {
             return { ...plan, featureAccess: newFeatureAccess };
         });
         localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plansToUpdate));
-        setAllSubscriptionPlans(plansToUpdate); // Update local state of plans for the table
+        setAllSubscriptionPlans(plansToUpdate.sort((a, b) => a.id.localeCompare(b.id))); // Update local state of plans and sort
         toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt in de abonnementen.`})
     } catch (error) {
         console.error("Error updating subscription plans with feature linkages:", error);
@@ -121,11 +124,11 @@ export default function FeatureManagementPage() {
         }
         return { ...plan, featureAccess: newFeatureAccess };
     });
-    setAllSubscriptionPlans(updatedPlans);
+    setAllSubscriptionPlans(updatedPlans.sort((a,b) => a.id.localeCompare(b.id))); // Sort after update
     localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
     
     const updatedFeatures = features.filter(f => f.id !== featureId);
-    setFeatures(updatedFeatures);
+    setFeatures(updatedFeatures.sort((a, b) => a.label.localeCompare(b.label))); // Sort after update
     localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(updatedFeatures));
     
     toast({ title: "Feature Verwijderd", description: `Feature "${featureLabel}" en de koppelingen in abonnementen zijn verwijderd.` });
@@ -167,7 +170,7 @@ export default function FeatureManagementPage() {
           </div>
           <FeatureTable
             features={features}
-            allSubscriptionPlans={allSubscriptionPlans}
+            allSubscriptionPlans={allSubscriptionPlans} // Pass the sorted list
             onEditFeature={handleEditFeature}
             onDeleteFeature={handleDeleteFeature}
           />
@@ -183,3 +186,4 @@ export default function FeatureManagementPage() {
     </div>
   );
 }
+
