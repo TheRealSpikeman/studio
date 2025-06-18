@@ -27,7 +27,7 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
   { id: 'startAssessment', label: 'Start-assessment', description: 'Basis zelfreflectie tool voor een eerste profielschets.', targetAudience: ['leerling', 'ouder'], category: 'Assessment' },
   { id: 'sampleCoachingContent', label: 'Sample coaching content (5 voorbeeldberichten)', description: 'Voorproefje van de dagelijkse coaching.', targetAudience: ['leerling'], category: 'Coaching' },
   { id: 'professionalRates', label: 'Tarieven en specialisaties zien', description: 'Details van professionals inzien.', targetAudience: ['ouder'], category: 'Professionals' },
-  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' }, // Markeer als "uit" feature
+  { id: 'noProgressAnalytics', label: 'Geen voortgangsanalytics', description: 'Basisplan heeft geen gedetailleerde voortgangsanalyse.', targetAudience: ['platform'], category: 'Analytics' }, 
   { id: 'interactiveJournal', label: 'Interactieve dagboek en reflectie-oefeningen', description: 'Tools voor dagelijkse reflectie.', targetAudience: ['leerling'], category: 'Tools' },
   { id: 'extensivePdfReports', label: 'Uitgebreide PDF overzichten met diepgaande insights', description: 'Gedetailleerde rapporten.', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
   { id: 'sessionPlanningReminders', label: 'Sessie planning met automatische herinneringen', description: 'Tools voor het plannen van sessies.', targetAudience: ['leerling', 'ouder'], category: 'Tools' },
@@ -74,6 +74,7 @@ export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_
 export interface SubscriptionPlan {
   id: string;
   name: string;
+  shortName?: string; // Nieuw veld voor afkorting
   description: string;
   tagline?: string;
   price: number;
@@ -88,7 +89,7 @@ export interface SubscriptionPlan {
 
 const initialSubscriptionPlans: SubscriptionPlan[] = [
   {
-    id: 'free_start', name: 'Gratis Start', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
+    id: 'free_start', name: 'Gratis Start', shortName: 'Gratis', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
     tagline: 'Proef de kracht van zelfinzicht.',
     featureAccess: { 
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
@@ -97,7 +98,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
   },
   {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezin M', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
     tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
@@ -110,7 +111,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
   },
    {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
+    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', shortName: 'Gezin J', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
     tagline: 'Jaarlijks voordeel voor het hele gezin!',
     featureAccess: {
        ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
@@ -124,7 +125,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
   },
     {
-    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
+    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', shortName: 'Prem M', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
     tagline: '€0,67 per dag - minder dan een kopje koffie!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
@@ -133,7 +134,7 @@ const initialSubscriptionPlans: SubscriptionPlan[] = [
     active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
   },
   {
-    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
+    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', shortName: 'Prem J', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
     tagline: 'Het meest complete pakket met maximale korting!',
     featureAccess: {
       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
@@ -161,6 +162,7 @@ export default function SubscriptionManagementPage() {
           
           return {
             ...plan,
+            shortName: plan.shortName ?? '',
             featureAccess: defaultAccess,
             trialPeriodDays: plan.trialPeriodDays ?? (plan.price === 0 ? 0 : 14),
             maxChildren: plan.maxChildren ?? (plan.id.includes('family') || plan.id.includes('gezin') ? 3 : (plan.price === 0 ? 1 : 0)),
@@ -169,7 +171,7 @@ export default function SubscriptionManagementPage() {
           };
         });
         setPlans(migratedPlans);
-        if (JSON.stringify(parsedPlans.map(p=>p.featureAccess)) !== JSON.stringify(migratedPlans.map(p=>p.featureAccess))) {
+        if (JSON.stringify(parsedPlans) !== JSON.stringify(migratedPlans)) { // Check if migration actually changed something
             localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(migratedPlans));
         }
       } catch (error) {
@@ -223,6 +225,7 @@ export default function SubscriptionManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Naam</TableHead>
+                  <TableHead>Afkorting</TableHead>
                   <TableHead>ID</TableHead>
                   <TableHead>Prijs</TableHead>
                   <TableHead>Interval</TableHead>
@@ -235,11 +238,12 @@ export default function SubscriptionManagementPage() {
               </TableHeader>
               <TableBody>
                 {plans.length === 0 && (
-                  <TableRow><TableCell colSpan={9} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="h-24 text-center">Geen abonnementen geconfigureerd.</TableCell></TableRow>
                 )}
                 {plans.map((plan) => (
                   <TableRow key={plan.id}>
                     <TableCell className="font-medium">{plan.name}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{plan.shortName || '-'}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{plan.id}</TableCell>
                     <TableCell>{formatPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
                     <TableCell>{plan.billingInterval}</TableCell>

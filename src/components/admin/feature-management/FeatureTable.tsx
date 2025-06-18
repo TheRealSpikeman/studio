@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 interface FeatureTableProps {
   features: AppFeature[];
-  allSubscriptionPlans: SubscriptionPlan[]; // Expects a sorted list for consistent color mapping
+  allSubscriptionPlans: SubscriptionPlan[]; 
   onEditFeature: (feature: AppFeature) => void;
   onDeleteFeature: (featureId: string) => void;
 }
@@ -46,7 +46,7 @@ const planBadgeColorClasses = [
   'bg-lime-100 text-lime-700 border-lime-300',
   'bg-pink-100 text-pink-700 border-pink-300',
   'bg-cyan-100 text-cyan-700 border-cyan-300',
-  'bg-orange-100 text-orange-700 border-orange-300', // Added orange
+  'bg-orange-100 text-orange-700 border-orange-300',
 ];
 
 export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, onDeleteFeature }: FeatureTableProps) {
@@ -109,9 +109,10 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                             <Badge 
                                 key={plan.id} 
                                 className={cn("text-xs px-1.5 py-0.5 flex items-center", colorClass)}
+                                title={plan.name} // Tooltip met volledige naam
                             >
                                <Link2 className="h-3 w-3 mr-1"/>
-                               {plan.name}
+                               {plan.shortName || plan.name} {/* Gebruik shortName indien beschikbaar */}
                             </Badge>
                         );
                       })}

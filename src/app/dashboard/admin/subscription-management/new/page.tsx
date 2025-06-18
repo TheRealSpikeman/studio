@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package } from "lucide-react"; // Added icons
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package, CaseLower } from "lucide-react"; // Added CaseLower
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
+  shortName: z.string().optional(), // Nieuw veld voor afkorting
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   tagline: z.string().optional(),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
@@ -95,6 +96,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     resolver: zodResolver(planFormSchema),
     defaultValues: isEditMode && planData ? {
       ...planData,
+      shortName: planData.shortName ?? '',
       featureAccess: planData.featureAccess || defaultFeatureAccess,
       trialPeriodDays: planData.trialPeriodDays ?? 0,
       maxChildren: planData.maxChildren ?? 0,
@@ -103,6 +105,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     } : {
       id: "",
       name: "",
+      shortName: "",
       description: "",
       tagline: "",
       price: 0,
@@ -116,7 +119,6 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
     },
   });
 
-  // Update defaultValues when allAppFeatures are loaded, especially for new plans
   useEffect(() => {
     if (!isEditMode && allAppFeatures.length > 0) {
       const initialAccess: Record<string, boolean> = {};
@@ -124,7 +126,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
         initialAccess[feature.id] = false; 
       });
       form.reset({
-        ...form.getValues(), // keep other existing values
+        ...form.getValues(), 
         featureAccess: initialAccess,
       });
     }
@@ -140,6 +142,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
   const onSubmit = (data: PlanFormData) => {
     const planToSave: SubscriptionPlan = {
       ...data,
+      shortName: data.shortName,
       trialPeriodDays: data.trialPeriodDays,
       maxChildren: data.maxChildren,
       isPopular: data.isPopular,
@@ -221,6 +224,18 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
             <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="tagline" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Marketing Tagline (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. Slechts €0,13 per dag voor uitgebreide tools!" {...field} /></FormControl><FormDescription className="text-xs">Korte, pakkende zin die onder de prijs getoond wordt.</FormDescription><FormMessage /></FormItem>)} />
+            <FormField 
+                control={form.control} 
+                name="shortName" 
+                render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                        <FormLabel className="flex items-center gap-1"><CaseLower className="h-4 w-4"/>Afkorting voor badges (optioneel)</FormLabel>
+                        <FormControl><Input placeholder="Bijv. Gezin M, Prem J" {...field} /></FormControl>
+                        <FormDescription className="text-xs">Korte naam die in overzichten (bijv. Feature Management tabel) wordt gebruikt voor compactheid.</FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                )} 
+            />
             <FormField 
                 control={form.control} 
                 name="price" 
@@ -315,22 +330,22 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                         <XSquare className="mr-2 h-4 w-4" /> Deselecteer Alles
                     </Button>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1">
                     {allAppFeatures.map((feature) => (
                         <FormField
                         key={feature.id}
                         control={form.control}
                         name={`featureAccess.${feature.id}`}
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 py-2 border-b border-border/50 last:border-b-0">
+                            <FormItem className="flex flex-row items-start space-x-2.5 py-2.5 border-b border-border/30 last:border-b-0">
                                 <FormControl className="mt-1">
                                     <Checkbox
-                                        checked={field.value}
+                                        checked={!!field.value} // Ensure boolean for checkbox
                                         onCheckedChange={field.onChange}
                                     />
                                 </FormControl>
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
+                                    <FormLabel className="text-sm font-medium leading-tight cursor-pointer">
                                         {feature.label}
                                     </FormLabel>
                                     {feature.description && (

@@ -4,7 +4,7 @@
 
 import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
 import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page'; // Import DEFAULT_APP_FEATURES
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -26,12 +26,13 @@ export default function EditSubscriptionPlanPage() {
         
         if (foundPlan) {
             const defaultFeatureAccess: Record<string, boolean> = {};
-            DEFAULT_APP_FEATURES.forEach(feature => { // Use DEFAULT_APP_FEATURES for full list
+            DEFAULT_APP_FEATURES.forEach(feature => { 
               defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
             });
 
             const planWithDefaults: SubscriptionPlan = {
                 ...foundPlan,
+                shortName: foundPlan.shortName ?? '',
                 featureAccess: defaultFeatureAccess, 
                 trialPeriodDays: foundPlan.trialPeriodDays ?? (foundPlan.price === 0 ? 0 : 14),
                 maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
