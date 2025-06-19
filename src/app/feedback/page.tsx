@@ -8,23 +8,47 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-// Removed Label import as FormLabel from form components will be used
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquareText, User, Mail, ListFilter, AlertTriangle, FileText, Settings, Lightbulb, MessageCircle, Workflow } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from "@/components/ui/form"; // FormLabel added here
+import { MessageSquareText, User, Mail, ListFilter, AlertTriangle, FileText, Settings, Lightbulb, MessageCircle, Workflow, LayoutDashboard, Users2, BookOpenCheck, ClipboardList, Briefcase, HeartHandshake } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from "@/components/ui/form";
+
+const pageFeatureOptions = [
+  { value: 'algemeen_platform', label: 'Algemeen / Niet Specifiek' },
+  { value: 'landingspagina', label: 'Landingspagina & Info Pagina\'s' },
+  { value: 'registratie_login', label: 'Registratie / Inloggen / Goedkeuring' },
+  { value: 'dashboard_algemeen', label: 'Dashboard (Algemeen)' },
+  { value: 'dashboard_leerling', label: 'Dashboard Leerling & Zelfreflectie', icon: ClipboardList },
+  { value: 'dashboard_coaching', label: 'Coaching Hub (Leerling)', icon: MessageSquareText },
+  { value: 'dashboard_huiswerk', label: 'Huiswerkbegeleiding Tools (Leerling)', icon: BookOpenCheck },
+  { value: 'dashboard_ouder', label: 'Ouder Dashboard', icon: Users2 },
+  { value: 'dashboard_tutor', label: 'Tutor Dashboard', icon: Briefcase },
+  { value: 'dashboard_coach', label: 'Coach Dashboard', icon: HeartHandshake },
+  { value: 'dashboard_admin', label: 'Admin Dashboard', icon: LayoutDashboard },
+  { value: 'profielpagina', label: 'Mijn Profiel Pagina' },
+  { value: 'anders', label: 'Anders (specificeer hieronder)' },
+];
 
 const feedbackFormSchema = z.object({
   name: z.string().optional(),
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }).optional().or(z.literal('')),
   feedbackType: z.enum(['bug', 'suggestie', 'algemeen', 'ui_ux'], { required_error: "Selecteer een type feedback."}),
-  pageOrFeature: z.string().min(1, { message: "Geef aan op welke pagina/feature dit betrekking heeft."}),
+  pageOrFeature: z.string({ required_error: "Selecteer de betreffende pagina/feature."}),
+  otherPageOrFeature: z.string().optional(),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten."}),
   priority: z.enum(['laag', 'normaal', 'hoog'], { required_error: "Selecteer een prioriteit." }),
+}).refine(data => {
+    if (data.pageOrFeature === 'anders' && (!data.otherPageOrFeature || data.otherPageOrFeature.trim() === '')) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Specificatie voor 'Anders' is vereist.",
+    path: ["otherPageOrFeature"],
 });
 
 type FeedbackFormData = z.infer<typeof feedbackFormSchema>;
@@ -37,14 +61,21 @@ function FeedbackForm() {
       name: "",
       email: "",
       feedbackType: undefined,
-      pageOrFeature: "",
+      pageOrFeature: undefined,
+      otherPageOrFeature: "",
       description: "",
       priority: 'normaal',
     },
   });
 
+  const watchedPageOrFeature = form.watch("pageOrFeature");
+
   function onSubmit(values: FeedbackFormData) {
-    console.log("Feedback ontvangen:", values);
+    const submissionData = { ...values };
+    if (values.pageOrFeature !== 'anders') {
+      submissionData.otherPageOrFeature = undefined; // Clear if not 'anders'
+    }
+    console.log("Feedback ontvangen:", submissionData);
     toast({
       title: "Feedback Ontvangen!",
       description: "Bedankt voor je feedback. We gaan ermee aan de slag.",
@@ -109,11 +140,42 @@ function FeedbackForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-1"><FileText className="h-4 w-4 text-muted-foreground"/>Betreft Pagina/Feature*</FormLabel>
-                <FormControl><Input placeholder="Bijv. Dashboard Leerling, Quiz Resultaten, Inloggen" {...field} /></FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Selecteer pagina of feature" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {pageFeatureOptions.map(opt => {
+                      const IconComponent = opt.icon;
+                      return (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          <div className="flex items-center gap-2">
+                            {IconComponent && <IconComponent className="h-4 w-4 text-muted-foreground" />}
+                            {opt.label}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {watchedPageOrFeature === 'anders' && (
+            <FormField
+              control={form.control}
+              name="otherPageOrFeature"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1"><FileText className="h-4 w-4 text-muted-foreground"/>Specificatie 'Anders'*</FormLabel>
+                  <FormControl><Input placeholder="Geef hier de specifieke pagina of feature aan" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
