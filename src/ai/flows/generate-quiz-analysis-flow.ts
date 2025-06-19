@@ -20,14 +20,23 @@ const GenerateQuizAnalysisInputSchema = z.object({
   quizTitle: z.string().describe('The title of the quiz.'),
   ageGroup: z.string().describe('The target age group of the user (e.g., "12-14 jaar", "15-18 jaar").'),
   finalScores: z.record(z.number()).describe('A record of final scores for each neurodiversity profile, where keys are profile IDs (e.g., ADD, HSP) and values are numeric scores (typically 1-4).'),
-  answeredQuestions: z.array(AnsweredQuestionSchema).describe('An array of questions the user answered, including the question text and their chosen answer text.')
+  answeredQuestions: z.array(AnsweredQuestionSchema).describe('An array of questions the user answered, including the question text and their chosen answer text.'),
+  analysisDetailLevel: z.enum(['beknopt', 'standaard', 'uitgebreid']).optional().describe("Specificeert het gewenste detailniveau voor de analyse. 'standaard' is de default.")
 });
 export type GenerateQuizAnalysisInput = z.infer<typeof GenerateQuizAnalysisInputSchema>;
 
 const GenerateQuizAnalysisOutputSchema = z.object({
-  analysis: z.string().describe('A comprehensive textual analysis of the quiz results, tailored to the user_s age and answers.'),
+  analysis: z.string().describe('A comprehensive textual analysis of the quiz results, tailored to the user_s age and answers, and het gekozen detailniveau.'),
 });
 export type GenerateQuizAnalysisOutput = z.infer<typeof GenerateQuizAnalysisOutputSchema>;
+
+// Define een type voor de input van de prompt-functie zelf, inclusief de dynamische instructies.
+// Dit is intern aan de flow.
+const PromptInternalInputSchema = GenerateQuizAnalysisInputSchema.extend({
+  analysisInstructions: z.string().optional(),
+});
+type PromptInternalInput = z.infer<typeof PromptInternalInputSchema>;
+
 
 export async function generateQuizAnalysis(
   input: GenerateQuizAnalysisInput
@@ -37,7 +46,7 @@ export async function generateQuizAnalysis(
 
 const prompt = ai.definePrompt({
   name: 'generateQuizAnalysisPrompt',
-  input: {schema: GenerateQuizAnalysisInputSchema},
+  input: {schema: PromptInternalInputSchema}, // Gebruik het interne schema hier
   output: {schema: GenerateQuizAnalysisOutputSchema},
   prompt: `You are an expert in neurodiversity and psycho-educational assessments for teenagers.
 Analyze the following quiz results for a user aged {{{ageGroup}}}.
@@ -65,8 +74,10 @@ Provide a comprehensive analysis covering:
 3.  Potential strengths indicated by the answers and scores. Connect these strengths to real-life examples relevant for a teenager.
 4.  Potential challenges or areas for self-awareness indicated by the answers and scores. Offer gentle and constructive framing.
 5.  Actionable insights or reflection points for the teenager, tailored to their age group. These should be practical and encouraging.
+
 Maintain a supportive, encouraging, and easy-to-understand tone suitable for teenagers.
-The analysis should be detailed (at least 250-300 words) and insightful, going beyond simple restatements of the scores.
+{{{analysisInstructions}}}
+The analysis should be insightful, going beyond simple restatements of the scores.
 Focus on helping the teenager understand themselves better and provide a positive, empowering perspective on their neurodiversity.
 Structure the output with clear headings for each section of the analysis (e.g., "Jouw Profiel In Vogelvlucht", "Sterke Kanten", "Aandachtspunten", "Tips voor Jou").
 Ensure the language used is appropriate and relatable for the specified {{{ageGroup}}}.
@@ -76,11 +87,26 @@ Ensure the language used is appropriate and relatable for the specified {{{ageGr
 const generateQuizAnalysisFlow = ai.defineFlow(
   {
     name: 'generateQuizAnalysisFlow',
-    inputSchema: GenerateQuizAnalysisInputSchema,
+    inputSchema: GenerateQuizAnalysisInputSchema, // De flow gebruikt het externe input schema
     outputSchema: GenerateQuizAnalysisOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input: GenerateQuizAnalysisInput) => {
+    let analysisInstructions = "";
+    switch (input.analysisDetailLevel) {
+      case 'beknopt':
+        analysisInstructions = "Houd de analyse beknopt en focus op de hoofdpunten, ongeveer 150 woorden.";
+        break;
+      case 'uitgebreid':
+        analysisInstructions = "De analyse moet zeer gedetailleerd zijn (minstens 350-400 woorden), diep ingaan op nuances en meerdere voorbeelden of reflectiepunten per sectie bieden.";
+        break;
+      case 'standaard':
+      default:
+        analysisInstructions = "De analyse moet gedetailleerd zijn (minstens 250-300 woorden).";
+        break;
+    }
+
+    // Roep de prompt aan met de originele input PLUS de gegenereerde instructies
+    const {output} = await prompt({ ...input, analysisInstructions });
     if (!output) {
       throw new Error('AI did not return an analysis.');
     }
