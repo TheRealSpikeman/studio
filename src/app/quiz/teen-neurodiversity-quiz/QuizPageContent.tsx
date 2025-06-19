@@ -270,8 +270,7 @@ export default function QuizPageContent() {
         setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
       }
     } else {
-        // Redirect if no valid age group is provided
-        // router.replace('/quizzes'); // Or a specific error page
+        // router.replace('/quizzes'); 
     }
   }, [ageGroupFromQuery, router]);
 
@@ -288,21 +287,18 @@ export default function QuizPageContent() {
             if (answerValue !== undefined) {
               const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
               let profileKeyForQuestion: string | undefined = undefined;
-              // Correctly determine profileKey based on question index and age group
               if (ageGroup === '15-18') {
-                if (index < 3) profileKeyForQuestion = 'ADD'; // First 3 questions for ADD
-                else if (index < 6) profileKeyForQuestion = 'ADHD'; // Next 3 for ADHD
-                else if (index < 9) profileKeyForQuestion = 'HSP'; // Next 3 for HSP
-                else if (index < 12) profileKeyForQuestion = 'ASS'; // Next 3 for ASS
-                else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; // Last 3 for AngstDepressie
+                if (index < 3) profileKeyForQuestion = 'ADD'; 
+                else if (index < 6) profileKeyForQuestion = 'ADHD'; 
+                else if (index < 9) profileKeyForQuestion = 'HSP'; 
+                else if (index < 12) profileKeyForQuestion = 'ASS'; 
+                else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; 
               } else if (ageGroup === '12-14') {
-                 if (index < 2) profileKeyForQuestion = 'ADD'; // First 2 questions for ADD
-                 else if (index < 4) profileKeyForQuestion = 'ADHD'; // Next 2 for ADHD
-                 else if (index < 6) profileKeyForQuestion = 'HSP'; // Next 2 for HSP
-                 else if (index < 8) profileKeyForQuestion = 'ASS'; // Next 2 for ASS
-                 else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; // Next 2 for AngstDepressie
-                // Note: The 12-14 age group has 12 base questions in the data. The last 2 are general.
-                // If these last two also need a profile key, that logic should be added.
+                 if (index < 2) profileKeyForQuestion = 'ADD'; 
+                 else if (index < 4) profileKeyForQuestion = 'ADHD'; 
+                 else if (index < 6) profileKeyForQuestion = 'HSP'; 
+                 else if (index < 8) profileKeyForQuestion = 'ASS'; 
+                 else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; 
               }
 
               answeredQuestions.push({
@@ -331,11 +327,19 @@ export default function QuizPageContent() {
             quizTitle: `Neurodiversiteit Zelfreflectie Tool (${ageGroup} jaar)`,
             ageGroup: ageGroup,
             finalScores: finalScores,
-            answeredQuestions: answeredQuestions
+            answeredQuestions: answeredQuestions,
+            analysisDetailLevel: 'standaard' // Default, kan later per quiz ingesteld worden
           };
           const result = await generateQuizAnalysis(analysisInput);
           setQuizAnalysis(result.analysis);
           setParsedAiAnalysis(parseAiAnalysis(result.analysis));
+
+          // Opslaan in localStorage voor Coaching Hub
+          if (typeof window !== 'undefined' && result.analysis) {
+            localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
+            localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup})); // Dummy naam
+          }
+
         } catch (error) {
           console.error("Failed to generate quiz analysis:", error);
           const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
@@ -940,3 +944,4 @@ export default function QuizPageContent() {
     </div>
   );
 }
+

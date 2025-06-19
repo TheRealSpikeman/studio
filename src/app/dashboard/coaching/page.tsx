@@ -9,21 +9,16 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
-  PlaySquare, Headphones, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap
+  PlaySquare, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap, Loader2
 } from 'lucide-react'; 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Calendar } from '@/components/ui/calendar';
-import { format, startOfDay, isEqual } from 'date-fns';
+import { format, startOfDay, isEqual, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface CoachingMessage {
-  day: number;
-  title: string;
-  body: string;
-  date: string; // ISO string
-}
+import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights'; // Updated import
+import type { GenerateCoachingInsightsOutput } from '@/ai/flows/generate-coaching-insights'; // Import output type
 
 interface DailyTask {
   id: string;
@@ -33,93 +28,99 @@ interface DailyTask {
 
 const COACHING_START_DATE = startOfDay(new Date(Date.now() - 86400000 * 30)); // Approx 30 days ago
 
-const generateCoachingMessages = (): CoachingMessage[] => {
-  const messages: CoachingMessage[] = [];
-  const baseMessages = [
-    { title: "Welkom bij je coachingstraject!", body: "Vandaag beginnen we met het verkennen van je sterke punten. Reflecteer op een moment waarop je je echt in je element voelde. Wat deed je toen?" },
-    { title: "Structuur en Routine", body: "Een voorspelbare dagstructuur kan helpen om overprikkeling te verminderen en focus te verbeteren. Probeer vandaag één vast rustmoment in te plannen." },
-    { title: "Communicatiestijlen", body: "Iedereen communiceert anders. Let vandaag eens op hoe anderen informatie overbrengen en hoe jij daarop reageert. Zijn er patronen te ontdekken?" },
-    { title: "Zelfzorg Prioriteren", body: "Neem vandaag bewust tijd voor een activiteit die je energie geeft. Zelfzorg is essentieel voor welzijn." },
-    { title: "Grenzen Stellen", body: "Oefen vandaag met het aangeven van een grens, hoe klein ook. Het is oké om 'nee' te zeggen." },
-  ];
-  for (let i = 0; i < 60; i++) { // Generate 60 days of messages
-    const date = new Date(COACHING_START_DATE);
-    date.setDate(COACHING_START_DATE.getDate() + i);
-    const baseMsg = baseMessages[i % baseMessages.length];
-    messages.push({
-      day: i + 1,
-      title: `${baseMsg.title} (Dag ${i + 1})`,
-      body: `${baseMsg.body} Dit is de tip voor ${format(date, 'PPPP', { locale: nl })}.`,
-      date: date.toISOString(),
-    });
-  }
-  return messages;
-};
-
-const allCoachingMessages = generateCoachingMessages();
-
-const generateDailyTasks = (date: Date): DailyTask[] => {
-  const dayOfWeek = date.getDay(); // Sunday = 0, Monday = 1, etc.
+const generateStaticDailyTasks = (date: Date): DailyTask[] => {
+  // Placeholder: static tasks until AI provides more specific microTaskSuggestion
   const baseTasks = [
-    { id: 'task1', label: 'Doe 5 minuten ademhalingsoefening', completed: false },
-    { id: 'task2', label: 'Lees de dagelijkse affirmatie', completed: false },
-    { id: 'task3', label: 'Schrijf één ding op waar je dankbaar voor bent', completed: false },
+    { id: 'task1-static', label: 'Doe 5 minuten ademhalingsoefening', completed: false },
+    { id: 'task2-static', label: 'Lees de dagelijkse affirmatie', completed: false },
+    { id: 'task3-static', label: 'Schrijf één ding op waar je dankbaar voor bent', completed: false },
   ];
-  if (dayOfWeek % 2 === 0) { // Even days of week
-    return [
-      ...baseTasks,
-      { id: 'task4', label: 'Plan een korte wandeling in', completed: false },
-    ];
-  }
-  return baseTasks;
-};
-
-const getAffirmationForDate = (date: Date): string => {
-  const affirmations = [
-    "Ik ben kalm, capabel en omarm elke uitdaging met een open geest.",
-    "Ik waardeer mijn unieke manier van denken en zijn.",
-    "Elke dag biedt nieuwe kansen voor groei en leren.",
-    "Ik ben veerkrachtig en kan obstakels overwinnen.",
-    "Ik kies ervoor om vandaag vriendelijk te zijn voor mezelf.",
-  ];
-  const dayIndex = date.getDate() % affirmations.length;
-  return affirmations[dayIndex];
+  return baseTasks.map(task => ({...task, id: `${task.id}-${format(date, 'yyyy-MM-dd')}`}));
 };
 
 const getVideoSeedForDate = (date: Date): string => {
   return `videotip-${format(date, 'yyyy-MM-dd')}`;
 };
 
+interface AiCoachingContent {
+  dailyAffirmation: string;
+  dailyCoachingTip: string;
+  microTaskSuggestion: string;
+}
 
 export default function CoachingPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined); // Initialize to undefined
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [journalEntries, setJournalEntries] = useState<Record<string, string>>({});
   const [tasksForSelectedDate, setTasksForSelectedDate] = useState<DailyTask[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
-
   const { toast } = useToast();
+
+  const [aiCoachingContent, setAiCoachingContent] = useState<AiCoachingContent | null>(null);
+  const [isLoadingAiContent, setIsLoadingAiContent] = useState(false);
+  const [userName, setUserName] = useState<string>("een MindNavigator gebruiker");
+
 
   useEffect(() => {
     setIsClient(true);
-    setSelectedDate(startOfDay(new Date())); // Set initial selected date on client
+    setSelectedDate(startOfDay(new Date())); 
+    
+    if (typeof window !== 'undefined') {
+      const storedUserData = localStorage.getItem('mindnavigator_onboardingUser');
+      if (storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData);
+          if (userData.name) {
+            setUserName(userData.name);
+          }
+        } catch (e) {
+          console.warn("Kon gebruikersnaam niet laden voor coaching personalisatie.");
+        }
+      }
+    }
   }, []);
 
+  const fetchAiCoachingData = useCallback(async (date: Date) => {
+    setIsLoadingAiContent(true);
+    setAiCoachingContent(null); 
+    if (typeof window !== 'undefined') {
+      const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
+      if (storedAnalysis) {
+        try {
+          const input = {
+            onboardingAnalysisText: storedAnalysis,
+            userName: userName,
+            currentDate: format(date, "EEEE d MMMM", { locale: nl })
+          };
+          const result: GenerateCoachingInsightsOutput = await generateCoachingInsights(input);
+          setAiCoachingContent(result);
+          // Add AI microtask to static tasks
+          const aiTask: DailyTask = { id: `ai-task-${format(date, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
+          setTasksForSelectedDate(prevTasks => [aiTask, ...prevTasks.filter(t => !t.id.startsWith('ai-task-'))]);
 
-  const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
-  
-  const currentCoachingMessage = selectedDate 
-    ? allCoachingMessages.find(msg => isEqual(startOfDay(new Date(msg.date)), startOfDay(selectedDate)))
-    : undefined;
-
-  const affirmationForSelectedDate = selectedDate ? getAffirmationForDate(selectedDate) : "Selecteer een datum.";
-  const videoSeedForSelectedDate = selectedDate ? getVideoSeedForDate(selectedDate) : "defaultvideo";
+        } catch (error) {
+          console.error("Error fetching AI coaching insights:", error);
+          toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
+          setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
+        }
+      } else {
+        toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
+        setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
+      }
+    }
+    setIsLoadingAiContent(false);
+  }, [toast, userName]);
 
   useEffect(() => {
     if (selectedDate) {
-      setTasksForSelectedDate(generateDailyTasks(selectedDate).map(task => ({...task, id: `${task.id}-${format(selectedDate, 'yyyy-MM-dd')}`})));
+      setTasksForSelectedDate(generateStaticDailyTasks(selectedDate));
+      fetchAiCoachingData(selectedDate);
     }
-  }, [selectedDate]);
+  }, [selectedDate, fetchAiCoachingData]);
+
+
+  const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
+  const videoSeedForSelectedDate = selectedDate ? getVideoSeedForDate(selectedDate) : "defaultvideo";
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -136,9 +137,21 @@ export default function CoachingPage() {
   const handleJournalSave = () => {
     if (selectedDate) {
       console.log(`Journal entry for ${format(selectedDate, 'yyyy-MM-dd')} saved:`, currentJournalText);
+      localStorage.setItem(`journalEntry_${format(selectedDate, 'yyyy-MM-dd')}`, currentJournalText);
       toast({ title: "Dagboek opgeslagen", description: `Je reflectie voor ${format(selectedDate, 'PPP', { locale: nl })} is bewaard.` });
     }
   };
+
+  useEffect(() => {
+    if (selectedDate && isClient) {
+        const savedEntry = localStorage.getItem(`journalEntry_${format(selectedDate, 'yyyy-MM-dd')}`);
+        if (savedEntry) {
+            setJournalEntries(prev => ({ ...prev, [format(selectedDate, 'yyyy-MM-dd')]: savedEntry }));
+        } else {
+            setJournalEntries(prev => ({ ...prev, [format(selectedDate, 'yyyy-MM-dd')]: "" }));
+        }
+    }
+  }, [selectedDate, isClient]);
 
   const handleTaskToggle = (taskId: string) => {
     setTasksForSelectedDate(prevTasks => 
@@ -196,11 +209,11 @@ export default function CoachingPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-primary" />
-              Affirmatie voor {selectedDate && isClient ? format(selectedDate, 'PPP', { locale: nl }) : 'vandaag'}
+              Affirmatie {selectedDate && isClient ? `voor ${format(selectedDate, 'PPP', { locale: nl })}` : ''}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg italic text-foreground">{affirmationForSelectedDate}</p>
+            {isLoadingAiContent ? <Skeleton className="h-6 w-3/4" /> : <p className="text-lg italic text-foreground">{aiCoachingContent?.dailyAffirmation || "Selecteer een datum."}</p>}
           </CardContent>
         </Card>
         <Card className="shadow-lg">
@@ -254,7 +267,8 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {selectedDate && tasksForSelectedDate.length > 0 ? (
+            {isLoadingAiContent && tasksForSelectedDate.length === 0 ? <Skeleton className="h-20 w-full" /> : null}
+            {!isLoadingAiContent && selectedDate && tasksForSelectedDate.length > 0 ? (
               tasksForSelectedDate.map(task => (
                 <div key={task.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
                   <Checkbox 
@@ -269,7 +283,7 @@ export default function CoachingPage() {
                 </div>
               ))
             ) : (
-              <p className="text-muted-foreground">Geen taken voor deze dag of selecteer een datum.</p>
+              !isLoadingAiContent && <p className="text-muted-foreground">Geen taken voor deze dag of selecteer een datum.</p>
             )}
           </CardContent>
            <CardFooter>
@@ -295,7 +309,7 @@ export default function CoachingPage() {
                 height={225} 
                 className="rounded-md mb-2 mx-auto" 
                 data-ai-hint="coaching video"
-                key={videoSeedForSelectedDate} // Ensures image re-renders if seed changes
+                key={videoSeedForSelectedDate} 
               />
             ) : (
               <div className="h-[225px] w-full max-w-[400px] mx-auto bg-muted rounded-md flex items-center justify-center text-muted-foreground mb-2">
@@ -320,10 +334,15 @@ export default function CoachingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {currentCoachingMessage ? (
+            {isLoadingAiContent ? (
+                 <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-3/4" />
+                 </div>
+            ) : aiCoachingContent?.dailyCoachingTip ? (
               <div>
-                <h3 className="font-semibold text-lg mb-2">{currentCoachingMessage.title}</h3>
-                <p className="text-muted-foreground">{currentCoachingMessage.body}</p>
+                <p className="text-muted-foreground">{aiCoachingContent.dailyCoachingTip}</p>
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-10">
@@ -343,12 +362,6 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* TODO: Implement Community Forum features:
-                - Moderatie van peer-to-peer interacties
-                - Privacy controls voor minderjarigen  
-                - Anti-cyberpesting maatregelen
-                - Ouderlijk toezicht opties (indien van toepassing voor deze doelgroep)
-            */}
             <p className="text-muted-foreground">Deel je ervaringen, stel vragen en steun anderen in onze community (binnenkort).</p>
           </CardContent>
           <CardFooter>
@@ -363,10 +376,6 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* TODO: Implement AI Coach Chat with considerations:
-                - Duidelijke grenzen wat AI wel/niet kan (geen medische adviezen)
-                - Escalatie naar echte professionals bij zorgen (hoe detecteren/aanbieden?)
-            */}
             <p className="text-muted-foreground">Stel vragen en krijg directe feedback van je AI-gedreven coach (binnenkort).</p>
           </CardContent>
           <CardFooter>
@@ -398,18 +407,6 @@ export default function CoachingPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* TODO: Implement Media Bibliotheek with content:
-                  - Aandachtsstrategieën (focus techniques)
-                  - Sociale vaardigheden oefeningen  
-                  - Plannings- en organisatietools
-                  - Gevoelensregulatie technieken
-                  - Stress-management voor school
-                  - Sensorische regulatie tips (voor HSP-achtige kenmerken)
-                  - Structuur & routine builders (voor ADHD-achtige patronen)
-                  - Sociale scripts & oefeningen (voor autisme-spectrum kenmerken)
-                  Frame as "tools die voor iedereen nuttig kunnen zijn".
-                  Consider visual variation in content types (video, audio, text).
-              */}
               <p className="text-muted-foreground">Vind extra oefeningen, video's en audio om je groei te ondersteunen (binnenkort).</p>
             </CardContent>
             <CardFooter><Button variant="outline" className="w-full" disabled>Verken Bibliotheek</Button></CardFooter>
@@ -422,7 +419,6 @@ export default function CoachingPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* TODO: Consider same content suggestions as Media Bibliotheek for workshops/courses */}
               <p className="text-muted-foreground">Nieuw: 5-daagse Mindfulness Marathon! Schrijf je in (binnenkort).</p>
             </CardContent>
             <CardFooter><Button variant="outline" className="w-full" disabled>Bekijk Workshops</Button></CardFooter>
@@ -446,7 +442,6 @@ export default function CoachingPage() {
           <Button variant="outline" className="w-full" disabled>Bekijk Rapporten</Button>
         </CardFooter>
       </Card>
-
     </div>
   );
 }
