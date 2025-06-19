@@ -21,7 +21,8 @@ import {
     ClipboardList,
     ChevronsRightLeft,
     ThumbsUp,
-    EyeOff
+    EyeOff,
+    ArrowRight
 } from 'lucide-react';
 
 // Helper components gedefinieerd inline
@@ -40,7 +41,6 @@ const StepCard = ({ number, title, description, children }: { number: number, ti
       </p>
       {children}
     </div>
-    {/* Connector line verwijderd zoals gevraagd */}
   </div>
 );
 
@@ -262,14 +262,19 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
               </div>
             </StepCard>
         </div>
-           <div className="text-center mt-12 pb-20">
+           <div className="text-center mt-12 pb-20 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Link href="/#pricing">Bekijk onze plannen</Link>
                 </Button>
-                <p className="mt-4 text-sm text-muted-foreground">
-                    De Vergelijkende Analyse is onderdeel van ons &quot;Gezins Gids&quot; en &quot;Premium&quot; abonnement.
-                </p>
+                <Button size="lg" variant="outline" asChild>
+                    <Link href="/for-parents/voorbeeld-analyse-rapport">
+                        Bekijk Voorbeeld Rapport <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
             </div>
+            <p className="text-center -mt-16 pb-20 text-sm text-muted-foreground">
+                De Vergelijkende Analyse is onderdeel van ons &quot;Gezins Gids&quot; en &quot;Premium&quot; abonnement.
+            </p>
         </main>
       <Footer />
     </div>
