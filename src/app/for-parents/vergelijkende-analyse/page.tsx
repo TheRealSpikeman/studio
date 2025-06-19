@@ -1,6 +1,7 @@
 
 "use client";
 
+import type { ReactNode, ElementType } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -18,11 +19,10 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import type { ReactNode, ElementType } from 'react';
 
 // Helper components defined inline
 const StepCard = ({ number, title, description, children, isLast = false }: { number: number, title: string, description: string, children: React.ReactNode, isLast?: boolean }) => (
-  <div className={cn("step flex flex-col md:flex-row items-start md:items-center mb-16 relative", {"md:flex-row-reverse ": number % 2 === 0})}>
+  <div className={cn("step flex flex-col md:flex-row items-start md:items-center mb-12 md:mb-16 relative", {"md:flex-row-reverse ": number % 2 === 0})}>
     <div className={cn(
         "step-number bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6 md:mb-0",
         {"md:mr-8": number % 2 !== 0, "md:ml-8 text-right md:text-left": number % 2 === 0}
@@ -36,15 +36,7 @@ const StepCard = ({ number, title, description, children, isLast = false }: { nu
       </p>
       {children}
     </div>
-    {!isLast && (
-      <div className={cn(
-        "connector absolute left-1/2 -bottom-8 w-1 h-8 bg-primary transform -translate-x-1/2",
-        "md:left-10 md:top-full md:-bottom-0 md:h-auto md:w-16 md:h-1 md:bg-primary md:translate-x-0 md:-translate-y-1/2",
-        "hidden md:block"
-      )}
-      style={{ left: number % 2 !== 0 ? '2.5rem' : 'auto', right: number % 2 === 0 ? '2.5rem' : 'auto', top: 'calc(50% + 40px)' }}
-      ></div>
-    )}
+    {/* Connector div is verwijderd */}
   </div>
 );
 
@@ -105,7 +97,7 @@ export default function VergelijkendeAnalysePage() {
         {/* Header Section */}
         <div className="header bg-background text-foreground py-16 px-6 md:py-20 md:px-10 text-center">
             <Search className="h-16 w-16 mx-auto mb-6 text-primary" />
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Ouder-Kind Vergelijkende Analyse</h1>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">Ouder-Kind Vergelijkende Analyse</h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                 Ontdek verschillen en overeenkomsten in perceptie tussen ouder en kind, en krijg concrete handvatten voor betere communicatie en begrip.
             </p>
