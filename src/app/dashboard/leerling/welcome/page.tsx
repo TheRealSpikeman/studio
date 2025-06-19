@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Removed CardDescription, CardFooter as they are not used in the final design
-import { CheckSquare, BookOpen, ArrowRight, UserCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckSquare, BookOpen, ArrowRight, UserCircle, Sparkles, Check } from 'lucide-react';
 
 // Dummy user data - in a real app, this would come from context/auth
 const currentUser = {
@@ -34,7 +34,6 @@ export default function LeerlingWelcomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-2xl text-center">
-        {/* Sparkles icon removed from here */}
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Welkom bij MindNavigator, {currentUser.name}!
         </h1>
@@ -42,7 +41,36 @@ export default function LeerlingWelcomePage() {
           Klaar om jezelf beter te leren kennen en je sterke punten te ontdekken?
         </p>
         
-        <p className="text-base text-foreground/90 leading-relaxed mb-6">
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-primary/20 mb-10 text-left shadow-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-primary text-xl">
+              <Sparkles className="h-6 w-6" />
+              Wat kun je verwachten?
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <span className="text-sm text-foreground/80">Persoonlijke inzichten over jouw unieke denkstijl en talenten.</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <span className="text-sm text-foreground/80">Dagelijkse coaching content, speciaal afgestemd op jouw resultaten en behoeften.</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <span className="text-sm text-foreground/80">Praktische tips, tools en oefeningen die écht bij jou passen en je verder helpen.</span>
+              </div>
+                 <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <span className="text-sm text-foreground/80">Een veilige plek voor zelfontdekking en persoonlijke groei.</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <p className="text-base text-foreground/90 leading-relaxed mb-6 text-left">
           MindNavigator is jouw persoonlijke gids. We beginnen met een korte zelfreflectie tool die speciaal voor jouw leeftijdscategorie ({currentUser.ageGroup} jaar) is ontworpen. Dit helpt je:
         </p>
         

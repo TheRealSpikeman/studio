@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { QuizAudience } from '@/types/quiz-admin'; // Import QuizAudience type
+import type { QuizAudience } from '@/types/quiz-admin'; 
 
 const GenerateAiQuizInputSchema = z.object({
   topic: z.string().describe('The main topic or theme of the quiz.'),
@@ -32,6 +32,7 @@ const GenerateAiQuizInputSchema = z.object({
     .describe(
       'The difficulty level of the quiz, which should influence question complexity and weight (e.g., "laag", "gemiddeld", "hoog").'
     ),
+  quizPurpose: z.enum(['onboarding', 'deep_dive', 'reflection', 'goal_setting', 'general']).optional().describe('The specific purpose of this quiz within the user journey, e.g., initial onboarding, deep dive, reflection.'),
 });
 export type GenerateAiQuizInput = z.infer<typeof GenerateAiQuizInputSchema>;
 
@@ -68,7 +69,7 @@ const prompt = ai.definePrompt({
   name: 'generateAiQuizPrompt',
   input: {schema: GenerateAiQuizInputSchema},
   output: {schema: GenerateAiQuizOutputSchema},
-  prompt: `You are an expert in creating educational quiz questions in Dutch, tailored for specific target audiences and difficulty levels, with a focus on neurodiversity and personal development.
+  prompt: `You are an expert in creating educational quiz questions in Dutch, tailored for specific target audiences and difficulty levels, with a focus on neurodiversity and personal development for the MindNavigator platform.
 
 Your task is to generate a set of quiz questions based on the following criteria:
 Topic: {{{topic}}}
@@ -76,6 +77,7 @@ Target Audience: {{{audience}}}
 Domain/Category: {{{category}}}
 Number of Questions: {{{numQuestions}}}
 Difficulty Level: {{{difficulty}}}
+{{#if quizPurpose}}Quiz Purpose/Journey Moment: {{{quizPurpose}}}{{/if}}
 
 For each question:
 1. Generate a clear and concise question text in Dutch.
@@ -99,12 +101,45 @@ Specific instructions based on Target Audience:
   The questions should help the parent reflect on their child's behavior, challenges, and strengths related to the {{{topic}}} within the {{{category}}}.
 {{/if}}
 
+{{#if (eq quizPurpose "onboarding")}}
+CONTEXT: This quiz is the starting point of a personalized journey for a neurodivergent young person. The results will be used for:
+- Daily coaching tips
+- Personal affirmations
+- Specific micro-tasks
+- Long-term growth insights
+
+TONE: Use an age-appropriate, encouraging, and non-judgmental tone for {{{audience}}}.
+
+QUESTION TYPES that work well for personalization:
+- Situational scenarios: "When you feel stressed, what do you usually do?"
+- Preferences: "What way of learning works best for you?"
+- Strength recognition: "What are you really good at?"
+- Challenge acknowledgment: "What do you find difficult sometimes?"
+
+AVOID:
+- Yes/no questions (they provide little input for personalization)
+- Medical/diagnostic language
+- Negatively charged words
+
+RESULT FOCUS: Generate questions that yield rich, usable data for meaningful personalization. Focus on basic self-discovery and creating a positive first impression.
+{{/if}}
+{{#if (eq quizPurpose "deep_dive")}}
+Focus on deeper questions about behavior patterns and coping strategies.
+{{/if}}
+{{#if (eq quizPurpose "reflection")}}
+This is a monthly check-in. Focus on reflection on progress and current feelings.
+{{/if}}
+{{#if (eq quizPurpose "goal_setting")}}
+Focus on questions that help the user identify and articulate personal goals.
+{{/if}}
+
 Focus on creating thoughtful questions that encourage self-reflection relevant to the {{{audience}}} on the {{{topic}}} within the {{{category}}}.
 Make sure the language used is appropriate for the specified {{{audience}}} (either for the person themselves or for a parent answering about their child).
 Ensure you generate exactly {{{numQuestions}}} questions.
 `,
   custom: {
     stringIncludes: (text: string, substring: string) => text.includes(substring),
+    eq: (a: any, b: any) => a === b,
   }
 });
 
@@ -119,12 +154,9 @@ const generateAiQuizFlow = ai.defineFlow(
     if (!output) {
       throw new Error('AI did not return an output.');
     }
-    // Ensure the AI returns the correct number of questions
     if (output.questions.length !== input.numQuestions) {
         console.warn(`AI generated ${output.questions.length} questions, expected ${input.numQuestions}. Truncating or padding might be needed if strict count is required by UI.`);
-        // For now, we'll return what AI gave, but this could be handled more robustly.
     }
     return output;
   }
 );
-

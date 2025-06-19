@@ -134,12 +134,21 @@ const difficultyOptions = [
     { id: 'hoog', label: 'Hoog' },
 ];
 
+const quizPurposeOptions: { id: 'onboarding' | 'deep_dive' | 'reflection' | 'goal_setting' | 'general'; label: string }[] = [
+    { id: 'general', label: 'Algemeen (standaard)' },
+    { id: 'onboarding', label: 'Onboarding (eerste kennismaking)' },
+    { id: 'deep_dive', label: 'Verdieping (na basis quiz)' },
+    { id: 'reflection', label: 'Reflectie (periodieke check-in)' },
+    { id: 'goal_setting', label: 'Doelen Stellen (actiegericht)' },
+];
+
 const aiQuizFormSchema = z.object({
   topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
   audience: z.string({ required_error: "Selecteer een doelgroep." }) as z.ZodType<QuizAudience>,
   category: z.string({ required_error: "Selecteer een domein/categorie." }) as z.ZodType<QuizCategory>,
   numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
   difficulty: z.string({ required_error: "Selecteer een moeilijkheidsgraad."}),
+  quizPurpose: z.enum(['onboarding', 'deep_dive', 'reflection', 'goal_setting', 'general']).optional(),
 });
 type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
 
@@ -188,8 +197,8 @@ export default function QuizManagementPage() {
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
         thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200`,
-        analysisDetailLevel: q.analysisDetailLevel || 'standaard', // Default for existing quizzes
-        analysisInstructions: q.analysisInstructions || '', // Default for existing quizzes
+        analysisDetailLevel: q.analysisDetailLevel || 'standaard',
+        analysisInstructions: q.analysisInstructions || '',
     })));
   }, []);
 
@@ -202,6 +211,7 @@ export default function QuizManagementPage() {
       category: undefined,
       numQuestions: 10,
       difficulty: "gemiddeld",
+      quizPurpose: "general",
     },
   });
 
@@ -255,6 +265,7 @@ export default function QuizManagementPage() {
         category: data.category, 
         numQuestions: data.numQuestions,
         difficulty: data.difficulty,
+        quizPurpose: data.quizPurpose || 'general',
       };
       const aiResult = await generateAiQuiz(aiInput);
 
@@ -265,8 +276,8 @@ export default function QuizManagementPage() {
       const newQuizId = `ai-${Date.now()}`;
       const newQuiz: QuizAdmin = {
         id: newQuizId,
-        title: `${data.topic} (AI: ${data.audience} - ${data.category} - ${data.difficulty})`,
-        description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}). Pas de titel en beschrijving eventueel aan.`,
+        title: `${data.topic} (AI: ${data.audience} - ${data.quizPurpose})`,
+        description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}, doel: ${data.quizPurpose}). Pas de titel en beschrijving eventueel aan.`,
         audience: [data.audience],
         category: data.category,
         status: 'concept',
@@ -282,8 +293,8 @@ export default function QuizManagementPage() {
         metaTitle: `AI Quiz: ${data.topic}`,
         metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`,
         thumbnailUrl: `https://picsum.photos/seed/ai-${newQuizId}/400/200`,
-        analysisDetailLevel: 'standaard', // Default AI analyse instelling
-        analysisInstructions: '', // Default AI analyse instructie
+        analysisDetailLevel: 'standaard',
+        analysisInstructions: '', 
       };
 
       setQuizzes(prev => [newQuiz, ...prev]);
@@ -350,96 +361,26 @@ export default function QuizManagementPage() {
                     <Bot className="mr-2 h-4 w-4" /> Genereer met AI
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2"><Zap className="text-primary h-5 w-5"/>Genereer Quiz met AI</DialogTitle>
                     <DialogDescription>
-                      Geef de AI instructies om een nieuwe quiz te genereren, inclusief moeilijkheidsgraad en weging.
+                      Geef de AI instructies om een nieuwe quiz te genereren.
                     </DialogDescription>
                   </DialogHeader>
                   <Form {...aiQuizForm}>
-                    <form onSubmit={aiQuizForm.handleSubmit(handleGenerateAiQuiz)} className="space-y-4 py-4">
-                      <FormField
-                        control={aiQuizForm.control}
-                        name="topic"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Onderwerp / Thema</FormLabel>
-                            <FormControl><Input placeholder="Bijv. Sociale Vaardigheden" {...field} /></FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={aiQuizForm.control}
-                        name="audience"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Doelgroep</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                {audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={aiQuizForm.control}
-                        name="category"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Domein / Categorie</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={aiQuizForm.control}
-                        name="numQuestions"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Aantal Vragen</FormLabel>
-                            <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                {numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={aiQuizForm.control}
-                        name="difficulty"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Moeilijkheid / Weging</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                {difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <DialogFooter className="pt-4">
+                    <form onSubmit={aiQuizForm.handleSubmit(handleGenerateAiQuiz)} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-3">
+                      <FormField control={aiQuizForm.control} name="topic" render={({ field }) => (<FormItem><FormLabel>Onderwerp / Thema</FormLabel><FormControl><Input placeholder="Bijv. Sociale Vaardigheden" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={aiQuizForm.control} name="audience" render={({ field }) => (<FormItem><FormLabel>Doelgroep</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl><SelectContent>{audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                      <FormField control={aiQuizForm.control} name="category" render={({ field }) => (<FormItem><FormLabel>Domein / Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                      <FormField control={aiQuizForm.control} name="numQuestions" render={({ field }) => (<FormItem><FormLabel>Aantal Vragen</FormLabel><Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl><SelectContent>{numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                      <FormField control={aiQuizForm.control} name="difficulty" render={({ field }) => (<FormItem><FormLabel>Moeilijkheid / Weging</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl><SelectContent>{difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription><FormMessage /></FormItem>)} />
+                      <FormField control={aiQuizForm.control} name="quizPurpose" render={({ field }) => (<FormItem><FormLabel>Quiz Doel (Journey Moment)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value || 'general'}><FormControl><SelectTrigger><SelectValue placeholder="Kies doel/moment" /></SelectTrigger></FormControl><SelectContent>{quizPurposeOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Context voor AI over het doel van de quiz.</FormDescription><FormMessage /></FormItem>)} />
+                      <DialogFooter className="pt-4 sticky bottom-0 bg-background py-3 z-10">
                         <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)} disabled={isGeneratingAiQuiz}>Annuleren</Button>
                         <Button type="submit" disabled={isGeneratingAiQuiz}>
                           {isGeneratingAiQuiz && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          {isGeneratingAiQuiz ? "Bezig met genereren..." : "Vraag AI om quiz te genereren"}
+                          {isGeneratingAiQuiz ? "Bezig..." : "Genereer Quiz"}
                         </Button>
                       </DialogFooter>
                     </form>
@@ -536,10 +477,7 @@ export default function QuizManagementPage() {
                              asChild={quiz.status !== 'concept'}
                           >
                             <Link 
-                              href={quiz.slug && quiz.slug.startsWith('teen-neurodiversity-quiz') 
-                                      ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || 'Tiener (15-18 jr, voor zichzelf)'}` 
-                                      : `/quiz/${quiz.slug || quiz.id}`
-                                    }
+                              href={quiz.id.startsWith('teen-neurodiversity-quiz') || quiz.id.startsWith('teen-neuro-') || quiz.id.startsWith('basis-neuro-') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || 'Tiener (15-18 jr, voor zichzelf)'}` : `/quiz/${quiz.slug || quiz.id}`}
                               target="_blank" 
                               rel="noopener noreferrer"
                             >

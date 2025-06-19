@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
-  PlaySquare, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap, Loader2
+  PlaySquare, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap, Loader2, Info
 } from 'lucide-react'; 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -17,8 +17,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, isEqual, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights'; // Updated import
-import type { GenerateCoachingInsightsOutput } from '@/ai/flows/generate-coaching-insights'; // Import output type
+import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights';
+import type { GenerateCoachingInsightsOutput } from '@/ai/flows/generate-coaching-insights';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import Link from 'next/link';
 
 interface DailyTask {
   id: string;
@@ -28,8 +30,15 @@ interface DailyTask {
 
 const COACHING_START_DATE = startOfDay(new Date(Date.now() - 86400000 * 30)); // Approx 30 days ago
 
+const JOURNEY_STEPS = {
+  WELCOME_SEEN: 'journey_welcome_seen_v1', // Assuming this might be set elsewhere
+  QUIZ_COMPLETED: 'journey_quiz_completed_v1', // Should be set after quiz completion
+  FIRST_COACHING_VIEWED: 'journey_first_coaching_viewed_v1',
+  SEVEN_DAY_STREAK: 'journey_seven_day_streak_v1' // For future use
+};
+
+
 const generateStaticDailyTasks = (date: Date): DailyTask[] => {
-  // Placeholder: static tasks until AI provides more specific microTaskSuggestion
   const baseTasks = [
     { id: 'task1-static', label: 'Doe 5 minuten ademhalingsoefening', completed: false },
     { id: 'task2-static', label: 'Lees de dagelijkse affirmatie', completed: false },
@@ -59,6 +68,8 @@ export default function CoachingPage() {
   const [aiCoachingContent, setAiCoachingContent] = useState<AiCoachingContent | null>(null);
   const [isLoadingAiContent, setIsLoadingAiContent] = useState(false);
   const [userName, setUserName] = useState<string>("een MindNavigator gebruiker");
+  const [onboardingAnalysisText, setOnboardingAnalysisText] = useState<string | null>(null);
+  const [showFirstTimeCoachingExplanation, setShowFirstTimeCoachingExplanation] = useState(false);
 
 
   useEffect(() => {
@@ -70,53 +81,64 @@ export default function CoachingPage() {
       if (storedUserData) {
         try {
           const userData = JSON.parse(storedUserData);
-          if (userData.name) {
-            setUserName(userData.name);
-          }
-        } catch (e) {
-          console.warn("Kon gebruikersnaam niet laden voor coaching personalisatie.");
-        }
+          if (userData.name) setUserName(userData.name);
+        } catch (e) { console.warn("Kon gebruikersnaam niet laden."); }
+      }
+      const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
+      setOnboardingAnalysisText(storedAnalysis);
+
+      const firstCoachingViewed = localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED);
+      if (!firstCoachingViewed) {
+         setShowFirstTimeCoachingExplanation(true);
       }
     }
   }, []);
 
   const fetchAiCoachingData = useCallback(async (date: Date) => {
+    if (!onboardingAnalysisText) {
+      toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
+      setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
+      setIsLoadingAiContent(false);
+      return;
+    }
+
     setIsLoadingAiContent(true);
     setAiCoachingContent(null); 
-    if (typeof window !== 'undefined') {
-      const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
-      if (storedAnalysis) {
-        try {
-          const input = {
-            onboardingAnalysisText: storedAnalysis,
-            userName: userName,
-            currentDate: format(date, "EEEE d MMMM", { locale: nl })
-          };
-          const result: GenerateCoachingInsightsOutput = await generateCoachingInsights(input);
-          setAiCoachingContent(result);
-          // Add AI microtask to static tasks
-          const aiTask: DailyTask = { id: `ai-task-${format(date, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
-          setTasksForSelectedDate(prevTasks => [aiTask, ...prevTasks.filter(t => !t.id.startsWith('ai-task-'))]);
+    try {
+      const input = {
+        onboardingAnalysisText: onboardingAnalysisText,
+        userName: userName,
+        currentDate: format(date, "EEEE d MMMM", { locale: nl })
+      };
+      const result: GenerateCoachingInsightsOutput = await generateCoachingInsights(input);
+      setAiCoachingContent(result);
+      
+      const aiTask: DailyTask = { id: `ai-task-${format(date, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
+      // setTasksForSelectedDate(prevTasks => [aiTask, ...prevTasks.filter(t => !t.id.startsWith('ai-task-'))]);
+      // Update tasksForSelectedDate based on current static tasks + AI task
+      const staticTasks = generateStaticDailyTasks(date);
+      setTasksForSelectedDate([aiTask, ...staticTasks]);
 
-        } catch (error) {
-          console.error("Error fetching AI coaching insights:", error);
-          toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
-          setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
-        }
-      } else {
-        toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
-        setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
+
+      if (!localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED)) {
+        localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
+        setShowFirstTimeCoachingExplanation(false); // Hide after first successful load
       }
+
+    } catch (error) {
+      console.error("Error fetching AI coaching insights:", error);
+      toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
+      setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
     }
     setIsLoadingAiContent(false);
-  }, [toast, userName]);
+  }, [toast, userName, onboardingAnalysisText]);
 
   useEffect(() => {
-    if (selectedDate) {
-      setTasksForSelectedDate(generateStaticDailyTasks(selectedDate));
-      fetchAiCoachingData(selectedDate);
+    if (selectedDate && onboardingAnalysisText !== undefined) { // Ensure onboardingAnalysisText has been attempted to load
+      setTasksForSelectedDate(generateStaticDailyTasks(selectedDate)); // Set static tasks first
+      fetchAiCoachingData(selectedDate); // Then fetch AI data which might add to tasks
     }
-  }, [selectedDate, fetchAiCoachingData]);
+  }, [selectedDate, fetchAiCoachingData, onboardingAnalysisText]);
 
 
   const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
@@ -174,6 +196,36 @@ export default function CoachingPage() {
         </p>
       </section>
 
+      {isClient && onboardingAnalysisText && (
+        <div className="mb-6">
+          <Alert variant="default" className="bg-gradient-to-r from-primary/5 to-purple-50/50 border-primary/20 shadow-sm">
+            <Sparkles className="h-5 w-5 !text-primary" />
+            <AlertTitleUi className="text-primary font-semibold">Jouw Persoonlijke Coaching</AlertTitleUi>
+            <AlertDescUi className="text-foreground/80">
+              Op basis van jouw Zelfreflectie Tool krijg je elke dag content die echt bij jou past. 
+              De affirmatie, tip en taak hieronder zijn speciaal voor jou samengesteld.
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-primary hover:text-primary/80 ml-2"
+                asChild
+              >
+                <Link href="/dashboard/results">Bekijk je resultaten →</Link>
+              </Button>
+            </AlertDescUi>
+          </Alert>
+        </div>
+      )}
+      {isClient && showFirstTimeCoachingExplanation && (
+         <Alert variant="default" className="mb-6 bg-blue-50 border-blue-200 text-blue-700">
+            <Info className="h-5 w-5 !text-blue-600" />
+            <AlertTitleUi className="text-blue-700 font-semibold">Welkom bij je Coaching Hub!</AlertTitleUi>
+            <AlertDescUi className="text-blue-600">
+                Dit is je persoonlijke ruimte voor dagelijkse groei. Elke dag vind je hier een nieuwe affirmatie, een coaching tip en een kleine taak, allemaal afgestemd op de inzichten uit je Zelfreflectie Tool.
+            </AlertDescUi>
+          </Alert>
+      )}
+
+
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -213,7 +265,7 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoadingAiContent ? <Skeleton className="h-6 w-3/4" /> : <p className="text-lg italic text-foreground">{aiCoachingContent?.dailyAffirmation || "Selecteer een datum."}</p>}
+            {isLoadingAiContent ? <Skeleton className="h-6 w-3/4" /> : <p className="text-lg italic text-foreground">{aiCoachingContent?.dailyAffirmation || "Selecteer een datum of voltooi de Zelfreflectie Tool."}</p>}
           </CardContent>
         </Card>
         <Card className="shadow-lg">
@@ -267,7 +319,7 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {isLoadingAiContent && tasksForSelectedDate.length === 0 ? <Skeleton className="h-20 w-full" /> : null}
+            {isLoadingAiContent && tasksForSelectedDate.length === 0 && onboardingAnalysisText ? <Skeleton className="h-20 w-full" /> : null}
             {!isLoadingAiContent && selectedDate && tasksForSelectedDate.length > 0 ? (
               tasksForSelectedDate.map(task => (
                 <div key={task.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
@@ -283,7 +335,7 @@ export default function CoachingPage() {
                 </div>
               ))
             ) : (
-              !isLoadingAiContent && <p className="text-muted-foreground">Geen taken voor deze dag of selecteer een datum.</p>
+              !isLoadingAiContent && <p className="text-muted-foreground">Geen taken voor deze dag, selecteer een datum of voltooi de Zelfreflectie Tool.</p>
             )}
           </CardContent>
            <CardFooter>
@@ -346,7 +398,7 @@ export default function CoachingPage() {
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-10">
-                {selectedDate && isClient ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum om een coaching bericht te zien."}
+                {selectedDate && isClient && onboardingAnalysisText ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum of voltooi de Zelfreflectie Tool voor een tip."}
               </p>
             )}
           </CardContent>
@@ -445,4 +497,3 @@ export default function CoachingPage() {
     </div>
   );
 }
-
