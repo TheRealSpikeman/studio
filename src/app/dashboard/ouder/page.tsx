@@ -5,8 +5,8 @@ import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, Calenda
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react'; // Added useState and useEffect
-import { useRouter } from 'next/navigation'; // Added useRouter
+import { useEffect, useState } from 'react'; 
+import { useRouter } from 'next/navigation'; 
 
 interface DashboardItem {
   id: string;
@@ -166,7 +166,6 @@ export default function OuderDashboardPage() {
   }, [isClient, router]);
 
   if (isClient && typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_OUDER)) {
-    // Return null or a loading indicator while redirecting
     return <div className="flex h-full w-full items-center justify-center p-8">Welkomstpagina laden...</div>;
   }
   
@@ -188,7 +187,7 @@ export default function OuderDashboardPage() {
               item.colorClass || "bg-card"
             )}
           >
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
               <div className="flex items-start gap-3">
                 <div className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
@@ -201,13 +200,13 @@ export default function OuderDashboardPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-grow space-y-2">
+            <CardContent className="flex-grow space-y-2 px-4 sm:px-6">
               <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
               {item.statistic && (
                 <p className="text-sm font-medium text-primary pt-1">{item.statistic}</p>
               )}
             </CardContent>
-            <CardFooter className="pt-3">
+            <CardFooter className="pt-3 px-4 sm:px-6 pb-4 sm:pb-6">
               <Button
                 variant={item.buttonVariant || 'default'}
                 className="w-full"

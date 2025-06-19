@@ -15,10 +15,10 @@ export function FinalCtaSection() {
           MindNavigator biedt u de tools en de kennis.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-          <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow text-lg px-8 py-6">
+          <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow text-base sm:text-lg px-8 py-3 sm:py-6">
             <Link href="/signup">Start met Gezins Gids</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow text-lg px-8 py-6">
+          <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow text-base sm:text-lg px-8 py-3 sm:py-6">
             <Link href="/quizzes">Doe een gratis zelfreflectie tool</Link>
           </Button>
         </div>

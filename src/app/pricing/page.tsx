@@ -175,7 +175,7 @@ export default function PricingPage() {
         activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
             ...plan,
             shortName: plan.shortName ?? '',
-            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess[f.id] || false])), 
+            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess?.[f.id] || false])), 
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
@@ -185,7 +185,7 @@ export default function PricingPage() {
       activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
             ...plan,
             shortName: plan.shortName ?? '',
-            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess[f.id] || false])),
+            featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess?.[f.id] || false])),
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
@@ -314,7 +314,7 @@ export default function PricingPage() {
                         <p className="text-xs text-green-600 font-medium mt-1">{plan.tagline}</p>
                       )}
                     </CardHeader>
-                    <CardContent className="flex-grow space-y-3 mt-1">
+                    <CardContent className="flex-grow space-y-3 mt-1 px-4 sm:px-6">
                       <p className="mb-3 text-sm text-muted-foreground">{plan.description}</p>
                       <ul className="space-y-0.5">
                         {featuresToDisplayOnCard.map((appFeature) => (
@@ -352,16 +352,16 @@ export default function PricingPage() {
                           </p>
                       )}
                     </CardContent>
-                    <CardFooter className="mt-auto pt-5 pb-6 flex flex-col gap-2.5">
+                    <CardFooter className="mt-auto pt-5 pb-6 px-4 sm:px-6 flex flex-col gap-2.5">
                       <Button
                         onClick={() => handlePlanSelection(plan.id)}
-                        className="w-full h-12 text-base font-semibold"
+                        className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
                         variant={plan.isPopular ? 'default' : (plan.id === 'free_start' ? 'outline' : 'secondary')}
                       >
                         {plan.id === 'free_start' ? 'Start gratis ontdekking' : `Kies ${plan.name.replace(' - Maandelijks', '')}`}
                       </Button>
                       {yearlyOptionText && yearlyPlanId && (
-                        <div className="text-center mt-1.5">
+                        <div className="text-center mt-1.5 w-full">
                           <Button
                             onClick={() => handlePlanSelection(yearlyPlanId)}
                             variant="link"
@@ -369,7 +369,7 @@ export default function PricingPage() {
                           >
                             <span>{yearlyOptionText}</span>
                             {yearlySavingsHighlight && (
-                              <span className="text-accent font-semibold ml-1">- {yearlySavingsHighlight}</span>
+                              <span className="text-accent font-semibold ml-1 whitespace-nowrap">- {yearlySavingsHighlight}</span>
                             )}
                           </Button>
                         </div>

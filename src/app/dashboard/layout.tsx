@@ -21,15 +21,14 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      {/* SidebarTrigger is now always visible for toggling */}
-      <SidebarTrigger className="mr-2" /> 
+      <SidebarTrigger className="mr-2 md:hidden" /> 
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
       </div>
       
       <div className="flex items-center gap-4">
-        <div className="flex flex-col items-end">
+        <div className="hidden sm:flex sm:flex-col sm:items-end">
             <p className="text-sm font-medium">Welkom, {userName}!</p>
             <p className="text-xs text-muted-foreground">{userEmail} (Rol: {currentDashboardRole})</p>
         </div>
@@ -81,7 +80,7 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
       leerling: '/dashboard',
       tutor: '/dashboard/tutor',
       ouder: '/dashboard/ouder',
-      coach: '/dashboard/coach', // Added coach base path
+      coach: '/dashboard/coach', 
     };
 
     let shouldRedirect = false;
@@ -104,7 +103,7 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
           targetPath = roleBasePaths.tutor;
         }
         break;
-      case 'coach': // New case for coach
+      case 'coach': 
         if (!pathname.startsWith('/dashboard/coach')) {
           shouldRedirect = true;
           targetPath = roleBasePaths.coach;
@@ -122,7 +121,9 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
           '/dashboard/results', 
           '/dashboard/homework-assistance', 
           '/dashboard/community',
-          '/dashboard/leerling/lessons'
+          '/dashboard/leerling/lessons',
+          '/dashboard/leerling/quizzes',
+          '/dashboard/leerling/welcome'
         ];
         const isPathAllowedForLeerling = 
           pathname === '/dashboard' || 
@@ -131,7 +132,7 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
         if (!isPathAllowedForLeerling) {
           if (pathname.startsWith('/dashboard/admin') || 
               pathname.startsWith('/dashboard/tutor') || 
-              pathname.startsWith('/dashboard/coach') || // Added coach check
+              pathname.startsWith('/dashboard/coach') || 
               pathname.startsWith('/dashboard/ouder')) {
             shouldRedirect = true;
             targetPath = roleBasePaths.leerling;
@@ -154,11 +155,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <DashboardRoleProvider>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full"> {/* This div is now the direct child of SidebarProvider */}
+        <div className="flex min-h-screen w-full"> 
           <DashboardSidebar />
-          <SidebarInset className="flex flex-1 flex-col"> {/* SidebarInset wraps header and main */}
+          <SidebarInset className="flex flex-1 flex-col"> 
             <DashboardHeader /> 
-            <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
+            <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 bg-secondary/30">
               <DashboardContentWrapper>{children}</DashboardContentWrapper>
             </main>
           </SidebarInset>

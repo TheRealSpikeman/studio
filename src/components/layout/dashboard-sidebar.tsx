@@ -29,7 +29,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion // Added MessageCircleQuestion
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion 
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -37,7 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 
-const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1'; // Key for localStorage
+const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1'; 
 
 interface NavItem {
   href: string;
@@ -166,7 +166,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/content-management/new', label: 'Nieuwe Pagina', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/content-management' },
     ]
   },
-  { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, adminOnly: true }, // Nieuwe link
+  { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, adminOnly: true }, 
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: Euro, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
@@ -190,7 +190,6 @@ function SidebarNavigationContent() {
         setIsOuderOnboardingPending(!onboardingCompleted);
 
         if (currentDashboardRole === 'leerling') {
-            // Replace with actual logic if community access is controlled by settings
             const communityAccessAllowed = JSON.parse(localStorage.getItem(`privacySettings_child1_allowCommunityAccess`) ?? 'true');
             setShowCommunityNavItemForLeerling(communityAccessAllowed);
         } else {
@@ -220,11 +219,14 @@ function SidebarNavigationContent() {
           <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
             <SelectTrigger 
               id="role-switcher" 
-              className="h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center"
+              className={cn(
+                "h-9", 
+                "group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center"
+              )}
               aria-label="Selecteer een rol"
             >
                <span className="group-data-[collapsible=icon]:hidden"><SelectValue placeholder="Selecteer een rol" /></span>
-               <Shuffle className="h-5 w-5 group-data-[collapsible=icon]:block hidden" />
+               <Shuffle className={cn("h-5 w-5", sidebarState === 'expanded' ? 'group-data-[collapsible=icon]:hidden' : 'group-data-[collapsible=icon]:block')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="leerling">Leerling</SelectItem>

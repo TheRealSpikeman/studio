@@ -10,14 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { SiteLogo } from '@/components/common/site-logo'; // Assuming dashboard layout might not be used here
+import { SiteLogo } from '@/components/common/site-logo'; 
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react';
 
-// Simulate user data for onboarding
-// In a real app, this would come from an auth context/store after initial login with temp password.
 const MOCKED_TUTOR_ONBOARDING_USER = {
-  email: "tutor.test@example.com", // Pre-filled from initial login
+  email: "tutor.test@example.com", 
   status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval',
 };
 
@@ -48,12 +46,7 @@ export default function TutorOnboardingPage() {
     bio: '',
   });
 
-  // Effect to check if user should be here (conceptual)
   useEffect(() => {
-    // In a real app, check auth status and user role/status
-    // If not (MOCKED_TUTOR_ONBOARDING_USER.email && (MOCKED_TUTOR_ONBOARDING_USER.status === 'pending_onboarding' || MOCKED_TUTOR_ONBOARDING_USER.status === 'pending_approval')) {
-    //   router.push('/login'); // or '/dashboard/tutor' if already completed
-    // }
   }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -85,23 +78,21 @@ export default function TutorOnboardingPage() {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmitForReview = () => {
-    // TODO: Validate all fields for the current step or overall before submitting
     console.log("Submitting tutor profile for review:", formData, "User:", MOCKED_TUTOR_ONBOARDING_USER.email);
-    // Simulate API call
-    MOCKED_TUTOR_ONBOARDING_USER.status = 'pending_approval'; // Update mock status
+    MOCKED_TUTOR_ONBOARDING_USER.status = 'pending_approval'; 
     toast({
       title: "Profiel ingediend voor beoordeling",
       description: "Je profiel is compleet ingevuld. Onze administrators gaan je aanvraag nu beoordelen. Dit kan 1–2 werkdagen duren.",
       duration: 7000,
     });
-    router.push('/dashboard/tutor'); // Redirect to tutor dashboard, which will show pending status
+    router.push('/dashboard/tutor'); 
   };
   
   const progressPercentage = (currentStep / TOTAL_STEPS) * 100;
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 1: // Wachtwoord wijzigen
+      case 1: 
         return (
           <div className="space-y-4">
             <CardTitle className="text-xl">Stap 1: Wachtwoord Instellen</CardTitle>
@@ -119,13 +110,13 @@ export default function TutorOnboardingPage() {
             )}
           </div>
         );
-      case 2: // Vakken & Uurtarief
+      case 2: 
         return (
           <div className="space-y-6">
             <CardTitle className="text-xl">Stap 2: Vakken & Uurtarief</CardTitle>
             <div>
               <Label>In welke vakken wil je bijles geven?</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                 {subjectOptions.map(opt => (
                   <div key={opt.id} className="flex items-center space-x-2">
                     <Checkbox 
@@ -153,7 +144,7 @@ export default function TutorOnboardingPage() {
             </div>
           </div>
         );
-      case 3: // Uploads CV & VOG
+      case 3: 
         return (
           <div className="space-y-6">
             <CardTitle className="text-xl">Stap 3: Documenten Uploaden</CardTitle>
@@ -175,7 +166,7 @@ export default function TutorOnboardingPage() {
             </div>
           </div>
         );
-      case 4: // Beschikbaarheid
+      case 4: 
         return (
           <div className="space-y-4">
             <CardTitle className="text-xl">Stap 4: Beschikbaarheid</CardTitle>
@@ -190,7 +181,7 @@ export default function TutorOnboardingPage() {
             />
           </div>
         );
-      case 5: // Bevestiging
+      case 5: 
         return (
           <div className="space-y-4">
             <CardTitle className="text-xl flex items-center gap-2"><CheckCircle2 className="text-green-500 h-6 w-6" />Stap 5: Bevestiging</CardTitle>
