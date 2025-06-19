@@ -24,9 +24,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { useToast } from '@/hooks/use-toast';
-import { jsPDF, type TextOptionsLight } from 'jspdf'; // Importeren van jsPDF
-import { format } from 'date-fns'; // Voor datum in PDF
-import { nl } from 'date-fns/locale'; // Voor Nederlandse datum
+import { jsPDF, type TextOptionsLight } from 'jspdf'; 
+import { format } from 'date-fns'; 
+import { nl } from 'date-fns/locale'; 
 
 
 interface ReportSectionProps {
@@ -62,8 +62,8 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 }
 
 const PDF_COLORS = {
-  primary: hslToRgb(27, 86, 50), 
-  accent: hslToRgb(168, 76, 42), 
+  primary: hslToRgb(25, 78, 52), // Oranje Hoofdkleur
+  accent: hslToRgb(168, 76, 42), // Teal
   foreground: hslToRgb(210, 40, 10), 
   mutedForeground: hslToRgb(210, 20, 45), 
   background: hslToRgb(200, 17, 94), 
@@ -72,10 +72,10 @@ const PDF_COLORS = {
   green: hslToRgb(145, 63, 42), 
   yellow: hslToRgb(48, 96, 59), 
   blue: hslToRgb(207, 90, 54), 
-  orange: hslToRgb(25, 78, 52), // Primary is oranje
+  orange: hslToRgb(25, 78, 52), 
   purple: hslToRgb(262, 85, 55),
   sectionDefault: {
-    bg: hslToRgb(210, 20, 98), // Very light gray
+    bg: hslToRgb(210, 20, 98), 
     border: hslToRgb(210, 10, 80), 
     text: hslToRgb(210, 40, 10), 
     title: hslToRgb(210, 40, 25), 
@@ -100,7 +100,7 @@ export default function VoorbeeldAnalyseRapportPage() {
   const { toast } = useToast();
 
   const reportContent = {
-    title: "Voorbeeldrapport: Vergelijkende Analyse",
+    title: "Voorbeeldrapport: Vergelijkende Analyse Ouder-Kind",
     description: `Inzichten voor u en ${childName}, gebaseerd op de "Ken je Kind" quiz en ${childName}'s Zelfreflectie.`,
     sections: [
       {
@@ -108,9 +108,10 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: EyeOff,
         iconColorClass: "text-orange-600",
         content: [
-          "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een probleem, en geeft aan dat het meer afhangt van de interesse in het vak. <span class='text-xs'>(<em>Mogelijkheid: Het verschil kan liggen in de definitie van 'focus' of de momenten waarop u Sofie observeert.</em>)</span>",
-          "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. <span class='text-xs'>(<em>Mogelijkheid: Dit kan duiden op een introverte aard die door u als verlegenheid wordt geïnterpreteerd.</em>)</span>",
-          "<strong>Omgaan met Verandering:</strong> U merkt dat Sofie van slag raakt bij onverwachte veranderingen. Sofie geeft aan dat dit vooral geldt voor grote veranderingen, maar kleine aanpassingen wel prima vindt."
+          "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een probleem, en geeft aan dat het meer afhangt van de interesse in het vak. <span class='text-xs'>(<em>Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.</em>)</span>",
+          "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. <span class='text-xs'>(<em>Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.</em>)</span>",
+          "<strong>Omgaan met Verandering:</strong> U merkt dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt. <span class='text-xs'>(<em>Mogelijkheid: De impact van de verandering speelt een rol.</em>)</span>",
+          "<strong>Energielevel na School:</strong> U observeert dat Sofie vaak moe is na school. Sofie geeft aan zich soms 'leeg' te voelen, maar ook momenten van energie te hebben voor leuke dingen. <span class='text-xs'>(<em>Mogelijkheid: Het soort activiteit na school beïnvloedt haar energieniveau sterk.</em>)</span>"
         ]
       },
       {
@@ -118,9 +119,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: ThumbsUp,
         iconColorClass: "text-green-600",
         content: [
-          "<strong>Creativiteit:</strong> Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <span class='text-xs'>(<em>Tip: Stimuleer deze gedeelde kracht door samen creatieve projecten te doen of haar ruimte te geven voor haar creatieve uitingen.</em>)</span>",
-          "<strong>Doorzettingsvermogen:</strong> U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt.",
-          "<strong>Behulpzaamheid:</strong> U waardeert hoe Sofie helpt in huis. Sofie geeft aan graag anderen te helpen."
+          "<strong>Creativiteit:</strong> Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <span class='text-xs'>(<em>Tip: Stimuleer dit door samen een 'creatief project van de week' te kiezen, of een speciaal notitieboek voor haar verhalen te geven.</em>)</span>",
+          "<strong>Doorzettingsvermogen:</strong> U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. <span class='text-xs'>(<em>Tip: Benoem en vier deze successen expliciet om dit te versterken.</em>)</span>",
+          "<strong>Behulpzaamheid:</strong> U waardeert hoe Sofie helpt in huis (bijv. tafel dekken). Sofie geeft aan graag anderen te helpen en voelt zich goed als ze dat doet. <span class='text-xs'>(<em>Tip: Geef haar verantwoordelijkheden die passen bij haar leeftijd en waarin ze haar behulpzaamheid kan tonen.</em>)</span>"
         ]
       },
        {
@@ -128,8 +129,8 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: Lightbulb,
         iconColorClass: "text-yellow-500",
         content: [
-          "<strong>Impact van Prikkels (Kind Perspectief):</strong> Sofie geeft aan soms overprikkeld te raken door geluid in de klas, iets wat u mogelijk minder direct opmerkt. <span class='text-xs'>(<em>Reflectiepunt: Observeer Sofie's reactie op drukke omgevingen en bespreek of ze strategieën nodig heeft om hiermee om te gaan.</em>)</span>",
-          "<strong>Behoefte aan Erkenning (Ouder Perspectief):</strong> U geeft aan dat Sofie soms onzeker kan zijn, terwijl Sofie dit zelf niet direct als een groot punt noemt in haar zelfreflectie. <span class='text-xs'>(<em>Reflectiepunt: Sofie is zich mogelijk niet bewust van hoe haar onzekerheid overkomt, of u interpreteert haar gedrag als onzekerheid terwijl zij dit anders ervaart.</em>)</span>"
+          "<strong>Impact van Sensorische Prikkels (Kind Ziet, Ouder Minder):</strong> Sofie geeft aan soms overprikkeld te raken door geluid en drukte in de klas, iets wat u mogelijk minder direct opmerkt thuis. <span class='text-xs'>(<em>Reflectiepunt voor ouder: Observeer Sofie's reactie in drukke omgevingen buitenshuis en bespreek of ze strategieën nodig heeft om hiermee om te gaan, zoals het gebruik van een koptelefoon.</em>)</span>",
+          "<strong>Behoefte aan Externe Validatie (Ouder Ziet, Kind Minder):</strong> U geeft aan dat Sofie soms onzeker kan zijn en bevestiging zoekt. Sofie zelf noemt dit niet direct als een groot punt in haar zelfreflectie, maar focust meer op haar prestaties. <span class='text-xs'>(<em>Reflectiepunt voor ouder: Sofie is zich mogelijk niet bewust van hoe haar zoektocht naar validatie overkomt, of het is een normale ontwikkelingsfase. Blijf haar aanmoedigen en geef opbouwende feedback op haar proces, niet alleen het resultaat.</em>)</span>"
         ]
       },
       {
@@ -137,10 +138,10 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: MessageCircle,
         iconColorClass: "text-blue-600",
         content: [
-          "Praat met Sofie over het verschil in beleving rondom 'focus op school'. Vraag haar: \"Wat helpt jou om je aandacht bij een taak te houden? En wanneer vind je het lastig?\"",
-          "Erken haar selectiviteit in vriendschappen. Vraag: \"Wat vind je fijn aan je huidige vrienden? En wat zoek je in een vriendschap?\"",
-          "Bespreek samen hoe jullie kunnen omgaan met 'overprikkeling'. Vraag: \"Zijn er momenten dat het te druk voor je is? Wat zou je dan helpen?\"",
-          "Geef specifieke complimenten over haar doorzettingsvermogen en creativiteit om haar zelfbeeld te versterken."
+          "Praat met Sofie over het verschil in beleving rondom 'focus op school'. Vraag: \"Sofie, ik merk soms dat je het lastig vindt met schoolwerk. Hoe ervaar jij dat? Wat helpt jou om je aandacht erbij te houden? En wanneer vind je het écht moeilijk?\"",
+          "Erken haar selectiviteit in vriendschappen. Een goede gespreksopener kan zijn: \"Ik zie dat je het fijn hebt met [naam vriend/vriendin]. Wat vind je zo leuk aan hem/haar? En wat voor soort dingen vind je belangrijk in een vriendschap?\"",
+          "Bespreek samen hoe jullie kunnen omgaan met 'overprikkeling'. Vraag: \"Zijn er momenten (bijvoorbeeld op school of een feestje) dat het allemaal even te veel voor je is? Wat voel je dan? En wat zou jou op zo'n moment helpen?\"",
+          "Geef specifieke complimenten over haar doorzettingsvermogen en creativiteit. In plaats van \"Goed gedaan\", zeg: \"Ik heb gezien hoe hard je aan dat project hebt gewerkt, ook toen het even moeilijk was. Knap dat je hebt doorgezet!\" of \"Wat een origineel idee voor dat verhaal, hoe ben je daarop gekomen?\""
         ]
       },
       {
@@ -148,9 +149,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: ClipboardList,
         iconColorClass: "text-purple-600",
         content: [
-          "<strong>Wekelijks Creatief Uurtje:</strong> Plan één keer per week een moment waarop Sofie (en eventueel u) tijd besteedt aan een creatieve activiteit naar keuze.",
-          "<strong>\"Focus Plan\" Samen Maken:</strong> Bekijk samen met Sofie haar huiswerkplanning. Bespreek welke vakken meer focus vragen en hoe ze pauzes kan inplannen.",
-          "<strong>\"Prikkel Thermometer\" Introduceren:</strong> Maak (visueel) afspraken over hoe Sofie kan aangeven dat ze overprikkeld raakt en wat ze dan nodig heeft (bijv. even rust op haar kamer)."
+          "<strong>Actie: \"Wekelijks Creatief Uurtje\"</strong> - Blok wekelijks een 'Creatief Uurtje' in de agenda voor Sofie (en eventueel samen). Bespreek vooraf wat ze wil doen (tekenen, schrijven, knutselen). Zorg voor de benodigde materialen.",
+          "<strong>Actie: \"Focus Plan Samen Maken\"</strong> - Maak samen met Sofie een visueel 'Focus Plan' voor de week (bijv. op een whiteboard). Identificeer 'focus-taken' (huiswerk, leren) en 'rust-taken' (hobby, ontspanning) en plan deze afwisselend in, inclusief korte pauzes (Pomodoro-techniek).",
+          "<strong>Actie: \"Prikkel Thermometer\" Introduceren</strong> - Ontwerp samen met Sofie een 'Prikkel Thermometer' (bijv. met kleuren groen-oranje-rood). Bespreek wat elke kleur betekent (groen=ok, oranje=het wordt te veel, rood=overprikkeld) en welke actie Sofie (of u) kan ondernemen als ze zich in oranje of rood voelt (bijv. even rust, koptelefoon op, hulp vragen)."
         ]
       },
        {
@@ -159,9 +160,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         iconColorClass: "text-foreground",
         content: [
           "Dit rapport is een momentopname en bedoeld als startpunt voor gesprek en begrip. Het is geen diagnostisch instrument.",
-          "De percepties van zowel u als Sofie zijn waardevol. Er is geen 'goed' of 'fout'.",
-          "Blijf open communiceren en observeer hoe Sofie zich ontwikkelt. Pas strategieën aan waar nodig.",
-          "Overweeg professionele begeleiding als u zich zorgen blijft maken of als specifieke uitdagingen aanhouden. MindNavigator kan u helpen een passende coach of tutor te vinden."
+          "De perspectieven van zowel u als Sofie zijn waardevol. Er is geen 'goed' of 'fout' in hoe jullie dingen ervaren.",
+          "Blijf open communiceren en observeer hoe Sofie zich ontwikkelt. Pas strategieën en het actieplan aan waar nodig, in overleg met haar.",
+          "Overweeg professionele begeleiding als u zich zorgen blijft maken of als specifieke uitdagingen aanhouden. MindNavigator kan u helpen een passende coach of tutor te vinden die ervaring heeft met de thema's die voor Sofie spelen."
         ]
       },
     ],
@@ -189,19 +190,26 @@ export default function VoorbeeldAnalyseRapportPage() {
         
         const lineHeight = fontSize * (options.lineHeightFactor || PDF_STYLES.lineHeightFactor); 
         let lines: string[] | Element;
-        if (options.isHtml) {
-            lines = doc.splitTextToSize(text.replace(/<[^>]*>?/gm, ''), options.maxWidth || usableWidth); // Basic HTML strip for length calculation
-        } else {
-            lines = doc.splitTextToSize(text, options.maxWidth || usableWidth);
-        }
+        
+        // Basic HTML stripping for PDF line splitting and rendering
+        const plainTextForSplitting = text.replace(/<strong>(.*?)<\/strong>/g, '$1') // Bolds
+                                        .replace(/<em>(.*?)<\/em>/g, '$1') // Italics
+                                        .replace(/<span class='text-xs'>(.*?)<\/span>/g, '$1') // Spans for text-xs
+                                        .replace(/<br\s*\/?>/g, '\n'); // Line breaks
+
+        lines = doc.splitTextToSize(plainTextForSplitting, options.maxWidth || usableWidth);
         
         (lines as string[]).forEach((line: string) => {
           if (currentY + lineHeight > pageHeight - margins.bottom) {
             doc.addPage();
             currentY = margins.top;
           }
+          // For actual rendering, we can try to respect very basic HTML if isHtml is true, or just render plain text
           if (options.isHtml) {
-            doc.html(line, { x, y: currentY, autoPaging: 'text', width: options.maxWidth || usableWidth }); // Experimental for basic HTML
+            // jsPDF's html method is experimental and has limitations. 
+            // For simple bold/italic, manual font style changes might be better if `html` doesn't work well.
+            // For now, rendering as plain text for simplicity in this example.
+            doc.text(line.replace(/<[^>]*>?/gm, ''), x, currentY, {lineHeightFactor: options.lineHeightFactor || 1.15 });
           } else {
             doc.text(line, x, currentY, {lineHeightFactor: options.lineHeightFactor || 1.15 });
           }
@@ -225,7 +233,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         y = addTextLines(section.title, margins.left, y, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
         y += PDF_STYLES.paragraphSpacing / 2;
         section.content.forEach(item => {
-            // Basic HTML stripping for PDF, or render as plain text
+            // Basic HTML stripping for PDF
             const plainItem = item.replace(/<strong>(.*?)<\/strong>/g, '$1').replace(/<em>(.*?)<\/em>/g, '$1').replace(/<span.*?>(.*?)<\/span>/g, '$1').replace(/<br\s*\/?>/g, '\n');
             y = addTextLines(`• ${plainItem}`, margins.left + 5, y, { color: PDF_COLORS.foreground, lineHeightFactor: 0.5 });
         });
@@ -286,9 +294,9 @@ export default function VoorbeeldAnalyseRapportPage() {
               {reportContent.sections.map((section, index) => (
                 <React.Fragment key={index}>
                   <ReportSection title={section.title} Icon={section.Icon} iconColorClass={section.iconColorClass}>
-                    <ul className="list-disc list-inside space-y-2 pl-2">
+                    <ul className="list-none space-y-3 pl-0"> {/* Changed to list-none and adjusted spacing */}
                       {section.content.map((item, itemIndex) => (
-                        <li key={itemIndex} dangerouslySetInnerHTML={{ __html: item }}></li>
+                        <li key={itemIndex} dangerouslySetInnerHTML={{ __html: item }} className="leading-relaxed"></li>
                       ))}
                     </ul>
                   </ReportSection>
