@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
 
@@ -87,6 +87,26 @@ export default function ForParentsPage() {
                     </ul>
                 </section>
               </div>
+              
+              <section className="p-6 bg-primary/10 rounded-lg border border-primary/30">
+                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <Search className="h-7 w-7" />
+                  NIEUW: Ouder-Kind Vergelijkende Analyse
+                </h2>
+                <p className="mb-3">
+                  Verkrijg dieper inzicht in de dynamiek tussen u en uw kind. Onze nieuwe module analyseert de resultaten van de "Ken je Kind" quiz (die u invult) en de zelfreflectie van uw kind.
+                </p>
+                <ul className="list-disc list-inside space-y-1.5 pl-5 mb-4 text-base">
+                  <li>Identificeer verschillen en overeenkomsten in percepties.</li>
+                  <li>Ontvang AI-gegenereerde tips voor betere communicatie.</li>
+                  <li>Krijg een concreet familie actieplan met haalbare stappen.</li>
+                </ul>
+                <Button asChild>
+                  <Link href="/for-parents/vergelijkende-analyse">
+                    Lees meer over de Vergelijkende Analyse <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </section>
 
               <section>
                 <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
@@ -151,3 +171,5 @@ export default function ForParentsPage() {
   );
 }
 
+
+    
