@@ -24,7 +24,7 @@ import {
     EyeOff
 } from 'lucide-react';
 
-// Helper components defined inline
+// Helper components gedefinieerd inline
 const StepCard = ({ number, title, description, children }: { number: number, title: string, description: string, children: ReactNode }): JSX.Element => (
   <div className={cn("step flex flex-col md:flex-row items-start md:items-center mb-12 md:mb-16 relative", {"md:flex-row-reverse ": number % 2 === 0})}>
     <div className={cn(
@@ -40,13 +40,13 @@ const StepCard = ({ number, title, description, children }: { number: number, ti
       </p>
       {children}
     </div>
-    {/* Connector line removed as per user request */}
+    {/* Connector line verwijderd zoals gevraagd */}
   </div>
 );
 
 const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: string, Icon: ElementType, content: ReactNode, isParent?: boolean }): JSX.Element => (
   <Card className={cn(
-    "participant-card rounded-xl border-2 h-full",
+    "participant-card rounded-xl border-2 h-full transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02]",
     isParent ? "bg-primary/10 border-primary" : "bg-accent/10 border-accent"
   )}>
     <CardHeader className="pb-3">
@@ -68,7 +68,9 @@ const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: st
 );
 
 const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: ElementType, items: Array<{ type: string, description: string }> }): JSX.Element => (
-  <Card className="comparison-card bg-card shadow-lg rounded-xl border border-border h-full">
+  <Card className={cn(
+    "comparison-card bg-card shadow-lg rounded-xl border border-border h-full transition-all duration-200 ease-in-out hover:shadow-xl hover:scale-[1.03] hover:border-primary/40"
+    )}>
     <CardHeader className="pb-3">
       <CardTitle className="comparison-title text-xl font-semibold text-foreground flex items-center gap-2">
         <Icon className="h-6 w-6 text-primary" />
@@ -87,7 +89,9 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
 );
 
 const ActionItemCard = ({ title, description }: { title: string, description: string }): JSX.Element => (
-  <div className="action-item bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg p-5 h-full text-accent-foreground">
+  <div className={cn(
+    "action-item bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg p-5 h-full text-accent-foreground transition-all duration-200 ease-in-out hover:bg-white/30 hover:border-white/50 hover:shadow-md"
+    )}>
     <h4 className="action-title font-semibold text-lg mb-1.5">{title}</h4>
     <p className="action-description text-sm opacity-90 leading-normal">{description}</p>
   </div>
@@ -106,7 +110,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                 Ontdek verschillen en overeenkomsten in perceptie tussen ouder en kind, en krijg concrete handvatten voor betere communicatie en begrip.
             </p>
         </div>
-
+        
         <div className="flow-container max-w-5xl mx-auto py-12 md:py-16 px-4">
             {/* Step 1 */}
             <StepCard
@@ -160,30 +164,30 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                       </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                      <p className="text-sm text-muted-foreground">De AI vergelijkt antwoorden op dezelfde thema&apos;s en creëert een diepgaande analyse van:</p>
+                      <p className="text-sm text-muted-foreground">De AI vergelijkt antwoorden op dezelfde thema's en creëert een diepgaande analyse van:</p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent/30 transition-colors">
                               <div className="flex items-center gap-2 mb-1">
                                   <ChevronsRightLeft className="h-5 w-5 text-primary" />
                                   <strong className="text-foreground">Perceptie Gaps</strong>
                               </div>
                               <span className="text-xs text-muted-foreground">Waar zien ouder en kind dingen anders?</span>
                           </Button>
-                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent/30 transition-colors">
                               <div className="flex items-center gap-2 mb-1">
                                   <ThumbsUp className="h-5 w-5 text-primary" />
                                   <strong className="text-foreground">Gedeelde Sterktes</strong>
                               </div>
                               <span className="text-xs text-muted-foreground">Wat zien beiden als positief?</span>
                           </Button>
-                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent/30 transition-colors">
                               <div className="flex items-center gap-2 mb-1">
                                   <EyeOff className="h-5 w-5 text-primary" />
                                   <strong className="text-foreground">Blinde Vlekken</strong>
                               </div>
                               <span className="text-xs text-muted-foreground">Wat mist één van de twee?</span>
                           </Button>
-                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent/30 transition-colors">
                               <div className="flex items-center gap-2 mb-1">
                                   <MessageCircle className="h-5 w-5 text-primary" />
                                   <strong className="text-foreground">Communicatie Kansen</strong>
@@ -259,7 +263,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
             </StepCard>
         </div>
            <div className="text-center mt-12 pb-20">
-                <Button size="lg" asChild>
+                <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Link href="/#pricing">Bekijk onze plannen</Link>
                 </Button>
                 <p className="mt-4 text-sm text-muted-foreground">
