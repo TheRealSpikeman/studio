@@ -22,7 +22,7 @@ import {
     HeartHandshake
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; // Corrected import
 
 interface ReportSectionProps {
   title: string;
@@ -188,3 +188,4 @@ export default function VoorbeeldAnalyseRapportPage() {
     </div>
   );
 }
+
