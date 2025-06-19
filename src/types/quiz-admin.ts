@@ -27,6 +27,7 @@ export type QuizAudience =
 
 export type QuizCategory = 'Basis' | 'ADD' | 'ADHD' | 'HSP' | 'ASS' | 'AngstDepressie' | 'Thema' | 'Ouder Observatie'; // Added Ouder Observatie
 export type QuizStatusAdmin = 'concept' | 'published';
+export type AnalysisDetailLevel = 'beknopt' | 'standaard' | 'uitgebreid';
 
 export interface QuizSubtestConfig {
   subtestId: string; // e.g., 'ADD', 'HSP' that maps to a QuizCategory
@@ -48,4 +49,6 @@ export interface QuizAdmin {
   thumbnailUrl?: string;
   lastUpdatedAt: string; // ISO date string
   createdAt: string; // ISO date string
+  analysisDetailLevel?: AnalysisDetailLevel; // Nieuw
+  analysisInstructions?: string; // Nieuw: Admin-specifieke instructies voor de AI-analyse
 }

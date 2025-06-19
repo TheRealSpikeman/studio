@@ -19,11 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight, ImageUp } from "lucide-react";
+import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight, ImageUp, BotIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import type { QuizAudience, QuizCategory, QuizStatusAdmin } from '@/types/quiz-admin';
+import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel } from '@/types/quiz-admin';
 import React from "react"; // Import React for useRef
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
@@ -56,6 +56,12 @@ const subtestProfileOptions = [
   { id: 'AngstDepressie', label: 'Angst/Depressie Profiel' },
 ];
 
+const analysisDetailOptions: { id: AnalysisDetailLevel; label: string }[] = [
+    { id: 'beknopt', label: 'Beknopt (korte samenvatting)' },
+    { id: 'standaard', label: 'Standaard (aanbevolen)' },
+    { id: 'uitgebreid', label: 'Uitgebreid (diepgaande analyse)' },
+];
+
 const quizFormSchema = z.object({
   title: z.string().min(3, { message: "Titel moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
@@ -80,6 +86,8 @@ const quizFormSchema = z.object({
       threshold: z.coerce.number().min(0).max(4, {message: "Drempelwaarde tussen 0-4."}),
     })
   ).optional(),
+  analysisDetailLevel: z.enum(['beknopt', 'standaard', 'uitgebreid'] as [AnalysisDetailLevel, ...AnalysisDetailLevel[]]).optional(),
+  analysisInstructions: z.string().optional(),
 });
 
 export type QuizFormData = z.infer<typeof quizFormSchema>; // Exporting for EditQuizPage
@@ -101,6 +109,8 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
         ...quizData,
         questions: quizData.questions.map(q => ({ ...q, weight: q.weight ?? 1})), 
         subtestConfigs: quizData.subtestConfigs || [], 
+        analysisDetailLevel: quizData.analysisDetailLevel || 'standaard',
+        analysisInstructions: quizData.analysisInstructions || '',
     } : {
       title: "",
       description: "",
@@ -113,6 +123,8 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
       thumbnailUrl: "",
       questions: [{ text: "", example: "", weight: 1 }],
       subtestConfigs: [],
+      analysisDetailLevel: 'standaard',
+      analysisInstructions: "",
     },
   });
 
@@ -475,6 +487,46 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             </CardContent>
             </Card>
         )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><BotIcon className="h-5 w-5 text-primary"/>AI Analyse Instellingen (Optioneel)</CardTitle>
+            <CardDescription>
+              Configureer hier hoe de AI de resultaten van deze quiz moet analyseren voor de gebruiker. Deze instellingen worden gebruikt door de "generateQuizAnalysis" flow.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="analysisDetailLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Detailniveau AI Analyse</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || 'standaard'}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Selecteer detailniveau" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      {analysisDetailOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Kies hoe uitgebreid de AI-analyse moet zijn.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="analysisInstructions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Specifieke AI Analyse Instructies</FormLabel>
+                  <FormControl><Textarea placeholder="Bijv. 'Focus in de analyse extra op de impact van sociale situaties.' of 'Gebruik een zeer bemoedigende toon.' Laat leeg voor standaard instructies." {...field} rows={4} /></FormControl>
+                  <FormDescription>Geef hier extra context of focuspunten mee voor de AI bij het genereren van de analyse voor deze quiz. Als dit veld gevuld is, heeft het voorrang boven de standaard logica van het gekozen detailniveau.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

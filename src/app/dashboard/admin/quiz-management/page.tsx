@@ -35,7 +35,9 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 2).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
     slug: 'basis-neuro-15-18', metaTitle: 'Basis Neuroprofiel Quiz (15-18 jaar)', metaDescription: 'Doe de neurodiversiteitstest voor 15-18 jarigen.',
-    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1518/400/200'
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1518/400/200',
+    analysisDetailLevel: 'standaard',
+    analysisInstructions: 'Focus op het geven van concrete, leeftijdsspecifieke tips voor 15-18 jarigen.',
   },
   { 
     id: 'teen-neuro-12-14', title: 'Basis Zelfreflectie (12-14 jr)', 
@@ -48,7 +50,8 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 3).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
     slug: 'basis-neuro-12-14',
-    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200'
+    thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200',
+    analysisDetailLevel: 'standaard',
   },
    { 
     id: 'ouder-ken-je-kind-6-11', title: 'Ken je Kind (6-11 jr)', 
@@ -61,7 +64,8 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
     slug: 'ken-je-kind-6-11',
-    thumbnailUrl: 'https://picsum.photos/seed/kenjekind611/400/200'
+    thumbnailUrl: 'https://picsum.photos/seed/kenjekind611/400/200',
+    analysisDetailLevel: 'standaard',
   },
   { 
     id: 'exam-stress-planning', title: 'Examenvrees & Planning (Tieners)', 
@@ -74,7 +78,9 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
     slug: 'examenvrees-planning-quiz',
-    thumbnailUrl: 'https://picsum.photos/seed/examstress/400/200'
+    thumbnailUrl: 'https://picsum.photos/seed/examstress/400/200',
+    analysisDetailLevel: 'beknopt',
+    analysisInstructions: 'Houd de analyse over examenvrees kort en to-the-point.',
   },
   { 
     id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding (Alle)', 
@@ -87,7 +93,8 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
     slug: 'focus-digitale-afleiding',
-    thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200'
+    thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200',
+    analysisDetailLevel: 'uitgebreid',
   },
 ];
 
@@ -180,7 +187,9 @@ export default function QuizManagementPage() {
     setQuizzes(loadedQuizzes.map(q => ({
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
-        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200` 
+        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200`,
+        analysisDetailLevel: q.analysisDetailLevel || 'standaard', // Default for existing quizzes
+        analysisInstructions: q.analysisInstructions || '', // Default for existing quizzes
     })));
   }, []);
 
@@ -240,10 +249,10 @@ export default function QuizManagementPage() {
     });
     
     try {
-      const aiInput = { // Stuur de waarde van de selectie, niet het label
+      const aiInput = { 
         topic: data.topic,
-        audience: data.audience, // Gebruik de ID/value van de audience optie
-        category: data.category, // Gebruik de ID/value van de category optie
+        audience: data.audience, 
+        category: data.category, 
         numQuestions: data.numQuestions,
         difficulty: data.difficulty,
       };
@@ -273,6 +282,8 @@ export default function QuizManagementPage() {
         metaTitle: `AI Quiz: ${data.topic}`,
         metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`,
         thumbnailUrl: `https://picsum.photos/seed/ai-${newQuizId}/400/200`,
+        analysisDetailLevel: 'standaard', // Default AI analyse instelling
+        analysisInstructions: '', // Default AI analyse instructie
       };
 
       setQuizzes(prev => [newQuiz, ...prev]);
@@ -559,3 +570,4 @@ export default function QuizManagementPage() {
     </div>
   );
 }
+
