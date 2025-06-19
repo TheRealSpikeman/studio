@@ -1,3 +1,4 @@
+
 // src/app/feedback/page.tsx
 "use client";
 
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+// Removed Label import as FormLabel from form components will be used
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +16,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquareText, User, Mail, ListFilter, AlertTriangle, FileText, Settings, Lightbulb, MessageCircle, Workflow } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'; // FormField en FormItem toegevoegd
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from "@/components/ui/form"; // FormLabel added here
 
 const feedbackFormSchema = z.object({
   name: z.string().optional(),
@@ -180,3 +181,4 @@ export default function FeedbackPage() {
     </div>
   );
 }
+
