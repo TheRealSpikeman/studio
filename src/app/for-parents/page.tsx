@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight, Search } from 'lucide-react'; // Added Search here
 import Image from 'next/image';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
 
@@ -170,6 +170,3 @@ export default function ForParentsPage() {
     </div>
   );
 }
-
-
-    
