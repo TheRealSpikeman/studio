@@ -6,15 +6,15 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
-    Search, // For header icon
-    Users as UsersIcon, // For Ouder ParticipantCard
-    User, // For Kind ParticipantCard
-    Bot, // For AI Analysis section
-    Target, // For Perceptie Verschillen card
-    Sparkles, // For Gedeelde Sterktes card
-    Lightbulb, // For Blinde Vlekken card
-    MessageCircle, // For Communicatie Tips card
-    ClipboardList // For Familie Actieplan
+    Search,
+    Users as UsersIcon,
+    User,
+    Bot,
+    Target,
+    Sparkles,
+    Lightbulb,
+    MessageCircle,
+    ClipboardList
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -23,7 +23,10 @@ import type { ReactNode, ElementType } from 'react';
 // Helper components defined inline
 const StepCard = ({ number, title, description, children, isLast = false }: { number: number, title: string, description: string, children: React.ReactNode, isLast?: boolean }) => (
   <div className={cn("step flex flex-col md:flex-row items-start md:items-center mb-16 relative", {"md:flex-row-reverse ": number % 2 === 0})}>
-    <div className={cn("step-number bg-gradient-to-br from-primary to-accent text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6 md:mb-0", {"md:mr-8": number % 2 !== 0, "md:ml-8 text-right md:text-left": number % 2 === 0})}>
+    <div className={cn(
+        "step-number bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6 md:mb-0", 
+        {"md:mr-8": number % 2 !== 0, "md:ml-8 text-right md:text-left": number % 2 === 0}
+    )}>
       {number}
     </div>
     <div className={cn("step-content flex-1 text-center md:text-left", {"md:mr-8": number % 2 !== 0, "md:ml-8": number % 2 === 0 })}>
@@ -34,7 +37,13 @@ const StepCard = ({ number, title, description, children, isLast = false }: { nu
       {children}
     </div>
     {!isLast && (
-      <div className="connector absolute left-1/2 -bottom-8 md:left-10 md:top-full md:-bottom-0 md:h-auto w-1 h-8 md:w-auto md:h-16 bg-gradient-to-b from-primary via-accent to-transparent md:bg-gradient-to-r transform -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 hidden md:block" style={{ left: number % 2 !== 0 ? '2.5rem' : 'auto', right: number % 2 === 0 ? '2.5rem' : 'auto', top: 'calc(50% + 40px)' }}></div>
+      <div className={cn(
+        "connector absolute left-1/2 -bottom-8 w-1 h-8 bg-primary transform -translate-x-1/2",
+        "md:left-10 md:top-full md:-bottom-0 md:h-auto md:w-16 md:h-1 md:bg-primary md:translate-x-0 md:-translate-y-1/2",
+        "hidden md:block"
+      )} 
+      style={{ left: number % 2 !== 0 ? '2.5rem' : 'auto', right: number % 2 === 0 ? '2.5rem' : 'auto', top: 'calc(50% + 40px)' }}
+      ></div>
     )}
   </div>
 );
@@ -42,12 +51,12 @@ const StepCard = ({ number, title, description, children, isLast = false }: { nu
 const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: string, Icon: ElementType, content: ReactNode, isParent?: boolean }) => (
   <Card className={cn(
     "participant-card rounded-xl border-2 h-full",
-    isParent ? "bg-yellow-50 border-yellow-300" : "bg-blue-50 border-blue-300"
+    isParent ? "bg-primary/10 border-primary" : "bg-accent/10 border-accent" // Solid theme colors
   )}>
     <CardHeader className="pb-3">
       <CardTitle className={cn(
         "participant-title text-lg font-semibold flex items-center gap-2",
-        isParent ? "text-yellow-700" : "text-blue-700"
+        isParent ? "text-primary" : "text-accent"
       )}>
         <Icon className="h-6 w-6" />
         {title}
@@ -55,7 +64,7 @@ const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: st
     </CardHeader>
     <CardContent className={cn(
         "participant-content text-sm leading-normal",
-        isParent ? "text-yellow-800" : "text-blue-800"
+        isParent ? "text-primary/90" : "text-accent/90" // Adjusted text color for readability
     )}>
       {content}
     </CardContent>
@@ -82,7 +91,7 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
 );
 
 const ActionItemCard = ({ title, description }: { title: string, description: string }) => (
-  <div className="action-item bg-white/10 backdrop-blur-sm border border-border/20 rounded-lg p-5 h-full">
+  <div className="action-item bg-accent-foreground/10 backdrop-blur-sm border border-border/20 rounded-lg p-5 h-full text-accent-foreground">
     <h4 className="action-title font-semibold text-lg mb-1.5">{title}</h4>
     <p className="action-description text-sm opacity-90 leading-normal">{description}</p>
   </div>
@@ -94,10 +103,10 @@ export default function VergelijkendeAnalysePage() {
       <Header />
       <main className="flex-1">
         {/* Header Section */}
-        <div className="header bg-gradient-to-br from-slate-800 to-slate-900 text-white py-16 px-6 md:py-20 md:px-10 text-center">
-            <Search className="h-16 w-16 mx-auto mb-6 text-primary" />
+        <div className="header bg-primary text-primary-foreground py-16 px-6 md:py-20 md:px-10 text-center">
+            <Search className="h-16 w-16 mx-auto mb-6" />
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Ouder-Kind Vergelijkende Analyse</h1>
-            <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-primary-foreground/90 max-w-3xl mx-auto leading-relaxed">
                 Ontdek verschillen en overeenkomsten in perceptie tussen ouder en kind, en krijg concrete handvatten voor betere communicatie en begrip.
             </p>
         </div>
@@ -150,7 +159,7 @@ export default function VergelijkendeAnalysePage() {
               title="AI Vergelijkende Analyse"
               description="Onze AI analyseert beide perspectieven en identificeert patronen, verschillen en overeenkomsten. Deze analyse vormt de basis voor gepersonaliseerde family insights."
             >
-              <Card className="ai-analysis bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-xl p-6 my-6 text-center shadow-lg">
+              <Card className="ai-analysis bg-primary text-primary-foreground rounded-xl p-6 my-6 text-center shadow-lg">
                 <CardHeader className="pb-3">
                     <CardTitle className="text-2xl flex items-center justify-center gap-2 mb-3">
                         <Bot className="h-8 w-8" /> AI Verwerking
@@ -159,10 +168,10 @@ export default function VergelijkendeAnalysePage() {
                 <CardContent className="space-y-3">
                     <p className="text-sm">De AI vergelijkt antwoorden op dezelfde thema's en creëert een diepgaande analyse van:</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mt-4">
-                        <div className="bg-white/10 p-3 rounded-md"><strong>Perceptie Gaps:</strong> Waar zien ouder en kind dingen anders?</div>
-                        <div className="bg-white/10 p-3 rounded-md"><strong>Gedeelde Sterktes:</strong> Wat zien beiden als positief?</div>
-                        <div className="bg-white/10 p-3 rounded-md"><strong>Blinde Vlekken:</strong> Wat mist één van de twee?</div>
-                        <div className="bg-white/10 p-3 rounded-md"><strong>Communicatie Kansen:</strong> Hoe kunnen ze beter afstemmen?</div>
+                        <div className="bg-primary-foreground/10 p-3 rounded-md text-primary-foreground"><strong>Perceptie Gaps:</strong> Waar zien ouder en kind dingen anders?</div>
+                        <div className="bg-primary-foreground/10 p-3 rounded-md text-primary-foreground"><strong>Gedeelde Sterktes:</strong> Wat zien beiden als positief?</div>
+                        <div className="bg-primary-foreground/10 p-3 rounded-md text-primary-foreground"><strong>Blinde Vlekken:</strong> Wat mist één van de twee?</div>
+                        <div className="bg-primary-foreground/10 p-3 rounded-md text-primary-foreground"><strong>Communicatie Kansen:</strong> Hoe kunnen ze beter afstemmen?</div>
                     </div>
                 </CardContent>
               </Card>
@@ -217,7 +226,7 @@ export default function VergelijkendeAnalysePage() {
               description="Op basis van de analyse krijgt het gezin concrete, haalbare acties om de relatie en communicatie te verbeteren."
               isLast={true}
             >
-              <div className="action-plan bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl p-6 md:p-8 mt-6 shadow-xl">
+              <div className="action-plan bg-accent text-accent-foreground rounded-xl p-6 md:p-8 mt-6 shadow-xl">
                 <h3 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                   <ClipboardList className="h-7 w-7"/> Jouw Familie Actieplan
                 </h3>
@@ -246,3 +255,4 @@ export default function VergelijkendeAnalysePage() {
     </div>
   );
 }
+
