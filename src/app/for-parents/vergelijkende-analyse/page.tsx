@@ -1,49 +1,49 @@
 // src/app/for-parents/vergelijkende-analyse/page.tsx
 "use client";
 
-import type { ReactNode, ElementType } from 'react';
+import React, { type ReactNode, type ElementType } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+
 import {
     Search,
-    Users as UsersIcon, // Alias for Users
-    User,               // User (for ParticipantCard)
+    Users as UsersIcon,
+    User,
     Bot,
     Target,
     Sparkles,
     Lightbulb,
-    MessageCircle,      // Used in ComparisonInsightCard and AI analysis button
-    ClipboardList,      // Used in ActionItemCard
-    ChevronsRightLeft,  // Used in AI analysis button
-    ThumbsUp,           // Used in AI analysis button
-    EyeOff              // Used in AI analysis button
+    MessageCircle,
+    ClipboardList,
+    ChevronsRightLeft,
+    ThumbsUp,
+    EyeOff
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
 // Helper components defined inline
-const StepCard = ({ number, title, description, children }: { number: number, title: string, description: string, children: React.ReactNode }) => (
+const StepCard = ({ number, title, description, children }: { number: number, title: string, description: string, children: ReactNode }): JSX.Element => (
   <div className={cn("step flex flex-col md:flex-row items-start md:items-center mb-12 md:mb-16 relative", {"md:flex-row-reverse ": number % 2 === 0})}>
     <div className={cn(
         "step-number bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6 md:mb-0",
-        {"md:mr-8": number % 2 !== 0, "md:ml-8 text-right md:text-left": number % 2 === 0}
+        {"md:mr-8": number % 2 !== 0, "md:ml-8": number % 2 === 0}
     )}>
       {number}
     </div>
-    <div className={cn("step-content flex-1 text-center md:text-left", {"md:mr-8": number % 2 !== 0, "md:ml-8": number % 2 === 0 })}>
+    <div className={cn("step-content flex-1", {"md:mr-8 text-center md:text-left": number % 2 !== 0, "md:ml-8 text-center md:text-left": number % 2 === 0 })}>
       <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{title}</h2>
       <p className="step-description text-lg text-muted-foreground mb-6 leading-relaxed">
         {description}
       </p>
       {children}
     </div>
-    {/* Connector div is removed as per previous request */}
   </div>
 );
 
-const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: string, Icon: ElementType, content: ReactNode, isParent?: boolean }) => (
+const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: string, Icon: ElementType, content: ReactNode, isParent?: boolean }): JSX.Element => (
   <Card className={cn(
     "participant-card rounded-xl border-2 h-full",
     isParent ? "bg-primary/10 border-primary" : "bg-accent/10 border-accent"
@@ -66,7 +66,7 @@ const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: st
   </Card>
 );
 
-const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: ElementType, items: Array<{ type: string, description: string }> }) => (
+const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: ElementType, items: Array<{ type: string, description: string }> }): JSX.Element => (
   <Card className="comparison-card bg-card shadow-lg rounded-xl border border-border h-full">
     <CardHeader className="pb-3">
       <CardTitle className="comparison-title text-xl font-semibold text-foreground flex items-center gap-2">
@@ -85,14 +85,14 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
   </Card>
 );
 
-const ActionItemCard = ({ title, description }: { title: string, description: string }) => (
-  <div className="action-item bg-accent/10 backdrop-blur-sm border border-border/20 rounded-lg p-5 h-full text-accent-foreground">
+const ActionItemCard = ({ title, description }: { title: string, description: string }): JSX.Element => (
+  <div className="action-item bg-accent-foreground/10 border border-accent/20 rounded-lg p-5 h-full text-accent">
     <h4 className="action-title font-semibold text-lg mb-1.5 text-accent">{title}</h4>
     <p className="action-description text-sm text-accent/90 opacity-90 leading-normal">{description}</p>
   </div>
 );
 
-export default function VergelijkendeAnalysePage() {
+export default function VergelijkendeAnalysePage(): JSX.Element {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -105,7 +105,7 @@ export default function VergelijkendeAnalysePage() {
                 Ontdek verschillen en overeenkomsten in perceptie tussen ouder en kind, en krijg concrete handvatten voor betere communicatie en begrip.
             </p>
         </div>
-        
+
         <div className="flow-container max-w-5xl mx-auto py-12 md:py-16 px-4">
             {/* Step 1 */}
             <StepCard
@@ -119,7 +119,7 @@ export default function VergelijkendeAnalysePage() {
                   Icon={User}
                   content={
                     <>
-                      "Hoe zie ik mezelf?"<br/>
+                      &quot;Hoe zie ik mezelf?&quot;<br/>
                       • Sterke punten en uitdagingen<br/>
                       • Sociale voorkeuren<br/>
                       • Leer- en communicatiestijl<br/>
@@ -134,7 +134,7 @@ export default function VergelijkendeAnalysePage() {
                   isParent
                   content={
                     <>
-                      "Hoe zie ik mijn kind?"<br/>
+                      &quot;Hoe zie ik mijn kind?&quot;<br/>
                       • Observaties van gedrag<br/>
                       • Sociale interacties<br/>
                       • Leerpatronen thuis<br/>
@@ -145,55 +145,55 @@ export default function VergelijkendeAnalysePage() {
                 />
               </div>
             </StepCard>
-            
+
             {/* Step 2: AI Analysis */}
             <StepCard
               number={2}
               title="AI Vergelijkende Analyse"
               description="Onze AI analyseert beide perspectieven en identificeert patronen, verschillen en overeenkomsten. Deze analyse vormt de basis voor gepersonaliseerde family insights."
             >
-                <Card className={cn("ai-analysis bg-muted/50 border border-border rounded-xl p-6 my-6 text-center shadow-lg")}>
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-2xl flex items-center justify-center gap-2 mb-3 text-foreground">
-                        <Bot className="h-8 w-8 text-primary" /> AI Verwerking
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground">De AI vergelijkt antwoorden op dezelfde thema's en creëert een diepgaande analyse van:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                        <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent">
-                            <div className="flex items-center gap-2 mb-1">
-                                <ChevronsRightLeft className="h-5 w-5 text-primary" />
-                                <strong className="text-foreground">Perceptie Gaps</strong>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Waar zien ouder en kind dingen anders?</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent">
-                            <div className="flex items-center gap-2 mb-1">
-                                <ThumbsUp className="h-5 w-5 text-primary" />
-                                <strong className="text-foreground">Gedeelde Sterktes</strong>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Wat zien beiden als positief?</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent">
-                            <div className="flex items-center gap-2 mb-1">
-                                <EyeOff className="h-5 w-5 text-primary" />
-                                <strong className="text-foreground">Blinde Vlekken</strong>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Wat mist één van de twee?</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent">
-                            <div className="flex items-center gap-2 mb-1">
-                                <MessageCircle className="h-5 w-5 text-primary" />
-                                <strong className="text-foreground">Communicatie Kansen</strong>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Hoe kunnen ze beter afstemmen?</span>
-                        </Button>
-                    </div>
-                </CardContent>
-              </Card>
+                <Card className="ai-analysis bg-muted/50 border border-border rounded-xl p-6 my-6 text-center shadow-lg">
+                  <CardHeader className="pb-3">
+                      <CardTitle className="text-2xl flex items-center justify-center gap-2 mb-3 text-foreground">
+                          <Bot className="h-8 w-8 text-primary" /> AI Verwerking
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground">De AI vergelijkt antwoorden op dezelfde thema&apos;s en creëert een diepgaande analyse van:</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                              <div className="flex items-center gap-2 mb-1">
+                                  <ChevronsRightLeft className="h-5 w-5 text-primary" />
+                                  <strong className="text-foreground">Perceptie Gaps</strong>
+                              </div>
+                              <span className="text-xs text-muted-foreground">Waar zien ouder en kind dingen anders?</span>
+                          </Button>
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                              <div className="flex items-center gap-2 mb-1">
+                                  <ThumbsUp className="h-5 w-5 text-primary" />
+                                  <strong className="text-foreground">Gedeelde Sterktes</strong>
+                              </div>
+                              <span className="text-xs text-muted-foreground">Wat zien beiden als positief?</span>
+                          </Button>
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                              <div className="flex items-center gap-2 mb-1">
+                                  <EyeOff className="h-5 w-5 text-primary" />
+                                  <strong className="text-foreground">Blinde Vlekken</strong>
+                              </div>
+                              <span className="text-xs text-muted-foreground">Wat mist één van de twee?</span>
+                          </Button>
+                          <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-primary/5 hover:border-primary/30">
+                              <div className="flex items-center gap-2 mb-1">
+                                  <MessageCircle className="h-5 w-5 text-primary" />
+                                  <strong className="text-foreground">Communicatie Kansen</strong>
+                              </div>
+                              <span className="text-xs text-muted-foreground">Hoe kunnen ze beter afstemmen?</span>
+                          </Button>
+                      </div>
+                  </CardContent>
+                </Card>
             </StepCard>
-            
+
             {/* Step 3 */}
             <StepCard
               number={3}
@@ -235,7 +235,7 @@ export default function VergelijkendeAnalysePage() {
                 />
               </div>
             </StepCard>
-            
+
             {/* Step 4 */}
             <StepCard
               number={4}
@@ -256,17 +256,16 @@ export default function VergelijkendeAnalysePage() {
                 </div>
               </div>
             </StepCard>
-          </div>
+        </div>
            <div className="text-center mt-12 pb-10">
                 <Button size="lg" asChild>
                     <Link href="/#pricing">Bekijk onze plannen</Link>
                 </Button>
                 <p className="mt-4 text-sm text-muted-foreground">
-                    De Vergelijkende Analyse is onderdeel van ons "Gezins Gids" en "Premium" abonnement.
+                    De Vergelijkende Analyse is onderdeel van ons &quot;Gezins Gids&quot; en &quot;Premium&quot; abonnement.
                 </p>
             </div>
-        </div>
-      </main>
+        </main>
       <Footer />
     </div>
   );
