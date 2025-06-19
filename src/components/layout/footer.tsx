@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText } from 'lucide-react'; // Added MessageSquareText
 
 export function Footer() {
   return (
@@ -78,6 +78,9 @@ export function Footer() {
                 </Link>
                 <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Disclaimer
+                </Link>
+                <Link href="/feedback" className="text-sm text-muted-foreground hover:text-primary hover:underline flex items-center gap-1">
+                  <MessageSquareText className="h-4 w-4 text-primary/80" /> Feedback (Alpha)
                 </Link>
             </nav>
             <div className="flex items-center gap-2 mb-1 mt-2">
