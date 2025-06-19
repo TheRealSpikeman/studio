@@ -40,6 +40,7 @@ const StepCard = ({ number, title, description, children }: { number: number, ti
       </p>
       {children}
     </div>
+    {/* Connector line removed as per user request */}
   </div>
 );
 
@@ -86,9 +87,9 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
 );
 
 const ActionItemCard = ({ title, description }: { title: string, description: string }): JSX.Element => (
-  <div className="action-item bg-accent-foreground/10 border border-accent/20 rounded-lg p-5 h-full text-accent">
-    <h4 className="action-title font-semibold text-lg mb-1.5 text-accent">{title}</h4>
-    <p className="action-description text-sm text-accent/90 opacity-90 leading-normal">{description}</p>
+  <div className="action-item bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg p-5 h-full text-accent-foreground">
+    <h4 className="action-title font-semibold text-lg mb-1.5">{title}</h4>
+    <p className="action-description text-sm opacity-90 leading-normal">{description}</p>
   </div>
 );
 
@@ -257,7 +258,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
               </div>
             </StepCard>
         </div>
-           <div className="text-center mt-12 pb-10">
+           <div className="text-center mt-12 pb-20">
                 <Button size="lg" asChild>
                     <Link href="/#pricing">Bekijk onze plannen</Link>
                 </Button>
