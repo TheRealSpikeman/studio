@@ -1,5 +1,6 @@
-// This file is no longer needed as the flow has changed.
-// Ouders registreren zich nu direct en de ParentalApprovalDialog component 
-// wordt niet meer gebruikt door de PricingSection of andere delen van de app.
-// Het bestand kan veilig verwijderd worden.
-// Ik laat het leeg om aan te duiden dat het niet meer in gebruik is en verwijderd kan worden.
+
+// This file is obsolete and no longer used in the application flow.
+// The parental approval process is now handled by the /parental-approval page.
+// This file can be safely removed from the project.
+
+export {}; // Export an empty object to satisfy module requirements

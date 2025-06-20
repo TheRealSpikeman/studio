@@ -2,6 +2,8 @@
 // src/app/invest/InvestmentProposal.tsx
 "use client";
 
+import { StatCard } from '@/components/invest/StatCard';
+import { CustomBarChart, type BarChartData } from '@/components/invest/BarChart';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,58 +17,6 @@ import {
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { StatCard } from '@/components/invest/StatCard';
-
-
-interface BarChartData {
-    label: string;
-    value: number; // percentage width
-    displayValue: string;
-    badgeClass?: string; // For the badge outside the bar
-    barClass: string; // For the bar itself
-}
-
-const CustomBarChart = ({ data, layout = 'badge' }: { data: BarChartData[], layout?: 'badge' | 'in-bar' }) => {
-    if (layout === 'badge') {
-        return (
-            <div className="space-y-4">
-                {data.map((item, index) => (
-                    <div key={index} className="grid grid-cols-[auto_auto_1fr] sm:grid-cols-[1fr_auto_2fr] items-center gap-x-3 gap-y-1">
-                        <div className="text-sm text-muted-foreground sm:text-right">{item.label}</div>
-                        <div className="flex-shrink-0">
-                            <Badge className={cn("text-xs font-bold w-[70px] justify-center", item.badgeClass)}>{item.displayValue}</Badge>
-                        </div>
-                        <div className="flex-grow bg-muted rounded-full h-5 w-full col-span-3 sm:col-span-1">
-                            <div
-                                className={cn("h-5 rounded-full", item.barClass)}
-                                style={{ width: `${item.value}%` }}
-                            />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    // Layout 'in-bar'
-    return (
-        <div className="space-y-3">
-            {data.map((item, index) => (
-                <div key={index} className="flex items-center gap-3">
-                    <div className="w-32 text-sm text-muted-foreground text-right flex-shrink-0">{item.label}</div>
-                    <div className="flex-grow bg-muted rounded-full h-6">
-                        <div
-                            className={cn("h-6 rounded-full flex items-center px-2", item.barClass)}
-                            style={{ width: `${item.value}%` }}
-                        >
-                            <span className="text-xs font-bold text-white shadow-sm whitespace-nowrap">{item.displayValue}</span>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
 
 const marketData: BarChartData[] = [
     { label: 'Jongeren (12-18)', value: 100, displayValue: '1.2M', badgeClass: 'bg-muted text-muted-foreground', barClass: 'bg-muted' },
@@ -82,17 +32,17 @@ const revenueData: BarChartData[] = [
 ];
 
 const riskData: BarChartData[] = [
-    { label: 'Technologie', value: 10, displayValue: '1/10', barClass: 'bg-green-500' },
-    { label: 'Uitvoering', value: 20, displayValue: '2/10', barClass: 'bg-green-500' },
-    { label: 'Markt', value: 30, displayValue: '3/10', barClass: 'bg-yellow-500' },
-    { label: 'Concurrentie', value: 40, displayValue: '4/10', barClass: 'bg-orange-500' },
+    { label: 'Technologie', value: 10, displayValue: '1/10', colorClass: 'bg-green-500' },
+    { label: 'Uitvoering', value: 20, displayValue: '2/10', colorClass: 'bg-green-500' },
+    { label: 'Markt', value: 30, displayValue: '3/10', colorClass: 'bg-yellow-500' },
+    { label: 'Concurrentie', value: 40, displayValue: '4/10', colorClass: 'bg-orange-500' },
 ];
 
 const investmentAllocationData: BarChartData[] = [
-    { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', barClass: 'bg-blue-500' },
-    { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', barClass: 'bg-teal-500' },
-    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', barClass: 'bg-purple-500' },
-    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', barClass: 'bg-pink-500' },
+    { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', colorClass: 'bg-blue-500' },
+    { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-teal-500' },
+    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-purple-500' },
+    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', colorClass: 'bg-pink-500' },
 ];
 
 export function InvestmentProposal() {

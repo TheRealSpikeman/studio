@@ -9,7 +9,7 @@ body {
 
 @layer base {
   :root {
-    /* PRD Kleuren: Oranje Primary, Lichtgrijs Background, Teal Accent */
+    /* PRD Kleuren: Blauw Primary, Lichtgrijs Background, Teal Accent */
     --background: 200 17% 94%; /* #ecf0f1 - Light Gray */
     --foreground: 210 40% 10%; /* Dark Gray for text on light gray */
 
@@ -19,10 +19,10 @@ body {
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 210 40% 10%; /* Dark Gray */
 
-    --primary: 25 78% 52%; /* #E57125 - Oranje Hoofdkleur */
-    --primary-foreground: 0 0% 100%; /* White for contrast with orange */
-    --primary-hover: 24 78% 45%; /* #CC5A1A - Donkerder oranje voor hover */
-    --primary-light: 24 88% 61%; /* #F28A47 - Lichtere oranje voor accenten */
+    --primary: 207 68% 53%; /* #3498db - Calming Blue */
+    --primary-foreground: 0 0% 100%; /* White for contrast with blue */
+    --primary-hover: 207 68% 48%; /* Darker blue for hover */
+    --primary-light: 207 68% 63%; /* Lighter blue for accents */
 
 
     --secondary: 210 16% 90%; /* Slightly darker gray */
@@ -39,11 +39,11 @@ body {
 
     --border: 210 10% 80%; /* Gray for borders */
     --input: 210 10% 80%; /* Gray for input borders */
-    --ring: 25 78% 52%; /* Primary color for focus rings - Oranje */
+    --ring: 207 68% 53%; /* Primary color for focus rings - Blauw */
 
     --radius: 0.5rem;
 
-    --chart-1: 25 78% 52%; /* Primary - Oranje */
+    --chart-1: 207 68% 53%; /* Primary - Blauw */
     --chart-2: 168 76% 42%; /* Accent - Teal */
     --chart-3: 210 40% 50%; 
     --chart-4: 43 74% 66%; 
@@ -52,12 +52,12 @@ body {
     /* Sidebar specific colors */
     --sidebar-background: 0 0% 100%; /* White */
     --sidebar-foreground: 210 40% 10%; /* Dark Gray */
-    --sidebar-primary: 25 78% 52%; /* Oranje */
+    --sidebar-primary: 207 68% 53%; /* Blauw */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 168 76% 42%; /* Teal */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 10% 80%; /* Gray */
-    --sidebar-ring: 25 78% 52%; /* Oranje */
+    --sidebar-ring: 207 68% 53%; /* Blauw */
 
     /* Dashboard specific theme variables - can be overridden by user preference later */
     --dashboard-background: hsl(var(--background));
@@ -82,10 +82,10 @@ body {
     --popover: 210 40% 12%;
     --popover-foreground: 200 17% 94%;
 
-    --primary: 25 78% 52%; /* Oranje Hoofdkleur */
+    --primary: 207 68% 53%; /* Calming Blue */
     --primary-foreground: 0 0% 100%; 
-    --primary-hover: 24 78% 45%; /* Donkerder oranje voor hover */
-    --primary-light: 24 88% 61%; /* Lichtere oranje voor accenten */
+    --primary-hover: 207 68% 48%; /* Darker blue for hover */
+    --primary-light: 207 68% 63%; /* Lighter blue for accents */
 
     --secondary: 210 30% 20%;
     --secondary-foreground: 200 17% 94%;
@@ -101,20 +101,20 @@ body {
 
     --border: 210 20% 30%;
     --input: 210 20% 30%;
-    --ring: 25 78% 52%; /* Oranje */
+    --ring: 207 68% 53%; /* Blauw */
     
-    --chart-1: 25 78% 52%; /* Oranje */
+    --chart-1: 207 68% 53%; /* Blauw */
     --chart-2: 168 76% 42%; /* Teal */
 
     /* Sidebar specific colors for dark mode */
     --sidebar-background: 210 40% 12%; /* Darker background */
     --sidebar-foreground: 200 17% 94%; /* Light text */
-    --sidebar-primary: 25 78% 52%; /* Oranje */
+    --sidebar-primary: 207 68% 53%; /* Blauw */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 168 76% 42%; /* Teal */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 210 20% 30%; /* Darker border */
-    --sidebar-ring: 25 78% 52%; /* Oranje */
+    --sidebar-ring: 207 68% 53%; /* Blauw */
 
     /* Dashboard specific theme variables - dark mode */
     --dashboard-background: hsl(var(--background)); /* These will pick up the dark mode versions of global vars */
