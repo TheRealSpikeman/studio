@@ -1,4 +1,6 @@
 
+"use client"; // Deze pagina gebruikt client-side state voor de accordion, dus "use client" is correct.
+
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,18 +10,51 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import type { ElementType, ReactNode } from 'react';
+
+interface NeurodiversitySectionDetail {
+  subTitle: string;
+  paragraphs: string[];
+}
+
+interface NeurodiversityTopic {
+  id: string;
+  title: string; // Hoofdtitel voor de sectie of accordion item
+  icon: ElementType;
+  shortDescription?: string; // Gebruikt in accordion trigger
+  content?: string[]; // Voor accordion items
+  sections?: NeurodiversitySectionDetail[]; // Voor de algemene introductie sectie bovenaan
+  imageUrl?: string;
+  dataAiHint?: string;
+  colorClass?: string;
+  bgClass?: string;
+}
 
 
-const neurodiversityTopics = [
+const neurodiversityTopics: NeurodiversityTopic[] = [
   {
     id: "algemeen",
-    title: "Wat is Neurodiversiteit?",
+    title: "Wat is Neurodiversiteit?", // Dit is de titel van de sectie
     icon: Brain,
-    shortDescription: "Een introductie tot het concept dat ieders brein uniek is en anders werkt.",
-    content: [
-      "Neurodiversiteit is het idee dat verschillen in hersenfunctie en gedragskenmerken normale variaties zijn binnen de menselijke bevolking. Net zoals we verschillen in lengte, haarkleur of talenten, zo verschillen onze breinen ook in hoe ze informatie verwerken, leren, en de wereld ervaren.",
-      "Termen zoals ADD/ADHD, autisme (ASS), hoogsensitiviteit (HSP), dyslexie en dyscalculie vallen onder de noemer neurodivergentie. Dit betekent dat de hersenen op een andere manier informatie verwerken dan wat als 'neurotypisch' (de meest voorkomende manier) wordt beschouwd.",
-      "Het is belangrijk om te onthouden dat neurodiversiteit geen ziekte of stoornis is die 'genezen' moet worden. Het gaat om het erkennen en waarderen van deze verschillen, het begrijpen van zowel de sterke kanten als de uitdagingen die hiermee gepaard kunnen gaan, en het creëren van een omgeving waarin iedereen kan floreren."
+    sections: [ // Aangepaste structuur voor de introductie
+      {
+        subTitle: "De Basis van Neurodiversiteit",
+        paragraphs: [
+          "Neurodiversiteit is het idee dat verschillen in hersenfunctie en gedragskenmerken normale variaties zijn binnen de menselijke bevolking. Net zoals we verschillen in lengte, haarkleur of talenten, zo verschillen onze breinen ook in hoe ze informatie verwerken, leren, en de wereld ervaren."
+        ]
+      },
+      {
+        subTitle: "Neurodivergentie vs. Neurotypisch",
+        paragraphs: [
+          "Termen zoals ADD/ADHD, autisme (ASS), hoogsensitiviteit (HSP), dyslexie en dyscalculie vallen onder de noemer neurodivergentie. Dit betekent dat de hersenen op een andere manier informatie verwerken dan wat als 'neurotypisch' (de meest voorkomende manier) wordt beschouwd."
+        ]
+      },
+      {
+        subTitle: "Een Kwestie van Erkenning en Waardering",
+        paragraphs: [
+          "Het is belangrijk om te onthouden dat neurodiversiteit geen ziekte of stoornis is die 'genezen' moet worden. Het gaat om het erkennen en waarderen van deze verschillen, het begrijpen van zowel de sterke kanten als de uitdagingen die hiermee gepaard kunnen gaan, en het creëren van een omgeving waarin iedereen kan floreren."
+        ]
+      }
     ],
     imageUrl: "https://placehold.co/600x400.png?text=Diversiteit+Brein",
     dataAiHint: "brain diversity connection"
@@ -155,7 +190,14 @@ export default function NeurodiversiteitPage() {
             {neurodiversityTopics.filter(topic => topic.id === "algemeen").map(topic => (
               <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-center mb-12">
                 <div className="space-y-3">
-                  {topic.content.map((paragraph, pIndex) => <p key={pIndex}>{paragraph}</p>)}
+                  {topic.sections?.map((section, sIndex) => (
+                    <div key={sIndex} className={sIndex > 0 ? "mt-6" : ""}>
+                      <h3 className="text-xl font-semibold text-primary mb-2">{section.subTitle}</h3>
+                      {section.paragraphs.map((paragraph, pIndex) => (
+                        <p key={pIndex} className="mb-2 last:mb-0 text-base text-muted-foreground leading-relaxed">{paragraph}</p>
+                      ))}
+                    </div>
+                  ))}
                 </div>
                 <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
                   <Image
@@ -176,7 +218,7 @@ export default function NeurodiversiteitPage() {
                   <AccordionItem 
                       key={topic.id} 
                       value={topic.id} 
-                      className={`rounded-lg border-2 ${topic.colorClass} ${topic.bgClass} shadow-md hover:shadow-lg transition-shadow`}
+                      className={`rounded-lg border-2 ${topic.colorClass || 'border-border'} ${topic.bgClass || 'bg-card'} shadow-md hover:shadow-lg transition-shadow`}
                   >
                     <AccordionTrigger className="text-left font-semibold hover:no-underline py-5 px-6 text-xl data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
                       <div className="flex items-center gap-3">
@@ -185,10 +227,10 @@ export default function NeurodiversiteitPage() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 pt-2 text-base leading-relaxed text-foreground/80 bg-card rounded-b-lg">
-                      <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>
-                      {topic.content.map((paragraph, pIndex) => {
+                      {topic.shortDescription && <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>}
+                      {topic.content?.map((paragraph, pIndex) => {
                           if (paragraph.startsWith("Herkenbare punten")) {
-                              return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace(/Herkenbare punten voor ouders en jongeren:\s*|Herkenbare punten bij angst kunnen zijn:\s*|Herkenbare punten bij depressie kunnen zijn:\s*/, '')}</p>;
+                              return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace(/Herkenbare punten voor ouders en jongeren:\s*|Herkenbare punten bij zorgen\/angst kunnen zijn:\s*|Herkenbare punten bij somberheid kunnen zijn:\s*/, '')}</p>;
                           }
                           if (paragraph.startsWith("- ")) { 
                               return <li key={pIndex} className="ml-5 list-disc">{paragraph.substring(2)}</li>;
