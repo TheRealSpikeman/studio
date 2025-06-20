@@ -41,8 +41,8 @@ const coachingTypes: CoachingType[] = [
   },
   {
     icon: BookOpenCheck,
-    title: "Persoonlijke Huiswerkondersteuning: Onze Tutors",
-    description: "Krijg 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
+    title: "Persoonlijke Huiswerkondersteuning",
+    description: "Onze deskundige tutors bieden 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
@@ -66,7 +66,7 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress, angst of sociale interacties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional", // Aangepast, linkt nu naar dezelfde zoekpagina
+    ctaLink: "/dashboard/ouder/zoek-professional",
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
     priceIndication: "Indicatie: €75-€125/uur",
     qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd in het begeleiden van neurodivergente jongeren.",
@@ -127,7 +127,7 @@ export default function CoachingAanbodPage() {
             ))}
           </div>
           
-          <Alert variant="default" className="mt-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
+          <Alert variant="default" className="mt-12 mb-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
             <ShieldCheck className="h-5 w-5 !text-blue-600" />
             <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
             <AlertDescriptionUi className="text-blue-600">
@@ -135,7 +135,7 @@ export default function CoachingAanbodPage() {
             </AlertDescriptionUi>
           </Alert>
 
-          <section className="py-16 md:py-20 bg-secondary/20 mt-12 mb-12"> {/* Added mb-12 here */}
+          <section className="py-16 md:py-20 bg-secondary/20 mt-12 mb-12">
             <div className="container mx-auto px-4 text-center max-w-xl">
                 <Card className="bg-card border-border p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center justify-center gap-2">
@@ -172,3 +172,4 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
+
