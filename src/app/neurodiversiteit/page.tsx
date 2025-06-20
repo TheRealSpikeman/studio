@@ -36,9 +36,8 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
+// Default intro image is now the Firebase Storage URL for Diverse_colorful_brains_connected.png
 const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png?alt=media&token=34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
-const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2';
-const ADMIN_FLAG_KEY_NEURO_PAGE = 'isAdminForNeuroPage';
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -65,7 +64,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    dataAiHint: "brains connection diversity" // Aangepast
+    dataAiHint: "diverse brains connection" 
   },
   {
     id: "add",
@@ -180,111 +179,6 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
 ];
 
 export default function NeurodiversiteitPage() {
-  const { toast } = useToast();
-  const [currentIntroImageUrl, setCurrentIntroImageUrl] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
-  const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
-  const [isClient, setIsClient] = useState(false);
-  const [showImageUrlInput, setShowImageUrlInput] = useState<boolean>(false);
-  const [isUserAdmin, setIsUserAdmin] = useState<boolean>(false); 
-
-  const gsPathToHttps = (gsPath: string, token?: string): string => {
-    if (!gsPath.startsWith('gs://')) return gsPath;
-    const parts = gsPath.substring(5).split('/');
-    const bucket = parts.shift();
-    const filePath = parts.join('/');
-    if (!bucket || !filePath) {
-      console.warn("Ongeldig gs:// pad formaat:", gsPath);
-      return DEFAULT_INTRO_IMAGE_URL;
-    }
-    const encodedFilePath = encodeURIComponent(filePath);
-    let httpsUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedFilePath}?alt=media`;
-    if (token) {
-      httpsUrl += `&token=${token}`;
-    }
-    return httpsUrl;
-  };
-  
-  useEffect(() => {
-    setIsClient(true); 
-    const adminStatus = localStorage.getItem(ADMIN_FLAG_KEY_NEURO_PAGE) === 'true';
-    setIsUserAdmin(adminStatus);
-
-    let storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
-    let finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
-
-    if (storedImageUrl) {
-      if (storedImageUrl.startsWith('gs://')) {
-        const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png";
-        const specificToken = "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
-        
-        if (storedImageUrl === specificGsPath) {
-          finalUrlToSet = gsPathToHttps(storedImageUrl, specificToken);
-        } else {
-          finalUrlToSet = gsPathToHttps(storedImageUrl);
-          toast({
-            title: "URL Omgezet (zonder token)",
-            description: "De gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL incl. token.",
-            variant: "default",
-            duration: 7000,
-          });
-        }
-        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
-      } else if (!storedImageUrl.startsWith('http://') && !storedImageUrl.startsWith('https://')) {
-        toast({ title: "Ongeldige Opgeslagen URL", description: "Standaard afbeelding wordt getoond.", variant: "destructive"});
-        finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
-        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
-      }
-       else {
-        finalUrlToSet = storedImageUrl;
-      }
-    }
-    setCurrentIntroImageUrl(finalUrlToSet);
-    setImageUrlInput(finalUrlToSet);
-  }, [toast]);
-
-
-  const handleSetImageUrl = () => {
-    let urlToProcess = imageUrlInput.trim();
-    if (urlToProcess === "") {
-      toast({ title: "Fout", description: "Voer een geldige URL in.", variant: "destructive" });
-      return;
-    }
-
-    if (urlToProcess.startsWith('gs://')) {
-      const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png";
-      const specificToken = "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
-      
-      if (urlToProcess === specificGsPath) {
-        urlToProcess = gsPathToHttps(urlToProcess, specificToken);
-        toast({
-          title: "URL Correct Omgezet",
-          description: "De gs:// URL is succesvol omgezet naar een HTTPS URL met token.",
-          variant: "default",
-        });
-      } else {
-        urlToProcess = gsPathToHttps(urlToProcess);
-        toast({
-          title: "URL Omgezet (zonder token)",
-          description: "De gs:// URL is omgezet. Als de afbeelding een token vereist om publiek zichtbaar te zijn, werkt deze mogelijk niet. Plak de volledige HTTPS URL inclusief token voor privé-afbeeldingen.",
-          variant: "default",
-          duration: 7000,
-        });
-      }
-    }
-
-    try {
-      new URL(urlToProcess); 
-      setCurrentIntroImageUrl(urlToProcess);
-      if (isClient) {
-        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, urlToProcess);
-      }
-      toast({ title: "Afbeelding ingesteld", description: "De introductieafbeelding is bijgewerkt." });
-      setShowImageUrlInput(false);
-    } catch (e) {
-      toast({ title: "Ongeldige URL", description: "De ingevoerde URL is niet geldig. Zorg dat het begint met http:// of https://", variant: "destructive" });
-    }
-  };
-  
   const introTopic = neurodiversityTopicsData.find(topic => topic.id === "algemeen");
 
   return (
@@ -317,68 +211,15 @@ export default function NeurodiversiteitPage() {
                 <div className="space-y-4">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
                     <Image
-                        src={currentIntroImageUrl}
+                        src={DEFAULT_INTRO_IMAGE_URL}
                         alt={introTopic.title || "Neurodiversiteit introductie afbeelding"}
                         fill
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={introTopic.dataAiHint}
-                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
-                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")}
-                        onError={() => {
-                          if (currentIntroImageUrl !== DEFAULT_INTRO_IMAGE_URL) {
-                            toast({ title: "Afbeelding Laden Mislukt", description: "De afbeelding kon niet geladen worden. Standaard afbeelding wordt getoond.", variant: "destructive"});
-                            setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
-                            if (isClient) {
-                              localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, DEFAULT_INTRO_IMAGE_URL);
-                            }
-                          }
-                        }}
+                        priority
+                        unoptimized={DEFAULT_INTRO_IMAGE_URL.includes("firebasestorage.googleapis.com")}
                     />
                   </div>
-                  {isUserAdmin && (
-                    <div className="flex justify-end">
-                      <TooltipProvider delayDuration={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-muted-foreground hover:text-primary h-8 w-8"
-                              onClick={() => setShowImageUrlInput(prev => !prev)}
-                              aria-label={showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}
-                            >
-                              <ImageUp className="h-5 w-5" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL (Admin)"}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  )}
-
-                  {isUserAdmin && showImageUrlInput && (
-                    <div className="mt-2 p-4 border rounded-md bg-muted/30 space-y-2">
-                      <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Afbeelding URL (Firebase Storage HTTPS of gs://):</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          id="imageUrlInput"
-                          type="text"
-                          placeholder="Plak hier de HTTPS of gs:// Firebase Storage URL..."
-                          value={imageUrlInput}
-                          onChange={(e) => setImageUrlInput(e.target.value)}
-                          className="flex-grow"
-                        />
-                        <Button onClick={handleSetImageUrl}>
-                          <LinkIcon className="mr-2 h-4 w-4" /> Instellen
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Plak een `gs://` URI of een `https://firebasestorage.googleapis.com/...` URL. Voor niet-publieke `gs://` afbeeldingen, zorg dat de HTTPS URL de access token bevat.
-                      </p>
-                    </div>
-                  )}
                 </div>
               </section>
             )}
@@ -435,7 +276,7 @@ export default function NeurodiversiteitPage() {
               </ul>
                 <p className="text-muted-foreground leading-relaxed">
                   Zij kunnen een passend onderzoek doen, een eventuele diagnose stellen en adviseren over de best passende hulp en ondersteuning voor uw specifieke situatie.
-              </p>
+                </p>
             </section>
 
             <Alert variant="destructive" className="mt-12 p-6 rounded-lg shadow-md">
