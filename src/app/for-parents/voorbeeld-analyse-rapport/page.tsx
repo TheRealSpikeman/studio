@@ -67,6 +67,13 @@ const PDF_COLORS = {
   primary: hslToRgb(25, 78, 52), // Orange Primary
   foreground: hslToRgb(210, 40, 10),
   mutedForeground: hslToRgb(210, 20, 45),
+  orange: hslToRgb(25, 78, 52),
+  sectionDefault: {
+    bg: [248, 250, 252], // slate-50
+    title: hslToRgb(210, 40, 10),
+    bullet: hslToRgb(210, 20, 45),
+    text: hslToRgb(210, 20, 45),
+  },
   sectionOrange: {
     bg: [255, 247, 237], // #fff7ed
     title: hslToRgb(25, 78, 52),
@@ -96,12 +103,6 @@ const PDF_COLORS = {
     title: hslToRgb(262, 85, 45),
     bullet: hslToRgb(262, 85, 55),
     text: hslToRgb(262, 40, 20),
-  },
-  sectionDefault: {
-    bg: [248, 250, 252], // slate-50
-    title: hslToRgb(210, 40, 10),
-    bullet: hslToRgb(210, 20, 45),
-    text: hslToRgb(210, 20, 45),
   },
 };
 
@@ -240,16 +241,39 @@ export default function VoorbeeldAnalyseRapportPage() {
             doc.setFontSize(fontSize);
             doc.setTextColor(color[0], color[1], color[2]);
 
-            const cleanText = text.replace(/<[^>]*>?/gm, ''); // Strip all HTML tags for simplicity and robustness
+            const cleanText = text.replace(/<\/?strong>/g, '').replace(/<\/?i>/g, ''); // Basic tag stripping for calculation
             const lines = doc.splitTextToSize(cleanText, maxWidth);
             const blockHeight = lines.length * (fontSize * lineHeightFactor);
             checkY(blockHeight);
 
-            doc.setFont(PDF_STYLES.fontFamily, fontStyle);
-            doc.text(lines, x, yPos);
-            doc.setFont(PDF_STYLES.fontFamily, 'normal'); // Reset style
+            doc.setFont(PDF_STYLES.fontFamily, 'normal'); // Reset font style before processing
+
+            let currentX = x;
+            let currentLine = '';
+            const parts = text.split(/(<strong>.*?<\/strong>|<i>.*?<\/i>)/g).filter(Boolean);
             
-            return blockHeight;
+            parts.forEach(part => {
+                if (part.startsWith('<strong>')) {
+                    doc.setFont(PDF_STYLES.fontFamily, 'bold');
+                    currentLine += part.replace(/<\/?strong>/g, '');
+                } else if (part.startsWith('<i>')) {
+                    doc.setFont(PDF_STYLES.fontFamily, 'italic');
+                    currentLine += part.replace(/<\/?i>/g, '');
+                } else {
+                    doc.setFont(PDF_STYLES.fontFamily, 'normal');
+                    currentLine += part;
+                }
+            });
+            doc.setFont(PDF_STYLES.fontFamily, 'normal'); // Reset for next line
+
+            const finalLines = doc.splitTextToSize(currentLine, maxWidth);
+            finalLines.forEach((line: string) => {
+              doc.text(line, x, yPos);
+              yPos += (fontSize * lineHeightFactor);
+            });
+            
+            doc.setTextColor(PDF_COLORS.foreground[0], PDF_COLORS.foreground[1], PDF_COLORS.foreground[2]);
+            return finalLines.length * (fontSize * lineHeightFactor);
         };
 
         const drawSectionCard = (section: typeof reportContent.sections[0]) => {
@@ -257,59 +281,57 @@ export default function VoorbeeldAnalyseRapportPage() {
             let tempY = 0;
             let contentHeight = 0;
 
-            const tempDoc = new jsPDF(); // Use a temporary doc to calculate height, to prevent rendering issues
-            
-            contentHeight += drawFormattedText(section.title, 0, tempY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', maxWidth: cardInnerWidth, doc: tempDoc });
+            const tempDoc = new jsPDF(); 
+            tempDoc.setFontSize(PDF_STYLES.h2Size);
+            contentHeight += tempDoc.getTextDimensions(section.title).h * PDF_STYLES.lineHeightFactor;
             contentHeight += PDF_STYLES.paragraphSpacing;
 
             section.content.forEach(item => {
-                const bulletPoint = "•  ";
-                const textWithoutBullet = item;
-                const textLines = tempDoc.splitTextToSize(textWithoutBullet.replace(/<[^>]*>?/gm, ''), cardInnerWidth - 5);
+                const textWithoutBullet = item.replace(/<[^>]*>?/gm, '');
+                const textLines = tempDoc.splitTextToSize(textWithoutBullet, cardInnerWidth - 5);
                 contentHeight += textLines.length * (PDF_STYLES.normalSize * PDF_STYLES.lineHeightFactor);
                 contentHeight += PDF_STYLES.paragraphSpacing;
             });
-            const totalCardHeight = contentHeight + PDF_STYLES.cardPaddingY * 2;
+            const totalCardHeight = contentHeight + PDF_STYLES.cardPaddingY * 2.5;
 
             checkY(totalCardHeight);
 
             doc.setFillColor(section.colorTheme.bg[0], section.colorTheme.bg[1], section.colorTheme.bg[2]);
             doc.roundedRect(margins.left, y, usableWidth, totalCardHeight, PDF_STYLES.cardRadius, PDF_STYLES.cardRadius, 'F');
 
-            let textY = y + PDF_STYLES.cardPaddingY * 1.5; // Start drawing text with padding
+            let textY = y + PDF_STYLES.cardPaddingY * 1.8;
             textY += drawFormattedText(section.title, margins.left + PDF_STYLES.cardPaddingX, textY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: section.colorTheme.title, maxWidth: cardInnerWidth });
-            textY += PDF_STYLES.paragraphSpacing;
+            textY += PDF_STYLES.paragraphSpacing / 2;
             
             section.content.forEach(item => {
                 doc.setFillColor(section.colorTheme.bullet[0], section.colorTheme.bullet[1], section.colorTheme.bullet[2]);
                 doc.circle(margins.left + PDF_STYLES.cardPaddingX + 2, textY + 1.5, 1.5, 'F');
                 textY += drawFormattedText(item, margins.left + PDF_STYLES.cardPaddingX + 8, textY, { color: section.colorTheme.text, maxWidth: cardInnerWidth - 8 });
-                textY += PDF_STYLES.paragraphSpacing;
+                textY += PDF_STYLES.paragraphSpacing / 2;
             });
 
             y += totalCardHeight + PDF_STYLES.sectionSpacing;
         };
         
         // --- PDF Generation START ---
-        y = addTextWithFormatting(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
-        y += addTextWithFormatting(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
+        y += drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+        y += drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
         y += PDF_STYLES.paragraphSpacing;
-
-        y += addTextWithFormatting(reportContent.intro, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.foreground });
+        y += drawFormattedText(reportContent.intro, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.foreground });
         y += PDF_STYLES.paragraphSpacing;
         
         const basedOnCardHeight = (reportContent.basedOn.length + 1) * (PDF_STYLES.smallSize * 0.7) + 12;
         checkY(basedOnCardHeight);
-        doc.setFillColor(PDF_COLORS.sectionDefault.bg[0], PDF_COLORS.sectionDefault.bg[1], PDF_STYLES.sectionDefault.bg[2]);
+        doc.setFillColor(PDF_COLORS.sectionDefault.bg[0], PDF_COLORS.sectionDefault.bg[1], PDF_COLORS.sectionDefault.bg[2]);
         doc.roundedRect(margins.left, y, usableWidth, basedOnCardHeight, 2, 2, 'F');
         let cardY = y + 6;
-        cardY += addTextWithFormatting(`Gebaseerd op:`, margins.left + 5, cardY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
+        cardY += drawFormattedText(`Gebaseerd op:`, margins.left + 5, cardY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
         reportContent.basedOn.forEach(line => {
-            cardY += addTextWithFormatting(`- ${line}`, margins.left + 7, cardY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+            cardY += drawFormattedText(`- ${line}`, margins.left + 7, cardY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
         });
         y += basedOnCardHeight + PDF_STYLES.paragraphSpacing;
         
-        y += addTextWithFormatting(reportContent.generatedAt, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+        y += drawFormattedText(reportContent.generatedAt, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
         y += PDF_STYLES.sectionSpacing;
         
         reportContent.sections.forEach(drawSectionCard);
@@ -319,7 +341,7 @@ export default function VoorbeeldAnalyseRapportPage() {
             doc.setPage(i);
             doc.setFont(PDF_STYLES.fontFamily, "italic");
             doc.setFontSize(PDF_STYLES.smallSize);
-            doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_STYLES.mutedForeground[2]);
+            doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_COLORS.mutedForeground[2]);
             const footerText = `Rapport gegenereerd via www.mindnavigator.io - Pagina ${i} van ${pageCount}`;
             doc.text(footerText, margins.left, pageHeight - 10);
         }
