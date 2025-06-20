@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Added Select imports
-import { Mail, User, MessageSquareIcon, ListFilter } from 'lucide-react'; // Added ListFilter icon
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Mail, User, MessageSquareIcon, ListFilter } from 'lucide-react';
 import { useState } from 'react';
 
 
@@ -25,6 +25,14 @@ const contactCategories = [
 // A simple client component for form handling
 function ContactForm() {
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+    const [messageLength, setMessageLength] = useState(0);
+    const MAX_MESSAGE_LENGTH = 1000;
+
+    const handleMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setMessageLength(event.target.value.length);
+        // Call the original onChange if it exists (e.g., from react-hook-form if integrated later)
+        // field.onChange(event); 
+    };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -32,13 +40,14 @@ function ContactForm() {
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const subject = formData.get('subject') as string;
-        const category = selectedCategory; // Use state for category
+        const category = selectedCategory;
         const message = formData.get('message') as string;
 
         // TODO: Implement form submission logic (e.g., send email, save to DB)
         alert(`Bedankt voor uw bericht!\n\nNaam: ${name}\nE-mail: ${email}\nOnderwerp: ${subject}\nCategorie: ${category || 'Niet geselecteerd'}\nBericht: ${message}\n\nWe nemen zo snel mogelijk contact met u op.`);
         // event.currentTarget.reset(); // Optionally reset form
-        // setSelectedCategory(undefined); // Reset category state
+        // setSelectedCategory(undefined); 
+        // setMessageLength(0);
     };
 
     return (
@@ -76,11 +85,26 @@ function ContactForm() {
                 <Input type="text" id="subject" name="subject" placeholder="Onderwerp van uw bericht" required />
             </div>
             <div>
-                <Label htmlFor="message" className="mb-2 block text-sm font-medium">Bericht</Label>
+                <div className="flex justify-between items-baseline">
+                    <Label htmlFor="message" className="mb-2 block text-sm font-medium">Bericht</Label>
+                    <span className="text-xs text-muted-foreground">
+                        {messageLength}/{MAX_MESSAGE_LENGTH}
+                    </span>
+                </div>
                  <div className="relative">
                     <MessageSquareIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Textarea id="message" name="message" rows={5} placeholder="Typ hier uw bericht..." required className="pl-10" />
+                    <Textarea 
+                        id="message" 
+                        name="message" 
+                        rows={5} 
+                        placeholder="Typ hier uw bericht..." 
+                        required 
+                        className="pl-10"
+                        maxLength={MAX_MESSAGE_LENGTH}
+                        onChange={handleMessageChange} 
+                    />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">Maximaal {MAX_MESSAGE_LENGTH} tekens toegestaan.</p>
             </div>
             <Button type="submit" className="w-full">Verstuur bericht</Button>
         </form>
