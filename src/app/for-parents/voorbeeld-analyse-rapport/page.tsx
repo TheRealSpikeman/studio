@@ -68,22 +68,64 @@ const PDF_COLORS = {
   foreground: [51, 65, 85], // slate-700
   mutedForeground: [100, 116, 139], // slate-500
   background: [255, 255, 255],
-  sectionBg: [255, 247, 237], // orange-50
-  sectionBullet: hslToRgb(30, 80, 55), // Darker orange for bullets
+  white: [255, 255, 255],
+  blue: {
+    bg: hslToRgb(210, 100, 98),
+    border: hslToRgb(207, 90, 54),
+    title: hslToRgb(207, 90, 44),
+    bullet: hslToRgb(207, 80, 50),
+  },
+  green: {
+    bg: hslToRgb(120, 60, 95),
+    border: hslToRgb(145, 63, 42),
+    title: hslToRgb(145, 63, 32),
+    bullet: hslToRgb(145, 60, 38),
+  },
+  orange: {
+    bg: hslToRgb(39, 100, 97),
+    border: hslToRgb(35, 100, 50),
+    title: hslToRgb(35, 100, 40),
+    bullet: hslToRgb(30, 90, 45),
+  },
+  yellow: {
+    bg: hslToRgb(50, 100, 97),
+    border: hslToRgb(45, 100, 50),
+    title: hslToRgb(45, 100, 40),
+    bullet: hslToRgb(45, 90, 45),
+  },
+  red: {
+    bg: hslToRgb(0, 100, 97),
+    border: hslToRgb(0, 84, 60),
+    title: hslToRgb(0, 84, 50),
+    bullet: hslToRgb(0, 80, 45),
+  },
+  gray: {
+    bg: [241, 245, 249], // slate-100
+    border: [203, 213, 225], // slate-300
+    title: [71, 85, 105], // slate-600
+    bullet: [100, 116, 139], // slate-500
+  },
+  sectionDefault: {
+      bg: [248, 250, 252], // slate-50
+      border: [226, 232, 240], // slate-200
+      title: [51, 65, 85], // slate-700
+      bullet: [100, 116, 139], //slate-500
+  },
 };
 
 const PDF_STYLES = {
   fontFamily: "Helvetica",
   pageMargins: { top: 20, bottom: 25, left: 20, right: 20 },
-  lineHeightFactor: 1.5,
   paragraphSpacing: 4,
   sectionSpacing: 10,
-  bulletRadius: 1.5,
+  bulletRadius: 1.2,
   bulletIndent: 8,
   titleSize: 22,
+  subtitleSize: 11,
   h2Size: 16,
   normalSize: 10,
   smallSize: 8,
+  lineHeightFactor: 1.5,
 };
 
 
@@ -93,28 +135,29 @@ export default function VoorbeeldAnalyseRapportPage() {
   const { toast } = useToast();
 
   const reportContent = {
-    title: `Voorbeeldrapport: Vergelijkende Analyse`,
+    title: `Vergelijkende Analyse`,
     subtitle: `Inzichten voor ${parentName} en ${childName}`,
     intro: `Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Onze AI heeft de antwoorden op circa 15-20 vragen per persoon geanalyseerd om patronen te herkennen, zonder individuele responses te beoordelen als 'goed' of 'fout'. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van ${childName}.`,
     basedOn: [
-        `Ouder-quiz: "Ken je Kind" (ingevuld door ${parentName} op 19 juni 2025 om 14:30)`,
-        `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld door ${childName} op 20 juni 2025 om 16:00)`
+        `Ouder-quiz: "Ken je Kind" (ingevuld door ${parentName})`,
+        `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld door ${childName})`
     ],
     generatedAt: `Rapport gegenereerd via www.mindnavigator.io op: ${format(new Date('2025-06-20T20:50:00'), 'd MMMM yyyy \'om\' HH:mm', { locale: nl })}`,
     sections: [
       {
         title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
         Icon: EyeOff,
+        theme: 'blue',
         content: [
           "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00. (Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)",
           "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. (Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.)",
           "<strong>Omgaan met Verandering:</strong> U merkt op dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt. (Mogelijkheid: De impact van de verandering speelt een rol.)",
-          "<strong>Energielevel na School:</strong> U observeert dat Sofie vaak moe is na school. Sofie geeft aan zich soms 'leeg' te voelen, maar ook momenten van energie te hebben voor leuke dingen."
         ]
       },
       {
         title: "2. Waar Jullie Het Eens Zijn (Gedeelde Sterktes)",
         Icon: ThumbsUp,
+        theme: 'green',
         content: [
           "<strong>Creativiteit:</strong> Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <i>(Waarom dit belangrijk is: Dit is een krachtig, gedeeld fundament om op voort te bouwen en haar zelfvertrouwen te versterken.)</i>",
           "<strong>Doorzettingsvermogen:</strong> U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. <i>(Waarom dit belangrijk is: Het erkennen van doorzettingsvermogen helpt haar om toekomstige uitdagingen met meer veerkracht aan te gaan.)</i>",
@@ -124,15 +167,17 @@ export default function VoorbeeldAnalyseRapportPage() {
       {
         title: "3. Blinde Vlekken: Wat Ziet De Een, Wat De Ander (Nog) Niet Ziet?",
         Icon: Lightbulb,
+        theme: 'orange',
         content: [
           "<strong>Ouder ziet, Kind (nog) niet:</strong> U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren. (Kans: Bespreek samen de impact van slaap op stemming en energie overdag, zonder oordeel.)",
           "<strong>Kind ziet, Ouder (nog) niet:</strong> Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert. (Kans: Bespreek strategieën voor drukke omgevingen, zoals een koptelefoon, of even een rustig plekje opzoeken.)",
-          "<strong>Positieve blinde vlek:</strong> Zowel u als Sofie onderschatten mogelijk haar leiderschapskwaliteiten. U noemt dat ze 'soms de leiding neemt' en Sofie zegt 'af en toe te helpen met organiseren'. Dit kan een verborgen talent zijn dat meer aandacht verdient."
+          "<strong>Positieve blinde vlek:</strong> Zowel u als Sofie onderschatten mogelijk haar leiderschapskwaliteiten. U noemt dat ze 'soms de leiding neemt' en Sofie zegt 'af en toe te helpen met organiseren'. Dit kan een verborgen talent zijn dat meer aandacht verdient.",
         ]
       },
       {
         title: "4. Communicatie Kansen: Hoe Beter Afstemmen?",
         Icon: MessageCircle,
+        theme: 'yellow',
         content: [
           "<strong>Probeer deze week:</strong> Vraag door op Sofie's ervaring met 'focus': \"Ik ben benieuwd, hoe voelt 'focus' voor jou? Wat helpt je om je aandacht erbij te houden, vooral bij wiskunde?\"",
           "<strong>Probeer deze week:</strong> Erken haar perspectief op vriendschap: \"Ik zie dat je het fijn hebt met je vrienden. Wat vind je belangrijk in een vriendschap? Dat vind ik interessant om te horen.\"",
@@ -142,6 +187,7 @@ export default function VoorbeeldAnalyseRapportPage() {
       {
         title: "5. Familie Actieplan: Concreet & Haalbaar",
         Icon: ClipboardList,
+        theme: 'green',
         content: [
           "<strong>Wekelijks Creatief Uurtje:</strong> Plan elke week een vast moment voor een creatieve activiteit die Sofie kiest. Geen schermen, alleen papier, verf, klei, etc.",
           "<strong>Focus Plan Maken:</strong> Maak samen een visueel plan voor huiswerk, met duidelijke blokken van 25 minuten focus en 5 minuten pauze (Pomodoro-techniek).",
@@ -151,6 +197,7 @@ export default function VoorbeeldAnalyseRapportPage() {
       {
         title: "6. Volgende Stappen: Hoe Nu Verder?",
         Icon: CheckSquare,
+        theme: 'blue',
         content: [
             "<strong>Check-in over 2 weken:</strong> Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?",
             "<strong>Vervolgvragen om te stellen:</strong> \"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"",
@@ -161,6 +208,7 @@ export default function VoorbeeldAnalyseRapportPage() {
       {
         title: "7. Hoe Werkt de AI Analyse?",
         Icon: Bot,
+        theme: 'gray',
         content: [
             "Onze AI is getraind om patronen te herkennen in de antwoorden van u en uw kind. Het legt de antwoorden op vergelijkbare thema's (zoals 'sociale interactie' of 'planning') naast elkaar. De AI bewaart geen individuele antwoorden, maar identificeert thematische verschillen en overeenkomsten. Op basis van deze patronen stelt het een rapport op met inzichten en suggesties, ontworpen om een constructief gesprek te faciliteren. Het is een hulpmiddel, geen oordeel."
         ]
@@ -168,6 +216,7 @@ export default function VoorbeeldAnalyseRapportPage() {
        {
         title: "Disclaimer",
         Icon: AlertTriangle,
+        theme: 'red',
         content: [
           "Dit rapport is gebaseerd op de antwoorden die zijn gegeven en dient ter indicatie en zelfreflectie. Het is nadrukkelijk geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener voor een formele diagnose of behandeling."
         ]
@@ -194,26 +243,56 @@ export default function VoorbeeldAnalyseRapportPage() {
         };
         
         const drawFormattedText = (text: string, x: number, yPos: number, options: any = {}) => {
-            const { fontSize = PDF_STYLES.normalSize, fontStyle = 'normal', color = PDF_COLORS.foreground, maxWidth = usableWidth } = options;
-            const lineHeight = fontSize * PDF_STYLES.lineHeightFactor * 0.4;
+            const { fontSize = PDF_STYLES.normalSize, fontStyle = 'normal', color = PDF_COLORS.foreground, maxWidth = usableWidth, lineHeightFactor = PDF_STYLES.lineHeightFactor } = options;
+            const lineHeight = fontSize * lineHeightFactor * 0.4;
             doc.setFontSize(fontSize);
             doc.setTextColor(color[0], color[1], color[2]);
             doc.setFont(PDF_STYLES.fontFamily, fontStyle);
 
             const parts = text.split(/(<strong>.*?<\/strong>|<i>.*?<\/i>)/g).filter(Boolean);
             let currentX = x;
-            const textLines = doc.splitTextToSize(text.replace(/<\/?(strong|i)>/g, ''), maxWidth);
+            let lineParts: { text: string; fontStyle: string }[] = [];
+
+            parts.forEach(part => {
+                if (part.startsWith('<strong>')) {
+                    lineParts.push({ text: part.replace(/<\/?strong>/g, ''), fontStyle: 'bold' });
+                } else if (part.startsWith('<i>')) {
+                    lineParts.push({ text: part.replace(/<\/?i>/g, ''), fontStyle: 'italic' });
+                } else {
+                    lineParts.push({ text: part, fontStyle: fontStyle });
+                }
+            });
+
+            const fullTextForSplitting = lineParts.map(p => p.text).join('');
+            const textLines = doc.splitTextToSize(fullTextForSplitting, maxWidth);
             let lineY = yPos;
+            let partIndex = 0;
 
             textLines.forEach((line: string) => {
-                let segmentX = x;
-                doc.text(line, segmentX, lineY); // Simplified drawing logic
+                let remainingLine = line;
+                let currentLineX = x;
+                while (remainingLine.length > 0 && partIndex < lineParts.length) {
+                    const currentPart = lineParts[partIndex];
+                    doc.setFont(PDF_STYLES.fontFamily, currentPart.fontStyle);
+                    
+                    if (currentPart.text.length >= remainingLine.length) {
+                        doc.text(remainingLine, currentLineX, lineY);
+                        currentPart.text = currentPart.text.substring(remainingLine.length);
+                        currentLineX += doc.getStringUnitWidth(remainingLine) * fontSize / doc.internal.scaleFactor;
+                        remainingLine = '';
+                        if (currentPart.text.length === 0) partIndex++;
+                    } else {
+                        doc.text(currentPart.text, currentLineX, lineY);
+                        remainingLine = remainingLine.substring(currentPart.text.length);
+                        currentLineX += doc.getStringUnitWidth(currentPart.text) * fontSize / doc.internal.scaleFactor;
+                        partIndex++;
+                    }
+                }
                 lineY += lineHeight;
             });
             
-            return lineY - yPos;
+            return lineY - yPos; // returns height of text block
         };
-
 
         const calculateSectionHeight = (section: typeof reportContent.sections[0]) => {
             let height = 0;
@@ -223,58 +302,62 @@ export default function VoorbeeldAnalyseRapportPage() {
 
             // Content height
             section.content.forEach(item => {
-                const itemHeight = drawFormattedText(item, 0, 0, { maxWidth: usableWidth - PDF_STYLES.bulletIndent });
+                const itemHeight = drawFormattedText(item, 0, 0, { maxWidth: usableWidth - PDF_STYLES.bulletIndent - 10 });
                 height += itemHeight + PDF_STYLES.paragraphSpacing;
             });
-            return height + 20; // Add padding
+            return height + 20; // Add vertical padding
         };
 
         // --- PDF Generation START ---
-        y += drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+        y = drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
         y += drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
         y += PDF_STYLES.paragraphSpacing;
-        y += drawFormattedText(reportContent.intro, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.foreground });
-        y += PDF_STYLES.paragraphSpacing;
         
-        const basedOnCardHeight = (reportContent.basedOn.length + 1) * (PDF_STYLES.smallSize * 0.7) + 12;
-        checkY(basedOnCardHeight);
-        doc.setFillColor(PDF_COLORS.sectionDefault.bg[0], PDF_COLORS.sectionDefault.bg[1], PDF_STYLES.sectionDefault.bg[2]);
-        doc.roundedRect(margins.left, y, usableWidth, basedOnCardHeight, 2, 2, 'F');
-        let cardY = y + 6;
-        cardY += drawFormattedText(`Gebaseerd op:`, margins.left + 5, cardY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
-        reportContent.basedOn.forEach(line => {
-            cardY += drawFormattedText(`- ${line}`, margins.left + 7, cardY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
-        });
-        y += basedOnCardHeight + PDF_STYLES.paragraphSpacing;
         y += drawFormattedText(reportContent.generatedAt, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
         y += PDF_STYLES.sectionSpacing;
         
-        reportContent.sections.forEach(section => {
-            const sectionHeight = calculateSectionHeight(section);
-            checkY(sectionHeight);
-            
-            // Draw card background
-            doc.setFillColor(PDF_COLORS.sectionBg[0], PDF_COLORS.sectionBg[1], PDF_COLORS.sectionBg[2]);
-            doc.roundedRect(margins.left, y, usableWidth, sectionHeight, 3, 3, 'F');
-            
-            let contentY = y + 10; // Top padding
+        // --- Based On Card ---
+        let basedOnCardY = y;
+        let cardContentY = basedOnCardY + 6;
+        cardContentY += drawFormattedText(`Gebaseerd op:`, margins.left + 5, cardContentY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
+        reportContent.basedOn.forEach(line => {
+            cardContentY += drawFormattedText(`- ${line}`, margins.left + 7, cardContentY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+        });
+        const basedOnCardHeight = (cardContentY - basedOnCardY) + 6;
+        checkY(basedOnCardHeight + PDF_STYLES.sectionSpacing);
+        doc.setFillColor(PDF_COLORS.sectionDefault.bg[0], PDF_COLORS.sectionDefault.bg[1], PDF_COLORS.sectionDefault.bg[2]);
+        doc.roundedRect(margins.left, basedOnCardY, usableWidth, basedOnCardHeight, 2, 2, 'F');
+        // Redraw text on top
+        cardContentY = basedOnCardY + 6;
+        cardContentY += drawFormattedText(`Gebaseerd op:`, margins.left + 5, cardContentY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
+        reportContent.basedOn.forEach(line => {
+            cardContentY += drawFormattedText(`- ${line}`, margins.left + 7, cardContentY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+        });
+        y += basedOnCardHeight + PDF_STYLES.sectionSpacing;
 
-            // Draw title
-            contentY += drawFormattedText(section.title, margins.left + 8, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, maxWidth: usableWidth - 16 });
+        
+        reportContent.sections.forEach((sectionData, index) => {
+            const sectionHeight = calculateSectionHeight(sectionData);
+            checkY(sectionHeight + PDF_STYLES.sectionSpacing);
+
+            const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
+            const cardY = y;
+            let contentY = cardY + 10; // Top padding
+
+            doc.setFillColor(theme.bg[0], theme.bg[1], theme.bg[2]);
+            doc.roundedRect(margins.left, cardY, usableWidth, sectionHeight, 3, 3, 'F');
+            
+            contentY += drawFormattedText(sectionData.title, margins.left + 8, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title, maxWidth: usableWidth - 16 });
             contentY += PDF_STYLES.paragraphSpacing;
 
-            // Draw content items
-            section.content.forEach(item => {
-                doc.setFillColor(PDF_COLORS.sectionBullet[0], PDF_COLORS.sectionBullet[1], PDF_COLORS.sectionBullet[2]);
-                const bulletY = contentY + 2; // Adjust vertical alignment of bullet
-                checkY(bulletY - y + 5); // Check if bullet and a line of text fit
+            sectionData.content.forEach(item => {
+                doc.setFillColor(theme.bullet[0], theme.bullet[1], theme.bullet[2]);
+                const bulletY = contentY + 2; 
                 doc.circle(margins.left + PDF_STYLES.bulletIndent, bulletY, PDF_STYLES.bulletRadius, 'F');
-                
-                contentY += drawFormattedText(item, margins.left + PDF_STYLES.bulletIndent + 5, contentY, { maxWidth: usableWidth - PDF_STYLES.bulletIndent - 15 });
+                contentY += drawFormattedText(item, margins.left + PDF_STYLES.bulletIndent + 5, contentY, { maxWidth: usableWidth - PDF_STYLES.bulletIndent - 15, color: PDF_COLORS.foreground });
                 contentY += PDF_STYLES.paragraphSpacing;
             });
-
-            y += sectionHeight + PDF_STYLES.sectionSpacing;
+            y = cardY + sectionHeight + PDF_STYLES.sectionSpacing;
         });
 
         // Add page footers
@@ -373,5 +456,3 @@ export default function VoorbeeldAnalyseRapportPage() {
     </div>
   );
 }
-
-    
