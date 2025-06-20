@@ -1,3 +1,4 @@
+
 // src/app/neurodiversiteit/page.tsx
 "use client"; 
 
@@ -62,7 +63,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    imageUrl: DEFAULT_INTRO_IMAGE_URL,
+    // imageUrl is handled by currentIntroImageUrl state for the intro section
     dataAiHint: "brain diversity connection"
   },
   {
@@ -179,8 +180,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
 
 export default function NeurodiversiteitPage() {
   const { toast } = useToast();
-  const defaultTopic = neurodiversityTopicsData.find(topic => topic.id === "algemeen");
-  const [currentIntroImageUrl, setCurrentIntroImageUrl] = useState<string>(defaultTopic?.imageUrl || DEFAULT_INTRO_IMAGE_URL);
+  const [currentIntroImageUrl, setCurrentIntroImageUrl] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [isClient, setIsClient] = useState(false);
 
@@ -188,21 +188,41 @@ export default function NeurodiversiteitPage() {
     setIsClient(true); 
     const storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
     if (storedImageUrl) {
-      setCurrentIntroImageUrl(storedImageUrl);
-      setImageUrlInput(storedImageUrl);
+      if (storedImageUrl.startsWith('gs://')) {
+        setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
+        setImageUrlInput(DEFAULT_INTRO_IMAGE_URL);
+        toast({
+          title: "Opgeslagen URL Ongeldig",
+          description: "De eerder opgeslagen afbeeldings-URL gebruikt een 'gs://' prefix en is gereset. Voer een geldige HTTPS URL in.",
+          variant: "destructive",
+          duration: 7000,
+        });
+      } else {
+        setCurrentIntroImageUrl(storedImageUrl);
+        setImageUrlInput(storedImageUrl);
+      }
     } else {
       setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
       setImageUrlInput(DEFAULT_INTRO_IMAGE_URL);
     }
-  }, []);
+  }, [toast]);
 
   const handleSetImageUrl = () => {
     if (imageUrlInput.trim() === "") {
       toast({ title: "Fout", description: "Voer een geldige URL in.", variant: "destructive" });
       return;
     }
+    if (imageUrlInput.startsWith('gs://')) {
+      toast({
+        title: "Ongeldige URL Invoer",
+        description: "Gebruik a.u.b. een HTTPS URL (beginnend met http:// of https://) voor Firebase Storage afbeeldingen, geen gs:// URL.",
+        variant: "destructive",
+        duration: 7000,
+      });
+      return; 
+    }
     try {
-      new URL(imageUrlInput); // Validate URL format
+      new URL(imageUrlInput); 
       setCurrentIntroImageUrl(imageUrlInput);
       if (isClient) {
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, imageUrlInput);
@@ -251,15 +271,16 @@ export default function NeurodiversiteitPage() {
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={introTopic.dataAiHint || "abstract brain"}
                         priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
+                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Firebase Storage Afbeelding URL:</Label>
+                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Firebase Storage Afbeelding URL (HTTPS):</Label>
                     <div className="flex gap-2 mt-1">
                       <Input 
                         id="imageUrlInput"
                         type="url"
-                        placeholder="Plak hier de Firebase Storage URL..."
+                        placeholder="Plak hier de HTTPS Firebase Storage URL..."
                         value={imageUrlInput}
                         onChange={(e) => setImageUrlInput(e.target.value)}
                         className="flex-grow"
@@ -269,7 +290,7 @@ export default function NeurodiversiteitPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Zorg dat de afbeelding publiek toegankelijk is. De URL wordt lokaal opgeslagen.
+                      Zorg dat de afbeelding publiek toegankelijk is en een HTTPS URL heeft.
                     </p>
                   </div>
                 </div>
