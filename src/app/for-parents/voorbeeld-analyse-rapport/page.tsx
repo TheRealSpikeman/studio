@@ -104,6 +104,7 @@ const PDF_COLORS = {
     bullet: hslToRgb(210, 20, 45),
     text: hslToRgb(210, 20, 45),
   },
+  orange: hslToRgb(25, 78, 52),
 };
 
 const PDF_STYLES = {
@@ -158,7 +159,7 @@ export default function VoorbeeldAnalyseRapportPage() {
           "<strong>Behulpzaamheid:</strong> U waardeert hoe Sofie helpt in huis. Sofie geeft aan graag anderen te helpen en voelt zich goed als ze dat doet. <i>(Waarom dit belangrijk is: Dit benadrukt haar sociale waarde en kan een bron van voldoening zijn.)</i>"
         ]
       },
-       {
+      {
         title: "3. Blinde Vlekken: Wat Ziet De Een, Wat De Ander (Nog) Niet Ziet?",
         Icon: Lightbulb,
         colorTheme: PDF_COLORS.sectionYellow,
@@ -279,17 +280,18 @@ export default function VoorbeeldAnalyseRapportPage() {
       const drawSectionCard = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
           const cardInnerWidth = usableWidth - (PDF_STYLES.cardPaddingX * 2);
           
-          let contentHeight = 0;
-          const titleHeight = (doc.setFont(undefined, "bold").setFontSize(PDF_STYLES.h2Size).getTextDimensions(sectionData.title, { maxWidth: cardInnerWidth }).h);
-          contentHeight += titleHeight + PDF_STYLES.paragraphSpacing + 10; // Extra top padding
+          let tempDoc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+          let tempY = 0;
+          tempY = addTextWithFormatting(sectionData.title, 0, tempY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', maxWidth: cardInnerWidth }, tempDoc);
+          tempY += PDF_STYLES.paragraphSpacing;
 
           sectionData.content.forEach(item => {
-              const itemPlainText = item.replace(/<[^>]*>/g, '');
-              const itemHeight = doc.setFont(undefined, "normal").setFontSize(PDF_STYLES.normalSize).getTextDimensions(itemPlainText, { maxWidth: cardInnerWidth - 8 }).h;
-              contentHeight += itemHeight + PDF_STYLES.paragraphSpacing;
+              tempY = addTextWithFormatting(item, 0, tempY, { maxWidth: cardInnerWidth - 8 }, tempDoc);
+              tempY += PDF_STYLES.paragraphSpacing;
           });
-          
-          const cardTotalHeight = contentHeight + PDF_STYLES.cardPaddingY;
+          const contentHeight = tempY;
+
+          const cardTotalHeight = contentHeight + (PDF_STYLES.cardPaddingY * 3); // Increased vertical padding
 
           if (currentY + cardTotalHeight > pageHeight - margins.bottom) {
               doc.addPage();
@@ -299,7 +301,7 @@ export default function VoorbeeldAnalyseRapportPage() {
           doc.setFillColor(sectionData.colorTheme.bg[0], sectionData.colorTheme.bg[1], sectionData.colorTheme.bg[2]);
           doc.roundedRect(margins.left, currentY, usableWidth, cardTotalHeight, PDF_STYLES.cardRadius, PDF_STYLES.cardRadius, 'F');
           
-          let textY = currentY + PDF_STYLES.cardPaddingY + 5; 
+          let textY = currentY + PDF_STYLES.cardPaddingY + 5; // Increased top padding
           textY = addTextWithFormatting(sectionData.title, margins.left + PDF_STYLES.cardPaddingX, textY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, maxWidth: cardInnerWidth });
           textY += PDF_STYLES.paragraphSpacing;
 
