@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
   Brain, Users, ShieldCheck, CreditCard, ExternalLink, Search, CheckCircle2, ArrowRight,
-  TrendingUp, BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock
+  TrendingUp, BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -105,6 +105,34 @@ export function InvestmentProposal() {
             </div>
           </section>
 
+           <section>
+            <h2 className="text-3xl font-bold text-center mb-8">Onze Technologische Voorsprong</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center gap-2"><Bot className="h-6 w-6 text-primary"/>AI Maakt Het Slim</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-muted-foreground space-y-2">
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Persoonlijkheidstests wijzen ouders naar de juiste coach.</span></p>
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Dashboard past zich aan de unieke behoeften van elk kind aan.</span></p>
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Ouders krijgen concrete, AI-gegenereerde tips over hoe ze hun kind kunnen helpen.</span></p>
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Geen one-size-fits-all, maar maatwerk via technologie.</span></p>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center gap-2"><Cpu className="h-6 w-6 text-primary"/>Bewezen & Schaalbare Technologie</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-muted-foreground space-y-2">
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Live beta platform elimineert het technische ontwikkelrisico.</span></p>
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Moderne tech stack (Next.js, Firebase) die meegroeit van 100 naar 100.000+ gebruikers.</span></p>
+                        <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Vroege feedback van gebruikers valideert de product-market fit.</span></p>
+                         <p className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0"/><span>Data-voordeel: onze AI wordt slimmer met elke gebruiker, een voordeel dat concurrenten moeilijk kunnen inhalen.</span></p>
+                    </CardContent>
+                </Card>
+            </div>
+          </section>
+
           <section>
              <h2 className="text-3xl font-bold text-center mb-8">Marktpotentieel & Financiële Kans</h2>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -194,15 +222,15 @@ export function InvestmentProposal() {
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Is dit niet riskant zoals crypto of andere tech hypes?</AccordionTrigger>
-                <AccordionContent>Nee, dit is fundamenteel anders. Ik heb 500+ uur eigen tijd geïnvesteerd. Het platform draait al online op mindnavigator.io. De markt (neurodiversiteit coaching) bestaat al; wij maken het alleen toegankelijker en betaalbaarder via technologie.</AccordionContent>
+                <AccordionContent>Nee, dit is fundamenteel anders. Ik heb 500+ uur eigen tijd geïnvesteerd in onderzoek en ontwikkeling. Het platform draait al online op mindnavigator.io, je kunt het vandaag uitproberen. De markt (neurodiversiteit coaching) bestaat al - wij maken het alleen toegankelijker via technologie.</AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
-                <AccordionTrigger>Wat als grote techbedrijven dit kopiëren?</AccordionTrigger>
-                <AccordionContent>Dat is een reëel risico, maar wij hebben 6+ maanden voorsprong en specialistische kennis van de doelgroep. Bovendien kopen grote bedrijven vaak de innovators op, wat een uitstekende exit-mogelijkheid is voor investeerders.</AccordionContent>
+                <AccordionTrigger>Wat als de grote techbedrijven dit gaan kopiëren?</AccordionTrigger>
+                <AccordionContent>Dat kan, maar wij hebben 6+ maanden voorsprong en specialistische kennis. Bovendien kopen grote bedrijven vaak de innovators op (= exit opportunity).</AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
                 <AccordionTrigger>Hoe weet ik dat mijn geld goed gebruikt wordt?</AccordionTrigger>
-                <AccordionContent>U ontvangt kwartaalupdates met concrete cijfers over gebruikersgroei en omzet. Het platform is transparant; u kunt de voortgang live volgen.</AccordionContent>
+                <AccordionContent>Jullie krijgen kwartaal updates met echte cijfers, en het platform is transparant - je kunt live zien op mindnavigator.io hoeveel gebruikers we hebben.</AccordionContent>
               </AccordionItem>
             </Accordion>
           </section>
