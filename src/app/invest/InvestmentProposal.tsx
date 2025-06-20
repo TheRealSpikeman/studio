@@ -77,7 +77,7 @@ export function InvestmentProposal() {
               Een Unieke Investeringskans voor Friends & Family
             </p>
             <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-              Welkom, en bedankt voor je interesse. Dit is een exclusieve kans om deel uit te maken van de groei van MindNavigator, een werkend platform dat klaar is voor de volgende fase. Ik wilde dit persoonlijk met jullie delen voordat we de deuren openen voor externe investeerders.
+              Welkom, en bedankt voor je interesse. Dit is een exclusieve kans om deel uit te maken van de groei van MindNavigator, een werkend platform dat klaar is voor de volgende fase. Ik wilde dit persoonlijk met jullie delen voordat we de deuren openen voor externe investeerders. Ik weet dat er niets vervelender is dan later te horen: "Waarom heb je ons niets verteld toen het nog kon?"
             </p>
           </section>
 
@@ -231,7 +231,8 @@ export function InvestmentProposal() {
            <section className="text-center p-6 border-t border-b">
              <h2 className="text-2xl font-bold text-foreground">Een Persoonlijke Boodschap</h2>
              <p className="mt-4 text-muted-foreground max-w-3xl mx-auto">
-                Beste vrienden en familie, normaal gesproken zou ik jullie niet benaderen voor een investering. Maar dit voelt anders. Ik heb hier honderden uren van mijn eigen tijd en energie in gestoken en een werkende oplossing gebouwd voor een echt probleem dat mij persoonlijk raakt. Of je nu meedoet of meeleest vanaf de zijlijn, onze vriendschap verandert niet. Ik wilde jullie simpelweg de kans geven om erbij te zijn als je dat leuk vindt.
+                Beste vrienden en familie,
+                Normaal gesproken zou ik jullie niet benaderen voor een investering. Maar dit voelt anders. Ik heb hier honderden uren van mijn eigen tijd en energie in gestoken en een werkende oplossing gebouwd voor een echt probleem dat mij persoonlijk raakt. Of je nu meedoet of meeleest vanaf de zijlijn, onze vriendschap verandert niet. Ik wilde jullie simpelweg de kans geven om erbij te zijn als je dat leuk vindt.
              </p>
              <p className="mt-4 font-semibold">- Glenn Bosch, Oprichter & CEO MindNavigator</p>
            </section>
