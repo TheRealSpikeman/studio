@@ -1,16 +1,19 @@
 
-"use client"; // Deze pagina gebruikt client-side state voor de accordion, dus "use client" is correct.
+// src/app/neurodiversiteit/page.tsx
+"use client"; 
 
+import React, { useState, useEffect, useRef } from 'react'; // Added React and useRef
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion } from 'lucide-react';
+import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion, ImageUp } from 'lucide-react'; // Added ImageUp
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import type { ElementType, ReactNode } from 'react';
+import { Input } from '@/components/ui/input'; // Added Input for file upload
 
 interface NeurodiversitySectionDetail {
   subTitle: string;
@@ -19,11 +22,11 @@ interface NeurodiversitySectionDetail {
 
 interface NeurodiversityTopic {
   id: string;
-  title: string; // Hoofdtitel voor de sectie of accordion item
+  title: string; 
   icon: ElementType;
-  shortDescription?: string; // Gebruikt in accordion trigger
-  content?: string[]; // Voor accordion items
-  sections?: NeurodiversitySectionDetail[]; // Voor de algemene introductie sectie bovenaan
+  shortDescription?: string; 
+  content?: string[]; 
+  sections?: NeurodiversitySectionDetail[]; 
   imageUrl?: string;
   dataAiHint?: string;
   colorClass?: string;
@@ -31,12 +34,12 @@ interface NeurodiversityTopic {
 }
 
 
-const neurodiversityTopics: NeurodiversityTopic[] = [
+const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
     id: "algemeen",
-    title: "Wat is Neurodiversiteit?", // Dit is de titel van de sectie
+    title: "Wat is Neurodiversiteit?", 
     icon: Brain,
-    sections: [ // Aangepaste structuur voor de introductie
+    sections: [ 
       {
         subTitle: "De Basis van Neurodiversiteit",
         paragraphs: [
@@ -172,13 +175,29 @@ const neurodiversityTopics: NeurodiversityTopic[] = [
 ];
 
 export default function NeurodiversiteitPage() {
+  const [introImageSrc, setIntroImageSrc] = useState<string | undefined>(
+    neurodiversityTopicsData.find(topic => topic.id === "algemeen")?.imageUrl
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIntroImageSrc(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto max-w-4xl"> {/* Main container for max-width and centering */}
+        <div className="container mx-auto max-w-4xl"> 
           
-          <div className="text-center mb-12 md:mb-16"> {/* Header section */}
+          <div className="text-center mb-12 md:mb-16"> 
             <Brain className="mx-auto h-16 w-16 text-primary mb-4" />
             <h1 className="text-4xl font-bold text-foreground">Wat is Neurodiversiteit?</h1>
             <p className="text-lg text-muted-foreground mt-2">
@@ -186,9 +205,9 @@ export default function NeurodiversiteitPage() {
             </p>
           </div>
           
-          <div className="space-y-10 text-lg leading-relaxed text-foreground/90"> {/* Content wrapper */}
-            {neurodiversityTopics.filter(topic => topic.id === "algemeen").map(topic => (
-              <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-center mb-12">
+          <div className="space-y-10 text-lg leading-relaxed text-foreground/90"> 
+            {neurodiversityTopicsData.filter(topic => topic.id === "algemeen").map(topic => (
+              <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-start mb-12">
                 <div className="space-y-3">
                   {topic.sections?.map((section, sIndex) => (
                     <div key={sIndex} className={sIndex > 0 ? "mt-6" : ""}>
@@ -199,20 +218,39 @@ export default function NeurodiversiteitPage() {
                     </div>
                   ))}
                 </div>
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
-                  <Image
-                      src={topic.imageUrl!}
-                      alt={topic.title}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      data-ai-hint={topic.dataAiHint || "abstract brain"}
+                <div className="space-y-3">
+                  {introImageSrc && (
+                    <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
+                      <Image
+                          src={introImageSrc}
+                          alt={topic.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                          data-ai-hint={topic.dataAiHint || "abstract brain"}
+                      />
+                    </div>
+                  )}
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    ref={fileInputRef}
+                    onChange={handleImageChange} 
                   />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    <ImageUp className="mr-2 h-4 w-4" /> Afbeelding Kiezen (Preview)
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">Geselecteerde afbeelding wordt niet opgeslagen.</p>
                 </div>
               </section>
             ))}
 
             <Accordion type="single" collapsible className="w-full space-y-4">
-              {neurodiversityTopics.filter(topic => topic.id !== "algemeen").map((topic) => {
+              {neurodiversityTopicsData.filter(topic => topic.id !== "algemeen").map((topic) => {
                 const IconComponent = topic.icon;
                 return (
                   <AccordionItem 
