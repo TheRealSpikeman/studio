@@ -30,7 +30,6 @@ import { jsPDF, type TextOptionsLight } from 'jspdf';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
-
 interface ReportSectionProps {
   title: string;
   Icon: ElementType;
@@ -89,16 +88,16 @@ const PDF_STYLES = {
   normalSize: 10.5,
   smallSize: 8,
   lineHeightFactor: 1.5,
-  bulletRadius: 1,
+  bulletRadius: 1.5,
+  paragraphSpacing: 5
 };
-
 
 export default function VoorbeeldAnalyseRapportPage() {
   const childName = "Sofie";
   const parentName = "Olivia Ouder";
   const { toast } = useToast();
 
-  const reportContent = {
+    const reportContent = {
     title: `Vergelijkende Analyse`,
     subtitle: `Inzichten voor ${parentName} en ${childName}`,
     intro: `Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Onze AI heeft de antwoorden op circa 15-20 vragen per persoon geanalyseerd om patronen te herkennen, zonder individuele responses te beoordelen als 'goed' of 'fout'. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van ${childName}.`,
@@ -113,9 +112,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: EyeOff,
         theme: 'blue',
         content: [
-          "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00. <i>(Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)</i>",
-          "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. <i>(Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.)</i>",
-          "<strong>Omgaan met Verandering:</strong> U merkt op dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt.",
+          { title: "Focus op School:", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00. <i>(Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)</i>" },
+          { title: "Sociale Interacties:", text: "U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. <i>(Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.)</i>" },
+          { title: "Omgaan met Verandering:", text: "U merkt op dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt." },
         ]
       },
       {
@@ -123,9 +122,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: ThumbsUp,
         theme: 'green',
         content: [
-          "<strong>Creativiteit:</strong> Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <i>(Waarom dit belangrijk is: Dit is een krachtig, gedeeld fundament om op voort te bouwen en haar zelfvertrouwen te versterken.)</i>",
-          "<strong>Doorzettingsvermogen:</strong> U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. <i>(Waarom dit belangrijk is: Het erkennen van doorzettingsvermogen helpt haar om toekomstige uitdagingen met meer veerkracht aan te gaan.)</i>",
-          "<strong>Behulpzaamheid:</strong> U waardeert hoe Sofie helpt in huis. Sofie geeft aan graag anderen te helpen en voelt zich goed als ze dat doet. <i>(Waarom dit belangrijk is: Dit benadrukt haar sociale waarde en kan een bron van voldoening zijn.)</i>"
+          { title: "Creativiteit:", text: "Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <i>(Waarom dit belangrijk is: Dit is een krachtig, gedeeld fundament om op voort te bouwen en haar zelfvertrouwen te versterken.)</i>" },
+          { title: "Doorzettingsvermogen:", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. <i>(Waarom dit belangrijk is: Het erkennen van doorzettingsvermogen helpt haar om toekomstige uitdagingen met meer veerkracht aan te gaan.)</i>" },
+          { title: "Behulpzaamheid:", text: "U waardeert hoe Sofie helpt in huis. Sofie geeft aan graag anderen te helpen en voelt zich goed als ze dat doet. <i>(Waarom dit belangrijk is: Dit benadrukt haar sociale waarde en kan een bron van voldoening zijn.)</i>" },
         ]
       },
       {
@@ -133,9 +132,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: Lightbulb,
         theme: 'orange',
         content: [
-          "<strong>Ouder ziet, Kind (nog) niet:</strong> U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren. <i>(Kans: Bespreek samen de impact van slaap op stemming en energie overdag, zonder oordeel.)</i>",
-          "<strong>Kind ziet, Ouder (nog) niet:</strong> Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert. <i>(Kans: Bespreek strategieën voor drukke omgevingen, zoals een koptelefoon, of even een rustig plekje opzoeken.)</i>",
-          "<strong>Positieve blinde vlek:</strong> Zowel u als Sofie onderschatten mogelijk haar leiderschapskwaliteiten. U noemt dat ze 'soms de leiding neemt' en Sofie zegt 'af en toe te helpen met organiseren'. Dit kan een verborgen talent zijn dat meer aandacht verdient.",
+          { title: "Ouder ziet, Kind (nog) niet:", text: "U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren. <i>(Kans: Bespreek samen de impact van slaap op stemming en energie overdag, zonder oordeel.)</i>" },
+          { title: "Kind ziet, Ouder (nog) niet:", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert. <i>(Kans: Bespreek strategieën voor drukke omgevingen, zoals een koptelefoon, of even een rustig plekje opzoeken.)</i>" },
+          { title: "Positieve blinde vlek:", text: "Zowel u als Sofie onderschatten mogelijk haar leiderschapskwaliteiten. U noemt dat ze 'soms de leiding neemt' en Sofie zegt 'af en toe te helpen met organiseren'. Dit kan een verborgen talent zijn dat meer aandacht verdient." }
         ]
       },
       {
@@ -143,9 +142,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: MessageCircle,
         theme: 'yellow',
         content: [
-          "<strong>Probeer deze week:</strong> Vraag door op Sofie's ervaring met 'focus': \"Ik ben benieuwd, hoe voelt 'focus' voor jou? Wat helpt je om je aandacht erbij te houden, vooral bij wiskunde?\"",
-          "<strong>Probeer deze week:</strong> Erken haar perspectief op vriendschap: \"Ik zie dat je het fijn hebt met je vrienden. Wat vind je belangrijk in een vriendschap? Dat vind ik interessant om te horen.\"",
-          "<strong>Probeer deze week:</strong> Geef een specifiek compliment over doorzettingsvermogen: \"Wat knap hoe je dat moeilijke project hebt doorgezet, ook toen het even niet lukte! Ik ben trots op je.\""
+          { title: "Probeer deze week:", text: "Vraag door op Sofie's ervaring met 'focus': \"Ik ben benieuwd, hoe voelt 'focus' voor jou? Wat helpt je om je aandacht erbij te houden, vooral bij wiskunde?\"" },
+          { title: "Probeer deze week:", text: "Erken haar perspectief op vriendschap: \"Ik zie dat je het fijn hebt met je vrienden. Wat vind je belangrijk in een vriendschap? Dat vind ik interessant om te horen.\"" },
+          { title: "Probeer deze week:", text: "Geef een specifiek compliment over doorzettingsvermogen: \"Wat knap hoe je dat moeilijke project hebt doorgezet, ook toen het even niet lukte! Ik ben trots op je.\"" }
         ]
       },
       {
@@ -153,9 +152,9 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: ClipboardList,
         theme: 'green',
         content: [
-          "<strong>Wekelijks Creatief Uurtje:</strong> Plan elke week een vast moment voor een creatieve activiteit die Sofie kiest. Geen schermen, alleen papier, verf, klei, etc.",
-          "<strong>Focus Plan Maken:</strong> Maak samen een visueel plan voor huiswerk, met duidelijke blokken van 25 minuten focus en 5 minuten pauze (Pomodoro-techniek).",
-          "<strong>Prikkel Thermometer:</strong> Introduceer een 'prikkel-thermometer' (groen-oranje-rood) voor op de koelkast. Sofie kan aangeven hoe 'vol' haar hoofd zit, als startpunt voor een gesprek over wat ze nodig heeft."
+          { title: "Wekelijks Creatief Uurtje:", text: "Plan elke week een vast moment voor een creatieve activiteit die Sofie kiest. Geen schermen, alleen papier, verf, klei, etc." },
+          { title: "Focus Plan Maken:", text: "Maak samen een visueel plan voor huiswerk, met duidelijke blokken van 25 minuten focus en 5 minuten pauze (Pomodoro-techniek)." },
+          { title: "Prikkel Thermometer:", text: "Introduceer een 'prikkel-thermometer' (groen-oranje-rood) voor op de koelkast. Sofie kan aangeven hoe 'vol' haar hoofd zit, als startpunt voor een gesprek over wat ze nodig heeft." }
         ]
       },
       {
@@ -163,10 +162,10 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: CheckSquare,
         theme: 'blue',
         content: [
-            "<strong>Check-in over 2 weken:</strong> Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?",
-            "<strong>Vervolgvragen om te stellen:</strong> \"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"",
-            "<strong>Rapport opnieuw doen:</strong> Overweeg om deze vragenlijsten over 3-6 maanden opnieuw te doen om groei en veranderingen te zien.",
-            "<strong>Professionele hulp:</strong> Als zorgen aanhouden of de communicatie moeizaam blijft, overweeg dan een gesprek met een van onze gekoppelde coaches of een externe professional."
+            { title: "Check-in over 2 weken:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
+            { title: "Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
+            { title: "Rapport opnieuw doen:", text: "Overweeg om deze vragenlijsten over 3-6 maanden opnieuw te doen om groei en veranderingen te zien." },
+            { title: "Professionele hulp:", text: "Als zorgen aanhouden of de communicatie moeizaam blijft, overweeg dan een gesprek met een van onze gekoppelde coaches of een externe professional." }
         ]
       },
       {
@@ -174,7 +173,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: Bot,
         theme: 'gray',
         content: [
-            "Onze AI is getraind om patronen te herkennen in de antwoorden van u en uw kind. Het legt de antwoorden op vergelijkbare thema's (zoals 'sociale interactie' of 'planning') naast elkaar. De AI bewaart geen individuele antwoorden, maar identificeert thematische verschillen en overeenkomsten. Op basis van deze patronen stelt het een rapport op met inzichten en suggesties, ontworpen om een constructief gesprek te faciliteren. Het is een hulpmiddel, geen oordeel."
+            { title: "", text: "Onze AI is getraind om patronen te herkennen in de antwoorden van u en uw kind. Het legt de antwoorden op vergelijkbare thema's (zoals 'sociale interactie' of 'planning') naast elkaar. De AI bewaart geen individuele antwoorden, maar identificeert thematische verschillen en overeenkomsten. Op basis van deze patronen stelt het een rapport op met inzichten en suggesties, ontworpen om een constructief gesprek te faciliteren. Het is een hulpmiddel, geen oordeel." }
         ]
       },
        {
@@ -182,7 +181,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: AlertTriangle,
         theme: 'red',
         content: [
-          "Dit rapport is gebaseerd op de antwoorden die zijn gegeven en dient ter indicatie en zelfreflectie. Het is nadrukkelijk geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener voor een formele diagnose of behandeling."
+          { title: "", text: "Dit rapport is gebaseerd op de antwoorden die zijn gegeven en dient ter indicatie en zelfreflectie. Het is nadrukkelijk geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener voor een formele diagnose of behandeling." }
         ]
       },
     ]
@@ -204,127 +203,109 @@ export default function VoorbeeldAnalyseRapportPage() {
         }
       };
 
-      const drawFormattedText = (text: string, x: number, yPos: number, options: any = {}) => {
-        const {
-          fontSize = PDF_STYLES.normalSize,
-          color = PDF_COLORS.foreground,
-          maxWidth = usableWidth,
-          lineHeightFactor = PDF_STYLES.lineHeightFactor
-        } = options;
+      const drawText = (text: string, x: number, yPos: number, options: any = {}) => {
+          if (typeof text !== 'string') return yPos;
+          const {
+              fontSize = PDF_STYLES.normalSize,
+              color = PDF_COLORS.foreground,
+              maxWidth = usableWidth,
+              fontStyle = 'normal'
+          } = options;
 
-        const lineHeight = fontSize * lineHeightFactor * 0.4;
-        let currentX = x;
-        let currentY = yPos;
+          doc.setFont(PDF_STYLES.fontFamily, fontStyle);
+          doc.setFontSize(fontSize);
+          doc.setTextColor(color[0], color[1], color[2]);
+          
+          const lineHeight = fontSize * PDF_STYLES.lineHeightFactor * 0.4;
+          const lines = doc.splitTextToSize(text, maxWidth);
+          
+          doc.text(lines, x, yPos, {
+            lineHeightFactor: PDF_STYLES.lineHeightFactor,
+          });
+          
+          doc.setFont(PDF_STYLES.fontFamily, 'normal');
+          doc.setTextColor(...PDF_COLORS.foreground);
 
-        const parts = text.split(/(<strong>.*?<\/strong>|<i>.*?<\/i>)/g).filter(Boolean);
-
-        parts.forEach(part => {
-            let style: 'bold' | 'italic' | 'normal' = 'normal';
-            let content = part;
-
-            if (part.startsWith('<strong>')) {
-                style = 'bold';
-                content = part.replace(/<\/?strong>/g, '');
-            } else if (part.startsWith('<i>')) {
-                style = 'italic';
-                content = part.replace(/<\/?i>/g, '');
-            }
-
-            doc.setFont(PDF_STYLES.fontFamily, style);
-            doc.setFontSize(fontSize);
-            doc.setTextColor(color[0], color[1], color[2]);
-
-            const words = content.split(' ');
-            words.forEach((word, index) => {
-                const wordWithSpace = index < words.length - 1 ? word + ' ' : word;
-                const wordWidth = doc.getStringUnitWidth(wordWithSpace) * fontSize / doc.internal.scaleFactor;
-                
-                if (currentX > x && currentX + wordWidth > x + maxWidth) {
-                    currentY += lineHeight;
-                    currentX = x;
-                    checkY(lineHeight);
-                }
-                
-                const subWords = wordWithSpace.split('\n');
-                subWords.forEach((subWord, subIndex) => {
-                    if(subIndex > 0) {
-                         currentY += lineHeight;
-                         currentX = x;
-                         checkY(lineHeight);
-                    }
-                    const subWordWidth = doc.getStringUnitWidth(subWord) * fontSize / doc.internal.scaleFactor;
-                    if(typeof subWord === 'string' && !isNaN(currentX) && !isNaN(currentY)){
-                        doc.text(subWord, currentX, currentY);
-                    }
-                    currentX += subWordWidth;
-                });
-            });
-        });
-        
-        doc.setFont(PDF_STYLES.fontFamily, 'normal');
-        return currentY;
-      };
-
-      const calculateFormattedTextHeight = (text: string, options: any = {}) => {
-          const { fontSize = PDF_STYLES.normalSize, maxWidth = usableWidth, lineHeightFactor = PDF_STYLES.lineHeightFactor } = options;
-          const lineHeight = fontSize * lineHeightFactor * 0.4;
-          const plainText = text.replace(/<[^>]*>/g, '');
-          const lines = doc.splitTextToSize(plainText, maxWidth);
-          return lines.length * lineHeight;
+          return yPos + (lines.length * lineHeight);
       };
       
+      const calculateTextHeight = (text: string, options: any = {}) => {
+          if (typeof text !== 'string') return 0;
+          const {
+              fontSize = PDF_STYLES.normalSize,
+              maxWidth = usableWidth,
+              lineHeightFactor = PDF_STYLES.lineHeightFactor
+          } = options;
+          const lineHeight = fontSize * lineHeightFactor * 0.4;
+          const lines = doc.splitTextToSize(text, maxWidth);
+          return lines.length * lineHeight;
+      };
+
       const addSection = (sectionData: typeof reportContent.sections[0]) => {
-          let contentHeight = PDF_STYLES.padding * 2;
-          contentHeight += calculateFormattedTextHeight(sectionData.title, { fontSize: PDF_STYLES.h2Size, maxWidth: usableWidth - (PDF_STYLES.padding * 2) });
-          contentHeight += PDF_STYLES.sectionSpacing / 2;
+          const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
+          const PADDING = 6;
+          const BULLET_X_OFFSET = 4;
+          const TEXT_X_OFFSET = 7;
+          
+          let contentHeight = PADDING * 2;
+          contentHeight += calculateTextHeight(sectionData.title, { fontSize: PDF_STYLES.h2Size });
+          contentHeight += PDF_STYLES.paragraphSpacing / 2;
 
           sectionData.content.forEach(item => {
-              contentHeight += calculateFormattedTextHeight(item, { maxWidth: usableWidth - (PDF_STYLES.padding * 2) - 10 });
-              contentHeight += PDF_STYLES.paragraphSpacing / 2;
+              if (item.title) {
+                contentHeight += calculateTextHeight(item.title, { fontSize: PDF_STYLES.normalSize, fontStyle: 'bold', maxWidth: usableWidth - PADDING * 2 - TEXT_X_OFFSET });
+              }
+              if (item.text) {
+                contentHeight += calculateTextHeight(item.text, { maxWidth: usableWidth - PADDING * 2 - TEXT_X_OFFSET });
+              }
+              contentHeight += PDF_STYLES.paragraphSpacing;
           });
           
           checkY(contentHeight);
           
-          const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
           doc.setFillColor(theme.bg[0], theme.bg[1], theme.bg[2]);
           doc.roundedRect(margins.left, y, usableWidth, contentHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
           
-          let contentY = y + PDF_STYLES.padding;
-          contentY = drawFormattedText(sectionData.title, margins.left + PDF_STYLES.padding, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title, maxWidth: usableWidth - (PDF_STYLES.padding * 2) }) + PDF_STYLES.lineHeightFactor * 2;
+          let contentY = y + PADDING;
+          contentY = drawText(sectionData.title, margins.left + PADDING, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title, maxWidth: usableWidth - (PADDING * 2) }) + 2;
           
           sectionData.content.forEach(item => {
-              const bulletX = margins.left + PDF_STYLES.padding + 2;
-              const textX = bulletX + 4;
-              const textMaxWidth = usableWidth - (PDF_STYLES.padding * 2) - 10;
-              
+              contentY += 2;
               doc.setFillColor(theme.title[0], theme.title[1], theme.title[2]);
-              doc.circle(bulletX, contentY + 2, PDF_STYLES.bulletRadius, 'F');
-              contentY = drawFormattedText(item, textX, contentY, { maxWidth: textMaxWidth }) + PDF_STYLES.lineHeightFactor;
-              contentY += PDF_STYLES.paragraphSpacing / 2;
+              doc.circle(margins.left + PADDING + BULLET_X_OFFSET, contentY + 2, PDF_STYLES.bulletRadius, 'F');
+
+              let textY = contentY;
+              if (item.title) {
+                  textY = drawText(item.title, margins.left + PADDING + TEXT_X_OFFSET, textY, { maxWidth: usableWidth - PADDING * 2 - TEXT_X_OFFSET, fontStyle: 'bold' });
+              }
+              if (item.text) {
+                  textY = drawText(item.text, margins.left + PADDING + TEXT_X_OFFSET, textY, { maxWidth: usableWidth - PADDING * 2 - TEXT_X_OFFSET });
+              }
+              contentY = textY + PDF_STYLES.paragraphSpacing / 2;
           });
           y += contentHeight + PDF_STYLES.sectionSpacing;
       };
 
       // --- PDF Generation START ---
-      y = drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
-      y = drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground }) + 2;
+      y = drawText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+      y = drawText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground }) + 2;
       y += PDF_STYLES.paragraphSpacing;
       
-      const introHeight = calculateFormattedTextHeight(reportContent.intro, {maxWidth: usableWidth}) + PDF_STYLES.paragraphSpacing;
-      const basedOnHeight = calculateFormattedTextHeight(reportContent.basedOn.join('\n'), {fontSize: PDF_STYLES.smallSize, maxWidth: usableWidth - 10}) + 12;
-      checkY(introHeight + basedOnHeight);
-
-      y = drawFormattedText(reportContent.intro, margins.left, y, {maxWidth: usableWidth}) + 2;
+      const introTextHeight = calculateTextHeight(reportContent.intro, {maxWidth: usableWidth}) + PDF_STYLES.padding * 2;
+      checkY(introTextHeight);
+      y = drawText(reportContent.intro, margins.left, y, {maxWidth: usableWidth}) + 2;
       y += PDF_STYLES.paragraphSpacing;
+      
+      const basedOnText = reportContent.basedOn.join('\n');
+      const basedOnBoxHeight = calculateTextHeight(basedOnText, {fontSize: PDF_STYLES.smallSize, maxWidth: usableWidth - 10}) + 12;
+      checkY(basedOnBoxHeight);
 
       doc.setFillColor(PDF_COLORS.gray.bg[0], PDF_COLORS.gray.bg[1], PDF_COLORS.gray.bg[2]);
-      doc.roundedRect(margins.left, y, usableWidth, basedOnHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
+      doc.roundedRect(margins.left, y, usableWidth, basedOnBoxHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
       
-      let basedOnY = y + 6;
-      reportContent.basedOn.forEach(line => {
-        basedOnY = drawFormattedText(line, margins.left + 5, basedOnY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground }) + 1;
-      });
-      y += basedOnHeight + PDF_STYLES.sectionSpacing;
+      let basedOnTextY = y + 6;
+      drawText(basedOnText, margins.left + 5, basedOnTextY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, maxWidth: usableWidth - 10 });
+      y += basedOnBoxHeight + PDF_STYLES.sectionSpacing;
 
       reportContent.sections.forEach(addSection);
 
@@ -334,7 +315,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         doc.setFont(PDF_STYLES.fontFamily, "italic");
         doc.setFontSize(PDF_STYLES.smallSize);
         doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_COLORS.mutedForeground[2]);
-        const footerText = `${reportContent.generatedAt} - Pagina ${i} van ${pageCount}`;
+        const footerText = `Rapport gegenereerd via www.mindnavigator.io | Pagina ${i} van ${pageCount}`;
         doc.text(footerText, margins.left, pageHeight - 10);
       }
       
@@ -397,12 +378,15 @@ export default function VoorbeeldAnalyseRapportPage() {
                       {section.content.map((item, itemIndex) => (
                          <li key={itemIndex} className="flex items-start">
                            <span className="mr-3 mt-1.5 text-primary">&#8226;</span>
-                           <span dangerouslySetInnerHTML={{ __html: item }} className="flex-1" />
+                           <div className="flex-1">
+                                {item.title && <strong className="font-semibold text-foreground/90">{item.title} </strong>}
+                                <span dangerouslySetInnerHTML={{ __html: item.text.replace(/<i>/g, '<i class="text-muted-foreground">').replace(/<\/i>/g, '</i>') }} />
+                           </div>
                         </li>
                       ))}
                     </ul>
                   </ReportSection>
-                  {index < reportContent.sections.length -1 && <Separator />}
+                  {index < reportContent.sections.length - 1 && <Separator />}
                 </React.Fragment>
               ))}
 
@@ -422,3 +406,5 @@ export default function VoorbeeldAnalyseRapportPage() {
     </div>
   );
 }
+
+    
