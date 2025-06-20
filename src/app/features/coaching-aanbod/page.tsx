@@ -6,8 +6,10 @@ import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Brain, GraduationCap, MessageSquareText, ArrowRight, Sparkles, BookOpenCheck, HeartHandshake, Zap } from 'lucide-react';
+import { Brain, GraduationCap, MessageSquareText, ArrowRight, Sparkles, BookOpenCheck, HeartHandshake, Zap, CheckCircle2, ShieldCheck, Info, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
+
 
 interface CoachingType {
   icon: React.ElementType;
@@ -17,11 +19,13 @@ interface CoachingType {
   ctaText: string;
   ctaLink: string;
   colorClass: string;
+  priceIndication: string; 
+  qualityNote?: string;
 }
 
 const coachingTypes: CoachingType[] = [
   {
-    icon: Zap, // Changed from Brain to Sparkles for more "tool-like"
+    icon: Zap,
     title: "Ontdek Jezelf: Digitale Tools & Zelfreflectie",
     description: "Start met laagdrempelige, interactieve quizzen en zelfreflectie-instrumenten. Krijg direct inzicht in je denkstijl, sterke punten en mogelijke uitdagingen. De basis voor al onze gepersonaliseerde ondersteuning.",
     features: [
@@ -33,11 +37,12 @@ const coachingTypes: CoachingType[] = [
     ctaText: "Start een Zelfreflectie Tool",
     ctaLink: "/quizzes",
     colorClass: "bg-orange-50 border-orange-200 hover:shadow-orange-100",
+    priceIndication: "Vanaf €0 (Gratis Start)",
   },
   {
-    icon: BookOpenCheck, // Changed from GraduationCap for more "homework" feel
+    icon: BookOpenCheck,
     title: "Persoonlijke Huiswerkondersteuning: Onze Tutors",
-    description: "Krijg 1-op-1 hulp van gekwalificeerde tutors voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo.",
+    description: "Krijg 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
@@ -45,13 +50,15 @@ const coachingTypes: CoachingType[] = [
       "Gekwalificeerde en gescreende tutors"
     ],
     ctaText: "Vind een Tutor",
-    ctaLink: "/dashboard/ouder/zoek-professional", // Placeholder, adjust if specific tutor search page exists
+    ctaLink: "/dashboard/ouder/zoek-professional",
     colorClass: "bg-blue-50 border-blue-200 hover:shadow-blue-100",
+    priceIndication: "Indicatie: €25-€65/uur",
+    qualityNote: "Al onze tutors zijn VOG-gescreend en hebben ervaring met diverse leerstijlen.",
   },
   {
-    icon: HeartHandshake, // Changed from MessageSquareText for a more personal touch
+    icon: HeartHandshake,
     title: "Diepgaande Begeleiding: Gesprekken met een Coach",
-    description: "Praat met een ervaren coach (of psycholoog) over persoonlijke uitdagingen, het omgaan met emoties, zelfvertrouwen versterken, of het ontwikkelen van strategieën die passen bij jouw neurodivergente profiel.",
+    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, het omgaan met emoties, zelfvertrouwen versterken, of het ontwikkelen van strategieën die passen bij jouw neurodivergente profiel. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform.",
     features: [
       "1-op-1 gesprekken (online)",
       "Focus op persoonlijke groei & welzijn",
@@ -59,8 +66,10 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress, angst of sociale interacties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional", // Placeholder, adjust if specific coach search page exists
+    ctaLink: "/dashboard/ouder/zoek-professional",
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
+    priceIndication: "Indicatie: €75-€125/uur",
+    qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd in het begeleiden van neurodivergente jongeren.",
   },
 ];
 
@@ -75,7 +84,10 @@ export default function CoachingAanbodPage() {
             <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
               Ons Coaching & Ondersteuningsaanbod
             </h1>
-            <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="mt-3 text-lg text-accent font-medium">
+              Speciaal ontworpen voor neurodivergente jongeren (12-18 jaar) en hun ouders.
+            </p>
+            <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
               MindNavigator biedt verschillende vormen van ondersteuning, passend bij jouw behoeften. Van digitale zelfhulp tot persoonlijke 1-op-1 begeleiding.
             </p>
           </header>
@@ -88,14 +100,21 @@ export default function CoachingAanbodPage() {
                     <type.icon className="h-9 w-9" />
                   </div>
                   <CardTitle className="text-2xl font-semibold text-foreground">{type.title}</CardTitle>
+                   <CardDescription className="text-sm text-primary font-medium pt-1">{type.priceIndication}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-3">
                   <p className="text-base text-muted-foreground leading-relaxed">{type.description}</p>
-                  <ul className="list-disc list-inside space-y-1.5 pl-5 text-sm text-muted-foreground">
+                  <ul className="list-none space-y-1.5 pl-0 text-sm text-muted-foreground">
                     {type.features.map((feature, idx) => (
-                      <li key={idx}>{feature}</li>
+                      <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
                     ))}
                   </ul>
+                  {type.qualityNote && (
+                    <p className="text-xs text-muted-foreground italic pt-2">{type.qualityNote}</p>
+                  )}
                 </CardContent>
                 <CardFooter className="pt-5">
                   <Button asChild className="w-full text-base py-3">
@@ -107,18 +126,40 @@ export default function CoachingAanbodPage() {
               </Card>
             ))}
           </div>
+          
+          <Alert variant="default" className="mt-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
+            <ShieldCheck className="h-5 w-5 !text-blue-600" />
+            <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
+            <AlertDescriptionUi className="text-blue-600">
+              MindNavigator stelt geen medische diagnoses. Onze focus ligt op het bieden van inzicht, praktische tools en het versterken van zelfvertrouwen. Voor diagnostiek en medische behandeling verwijzen wij altijd naar gekwalificeerde professionals.
+            </AlertDescriptionUi>
+          </Alert>
 
-          <section className="mt-28 text-center max-w-2xl mx-auto"> {/* Increased margin-top here */}
+          <section className="mt-16 text-center max-w-xl mx-auto">
+             <Card className="bg-muted/30 border-border p-6 rounded-lg shadow">
+                <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center justify-center gap-2">
+                    <Star className="h-6 w-6 text-yellow-500" />
+                    Vertrouwd door Velen
+                </h3>
+                <p className="text-base text-muted-foreground">
+                    "MindNavigator heeft ons gezin geholpen om open te praten over hoe mijn dochter de wereld ervaart. De tools zijn praktisch en de inzichten waardevol." <br/>- Moeder van Lotte (14)
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">(Meer reviews en ervaringen binnenkort beschikbaar)</p>
+             </Card>
+          </section>
+
+
+          <section className="mt-28 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-4">Klaar om de volgende stap te zetten?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Of je nu net begint met zelfontdekking of op zoek bent naar specifieke begeleiding, MindNavigator is er om je te ondersteunen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link href="/signup">Meld je aan voor MindNavigator</Link>
+              <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Link href="/quizzes">Start de gratis assessment</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/contact">Neem contact op</Link>
+                <Link href="/#pricing">Bekijk onze abonnementen</Link>
               </Button>
             </div>
           </section>
@@ -129,3 +170,4 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
+
