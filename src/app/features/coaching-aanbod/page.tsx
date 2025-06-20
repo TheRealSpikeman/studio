@@ -50,7 +50,7 @@ const coachingTypes: CoachingType[] = [
       "Gekwalificeerde en VOG-gescreende tutors"
     ],
     ctaText: "Vind een Tutor",
-    ctaLink: "/dashboard/ouder/zoek-professional",
+    ctaLink: "/dashboard/ouder/zoek-professional", // Placeholder, Ouders zoeken tutors
     colorClass: "bg-blue-50 border-blue-200 hover:shadow-blue-100",
     priceIndication: "Indicatie: €25-€65/uur",
     qualityNote: "Al onze tutors zijn VOG-gescreend en hebben ervaring met diverse leerstijlen.",
@@ -66,7 +66,7 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress, angst of sociale interacties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional", 
+    ctaLink: "/dashboard/ouder/zoek-professional", // Placeholder, Ouders zoeken coaches
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
     priceIndication: "Indicatie: €75-€125/uur",
     qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd.",
@@ -150,8 +150,7 @@ export default function CoachingAanbodPage() {
             </div>
           </section>
 
-
-          <section className="mt-28 text-center max-w-2xl mx-auto">
+          <section className="mt-16 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-4">Klaar om de volgende stap te zetten?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Of je nu net begint met zelfontdekking of op zoek bent naar specifieke begeleiding, MindNavigator is er om je te ondersteunen.
