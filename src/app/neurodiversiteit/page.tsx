@@ -16,6 +16,7 @@ import type { ElementType, ReactNode } from 'react';
 import { Input } from '@/components/ui/input'; 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface NeurodiversitySectionDetail {
   subTitle: string;
@@ -35,8 +36,6 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
-// De standaard afbeelding die getoond wordt als er niets in localStorage staat of bij een eerste bezoek.
-// Deze URL moet publiek toegankelijk zijn.
 const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png?alt=media&token=34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
 const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2';
 
@@ -184,17 +183,16 @@ export default function NeurodiversiteitPage() {
   const [currentIntroImageUrl, setCurrentIntroImageUrl] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [isClient, setIsClient] = useState(false);
+  const [showImageUrlInput, setShowImageUrlInput] = useState<boolean>(false);
 
   const gsPathToHttps = (gsPath: string, token?: string): string => {
-    if (!gsPath.startsWith('gs://')) return gsPath; 
-
+    if (!gsPath.startsWith('gs://')) return gsPath;
     const parts = gsPath.substring(5).split('/');
     const bucket = parts.shift();
     const filePath = parts.join('/');
-
     if (!bucket || !filePath) {
       console.warn("Ongeldig gs:// pad formaat:", gsPath);
-      return DEFAULT_INTRO_IMAGE_URL; 
+      return DEFAULT_INTRO_IMAGE_URL;
     }
     const encodedFilePath = encodeURIComponent(filePath);
     let httpsUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedFilePath}?alt=media`;
@@ -211,28 +209,28 @@ export default function NeurodiversiteitPage() {
 
     if (storedImageUrl) {
       if (storedImageUrl.startsWith('gs://')) {
-        // Specifiek geval voor de bekende afbeelding met token
-        if (storedImageUrl === "gs://neurodiversity-navigator.firebasestorage.app/Diverse_colorful_brains_connected.png") {
-          finalUrlToSet = gsPathToHttps(storedImageUrl, "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed");
-        } else {
-          // Voor andere gs:// paden, converteer zonder token en geef een waarschuwing
-          finalUrlToSet = gsPathToHttps(storedImageUrl);
-          toast({
-            title: "Afbeeldings-URL geconverteerd",
-            description: `Een gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL inclusief token voor privé-afbeeldingen.`,
+        finalUrlToSet = gsPathToHttps(storedImageUrl, storedImageUrl === "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png" ? "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed" : undefined);
+        if (!finalUrlToSet.includes("token=") && storedImageUrl !== "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png") {
+           toast({
+            title: "URL Omgezet (zonder token)",
+            description: "De gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL incl. token voor privé-afbeeldingen.",
             variant: "default",
-            duration: 8000,
+            duration: 7000,
           });
         }
-        // Update localStorage met de geconverteerde HTTPS URL
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
-      } else {
-        // Als het al een HTTPS URL is, gebruik die direct
+      } else if (!storedImageUrl.startsWith('http://') && !storedImageUrl.startsWith('https://')) {
+        // Invalid URL found in localStorage, use default and notify
+        toast({ title: "Ongeldige Opgeslagen URL", description: "De opgeslagen afbeeldings-URL was ongeldig. Standaard afbeelding wordt getoond.", variant: "destructive"});
+        finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
+        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
+      }
+       else {
         finalUrlToSet = storedImageUrl;
       }
     }
     setCurrentIntroImageUrl(finalUrlToSet);
-    setImageUrlInput(finalUrlToSet); // Inputveld ook vullen met de (mogelijk geconverteerde) URL
+    setImageUrlInput(finalUrlToSet);
   }, [toast]);
 
 
@@ -244,7 +242,7 @@ export default function NeurodiversiteitPage() {
     }
 
     if (urlToProcess.startsWith('gs://')) {
-      const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/Diverse_colorful_brains_connected.png";
+      const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png";
       const specificToken = "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
       
       if (urlToProcess === specificGsPath) {
@@ -255,20 +253,18 @@ export default function NeurodiversiteitPage() {
           variant: "default",
         });
       } else {
-        // Voor andere gs:// paden, converteer zonder token en geef een waarschuwing
         urlToProcess = gsPathToHttps(urlToProcess);
         toast({
           title: "URL Omgezet (zonder token)",
           description: "De gs:// URL is omgezet. Als de afbeelding een token vereist om publiek zichtbaar te zijn, werkt deze mogelijk niet. Plak de volledige HTTPS URL inclusief token voor privé-afbeeldingen.",
           variant: "default",
-          duration: 8000, // Langere duur voor deze potentieel belangrijke melding
+          duration: 7000,
         });
       }
     }
 
     try {
-      // Check if it's a valid URL after potential conversion
-      new URL(urlToProcess); // This will throw an error if the URL is malformed
+      new URL(urlToProcess); 
       setCurrentIntroImageUrl(urlToProcess);
       if (isClient) {
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, urlToProcess);
@@ -316,29 +312,61 @@ export default function NeurodiversiteitPage() {
                         fill
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={introTopic.dataAiHint || "abstract brain"}
-                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL} // Alleen priority als het de default image is tijdens SSR
-                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")} // Vertel Next.js deze niet te optimaliseren
+                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
+                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")}
+                        onError={() => {
+                          if (currentIntroImageUrl !== DEFAULT_INTRO_IMAGE_URL) {
+                            toast({ title: "Afbeelding Laden Mislukt", description: "De afbeelding kon niet geladen worden. Standaard afbeelding wordt getoond.", variant: "destructive"});
+                            setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
+                            if (isClient) {
+                              localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, DEFAULT_INTRO_IMAGE_URL);
+                            }
+                          }
+                        }}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Afbeelding URL (Firebase Storage HTTPS of gs://):</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input 
-                        id="imageUrlInput"
-                        type="text" 
-                        placeholder="Plak hier de HTTPS of gs:// Firebase Storage URL..."
-                        value={imageUrlInput}
-                        onChange={(e) => setImageUrlInput(e.target.value)}
-                        className="flex-grow"
-                      />
-                      <Button onClick={handleSetImageUrl}>
-                        <LinkIcon className="mr-2 h-4 w-4" /> Instellen
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Plak een `gs://` URI of een `https://firebasestorage.googleapis.com/...` URL. Voor niet-publieke `gs://` afbeeldingen, zorg dat de HTTPS URL de access token bevat.
-                    </p>
+                  <div className="flex justify-end">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-primary h-8 w-8"
+                            onClick={() => setShowImageUrlInput(prev => !prev)}
+                            aria-label={showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}
+                          >
+                            <ImageUp className="h-5 w-5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
+
+                  {showImageUrlInput && (
+                    <div className="mt-2 p-4 border rounded-md bg-muted/30 space-y-2">
+                      <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Afbeelding URL (Firebase Storage HTTPS of gs://):</Label>
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          id="imageUrlInput"
+                          type="text"
+                          placeholder="Plak hier de HTTPS of gs:// Firebase Storage URL..."
+                          value={imageUrlInput}
+                          onChange={(e) => setImageUrlInput(e.target.value)}
+                          className="flex-grow"
+                        />
+                        <Button onClick={handleSetImageUrl}>
+                          <LinkIcon className="mr-2 h-4 w-4" /> Instellen
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Plak een `gs://` URI of een `https://firebasestorage.googleapis.com/...` URL. Voor niet-publieke `gs://` afbeeldingen, zorg dat de HTTPS URL de access token bevat.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </section>
             )}
