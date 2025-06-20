@@ -36,7 +36,7 @@ const StepCard = ({ number, title, description, children }: { number: number, ti
     </div>
     <div className={cn("step-content flex-1", {"md:mr-8 text-center md:text-left": number % 2 !== 0, "md:ml-8 text-center md:text-left": number % 2 === 0 })}>
       <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{title}</h2>
-      <p className="step-description text-lg text-muted-foreground mb-6 leading-relaxed">
+      <p className="step-description text-xl text-muted-foreground mb-6 leading-relaxed">
         {description}
       </p>
       {children}
@@ -59,7 +59,7 @@ const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: st
       </CardTitle>
     </CardHeader>
     <CardContent className={cn(
-        "participant-content text-sm leading-normal",
+        "participant-content leading-normal", // text-sm verwijderd, wordt nu in aanroep bepaald
         isParent ? "text-primary/90" : "text-accent/90"
     )}>
       {content}
@@ -69,7 +69,7 @@ const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: st
 
 const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: ElementType, items: Array<{ type: string, description: string }> }): JSX.Element => (
   <Card className={cn(
-    "comparison-card bg-card shadow-lg rounded-xl border border-border h-full transition-all duration-200 ease-in-out hover:shadow-xl hover:scale-[1.03] hover:border-primary/40"
+    "comparison-card bg-card shadow-lg rounded-xl border border-border h-full transition-all duration-200 ease-in-out hover:shadow-xl hover:scale-[1.02] hover:border-primary/40"
     )}>
     <CardHeader className="pb-3">
       <CardTitle className="comparison-title text-xl font-semibold text-foreground flex items-center gap-2">
@@ -124,12 +124,14 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                   Icon={User}
                   content={
                     <>
-                      &quot;Hoe zie ik mezelf?&quot;<br/>
-                      • Sterke punten en uitdagingen<br/>
-                      • Sociale voorkeuren<br/>
-                      • Leer- en communicatiestijl<br/>
-                      • Emotionele patronen<br/>
-                      • Toekomstdromen en zorgen
+                      <p className="text-base italic mb-3 text-center md:text-left">"Hoe zie ik mezelf?"</p>
+                      <ul className="list-disc list-inside space-y-1.5 pl-1 text-base leading-relaxed">
+                        <li>Sterke punten en uitdagingen</li>
+                        <li>Sociale voorkeuren</li>
+                        <li>Leer- en communicatiestijl</li>
+                        <li>Emotionele patronen</li>
+                        <li>Toekomstdromen en zorgen</li>
+                      </ul>
                     </>
                   }
                 />
@@ -139,12 +141,14 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                   isParent
                   content={
                     <>
-                      &quot;Hoe zie ik mijn kind?&quot;<br/>
-                      • Observaties van gedrag<br/>
-                      • Sociale interacties<br/>
-                      • Leerpatronen thuis<br/>
-                      • Emotionele uitingen<br/>
-                      • Zorgen en trots momenten
+                      <p className="text-base italic mb-3 text-center md:text-left">"Hoe zie ik mijn kind?"</p>
+                      <ul className="list-disc list-inside space-y-1.5 pl-1 text-base leading-relaxed">
+                        <li>Observaties van gedrag</li>
+                        <li>Sociale interacties</li>
+                        <li>Leerpatronen thuis</li>
+                        <li>Emotionele uitingen</li>
+                        <li>Zorgen en trots momenten</li>
+                      </ul>
                     </>
                   }
                 />
