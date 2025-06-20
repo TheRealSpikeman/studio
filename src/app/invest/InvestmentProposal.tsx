@@ -15,6 +15,8 @@ import {
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { StatCard } from '@/components/invest/StatCard';
+
 
 interface BarChartData {
     label: string;
@@ -89,8 +91,8 @@ const riskData: BarChartData[] = [
 const investmentAllocationData: BarChartData[] = [
     { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', barClass: 'bg-blue-500' },
     { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', barClass: 'bg-teal-500' },
-    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', barClass: 'bg-orange-500' },
-    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', barClass: 'bg-purple-500' },
+    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', barClass: 'bg-purple-500' },
+    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', barClass: 'bg-pink-500' },
 ];
 
 export function InvestmentProposal() {
