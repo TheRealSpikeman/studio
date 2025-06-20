@@ -42,12 +42,12 @@ const coachingTypes: CoachingType[] = [
   {
     icon: BookOpenCheck,
     title: "Persoonlijke Huiswerkondersteuning: Onze Tutors",
-    description: "Krijg 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform.",
+    description: "Krijg 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
       "Examentraining en toetsvoorbereiding",
-      "Gekwalificeerde en gescreende tutors"
+      "Gekwalificeerde en VOG-gescreende tutors"
     ],
     ctaText: "Vind een Tutor",
     ctaLink: "/dashboard/ouder/zoek-professional",
@@ -58,7 +58,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: HeartHandshake,
     title: "Diepgaande Begeleiding: Gesprekken met een Coach",
-    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, het omgaan met emoties, zelfvertrouwen versterken, of het ontwikkelen van strategieën die passen bij jouw neurodivergente profiel. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform.",
+    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, het omgaan met emoties, zelfvertrouwen versterken, of het ontwikkelen van strategieën die passen bij jouw neurodivergente profiel. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
     features: [
       "1-op-1 gesprekken (online)",
       "Focus op persoonlijke groei & welzijn",
@@ -66,7 +66,7 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress, angst of sociale interacties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional",
+    ctaLink: "/dashboard/ouder/zoek-professional", // Aangepast, linkt nu naar dezelfde zoekpagina
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
     priceIndication: "Indicatie: €75-€125/uur",
     qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd in het begeleiden van neurodivergente jongeren.",
@@ -135,17 +135,19 @@ export default function CoachingAanbodPage() {
             </AlertDescriptionUi>
           </Alert>
 
-          <section className="mt-16 text-center max-w-xl mx-auto">
-             <Card className="bg-muted/30 border-border p-6 rounded-lg shadow">
-                <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center justify-center gap-2">
-                    <Star className="h-6 w-6 text-yellow-500" />
-                    Vertrouwd door Velen
-                </h3>
-                <p className="text-base text-muted-foreground">
-                    "MindNavigator heeft ons gezin geholpen om open te praten over hoe mijn dochter de wereld ervaart. De tools zijn praktisch en de inzichten waardevol." <br/>- Moeder van Lotte (14)
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">(Meer reviews en ervaringen binnenkort beschikbaar)</p>
-             </Card>
+          <section className="py-16 md:py-20 bg-secondary/20 mt-12 mb-12"> {/* Added mb-12 here */}
+            <div className="container mx-auto px-4 text-center max-w-xl">
+                <Card className="bg-card border-border p-6 rounded-lg shadow-md">
+                    <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center justify-center gap-2">
+                        <Star className="h-6 w-6 text-yellow-500" />
+                        Vertrouwd door Velen
+                    </h3>
+                    <p className="text-base text-muted-foreground">
+                        "MindNavigator heeft ons gezin geholpen om open te praten over hoe mijn dochter de wereld ervaart. De tools zijn praktisch en de inzichten waardevol." <br/>- Moeder van Lotte (14)
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">(Meer reviews en ervaringen binnenkort beschikbaar)</p>
+                </Card>
+            </div>
           </section>
 
 
@@ -170,4 +172,3 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
-
