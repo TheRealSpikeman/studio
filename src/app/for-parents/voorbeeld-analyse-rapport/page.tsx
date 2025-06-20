@@ -26,9 +26,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { useToast } from '@/hooks/use-toast';
-import { jsPDF, type TextOptionsLight } from 'jspdf'; 
-import { format } from 'date-fns'; 
-import { nl } from 'date-fns/locale'; 
+import { jsPDF, type TextOptionsLight } from 'jspdf';
+import { format } from 'date-fns';
+import { nl } from 'date-fns/locale';
 
 
 interface ReportSectionProps {
@@ -65,8 +65,8 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 
 const PDF_COLORS = {
   primary: hslToRgb(25, 78, 52), // Orange Primary from globals.css
-  foreground: hslToRgb(210, 40, 10), 
-  mutedForeground: hslToRgb(210, 20, 45), 
+  foreground: hslToRgb(210, 40, 10),
+  mutedForeground: hslToRgb(210, 20, 45),
   cardBg: hslToRgb(39, 100, 97), // Light yellow/beige for the card background
   sectionOrange: {
     bg: hslToRgb(39, 100, 97),
@@ -75,22 +75,22 @@ const PDF_COLORS = {
     text: hslToRgb(39, 40, 10),
   },
   sectionGreen: {
-    bg: hslToRgb(120, 60, 95), 
+    bg: hslToRgb(120, 60, 95),
     title: hslToRgb(145, 63, 32),
-    bullet: hslToRgb(145, 63, 42), 
+    bullet: hslToRgb(145, 63, 42),
     text: hslToRgb(120, 40, 10),
   },
-  sectionYellow: { 
+  sectionYellow: {
     bg: hslToRgb(50, 100, 97),
     title: hslToRgb(45, 100, 40),
     bullet: hslToRgb(45, 100, 50),
     text: hslToRgb(50, 40, 10),
   },
   sectionBlue: {
-    bg: hslToRgb(210, 100, 98), 
-    title: hslToRgb(207, 90, 44), 
+    bg: hslToRgb(210, 100, 98),
+    title: hslToRgb(207, 90, 44),
     bullet: hslToRgb(207, 90, 54),
-    text: hslToRgb(210, 40, 10), 
+    text: hslToRgb(210, 40, 10),
   },
   sectionPurple: {
     bg: hslToRgb(262, 85, 97),
@@ -99,8 +99,8 @@ const PDF_COLORS = {
     text: hslToRgb(262, 40, 10),
   },
   sectionDefault: {
-    bg: hslToRgb(210, 17, 98), 
-    title: hslToRgb(210, 40, 10), 
+    bg: hslToRgb(210, 17, 98),
+    title: hslToRgb(210, 40, 10),
     bullet: hslToRgb(210, 20, 45),
     text: hslToRgb(210, 20, 45),
   },
@@ -123,7 +123,7 @@ const PDF_STYLES = {
 };
 
 export default function VoorbeeldAnalyseRapportPage() {
-  const childName = "Sofie"; 
+  const childName = "Sofie";
   const parentName = "Olivia Ouder";
   const { toast } = useToast();
 
@@ -142,7 +142,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         Icon: EyeOff,
         colorTheme: PDF_COLORS.sectionOrange,
         content: [
-          "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk, met name tussen 16:00-18:00. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken. (Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)",
+          "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00. (Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)",
           "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. (Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.)",
           "<strong>Omgaan met Verandering:</strong> U merkt dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt. (Mogelijkheid: De impact van de verandering speelt een rol.)",
           "<strong>Energielevel na School:</strong> U observeert dat Sofie vaak moe is na school. Sofie geeft aan zich soms 'leeg' te voelen, maar ook momenten van energie te hebben voor leuke dingen. (Mogelijkheid: Het soort activiteit na school beïnvloedt haar energieniveau sterk.)"
@@ -262,11 +262,11 @@ export default function VoorbeeldAnalyseRapportPage() {
             else if (segment === '%%BOLD_END%%') isBold = false;
             else if (segment === '%%ITALIC_START%%') isItalic = true;
             else if (segment === '%%ITALIC_END%%') isItalic = false;
-            else if (segment) { 
+            else if (segment) {
               const currentStyle = isBold && isItalic ? 'bolditalic' : isBold ? 'bold' : isItalic ? 'italic' : 'normal';
               doc.setFont(undefined, currentStyle);
-              doc.text(segment, currentX, currentY); 
-              currentX += doc.getStringUnitWidth(segment) * fontSize / doc.internal.scaleFactor; 
+              doc.text(segment, currentX, currentY);
+              currentX += doc.getStringUnitWidth(segment) * fontSize / doc.internal.scaleFactor;
             }
           });
           currentY += lineHeight;
@@ -276,12 +276,12 @@ export default function VoorbeeldAnalyseRapportPage() {
         return currentY;
       };
 
-       const drawSectionCard = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
+      const drawSectionCard = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
           const cardInnerWidth = usableWidth - (PDF_STYLES.cardPaddingX * 2);
           
           let contentHeight = 0;
           const titleHeight = (doc.setFont(undefined, "bold").setFontSize(PDF_STYLES.h2Size).getTextDimensions(sectionData.title, { maxWidth: cardInnerWidth }).h);
-          contentHeight += titleHeight + PDF_STYLES.paragraphSpacing;
+          contentHeight += titleHeight + PDF_STYLES.paragraphSpacing + 10; // Extra top padding
 
           sectionData.content.forEach(item => {
               const itemPlainText = item.replace(/<[^>]*>/g, '');
@@ -289,7 +289,7 @@ export default function VoorbeeldAnalyseRapportPage() {
               contentHeight += itemHeight + PDF_STYLES.paragraphSpacing;
           });
           
-          const cardTotalHeight = contentHeight + (PDF_STYLES.cardPaddingY * 2) + PDF_STYLES.paragraphSpacing;
+          const cardTotalHeight = contentHeight + PDF_STYLES.cardPaddingY;
 
           if (currentY + cardTotalHeight > pageHeight - margins.bottom) {
               doc.addPage();
@@ -299,7 +299,7 @@ export default function VoorbeeldAnalyseRapportPage() {
           doc.setFillColor(sectionData.colorTheme.bg[0], sectionData.colorTheme.bg[1], sectionData.colorTheme.bg[2]);
           doc.roundedRect(margins.left, currentY, usableWidth, cardTotalHeight, PDF_STYLES.cardRadius, PDF_STYLES.cardRadius, 'F');
           
-          let textY = currentY + PDF_STYLES.cardPaddingY + 5; // Extra top padding
+          let textY = currentY + PDF_STYLES.cardPaddingY + 5; 
           textY = addTextWithFormatting(sectionData.title, margins.left + PDF_STYLES.cardPaddingX, textY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, maxWidth: cardInnerWidth });
           textY += PDF_STYLES.paragraphSpacing;
 
