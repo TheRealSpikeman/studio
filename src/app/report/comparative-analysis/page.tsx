@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import Link from 'next/link'; // <--- FIX: Added the missing import
 
 // Data can be fetched or passed as props in a real scenario
 const reportData = {
@@ -232,7 +233,7 @@ export default function ComparativeAnalysisReportPage() {
                                         );
                                     })}
                                 </div>
-                                <div className="bg-green-50/80 p-3 rounded-md border border-green-200">
+                                <div className="bg-green-50 p-3 rounded-md border border-green-200">
                                     <h4 className="font-semibold text-green-700 flex items-center gap-2 mb-1"><item.callout.icon className="h-5 w-5"/>{item.callout.type}</h4>
                                     <p className="text-sm text-green-900/90 leading-relaxed">{item.callout.text}</p>
                                 </div>
@@ -300,5 +301,5 @@ export default function ComparativeAnalysisReportPage() {
             </div>
         </div>
     );
-}
 
+    
