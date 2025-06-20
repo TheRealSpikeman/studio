@@ -27,7 +27,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: Zap,
     title: "Digitale Tools & Zelfreflectie",
-    description: "Start met laagdrempelige, interactieve quizzen en zelfreflectie-instrumenten. Krijg direct inzicht in je denkstijl, sterke punten en mogelijke uitdagingen. De basis voor al onze gepersonaliseerde ondersteuning.",
+    description: "Ontdek je denkstijl, sterke punten en uitdagingen via interactieve quizzen. De basis voor gepersonaliseerde ondersteuning.",
     features: [
       "Persoonlijke neurodiversiteit-assessments",
       "Directe, heldere rapportages & inzichten",
@@ -42,7 +42,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: BookOpenCheck,
     title: "Persoonlijke Huiswerkondersteuning",
-    description: "Onze deskundige tutors bieden 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo, direct via ons platform.",
+    description: "Krijg 1-op-1 hulp van deskundige tutors voor vakken, planning of leerstrategieën. Flexibel en op jouw tempo via ons platform.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
@@ -57,7 +57,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: HeartHandshake,
     title: "Diepgaande Begeleiding (Coach)",
-    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, emoties, zelfvertrouwen, of het ontwikkelen van strategieën passend bij jouw neurodivergente profiel.",
+    description: "Bespreek persoonlijke uitdagingen, emoties of zelfvertrouwen met een ervaren coach (psycholoog/orthopedagoog). Krijg strategieën passend bij jouw profiel.",
     features: [
       "1-op-1 gesprekken (online)",
       "Focus op persoonlijke groei & welzijn",
@@ -109,7 +109,7 @@ export default function CoachingAanbodPage() {
               MindNavigator biedt verschillende vormen van ondersteuning, passend bij jouw behoeften. Van digitale zelfhulp tot persoonlijke 1-op-1 begeleiding.
             </p>
           </header>
-
+          
           <Alert variant="default" className="mb-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
             <ShieldCheck className="h-5 w-5 !text-blue-600" />
             <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
@@ -153,7 +153,7 @@ export default function CoachingAanbodPage() {
             ))}
           </div>
           
-          <section className="py-16 md:py-20 bg-secondary/20 mt-20 mb-12 rounded-lg">
+          <section className="py-16 md:py-20 bg-secondary/20 mt-20 mb-16 rounded-lg">
             <div className="container mx-auto px-4 text-center max-w-3xl">
                 <h3 className="text-2xl font-semibold text-foreground mb-8 flex items-center justify-center gap-2">
                     <Star className="h-7 w-7 text-yellow-500" />
@@ -195,4 +195,3 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
-
