@@ -141,106 +141,106 @@ export default function NeurodiversiteitPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto">
-          <Card className="shadow-xl max-w-4xl mx-auto">
-            <CardHeader className="text-center pb-8">
-              <Brain className="mx-auto h-16 w-16 text-primary mb-4" />
-              <CardTitle className="text-4xl font-bold text-foreground">Wat is Neurodiversiteit?</CardTitle>
-              <CardDescription className="text-lg text-muted-foreground mt-2">
-                Een gids om de unieke denkstijlen en behoeften van jezelf of je kind beter te begrijpen.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-10 text-lg leading-relaxed text-foreground/90">
-              
-              {neurodiversityTopics.filter(topic => topic.id === "algemeen").map(topic => (
-                <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="space-y-3">
-                    {topic.content.map((paragraph, pIndex) => <p key={pIndex}>{paragraph}</p>)}
-                  </div>
-                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
-                    <Image
-                        src={topic.imageUrl!}
-                        alt={topic.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        data-ai-hint={topic.dataAiHint || "abstract brain"}
-                    />
-                  </div>
-                </section>
-              ))}
-
-              <Accordion type="single" collapsible className="w-full space-y-4">
-                {neurodiversityTopics.filter(topic => topic.id !== "algemeen").map((topic) => {
-                  const IconComponent = topic.icon;
-                  return (
-                    <AccordionItem 
-                        key={topic.id} 
-                        value={topic.id} 
-                        className={`rounded-lg border-2 ${topic.colorClass} ${topic.bgClass} shadow-md hover:shadow-lg transition-shadow`}
-                    >
-                      <AccordionTrigger className="text-left font-semibold hover:no-underline py-5 px-6 text-xl data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
-                        <div className="flex items-center gap-3">
-                          <IconComponent className="h-7 w-7 text-primary" />
-                          {topic.title}
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6 pt-2 text-base leading-relaxed text-foreground/80 bg-card rounded-b-lg">
-                        <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>
-                        {topic.content.map((paragraph, pIndex) => {
-                            if (paragraph.startsWith("Herkenbare punten")) {
-                                return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace(/Herkenbare punten voor ouders en jongeren:\s*|Herkenbare punten bij angst kunnen zijn:\s*|Herkenbare punten bij depressie kunnen zijn:\s*/, '')}</p>;
-                            }
-                            if (paragraph.startsWith("- ")) { 
-                                return <li key={pIndex} className="ml-5 list-disc">{paragraph.substring(2)}</li>;
-                            }
-                            return <p key={pIndex} className="mb-2">{paragraph}</p>;
-                         })}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-              
-              <section className="mt-12 pt-8 border-t border-border">
-                 <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-2">
-                    <MessageCircleQuestion className="h-7 w-7" />Professionele Hulp en Ondersteuning
-                </h2>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                    De informatie en tools op MindNavigator zijn bedoeld voor zelfinzicht, educatie en het bieden van praktische handvatten. Ze zijn <strong>niet</strong> bedoeld als vervanging voor professionele diagnostiek of behandeling.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                    Als u of uw kind worstelt met klachten, of als u een vermoeden heeft van een specifieke neurodivergente eigenschap en behoefte heeft aan een formele diagnose of gespecialiseerde begeleiding, is het belangrijk om contact op te nemen met een gekwalificeerde professional.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mb-1">U kunt hierbij denken aan:</p>
-                <ul className="list-disc list-inside pl-5 space-y-1 text-muted-foreground leading-relaxed mb-4">
-                    <li>Uw huisarts (voor een eerste gesprek en eventuele doorverwijzing)</li>
-                    <li>Een kinderarts of jeugdarts</li>
-                    <li>Een GZ-psycholoog, kinder- en jeugdpsycholoog of orthopedagoog</li>
-                    <li>Gespecialiseerde centra voor diagnostiek en behandeling van bijvoorbeeld ADHD, autisme, etc.</li>
-                    <li>De schoolbegeleidingsdienst of zorgcoördinator op school</li>
-                </ul>
-                 <p className="text-muted-foreground leading-relaxed">
-                    Zij kunnen een passend onderzoek doen, een eventuele diagnose stellen en adviseren over de best passende hulp en ondersteuning voor uw specifieke situatie.
-                </p>
+        <div className="container mx-auto max-w-4xl"> {/* Main container for max-width and centering */}
+          
+          <div className="text-center mb-12 md:mb-16"> {/* Header section */}
+            <Brain className="mx-auto h-16 w-16 text-primary mb-4" />
+            <h1 className="text-4xl font-bold text-foreground">Wat is Neurodiversiteit?</h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Een gids om de unieke denkstijlen en behoeften van jezelf of je kind beter te begrijpen.
+            </p>
+          </div>
+          
+          <div className="space-y-10 text-lg leading-relaxed text-foreground/90"> {/* Content wrapper */}
+            {neurodiversityTopics.filter(topic => topic.id === "algemeen").map(topic => (
+              <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-center mb-12">
+                <div className="space-y-3">
+                  {topic.content.map((paragraph, pIndex) => <p key={pIndex}>{paragraph}</p>)}
+                </div>
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
+                  <Image
+                      src={topic.imageUrl!}
+                      alt={topic.title}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      data-ai-hint={topic.dataAiHint || "abstract brain"}
+                  />
+                </div>
               </section>
+            ))}
 
-              <Alert variant="destructive" className="mt-12 p-6 rounded-lg shadow-md">
-                  <AlertTriangle className="h-6 w-6" />
-                  <AlertTitleUi className="text-xl font-bold">Belangrijke Mededeling</AlertTitleUi>
-                  <AlertDescUi className="text-base leading-relaxed mt-2">
-                    MindNavigator is ontworpen om inzicht en ondersteuning te bieden via zelfreflectie-instrumenten en educatieve content. Het is <strong>nadrukkelijk geen diagnostisch instrument</strong>. De informatie op deze pagina en de resultaten van onze tools zijn bedoeld voor educatieve doeleinden en zelfreflectie. Ze vervangen geen professioneel medisch of psychologisch advies.
-                    <br /><br />
-                    Als u zich zorgen maakt over de ontwikkeling, het gedrag of het welzijn van uzelf of uw kind, of als u een formele diagnose overweegt, adviseren wij u dringend om contact op te nemen met een gekwalificeerde professional. Zij kunnen u de juiste begeleiding en eventuele diagnostiek bieden. MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van de hier verstrekte informatie.
-                  </AlertDescUi>
-                   <Button asChild variant="link" className="p-0 h-auto text-destructive hover:text-destructive/80 mt-3">
-                        <Link href="/contact">Neem contact op voor meer informatie of vragen <ExternalLink className="inline h-4 w-4 ml-1"/> </Link>
-                   </Button>
-              </Alert>
-            </CardContent>
-          </Card>
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {neurodiversityTopics.filter(topic => topic.id !== "algemeen").map((topic) => {
+                const IconComponent = topic.icon;
+                return (
+                  <AccordionItem 
+                      key={topic.id} 
+                      value={topic.id} 
+                      className={`rounded-lg border-2 ${topic.colorClass} ${topic.bgClass} shadow-md hover:shadow-lg transition-shadow`}
+                  >
+                    <AccordionTrigger className="text-left font-semibold hover:no-underline py-5 px-6 text-xl data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
+                      <div className="flex items-center gap-3">
+                        <IconComponent className="h-7 w-7 text-primary" />
+                        {topic.title}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6 pt-2 text-base leading-relaxed text-foreground/80 bg-card rounded-b-lg">
+                      <p className="italic text-muted-foreground mb-4">{topic.shortDescription}</p>
+                      {topic.content.map((paragraph, pIndex) => {
+                          if (paragraph.startsWith("Herkenbare punten")) {
+                              return <p key={pIndex} className="font-semibold mt-3 mb-1">{paragraph.replace(/Herkenbare punten voor ouders en jongeren:\s*|Herkenbare punten bij angst kunnen zijn:\s*|Herkenbare punten bij depressie kunnen zijn:\s*/, '')}</p>;
+                          }
+                          if (paragraph.startsWith("- ")) { 
+                              return <li key={pIndex} className="ml-5 list-disc">{paragraph.substring(2)}</li>;
+                          }
+                          return <p key={pIndex} className="mb-2">{paragraph}</p>;
+                        })}
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+            
+            <section className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-2">
+                  <MessageCircleQuestion className="h-7 w-7" />Professionele Hulp en Ondersteuning
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-3">
+                  De informatie en tools op MindNavigator zijn bedoeld voor zelfinzicht, educatie en het bieden van praktische handvatten. Ze zijn <strong>niet</strong> bedoeld als vervanging voor professionele diagnostiek of behandeling.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-3">
+                  Als u of uw kind worstelt met klachten, of als u een vermoeden heeft van een specifieke neurodivergente eigenschap en behoefte heeft aan een formele diagnose of gespecialiseerde begeleiding, is het belangrijk om contact op te nemen met een gekwalificeerde professional.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-1">U kunt hierbij denken aan:</p>
+              <ul className="list-disc list-inside pl-5 space-y-1 text-muted-foreground leading-relaxed mb-4">
+                  <li>Uw huisarts (voor een eerste gesprek en eventuele doorverwijzing)</li>
+                  <li>Een kinderarts of jeugdarts</li>
+                  <li>Een GZ-psycholoog, kinder- en jeugdpsycholoog of orthopedagoog</li>
+                  <li>Gespecialiseerde centra voor diagnostiek en behandeling van bijvoorbeeld ADHD, autisme, etc.</li>
+                  <li>De schoolbegeleidingsdienst of zorgcoördinator op school</li>
+              </ul>
+                <p className="text-muted-foreground leading-relaxed">
+                  Zij kunnen een passend onderzoek doen, een eventuele diagnose stellen en adviseren over de best passende hulp en ondersteuning voor uw specifieke situatie.
+              </p>
+            </section>
+
+            <Alert variant="destructive" className="mt-12 p-6 rounded-lg shadow-md">
+                <AlertTriangle className="h-6 w-6" />
+                <AlertTitleUi className="text-xl font-bold">Belangrijke Mededeling</AlertTitleUi>
+                <AlertDescUi className="text-base leading-relaxed mt-2">
+                  MindNavigator is ontworpen om inzicht en ondersteuning te bieden via zelfreflectie-instrumenten en educatieve content. Het is <strong>nadrukkelijk geen diagnostisch instrument</strong>. De informatie op deze pagina en de resultaten van onze tools zijn bedoeld voor educatieve doeleinden en zelfreflectie. Ze vervangen geen professioneel medisch of psychologisch advies.
+                  <br /><br />
+                  Als u zich zorgen maakt over de ontwikkeling, het gedrag of het welzijn van uzelf of uw kind, of als u een formele diagnose overweegt, adviseren wij u dringend om contact op te nemen met een gekwalificeerde professional. Zij kunnen u de juiste begeleiding en eventuele diagnostiek bieden. MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van de hier verstrekte informatie.
+                </AlertDescUi>
+                  <Button asChild variant="link" className="p-0 h-auto text-destructive hover:text-destructive/80 mt-3">
+                      <Link href="/contact">Neem contact op voor meer informatie of vragen <ExternalLink className="inline h-4 w-4 ml-1"/> </Link>
+                  </Button>
+            </Alert>
+          </div>
         </div>
       </main>
       <Footer />
     </div>
   );
 }
+
