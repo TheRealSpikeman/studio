@@ -1,7 +1,8 @@
+
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
-import React, { useState, useEffect, type ReactNode, type ElementType } from 'react';
+import React, { useState, useEffect, type ReactNode, type ElementType, Suspense } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -10,89 +11,71 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import {
     ArrowLeft, Download, Bot, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, ArrowRight
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-
-interface ReportItem {
-  title?: string;
-  text: string;
-  isKans?: boolean;
-  isTip?: boolean;
-  details?: Record<string, string>;
-}
-
-interface ReportSectionData {
-  id: string;
-  title: string;
-  Icon: string; // Emoji
-  items: ReportItem[];
-}
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const reportContent = {
   title: "Vergelijkende Analyse",
   subtitle: "Inzichten voor Olivia Ouder en Sofie",
-  intro: "Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Onze AI heeft de antwoorden op circa 15-20 vragen per persoon geanalyseerd om patronen te herkennen, zonder individuele responses te beoordelen als 'goed' of 'fout'. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van Sofie.",
+  intro: "Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van Sofie.",
   basedOn: [
-    `Ouder-quiz: "Ken je Kind" (ingevuld door Olivia Ouder op 18-06-2025 om 20:15)`,
-    `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld door Sofie op 19-06-2025 om 16:30)`
+    `Ouder-quiz: "Ken je Kind" (ingevuld op 18-06-2025)`,
+    `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld op 19-06-2025)`
   ],
-  generatedAt: `Rapport gegenereerd via www.mindnavigator.io op: ${format(new Date('2025-06-20T20:50:00'), 'd MMMM yyyy \'om\' HH:mm', { locale: nl })}`,
+  generatedAt: `Rapport gegenereerd op: ${new Date('2025-06-20T20:50:00').toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
   sections: [
     {
       id: 'gaps',
-      title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
+      title: "Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
       Icon: "🎯",
       items: [
-        { title: "Focus op School", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00." },
-        { title: "Sociale Interacties", text: "U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft." },
+        { title: "Focus op School", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak." },
+        { title: "Sociale Interacties", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft." },
       ]
     },
     {
       id: 'strengths',
-      title: "2. Gedeelde Sterktes: Waar Jullie Het Eens Zijn",
+      title: "Gedeelde Sterktes: Waar Jullie Het Eens Zijn",
       Icon: "💪",
       items: [
-        { title: "Creativiteit", text: "Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. Dit is een krachtig, gedeeld fundament om op voort te bouwen en haar zelfvertrouwen te versterken." },
-        { title: "Doorzettingsvermogen", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. Het erkennen van doorzettingsvermogen helpt haar om toekomstige uitdagingen met meer veerkracht aan te gaan." },
+        { title: "Creativiteit", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament." },
+        { title: "Doorzettingsvermogen", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten." },
       ]
     },
     {
       id: 'blind-spots',
-      title: "3. Blinde Vlekken: Wat Ziet De Een (Nog) Niet?",
+      title: "Blinde Vlekken & Kansen",
       Icon: "👁️",
       items: [
-        { text: "[KANS] U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
-        { text: "[KANS] Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert. Het bespreken van strategieën voor drukke omgevingen (school, feestjes) kan helpen." },
+        { type: "Reflectiepunt", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
+        { type: "Reflectiepunt", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen." },
       ]
     },
     {
       id: 'communication',
-      title: "4. Communicatie Kansen: Hoe Beter Afstemmen?",
+      title: "Communicatie Tips",
       Icon: "💬",
       items: [
-        { text: "[Communicatie Tip] In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk en wat zou je helpen?\" Dit opent de dialoog." },
-        { text: "[Communicatie Tip] Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
+        { type: "Tip", text: "In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk?\"" },
+        { type: "Tip", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
       ]
     },
     {
       id: 'action-plan',
-      title: "5. Familie Actieplan: Concreet & Haalbaar",
+      title: "Familie Actieplan",
       Icon: "📋",
       items: [
-        { title: "Wekelijks Creatief Uurtje", details: { "📅 Wanneer": "Zaterdag 10:00-11:00", "👤 Verantwoordelijk": "Sofie kiest, ouder faciliteert" } },
-        { title: "Focus Plan Maken", details: { "🎯 Wat": "Pomodoro blokken van 25 minuten", "📍 Waar": "Keukentafel of studeerkamer" } },
-        { title: "Prikkel Thermometer", details: { "💡 Hoe": "Maak een groen-oranje-rood thermometer voor op de koelkast. Sofie kan aangeven hoe 'vol' haar hoofd zit als startpunt voor een gesprek."} },
+        { title: "Wekelijks Creatief Uurtje", details: { "📅 Wanneer": "Zaterdag 10:00-11:00", "👤 Wie": "Sofie kiest, ouder faciliteert" } },
+        { title: "Focus Plan Maken", details: { "🎯 Wat": "Pomodoro blokken van 25 minuten", "📍 Waar": "Aan de keukentafel" } },
+        { title: "Prikkel Thermometer", details: { "💡 Hoe": "Maak een groen-oranje-rood thermometer voor op de koelkast. Sofie kan aangeven hoe 'vol' haar hoofd zit."} },
       ]
     },
      {
       id: 'next-steps',
-      title: "6. Volgende Stappen: Hoe Nu Verder?",
+      title: "Volgende Stappen",
       Icon: "➡️",
       items: [
-        { title: "**PROBEER DEZE WEEK**:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
-        { title: "Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
+        { type: "PROBEER DEZE WEEK", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
+        { type: "Vervolgvragen", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
       ]
     },
     {
@@ -103,73 +86,50 @@ const reportContent = {
         { text: "Dit rapport is gebaseerd op de antwoorden die zijn gegeven en dient ter indicatie en zelfreflectie. Het is nadrukkelijk geen vervanging voor een professionele diagnose of medisch advies. Raadpleeg een gekwalificeerde zorgverlener voor een formele diagnose of behandeling." }
       ]
     },
-  ] as ReportSectionData[],
+  ]
 };
-
-// PDF Styling and Component
-Font.register({
-  family: 'Helvetica',
-  fonts: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf', fontWeight: 'normal' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf', fontStyle: 'italic' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bolditalic-webfont.ttf', fontWeight: 'bold', fontStyle: 'italic' },
-  ],
-});
-
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 30,
-    paddingTop: 30,
-    paddingBottom: 20,
+    paddingHorizontal: 25,
+    paddingVertical: 25,
     fontFamily: 'Helvetica',
     fontSize: 10,
     lineHeight: 1.5,
-    color: '#334155', // slate-700
+    color: '#334155', 
   },
   header: {
     textAlign: 'center',
     marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingBottom: 15,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E57125', // Primary color
+    color: '#E57125', 
   },
   subtitle: {
     fontSize: 14,
-    color: '#64748B', // slate-500
+    color: '#64748B', 
     marginTop: 4,
-  },
-  introSection: {
-    padding: 12,
-    backgroundColor: '#FEF3F2', // Red-50 like
-    borderLeftWidth: 4,
-    borderLeftColor: '#F87171', // Red-400 like
-    marginBottom: 15,
-    borderRadius: 3,
-  },
-  introText: {
-    fontSize: 9,
-    color: '#4B5563', // gray-600
   },
   metaInfo: {
     fontSize: 8,
-    color: '#6B7280', // gray-500
-    marginTop: 8,
+    color: '#6B7280', 
+    marginTop: 10,
+    textAlign: 'center',
   },
   section: {
     marginBottom: 16,
-  },
-  sectionCard: {
-    backgroundColor: '#F8FAFC', // slate-50
+    padding: 12,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#E2E8F0', // slate-200
-    padding: 12,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -183,7 +143,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#E57125', // Primary color
+    color: '#E57125',
   },
   item: {
     marginBottom: 10,
@@ -192,19 +152,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 11,
     marginBottom: 2,
-    color: '#1E293B', // slate-800
+    color: '#1E293B',
+  },
+  itemText: {
+    fontSize: 10,
+    lineHeight: 1.5,
+    paddingLeft: 4,
   },
   calloutBox: {
-    backgroundColor: '#FEFCE8', // yellow-50
+    backgroundColor: '#FEFCE8',
     borderLeftWidth: 3,
-    borderLeftColor: '#FACC15', // yellow-400
+    borderLeftColor: '#FACC15',
     padding: 8,
     marginVertical: 4,
     borderRadius: 3,
   },
+  calloutType: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#A16207', 
+  },
   calloutText: {
-    fontSize: 9.5,
-    fontStyle: 'italic',
+    fontSize: 10,
     color: '#4B5563',
   },
   actionPlanItem: {
@@ -212,17 +181,17 @@ const styles = StyleSheet.create({
   },
   actionDetails: {
     fontSize: 9,
-    color: '#475569', // slate-600
+    color: '#475569',
     paddingLeft: 12,
   },
   footer: {
     position: 'absolute',
-    bottom: 10,
-    left: 30,
-    right: 30,
+    bottom: 15,
+    left: 25,
+    right: 25,
     textAlign: 'center',
     fontSize: 8,
-    color: '#94A3B8', // slate-400
+    color: '#94A3B8',
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     paddingTop: 5,
@@ -236,10 +205,6 @@ const ReportPDF = ({ data }: { data: typeof reportContent }) => (
         <Text style={styles.title}>{data.title}</Text>
         <Text style={styles.subtitle}>{data.subtitle}</Text>
       </View>
-
-      <View style={styles.introSection}>
-        <Text style={styles.introText}>{data.intro}</Text>
-      </View>
        <View style={{ marginBottom: 15 }}>
         {data.basedOn.map((line, i) => (
           <Text key={i} style={styles.metaInfo}>• {line}</Text>
@@ -249,33 +214,32 @@ const ReportPDF = ({ data }: { data: typeof reportContent }) => (
 
       {data.sections.map(section => (
         <View key={section.id} style={styles.section} wrap={false}>
-          <View style={styles.sectionCard}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionIcon}>{section.Icon}</Text>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
-            </View>
-            {section.items.map((item, index) => (
-              <View key={index} style={styles.item}>
-                {item.isKans || item.isTip ? (
-                  <View style={styles.calloutBox}>
-                    <Text style={styles.calloutText}>{item.text}</Text>
-                  </View>
-                ) : item.details ? (
-                  <View style={styles.actionPlanItem}>
-                    <Text style={styles.itemTitle}>□ {item.title}</Text>
-                     {Object.entries(item.details).map(([key, value]) => (
-                       <Text key={key} style={styles.actionDetails}>{`${key}: ${value}`}</Text>
-                     ))}
-                  </View>
-                ) : (
-                  <>
-                    {item.title && <Text style={styles.itemTitle}>• {item.title}</Text>}
-                    <Text style={{ paddingLeft: item.title ? 8 : 0 }}>{item.text}</Text>
-                  </>
-                )}
-              </View>
-            ))}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>{section.Icon}</Text>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
           </View>
+          {section.items.map((item, index) => (
+            <View key={index} style={styles.item}>
+              {item.type ? (
+                 <View style={styles.calloutBox}>
+                   <Text style={styles.calloutType}>{item.type}</Text>
+                   <Text style={styles.calloutText}>{item.text}</Text>
+                 </View>
+              ) : item.details ? (
+                <View style={styles.actionPlanItem}>
+                  <Text style={styles.itemTitle}>□ {item.title}</Text>
+                   {Object.entries(item.details).map(([key, value]) => (
+                     <Text key={key} style={styles.actionDetails}>{`${key}: ${value}`}</Text>
+                   ))}
+                </View>
+              ) : (
+                <>
+                  {item.title && <Text style={styles.itemTitle}>• {item.title}</Text>}
+                  <Text style={styles.itemText}>{item.text}</Text>
+                </>
+              )}
+            </View>
+          ))}
         </View>
       ))}
       
@@ -286,7 +250,6 @@ const ReportPDF = ({ data }: { data: typeof reportContent }) => (
     </Page>
   </Document>
 );
-
 
 function VoorbeeldAnalyseRapportPageContent() {
   const [isClient, setIsClient] = useState(false);
@@ -378,5 +341,9 @@ function VoorbeeldAnalyseRapportPageContent() {
 }
 
 export default function VoorbeeldAnalyseRapportPageWrapper() {
-  return <VoorbeeldAnalyseRapportPageContent />;
+  return (
+    <Suspense fallback={<div>Rapport laden...</div>}>
+        <VoorbeeldAnalyseRapportPageContent />
+    </Suspense>
+  );
 }
