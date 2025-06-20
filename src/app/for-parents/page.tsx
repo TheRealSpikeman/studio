@@ -149,7 +149,7 @@ export default function ForParentsPage() {
             <section id="faq-payment">
               <Card className="shadow-md border-border">
                 <CardHeader>
-                  <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary">
+                  <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
                     <MessageCircleQuestion className="h-7 w-7" />
                     Veelgestelde Vragen door Ouders
                   </h2>

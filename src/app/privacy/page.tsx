@@ -2,7 +2,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { ExternalLink, ShieldCheck } from 'lucide-react';
+import { ExternalLink, ShieldCheck, Info, Database, Cog, Share2, Lock, Gavel, Archive, Cookie, FileClock, Mail } from 'lucide-react';
 
 
 export default function PrivacyPage() {
@@ -19,14 +19,20 @@ export default function PrivacyPage() {
           
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section id="inleiding" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">1. Inleiding</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Info className="h-7 w-7" />
+                1. Inleiding
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Welkom bij MindNavigator. Wij hechten veel waarde aan uw privacy en de bescherming van uw persoonsgegevens. In dit privacybeleid leggen wij uit hoe wij uw gegevens verzamelen, gebruiken, delen en beschermen. Door gebruik te maken van onze diensten, gaat u akkoord met de voorwaarden van dit beleid.</p>
             </section>
 
             <hr className="my-6 border-border" />
 
             <section id="welke-gegevens" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">2. Welke gegevens verzamelen wij?</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Database className="h-7 w-7" />
+                2. Welke gegevens verzamelen wij?
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Wij kunnen de volgende soorten persoonsgegevens verzamelen:</p>
               <ul className="list-disc list-inside pl-5 space-y-2 text-muted-foreground leading-relaxed">
                 <li><strong>Contactgegevens:</strong> zoals uw naam en e-mailadres wanneer u zich aanmeldt.</li>
@@ -41,7 +47,10 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="hoe-gebruiken-wij" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">3. Hoe gebruiken wij uw gegevens?</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Cog className="h-7 w-7" />
+                3. Hoe gebruiken wij uw gegevens?
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Uw gegevens worden gebruikt voor de volgende doeleinden:</p>
               <ul className="list-disc list-inside pl-5 space-y-2 text-muted-foreground leading-relaxed">
                 <li>Om u toegang te geven tot onze diensten en de zelfreflectie-instrumenten.</li>
@@ -56,7 +65,10 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="delen-van-gegevens" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">4. Delen van uw gegevens</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Share2 className="h-7 w-7" />
+                4. Delen van uw gegevens
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Wij delen uw persoonsgegevens niet met derden, tenzij:</p>
               <ul className="list-disc list-inside pl-5 space-y-2 text-muted-foreground leading-relaxed">
                 <li>Dit noodzakelijk is voor het uitvoeren van onze diensten (bijvoorbeeld met onze hostingprovider of payment provider). Deze partijen zijn contractueel verplicht uw gegevens te beschermen.</li>
@@ -69,14 +81,20 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="beveiliging-gegevens" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">5. Beveiliging van uw gegevens</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Lock className="h-7 w-7" />
+                5. Beveiliging van uw gegevens
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Wij nemen passende technische en organisatorische maatregelen om uw persoonsgegevens te beschermen tegen verlies, misbruik, ongeautoriseerde toegang, openbaarmaking, wijziging en vernietiging. Dit omvat versleuteling van gegevens waar passend, toegangscontroles en regelmatige veiligheidsaudits.</p>
             </section>
 
             <hr className="my-6 border-border" />
 
             <section id="uw-rechten" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">6. Uw rechten (AVG/GDPR)</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Gavel className="h-7 w-7" />
+                6. Uw rechten (AVG/GDPR)
+              </h2>
               <p className="text-muted-foreground leading-relaxed">U heeft onder de Algemene Verordening Gegevensbescherming (AVG) diverse rechten met betrekking tot uw persoonsgegevens:</p>
                <ul className="list-disc list-inside pl-5 space-y-2 text-muted-foreground leading-relaxed">
                 <li><strong>Recht op inzage:</strong> U kunt opvragen welke persoonsgegevens wij van u verwerken.</li>
@@ -94,14 +112,20 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="bewaartermijnen" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">7. Bewaartermijnen</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Archive className="h-7 w-7" />
+                7. Bewaartermijnen
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Wij bewaren uw persoonsgegevens niet langer dan noodzakelijk is voor de doeleinden waarvoor ze zijn verzameld, tenzij een langere bewaartermijn wettelijk vereist of toegestaan is. Inactieve accounts en bijbehorende gegevens kunnen na een bepaalde periode worden verwijderd conform ons intern databeleid.</p>
             </section>
             
             <hr className="my-6 border-border" />
 
             <section id="cookies" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">8. Cookies</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Cookie className="h-7 w-7" />
+                8. Cookies
+              </h2>
               <p className="text-muted-foreground leading-relaxed">
                   Wij gebruiken cookies om de functionaliteit van onze website te verbeteren. Voor meer informatie over welke cookies we gebruiken en hoe u uw voorkeuren kunt beheren, verwijzen wij u naar ons <Link href="/cookies" className="text-accent hover:underline font-medium">Cookiebeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
               </p>
@@ -110,14 +134,20 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="wijzigingen-privacybeleid" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">9. Wijzigingen in dit privacybeleid</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <FileClock className="h-7 w-7" />
+                9. Wijzigingen in dit privacybeleid
+              </h2>
               <p className="text-muted-foreground leading-relaxed">Wij kunnen dit privacybeleid van tijd tot tijd wijzigen om te voldoen aan nieuwe wetgeving of veranderingen in onze bedrijfsvoering. De meest recente versie is altijd beschikbaar op onze website. Wij raden u aan dit beleid regelmatig te controleren.</p>
             </section>
 
             <hr className="my-6 border-border" />
 
             <section id="contact-privacy" className="space-y-3">
-              <h2 className="text-2xl font-semibold text-primary mb-4">10. Contact</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Mail className="h-7 w-7" />
+                10. Contact
+              </h2>
               <p className="text-muted-foreground leading-relaxed">
                 Als u vragen heeft over ons gebruik van persoonsgegevens, of als u gebruik wilt maken van uw rechten, kunt u contact met ons opnemen via{' '}
                 <a href="mailto:privacy@mindnavigator.app" className="text-accent hover:underline">privacy@mindnavigator.app</a>.

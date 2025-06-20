@@ -2,7 +2,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { AlertTriangle, ExternalLink, Info } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Info, Users, Scale, Bot, Stethoscope } from 'lucide-react';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 
@@ -21,7 +21,10 @@ export default function DisclaimerPage() {
           </div>
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Geen Medische Diagnose of Advies</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <AlertTriangle className="h-7 w-7" />
+                Geen Medische Diagnose of Advies
+              </h2>
               <p className="mb-3">
                 MindNavigator en de daarin aangeboden zelfreflectie-instrumenten, artikelen, en AI-gegenereerde inzichten zijn uitsluitend bedoeld voor educatieve doeleinden, zelfinzicht en persoonlijke ontwikkeling. De content op dit platform is <strong>nadrukkelijk geen vervanging</strong> voor professioneel medisch, psychologisch, psychiatrisch of orthopedagogisch advies, diagnose, of behandeling.
               </p>
@@ -31,7 +34,10 @@ export default function DisclaimerPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Raadpleeg Altijd een Professional</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Stethoscope className="h-7 w-7" />
+                Raadpleeg Altijd een Professional
+              </h2>
               <p className="mb-3">
                 Als u of uw kind vragen of zorgen heeft over mentale gezondheid, gedrag, ontwikkeling, of als u een formele diagnose overweegt, dient u altijd contact op te nemen met een gekwalificeerde zorgverlener. Dit kan zijn:
               </p>
@@ -48,7 +54,10 @@ export default function DisclaimerPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Beperking van Aansprakelijkheid</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Scale className="h-7 w-7" />
+                Beperking van Aansprakelijkheid
+              </h2>
               <p className="mb-3">
                 MindNavigator streeft ernaar zorgvuldige en accurate informatie te verstrekken. Echter, wij kunnen de volledigheid, juistheid of actualiteit van de content niet garanderen. Het gebruik van de informatie en tools op dit platform is geheel op eigen risico.
               </p>
@@ -58,7 +67,10 @@ export default function DisclaimerPage() {
             </section>
             
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Gebruik van AI-gegenereerde Content</h2>
+              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                <Bot className="h-7 w-7" />
+                Gebruik van AI-gegenereerde Content
+              </h2>
               <p>
                 Delen van de inzichten en samenvattingen op MindNavigator kunnen worden gegenereerd met behulp van kunstmatige intelligentie (AI). Hoewel we streven naar nuttige en relevante output, kan AI-gegenereerde content onnauwkeurigheden bevatten of niet altijd volledig aansluiten bij uw specifieke situatie. Gebruik deze inzichten als een startpunt voor reflectie en niet als definitieve waarheden of professioneel advies.
               </p>
