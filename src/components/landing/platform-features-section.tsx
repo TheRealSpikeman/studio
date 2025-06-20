@@ -132,7 +132,7 @@ export function PlatformFeaturesSection() {
             </div>
             <div className="relative h-64 lg:h-full min-h-[300px] order-first lg:order-last">
               <Image
-                src="https://placehold.co/600x450.png" 
+                src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/parents-2.png?alt=media&token=c8f9238e-81c7-46a3-9499-b36ba37a2e28" 
                 alt="Voorbeeld van het MindNavigator Ouder Dashboard interface met grafieken en overzichten"
                 fill
                 style={{ objectFit: 'cover' }}

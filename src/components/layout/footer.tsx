@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle } from 'lucide-react'; // Added HelpCircle
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle } from 'lucide-react'; // Removed HelpCircle from direct use here
 
 export function Footer() {
   return (
@@ -57,8 +57,8 @@ export function Footer() {
               <Link href="/samenwerkingen" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Partners & Deskundigheid
               </Link>
-              <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary hover:underline flex items-center gap-1">
-                <HelpCircle className="h-4 w-4 text-primary/80" /> Veelgestelde Vragen
+              <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                Veelgestelde Vragen
               </Link>
             </nav>
           </div>
@@ -82,8 +82,8 @@ export function Footer() {
                 <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Disclaimer
                 </Link>
-                <Link href="/feedback" className="text-sm text-muted-foreground hover:text-primary hover:underline flex items-center gap-1">
-                  <MessageSquareText className="h-4 w-4 text-primary/80" /> Feedback (Alpha)
+                <Link href="/feedback" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                  Feedback (Alpha)
                 </Link>
             </nav>
             <div className="flex items-center gap-2 mb-1 mt-2">
