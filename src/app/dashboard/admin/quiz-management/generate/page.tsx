@@ -14,8 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; 
-import type { QuizAdmin, QuizAudience, QuizCategory } from '@/types/quiz-admin';
+import type { QuizAdmin, QuizAudience, QuizCategory, AnalysisDetailLevel } from '@/types/quiz-admin';
 import { ArrowLeft, Bot, Loader2, Save, Wand2 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
   { id: 'Tiener (12-14 jr, voor zichzelf)', label: 'Tiener (12-14 jr, voor zichzelf)' },
@@ -59,6 +60,12 @@ const quizPurposeOptions: { id: 'onboarding' | 'deep_dive' | 'reflection' | 'goa
     { id: 'goal_setting', label: 'Doelen Stellen (actiegericht)' },
 ];
 
+const analysisDetailOptions: { id: AnalysisDetailLevel; label: string }[] = [
+    { id: 'beknopt', label: 'Beknopt (korte samenvatting)' },
+    { id: 'standaard', label: 'Standaard (aanbevolen)' },
+    { id: 'uitgebreid', label: 'Uitgebreid (diepgaande analyse)' },
+];
+
 const aiQuizFormSchema = z.object({
   topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
   audience: z.string({ required_error: "Selecteer een doelgroep." }) as z.ZodType<QuizAudience>,
@@ -66,6 +73,8 @@ const aiQuizFormSchema = z.object({
   numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
   difficulty: z.string({ required_error: "Selecteer een moeilijkheidsgraad."}),
   quizPurpose: z.enum(['onboarding', 'deep_dive', 'reflection', 'goal_setting', 'general']).optional(),
+  analysisDetailLevel: z.enum(['beknopt', 'standaard', 'uitgebreid'] as [AnalysisDetailLevel, ...AnalysisDetailLevel[]]).optional(),
+  analysisInstructions: z.string().optional(),
 });
 type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
 
@@ -83,6 +92,8 @@ export default function GenerateAiQuizPage() {
           numQuestions: 10,
           difficulty: "gemiddeld",
           quizPurpose: "general",
+          analysisDetailLevel: 'standaard',
+          analysisInstructions: '',
         },
     });
 
@@ -91,8 +102,9 @@ export default function GenerateAiQuizPage() {
         toast({ title: "Quiz genereren met AI...", description: `Onderwerp: ${data.topic}. Een ogenblik geduld.` });
         
         try {
-          const aiInput = { ...data, quizPurpose: data.quizPurpose || 'general' };
-          const aiResult = await generateAiQuiz(aiInput);
+          const { analysisDetailLevel, analysisInstructions, ...aiInputForGeneration } = data;
+          
+          const aiResult = await generateAiQuiz(aiInputForGeneration);
     
           if (!aiResult || !aiResult.questions || aiResult.questions.length === 0) throw new Error("AI heeft geen vragen geretourneerd.");
           
@@ -107,6 +119,8 @@ export default function GenerateAiQuizPage() {
             lastUpdatedAt: new Date().toISOString(),
             createdAt: new Date().toISOString(),
             slug: `ai-${data.topic.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
+            analysisDetailLevel: analysisDetailLevel,
+            analysisInstructions: analysisInstructions,
           };
 
           localStorage.setItem(`ai-quiz-${newQuiz.id}`, JSON.stringify(newQuiz));
@@ -137,10 +151,10 @@ export default function GenerateAiQuizPage() {
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleGenerate)}>
+                <form onSubmit={form.handleSubmit(handleGenerate)} className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Genereer een Nieuwe Quiz</CardTitle>
+                            <CardTitle>Quiz Specificaties</CardTitle>
                             <CardDescription>Geef de AI instructies om een nieuwe quiz te genereren. Na generatie wordt de quiz als concept opgeslagen en kunt u deze direct bewerken.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -151,13 +165,54 @@ export default function GenerateAiQuizPage() {
                             <FormField control={form.control} name="difficulty" render={({ field }) => (<FormItem><FormLabel>Moeilijkheid / Weging</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl><SelectContent>{difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="quizPurpose" render={({ field }) => (<FormItem><FormLabel>Quiz Doel (Journey Moment)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value || 'general'}><FormControl><SelectTrigger><SelectValue placeholder="Kies doel/moment" /></SelectTrigger></FormControl><SelectContent>{quizPurposeOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Context voor AI over het doel van de quiz (bijv. eerste kennismaking of verdieping).</FormDescription><FormMessage /></FormItem>)} />
                         </CardContent>
-                        <CardFooter>
-                            <Button type="submit" disabled={isGenerating}>
-                                {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                                {isGenerating ? "Bezig met genereren..." : "Genereer Quiz & Bewerk"}
-                            </Button>
-                        </CardFooter>
                     </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5 text-primary"/>AI Analyse Instellingen (Optioneel)</CardTitle>
+                            <CardDescription>
+                            Configureer hier hoe de AI de resultaten van de gegenereerde quiz moet analyseren voor de gebruiker.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <FormField
+                            control={form.control}
+                            name="analysisDetailLevel"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Detailniveau AI Analyse</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value || 'standaard'}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Selecteer detailniveau" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                    {analysisDetailOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription>Kies hoe uitgebreid de AI-analyse moet zijn.</FormDescription>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                            control={form.control}
+                            name="analysisInstructions"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Specifieke AI Analyse Instructies</FormLabel>
+                                <FormControl><Textarea placeholder="Bijv. 'Focus in de analyse extra op de impact van sociale situaties.' of 'Gebruik een zeer bemoedigende toon.' Laat leeg voor standaard instructies." {...field} rows={4} /></FormControl>
+                                <FormDescription>Geef hier extra context of focuspunten mee voor de AI bij het genereren van de analyse.</FormDescription>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <div className="flex justify-start">
+                        <Button type="submit" disabled={isGenerating} size="lg">
+                            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                            {isGenerating ? "Bezig met genereren..." : "Genereer Quiz & Bewerk"}
+                        </Button>
+                    </div>
                 </form>
             </Form>
         </div>
