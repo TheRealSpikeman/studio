@@ -62,7 +62,7 @@ const howItWorksSteps = [
   { num: 1, icon: Search, title: "Zoek & Match", content: "Filter op specialiteit, prijs en beschikbaarheid. Bekijk profielen, ervaring en reviews. Vergelijk tarieven (wat u ziet = wat u betaalt)." },
   { num: 2, icon: MessageCircle, title: "Kennismaking", content: "Gratis 15-minuten gesprek. Bespreek doelen en werkwijze. Voel of er een 'klik' is." },
   { num: 3, icon: Lock, title: "Privacy Instellen", content: "U bepaalt wat u deelt: 'Ken je Kind' assessment, onboarding resultaten, platform voortgang. Per coach/begeleider apart instelbaar en altijd wijzigbaar." },
-  { num: 4, icon: CalendarDays, title: "Sessies Plannen", content: "Boek direct via platform. Automatische herinneringen. Beveiligde video-oproepen. Flexibele tijden." }
+  { num: 4, icon: CalendarDays, title: "Sessies Plannen", content: "Boek direct via het platform. U ontvangt automatische herinneringen. De sessies vinden plaats via onze beveiligde video-oproep functionaliteit, op flexibele tijden." }
 ];
 
 const whyOurGuidanceItems = [
@@ -271,4 +271,3 @@ export default function EenOpEenBegeleidingPage() {
     </div>
   );
 }
-
