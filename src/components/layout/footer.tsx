@@ -92,27 +92,32 @@ export function Footer() {
             <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" /> Doe Mee
             </h4>
-            <div className="flex items-center gap-2 mb-1">
-              <Briefcase className="h-5 w-5 text-primary" />
-              <h5 className="text-sm font-semibold text-foreground">Word Tutor</h5>
+            
+            <div className="mb-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Briefcase className="h-5 w-5 text-primary" />
+                <h5 className="text-sm font-semibold text-foreground">Word Tutor</h5>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-xs mb-1">
+                Bied 1-op-1 huiswerkbegeleiding, help met studievaardigheden en specifieke vakken.
+              </p>
+              <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
+                  <Link href="/word-tutor">Meer informatie & Aanmelden (Tutor)</Link>
+              </Button>
             </div>
-            <p className="text-xs text-muted-foreground max-w-xs mb-1">
-              Bied 1-op-1 huiswerkbegeleiding, help met studievaardigheden en specifieke vakken.
-            </p>
-            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0 mb-3">
-                <Link href="/word-tutor">Meer informatie & Aanmelden (Tutor)</Link>
-            </Button>
 
-            <div className="flex items-center gap-2 mb-1 mt-2">
-              <HeartHandshake className="h-5 w-5 text-primary" />
-              <h5 className="text-sm font-semibold text-foreground">Word Coach</h5>
+            <div className="mt-2">
+              <div className="flex items-center gap-2 mb-1">
+                <HeartHandshake className="h-5 w-5 text-primary" />
+                <h5 className="text-sm font-semibold text-foreground">Word Coach</h5>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-xs mb-1">
+                Als psycholoog/orthopedagoog: bied 1-op-1 begeleiding voor persoonlijke ontwikkeling en welzijn.
+              </p>
+              <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
+                  <Link href="/word-coach">Meer informatie & Aanmelden (Coach)</Link>
+              </Button>
             </div>
-            <p className="text-xs text-muted-foreground max-w-xs mb-1">
-              Als psycholoog/orthopedagoog: bied 1-op-1 begeleiding voor persoonlijke ontwikkeling en welzijn.
-            </p>
-            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
-                <Link href="/word-coach">Meer informatie & Aanmelden (Coach)</Link>
-            </Button>
           </div>
 
         </div>
