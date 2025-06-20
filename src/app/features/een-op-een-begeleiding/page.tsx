@@ -1,4 +1,5 @@
 
+// src/app/features/een-op-een-begeleiding/page.tsx
 "use client";
 
 import React, { type ReactNode, type ElementType } from 'react';
@@ -7,7 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { 
   GraduationCap, Brain, Zap, BookOpenCheck, MessageSquareText, ShieldCheck, ExternalLink, ArrowRight, 
   Users, Search, MessageCircle, CalendarDays, Settings, Eye, CheckCircle2, AlertTriangle, Info, Target,
@@ -137,7 +138,7 @@ export default function EenOpEenBegeleidingPage() {
                           <CardContent className="text-sm text-muted-foreground space-y-1"><p>Voor praktische schoolondersteuning (planning, vakinhoud, leerstrategieën).</p></CardContent>
                         </Card>
                         <Card className="bg-card border">
-                          <CardHeader className="pb-2"><CardTitle className="text-lg font-medium text-green-700 flex items-center gap-2"><Brain className="h-6 w-6"/>Coaching met Psychologen</CardTitle></CardHeader>
+                          <CardHeader className="pb-2"><CardTitle className="text-lg font-medium text-green-700 flex items-center gap-2"><Brain className="h-6 w-6"/>Online Coaching met Psychologen</CardTitle></CardHeader>
                           <CardContent className="text-sm text-muted-foreground space-y-1"><p>Voor diepere ondersteuning bij persoonlijke uitdagingen, emoties en ontwikkeling.</p></CardContent>
                         </Card>
                     </div>
