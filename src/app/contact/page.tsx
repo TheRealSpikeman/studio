@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Mail, User, MessageSquareIcon, ListFilter } from 'lucide-react';
 import { useState } from 'react';
-
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
 const contactCategories = [
     { value: "algemeen", label: "Algemene Vraag" },
@@ -22,16 +22,17 @@ const contactCategories = [
     { value: "anders", label: "Anders..." },
 ];
 
+const MAX_MESSAGE_LENGTH = 1000;
+
 // A simple client component for form handling
 function ContactForm() {
+    const { toast } = useToast(); // Initialize useToast
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
     const [messageLength, setMessageLength] = useState(0);
-    const MAX_MESSAGE_LENGTH = 1000;
+    
 
     const handleMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMessageLength(event.target.value.length);
-        // Call the original onChange if it exists (e.g., from react-hook-form if integrated later)
-        // field.onChange(event); 
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -43,11 +44,17 @@ function ContactForm() {
         const category = selectedCategory;
         const message = formData.get('message') as string;
 
-        // TODO: Implement form submission logic (e.g., send email, save to DB)
-        alert(`Bedankt voor uw bericht!\n\nNaam: ${name}\nE-mail: ${email}\nOnderwerp: ${subject}\nCategorie: ${category || 'Niet geselecteerd'}\nBericht: ${message}\n\nWe nemen zo snel mogelijk contact met u op.`);
-        // event.currentTarget.reset(); // Optionally reset form
-        // setSelectedCategory(undefined); 
-        // setMessageLength(0);
+        console.log("Contact form submission (simulated):", { name, email, category, subject, message });
+        
+        toast({
+          title: "Bericht Ontvangen!",
+          description: "Bedankt voor uw bericht. We nemen zo snel mogelijk contact met u op.",
+          variant: "default", // of "success" als je die hebt
+        });
+        
+        event.currentTarget.reset(); 
+        setSelectedCategory(undefined); 
+        setMessageLength(0);
     };
 
     return (
