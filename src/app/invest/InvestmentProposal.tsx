@@ -1,3 +1,4 @@
+
 // src/app/invest/InvestmentProposal.tsx
 "use client";
 
@@ -59,8 +60,8 @@ const riskData = [
 const investmentAllocationData = [
     { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', colorClass: 'bg-blue-500' },
     { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-teal-500' },
-    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-purple-500' },
-    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', colorClass: 'bg-orange-500' },
+    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-orange-500' },
+    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', colorClass: 'bg-purple-500' },
 ];
 
 export function InvestmentProposal() {
@@ -201,7 +202,7 @@ export function InvestmentProposal() {
               </AccordionItem>
               <AccordionItem value="item-4">
                 <AccordionTrigger>Hoe weet ik dat mijn geld goed gebruikt wordt?</AccordionTrigger>
-                <AccordionContent>U ontvangt kwartaalupdates met concrete cijfers over gebruikersgroei en omzet. Het platform is transparant; u kunt de voortgang live volgen. De verdeling van de investering is duidelijk vastgelegd.</AccordionContent>
+                <AccordionContent>U ontvangt kwartaalupdates met concrete cijfers over gebruikersgroei en omzet. Het platform is transparant; u kunt de voortgang live volgen.</AccordionContent>
               </AccordionItem>
             </Accordion>
           </section>
@@ -230,7 +231,7 @@ export function InvestmentProposal() {
            <section className="text-center p-6 border-t border-b">
              <h2 className="text-2xl font-bold text-foreground">Een Persoonlijke Boodschap</h2>
              <p className="mt-4 text-muted-foreground max-w-3xl mx-auto">
-                Beste vrienden en familie, normaal gesproken zou ik jullie niet benaderen voor een investering. Maar dit voelt anders. Ik heb hier honderden uren van mijn eigen tijd en energie in gestoken en een werkende oplossing gebouwd voor een echt probleem dat mij persoonlijk raakt. Of je nu meedoet of meeleest vanaf de zijlijn, onze vriendschap verandert niet. Ik wilde jullie simpelweg de kans geven om erbij te zijn als je dat leuk vindt. Vragen? Bel of app me gerust, zonder enige druk.
+                Beste vrienden en familie, normaal gesproken zou ik jullie niet benaderen voor een investering. Maar dit voelt anders. Ik heb hier honderden uren van mijn eigen tijd en energie in gestoken en een werkende oplossing gebouwd voor een echt probleem dat mij persoonlijk raakt. Of je nu meedoet of meeleest vanaf de zijlijn, onze vriendschap verandert niet. Ik wilde jullie simpelweg de kans geven om erbij te zijn als je dat leuk vindt.
              </p>
              <p className="mt-4 font-semibold">- Glenn Bosch, Oprichter & CEO MindNavigator</p>
            </section>
