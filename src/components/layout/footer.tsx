@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle } from 'lucide-react'; // Removed HelpCircle from direct use here
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -45,7 +45,7 @@ export function Footer() {
               <Link href="/for-parents" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Voor Ouders
               </Link>
-              <Link href="/#pricing" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Prijzen
               </Link>
                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary hover:underline">
@@ -64,10 +64,10 @@ export function Footer() {
           </div>
 
 
-          {/* Column 3: Legal Links & Tutor CTA */}
+          {/* Column 3: Legal Links & Professional CTA */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
              <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Belangrijk & Support
+              <ShieldCheck className="h-5 w-5 text-primary" /> Belangrijk & Doe Mee
             </h4>
              <nav className="flex flex-col gap-1.5 mb-4">
                 <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary hover:underline">
@@ -86,14 +86,28 @@ export function Footer() {
                   Feedback (Alpha)
                 </Link>
             </nav>
+            
             <div className="flex items-center gap-2 mb-1 mt-2">
               <Briefcase className="h-5 w-5 text-primary" />
               <h4 className="text-md font-semibold text-foreground">Word Tutor</h4>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
-              Help tieners 12–18 jaar met hun huiswerk, bepaal je eigen tarief en uren.
+              Help tieners met huiswerk, bepaal je eigen tarief en uren.
             </p>
-            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0"><Link href="/word-tutor">Meer informatie & Aanmelden</Link></Button>
+            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0 mb-3">
+                <Link href="/word-tutor">Meer informatie & Aanmelden (Tutor)</Link>
+            </Button>
+
+            <div className="flex items-center gap-2 mb-1 mt-2">
+              <HeartHandshake className="h-5 w-5 text-primary" />
+              <h4 className="text-md font-semibold text-foreground">Word Coach</h4>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-xs mb-1">
+              Bied 1-op-1 begeleiding aan jongeren, deel je expertise.
+            </p>
+            <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
+                <Link href="/word-coach">Meer informatie & Aanmelden (Coach)</Link>
+            </Button>
           </div>
 
         </div>
@@ -104,4 +118,3 @@ export function Footer() {
     </footer>
   );
 }
-
