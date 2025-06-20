@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText } from 'lucide-react'; // Added MessageSquareText
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle } from 'lucide-react'; // Added HelpCircle
 
 export function Footer() {
   return (
@@ -57,6 +57,9 @@ export function Footer() {
               <Link href="/samenwerkingen" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Partners & Deskundigheid
               </Link>
+              <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary hover:underline flex items-center gap-1">
+                <HelpCircle className="h-4 w-4 text-primary/80" /> Veelgestelde Vragen
+              </Link>
             </nav>
           </div>
 
@@ -101,3 +104,4 @@ export function Footer() {
     </footer>
   );
 }
+
