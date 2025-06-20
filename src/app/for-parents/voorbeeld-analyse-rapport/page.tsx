@@ -64,57 +64,55 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 }
 
 const PDF_COLORS = {
-  primary: hslToRgb(25, 78, 52), // Orange Primary from globals.css
+  primary: hslToRgb(25, 78, 52), // Orange Primary
   foreground: hslToRgb(210, 40, 10),
   mutedForeground: hslToRgb(210, 20, 45),
-  cardBg: hslToRgb(39, 100, 97), // Light yellow/beige for the card background
   sectionOrange: {
-    bg: hslToRgb(39, 100, 97),
+    bg: [255, 247, 237], // #fff7ed
     title: hslToRgb(25, 78, 52),
     bullet: hslToRgb(25, 78, 52),
-    text: hslToRgb(39, 40, 10),
+    text: hslToRgb(39, 40, 20),
   },
   sectionGreen: {
-    bg: hslToRgb(120, 60, 95),
+    bg: [240, 253, 244], // #f0fdf4
     title: hslToRgb(145, 63, 32),
     bullet: hslToRgb(145, 63, 42),
-    text: hslToRgb(120, 40, 10),
+    text: hslToRgb(120, 40, 20),
   },
   sectionYellow: {
-    bg: hslToRgb(50, 100, 97),
+    bg: [255, 251, 235], // #fffbeb
     title: hslToRgb(45, 100, 40),
     bullet: hslToRgb(45, 100, 50),
-    text: hslToRgb(50, 40, 10),
+    text: hslToRgb(50, 40, 20),
   },
   sectionBlue: {
-    bg: hslToRgb(210, 100, 98),
+    bg: [239, 246, 255], // #eff6ff
     title: hslToRgb(207, 90, 44),
     bullet: hslToRgb(207, 90, 54),
-    text: hslToRgb(210, 40, 10),
+    text: hslToRgb(210, 40, 20),
   },
   sectionPurple: {
-    bg: hslToRgb(262, 85, 97),
+    bg: [245, 243, 255], // #f5f3ff
     title: hslToRgb(262, 85, 45),
     bullet: hslToRgb(262, 85, 55),
-    text: hslToRgb(262, 40, 10),
+    text: hslToRgb(262, 40, 20),
   },
   sectionDefault: {
-    bg: hslToRgb(210, 17, 98),
+    bg: [248, 250, 252], // slate-50
     title: hslToRgb(210, 40, 10),
     bullet: hslToRgb(210, 20, 45),
     text: hslToRgb(210, 20, 45),
   },
-  orange: hslToRgb(25, 78, 52),
 };
 
 const PDF_STYLES = {
   fontFamily: "Helvetica",
-  pageMargins: { top: 20, bottom: 20, left: 15, right: 15 },
+  pageMargins: { top: 20, bottom: 25, left: 15, right: 15 },
   lineHeightFactor: 0.6,
   paragraphSpacing: 4,
-  sectionSpacing: 10,
+  sectionSpacing: 8,
   cardPaddingX: 8,
-  cardPaddingY: 10,
+  cardPaddingY: 8,
   cardRadius: 3,
   titleSize: 22,
   subtitleSize: 14,
@@ -145,8 +143,8 @@ export default function VoorbeeldAnalyseRapportPage() {
         content: [
           "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een algemeen probleem, en geeft aan dat het meer afhangt van de interesse in het vak; wiskunde kost haar bijvoorbeeld meer energie dan creatieve vakken, vooral tijdens huiswerk tussen 16:00-18:00. (Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.)",
           "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. (Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.)",
-          "<strong>Omgaan met Verandering:</strong> U merkt dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt. (Mogelijkheid: De impact van de verandering speelt een rol.)",
-          "<strong>Energielevel na School:</strong> U observeert dat Sofie vaak moe is na school. Sofie geeft aan zich soms 'leeg' te voelen, maar ook momenten van energie te hebben voor leuke dingen. (Mogelijkheid: Het soort activiteit na school beïnvloedt haar energieniveau sterk.)"
+          "<strong>Omgaan met Verandering:</strong> U merkt op dat Sofie van slag raakt bij onverwachte veranderingen in de dagelijkse routine. Sofie geeft aan dat dit vooral geldt voor grote veranderingen (bijv. verhuizing school), maar kleine aanpassingen (bijv. ander avondeten) wel prima vindt. (Mogelijkheid: De impact van de verandering speelt een rol.)",
+          "<strong>Energielevel na School:</strong> U observeert dat Sofie vaak moe is na school. Sofie geeft aan zich soms 'leeg' te voelen, maar ook momenten van energie te hebben voor leuke dingen."
         ]
       },
       {
@@ -221,120 +219,110 @@ export default function VoorbeeldAnalyseRapportPage() {
 
   const handlePdfDownloadClick = () => {
     try {
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      const pageHeight = doc.internal.pageSize.height;
-      const pageWidth = doc.internal.pageSize.width;
-      const margins = PDF_STYLES.pageMargins;
-      const usableWidth = pageWidth - margins.left - margins.right;
-      let y = margins.top;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        doc.setFont('Helvetica', 'normal');
 
-      const addPageFooter = () => {
-          const pageCount = doc.internal.getNumberOfPages();
-          for (let i = 1; i <= pageCount; i++) {
-              doc.setPage(i);
-              doc.setFont(PDF_STYLES.fontFamily, "italic");
-              doc.setFontSize(PDF_STYLES.smallSize);
-              doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_COLORS.mutedForeground[2]);
-              const footerText = `Rapport gegenereerd via www.mindnavigator.io - Pagina ${i} van ${pageCount}`;
-              doc.text(footerText, margins.left, pageHeight - 10);
-          }
-      };
-      
-      const addTextWithFormatting = (text: string, x: number, currentY: number, options: TextOptionsLight & { color?: [number, number, number], fontSize?: number, fontStyle?: string, maxWidth?: number } = {}) => {
-        const fontSize = options.fontSize || PDF_STYLES.normalSize;
-        const lineHeight = fontSize * PDF_STYLES.lineHeightFactor;
-        doc.setFont(PDF_STYLES.fontFamily, "normal"); // Reset font style
-        doc.setFontSize(fontSize);
-        if (options.color) doc.setTextColor(options.color[0], options.color[1], options.color[2]);
-        
-        const plainTextForSplitting = text.replace(/<strong>(.*?)<\/strong>/gi, '%%BOLD_START%%$1%%BOLD_END%%').replace(/<i>(.*?)<\/i>/gi, '%%ITALIC_START%%$1%%ITALIC_END%%');
-        const lines = doc.splitTextToSize(plainTextForSplitting, options.maxWidth || usableWidth);
+        const pageHeight = doc.internal.pageSize.height;
+        const pageWidth = doc.internal.pageSize.width;
+        const margins = PDF_STYLES.pageMargins;
+        const usableWidth = pageWidth - margins.left - margins.right;
+        let y = margins.top;
 
-        let isBold = options.fontStyle === 'bold';
-        let isItalic = options.fontStyle === 'italic';
-
-        lines.forEach((line: string) => {
-          if (currentY + lineHeight > pageHeight - (margins.bottom + 5)) { doc.addPage(); currentY = margins.top; }
-          let currentX = x;
-          const segments = line.split(/(%%BOLD_START%%|%%BOLD_END%%|%%ITALIC_START%%|%%ITALIC_END%%)/g);
-          
-          segments.forEach(segment => {
-            if (segment === '%%BOLD_START%%') isBold = true;
-            else if (segment === '%%BOLD_END%%') isBold = false;
-            else if (segment === '%%ITALIC_START%%') isItalic = true;
-            else if (segment === '%%ITALIC_END%%') isItalic = false;
-            else if (segment) {
-              const currentStyle = isBold && isItalic ? 'bolditalic' : isBold ? 'bold' : isItalic ? 'italic' : 'normal';
-              doc.setFont(undefined, currentStyle);
-              doc.text(segment, currentX, currentY);
-              currentX += doc.getStringUnitWidth(segment) * fontSize / doc.internal.scaleFactor;
+        const checkY = (neededHeight: number) => {
+            if (y + neededHeight > pageHeight - margins.bottom) {
+                doc.addPage();
+                y = margins.top;
             }
-          });
-          currentY += lineHeight;
+        };
+
+        const drawFormattedText = (text: string, x: number, yPos: number, options: any = {}) => {
+            const { fontSize = PDF_STYLES.normalSize, fontStyle = 'normal', color = PDF_COLORS.foreground, maxWidth = usableWidth, lineHeightFactor = PDF_STYLES.lineHeightFactor } = options;
+            doc.setFontSize(fontSize);
+            doc.setTextColor(color[0], color[1], color[2]);
+
+            const cleanText = text.replace(/<[^>]*>?/gm, ''); // Strip all HTML tags for simplicity and robustness
+            const lines = doc.splitTextToSize(cleanText, maxWidth);
+            const blockHeight = lines.length * (fontSize * lineHeightFactor);
+            checkY(blockHeight);
+
+            doc.setFont(PDF_STYLES.fontFamily, fontStyle);
+            doc.text(lines, x, yPos);
+            doc.setFont(PDF_STYLES.fontFamily, 'normal'); // Reset style
+            
+            return blockHeight;
+        };
+
+        const drawSectionCard = (section: typeof reportContent.sections[0]) => {
+            const cardInnerWidth = usableWidth - PDF_STYLES.cardPaddingX * 2;
+            let tempY = 0;
+            let contentHeight = 0;
+
+            const tempDoc = new jsPDF(); // Use a temporary doc to calculate height, to prevent rendering issues
+            
+            contentHeight += drawFormattedText(section.title, 0, tempY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', maxWidth: cardInnerWidth, doc: tempDoc });
+            contentHeight += PDF_STYLES.paragraphSpacing;
+
+            section.content.forEach(item => {
+                const bulletPoint = "•  ";
+                const textWithoutBullet = item;
+                const textLines = tempDoc.splitTextToSize(textWithoutBullet.replace(/<[^>]*>?/gm, ''), cardInnerWidth - 5);
+                contentHeight += textLines.length * (PDF_STYLES.normalSize * PDF_STYLES.lineHeightFactor);
+                contentHeight += PDF_STYLES.paragraphSpacing;
+            });
+            const totalCardHeight = contentHeight + PDF_STYLES.cardPaddingY * 2;
+
+            checkY(totalCardHeight);
+
+            doc.setFillColor(section.colorTheme.bg[0], section.colorTheme.bg[1], section.colorTheme.bg[2]);
+            doc.roundedRect(margins.left, y, usableWidth, totalCardHeight, PDF_STYLES.cardRadius, PDF_STYLES.cardRadius, 'F');
+
+            let textY = y + PDF_STYLES.cardPaddingY * 1.5; // Start drawing text with padding
+            textY += drawFormattedText(section.title, margins.left + PDF_STYLES.cardPaddingX, textY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: section.colorTheme.title, maxWidth: cardInnerWidth });
+            textY += PDF_STYLES.paragraphSpacing;
+            
+            section.content.forEach(item => {
+                doc.setFillColor(section.colorTheme.bullet[0], section.colorTheme.bullet[1], section.colorTheme.bullet[2]);
+                doc.circle(margins.left + PDF_STYLES.cardPaddingX + 2, textY + 1.5, 1.5, 'F');
+                textY += drawFormattedText(item, margins.left + PDF_STYLES.cardPaddingX + 8, textY, { color: section.colorTheme.text, maxWidth: cardInnerWidth - 8 });
+                textY += PDF_STYLES.paragraphSpacing;
+            });
+
+            y += totalCardHeight + PDF_STYLES.sectionSpacing;
+        };
+        
+        // --- PDF Generation START ---
+        y = addTextWithFormatting(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+        y += addTextWithFormatting(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
+        y += PDF_STYLES.paragraphSpacing;
+
+        y += addTextWithFormatting(reportContent.intro, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.foreground });
+        y += PDF_STYLES.paragraphSpacing;
+        
+        const basedOnCardHeight = (reportContent.basedOn.length + 1) * (PDF_STYLES.smallSize * 0.7) + 12;
+        checkY(basedOnCardHeight);
+        doc.setFillColor(PDF_COLORS.sectionDefault.bg[0], PDF_COLORS.sectionDefault.bg[1], PDF_STYLES.sectionDefault.bg[2]);
+        doc.roundedRect(margins.left, y, usableWidth, basedOnCardHeight, 2, 2, 'F');
+        let cardY = y + 6;
+        cardY += addTextWithFormatting(`Gebaseerd op:`, margins.left + 5, cardY, { fontSize: PDF_STYLES.smallSize, fontStyle: 'bold', color: PDF_COLORS.mutedForeground });
+        reportContent.basedOn.forEach(line => {
+            cardY += addTextWithFormatting(`- ${line}`, margins.left + 7, cardY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
         });
-        doc.setFont(PDF_STYLES.fontFamily, "normal");
-        doc.setTextColor(PDF_COLORS.foreground[0], PDF_COLORS.foreground[1], PDF_COLORS.foreground[2]);
-        return currentY;
-      };
+        y += basedOnCardHeight + PDF_STYLES.paragraphSpacing;
+        
+        y += addTextWithFormatting(reportContent.generatedAt, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+        y += PDF_STYLES.sectionSpacing;
+        
+        reportContent.sections.forEach(drawSectionCard);
 
-      const drawSectionCard = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
-          const cardInnerWidth = usableWidth - (PDF_STYLES.cardPaddingX * 2);
-          
-          let tempDoc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-          let tempY = 0;
-          tempY = addTextWithFormatting(sectionData.title, 0, tempY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', maxWidth: cardInnerWidth }, tempDoc);
-          tempY += PDF_STYLES.paragraphSpacing;
-
-          sectionData.content.forEach(item => {
-              tempY = addTextWithFormatting(item, 0, tempY, { maxWidth: cardInnerWidth - 8 }, tempDoc);
-              tempY += PDF_STYLES.paragraphSpacing;
-          });
-          const contentHeight = tempY;
-
-          const cardTotalHeight = contentHeight + (PDF_STYLES.cardPaddingY * 3); // Increased vertical padding
-
-          if (currentY + cardTotalHeight > pageHeight - margins.bottom) {
-              doc.addPage();
-              currentY = margins.top;
-          }
-          
-          doc.setFillColor(sectionData.colorTheme.bg[0], sectionData.colorTheme.bg[1], sectionData.colorTheme.bg[2]);
-          doc.roundedRect(margins.left, currentY, usableWidth, cardTotalHeight, PDF_STYLES.cardRadius, PDF_STYLES.cardRadius, 'F');
-          
-          let textY = currentY + PDF_STYLES.cardPaddingY + 5; // Increased top padding
-          textY = addTextWithFormatting(sectionData.title, margins.left + PDF_STYLES.cardPaddingX, textY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, maxWidth: cardInnerWidth });
-          textY += PDF_STYLES.paragraphSpacing;
-
-          sectionData.content.forEach(item => {
-              doc.setFillColor(sectionData.colorTheme.bullet[0], sectionData.colorTheme.bullet[1], sectionData.colorTheme.bullet[2]);
-              doc.circle(margins.left + PDF_STYLES.cardPaddingX + 2.5, textY, 1.5, 'F');
-              textY = addTextWithFormatting(item, margins.left + PDF_STYLES.cardPaddingX + 8, textY, { color: sectionData.colorTheme.text, maxWidth: cardInnerWidth - 8 });
-              textY += PDF_STYLES.paragraphSpacing;
-          });
-          
-          return currentY + cardTotalHeight + PDF_STYLES.sectionSpacing;
-      };
-
-      // Start building PDF
-      y = addTextWithFormatting(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
-      y = addTextWithFormatting(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
-      y += PDF_STYLES.paragraphSpacing;
-      
-      y = addTextWithFormatting(reportContent.intro, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.foreground });
-      y += PDF_STYLES.paragraphSpacing;
-
-      y = addTextWithFormatting(`Gebaseerd op:`, margins.left, y, { fontSize: PDF_STYLES.normalSize, fontStyle: 'italic', color: PDF_COLORS.mutedForeground });
-      reportContent.basedOn.forEach(line => {
-        y = addTextWithFormatting(`- ${line}`, margins.left + 2, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
-      });
-      y = addTextWithFormatting(reportContent.generatedAt, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
-      y += PDF_STYLES.sectionSpacing;
-      
-      reportContent.sections.forEach(section => {
-          y = drawSectionCard(y, section);
-      });
-      
-      addPageFooter();
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFont(PDF_STYLES.fontFamily, "italic");
+            doc.setFontSize(PDF_STYLES.smallSize);
+            doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_STYLES.mutedForeground[2]);
+            const footerText = `Rapport gegenereerd via www.mindnavigator.io - Pagina ${i} van ${pageCount}`;
+            doc.text(footerText, margins.left, pageHeight - 10);
+        }
       
       const fileName = `vergelijkende_analyse_${childName.toLowerCase().replace(' ', '_')}.pdf`;
       doc.save(fileName);
