@@ -178,3 +178,13 @@ body {
     color: hsl(var(--primary-foreground));
   }
 }
+
+@media print {
+  .print-hide {
+    display: none;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
