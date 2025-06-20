@@ -62,7 +62,7 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 }
 
 const PDF_COLORS = {
-  primary: hslToRgb(25, 78, 52), // Oranje Hoofdkleur
+  primary: hslToRgb(25, 78, 52), // Oranje Hoofdkleur (was 27, 86, 50 - iets aangepast voor betere leesbaarheid op wit indien nodig)
   accent: hslToRgb(168, 76, 42), // Teal
   foreground: hslToRgb(210, 40, 10), 
   mutedForeground: hslToRgb(210, 20, 45), 
@@ -186,34 +186,54 @@ export default function VoorbeeldAnalyseRapportPage() {
         const fontSize = options.fontSize || PDF_STYLES.normalSize;
         doc.setFontSize(fontSize);
         if (options.color) doc.setTextColor(options.color[0], options.color[1], options.color[2]);
-        if (options.fontStyle) doc.setFont(PDF_STYLES.fontFamily, options.fontStyle);
+        if (options.fontStyle) doc.setFont(PDF_STYLES.fontFamily, options.fontStyle || "normal"); // Ensure fontStyle is applied
         
         const lineHeight = fontSize * (options.lineHeightFactor || PDF_STYLES.lineHeightFactor); 
-        let lines: string[] | Element;
         
-        // Basic HTML stripping for PDF line splitting and rendering
-        const plainTextForSplitting = text.replace(/<strong>(.*?)<\/strong>/g, '$1') // Bolds
-                                        .replace(/<em>(.*?)<\/em>/g, '$1') // Italics
-                                        .replace(/<span class='text-xs'>(.*?)<\/span>/g, '$1') // Spans for text-xs
-                                        .replace(/<br\s*\/?>/g, '\n'); // Line breaks
+        const plainTextForSplitting = text
+                                        .replace(/<strong>(.*?)<\/strong>/gi, (match, p1) => `%%BOLD_START%%${p1}%%BOLD_END%%`)
+                                        .replace(/<em>(.*?)<\/em>/gi, (match, p1) => `%%ITALIC_START%%${p1}%%ITALIC_END%%`)
+                                        .replace(/<span class='text-xs'>(.*?)<\/span>/gi, '$1') 
+                                        .replace(/<br\s*\/?>/gi, '\n')
+                                        .replace(/&nbsp;/gi, ' ')
+                                        .replace(/&amp;/gi, '&')
+                                        .replace(/&lt;/gi, '<')
+                                        .replace(/&gt;/gi, '>');
 
-        lines = doc.splitTextToSize(plainTextForSplitting, options.maxWidth || usableWidth);
+
+        const lines = doc.splitTextToSize(plainTextForSplitting, options.maxWidth || usableWidth);
         
-        (lines as string[]).forEach((line: string) => {
+        lines.forEach((line: string) => {
           if (currentY + lineHeight > pageHeight - margins.bottom) {
             doc.addPage();
             currentY = margins.top;
           }
-          // For actual rendering, we can try to respect very basic HTML if isHtml is true, or just render plain text
-          if (options.isHtml) {
-            // jsPDF's html method is experimental and has limitations. 
-            // For simple bold/italic, manual font style changes might be better if `html` doesn't work well.
-            // For now, rendering as plain text for simplicity in this example.
-            doc.text(line.replace(/<[^>]*>?/gm, ''), x, currentY, {lineHeightFactor: options.lineHeightFactor || 1.15 });
-          } else {
-            doc.text(line, x, currentY, {lineHeightFactor: options.lineHeightFactor || 1.15 });
-          }
+          
+          let currentX = x;
+          const segments = line.split(/(%%BOLD_START%%|%%BOLD_END%%|%%ITALIC_START%%|%%ITALIC_END%%)/g);
+          let isBold = false;
+          let isItalic = false;
+
+          segments.forEach(segment => {
+            if (segment === '%%BOLD_START%%') {
+              isBold = true;
+              doc.setFont(PDF_STYLES.fontFamily, isItalic ? "bolditalic" : "bold");
+            } else if (segment === '%%BOLD_END%%') {
+              isBold = false;
+              doc.setFont(PDF_STYLES.fontFamily, isItalic ? "italic" : "normal");
+            } else if (segment === '%%ITALIC_START%%') {
+              isItalic = true;
+              doc.setFont(PDF_STYLES.fontFamily, isBold ? "bolditalic" : "italic");
+            } else if (segment === '%%ITALIC_END%%') {
+              isItalic = false;
+              doc.setFont(PDF_STYLES.fontFamily, isBold ? "bold" : "normal");
+            } else if (segment) {
+              doc.text(segment, currentX, currentY);
+              currentX += doc.getStringUnitWidth(segment) * fontSize * (doc.internal as any).scaleFactor;
+            }
+          });
           currentY += lineHeight;
+          doc.setFont(PDF_STYLES.fontFamily, "normal"); // Reset font style for next line
         });
         
         doc.setTextColor(PDF_COLORS.foreground[0], PDF_COLORS.foreground[1], PDF_COLORS.foreground[2]); // Reset color
@@ -233,9 +253,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         y = addTextLines(section.title, margins.left, y, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
         y += PDF_STYLES.paragraphSpacing / 2;
         section.content.forEach(item => {
-            // Basic HTML stripping for PDF
-            const plainItem = item.replace(/<strong>(.*?)<\/strong>/g, '$1').replace(/<em>(.*?)<\/em>/g, '$1').replace(/<span.*?>(.*?)<\/span>/g, '$1').replace(/<br\s*\/?>/g, '\n');
-            y = addTextLines(`• ${plainItem}`, margins.left + 5, y, { color: PDF_COLORS.foreground, lineHeightFactor: 0.5 });
+            y = addTextLines(`• ${item}`, margins.left + 5, y, { color: PDF_COLORS.foreground, lineHeightFactor: 0.5, isHtml: true });
         });
         y += PDF_STYLES.sectionSpacing;
       });
