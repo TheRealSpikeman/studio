@@ -22,8 +22,8 @@ const reportContent = {
         title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
         Icon: Target,
         items: [
-          { title: "Focus op School", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak." },
-          { title: "Sociale Interacties", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft." },
+          { type: "[Inzicht]", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak. Dit verschil biedt een kans om samen te onderzoeken welke onderwerpen haar energie geven en welke niet." },
+          { type: "[Inzicht]", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. Dit kan een verschil in definitie zijn: wat u ziet als terughoudendheid, ervaart zij mogelijk als bewuste keuze." },
         ]
       },
       {
@@ -31,8 +31,8 @@ const reportContent = {
         title: "2. Gedeelde Sterktes: Waar Jullie Het Eens Zijn",
         Icon: ThumbsUp,
         items: [
-          { title: "Creativiteit", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament." },
-          { title: "Doorzettingsvermogen", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten." },
+          { type: "[Gedeelde Kracht]", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament dat kan worden ingezet om schoolwerk leuker te maken, bijvoorbeeld door visuele samenvattingen te maken." },
+          { type: "[Gedeelde Kracht]", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten. Benoem dit doorzettingsvermogen als een compliment om haar zelfvertrouwen te versterken." },
         ]
       },
       {
@@ -41,7 +41,7 @@ const reportContent = {
         Icon: EyeOff,
         items: [
           { type: "[Reflectiepunt]", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
-          { type: "[KANS]", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen." },
+          { type: "[KANS]", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze." },
         ]
       },
       {
@@ -110,7 +110,7 @@ export default function ComparativeAnalysisReportPage() {
                     {reportContent.sections.map((section) => {
                         const SectionIcon = section.Icon;
                         return (
-                            <Card key={section.id} className="shadow-md border-gray-200">
+                            <Card key={section.id} className="shadow-md border-gray-200 print-avoid-break">
                                 <CardHeader>
                                     <CardTitle className="text-2xl font-semibold text-primary flex items-center gap-3">
                                         <SectionIcon className="h-7 w-7" />
