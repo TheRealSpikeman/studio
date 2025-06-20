@@ -96,24 +96,24 @@ export default function CoachingAanbodPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/5 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto px-4">
-          <header className="text-center mb-12 md:mb-16">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12 md:mb-16">
             <Sparkles className="mx-auto h-16 w-16 text-primary mb-6" />
             <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
               Ons Coaching & Ondersteuningsaanbod
             </h1>
-            <p className="mt-3 text-lg text-accent font-medium">
+            <p className="mt-3 text-lg text-muted-foreground">
               Speciaal ontworpen voor neurodivergente jongeren (12-18 jaar) en hun ouders.
             </p>
-            <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="mt-4 text-base text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               MindNavigator biedt verschillende vormen van ondersteuning, passend bij jouw behoeften. Van digitale zelfhulp tot persoonlijke 1-op-1 begeleiding.
             </p>
-          </header>
+          </div>
 
           <Alert variant="default" className="mb-12 md:mb-16 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
             <ShieldCheck className="h-5 w-5 !text-blue-600" />
             <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
-            <AlertDescriptionUi className="text-blue-600">
+            <AlertDescriptionUi className="text-blue-600 text-sm">
             MindNavigator stelt geen medische diagnoses. Onze focus ligt op het bieden van inzicht, praktische tools en het versterken van zelfvertrouwen. Voor diagnostiek en medische behandeling verwijzen wij altijd naar gekwalificeerde professionals.
             </AlertDescriptionUi>
           </Alert>
@@ -174,7 +174,7 @@ export default function CoachingAanbodPage() {
             </div>
           </section>
 
-          <section className="mt-16 text-center max-w-2xl mx-auto">
+          <section className="mt-12 pt-8 border-t border-border text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-4">Klaar om de volgende stap te zetten?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Of je nu net begint met zelfontdekking of op zoek bent naar specifieke begeleiding, MindNavigator is er om je te ondersteunen.
@@ -195,4 +195,3 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
-

@@ -58,81 +58,85 @@ export default function SamenwerkingenPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto">
-          <Card className="shadow-xl max-w-4xl mx-auto mb-12">
-            <CardHeader className="text-center pb-8">
-              <ShieldCheck className="mx-auto h-16 w-16 text-primary mb-4" />
-              <CardTitle className="text-4xl font-bold text-foreground">Onze Partners & Deskundigheid</CardTitle>
-              <CardDescription className="text-lg text-muted-foreground mt-2">
-                De kwaliteit en betrouwbaarheid van MindNavigator wordt ondersteund door samenwerking met professionals.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 text-lg leading-relaxed text-foreground/90">
-              <p>
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12 md:mb-16">
+            <ShieldCheck className="mx-auto h-16 w-16 text-primary mb-4" />
+            <h1 className="text-4xl font-bold text-foreground">Onze Partners & Deskundigheid</h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              De kwaliteit en betrouwbaarheid van MindNavigator wordt ondersteund door samenwerking met professionals.
+            </p>
+          </div>
+          
+          <div className="space-y-10 text-base leading-relaxed text-foreground/90">
+            <section className="mb-12">
+              <p className="mb-4">
                 Bij MindNavigator geloven we sterk in de kracht van samenwerking en de waarde van wetenschappelijk onderbouwde inzichten. Om ervoor te zorgen dat onze content, zelfreflectie-instrumenten en coaching-elementen aansluiten bij de laatste kennis en ethische standaarden, werken wij samen met en laten wij ons adviseren door experts op het gebied van kinder- en jeugdpsychologie, orthopedagogiek en neurodiversiteit.
               </p>
               <p>
                 Deze professionals helpen ons de kwaliteit te waarborgen en ervoor te zorgen dat MindNavigator een veilige, verantwoorde en effectieve tool is voor jongeren en hun ouders. Hieronder stellen we enkele van onze belangrijke adviseurs en partners voor.
               </p>
-            </CardContent>
-          </Card>
+            </section>
 
-          <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-8">
-            {partnersData.map((partner) => (
-              <Card key={partner.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-6 flex flex-col md:flex-row items-start gap-x-6 gap-y-4">
-                  <div className="md:w-1/4 flex-shrink-0 text-center md:text-left">
-                    <div className="relative mx-auto md:mx-0 aspect-square w-36 h-36 md:w-40 md:h-40 rounded-lg overflow-hidden shadow-md mb-3">
-                      <Image
-                        src={partner.imageUrl}
-                        alt={`Foto van ${partner.name}`}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        data-ai-hint={partner.imageHint}
-                      />
+            <div className="space-y-10">
+              {partnersData.map((partner) => (
+                <Card key={partner.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                  <CardContent className="p-0 md:p-0">
+                    <div className="flex flex-col md:flex-row items-start">
+                      <div className="md:w-1/3 flex-shrink-0 relative">
+                        <div className="aspect-square w-full md:w-full h-auto md:h-full">
+                          <Image
+                            src={partner.imageUrl}
+                            alt={`Foto van ${partner.name}`}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            data-ai-hint={partner.imageHint}
+                          />
+                        </div>
+                      </div>
+                      <div className="md:w-2/3 p-6 space-y-3">
+                        <div>
+                          <h3 className="text-2xl font-semibold text-primary mb-1">{partner.name}</h3>
+                          <p className="text-md text-muted-foreground font-medium">{partner.title}</p>
+                           <div className="mt-2 flex space-x-3">
+                              {partner.websiteUrl && (
+                                  <Link href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                                      <ExternalLink className="h-5 w-5" />
+                                      <span className="sr-only">Website</span>
+                                  </Link>
+                              )}
+                              {partner.linkedinUrl && (
+                                  <Link href={partner.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                                      <Linkedin className="h-5 w-5" />
+                                      <span className="sr-only">LinkedIn</span>
+                                  </Link>
+                              )}
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-foreground mb-1.5">Over {partner.name.split(' ')[0]}</h4>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{partner.bio}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-foreground mb-1.5">Bijdrage aan MindNavigator</h4>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{partner.contribution}</p>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-primary">{partner.name}</h3>
-                    <p className="text-sm text-muted-foreground">{partner.title}</p>
-                    <div className="mt-2 flex justify-center md:justify-start space-x-3">
-                        {partner.websiteUrl && (
-                            <Link href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-                                <ExternalLink className="h-5 w-5" />
-                                <span className="sr-only">Website</span>
-                            </Link>
-                        )}
-                        {partner.linkedinUrl && (
-                             <Link href={partner.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-                                <Linkedin className="h-5 w-5" />
-                                <span className="sr-only">LinkedIn</span>
-                            </Link>
-                        )}
-                    </div>
-                  </div>
-                  <div className="md:w-3/4 space-y-4">
-                    <div>
-                      <h4 className="text-lg font-semibold text-foreground mb-1.5">Over {partner.name.split(' ')[0]}</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{partner.bio}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-foreground mb-1.5">Bijdrage aan MindNavigator</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{partner.contribution}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <section className="mt-12 pt-8 border-t border-border text-center">
+              <p className="text-muted-foreground mb-4">
+                  MindNavigator blijft zich ontwikkelen. We staan altijd open voor nieuwe samenwerkingen met experts en organisaties die onze missie delen. 
+                  <Link href="/contact" className="text-primary hover:underline font-medium"> Neem contact op</Link> als u geïnteresseerd bent.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Bezoek ook onze <Link href="/about" className="text-primary hover:underline font-medium">Over Ons</Link> pagina voor meer informatie.
+              </p>
+            </section>
           </div>
-           <Card className="shadow-xl max-w-4xl mx-auto mt-12">
-             <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">
-                    MindNavigator blijft zich ontwikkelen. We staan altijd open voor nieuwe samenwerkingen met experts en organisaties die onze missie delen. 
-                    <Link href="/contact" className="text-primary hover:underline font-medium"> Neem contact op</Link> als u geïnteresseerd bent.
-                </p>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Bezoek ook onze <Link href="/about" className="text-primary hover:underline font-medium">Over Ons</Link> pagina voor meer informatie.
-                </p>
-             </CardContent>
-           </Card>
         </div>
       </main>
       <Footer />
