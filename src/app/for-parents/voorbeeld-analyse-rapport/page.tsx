@@ -100,6 +100,13 @@ const PDF_COLORS = {
     text: hslToRgb(262, 40, 10),
     title: hslToRgb(262, 85, 45),
   },
+  sectionDefault: {
+    bg: hslToRgb(210, 17, 98), // Very light gray
+    border: hslToRgb(210, 10, 80), // Main border color
+    text: hslToRgb(210, 20, 45), // Muted foreground
+    title: hslToRgb(210, 40, 10), // Main foreground
+  },
+  orange: hslToRgb(25, 78, 52),
 };
 
 const PDF_STYLES = {
