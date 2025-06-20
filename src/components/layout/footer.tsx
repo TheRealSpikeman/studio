@@ -84,6 +84,9 @@ export function Footer() {
                 <Link href="/feedback" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Feedback (Alpha)
                 </Link>
+                 <Link href="/invest" className="text-sm text-accent hover:text-accent/80 hover:underline font-semibold">
+                  Investment Proposal (Temp)
+                </Link>
             </nav>
           </div>
 
