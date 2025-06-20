@@ -38,13 +38,13 @@ export default function ForParentsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto max-w-4xl space-y-12"> {/* Hoofd container met space-y */}
+      <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background pt-16 md:pt-24 lg:pt-32 pb-12 md:pb-20 lg:pb-28">
+        <div className="container mx-auto max-w-4xl space-y-12">
           
-          <header className="text-center pb-8"> {/* Header sectie zonder Card */}
+          <header className="text-center pb-8">
             <Users className="mx-auto h-16 w-16 text-primary mb-4" />
             <h1 className="text-4xl font-bold text-foreground">Informatie voor Ouders</h1>
-            <p className="text-lg text-muted-foreground mt-2">
+            <p className="text-xl text-muted-foreground mt-2">
               Ontdek hoe MindNavigator uw kind kan ondersteunen op hun reis naar zelfinzicht en groei.
             </p>
           </header>
@@ -77,7 +77,7 @@ export default function ForParentsPage() {
                 <HeartHandshake className="h-7 w-7" />
                 Hoe ondersteunen wij uw kind?
                 </h2>
-                <ul className="list-disc list-inside space-y-2 pl-5">
+                <ul className="list-disc list-inside space-y-2 pl-5 text-base">
                     <li><strong>Zelfinzicht:</strong> Heldere overzichten die neurodivergente eigenschappen (zoals aandachtspatronen, gevoeligheid, sociale voorkeuren) uitleggen in begrijpelijke taal.</li>
                     <li><strong>Praktische Tips:</strong> Concrete strategieën voor school, thuis, en sociale situaties, afgestemd op hun leeftijd en profiel.</li>
                     <li><strong>Dagelijkse Groei:</strong> Via de (premium) coaching-hub dagelijkse affirmaties, reflectie-oefeningen en tools voor planning en focus.</li>
@@ -87,7 +87,7 @@ export default function ForParentsPage() {
           </div>
           
           <section>
-            <Card className="bg-orange-50/70 border-2 border-primary/30 shadow-lg">
+            <Card className="bg-orange-50/70 border-2 border-primary/30 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3 mb-2">
                   <Search className="h-8 w-8 text-primary" />
@@ -141,7 +141,7 @@ export default function ForParentsPage() {
               Belangrijk: MindNavigator en Professionele Hulp
             </h2>
             <p>
-              MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link>.
+              MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
             </p>
           </section>
 
