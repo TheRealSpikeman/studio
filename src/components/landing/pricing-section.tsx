@@ -1,8 +1,9 @@
+
 // src/components/landing/pricing-section.tsx
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { CheckCircle2, Users, BarChart3, ExternalLink, FileText } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,11 +13,11 @@ export function PricingSection() {
       <div className="container">
         <CardHeader className="text-center max-w-2xl mx-auto pb-8">
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-3 flex items-center justify-center gap-2">
-                <FileText className="h-9 w-9 text-primary" /> {/* Changed icon */}
-                Ontdek Onze Plannen
+                <FileText className="h-9 w-9 text-primary" />
+                Heldere Plannen, Directe Waarde
             </CardTitle>
             <CardDescription className="text-lg text-muted-foreground">
-                Kies het plan dat het beste past bij de behoeften van uw gezin. Elk pad begint met een persoonlijke assessment om de MindNavigator ervaring op maat te maken.
+                Start gratis en ontdek de basis, of kies een compleet pakket voor de volledige MindNavigator ervaring. Elk pad begint met een waardevolle, persoonlijke assessment voor uw kind.
             </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
@@ -26,7 +27,7 @@ export function PricingSection() {
               </Link>
             </Button>
              <p className="mt-6 text-sm text-muted-foreground">
-                Alle plannen (inclusief gratis start) beginnen met een waardevolle persoonlijke assessment.
+                Transparante prijzen, geen verborgen kosten. Inclusief een gratis startoptie.
             </p>
         </CardContent>
       </div>

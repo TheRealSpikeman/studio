@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { FileText, Puzzle, MessageSquareText, BookOpenCheck, Users, BarChart3, ExternalLink } from 'lucide-react';
+import { FileText, Puzzle, MessageSquareText, BookOpenCheck, Users, BarChart3, ExternalLink, ArrowRight } from 'lucide-react';
 
 export function HeroSection() {
   return (
@@ -11,39 +11,39 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Ondersteun uw kind bij <span className="text-primary">neurodiversiteit</span>
+            Navigeer Samen met uw Kind door <span className="text-primary">Neurodiversiteit</span>
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            Maakt u zich zorgen over de concentratie, sociale interacties of schoolprestaties van uw tiener? Voelt u dat uw kind anders denkt of leert? MindNavigator biedt u en uw kind inzicht in neurodiversiteit (door het verkennen van aandachtspatronen, sociale en sensorische voorkeuren, etc.) via zelfreflectie-instrumenten. Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>neurodiversiteit <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>. Ontdek samen sterke punten en praktische strategieën om uitdagingen op school en thuis aan te gaan.
+            Herkent u dat uw tiener anders denkt, leert, of de wereld beleeft? Worstel u met concentratie, sociale interacties, of schoolprestaties? MindNavigator biedt u en uw kind concrete inzichten in neurodiversiteit (zoals aandachtspatronen, sociale en sensorische voorkeuren). Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>neurodiversiteit <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>. Ontdek samen sterke punten en praktische strategieën voor thuis en op school.
           </p>
           <ul className="space-y-3 text-muted-foreground md:text-lg text-left self-center md:self-start">
             <li className="flex items-center gap-3">
               <FileText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Uitgebreide overzichten voor inzicht in uw kind (PDF).</span>
+              <span>Krijg uitgebreide PDF-overzichten voor diepgaand inzicht.</span>
             </li>
             <li className="flex items-center gap-3">
               <MessageSquareText className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Dagelijkse coaching &amp; routines voor uw kind (premium).</span>
+              <span>Ontvang dagelijkse coaching & routines voor uw kind (premium).</span>
             </li>
             <li className="flex items-center gap-3">
               <BookOpenCheck className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Huiswerkbegeleiding tools en concrete tips.</span>
+              <span>Benut praktische huiswerkbegeleiding tools en tips.</span>
             </li>
              <li className="flex items-center gap-3">
               <BarChart3 className="h-6 w-6 text-primary flex-shrink-0" />
-              <span>Volg voortgang via uw eigen ouder-dashboard.</span>
+              <span>Volg de voortgang eenvoudig via uw eigen ouder-dashboard.</span>
             </li>
           </ul>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center justify-center md:justify-start pt-4">
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-3 text-base sm:py-6 sm:text-lg">
-              <Link href="/quiz/ouder-symptomen-check">Doe de Symptomen Check (voor ouders)</Link>
+              <Link href="/quiz/ouder-symptomen-check">Doe de "Ken je Kind" Check (voor ouders) <ArrowRight className="ml-2 h-5 w-5"/></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow px-8 py-3 text-base sm:py-6 sm:text-lg">
               <Link href="/for-parents">Meer informatie voor ouders</Link>
             </Button>
           </div>
            <p className="text-sm text-muted-foreground mt-3">
-            ★ 4.8 – Ouders waarderen onze aanpak!
+            ★ 4.8 – Ouders waarderen onze concrete aanpak!
           </p>
         </div>
         {/* Image column */}
