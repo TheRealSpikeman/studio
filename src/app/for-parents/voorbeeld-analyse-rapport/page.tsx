@@ -1,3 +1,4 @@
+
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
@@ -62,23 +63,42 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 }
 
 const PDF_COLORS = {
-  primary: hslToRgb(25, 78, 52), // Oranje Hoofdkleur (was 27, 86, 50 - iets aangepast voor betere leesbaarheid op wit indien nodig)
+  primary: hslToRgb(25, 78, 52), // Oranje Hoofdkleur
   accent: hslToRgb(168, 76, 42), // Teal
   foreground: hslToRgb(210, 40, 10), 
   mutedForeground: hslToRgb(210, 20, 45), 
   background: hslToRgb(200, 17, 94), 
   card: hslToRgb(0,0,100), 
   border: hslToRgb(210, 10, 80), 
-  green: hslToRgb(145, 63, 42), 
-  yellow: hslToRgb(48, 96, 59), 
-  blue: hslToRgb(207, 90, 54), 
-  orange: hslToRgb(25, 78, 52), 
-  purple: hslToRgb(262, 85, 55),
-  sectionDefault: {
-    bg: hslToRgb(210, 20, 98), 
-    border: hslToRgb(210, 10, 80), 
+  sectionBlue: {
+    bg: hslToRgb(210, 100, 98), 
+    border: hslToRgb(207, 90, 54), 
     text: hslToRgb(210, 40, 10), 
-    title: hslToRgb(210, 40, 25), 
+    title: hslToRgb(207, 90, 44), 
+  },
+  sectionGreen: {
+    bg: hslToRgb(120, 60, 95), 
+    border: hslToRgb(145, 63, 42), 
+    text: hslToRgb(120, 40, 10),
+    title: hslToRgb(145, 63, 32),
+  },
+  sectionOrange: {
+    bg: hslToRgb(39, 100, 97), 
+    border: hslToRgb(35, 100, 50), 
+    text: hslToRgb(39, 40, 10),
+    title: hslToRgb(35, 100, 40),
+  },
+  sectionYellow: { 
+    bg: hslToRgb(50, 100, 97), 
+    border: hslToRgb(45, 100, 50), 
+    text: hslToRgb(50, 40, 10),
+    title: hslToRgb(45, 100, 40),
+  },
+  sectionPurple: {
+    bg: hslToRgb(262, 85, 97),
+    border: hslToRgb(262, 85, 55),
+    text: hslToRgb(262, 40, 10),
+    title: hslToRgb(262, 85, 45),
   },
 };
 
@@ -107,6 +127,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
         Icon: EyeOff,
         iconColorClass: "text-orange-600",
+        colorTheme: PDF_COLORS.sectionOrange,
         content: [
           "<strong>Focus op School:</strong> U geeft aan dat Sofie vaak moeite heeft met concentreren op schoolwerk. Sofie zelf ervaart dit minder als een probleem, en geeft aan dat het meer afhangt van de interesse in het vak. <span class='text-xs'>(<em>Mogelijkheid: Verschil in definitie van 'focus' of observatiemomenten.</em>)</span>",
           "<strong>Sociale Interacties:</strong> U ziet Sofie als soms wat terughoudend in nieuwe groepen. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. <span class='text-xs'>(<em>Mogelijkheid: Interpretatieverschil tussen introversie en verlegenheid.</em>)</span>",
@@ -118,6 +139,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "2. Gedeelde Sterktes: Wat Zien Jullie Beiden Positief?",
         Icon: ThumbsUp,
         iconColorClass: "text-green-600",
+        colorTheme: PDF_COLORS.sectionGreen,
         content: [
           "<strong>Creativiteit:</strong> Zowel u als Sofie benoemen haar creatieve talenten. U noemt haar tekenvaardigheid, Sofie haar vermogen om originele verhalen te bedenken. <span class='text-xs'>(<em>Tip: Stimuleer dit door samen een 'creatief project van de week' te kiezen, of een speciaal notitieboek voor haar verhalen te geven.</em>)</span>",
           "<strong>Doorzettingsvermogen:</strong> U ziet dat Sofie kan doorzetten als ze iets echt wil (bijv. sport). Sofie is trots op het feit dat ze een moeilijk project voor school heeft afgemaakt. <span class='text-xs'>(<em>Tip: Benoem en vier deze successen expliciet om dit te versterken.</em>)</span>",
@@ -128,6 +150,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "3. Blinde Vlekken: Wat Mist Mogelijk Eén Partij?",
         Icon: Lightbulb,
         iconColorClass: "text-yellow-500",
+        colorTheme: PDF_COLORS.sectionYellow,
         content: [
           "<strong>Impact van Sensorische Prikkels (Kind Ziet, Ouder Minder):</strong> Sofie geeft aan soms overprikkeld te raken door geluid en drukte in de klas, iets wat u mogelijk minder direct opmerkt thuis. <span class='text-xs'>(<em>Reflectiepunt voor ouder: Observeer Sofie's reactie in drukke omgevingen buitenshuis en bespreek of ze strategieën nodig heeft om hiermee om te gaan, zoals het gebruik van een koptelefoon.</em>)</span>",
           "<strong>Behoefte aan Externe Validatie (Ouder Ziet, Kind Minder):</strong> U geeft aan dat Sofie soms onzeker kan zijn en bevestiging zoekt. Sofie zelf noemt dit niet direct als een groot punt in haar zelfreflectie, maar focust meer op haar prestaties. <span class='text-xs'>(<em>Reflectiepunt voor ouder: Sofie is zich mogelijk niet bewust van hoe haar zoektocht naar validatie overkomt, of het is een normale ontwikkelingsfase. Blijf haar aanmoedigen en geef opbouwende feedback op haar proces, niet alleen het resultaat.</em>)</span>"
@@ -137,6 +160,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "4. Communicatie Kansen: Hoe Beter Afstemmen?",
         Icon: MessageCircle,
         iconColorClass: "text-blue-600",
+        colorTheme: PDF_COLORS.sectionBlue,
         content: [
           "Praat met Sofie over het verschil in beleving rondom 'focus op school'. Vraag: \"Sofie, ik merk soms dat je het lastig vindt met schoolwerk. Hoe ervaar jij dat? Wat helpt jou om je aandacht erbij te houden? En wanneer vind je het écht moeilijk?\"",
           "Erken haar selectiviteit in vriendschappen. Een goede gespreksopener kan zijn: \"Ik zie dat je het fijn hebt met [naam vriend/vriendin]. Wat vind je zo leuk aan hem/haar? En wat voor soort dingen vind je belangrijk in een vriendschap?\"",
@@ -148,6 +172,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "5. Familie Actieplan: Concreet & Haalbaar",
         Icon: ClipboardList,
         iconColorClass: "text-purple-600",
+        colorTheme: PDF_COLORS.sectionPurple,
         content: [
           "<strong>Actie: \"Wekelijks Creatief Uurtje\"</strong> - Blok wekelijks een 'Creatief Uurtje' in de agenda voor Sofie (en eventueel samen). Bespreek vooraf wat ze wil doen (tekenen, schrijven, knutselen). Zorg voor de benodigde materialen.",
           "<strong>Actie: \"Focus Plan Samen Maken\"</strong> - Maak samen met Sofie een visueel 'Focus Plan' voor de week (bijv. op een whiteboard). Identificeer 'focus-taken' (huiswerk, leren) en 'rust-taken' (hobby, ontspanning) en plan deze afwisselend in, inclusief korte pauzes (Pomodoro-techniek).",
@@ -158,6 +183,7 @@ export default function VoorbeeldAnalyseRapportPage() {
         title: "6. Belangrijke Overwegingen",
         Icon: Info,
         iconColorClass: "text-foreground",
+        colorTheme: PDF_COLORS.sectionDefault,
         content: [
           "Dit rapport is een momentopname en bedoeld als startpunt voor gesprek en begrip. Het is geen diagnostisch instrument.",
           "De perspectieven van zowel u als Sofie zijn waardevol. Er is geen 'goed' of 'fout' in hoe jullie dingen ervaren.",
@@ -169,99 +195,92 @@ export default function VoorbeeldAnalyseRapportPage() {
     disclaimer: "De inhoud van dit rapport is fictief en dient puur ter illustratie van de structuur en het soort inzichten dat u kunt verwachten van de Vergelijkende Analyse. Echte rapporten worden gegenereerd op basis van de daadwerkelijk ingevulde quizzen."
   };
 
-  const handlePdfDownloadClick = () => {
+ const handlePdfDownloadClick = () => {
     try {
-      const doc = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4'
-      });
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
       const pageHeight = doc.internal.pageSize.height;
       const pageWidth = doc.internal.pageSize.width;
       const margins = PDF_STYLES.pageMargins;
       const usableWidth = pageWidth - margins.left - margins.right;
       let y = margins.top;
 
-      const addTextLines = (text: string, x: number, currentY: number, options: TextOptionsLight & { lineHeightFactor?: number, color?: [number, number, number], fontSize?: number, fontStyle?: string, maxWidth?: number, isHtml?: boolean } = {}) => {
+      const addTextLines = (text: string, x: number, currentY: number, options: TextOptionsLight & { lineHeightFactor?: number, color?: [number, number, number], fontSize?: number, fontStyle?: string, maxWidth?: number } = {}) => {
         const fontSize = options.fontSize || PDF_STYLES.normalSize;
+        const lineHeight = fontSize * (options.lineHeightFactor || PDF_STYLES.lineHeightFactor);
+        doc.setFont(PDF_STYLES.fontFamily, options.fontStyle || "normal");
         doc.setFontSize(fontSize);
-        if (options.color) doc.setTextColor(options.color[0], options.color[1], options.color[2]);
-        if (options.fontStyle) doc.setFont(PDF_STYLES.fontFamily, options.fontStyle || "normal"); // Ensure fontStyle is applied
+        doc.setTextColor(options.color ? options.color[0] : PDF_COLORS.foreground[0], options.color ? options.color[1] : PDF_COLORS.foreground[1], options.color ? options.color[2] : PDF_COLORS.foreground[2]);
         
-        const lineHeight = fontSize * (options.lineHeightFactor || PDF_STYLES.lineHeightFactor); 
-        
-        const plainTextForSplitting = text
-                                        .replace(/<strong>(.*?)<\/strong>/gi, (match, p1) => `%%BOLD_START%%${p1}%%BOLD_END%%`)
-                                        .replace(/<em>(.*?)<\/em>/gi, (match, p1) => `%%ITALIC_START%%${p1}%%ITALIC_END%%`)
-                                        .replace(/<span class='text-xs'>(.*?)<\/span>/gi, '$1') 
-                                        .replace(/<br\s*\/?>/gi, '\n')
-                                        .replace(/&nbsp;/gi, ' ')
-                                        .replace(/&amp;/gi, '&')
-                                        .replace(/&lt;/gi, '<')
-                                        .replace(/&gt;/gi, '>');
-
-
+        const plainTextForSplitting = text.replace(/<strong>(.*?)<\/strong>/gi, '%%BOLD_START%%$1%%BOLD_END%%').replace(/<em>(.*?)<\/em>/gi, '%%ITALIC_START%%$1%%ITALIC_END%%').replace(/<span.*?>/gi, '').replace(/<\/span>/gi, '').replace(/<br\s*\/?>/gi, '\n');
         const lines = doc.splitTextToSize(plainTextForSplitting, options.maxWidth || usableWidth);
-        
+
         lines.forEach((line: string) => {
-          if (currentY + lineHeight > pageHeight - margins.bottom) {
-            doc.addPage();
-            currentY = margins.top;
-          }
-          
+          if (currentY + lineHeight > pageHeight - margins.bottom) { doc.addPage(); currentY = margins.top; }
           let currentX = x;
           const segments = line.split(/(%%BOLD_START%%|%%BOLD_END%%|%%ITALIC_START%%|%%ITALIC_END%%)/g);
-          let isBold = false;
-          let isItalic = false;
-
+          
           segments.forEach(segment => {
-            if (segment === '%%BOLD_START%%') {
-              isBold = true;
-              doc.setFont(PDF_STYLES.fontFamily, isItalic ? "bolditalic" : "bold");
-            } else if (segment === '%%BOLD_END%%') {
-              isBold = false;
-              doc.setFont(PDF_STYLES.fontFamily, isItalic ? "italic" : "normal");
-            } else if (segment === '%%ITALIC_START%%') {
-              isItalic = true;
-              doc.setFont(PDF_STYLES.fontFamily, isBold ? "bolditalic" : "italic");
-            } else if (segment === '%%ITALIC_END%%') {
-              isItalic = false;
-              doc.setFont(PDF_STYLES.fontFamily, isBold ? "bold" : "normal");
-            } else if (segment) {
-              doc.text(segment, currentX, currentY);
-              currentX += doc.getStringUnitWidth(segment) * fontSize * (doc.internal as any).scaleFactor;
-            }
+            if (segment === '%%BOLD_START%%') { doc.setFont(undefined, 'bold'); } 
+            else if (segment === '%%BOLD_END%%') { doc.setFont(undefined, 'normal'); } 
+            else if (segment === '%%ITALIC_START%%') { doc.setFont(undefined, 'italic'); } 
+            else if (segment === '%%ITALIC_END%%') { doc.setFont(undefined, 'normal'); } 
+            else if (segment) { doc.text(segment, currentX, currentY); currentX += doc.getStringUnitWidth(segment) * fontSize / doc.internal.scaleFactor; }
           });
           currentY += lineHeight;
-          doc.setFont(PDF_STYLES.fontFamily, "normal"); // Reset font style for next line
         });
-        
-        doc.setTextColor(PDF_COLORS.foreground[0], PDF_COLORS.foreground[1], PDF_COLORS.foreground[2]); // Reset color
-        doc.setFontSize(PDF_STYLES.normalSize);
-        doc.setFont(PDF_STYLES.fontFamily, "normal"); // Reset font style
+        doc.setFont(PDF_STYLES.fontFamily, "normal");
         return currentY;
       };
-      
-      // Title
+
+      const addSection = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
+          if (currentY + 20 > pageHeight - margins.bottom) { doc.addPage(); currentY = margins.top; }
+          const sectionTitleY = currentY + PDF_STYLES.sectionSpacing;
+          const contentYStart = addTextLines(sectionData.title, margins.left, sectionTitleY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, lineHeightFactor: 0.6 });
+          let contentY = contentYStart + PDF_STYLES.paragraphSpacing / 2;
+          
+          sectionData.content.forEach(item => {
+              const bulletPointY = contentY + 1; // Align bullet with text
+              doc.setFillColor(sectionData.colorTheme.border[0], sectionData.colorTheme.border[1], sectionData.colorTheme.border[2]);
+              doc.circle(margins.left + 2, bulletPointY, 0.7, 'F');
+              contentY = addTextLines(item, margins.left + 5, contentY, { color: sectionData.colorTheme.text, lineHeightFactor: 0.5, maxWidth: usableWidth - 5 });
+          });
+          
+          let rectHeight = contentY - sectionTitleY + PDF_STYLES.paragraphSpacing;
+          if(sectionTitleY - 5 + rectHeight > pageHeight - margins.bottom) { 
+              rectHeight = pageHeight - margins.bottom - (sectionTitleY - 5);
+          }
+          doc.setFillColor(sectionData.colorTheme.bg[0], sectionData.colorTheme.bg[1], sectionData.colorTheme.bg[2]);
+          doc.rect(margins.left - 5, sectionTitleY - 5, usableWidth + 10, rectHeight, 'F');
+          
+          addTextLines(sectionData.title, margins.left, sectionTitleY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, lineHeightFactor: 0.6 });
+          let redrawContentY = contentYStart + PDF_STYLES.paragraphSpacing / 2;
+          sectionData.content.forEach(item => {
+              const bulletPointY = redrawContentY + 1;
+              doc.setFillColor(sectionData.colorTheme.border[0], sectionData.colorTheme.border[1], sectionData.colorTheme.border[2]);
+              doc.circle(margins.left + 2, bulletPointY, 0.7, 'F');
+              redrawContentY = addTextLines(item, margins.left + 5, redrawContentY, { color: sectionData.colorTheme.text, lineHeightFactor: 0.5, maxWidth: usableWidth - 5 });
+          });
+          
+          return contentY + PDF_STYLES.sectionSpacing;
+      }
+
+      // Start building PDF
       y = addTextLines(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
-      y = addTextLines(reportContent.description, margins.left, y, {fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.5});
-      y = addTextLines(`Rapport gegenereerd op: ${format(new Date(), 'PPPp', { locale: nl })}`, margins.left, y, {fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.5});
+      y = addTextLines(reportContent.description, margins.left, y, { fontSize: PDF_STYLES.normalSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.5 });
+      y = addTextLines(`Rapport gegenereerd op: ${format(new Date(), 'PPPp', { locale: nl })}`, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.5 });
       y += PDF_STYLES.sectionSpacing;
-
-      // Sections
+      
+      // Loop through sections
       reportContent.sections.forEach(section => {
-        y = addTextLines(section.title, margins.left, y, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
-        y += PDF_STYLES.paragraphSpacing / 2;
-        section.content.forEach(item => {
-            y = addTextLines(`• ${item}`, margins.left + 5, y, { color: PDF_COLORS.foreground, lineHeightFactor: 0.5, isHtml: true });
-        });
-        y += PDF_STYLES.sectionSpacing;
+          y = addSection(y, section);
       });
-
+      
       // Disclaimer
-      y = addTextLines("Disclaimer", margins.left, y, { fontSize: PDF_STYLES.h3Size, fontStyle: 'bold', color: PDF_COLORS.foreground, lineHeightFactor: 0.6 });
-      y += PDF_STYLES.paragraphSpacing / 2;
-      y = addTextLines(reportContent.disclaimer, margins.left, y, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, lineHeightFactor: 0.5 });
+      const disclaimerRectY = y;
+      const disclaimerContentY = addTextLines(reportContent.disclaimer, margins.left + 2, disclaimerRectY + 5, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, maxWidth: usableWidth - 4 });
+      doc.setDrawColor(PDF_COLORS.orange[0], PDF_COLORS.orange[1], PDF_COLORS.orange[2]);
+      doc.setLineWidth(0.5);
+      doc.rect(margins.left, disclaimerRectY, usableWidth, disclaimerContentY - disclaimerRectY, 'S');
 
       const fileName = `vergelijkende_analyse_rapport_${childName.toLowerCase().replace(' ', '_')}.pdf`;
       doc.save(fileName);
@@ -280,7 +299,6 @@ export default function VoorbeeldAnalyseRapportPage() {
       });
     }
   };
-
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -312,7 +330,7 @@ export default function VoorbeeldAnalyseRapportPage() {
               {reportContent.sections.map((section, index) => (
                 <React.Fragment key={index}>
                   <ReportSection title={section.title} Icon={section.Icon} iconColorClass={section.iconColorClass}>
-                    <ul className="list-none space-y-3 pl-0"> {/* Changed to list-none and adjusted spacing */}
+                    <ul className="list-none space-y-3 pl-0">
                       {section.content.map((item, itemIndex) => (
                         <li key={itemIndex} dangerouslySetInnerHTML={{ __html: item }} className="leading-relaxed"></li>
                       ))}
