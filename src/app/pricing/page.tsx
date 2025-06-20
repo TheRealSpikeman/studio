@@ -271,7 +271,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="pb-16 md:pb-24">
+        <section className="pb-12 md:pb-20"> 
           <div className="container">
             <TooltipProvider>
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
@@ -386,7 +386,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-12 md:py-20 lg:py-28 bg-secondary/20">
+        <section className="pt-12 md:pt-16 pb-12 md:pb-16 bg-secondary/20"> 
           <div className="container max-w-3xl">
             <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
               <MessageCircleQuestion className="h-7 w-7" />
@@ -411,7 +411,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-12 md:py-20 lg:py-28">
+        <section className="pt-12 md:pt-16 pb-12 md:pb-16"> 
           <div className="container max-w-4xl text-center">
              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3 justify-center">
                <ShieldCheck className="h-7 w-7" /> Onze Garanties
@@ -445,7 +445,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-12 md:py-20 lg:py-28 bg-primary/5">
+        <section className="pt-12 md:pt-16 pb-12 md:pb-20 bg-primary/5"> 
           <div className="container max-w-4xl text-center">
             <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3 justify-center">
               <Percent className="h-7 w-7" /> Waarom MindNavigator?
@@ -478,3 +478,4 @@ export default function PricingPage() {
     </div>
   );
 }
+
