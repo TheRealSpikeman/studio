@@ -2,9 +2,10 @@
 "use client";
 
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 
 // --- DATA DEFINITION ---
+// Removed all Icon components and other non-serializable data.
 const reportData = {
     title: "Vergelijkende Analyse",
     subtitle: "Inzichten voor Olivia Ouder en Sofie",
@@ -23,32 +24,32 @@ const reportData = {
         id: 'gaps',
         title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
         items: [
-          { type: "Belangrijk Inzicht", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak. Dit biedt een kans om samen te onderzoeken welke onderwerpen haar energie geven en welke niet." },
-          { type: "Reflectie", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. Dit kan een verschil in definitie zijn: wat u ziet als terughoudendheid, ervaart zij mogelijk als bewuste keuze." },
+          { type: "[BELANGRIJK INZICHT]", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak. Dit biedt een kans om samen te onderzoeken welke onderwerpen haar energie geven en welke niet." },
+          { type: "[REFLECTIE]", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. Dit kan een verschil in definitie zijn: wat u ziet als terughoudendheid, ervaart zij mogelijk als bewuste keuze." },
         ]
       },
       {
         id: 'strengths',
         title: "2. Gedeelde Sterktes: Wat Herkennen Jullie Beiden?",
         items: [
-          { type: "Gedeelde Kracht", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament dat kan worden ingezet om schoolwerk leuker te maken, bijvoorbeeld door visuele samenvattingen te maken." },
-          { type: "Gedeelde Kracht", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten. Benoem dit doorzettingsvermogen als een compliment om haar zelfvertrouwen te versterken." },
+          { type: "[GEDEELDE KRACHT]", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament dat kan worden ingezet om schoolwerk leuker te maken, bijvoorbeeld door visuele samenvattingen te maken." },
+          { type: "[GEDEELDE KRACHT]", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten. Benoem dit doorzettingsvermogen als een compliment om haar zelfvertrouwen te versterken." },
         ]
       },
       {
         id: 'blind-spots',
         title: "3. Blinde Vlekken & Kansen",
         items: [
-          { type: "Reflectie", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
-          { type: "Actiekans", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze.", callout: true },
+          { type: "[REFLECTIEPUNT]", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
+          { type: "[ACTIEKANS]", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze.", callout: true },
         ]
       },
       {
         id: 'communication',
         title: "4. Communicatie Tips: Hoe Beter Afstemmen?",
         items: [
-          { type: "Gesprekstip", text: "In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk?\"" },
-          { type: "Gesprekstip", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
+          { type: "[GESPREKSTIP]", text: "In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk?\"" },
+          { type: "GESPREKSTIP]", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
         ]
       },
       {
@@ -64,8 +65,8 @@ const reportData = {
         id: 'next-steps',
         title: "6. Volgende Stappen: Hoe Nu Verder?",
         items: [
-          { type: "Check-in over 2 weken:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
-          { type: "Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
+          { title: "[START VANDAAG] Check-in over 2 weken:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
+          { title: "[START VANDAAG] Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
         ]
       },
       {
@@ -142,7 +143,7 @@ const PDFReport = () => (
       </View>
 
       {reportData.sections.map((section) => (
-        <View key={section.id} style={styles.section}>
+        <View key={section.id} style={styles.section} wrap={false}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
           </View>
@@ -163,10 +164,10 @@ const PDFReport = () => (
                     ))}
                     <View style={styles.progressTrackerContainer}>
                         <Text style={styles.progressTrackerTitle}>WEEK TRACKER</Text>
-                        <Text style={styles.progressTrackerItem}>Week 1: Uitgeprobeerd</Text>
-                        <Text style={styles.progressTrackerItem}>Week 2: Aangepast</Text>
-                        <Text style={styles.progressTrackerItem}>Week 3: Routine gevonden</Text>
-                        <Text style={styles.progressTrackerItem}>Week 4: Geëvalueerd</Text>
+                        <Text style={styles.progressTrackerItem}>Week 1: ☐ Geprobeerd</Text>
+                        <Text style={styles.progressTrackerItem}>Week 2: ☐ Aangepast</Text>
+                        <Text style={styles.progressTrackerItem}>Week 3: ☐ Routine gevonden</Text>
+                        <Text style={styles.progressTrackerItem}>Week 4: ☐ Geëvalueerd</Text>
                     </View>
                 </View>
             </View>
