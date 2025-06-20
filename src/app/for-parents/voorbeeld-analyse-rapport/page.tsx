@@ -239,37 +239,65 @@ export default function VoorbeeldAnalyseRapportPage() {
         return currentY;
       };
 
+      const addSectionContainer = (currentY: number, contentFunction: (yPos: number) => number, bgColor?: [number,number,number], borderColor?: [number,number,number], title?:string, titleColor?:[number,number,number], titleSize?:number, icon?: React.ElementType ) => {
+        let startY = currentY;
+        let tempY = currentY;
+        const PADDING_Y = 8;
+        const PADDING_X = 6;
+        
+        const titleHeightEstimate = title ? (titleSize || PDF_STYLES.h2Size) * 0.6 + PDF_STYLES.paragraphSpacing / 2 : 0;
+        
+        let contentEndY = contentFunction(tempY + titleHeightEstimate);
+        let rectHeight = (contentEndY - startY) + PADDING_Y; 
+
+        if (startY + rectHeight > pageHeight - margins.bottom) {
+          doc.addPage();
+          startY = margins.top;
+          currentY = startY; 
+          tempY = currentY; 
+          contentEndY = contentFunction(tempY + titleHeightEstimate);
+          rectHeight = (contentEndY - startY) + PADDING_Y;
+        }
+        
+        if (bgColor) {
+          doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+          doc.rect(margins.left - PADDING_X, startY - PADDING_Y, usableWidth + (PADDING_X * 2), rectHeight + PADDING_Y, 'F'); 
+        }
+        if (borderColor) {
+          doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+          doc.setLineWidth(0.5);
+          doc.rect(margins.left - PADDING_X, startY - PADDING_Y, usableWidth + (PADDING_X * 2), rectHeight + PADDING_Y, 'S');
+        }
+        
+        if(title){
+             addTextLines(title, margins.left, startY, { fontSize: titleSize || PDF_STYLES.h2Size, fontStyle: 'bold', color: titleColor || PDF_COLORS.primary, lineHeightFactor: 0.6 });
+        }
+
+        contentFunction(startY + titleHeightEstimate);
+
+        return startY + rectHeight + PDF_STYLES.sectionSpacing;
+      };
+      
       const addSection = (currentY: number, sectionData: typeof reportContent.sections[0]) => {
-          if (currentY + 20 > pageHeight - margins.bottom) { doc.addPage(); currentY = margins.top; }
-          const sectionTitleY = currentY + PDF_STYLES.sectionSpacing;
-          const contentYStart = addTextLines(sectionData.title, margins.left, sectionTitleY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, lineHeightFactor: 0.6 });
-          let contentY = contentYStart + PDF_STYLES.paragraphSpacing / 2;
-          
-          sectionData.content.forEach(item => {
-              const bulletPointY = contentY + 1; // Align bullet with text
-              doc.setFillColor(sectionData.colorTheme.border[0], sectionData.colorTheme.border[1], sectionData.colorTheme.border[2]);
-              doc.circle(margins.left + 2, bulletPointY, 0.7, 'F');
-              contentY = addTextLines(item, margins.left + 5, contentY, { color: sectionData.colorTheme.text, lineHeightFactor: 0.5, maxWidth: usableWidth - 5 });
-          });
-          
-          let rectHeight = contentY - sectionTitleY + PDF_STYLES.paragraphSpacing;
-          if(sectionTitleY - 5 + rectHeight > pageHeight - margins.bottom) { 
-              rectHeight = pageHeight - margins.bottom - (sectionTitleY - 5);
-          }
-          doc.setFillColor(sectionData.colorTheme.bg[0], sectionData.colorTheme.bg[1], sectionData.colorTheme.bg[2]);
-          doc.rect(margins.left - 5, sectionTitleY - 5, usableWidth + 10, rectHeight, 'F');
-          
-          addTextLines(sectionData.title, margins.left, sectionTitleY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: sectionData.colorTheme.title, lineHeightFactor: 0.6 });
-          let redrawContentY = contentYStart + PDF_STYLES.paragraphSpacing / 2;
-          sectionData.content.forEach(item => {
-              const bulletPointY = redrawContentY + 1;
-              doc.setFillColor(sectionData.colorTheme.border[0], sectionData.colorTheme.border[1], sectionData.colorTheme.border[2]);
-              doc.circle(margins.left + 2, bulletPointY, 0.7, 'F');
-              redrawContentY = addTextLines(item, margins.left + 5, redrawContentY, { color: sectionData.colorTheme.text, lineHeightFactor: 0.5, maxWidth: usableWidth - 5 });
-          });
-          
-          return contentY + PDF_STYLES.sectionSpacing;
-      }
+          return addSectionContainer(
+            currentY,
+            (contentYStart) => {
+                let contentY = contentYStart + PDF_STYLES.paragraphSpacing / 2;
+                sectionData.content.forEach(item => {
+                    const bulletPointY = contentY + 1; // Align bullet with text
+                    doc.setFillColor(sectionData.colorTheme.border[0], sectionData.colorTheme.border[1], sectionData.colorTheme.border[2]);
+                    doc.circle(margins.left + 2, bulletPointY, 0.7, 'F');
+                    contentY = addTextLines(item, margins.left + 5, contentY, { color: sectionData.colorTheme.text, lineHeightFactor: 0.5, maxWidth: usableWidth - 5 });
+                });
+                return contentY;
+            },
+            sectionData.colorTheme.bg,
+            sectionData.colorTheme.border,
+            sectionData.title,
+            sectionData.colorTheme.title,
+            PDF_STYLES.h2Size
+          );
+      };
 
       // Start building PDF
       y = addTextLines(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary, lineHeightFactor: 0.6 });
@@ -283,11 +311,19 @@ export default function VoorbeeldAnalyseRapportPage() {
       });
       
       // Disclaimer
-      const disclaimerRectY = y;
-      const disclaimerContentY = addTextLines(reportContent.disclaimer, margins.left + 2, disclaimerRectY + 5, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground, maxWidth: usableWidth - 4 });
-      doc.setDrawColor(PDF_COLORS.orange[0], PDF_COLORS.orange[1], PDF_COLORS.orange[2]);
-      doc.setLineWidth(0.5);
-      doc.rect(margins.left, disclaimerRectY, usableWidth, disclaimerContentY - disclaimerRectY, 'S');
+       const disclaimerText = "De inhoud van dit rapport is fictief en dient puur ter illustratie van de structuur en het soort inzichten dat u kunt verwachten van de Vergelijkende Analyse. Echte rapporten worden gegenereerd op basis van de daadwerkelijk ingevulde quizzen.";
+      y = addSectionContainer(
+        y, 
+        (currentY) => {
+            return addTextLines(disclaimerText, margins.left, currentY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.sectionDefault.text, lineHeightFactor: 0.6 });
+        }, 
+        PDF_COLORS.sectionDefault.bg,
+        PDF_COLORS.sectionDefault.border,
+        "Disclaimer",
+        PDF_COLORS.sectionDefault.title,
+        PDF_STYLES.h3Size,
+        Info
+      );
 
       const fileName = `vergelijkende_analyse_rapport_${childName.toLowerCase().replace(' ', '_')}.pdf`;
       doc.save(fileName);
@@ -363,3 +399,4 @@ export default function VoorbeeldAnalyseRapportPage() {
     </div>
   );
 }
+
