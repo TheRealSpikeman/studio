@@ -1,5 +1,5 @@
 // src/app/contact/page.tsx
-"use client"; // Added 'use client' directive
+"use client"; 
 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -8,16 +8,37 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, User, MessageSquareIcon } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Added Select imports
+import { Mail, User, MessageSquareIcon, ListFilter } from 'lucide-react'; // Added ListFilter icon
+import { useState } from 'react';
 
 
-// A simple client component for form handling, can be expanded with react-hook-form
+const contactCategories = [
+    { value: "algemeen", label: "Algemene Vraag" },
+    { value: "technisch", label: "Technisch Probleem" },
+    { value: "feedback", label: "Feedback & Suggesties" },
+    { value: "abonnementen", label: "Abonnementen & Betalingen" },
+    { value: "partnerschap", label: "Partnerschap & Samenwerking" },
+    { value: "anders", label: "Anders..." },
+];
+
+// A simple client component for form handling
 function ContactForm() {
+    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        const subject = formData.get('subject') as string;
+        const category = selectedCategory; // Use state for category
+        const message = formData.get('message') as string;
+
         // TODO: Implement form submission logic (e.g., send email, save to DB)
-        alert("Bedankt voor uw bericht! We nemen zo snel mogelijk contact met u op.");
-        // event.target.reset(); // Optionally reset form
+        alert(`Bedankt voor uw bericht!\n\nNaam: ${name}\nE-mail: ${email}\nOnderwerp: ${subject}\nCategorie: ${category || 'Niet geselecteerd'}\nBericht: ${message}\n\nWe nemen zo snel mogelijk contact met u op.`);
+        // event.currentTarget.reset(); // Optionally reset form
+        // setSelectedCategory(undefined); // Reset category state
     };
 
     return (
@@ -35,6 +56,20 @@ function ContactForm() {
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input type="email" id="email" name="email" placeholder="uw@email.com" required className="pl-10" />
                 </div>
+            </div>
+            <div>
+                <Label htmlFor="category" className="mb-2 block text-sm font-medium">Categorie van uw vraag</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory} name="category">
+                    <SelectTrigger className="pl-10 relative">
+                         <ListFilter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <SelectValue placeholder="Selecteer een categorie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {contactCategories.map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
             <div>
                 <Label htmlFor="subject" className="mb-2 block text-sm font-medium">Onderwerp</Label>
