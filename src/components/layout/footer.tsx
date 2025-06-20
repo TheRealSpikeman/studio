@@ -2,13 +2,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake } from 'lucide-react';
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake, Gavel } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="border-t bg-muted/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 md:py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 py-10 md:py-8">
           
           {/* Column 1: Logo and Copyright */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
@@ -63,13 +63,12 @@ export function Footer() {
             </nav>
           </div>
 
-
-          {/* Column 3: Legal Links & Professional CTA */}
+          {/* Column 3: Legal Links */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
-             <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Belangrijk & Doe Mee
+            <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Gavel className="h-5 w-5 text-primary" /> Belangrijk
             </h4>
-             <nav className="flex flex-col gap-1.5 mb-4">
+            <nav className="flex flex-col gap-1.5">
                 <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Privacybeleid
                 </Link>
@@ -86,10 +85,16 @@ export function Footer() {
                   Feedback (Alpha)
                 </Link>
             </nav>
-            
-            <div className="flex items-center gap-2 mb-1 mt-2">
+          </div>
+
+          {/* Column 4: Join Us */}
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+            <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" /> Doe Mee
+            </h4>
+            <div className="flex items-center gap-2 mb-1">
               <Briefcase className="h-5 w-5 text-primary" />
-              <h4 className="text-md font-semibold text-foreground">Word Tutor</h4>
+              <h5 className="text-sm font-semibold text-foreground">Word Tutor</h5>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
               Bied 1-op-1 huiswerkbegeleiding, help met studievaardigheden en specifieke vakken.
@@ -100,7 +105,7 @@ export function Footer() {
 
             <div className="flex items-center gap-2 mb-1 mt-2">
               <HeartHandshake className="h-5 w-5 text-primary" />
-              <h4 className="text-md font-semibold text-foreground">Word Coach</h4>
+              <h5 className="text-sm font-semibold text-foreground">Word Coach</h5>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
               Als psycholoog/orthopedagoog: bied 1-op-1 begeleiding voor persoonlijke ontwikkeling en welzijn.
