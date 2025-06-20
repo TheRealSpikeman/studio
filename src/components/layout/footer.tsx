@@ -92,7 +92,7 @@ export function Footer() {
               <h4 className="text-md font-semibold text-foreground">Word Tutor</h4>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
-              Help tieners met huiswerk, bepaal je eigen tarief en uren.
+              Bied 1-op-1 huiswerkbegeleiding, help met studievaardigheden en specifieke vakken.
             </p>
             <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0 mb-3">
                 <Link href="/word-tutor">Meer informatie & Aanmelden (Tutor)</Link>
@@ -103,7 +103,7 @@ export function Footer() {
               <h4 className="text-md font-semibold text-foreground">Word Coach</h4>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs mb-1">
-              Bied 1-op-1 begeleiding aan jongeren, deel je expertise.
+              Als psycholoog/orthopedagoog: bied 1-op-1 begeleiding voor persoonlijke ontwikkeling en welzijn.
             </p>
             <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
                 <Link href="/word-coach">Meer informatie & Aanmelden (Coach)</Link>
