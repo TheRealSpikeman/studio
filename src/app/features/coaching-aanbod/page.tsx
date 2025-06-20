@@ -125,7 +125,7 @@ export default function CoachingAanbodPage() {
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <type.icon className="h-9 w-9" />
                   </div>
-                  <CardTitle className="text-2xl font-semibold text-foreground">{type.title}</CardTitle>
+                  <CardTitle className="text-xl font-semibold text-foreground">{type.title}</CardTitle>
                    <CardDescription className="text-sm text-primary font-medium pt-1">{type.priceIndication}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-3">
