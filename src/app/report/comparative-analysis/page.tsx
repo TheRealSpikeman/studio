@@ -5,7 +5,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
 import {
-    Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, Info, Users, CheckSquare, Calendar, User, Clock, MapPin, Download
+    Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, CheckSquare, Calendar, User, Clock, MapPin, Download,
+    Lightbulb, Sparkles, Info, ArrowRight, UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -19,10 +20,12 @@ const reportData = {
     reportDate: new Date('2025-06-20T20:50:00'),
     intro: "Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van Sofie.",
     basedOn: {
-        parentAnswers: "U heeft 23 vragen beantwoord, met een focus op gedrag en schoolprestaties.",
-        childAnswers: "Sofie heeft 19 vragen beantwoord, met een focus op haar gevoelens en vriendschappen.",
-        agreements: "We vonden 3 belangrijke overeenkomsten in jullie antwoorden.",
-        differences: "We ontdekten 2 verrassende verschillen in hoe jullie de situatie zien."
+        parentFocus: "gedrag en school",
+        childFocus: "gevoelens en vriendschappen",
+        parentAnswers: "23 antwoorden",
+        childAnswers: "19 antwoorden",
+        agreements: "3 belangrijke overeenkomsten",
+        differences: "2 verrassende verschillen"
     },
     sections: [
       {
@@ -51,7 +54,6 @@ const reportData = {
         icon: EyeOff,
         summary: "De observaties over slaap en prikkelgevoeligheid bieden concrete aanknopingspunten voor actie.",
         items: [
-          { type: "🤔 Reflectie", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
           { type: "🎯 Actiekans", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze." },
         ]
       },
@@ -65,60 +67,24 @@ const reportData = {
           { type: "💬 Gesprekstip", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
         ]
       },
-      {
-        id: 'action-plan',
-        title: "Familie Actieplan: Concrete Stappen",
-        icon: ClipboardList,
-        summary: "Begin klein met haalbare, concrete acties om een positieve routine op te bouwen.",
-        actionItems: [
-          { title: "Creatief Uurtje", details: [{ icon: Calendar, label: 'Wanneer:', text: "Elke zaterdag 10:00-11:00" }, { icon: User, label: 'Wie:', text: "Sofie kiest activiteit" }, { icon: MapPin, label: 'Waar:', text: "Keukentafel" }, { icon: Clock, label: 'Duur:', text: "60 minuten" }] },
-          { title: "Focus Sessie Plan", details: [{ icon: Calendar, label: 'Start:', text: "Direct na school (16:00)" }, { icon: Clock, label: 'Duur:', text: "25 min werk + 5 min pauze" }, { icon: MapPin, label: 'Locatie:', text: "Rustige plek zonder afleiding" }] },
-          { title: "Prikkel Thermometer", details: [{ icon: Info, label: 'Wat:', text: "Maak groen-oranje-rood thermometer" }, { icon: Calendar, label: 'Wanneer:', text: "Check-in elke avond" }, { icon: MapPin, label: 'Waar:', text: "Hang op een zichtbare plek" }] },
-        ]
-      },
     ]
 };
 
 // Component for a single section
-const ReportSection = ({ section }: { section: typeof reportData.sections[0] }) => {
+const ReportSection = ({ section, isLast }: { section: typeof reportData.sections[0], isLast: boolean }) => {
     const Icon = section.icon;
     return (
-        <section className="mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg border">
-            <h2 className="text-xl font-bold text-primary mb-3 flex items-center gap-2">
-                <Icon className="h-6 w-6" />
+        <section className={cn("mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg border-l-4 border-primary shadow", !isLast && "pb-8")}>
+            <h2 className="text-xl font-bold text-primary mb-2 flex items-center gap-3">
+                <Icon className="h-7 w-7" />
                 {section.title}
             </h2>
-            <p className="text-sm italic text-muted-foreground mb-4 border-l-2 border-primary/50 pl-2">{section.summary}</p>
+            <p className="text-sm italic text-muted-foreground mb-4 pl-10">{section.summary}</p>
             <div className="space-y-4">
                 {section.items && section.items.map((item, index) => (
                     <div key={index} className="pl-4">
-                        <h3 className="font-semibold text-foreground">{item.type}</h3>
-                        <p className="text-muted-foreground">{item.text}</p>
-                    </div>
-                ))}
-                {section.actionItems && section.actionItems.map((item, index) => (
-                     <div key={index} className="p-4 border rounded-md bg-background shadow-sm">
-                        <h3 className="font-semibold text-primary mb-2 flex items-center gap-2"><CheckSquare className="h-5 w-5"/>{item.title}</h3>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            {item.details.map((detail, detailIdx) => {
-                                const DetailIcon = detail.icon;
-                                return (
-                                    <p key={detailIdx} className="flex items-center gap-2">
-                                        <DetailIcon className="h-4 w-4"/>
-                                        <strong className="text-foreground/80 w-20">{detail.label}</strong> 
-                                        <span>{detail.text}</span>
-                                    </p>
-                                );
-                            })}
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-dashed">
-                             <h4 className="text-xs font-bold text-muted-foreground mb-1">WEEK TRACKER</h4>
-                             <div className="space-y-1 text-sm text-muted-foreground">
-                                 <p>Week 1: ☐ Geprobeerd</p>
-                                 <p>Week 2: ☐ Aangepast</p>
-                                 <p>Week 3: ☐ Routine gevonden</p>
-                             </div>
-                        </div>
+                        <h3 className="font-semibold text-foreground flex items-center gap-2">{item.type}</h3>
+                        <p className="text-muted-foreground pl-6">{item.text}</p>
                     </div>
                 ))}
             </div>
@@ -129,6 +95,7 @@ const ReportSection = ({ section }: { section: typeof reportData.sections[0] }) 
 export default function ComparativeAnalysisReportPage() {
     return (
         <div className="bg-white text-black font-sans">
+            {/* Screen-only header with print button */}
             <header className="p-8 border-b print-hide flex justify-between items-center">
                 <SiteLogo />
                 <Button onClick={() => window.print()}>
@@ -136,36 +103,47 @@ export default function ComparativeAnalysisReportPage() {
                     Print of Sla op als PDF
                 </Button>
             </header>
-            <main className="p-8 md:p-12 lg:p-16 max-w-4xl mx-auto">
-                <div className="text-center mb-10">
+
+             {/* Print-only header with logo */}
+            <div className="hidden print-header">
+                <SiteLogo className="logo-header" />
+                <div className="text-right">
+                  <p className="text-xs">Vertrouwelijk Rapport</p>
+                  <p className="text-xs">MindNavigator</p>
+                </div>
+            </div>
+
+            <main className="p-8 md:p-12 lg:p-16 max-w-4xl mx-auto print-main">
+                <div className="text-center mb-10 print-avoid-break">
                     <h1 className="text-4xl font-bold text-gray-800">{reportData.title}</h1>
                     <p className="text-lg text-gray-600 mt-1">{reportData.subtitle}</p>
                     <p className="text-xs text-gray-400 mt-1">Rapport gegenereerd op: {reportData.reportDate.toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                 </div>
-
-                <div className="mb-10 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                
+                <div className="mb-10 p-6 bg-blue-50/70 border border-blue-200 rounded-lg print-avoid-break shadow">
                     <h2 className="text-lg font-semibold text-blue-800 mb-2">Introductie</h2>
-                    <p className="text-blue-700 leading-relaxed">{reportData.intro}</p>
+                    <p className="text-blue-900/80 leading-relaxed">{reportData.intro}</p>
                 </div>
                 
-                <div className="mb-10 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="mb-10 p-6 bg-gray-50/80 border border-gray-200 rounded-lg print-avoid-break shadow">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Gebaseerd op:</h2>
-                     <ul className="list-disc list-inside text-gray-700 space-y-1">
-                        <li><strong>Perspectief Ouder:</strong> {reportData.basedOn.parentAnswers}</li>
-                        <li><strong>Perspectief Kind:</strong> {reportData.basedOn.childAnswers}</li>
+                     <ul className="list-none text-gray-700 space-y-1">
+                        <li><strong>Perspectief {reportData.parentName}:</strong> {reportData.basedOn.parentAnswers} (focus op {reportData.basedOn.parentFocus})</li>
+                        <li><strong>Perspectief {reportData.childName}:</strong> {reportData.basedOn.childAnswers} (focus op {reportData.basedOn.childFocus})</li>
                          <li><strong>Overeenkomsten:</strong> {reportData.basedOn.agreements}</li>
                           <li><strong>Verschillen:</strong> {reportData.basedOn.differences}</li>
                     </ul>
                 </div>
 
-                {reportData.sections.map((section) => (
-                    <ReportSection key={section.id} section={section} />
+                {reportData.sections.map((section, index) => (
+                    <ReportSection key={section.id} section={section} isLast={index === reportData.sections.length - 1}/>
                 ))}
 
             </main>
-            <footer className="text-center p-6 border-t mt-10">
-                <p className="text-sm text-gray-500">Gegenereerd door MindNavigator | www.mindnavigator.app</p>
-                <p className="text-xs text-gray-400 mt-1">Disclaimer: Dit rapport is een hulpmiddel en geen vervanging voor professioneel advies.</p>
+            {/* Print-only footer */}
+            <footer className="text-center p-6 mt-10 print-footer">
+               <p className="text-sm text-gray-500">Gegenereerd door MindNavigator | www.mindnavigator.app</p>
+               <p className="text-xs text-gray-400 mt-1">Disclaimer: Dit rapport is een hulpmiddel en geen vervanging voor professioneel advies.</p>
             </footer>
         </div>
     );

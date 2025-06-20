@@ -171,6 +171,17 @@ body {
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
   .print-hide {
     display: none !important;
   }
@@ -178,17 +189,45 @@ body {
     break-inside: avoid;
     page-break-inside: avoid;
   }
-  body {
+  .print-main {
+    padding: 60px 15mm !important; /* Space for header/footer */
+  }
+
+  img {
     -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background: #fff !important;
-    color: #000 !important;
   }
-  main {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+  
+  .print-header {
+    display: flex !important; /* Make it visible on print */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    padding: 10px 15mm;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    background-color: #ffffff;
   }
-  @page {
-    margin: 1cm;
+  
+  .logo-header {
+    height: 30px !important;
+    width: auto !important;
+  }
+
+  .print-footer {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     height: 40px;
+     padding: 10px 15mm;
+     text-align: center;
+     border-top: 1px solid #ccc;
+     background-color: #ffffff;
+     display: block !important;
   }
 }
