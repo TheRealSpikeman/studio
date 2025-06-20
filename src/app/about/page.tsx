@@ -21,7 +21,7 @@ export default function AboutPage() {
           
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Target className="h-7 w-7" />
                 Onze Missie
               </h2>
@@ -31,7 +31,7 @@ export default function AboutPage() {
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Lightbulb className="h-7 w-7" />
                 Onze Visie
               </h2>
@@ -42,7 +42,7 @@ export default function AboutPage() {
             
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <section>
-                  <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                   <CheckCircle className="h-7 w-7" />
                   Onze Aanpak & Expertise
                   </h2>
@@ -66,7 +66,7 @@ export default function AboutPage() {
             </div>
             
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <AlertTriangle className="h-7 w-7" /> 
                 Onze Beperkingen & Verantwoordelijkheid
               </h2>
@@ -79,7 +79,7 @@ export default function AboutPage() {
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <ShieldCheck className="h-7 w-7" />
                 Privacy en Veiligheid
               </h2>
@@ -89,7 +89,7 @@ export default function AboutPage() {
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Milestone className="h-7 w-7" />
                 Toekomstplannen
               </h2>

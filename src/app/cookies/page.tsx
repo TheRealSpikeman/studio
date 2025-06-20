@@ -35,7 +35,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="wat-zijn-cookies" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Cookie className="h-7 w-7" /> 
                 1. Wat zijn cookies?
               </h2>
@@ -45,7 +45,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="hoe-gebruiken-wij-cookies" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Settings className="h-7 w-7" />
                 2. Hoe gebruiken wij cookies?
               </h2>
@@ -66,7 +66,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="uw-keuzes" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <SlidersHorizontal className="h-7 w-7" />
                 3. Uw keuzes met betrekking tot cookies
               </h2>
@@ -82,7 +82,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="cookies-van-derden" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Users className="h-7 w-7" />
                 4. Cookies van derden
               </h2>
@@ -92,7 +92,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="wijzigingen-cookiebeleid" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <FileClock className="h-7 w-7" />
                 5. Wijzigingen in dit cookiebeleid
               </h2>
@@ -102,7 +102,7 @@ export default function CookiesPage() {
             <hr className="my-8 border-border" />
 
             <section id="contact-cookies" className="space-y-4">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Mail className="h-7 w-7" />
                 6. Contact
               </h2>

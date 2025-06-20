@@ -12,7 +12,7 @@ import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescription
 const parentFaqs = [
   {
     question: "Wat is neurodiversiteit precies?",
-    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals aandachtspatronen, energielevels, prikkelgevoeligheid, en sociale voorkeuren zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen. Bekijk onze <a href='/neurodiversiteit' class='text-accent hover:underline font-medium'>uitgebreide informatiepagina over neurodiversiteit <ExternalLink class='inline-block h-4 w-4'/></a> voor meer details.",
+    answer: "Neurodiversiteit betekent dat ieders brein uniek is en anders werkt. Net zoals er variatie is in haarkleur of lengte, is er ook variatie in hoe onze hersenen informatie verwerken, hoe we leren, en hoe we de wereld ervaren. Eigenschappen zoals aandachtspatronen, energielevels, prikkelgevoeligheid, en sociale voorkeuren zijn voorbeelden van neurodivergente profielen. MindNavigator helpt uw kind deze unieke eigenschappen te ontdekken als sterke punten en uitdagingen. Bekijk onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>uitgebreide informatiepagina over neurodiversiteit <ExternalLink class='inline-block h-4 w-4'/></a> voor meer details.",
   },
   {
     question: "Hoe helpt MindNavigator mijn kind?",
@@ -20,12 +20,12 @@ const parentFaqs = [
   },
   {
     question: "Is MindNavigator veilig en hoe zit het met privacy?",
-    answer: "Veiligheid en privacy zijn onze topprioriteit. Alle gegevens worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. Resultaten van zelfreflectie-instrumenten zijn persoonlijk en worden niet zonder toestemming gedeeld. Voor betaalde abonnementen voor minderjarigen is altijd ouderlijke toestemming en betaling vereist. Lees meer in ons <a href='/privacy' class='text-accent hover:underline'>Privacybeleid <ExternalLink class='inline-block h-4 w-4'/></a>.",
+    answer: "Veiligheid en privacy zijn onze topprioriteit. Alle gegevens worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. Resultaten van zelfreflectie-instrumenten zijn persoonlijk en worden niet zonder toestemming gedeeld. Voor betaalde abonnementen voor minderjarigen is altijd ouderlijke toestemming en betaling vereist. Lees meer in ons <a href='/privacy' class='text-primary hover:underline'>Privacybeleid <ExternalLink class='inline-block h-4 w-4'/></a>.",
   },
   {
     id: "faq-payment",
     question: "Wat als mijn kind professionele hulp nodig heeft?",
-    answer: "MindNavigator is een tool voor zelfinzicht en ondersteuning, maar vervangt geen professionele diagnose of behandeling. Als u of uw kind zorgen heeft, raden wij altijd aan contact op te nemen met een huisarts, psycholoog of andere gekwalificeerde zorgverlener. Meer informatie en verwijzingen vindt u ook op onze <a href='/neurodiversiteit' class='text-accent hover:underline font-medium'>neurodiversiteit pagina <ExternalLink class='inline h-4 w-4'/></a>.",
+    answer: "MindNavigator is een tool voor zelfinzicht en ondersteuning, maar vervangt geen professionele diagnose of behandeling. Als u of uw kind zorgen heeft, raden wij altijd aan contact op te nemen met een huisarts, psycholoog of andere gekwalificeerde zorgverlener. Meer informatie en verwijzingen vindt u ook op onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>neurodiversiteit pagina <ExternalLink class='inline h-4 w-4'/></a>.",
   },
   {
     question: "Hoe werkt de betaling voor een abonnement?",
@@ -51,12 +51,12 @@ export default function ForParentsPage() {
           
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Brain className="h-7 w-7" />
                 Wat is MindNavigator?
               </h2>
               <p>
-                MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve zelfreflectie-instrumenten, persoonlijke overzichten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen. Lees meer over <Link href='/neurodiversiteit' className='text-accent hover:underline font-medium'>wat neurodiversiteit precies inhoudt <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/> </Link> op onze infopagina.
+                MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve zelfreflectie-instrumenten, persoonlijke overzichten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen. Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>wat neurodiversiteit precies inhoudt <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/> </Link> op onze infopagina.
               </p>
                <p className="mt-3">
                 We focussen op een positieve benadering van neurodiversiteit, waarbij we de unieke manier van denken en leren van elk kind als een kracht zien.
@@ -74,7 +74,7 @@ export default function ForParentsPage() {
                   />
               </div>
               <section>
-                  <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                   <HeartHandshake className="h-7 w-7" />
                   Hoe ondersteunen wij uw kind?
                   </h2>
@@ -127,29 +127,29 @@ export default function ForParentsPage() {
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <ShieldCheck className="h-7 w-7" />
                 Veiligheid & Privacy
               </h2>
               <p>
-                De veiligheid en privacy van uw kind staan bij ons voorop. We voldoen aan de AVG (GDPR) en zorgen voor een beveiligde omgeving. Persoonlijke resultaten van de tools zijn strikt vertrouwelijk. Voor jongeren onder de 18 jaar is voor betaalde diensten altijd uw toestemming en betalingsafhandeling nodig. U kunt hierover meer lezen in ons <Link href="/privacy" className="text-accent hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
+                De veiligheid en privacy van uw kind staan bij ons voorop. We voldoen aan de AVG (GDPR) en zorgen voor een beveiligde omgeving. Persoonlijke resultaten van de tools zijn strikt vertrouwelijk. Voor jongeren onder de 18 jaar is voor betaalde diensten altijd uw toestemming en betalingsafhandeling nodig. U kunt hierover meer lezen in ons <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
               </p>
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <AlertTriangle className="h-7 w-7 text-destructive" />
                 Belangrijk: MindNavigator en Professionele Hulp
               </h2>
               <p>
-                MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-accent hover:underline font-medium">volledige disclaimer <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
+                MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
               </p>
             </section>
 
             <section id="faq-payment">
               <Card className="shadow-md border-border">
                 <CardHeader>
-                  <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+                  <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                     <MessageCircleQuestion className="h-7 w-7" />
                     Veelgestelde Vragen door Ouders
                   </h2>

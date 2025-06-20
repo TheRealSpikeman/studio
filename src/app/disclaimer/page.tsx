@@ -21,7 +21,7 @@ export default function DisclaimerPage() {
           </div>
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <AlertTriangle className="h-7 w-7" />
                 Geen Medische Diagnose of Advies
               </h2>
@@ -34,7 +34,7 @@ export default function DisclaimerPage() {
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Stethoscope className="h-7 w-7" />
                 Raadpleeg Altijd een Professional
               </h2>
@@ -49,12 +49,12 @@ export default function DisclaimerPage() {
                 <li>De schoolarts, zorgcoördinator of intern begeleider op school</li>
               </ul>
               <p>
-                Alleen gekwalificeerde professionals kunnen een juiste diagnose stellen en een passend behandelplan opstellen. Vertrouw niet uitsluitend op de informatie of de uitkomsten van de tools op MindNavigator voor het nemen van beslissingen over uw gezondheid of die van uw kind. Bezoek ook onze <Link href="/neurodiversiteit" className="text-accent hover:underline font-medium">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link> voor meer context en tips om de juiste hulp te vinden.
+                Alleen gekwalificeerde professionals kunnen een juiste diagnose stellen en een passend behandelplan opstellen. Vertrouw niet uitsluitend op de informatie of de uitkomsten van de tools op MindNavigator voor het nemen van beslissingen over uw gezondheid of die van uw kind. Bezoek ook onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link> voor meer context en tips om de juiste hulp te vinden.
               </p>
             </section>
 
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Scale className="h-7 w-7" />
                 Beperking van Aansprakelijkheid
               </h2>
@@ -67,7 +67,7 @@ export default function DisclaimerPage() {
             </section>
             
             <section>
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Bot className="h-7 w-7" />
                 Gebruik van AI-gegenereerde Content
               </h2>
@@ -78,7 +78,7 @@ export default function DisclaimerPage() {
 
             <Alert variant="default" className="mt-12 bg-primary/10 border-primary/30 text-primary">
                 <Info className="h-5 w-5 !text-primary" />
-                <AlertTitleUi className="font-semibold text-accent">Akkoordverklaring</AlertTitleUi>
+                <AlertTitleUi className="font-semibold text-primary">Akkoordverklaring</AlertTitleUi>
                 <AlertDescriptionUi className="text-foreground/80">
                   Door gebruik te maken van de diensten en tools van MindNavigator, verklaart u deze disclaimer te hebben gelezen, begrepen en ermee akkoord te gaan.
                 </AlertDescriptionUi>

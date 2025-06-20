@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center py-12 md:py-20 lg:py-28">
+      <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12 md:mb-16">
             <ShieldCheck className="mx-auto h-16 w-16 text-primary mb-4" />
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
           
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section id="inleiding" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Info className="h-7 w-7" />
                 1. Inleiding
               </h2>
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="welke-gegevens" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Database className="h-7 w-7" />
                 2. Welke gegevens verzamelen wij?
               </h2>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="hoe-gebruiken-wij" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Cog className="h-7 w-7" />
                 3. Hoe gebruiken wij uw gegevens?
               </h2>
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="delen-van-gegevens" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Share2 className="h-7 w-7" />
                 4. Delen van uw gegevens
               </h2>
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="beveiliging-gegevens" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Lock className="h-7 w-7" />
                 5. Beveiliging van uw gegevens
               </h2>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="uw-rechten" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Gavel className="h-7 w-7" />
                 6. Uw rechten (AVG/GDPR)
               </h2>
@@ -112,7 +112,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="bewaartermijnen" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Archive className="h-7 w-7" />
                 7. Bewaartermijnen
               </h2>
@@ -122,19 +122,19 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="cookies" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Cookie className="h-7 w-7" />
                 8. Cookies
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                  Wij gebruiken cookies om de functionaliteit van onze website te verbeteren. Voor meer informatie over welke cookies we gebruiken en hoe u uw voorkeuren kunt beheren, verwijzen wij u naar ons <Link href="/cookies" className="text-accent hover:underline font-medium">Cookiebeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
+                  Wij gebruiken cookies om de functionaliteit van onze website te verbeteren. Voor meer informatie over welke cookies we gebruiken en hoe u uw voorkeuren kunt beheren, verwijzen wij u naar ons <Link href="/cookies" className="text-primary hover:underline font-medium">Cookiebeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
               </p>
             </section>
 
             <hr className="my-6 border-border" />
 
             <section id="wijzigingen-privacybeleid" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <FileClock className="h-7 w-7" />
                 9. Wijzigingen in dit privacybeleid
               </h2>
@@ -144,7 +144,7 @@ export default function PrivacyPage() {
             <hr className="my-6 border-border" />
 
             <section id="contact-privacy" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Mail className="h-7 w-7" />
                 10. Contact
               </h2>

@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle, Package, CreditCard, BarChart3, FileText as FileTextIcon } from 'lucide-react'; // Renamed FileText to FileTextIcon
+import { CheckCircle2, Users, Percent, Sparkles, Star, HelpCircle, ExternalLink, ShieldCheck, ListChecks, XCircle, Package, CreditCard, BarChart3, FileText as FileTextIcon, MessageCircleQuestion } from 'lucide-react'; // Renamed FileText to FileTextIcon
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -254,17 +254,20 @@ export default function PricingPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/5 to-background">
-        <section className="py-16 md:py-20 text-center">
+        <section className="py-12 md:py-20 lg:py-28 text-center">
           <div className="container">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-              Kies het plan dat bij uw gezin past
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
-              Start gratis om de basis te ontdekken, of kies voor volledige digitale coaching en ondersteuning voor uw kind en uzelf. Registratie en beheer via uw ouderaccount. Elk pad begint met een persoonlijke assessment.
-              {plans.some(p => p.trialPeriodDays && p.trialPeriodDays > 0 && p.price > 0) && (
-                <span className="block mt-2 font-semibold text-primary">Alle betaalde plannen starten met een gratis proefperiode!</span>
-              )}
-            </p>
+             <div className="mb-12 md:mb-16">
+                <CreditCard className="mx-auto h-16 w-16 text-primary mb-4" />
+                <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+                    Kies het plan dat bij uw gezin past
+                </h1>
+                <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
+                    Start gratis om de basis te ontdekken, of kies een compleet pakket voor de volledige MindNavigator ervaring. Registratie en beheer via uw ouderaccount. Elk pad begint met een waardevolle, persoonlijke assessment voor uw kind.
+                    {plans.some(p => p.trialPeriodDays && p.trialPeriodDays > 0 && p.price > 0) && (
+                    <span className="block mt-2 font-semibold text-primary">Alle betaalde plannen starten met een gratis proefperiode!</span>
+                    )}
+                </p>
+            </div>
           </div>
         </section>
 
@@ -383,10 +386,11 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-secondary/20">
+        <section className="py-12 md:py-20 lg:py-28 bg-secondary/20">
           <div className="container max-w-3xl">
-            <h2 className="mb-10 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              <HelpCircle className="inline-block h-9 w-9 mr-2 text-primary" /> Veelgestelde Vragen
+            <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
+              <HelpCircle className="h-7 w-7" />
+              Veelgestelde Vragen
             </h2>
             <Accordion type="single" collapsible className="w-full space-y-4">
               {faqItems.map((faq, index) => (
@@ -395,7 +399,7 @@ export default function PricingPage() {
                   value={`faq-${index}`}
                   className="bg-card rounded-lg shadow-sm border"
                 >
-                  <AccordionTrigger className="text-left text-lg hover:no-underline font-medium text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary [&[data-state=open]>svg]:rotate-180 transition-all">
+                  <AccordionTrigger className="text-left text-lg hover:no-underline font-medium text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-0 bg-card rounded-b-lg text-base data-[state=open]:bg-muted/20">
@@ -407,12 +411,12 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20">
+        <section className="py-12 md:py-20 lg:py-28">
           <div className="container max-w-4xl text-center">
-             <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-6">
-              <ShieldCheck className="inline-block h-10 w-10 mr-2 text-primary" /> Onze Garanties
+             <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3 justify-center">
+               <ShieldCheck className="h-7 w-7" /> Onze Garanties
             </h2>
-            <div className="grid md:grid-cols-3 gap-8 text-left">
+            <div className="grid md:grid-cols-3 gap-8 text-left mt-6">
               <Card className="bg-green-50 border-green-200 shadow-sm">
                 <CardHeader><CardTitle className="text-green-700">Privacy & Veiligheid</CardTitle></CardHeader>
                 <CardContent className="text-sm text-green-800 space-y-1">
@@ -441,12 +445,12 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-primary/5">
+        <section className="py-12 md:py-20 lg:py-28 bg-primary/5">
           <div className="container max-w-4xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-8">
-              <Percent className="inline-block h-10 w-10 mr-3 text-accent" /> Waarom MindNavigator?
+            <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3 justify-center">
+              <Percent className="h-7 w-7" /> Waarom MindNavigator?
             </h2>
-            <div className="grid md:grid-cols-3 gap-6 text-left">
+            <div className="grid md:grid-cols-3 gap-6 text-left mt-6">
                 <div className="p-6 bg-card rounded-lg shadow-md border border-border">
                     <h3 className="font-semibold text-lg text-primary mb-1">Betaalbare Digitale Ondersteuning</h3>
                     <p className="text-sm text-muted-foreground">MindNavigator (betaalde plannen): vanaf €3.99/maand. Traditionele coaching: vaak €100-150/uur per kind. Bespaar honderden euro's per maand.</p>

@@ -155,10 +155,10 @@ export default function CoachingAanbodPage() {
           
           <section className="py-16 md:py-20 bg-secondary/20 mt-20 mb-16 rounded-lg">
             <div className="container mx-auto px-4 text-center max-w-3xl">
-                <h3 className="text-2xl font-semibold text-foreground mb-8 flex items-center justify-center gap-2">
+                <h2 className="text-2xl font-semibold text-primary mb-8 flex items-center justify-center gap-3">
                     <Star className="h-7 w-7 text-yellow-500" />
                     Vertrouwd door Velen
-                </h3>
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {testimonials.map((testimonial, index) => (
                         <Card key={index} className="bg-card border-border p-4 rounded-lg shadow-sm text-left">

@@ -78,7 +78,7 @@ export default function EenOpEenBegeleidingPage() {
 
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Twee Soorten Begeleiding</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3"><GraduationCap className="h-7 w-7" />Twee Soorten Begeleiding</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <Card className="bg-blue-50/70 border-blue-200">
                   <CardHeader>
@@ -113,7 +113,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-6">Hoe Het Werkt</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-6 flex items-center gap-3"><Settings className="h-7 w-7"/>Hoe Het Werkt</h2>
               <div className="space-y-6">
                 {[
                   { num: 1, icon: Search, title: "Zoek & Match", content: "Filter op specialiteit, prijs en beschikbaarheid. Bekijk profielen, ervaring en reviews. Vergelijk tarieven (wat u ziet = wat u betaalt)." },
@@ -133,7 +133,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Transparante Prijzen</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3"><Wallet className="h-7 w-7"/>Transparante Prijzen</h2>
               <Card className="bg-yellow-50/50 border-yellow-200">
                 <CardContent className="p-6 space-y-3">
                   <h3 className="text-xl font-semibold text-yellow-700 flex items-center gap-2"><Info className="h-6 w-6"/>Geen Verborgen Kosten</h3>
@@ -158,7 +158,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Voorbeeld Zoektocht</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3"><Compass className="h-7 w-7"/>Voorbeeld Zoektocht</h2>
               <Alert variant="default" className="bg-indigo-50/70 border-indigo-200">
                 <UserCheckIcon className="h-5 w-5 !text-indigo-600" />
                 <AlertTitleUi className="text-indigo-700 font-semibold">Situatie: 14-jarige zoon, herkent ADHD-kenmerken, wiskunde problemen</AlertTitleUi>
@@ -173,7 +173,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Veelgestelde Vragen</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3"><MessageCircleQuestion className="h-7 w-7"/>Veelgestelde Vragen</h2>
               <Accordion type="single" collapsible className="w-full space-y-3">
                 {faqItems.map((faq) => (
                   <AccordionItem key={faq.id} value={faq.id} className="bg-muted/40 rounded-lg border">
@@ -189,7 +189,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-primary mb-6 text-center">Waarom Onze 1-op-1 Begeleiding?</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-6 text-center flex items-center gap-3 justify-center"><HeartHandshake className="h-7 w-7"/>Waarom Onze 1-op-1 Begeleiding?</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="bg-card border-border shadow-sm">
                   <CardHeader><CardTitle className="text-lg font-semibold text-accent flex items-center gap-2"><Sparkles className="h-5 w-5"/>Voor Uw Kind</CardTitle></CardHeader>
@@ -210,7 +210,7 @@ export default function EenOpEenBegeleidingPage() {
                   </CardContent>
                 </Card>
                 <Card className="bg-card border-border shadow-sm">
-                  <CardHeader><CardTitle className="text-lg font-semibold text-accent flex items-center gap-2"><HeartHandshake className="h-5 w-5"/>Toegevoegde Waarde</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-lg font-semibold text-accent flex items-center gap-2"><CheckCircle2 className="h-5 w-5"/>Toegevoegde Waarde</CardTitle></CardHeader>
                   <CardContent className="text-sm text-muted-foreground space-y-1">
                     <p className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-500"/>Assessment inzichten direct bruikbaar</p>
                     <p className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-500"/>Alle administratie geregeld</p>
@@ -222,7 +222,7 @@ export default function EenOpEenBegeleidingPage() {
             </section>
 
             <section className="mt-10 pt-8 border-t border-border/50">
-              <h2 className="text-2xl font-semibold text-primary mb-6 text-center">Start Nu Met Persoonlijke Begeleiding</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-6 text-center flex items-center gap-3 justify-center"><Target className="h-7 w-7"/>Start Nu Met Persoonlijke Begeleiding</h2>
               <div className="space-y-4 max-w-md mx-auto">
                 {[
                   { step: 1, text: "Ga naar uw Ouder Dashboard en klik op \"Zoek Begeleiding\"." },
@@ -250,7 +250,7 @@ export default function EenOpEenBegeleidingPage() {
           </div>
           
           <div className="mt-12 pt-8 border-t border-border">
-            <h4 className="text-lg font-semibold text-foreground mb-6 text-center">Ontdek ook onze andere features:</h4>
+            <h4 className="text-xl font-semibold text-foreground mb-6 text-center">Ontdek ook onze andere features:</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 w-full max-w-lg mx-auto">
               {otherFeatures.map(feature => (
                 <Button

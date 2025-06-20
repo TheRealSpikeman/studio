@@ -8,7 +8,7 @@ export default function TermsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center py-12 md:py-20 lg:py-28">
+      <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12 md:mb-16">
             <FileText className="mx-auto h-16 w-16 text-primary mb-4" />
@@ -18,7 +18,7 @@ export default function TermsPage() {
           
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section id="toepasselijkheid" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Info className="h-7 w-7" />
                 1. Toepasselijkheid
               </h2>
@@ -28,7 +28,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="gebruik-dienst" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <MousePointerSquare className="h-7 w-7" />
                 2. Gebruik van de Dienst
               </h2>
@@ -39,7 +39,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="intellectueel-eigendom" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Copyright className="h-7 w-7" />
                 3. Intellectueel Eigendom
               </h2>
@@ -49,19 +49,19 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="zelfreflectie-instrumenten-resultaten" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Brain className="h-7 w-7" />
                 4. Zelfreflectie-instrumenten en Inzichten
               </h2>
               <p className="text-muted-foreground leading-relaxed">De zelfreflectie-instrumenten (hierna "Tools") en de daaruit voortvloeiende overzichten en coaching-inzichten zijn bedoeld voor informatieve, educatieve en zelfreflectie doeleinden. Ze zijn <strong className="font-medium text-destructive">nadrukkelijk geen vervanging</strong> voor professioneel medisch, psychologisch of orthopedagogisch advies, diagnose of behandeling.</p>
-              <p className="text-muted-foreground leading-relaxed">MindNavigator stelt geen diagnoses. Raadpleeg altijd een gekwalificeerde zorgverlener als u vragen heeft over een medische of psychische conditie, of als u overweegt een diagnose te laten stellen. Meer informatie en verwijzingen vindt u op onze <Link href="/neurodiversiteit" className="text-accent hover:underline font-medium">Neurodiversiteit pagina <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.</p>
+              <p className="text-muted-foreground leading-relaxed">MindNavigator stelt geen diagnoses. Raadpleeg altijd een gekwalificeerde zorgverlener als u vragen heeft over een medische of psychische conditie, of als u overweegt een diagnose te laten stellen. Meer informatie en verwijzingen vindt u op onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">Neurodiversiteit pagina <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.</p>
               <p className="text-muted-foreground leading-relaxed">Wij garanderen niet de nauwkeurigheid of volledigheid van de inzichten, hoewel we ernaar streven zo accuraat mogelijke informatie te verstrekken. De interpretatie en toepassing van de inzichten is uw eigen verantwoordelijkheid.</p>
             </section>
             
             <hr className="my-6 border-border" />
 
             <section id="genai-features" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Bot className="h-7 w-7" />
                 5. GenAI Features
               </h2>
@@ -71,7 +71,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
             
             <section id="abonnementen-betalingen" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <CreditCard className="h-7 w-7" />
                 6. Abonnementen en Betalingen
               </h2>
@@ -81,7 +81,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="beperking-aansprakelijkheid" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <ShieldAlert className="h-7 w-7" />
                 7. Beperking van Aansprakelijkheid
               </h2>
@@ -91,7 +91,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="wijzigingen-voorwaarden" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <FileClock className="h-7 w-7" />
                 8. Wijzigingen in de Voorwaarden
               </h2>
@@ -101,7 +101,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="toepasselijk-recht" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Gavel className="h-7 w-7" />
                 9. Toepasselijk recht en Geschillen
               </h2>
@@ -111,7 +111,7 @@ export default function TermsPage() {
             <hr className="my-6 border-border" />
 
             <section id="contact-voorwaarden" className="space-y-3">
-              <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
                 <Mail className="h-7 w-7" />
                 10. Contact
               </h2>

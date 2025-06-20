@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, ExternalLink, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, ExternalLink, ArrowRight, Lock, AlertTriangle } from 'lucide-react';
 
 const allFeatures = [
   { title: 'Gepersonaliseerde Inzichten', link: '/features/gepersonaliseerde-inzichten', icon: Brain },
@@ -42,22 +42,31 @@ export default function VeiligPlatformPage() {
               <p className="mb-4">
                 MindNavigator is toegewijd aan het bieden van een veilige, privacygerichte en deskundig onderbouwde ervaring voor jongeren en hun ouders.
               </p>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Privacy Voorop</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
+                <Lock className="h-7 w-7" />
+                Privacy Voorop
+              </h2>
               <p className="mb-4">
-                Wij begrijpen het belang van privacy, zeker als het om jongeren gaat. Alle persoonlijke gegevens en resultaten worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. U en uw kind behouden controle over welke informatie gedeeld wordt. Lees ons volledige <Link href="/privacy" className="text-accent hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link> voor details.
+                Wij begrijpen het belang van privacy, zeker als het om jongeren gaat. Alle persoonlijke gegevens en resultaten worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. U en uw kind behouden controle over welke informatie gedeeld wordt. Lees ons volledige <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link> voor details.
               </p>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Educatieve Principes & Deskundigheid</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
+                <Brain className="h-7 w-7" />
+                Educatieve Principes & Deskundigheid
+              </h2>
               <p className="mb-4">
-                De content en tools op MindNavigator zijn ontwikkeld op basis van erkende educatieve principes en inzichten uit de psychologie en orthopedagogiek. We werken samen met <Link href="/samenwerkingen" className="text-accent hover:underline font-medium">professionals en experts</Link> om de kwaliteit en relevantie van ons aanbod te waarborgen.
+                De content en tools op MindNavigator zijn ontwikkeld op basis van erkende educatieve principes en inzichten uit de psychologie en orthopedagogiek. We werken samen met <Link href="/samenwerkingen" className="text-primary hover:underline font-medium">professionals en experts</Link> om de kwaliteit en relevantie van ons aanbod te waarborgen.
               </p>
-              <h2 className="text-2xl font-semibold text-primary mb-4">Geen Diagnoses</h2>
+              <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
+                <AlertTriangle className="h-7 w-7 text-destructive" />
+                Geen Diagnoses
+              </h2>
               <p>
-                Het is cruciaal om te begrijpen dat MindNavigator <strong>geen</strong> medische of psychologische diagnoses stelt. Onze tools zijn bedoeld voor zelfreflectie, educatie en het bieden van handvatten. Voor een formele diagnose of professionele behandeling verwijzen wij u altijd naar een gekwalificeerde zorgverlener. Zie ook onze <Link href="/disclaimer" className="text-accent hover:underline font-medium">Disclaimer <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
+                Het is cruciaal om te begrijpen dat MindNavigator <strong>geen</strong> medische of psychologische diagnoses stelt. Onze tools zijn bedoeld voor zelfreflectie, educatie en het bieden van handvatten. Voor een formele diagnose of professionele behandeling verwijzen wij u altijd naar een gekwalificeerde zorgverlener. Zie ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">Disclaimer <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
               </p>
             </section>
             
             <div className="mt-12 pt-8 border-t border-border">
-              <h4 className="text-2xl font-semibold text-primary mb-6 text-center">Ontdek ook onze andere features:</h4>
+              <h4 className="text-xl font-semibold text-foreground mb-6 text-center">Ontdek ook onze andere features:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 {otherFeatures.map(feature => (
                   <Button
