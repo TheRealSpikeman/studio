@@ -13,55 +13,84 @@ import {
   TrendingUp, BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
 } from 'lucide-react';
 import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
-const StatCard = ({ icon, value, label }: { icon: React.ReactNode, value: string, label: string }) => (
-    <div className="flex items-center gap-4 rounded-lg bg-primary/10 p-4 border border-primary/20">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground flex-shrink-0">
-            {icon}
-        </div>
-        <div>
-            <div className="text-2xl font-bold text-primary">{value}</div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
-    </div>
-);
+interface BarChartData {
+    label: string;
+    value: number; // percentage width
+    displayValue: string;
+    badgeClass?: string; // For the badge outside the bar
+    barClass: string; // For the bar itself
+}
 
-const CustomBarChart = ({ data }: { data: { label: string; value: number; displayValue: string; colorClass: string; }[] }) => (
-    <div className="space-y-3">
-        {data.map((item, index) => (
-            <div key={index} className="flex items-center gap-3">
-                <div className="w-28 text-sm text-muted-foreground text-right flex-shrink-0">{item.label}</div>
-                <div className="flex-grow bg-muted rounded-full h-6">
-                    <div
-                        className={`h-6 rounded-full ${item.colorClass} flex items-center px-2`}
-                        style={{ width: `${item.value}%` }}
-                    >
-                         <span className="text-xs font-bold text-white shadow-sm">{item.displayValue}</span>
+const CustomBarChart = ({ data, layout = 'badge' }: { data: BarChartData[], layout?: 'badge' | 'in-bar' }) => {
+    if (layout === 'badge') {
+        return (
+            <div className="space-y-4">
+                {data.map((item, index) => (
+                    <div key={index} className="grid grid-cols-[auto_auto_1fr] sm:grid-cols-[1fr_auto_2fr] items-center gap-x-3 gap-y-1">
+                        <div className="text-sm text-muted-foreground sm:text-right">{item.label}</div>
+                        <div className="flex-shrink-0">
+                            <Badge className={cn("text-xs font-bold w-[70px] justify-center", item.badgeClass)}>{item.displayValue}</Badge>
+                        </div>
+                        <div className="flex-grow bg-muted rounded-full h-5 w-full col-span-3 sm:col-span-1">
+                            <div
+                                className={cn("h-5 rounded-full", item.barClass)}
+                                style={{ width: `${item.value}%` }}
+                            />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // Layout 'in-bar'
+    return (
+        <div className="space-y-3">
+            {data.map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                    <div className="w-32 text-sm text-muted-foreground text-right flex-shrink-0">{item.label}</div>
+                    <div className="flex-grow bg-muted rounded-full h-6">
+                        <div
+                            className={cn("h-6 rounded-full flex items-center px-2", item.barClass)}
+                            style={{ width: `${item.value}%` }}
+                        >
+                            <span className="text-xs font-bold text-white shadow-sm whitespace-nowrap">{item.displayValue}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        ))}
-    </div>
-);
+            ))}
+        </div>
+    );
+};
 
-const revenueData = [
-  { label: '2026 (Jaar 1)', value: (750 / 7800) * 100, displayValue: '€750K', colorClass: 'bg-teal-500' },
-  { label: '2027 (Jaar 2)', value: (3200 / 7800) * 100, displayValue: '€3.2M', colorClass: 'bg-primary/80' },
-  { label: '2028 (Jaar 3)', value: 100, displayValue: '€7.8M', colorClass: 'bg-primary' },
+const marketData: BarChartData[] = [
+    { label: 'Jongeren (12-18)', value: 100, displayValue: '1.2M', badgeClass: 'bg-muted text-muted-foreground', barClass: 'bg-muted' },
+    { label: 'Neurodivergent', value: 16.6, displayValue: '200K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-500' },
+    { label: 'Target Markt', value: 8.3, displayValue: '100K', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/80' },
+    { label: 'Jaar 3 Target', value: 0.375, displayValue: '4.5K', badgeClass: 'bg-primary text-white', barClass: 'bg-primary' },
 ];
 
-const riskData = [
-    { label: 'Technologie', value: 10, displayValue: '1/10', colorClass: 'bg-green-500' },
-    { label: 'Uitvoering', value: 20, displayValue: '2/10', colorClass: 'bg-green-500' },
-    { label: 'Markt', value: 30, displayValue: '3/10', colorClass: 'bg-yellow-500' },
-    { label: 'Concurrentie', value: 40, displayValue: '4/10', colorClass: 'bg-orange-500' },
+const revenueData: BarChartData[] = [
+  { label: '2026 (Jaar 1)', value: (750 / 7800) * 100, displayValue: '€750K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-500' },
+  { label: '2027 (Jaar 2)', value: (3200 / 7800) * 100, displayValue: '€3.2M', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/80' },
+  { label: '2028 (Jaar 3)', value: 100, displayValue: '€7.8M', badgeClass: 'bg-primary text-white', barClass: 'bg-primary' },
 ];
 
-const investmentAllocationData = [
-    { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', colorClass: 'bg-blue-500' },
-    { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-teal-500' },
-    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', colorClass: 'bg-orange-500' },
-    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', colorClass: 'bg-purple-500' },
+const riskData: BarChartData[] = [
+    { label: 'Technologie', value: 10, displayValue: '1/10', barClass: 'bg-green-500' },
+    { label: 'Uitvoering', value: 20, displayValue: '2/10', barClass: 'bg-green-500' },
+    { label: 'Markt', value: 30, displayValue: '3/10', barClass: 'bg-yellow-500' },
+    { label: 'Concurrentie', value: 40, displayValue: '4/10', barClass: 'bg-orange-500' },
+];
+
+const investmentAllocationData: BarChartData[] = [
+    { label: 'Marketing & PR', value: 45, displayValue: '€180K (45%)', barClass: 'bg-blue-500' },
+    { label: 'Platform & AI', value: 20, displayValue: '€80K (20%)', barClass: 'bg-teal-500' },
+    { label: 'Team Uitbreiding', value: 20, displayValue: '€80K (20%)', barClass: 'bg-orange-500' },
+    { label: 'Internationale Expansie', value: 15, displayValue: '€60K (15%)', barClass: 'bg-purple-500' },
 ];
 
 export function InvestmentProposal() {
@@ -141,12 +170,7 @@ export function InvestmentProposal() {
                         <CardTitle className="text-xl flex items-center gap-2"><Target className="h-6 w-6 text-primary"/>De Nederlandse Markt (2026)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <CustomBarChart data={[
-                            { label: 'Jongeren (12-18)', value: 100, displayValue: '1.2M', colorClass: 'bg-muted' },
-                            { label: 'Neurodivergent', value: 16.6, displayValue: '200K', colorClass: 'bg-teal-500' },
-                            { label: 'Target Markt', value: 8.3, displayValue: '100K', colorClass: 'bg-primary/80' },
-                            { label: 'Jaar 3 Target', value: 0.375, displayValue: '4.5K', colorClass: 'bg-primary' },
-                        ]} />
+                        <CustomBarChart data={marketData} layout="badge" />
                         <p className="text-sm text-center font-semibold mt-4">Totale Adresseerbare Markt: €264 miljoen/jaar</p>
                     </CardContent>
                  </Card>
@@ -155,7 +179,7 @@ export function InvestmentProposal() {
                         <CardTitle className="text-xl flex items-center gap-2"><BarChart3 className="h-6 w-6 text-primary"/>Omzetprognose</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <CustomBarChart data={revenueData} />
+                        <CustomBarChart data={revenueData} layout="badge" />
                          <p className="text-sm text-center font-semibold mt-4">10x groei in 3 jaar | 71% winstmarge jaar 3</p>
                     </CardContent>
                 </Card>
@@ -176,7 +200,7 @@ export function InvestmentProposal() {
                     <CardTitle className="text-xl flex items-center gap-2"><Package className="h-6 w-6 text-primary"/>Gebruik van het Geld</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <CustomBarChart data={investmentAllocationData} />
+                    <CustomBarChart data={investmentAllocationData} layout="in-bar" />
                 </CardContent>
             </Card>
           </section>
@@ -190,7 +214,7 @@ export function InvestmentProposal() {
                         <CardDescription>Schaal 1-10 (1 = laag risico)</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <CustomBarChart data={riskData} />
+                        <CustomBarChart data={riskData} layout="in-bar" />
                         <p className="text-sm text-muted-foreground mt-4">De grootste risico's zijn gemitigeerd doordat het platform al operationeel is en de marktvraag wordt gevalideerd in de beta-fase.</p>
                     </CardContent>
                  </Card>
