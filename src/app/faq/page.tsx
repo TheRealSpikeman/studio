@@ -63,12 +63,6 @@ const generalFaqs = [
     keywords: ["ouderlijke goedkeuring", "toestemming", "minderjarig", "registratie", "abonnement", "betaling"]
   },
   {
-    id: "faq-navigation",
-    question: "Hoe navigeer ik door het platform als ik meerdere rollen heb (bijv. ouder en tutor)?",
-    answer: "Na het inloggen, ziet u linksboven in de sidebar een 'Testrol Wisselaar'. Hiermee kunt u eenvoudig schakelen tussen uw beschikbare rollen (bijv. Ouder, Tutor, Admin). Het dashboard en de menu-opties passen zich automatisch aan de geselecteerde rol aan. Uw profielinstellingen zijn overkoepelend.",
-    keywords: ["navigatie", "rollen", "wisselen", "dashboard", "sidebar", "ouder", "tutor", "admin"]
-  },
-  {
     id: "faq-support",
     question: "Waar kan ik terecht als ik technische problemen ervaar of andere vragen heb?",
     answer: "Voor technische problemen of vragen die niet in deze FAQ beantwoord worden, kunt u contact opnemen met onze supportafdeling via de <a href='/contact' class='text-primary hover:underline font-medium'>contactpagina <ExternalLink class='inline-block h-4 w-4 align-text-bottom'/></a>. We streven ernaar u zo snel mogelijk te helpen.",
