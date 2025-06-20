@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  Zap, Brain, BookOpenCheck, GraduationCap, MessageSquareText, ShieldCheck, ExternalLink, ArrowRight,
-  NotebookPen, CalendarCheck, TrendingUp, Smile, Sparkles, CheckCircle2 
+  Zap, Brain, BookOpenCheck, GraduationCap, MessageSquareText, ShieldCheck, ExternalLink, ArrowRight, 
+  NotebookPen, CalendarCheck, TrendingUp, Smile, Sparkles, CheckCircle2, Lightbulb
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,17 +26,17 @@ const coachingToolsFeatures = [
   {
     icon: MessageSquareText,
     title: "Dagelijkse Coaching Berichten",
-    description: "Korte, motiverende en inzichtgevende berichten die helpen bij zelfreflectie en het ontwikkelen van een positieve mindset."
+    description: "Korte, motiverende en inzichtgevende berichten die helpen bij zelfreflectie en het ontwikkelen van een positieve mindset, afgestemd op jouw profiel."
   },
   {
     icon: NotebookPen,
     title: "Interactief Dagboek",
-    description: "Een veilige plek voor uw kind om gedachten, gevoelens en ervaringen te noteren, wat bijdraagt aan zelfinzicht en emotionele verwerking."
+    description: "Een veilige plek om gedachten, gevoelens en ervaringen te noteren, wat bijdraagt aan zelfinzicht en emotionele verwerking."
   },
   {
     icon: CalendarCheck,
     title: "Planningstools & Routinebouwers",
-    description: "Hulpmiddelen om taken, huiswerk en activiteiten te organiseren, en ondersteuning bij het opzetten van gezonde routines die passen bij hun energie."
+    description: "Hulpmiddelen om taken, huiswerk en activiteiten te organiseren, en ondersteuning bij het opzetten van gezonde routines die passen bij jouw energie."
   },
   {
     icon: Smile,
@@ -47,6 +47,11 @@ const coachingToolsFeatures = [
     icon: TrendingUp,
     title: "Voortgang & Motivatie",
     description: "Tools om persoonlijke doelen te stellen, voortgang te visualiseren en gemotiveerd te blijven op de reis naar persoonlijke groei."
+  },
+  {
+    icon: Sparkles,
+    title: "Persoonlijke Affirmaties",
+    description: "Krachtige, positieve zinnen die speciaal voor jou zijn samengesteld om je te helpen focussen op je sterke punten en doelen."
   }
 ];
 
@@ -61,7 +66,7 @@ export default function CoachingEnToolsPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto max-w-3xl">
+        <div className="container mx-auto max-w-4xl">
           
           <div className="text-center mb-12 md:mb-16">
             <Link href="/#platform-features-overview" aria-label={`Terug naar feature overzicht: ${featureTitle}`}>
@@ -84,38 +89,57 @@ export default function CoachingEnToolsPage() {
             </section>
 
             <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                        <Sparkles className="h-7 w-7"/>Kernonderdelen van onze Coaching & Tools
-                    </h2>
-                    <p>Deze module is rijk aan features die zijn ontworpen om jongeren te empoweren:</p>
-                </div>
-                <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
+                <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg order-last md:order-first">
                     <Image
                         src="https://placehold.co/600x400.png"
                         alt="Visualisatie van persoonlijke groei en coaching tools"
                         fill
                         style={{ objectFit: 'cover' }}
-                        data-ai-hint="personal growth tools"
+                        data-ai-hint="personal growth coaching tools"
                     />
                 </div>
+                <div className="space-y-4 order-first md:order-last">
+                    <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
+                        <Lightbulb className="h-6 w-6"/>De Kracht van Dagelijkse Ondersteuning
+                    </h3>
+                    <p>Onze coaching module is meer dan een verzameling tools; het is een dagelijkse metgezel die helpt bij:</p>
+                    <ul className="list-disc list-inside space-y-1.5 pl-5">
+                        <li>Het ontwikkelen van een positieve mindset.</li>
+                        <li>Het opbouwen van gezonde routines.</li>
+                        <li>Het versterken van zelfvertrouwen en zelfbewustzijn.</li>
+                        <li>Het leren omgaan met uitdagingen en emoties.</li>
+                        <li>Het stellen en bereiken van persoonlijke doelen.</li>
+                    </ul>
+                </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {coachingToolsFeatures.map((tool, index) => (
-                <Card key={index} className="shadow-lg bg-card border hover:shadow-xl transition-shadow h-full flex flex-col">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex-shrink-0 p-2 bg-primary/10 rounded-full">
-                      <tool.icon className="h-7 w-7 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg font-semibold text-foreground">{tool.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground flex-grow">
-                    {tool.description}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            
+            <Card className="shadow-lg bg-accent/5 border-accent/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-2xl text-accent">
+                    <Sparkles className="h-7 w-7" />Kernonderdelen van onze Coaching & Tools
+                </CardTitle>
+                <CardDescription>
+                  Een selectie van de tools die uw kind kan gebruiken voor dagelijkse groei en reflectie.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {coachingToolsFeatures.map((tool, index) => (
+                    <Card key={index} className="shadow-md bg-card border hover:shadow-lg transition-shadow h-full flex flex-col">
+                      <CardHeader className="flex flex-row items-center gap-3 pb-3">
+                        <div className="flex-shrink-0 p-2 bg-primary/10 rounded-full">
+                          <tool.icon className="h-6 w-6 text-primary" />
+                        </div>
+                        <CardTitle className="text-md font-semibold text-foreground">{tool.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-xs text-muted-foreground flex-grow">
+                        {tool.description}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
             
             <section className="text-center mt-16 pt-10 border-t">
               <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-4">
@@ -157,3 +181,5 @@ export default function CoachingEnToolsPage() {
     </div>
   );
 }
+
+    
