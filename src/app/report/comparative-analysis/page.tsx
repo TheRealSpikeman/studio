@@ -4,186 +4,413 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Printer, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, CheckSquare, Calendar, User as UserIcon, MapPin, Clock, Star, Brain, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Printer, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, CheckSquare, Calendar, User as UserIcon, MapPin, Clock, Star, Brain, ArrowRight, Lightbulb, Users, FileText, ExternalLink, HelpCircle, Check, BookOpenCheck } from 'lucide-react';
+import { Page, Text, View, Document, StyleSheet, Image, Link as PdfLink, Font } from '@react-pdf/renderer';
 
-// Restructured data for better rendering control
-const reportContent = {
+// Define styles for the PDF document
+const styles = StyleSheet.create({
+  page: {
+    padding: 30,
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: '#333'
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
+    paddingBottom: 10,
+  },
+  logoContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#E57125' // Primary color
+  },
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333'
+  },
+  pageSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4
+  },
+  reportInfo: {
+    fontSize: 8,
+    color: '#999',
+    marginTop: 10,
+  },
+  familyPhotoPlaceholder: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginTop: 15,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  familyPhotoText: {
+    fontSize: 8,
+    color: '#aaa',
+    textAlign: 'center'
+  },
+  introText: {
+    marginVertical: 20,
+    padding: 12,
+    backgroundColor: '#F0F9FF', // Light blue
+    borderLeftWidth: 4,
+    borderLeftColor: '#3B82F6', // Blue
+    borderRadius: 4,
+    color: '#1E40AF'
+  },
+  section: {
+    marginBottom: 24,
+    breakInside: 'avoid',
+  },
+  sectionHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E57125' // Primary color
+  },
+  sectionSummary: {
+    fontStyle: 'italic',
+    color: '#555',
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 8,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  itemContainer: {
+    marginBottom: 8,
+    paddingLeft: 12,
+  },
+  itemTitle: {
+    fontWeight: 'bold',
+    color: '#444'
+  },
+  itemText: {
+    color: '#555'
+  },
+  calloutBox: {
+    backgroundColor: '#FEF9C3', // Light yellow
+    borderLeftWidth: 4,
+    borderLeftColor: '#FBBF24', // Yellow
+    padding: 10,
+    borderRadius: 4,
+    marginVertical: 4,
+  },
+  actionPlanCard: {
+    marginBottom: 10,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#93C5FD', // Blue border
+    backgroundColor: '#EFF6FF', // Lighter blue
+    borderRadius: 6,
+    breakInside: 'avoid',
+  },
+  actionPlanTitleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  actionPlanTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1E40AF', // Darker blue
+    textTransform: 'uppercase'
+  },
+  actionDetailRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    fontSize: 9,
+    color: '#374151',
+    marginBottom: 2,
+  },
+  progressTrackerContainer: {
+    marginTop: 8,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#DBEAFE',
+  },
+  progressTrackerTitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  progressTrackerItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    fontSize: 9,
+    color: '#6B7280',
+  },
+  testimonialBox: {
+    marginTop: 24,
+    padding: 12,
+    borderTopWidth: 2,
+    borderTopStyle: 'dashed',
+    borderTopColor: '#E57125',
+    textAlign: 'center'
+  },
+  testimonialText: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    color: '#4B5563'
+  },
+  testimonialAuthor: {
+    marginTop: 4,
+    fontSize: 10,
+    color: '#6B7280'
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 15,
+    left: 30,
+    right: 30,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#aaa',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 5,
+  },
+  pageNumber: {
+    position: 'absolute',
+    fontSize: 8,
+    bottom: 5,
+    left: 0,
+    right: 30,
+    textAlign: 'right',
+    color: 'grey',
+  },
+  resourceLink: {
+    color: '#E57125',
+    textDecoration: 'underline'
+  }
+});
+
+// Report Data with new structure
+const reportData = {
     title: "Vergelijkende Analyse",
-    subtitle: "Inzichten voor Olivia Ouder en dochter Sofie",
+    subtitle: "Inzichten voor Olivia Ouder en Sofie",
+    parentName: "Olivia Ouder",
+    childName: "Sofie",
+    reportDate: new Date('2025-06-20T20:50:00'),
     intro: "Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van Sofie.",
-    basedOn: `Gebaseerd op 23 antwoorden van Olivia en 19 antwoorden van Sofie, voltooid op 18-06-2025.`,
-    generatedAt: `Rapport gegenereerd op: ${new Date('2025-06-20T20:50:00').toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+    basedOn: {
+        parentAnswers: { count: 23, focus: "gedrag en school" },
+        childAnswers: { count: 19, focus: "gevoelens en vrienden" },
+        agreements: 3,
+        differences: 2
+    },
     sections: [
       {
         id: 'gaps',
-        title: "Perceptie Gaten",
+        title: "1. Perceptie Gaten: Waar Zien Jullie Dingen Anders?",
         Icon: Target,
-        summary: "Belangrijkste inzicht: De grootste verschillen liggen in de beleving van sociale situaties en de impact van schoolstress.",
         items: [
-          { type: "[Inzicht]", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak. Dit verschil biedt een kans om samen te onderzoeken welke onderwerpen haar energie geven en welke niet." },
-          { type: "[Inzicht]", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. Dit kan een verschil in definitie zijn: wat u ziet als terughoudendheid, ervaart zij mogelijk als bewuste keuze." },
+          { type: "💡 Belangrijk Inzicht", text: "U geeft aan dat Sofie vaak moeite heeft met concentreren. Sofie zelf ervaart dit meer afhankelijk van de interesse in het vak. Dit biedt een kans om samen te onderzoeken welke onderwerpen haar energie geven en welke niet." },
+          { type: "🤔 Reflectie", text: "U ziet Sofie als soms wat terughoudend. Sofie beschrijft zichzelf als selectief in vriendschappen, maar comfortabel met de vrienden die ze heeft. Dit kan een verschil in definitie zijn: wat u ziet als terughoudendheid, ervaart zij mogelijk als bewuste keuze." },
         ]
       },
       {
         id: 'strengths',
-        title: "Gedeelde Sterktes",
+        title: "2. Gedeelde Sterktes: Wat Herkennen Jullie Beiden?",
         Icon: ThumbsUp,
-        summary: "Belangrijkste inzicht: Zowel ouder als kind erkennen de creativiteit en het doorzettingsvermogen als kernkwaliteiten.",
         items: [
-          { type: "[Gedeelde Kracht]", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament dat kan worden ingezet om schoolwerk leuker te maken, bijvoorbeeld door visuele samenvattingen te maken." },
-          { type: "[Gedeelde Kracht]", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten. Benoem dit doorzettingsvermogen als een compliment om haar zelfvertrouwen te versterken." },
+          { type: "💪 Gedeelde Kracht", text: "Zowel u als Sofie benoemen haar creatieve talenten en het vermogen om originele verhalen te bedenken. Dit is een krachtig fundament dat kan worden ingezet om schoolwerk leuker te maken, bijvoorbeeld door visuele samenvattingen te maken." },
+          { type: "💪 Gedeelde Kracht", text: "U ziet dat Sofie kan doorzetten als ze iets echt wil. Sofie is trots op het afronden van moeilijke schoolprojecten. Benoem dit doorzettingsvermogen als een compliment om haar zelfvertrouwen te versterken." },
         ]
       },
       {
         id: 'blind-spots',
-        title: "Blinde Vlekken & Kansen",
+        title: "3. Blinde Vlekken & Kansen",
         Icon: EyeOff,
-        summary: "Belangrijkste inzicht: De impact van zintuiglijke overprikkeling is een mogelijke blinde vlek voor de ouder.",
         items: [
-          { type: "[Reflectiepunt]", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
-          { type: "[KANS]", callout: true, text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze." },
+          { type: "🤔 Reflectie", text: "U maakt zich zorgen over Sofie's slaappatroon. Sofie zelf ervaart hier geen problemen mee. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
+          { type: "🎯 Actiekans", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een mogelijke blinde vlek voor u. Bespreek strategieën voor drukke omgevingen, zoals het gebruik van een koptelefoon of het nemen van een korte pauze.", callout: true },
         ]
       },
       {
         id: 'communication',
-        title: "Communicatie Tips",
+        title: "4. Communicatie Tips: Hoe Beter Afstemmen?",
         Icon: MessageCircle,
-        summary: "Belangrijkste inzicht: Focus op open vragen en het erkennen van haar perspectief om het gesprek te openen.",
         items: [
-          { type: "[Communicatie Tip]", text: "In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk?\"" },
-          { type: "[Communicatie Tip]", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
+          { type: "💬 Gesprekstip", text: "In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk?\"" },
+          { type: "💬 Gesprekstip", text: "Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
         ]
       },
       {
         id: 'action-plan',
-        title: "Familie Actieplan",
+        title: "5. Familie Actieplan: Concrete Stappen",
         Icon: ClipboardList,
-        summary: "Een reeks concrete, haalbare acties om direct mee aan de slag te gaan.",
         actionItems: [
-          { title: "ACTIE 1: CREATIEF UURTJE", details: [{ icon: Calendar, text: "Elke zaterdag 10-11u" }, { icon: UserIcon, text: "Sofie kiest activiteit" }, { icon: MapPin, text: "Keukentafel" }, { icon: Clock, text: "60 minuten" }] },
-          { title: "ACTIE 2: FOCUS PLAN MAKEN", details: [{ icon: Target, text: "Pomodoro blokken (25 min)" }, { icon: Clock, text: "Start direct na school" }, { icon: MapPin, text: "Bureau" }] },
-          { title: "ACTIE 3: PRIKKEL THERMOMETER", details: [{ icon: Brain, text: "Maak groen-oranje-rood thermometer" }, { icon: Calendar, text: "Check-in elke avond" }, { icon: MapPin, text: "Op de koelkast" }] },
+          { title: "Creatief Uurtje", details: [{ icon: '📅', text: "Elke zaterdag 10:00-11:00" }, { icon: '👤', text: "Sofie kiest activiteit, ouder faciliteert" }, { icon: '📍', text: "Keukentafel" }, { icon: '⏱️', text: "60 minuten" }] },
+          { title: "Focus Sessie Plan", details: [{ icon: '🎯', text: "Start: Direct na school (16:00)" }, { icon: '⏱️', text: "Duur: 25 min werk + 5 min pauze" }, { icon: '📍', text: "Rustige plek zonder afleiding" }, { icon: '🏆', text: "Beloning: 10 min vrije tijd na elke sessie" }] },
+          { title: "Prikkel Thermometer", details: [{ icon: '🧠', text: "Maak groen-oranje-rood thermometer" }, { icon: '📅', text: "Check-in elke avond voor het slapen" }, { icon: '📍', text: "Hang op een zichtbare plek, bv. koelkast" }] },
         ]
       },
-       {
+      {
         id: 'next-steps',
-        title: "Volgende Stappen",
+        title: "6. Volgende Stappen: Hoe Nu Verder?",
         Icon: ArrowRight,
-        summary: "Hoe nu verder? Maak het concreet en plan een opvolgmoment.",
         items: [
-          { type: "**PROBEER DEZE WEEK**", callout: true, text: "Kies één actiepunt uit het Familie Actieplan om deze week mee te starten. Begin klein!" },
+          { type: "Check-in over 2 weken:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
           { type: "Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
-          { type: "PLAN NU IN JE AGENDA:", callout: true, text: "Datum: [  /  /2025]\nTijd: [  :  ]\nDuur: 15 minuten\nWie: Sofie + ouder\nOnderwerp: Hoe ging het creatieve uurtje?" }
         ]
       },
+      {
+        id: 'resources',
+        title: "7. Extra Hulpbronnen",
+        Icon: BookOpenCheck,
+        items: [
+            { type: "Video", text: "Bekijk 'Pomodoro voor tieners' (2 min) op YouTube." , link: "https://www.youtube.com"},
+            { type: "Artikel", text: "Lees 'Creativiteit stimuleren thuis' op onze blog.", link: "/blog/creativiteit-stimuleren"},
+            { type: "Community", text: "Maak contact met Ouders van creatieve tieners.", link: "/community/groepen"},
+            { type: "Coach", text: "Boek een 15-min gratis consult met een gespecialiseerde coach.", link: "/dashboard/ouder/zoek-professional"},
+        ]
+      }
     ]
 };
 
-export default function ComparativeAnalysisReportPage() {
-    return (
-        <div className="bg-gray-100 text-gray-800 font-sans p-4 sm:p-8 report-body">
-            <header className="flex justify-between items-start mb-8 print-hide">
-                <SiteLogo />
-                <Button onClick={() => window.print()}>
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print of Bewaar als PDF
-                </Button>
-            </header>
-            
-            <main className="max-w-4xl mx-auto bg-white p-10 shadow-lg rounded-lg">
-                <div className="text-center mb-10 border-b pb-6 border-gray-200">
-                    <div className="flex justify-center items-center gap-4 mb-4">
-                        <SiteLogo iconClassName="h-10 w-10 text-primary" textClassName="text-3xl"/>
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-800">{reportContent.title}</h1>
-                    <p className="text-lg text-gray-500 mt-2">{reportContent.subtitle}</p>
-                    <div className="text-xs text-gray-400 mt-4">
-                        <p>{reportContent.generatedAt}</p>
-                        <p className="mt-1">{reportContent.basedOn}</p>
-                    </div>
-                     <div className="mt-6 flex justify-center items-center gap-4">
-                        <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs italic print-avoid-break">
-                            Voeg hier uw<br/>gezinsfoto toe
-                        </div>
-                    </div>
-                </div>
+const PDFReport = () => (
+  <Document title={`Vergelijkende Analyse - ${reportData.childName}`}>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+            <Text style={styles.logoText}>MindNavigator</Text>
+        </View>
+        <Text style={styles.pageTitle}>{reportData.title}</Text>
+        <Text style={styles.pageSubtitle}>{reportData.subtitle}</Text>
+        <Text style={styles.reportInfo}>
+          Rapport gegenereerd op: {reportData.reportDate.toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' })}
+        </Text>
+        <View style={styles.familyPhotoPlaceholder}>
+            <Text style={styles.familyPhotoText}>Voeg hier uw</Text>
+            <Text style={styles.familyPhotoText}>gezinsfoto toe</Text>
+        </View>
+      </View>
 
-                <p className="text-base leading-relaxed mb-12 p-4 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 print-avoid-break">
-                    {reportContent.intro}
-                </p>
+      <Text style={styles.introText}>{reportData.intro}</Text>
+      
+      <View style={{...styles.itemContainer, backgroundColor: '#f9fafb', padding: 8, borderRadius: 4, marginBottom: 20}}>
+        <Text style={{...styles.itemTitle, fontSize: 10}}>Gebaseerd op:</Text>
+        <Text style={{fontSize: 9, color: '#4B5563'}}>• {reportData.basedOn.parentAnswers.count} antwoorden van {reportData.parentName} (focus op {reportData.basedOn.parentAnswers.focus})</Text>
+        <Text style={{fontSize: 9, color: '#4B5563'}}>• {reportData.basedOn.childAnswers.count} antwoorden van {reportData.childName} (focus op {reportData.basedOn.childAnswers.focus})</Text>
+        <Text style={{fontSize: 9, color: '#4B5563'}}>• {reportData.basedOn.agreements} belangrijke overeenkomsten gevonden</Text>
+        <Text style={{fontSize: 9, color: '#4B5563'}}>• {reportData.basedOn.differences} verrassende verschillen ontdekt</Text>
+      </View>
 
-                <div className="space-y-12">
-                    {reportContent.sections.map((section) => {
-                        const SectionIcon = section.Icon;
-                        return (
-                            <div key={section.id} className="print-avoid-break">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="flex-shrink-0 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center">
-                                        <SectionIcon className="h-7 w-7" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-primary">{section.title}</h2>
-                                </div>
+      {reportData.sections.map((section, index) => (
+        <View key={section.id} style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={{fontSize: 18}}>{section.icon}</Text>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+          </View>
+          
+          <Text style={styles.sectionSummary}>{section.summary}</Text>
 
-                                <Card className="mb-4 bg-gray-50 border-gray-200 shadow-sm">
-                                    <CardContent className="p-4">
-                                        <p className="text-sm italic text-gray-600"><strong>Belangrijkste inzicht:</strong> {section.summary}</p>
-                                    </CardContent>
-                                </Card>
-                                
-                                {section.items && section.items.map((item, itemIndex) => (
-                                    item.callout ? (
-                                        <div key={itemIndex} className="my-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg">
-                                            <p className="font-bold">{item.type}</p>
-                                            <p className="whitespace-pre-line">{item.text}</p>
-                                        </div>
-                                    ) : (
-                                        <div key={itemIndex} className="mb-3 pl-4">
-                                            <p className="font-semibold text-gray-700">{item.type}</p>
-                                            <p className="text-gray-600">{item.text}</p>
-                                        </div>
-                                    )
-                                ))}
+          {section.items && section.items.map((item, itemIndex) => (
+             <View key={itemIndex} style={item.callout ? styles.calloutBox : styles.itemContainer}>
+                <Text style={styles.itemTitle}>{item.type}</Text>
+                {item.link ? (
+                    <PdfLink src={item.link} style={styles.resourceLink}><Text>{item.text}</Text></PdfLink>
+                ) : (
+                    <Text style={styles.itemText}>{item.text}</Text>
+                )}
+            </View>
+          ))}
+          
+          {section.actionItems && section.actionItems.map((item, itemIndex) => (
+            <View key={itemIndex} style={styles.actionPlanCard}>
+                <View style={styles.actionPlanTitleContainer}>
+                    <Text>✅</Text>
+                    <Text style={styles.actionPlanTitle}>{item.title}</Text>
+                </View>
+                <View style={{paddingLeft: 22}}>
+                    {item.details.map((detail, detailIndex) => (
+                        <Text key={detailIndex} style={styles.actionDetailRow}>{detail.icon} {detail.text}</Text>
+                    ))}
+                    <View style={styles.progressTrackerContainer}>
+                        <Text style={styles.progressTrackerTitle}>📊 WEEK TRACKER</Text>
+                        <Text style={styles.progressTrackerItem}>□ Week 1: Uitgeprobeerd</Text>
+                        <Text style={styles.progressTrackerItem}>□ Week 2: Aangepast</Text>
+                        <Text style={styles.progressTrackerItem}>□ Week 3: Routine gevonden</Text>
+                        <Text style={styles.progressTrackerItem}>□ Week 4: Geëvalueerd</Text>
+                    </View>
+                </View>
+            </View>
+          ))}
+        </View>
+      ))}
 
-                                {section.actionItems && section.actionItems.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="mb-4 p-4 border border-blue-200 bg-blue-50 rounded-lg shadow print-avoid-break">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-6 h-6 border-2 border-blue-600 rounded-sm"></div>
-                                            <h4 className="font-bold text-blue-800 text-lg uppercase">{item.title}</h4>
-                                        </div>
-                                        <div className="pl-9 space-y-1">
-                                            {item.details.map((detail, detailIndex) => {
-                                                const DetailIcon = detail.icon;
-                                                return (
-                                                <div key={detailIndex} className="flex items-center gap-2 text-sm text-blue-700">
-                                                    <DetailIcon className="h-4 w-4"/>
-                                                    <span>{detail.text}</span>
-                                                </div>
-                                            )})}
-                                        </div>
-                                    </div>
-                                ))}
+        <View style={styles.testimonialBox}>
+            <Text style={styles.testimonialText}>"Door dit rapport begrijp ik mijn dochter veel beter."</Text>
+            <Text style={styles.testimonialAuthor}>- Marina, moeder van Lisa (14)</Text>
+        </View>
 
-                                 {section.id === 'next-steps' && (
-                                    <div className="mt-6 p-4 border-t-2 border-dashed border-gray-300">
-                                         <p className="text-sm text-center text-gray-500">Dit rapport is het begin van een gesprek. Gebruik de inzichten om samen te groeien.</p>
-                                    </div>
-                                 )}
-                            </div>
-                        );
-                    })}
-                </div>
-                 <div className="mt-12 pt-8 text-center border-t-2 border-primary">
-                    <h3 className="text-xl font-semibold text-gray-700">"Door dit rapport begrijp ik mijn dochter veel beter."</h3>
-                    <p className="text-sm text-gray-500 mt-1">- Marina, moeder van Lisa (14)</p>
-                </div>
+      <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+        `Pagina ${pageNumber} / ${totalPages}`
+      )} fixed />
+      <View style={styles.footer} fixed>
+        <Text>Gegenereerd door MindNavigator | www.mindnavigator.app</Text>
+        <Text>Disclaimer: Dit rapport is een hulpmiddel en geen vervanging voor professioneel advies.</Text>
+      </View>
+    </Page>
+  </Document>
+);
 
-                 <footer className="text-center mt-12 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600">Gegenereerd door MindNavigator</p>
-                    <p className="text-xs text-gray-400">www.mindnavigator.app</p>
-                    <p className="text-xs text-gray-400 mt-4">Disclaimer: Dit rapport is een hulpmiddel en geen vervanging voor professioneel advies.</p>
-                </footer>
-            </main>
-        </div>
-    );
+// Wrapper component to only render PDFViewer on the client
+function PDFViewerComponent() {
+  const [isClient, setIsClient] = React.useState(false);
+  
+  React.useEffect(() => {
+    // Dynamically import the PDFViewer only on the client side
+    setIsClient(true);
+  }, []);
+  
+  if (!isClient) {
+    return null; // Return null on the server
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { PDFViewer } = require('@react-pdf/renderer');
+  
+  return (
+    <PDFViewer style={{ width: '100%', height: '100vh' }}>
+      <PDFReport />
+    </PDFViewer>
+  );
+}
+
+// Main page component remains for routing, but can be simplified if PDF is the only content
+export default function VoorbeeldAnalyseRapportPageWrapper() {
+  return <PDFViewerComponent />;
 }
