@@ -21,7 +21,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar
+  useSidebar,
+  SidebarSeparator
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
@@ -201,7 +202,7 @@ function SidebarNavigationContent() {
 
   return (
     <>
-      <SidebarHeader className="border-b">
+      <SidebarHeader>
         <div className="flex h-16 items-center justify-between px-4 group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1">
           <SiteLogo 
             textClassName="group-data-[collapsible=icon]:hidden" 
@@ -209,7 +210,7 @@ function SidebarNavigationContent() {
           />
         </div>
         <div className={cn(
-            "p-4 border-b", 
+            "p-4",
             "group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:border-b-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
         )}>
           <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1 group-data-[collapsible=icon]:hidden">
@@ -242,6 +243,8 @@ function SidebarNavigationContent() {
         </div>
       </SidebarHeader>
       
+      <SidebarSeparator />
+
       <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
         <SidebarMenu>
           {navItems.map((item, index) => {
