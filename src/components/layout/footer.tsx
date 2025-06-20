@@ -89,10 +89,7 @@ export function Footer() {
 
           {/* Column 4: Join Us */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
-            <h4 className="text-md font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" /> Doe Mee
-            </h4>
-            
+            {/* Title "Doe Mee" and its icon are removed */}
             <div className="mb-3">
               <div className="flex items-center gap-2 mb-1">
                 <Briefcase className="h-5 w-5 text-primary" />
