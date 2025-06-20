@@ -156,7 +156,6 @@ const PageNumber = ({ pageNumber, totalPages }: { pageNumber: number, totalPages
 export default function ComparativeAnalysisReportPage() {
     return (
         <div className="bg-white text-black font-sans">
-            {/* Screen-only header with print button */}
             <header className="p-4 border-b print-hide flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-sm z-10">
                 <SiteLogo />
                 <Button onClick={() => window.print()}>
@@ -165,7 +164,6 @@ export default function ComparativeAnalysisReportPage() {
                 </Button>
             </header>
 
-             {/* Print-only header with logo */}
             <div className="hidden print-header">
                 <SiteLogo className="logo-header" />
                 <div className="text-right">
@@ -213,7 +211,6 @@ export default function ComparativeAnalysisReportPage() {
                     <ReportSection key={section.id} section={section} />
                 ))}
 
-                {/* Action Plan Section */}
                 <section className="mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg border-l-4 border-accent shadow">
                     <h2 className="text-2xl font-bold text-accent mb-4 flex items-center gap-3">
                         <ClipboardList className="h-7 w-7" />
@@ -235,9 +232,9 @@ export default function ComparativeAnalysisReportPage() {
                                         );
                                     })}
                                 </div>
-                                <div className="bg-accent/10 p-3 rounded-md border border-accent/20">
-                                    <h4 className="font-semibold text-accent flex items-center gap-2 mb-1"><item.callout.icon className="h-5 w-5"/>{item.callout.type}</h4>
-                                    <p className="text-sm text-accent-foreground/80 leading-relaxed">{item.callout.text}</p>
+                                <div className="bg-green-50/80 p-3 rounded-md border border-green-200">
+                                    <h4 className="font-semibold text-green-700 flex items-center gap-2 mb-1"><item.callout.icon className="h-5 w-5"/>{item.callout.type}</h4>
+                                    <p className="text-sm text-green-900/90 leading-relaxed">{item.callout.text}</p>
                                 </div>
                                 <div className="mt-4 pt-3 border-t">
                                      <h4 className="font-semibold text-base text-gray-600 mb-2">📊 Week Tracker</h4>
@@ -255,7 +252,33 @@ export default function ComparativeAnalysisReportPage() {
                     </div>
                 </section>
                 
-                {/* Methodology Section */}
+                <section className="mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg shadow">
+                    <h2 className="text-2xl font-bold text-primary mb-3">Reflectievragen voor Ouders</h2>
+                    <ul className="space-y-3">
+                    {reportData.reflectionQuestions.map((item, index) => {
+                        const Icon = item.icon;
+                        return (<li key={index} className="flex items-start gap-3 text-base text-muted-foreground"><Icon className="h-5 w-5 text-primary mt-1 flex-shrink-0" />{item.question}</li>)
+                    })}
+                    </ul>
+                </section>
+                
+                 <section className="mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg shadow">
+                    <h2 className="text-2xl font-bold text-primary mb-3">Extra Hulpbronnen</h2>
+                    <ul className="space-y-2">
+                        {reportData.extraResources.map((item, index) => {
+                             const Icon = item.icon;
+                             return (<li key={index}><Button variant="link" asChild className="p-0 h-auto text-base text-accent hover:text-accent/80"><Link href={item.link}><Icon className="h-4 w-4 mr-2"/>{item.text}</Link></Button></li>)
+                        })}
+                    </ul>
+                </section>
+
+                 <section className="print-avoid-break text-center my-10">
+                    <div className="italic bg-gray-100 p-4 rounded-lg border-l-4 border-gray-400">
+                        <p className="text-gray-700 text-lg">"{reportData.testimonial.quote}"</p>
+                        <p className="text-right text-gray-600 font-medium mt-2">- {reportData.testimonial.author}</p>
+                    </div>
+                 </section>
+
                 <section className="mb-8 print-avoid-break bg-slate-50/50 p-6 rounded-lg border-l-4 border-gray-400 shadow">
                     <h2 className="text-2xl font-bold text-gray-700 mb-2 flex items-center gap-3">
                         <reportData.methodology.icon className="h-7 w-7" />
@@ -270,10 +293,7 @@ export default function ComparativeAnalysisReportPage() {
                         ))}
                     </div>
                 </section>
-
-
             </main>
-            {/* Print-only footer */}
             <div className="hidden print-footer">
                <p>Gegenereerd door MindNavigator | www.mindnavigator.app</p>
                <div className="page-number"></div>
@@ -281,3 +301,4 @@ export default function ComparativeAnalysisReportPage() {
         </div>
     );
 }
+
