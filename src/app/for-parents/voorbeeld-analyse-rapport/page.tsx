@@ -1,23 +1,17 @@
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-    ArrowLeft, Download, Bot, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, ArrowRight
+    ArrowLeft, Download, Bot
 } from 'lucide-react';
 
 function VoorbeeldAnalyseRapportPageContent() {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -29,17 +23,11 @@ function VoorbeeldAnalyseRapportPageContent() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar uitleg
               </Link>
             </Button>
-            {isClient ? (
-              <Button asChild>
-                <Link href="/report/comparative-analysis" target="_blank" rel="noopener noreferrer">
-                    <Download className="mr-2 h-4 w-4" /> Open & Bewaar Rapport
-                </Link>
-              </Button>
-            ) : (
-              <Button disabled>
-                <Download className="mr-2 h-4 w-4" /> Rapport Laden...
-              </Button>
-            )}
+            <Button asChild>
+              <Link href="/report/comparative-analysis" target="_blank" rel="noopener noreferrer">
+                  <Download className="mr-2 h-4 w-4" /> Open Rapport & Sla op als PDF
+              </Link>
+            </Button>
           </div>
 
           <Card className="shadow-xl">
@@ -53,7 +41,7 @@ function VoorbeeldAnalyseRapportPageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                 <p className="text-center text-muted-foreground">Klik op 'Open & Bewaar Rapport' hierboven om een voorbeeld te zien en op te slaan als PDF via de print-dialoog van uw browser.</p>
+                 <p className="text-center text-muted-foreground">Klik op 'Open Rapport & Sla op als PDF' hierboven om een printvriendelijke versie te openen. U kunt deze vervolgens opslaan als PDF via de print-dialoog van uw browser (Ctrl+P of Cmd+P).</p>
             </CardContent>
           </Card>
         </div>

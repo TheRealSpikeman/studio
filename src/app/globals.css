@@ -172,7 +172,7 @@ body {
 
 @media print {
   .print-hide {
-    display: none;
+    display: none !important;
   }
   .print-avoid-break {
     break-inside: avoid;
@@ -181,5 +181,14 @@ body {
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  main {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  @page {
+    margin: 1cm;
   }
 }
