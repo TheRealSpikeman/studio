@@ -35,8 +35,8 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
-const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v1';
-const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage-2.gif?alt=media";
+const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2'; // v2 to indicate new format handling
+const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png?alt=media&token=34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -63,8 +63,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    // imageUrl is handled by currentIntroImageUrl state for the intro section
-    dataAiHint: "brain diversity connection"
+    dataAiHint: "diverse colorful brains connected" // Updated hint based on new default image
   },
   {
     id: "add",
@@ -184,48 +183,89 @@ export default function NeurodiversiteitPage() {
   const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [isClient, setIsClient] = useState(false);
 
+  const gsPathToHttps = (gsPath: string, token?: string): string => {
+    if (!gsPath.startsWith('gs://')) return gsPath; // Return as is if not a gs path
+
+    const parts = gsPath.substring(5).split('/');
+    const bucket = parts.shift();
+    const filePath = parts.join('/');
+
+    if (!bucket || !filePath) {
+      console.warn("Ongeldig gs:// pad formaat:", gsPath);
+      return DEFAULT_INTRO_IMAGE_URL; // Fallback
+    }
+    const encodedFilePath = encodeURIComponent(filePath);
+    let httpsUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedFilePath}?alt=media`;
+    if (token) {
+      httpsUrl += `&token=${token}`;
+    }
+    return httpsUrl;
+  };
+  
   useEffect(() => {
     setIsClient(true); 
-    const storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
+    let storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
+    let finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
+
     if (storedImageUrl) {
       if (storedImageUrl.startsWith('gs://')) {
-        setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
-        setImageUrlInput(DEFAULT_INTRO_IMAGE_URL);
-        toast({
-          title: "Opgeslagen URL Ongeldig",
-          description: "De eerder opgeslagen afbeeldings-URL gebruikt een 'gs://' prefix en is gereset. Voer een geldige HTTPS URL in.",
-          variant: "destructive",
-          duration: 7000,
-        });
+        // Check if it's the specific image with a known token
+        if (storedImageUrl === "gs://neurodiversity-navigator.firebasestorage.app/Diverse_colorful_brains_connected.png") {
+          finalUrlToSet = gsPathToHttps(storedImageUrl, "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed");
+        } else {
+          // For other gs:// paths, convert without token and show warning
+          finalUrlToSet = gsPathToHttps(storedImageUrl);
+           toast({
+            title: "Afbeeldings-URL geconverteerd",
+            description: `Een gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL inclusief token voor privé-afbeeldingen.`,
+            variant: "default",
+            duration: 8000,
+          });
+        }
+        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet); // Store converted URL
       } else {
-        setCurrentIntroImageUrl(storedImageUrl);
-        setImageUrlInput(storedImageUrl);
+        finalUrlToSet = storedImageUrl;
       }
-    } else {
-      setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
-      setImageUrlInput(DEFAULT_INTRO_IMAGE_URL);
     }
+    setCurrentIntroImageUrl(finalUrlToSet);
+    setImageUrlInput(finalUrlToSet);
   }, [toast]);
 
+
   const handleSetImageUrl = () => {
-    if (imageUrlInput.trim() === "") {
+    let urlToProcess = imageUrlInput.trim();
+    if (urlToProcess === "") {
       toast({ title: "Fout", description: "Voer een geldige URL in.", variant: "destructive" });
       return;
     }
-    if (imageUrlInput.startsWith('gs://')) {
-      toast({
-        title: "Ongeldige URL Invoer",
-        description: "Gebruik a.u.b. een HTTPS URL (beginnend met http:// of https://) voor Firebase Storage afbeeldingen, geen gs:// URL.",
-        variant: "destructive",
-        duration: 7000,
-      });
-      return; 
+
+    if (urlToProcess.startsWith('gs://')) {
+      const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/Diverse_colorful_brains_connected.png";
+      const specificToken = "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
+      
+      if (urlToProcess === specificGsPath) {
+        urlToProcess = gsPathToHttps(urlToProcess, specificToken);
+        toast({
+          title: "URL Correct Omgezet",
+          description: "De gs:// URL is succesvol omgezet naar een HTTPS URL met token.",
+          variant: "default",
+        });
+      } else {
+        urlToProcess = gsPathToHttps(urlToProcess); // Converts without token
+        toast({
+          title: "URL Omgezet (zonder token)",
+          description: "De gs:// URL is omgezet. Als de afbeelding een token vereist om publiek zichtbaar te zijn, werkt deze mogelijk niet. Plak de volledige HTTPS URL inclusief token voor privé-afbeeldingen.",
+          variant: "default",
+          duration: 8000,
+        });
+      }
     }
+
     try {
-      new URL(imageUrlInput); 
-      setCurrentIntroImageUrl(imageUrlInput);
+      new URL(urlToProcess); 
+      setCurrentIntroImageUrl(urlToProcess);
       if (isClient) {
-        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, imageUrlInput);
+        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, urlToProcess);
       }
       toast({ title: "Afbeelding ingesteld", description: "De introductieafbeelding is bijgewerkt." });
     } catch (e) {
@@ -266,7 +306,7 @@ export default function NeurodiversiteitPage() {
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
                     <Image
                         src={currentIntroImageUrl}
-                        alt={introTopic.title}
+                        alt={introTopic.title || "Neurodiversiteit introductie afbeelding"}
                         fill
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={introTopic.dataAiHint || "abstract brain"}
@@ -275,12 +315,12 @@ export default function NeurodiversiteitPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Firebase Storage Afbeelding URL (HTTPS):</Label>
+                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Afbeelding URL (Firebase Storage HTTPS of gs://):</Label>
                     <div className="flex gap-2 mt-1">
                       <Input 
                         id="imageUrlInput"
-                        type="url"
-                        placeholder="Plak hier de HTTPS Firebase Storage URL..."
+                        type="text" // Changed from url to text to allow gs://
+                        placeholder="Plak hier de HTTPS of gs:// Firebase Storage URL..."
                         value={imageUrlInput}
                         onChange={(e) => setImageUrlInput(e.target.value)}
                         className="flex-grow"
@@ -290,7 +330,7 @@ export default function NeurodiversiteitPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Zorg dat de afbeelding publiek toegankelijk is en een HTTPS URL heeft.
+                      Plak een `gs://` URI of een `https://firebasestorage.googleapis.com/...` URL. Voor niet-publieke `gs://` afbeeldingen, zorg dat de HTTPS URL de access token bevat.
                     </p>
                   </div>
                 </div>
