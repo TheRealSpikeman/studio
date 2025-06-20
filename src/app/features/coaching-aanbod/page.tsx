@@ -27,7 +27,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: Zap,
     title: "Digitale Tools & Zelfreflectie",
-    description: "Ontdek je denkstijl, sterke punten en uitdagingen via interactieve quizzen. De basis voor gepersonaliseerde ondersteuning.",
+    description: "Ontdek je denkstijl en sterke punten via interactieve quizzen. De basis voor gepersonaliseerde ondersteuning.",
     features: [
       "Persoonlijke neurodiversiteit-assessments",
       "Directe, heldere rapportages & inzichten",
@@ -42,14 +42,14 @@ const coachingTypes: CoachingType[] = [
   {
     icon: BookOpenCheck,
     title: "Persoonlijke Huiswerkondersteuning",
-    description: "Krijg 1-op-1 hulp van deskundige tutors voor vakken, planning of leerstrategieën. Flexibel en op jouw tempo via ons platform.",
+    description: "Deskundige tutors bieden 1-op-1 hulp bij vakken, planning of leerstrategieën. Flexibel en op jouw tempo.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
       "Examentraining en toetsvoorbereiding",
     ],
     ctaText: "Vind een Tutor",
-    ctaLink: "/dashboard/ouder/zoek-professional", 
+    ctaLink: "/dashboard/ouder/zoek-professional",
     colorClass: "bg-blue-50 border-blue-200 hover:shadow-blue-100",
     priceIndication: "Vanaf €25/uur",
     qualityNote: "✓ Al onze tutors zijn VOG-gescreend en hebben ervaring met diverse leerstijlen.",
@@ -57,7 +57,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: HeartHandshake,
     title: "Diepgaande Begeleiding (Coach)",
-    description: "Bespreek persoonlijke uitdagingen, emoties of zelfvertrouwen met een ervaren coach (psycholoog/orthopedagoog). Krijg strategieën passend bij jouw profiel.",
+    description: "Ervaren coaches bieden hulp bij persoonlijke uitdagingen en emoties, met passende strategieën.",
     features: [
       "1-op-1 gesprekken (online)",
       "Focus op persoonlijke groei & welzijn",
@@ -65,7 +65,7 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress & emoties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional", 
+    ctaLink: "/dashboard/ouder/zoek-professional",
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
     priceIndication: "Vanaf €75/uur",
     qualityNote: "✓ Onze coaches zijn gekwalificeerde professionals (psycholoog/orthopedagoog) en VOG-gescreend.",
@@ -97,7 +97,7 @@ export default function CoachingAanbodPage() {
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/5 to-background py-12 md:py-20 lg:py-28">
         <div className="container mx-auto px-4">
-          <header className="text-center mb-12">
+          <header className="text-center mb-12 md:mb-16">
             <Sparkles className="mx-auto h-16 w-16 text-primary mb-6" />
             <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
               Ons Coaching & Ondersteuningsaanbod
@@ -109,8 +109,8 @@ export default function CoachingAanbodPage() {
               MindNavigator biedt verschillende vormen van ondersteuning, passend bij jouw behoeften. Van digitale zelfhulp tot persoonlijke 1-op-1 begeleiding.
             </p>
           </header>
-          
-          <Alert variant="default" className="mb-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
+
+          <Alert variant="default" className="mb-12 md:mb-16 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
             <ShieldCheck className="h-5 w-5 !text-blue-600" />
             <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
             <AlertDescriptionUi className="text-blue-600">
@@ -120,7 +120,7 @@ export default function CoachingAanbodPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {coachingTypes.map((type) => (
-              <Card key={type.title} className={cn("flex flex-col shadow-xl hover:shadow-2xl transition-shadow duration-300", type.colorClass)}>
+              <Card key={type.title} className={cn("flex flex-col shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full", type.colorClass)}>
                 <CardHeader className="items-center text-center">
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <type.icon className="h-9 w-9" />
@@ -195,3 +195,4 @@ export default function CoachingAanbodPage() {
     </div>
   );
 }
+
