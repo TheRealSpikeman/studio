@@ -1,4 +1,3 @@
-
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
@@ -81,13 +80,15 @@ const PDF_STYLES = {
   fontFamily: "Helvetica",
   pageMargins: { top: 20, bottom: 25, left: 20, right: 20 },
   sectionSpacing: 8,
-  padding: 10,
+  padding: 8, // Meer interne ruimte
+  cornerRadius: 4, // Rondere hoeken
   titleSize: 22,
   subtitleSize: 11,
   h2Size: 16,
   normalSize: 10.5,
   smallSize: 8,
   lineHeightFactor: 1.5,
+  bulletRadius: 1, // BUGFIX: Radius voor bullet points gedefinieerd
 };
 
 
@@ -101,8 +102,8 @@ export default function VoorbeeldAnalyseRapportPage() {
     subtitle: `Inzichten voor ${parentName} en ${childName}`,
     intro: `Dit rapport is zorgvuldig samengesteld om u als ouder inzicht te geven in de overeenkomsten en verschillen tussen uw perspectief en de zelfreflectie van uw kind. Onze AI heeft de antwoorden op circa 15-20 vragen per persoon geanalyseerd om patronen te herkennen, zonder individuele responses te beoordelen als 'goed' of 'fout'. Het doel is om een brug te slaan, communicatie te bevorderen en concrete, gezamenlijke actiepunten te formuleren die bijdragen aan het welzijn en de ontwikkeling van ${childName}.`,
     basedOn: [
-        `Ouder-quiz: "Ken je Kind" (ingevuld door ${parentName})`,
-        `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld door ${childName})`
+        `Ouder-quiz: "Ken je Kind" (ingevuld door ${parentName} op 18-06-2025)`,
+        `Kind-quiz: "Hoe zie ik mezelf?" (ingevuld door ${childName} op 19-06-2025)`
     ],
     generatedAt: `Rapport gegenereerd via www.mindnavigator.io op: ${format(new Date('2025-06-20T20:50:00'), 'd MMMM yyyy \'om\' HH:mm', { locale: nl })}`,
     sections: [
@@ -197,7 +198,7 @@ export default function VoorbeeldAnalyseRapportPage() {
       const usableWidth = pageWidth - margins.left - margins.right;
       let y = margins.top;
       
-      const checkY = (neededHeight: number) => {
+      const checkY = (neededHeight: number): void => {
         if (y + neededHeight > pageHeight - margins.bottom) {
           doc.addPage();
           y = margins.top;
@@ -217,7 +218,6 @@ export default function VoorbeeldAnalyseRapportPage() {
         doc.setTextColor(color[0], color[1], color[2]);
 
         const parts = text.split(/(<strong>.*?<\/strong>|<i>.*?<\/i>)/g).filter(Boolean);
-        let currentX = x;
         let lineParts: { text: string; style: 'bold' | 'italic' | 'normal' }[] = [];
 
         parts.forEach(part => {
@@ -228,12 +228,12 @@ export default function VoorbeeldAnalyseRapportPage() {
 
         let textToSplit = lineParts.map(p => p.text).join('');
         let lines = doc.splitTextToSize(textToSplit, maxWidth);
-        let lineY = yPos;
+        let currentY = yPos;
         let partIndex = 0;
 
         lines.forEach((line: string) => {
           checkY(lineHeight);
-          if (lineY > yPos) y = lineY; 
+          if (currentY > yPos) y = currentY; 
           
           let remainingLineText = line;
           let currentLineX = x;
@@ -243,60 +243,84 @@ export default function VoorbeeldAnalyseRapportPage() {
             doc.setFont(PDF_STYLES.fontFamily, currentPart.style);
 
             if (currentPart.text.length >= remainingLineText.length) {
-              doc.text(remainingLineText, currentLineX, lineY);
+              doc.text(remainingLineText, currentLineX, currentY);
               currentPart.text = currentPart.text.substring(remainingLineText.length);
               currentLineX += doc.getStringUnitWidth(remainingLineText) * fontSize / doc.internal.scaleFactor;
               remainingLineText = '';
               if (currentPart.text.length === 0) partIndex++;
             } else {
-              doc.text(currentPart.text, currentLineX, lineY);
+              doc.text(currentPart.text, currentLineX, currentY);
               remainingLineText = remainingLineText.substring(currentPart.text.length);
               currentLineX += doc.getStringUnitWidth(currentPart.text) * fontSize / doc.internal.scaleFactor;
               partIndex++;
             }
           }
-          lineY += lineHeight;
+          currentY += lineHeight;
         });
 
-        return lineY - yPos; // returns height
+        doc.setFont(PDF_STYLES.fontFamily, 'normal');
+        return currentY - yPos;
+      };
+
+      const calculateFormattedTextHeight = (text: string, options: any = {}) => {
+        const {
+          fontSize = PDF_STYLES.normalSize,
+          maxWidth = usableWidth,
+          lineHeightFactor = PDF_STYLES.lineHeightFactor
+        } = options;
+        
+        const lineHeight = fontSize * lineHeightFactor * 0.4;
+        const plainText = text.replace(/<[^>]*>/g, '');
+        const lines = doc.splitTextToSize(plainText, maxWidth);
+        return lines.length * lineHeight;
       };
       
-      const calculateSectionHeight = (section: typeof reportContent.sections[0]) => {
-          let height = PDF_STYLES.padding * 2; // Top and bottom padding
-          height += drawFormattedText(section.title, 0, 0, { fontSize: PDF_STYLES.h2Size });
-          height += PDF_STYLES.sectionSpacing / 2;
+      const addSection = (sectionData: typeof reportContent.sections[0]) => {
+          let contentHeight = PDF_STYLES.padding * 2;
+          contentHeight += calculateFormattedTextHeight(sectionData.title, { fontSize: PDF_STYLES.h2Size });
+          contentHeight += PDF_STYLES.paragraphSpacing;
 
-          section.content.forEach(item => {
-              height += drawFormattedText(item, 0, 0, { maxWidth: usableWidth - (PDF_STYLES.padding * 2) - 13 });
-              height += PDF_STYLES.paragraphSpacing;
+          sectionData.content.forEach(item => {
+              contentHeight += calculateFormattedTextHeight(item, { maxWidth: usableWidth - (PDF_STYLES.padding * 2) - 10 });
+              contentHeight += PDF_STYLES.paragraphSpacing / 2;
           });
-          return height;
+
+          checkY(contentHeight);
+          
+          const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
+          doc.setFillColor(theme.bg[0], theme.bg[1], theme.bg[2]);
+          doc.roundedRect(margins.left, y, usableWidth, contentHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
+          
+          let contentY = y + PDF_STYLES.padding;
+          contentY += drawFormattedText(sectionData.title, margins.left + PDF_STYLES.padding, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title });
+          contentY += PDF_STYLES.paragraphSpacing;
+
+          sectionData.content.forEach(item => {
+              const bulletX = margins.left + PDF_STYLES.padding + 2;
+              const textX = bulletX + 4;
+              const textMaxWidth = usableWidth - (PDF_STYLES.padding * 2) - 10;
+              
+              doc.setFillColor(theme.title[0], theme.title[1], theme.title[2]);
+              doc.circle(bulletX, contentY + 2, PDF_STYLES.bulletRadius, 'F');
+              contentY += drawFormattedText(item, textX, contentY, { maxWidth: textMaxWidth });
+              contentY += PDF_STYLES.paragraphSpacing / 2;
+          });
+          y += contentHeight + PDF_STYLES.sectionSpacing;
       };
 
       // --- PDF Generation START ---
-      doc.setFont(PDF_STYLES.fontFamily, 'bold');
-      doc.setFontSize(PDF_STYLES.titleSize);
-      doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
-      doc.text(reportContent.title, margins.left, y);
-      y += PDF_STYLES.titleSize * 0.5;
-
-      doc.setFont(PDF_STYLES.fontFamily, 'normal');
-      doc.setFontSize(PDF_STYLES.subtitleSize);
-      doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_COLORS.mutedForeground[2]);
-      doc.text(reportContent.subtitle, margins.left, y);
-      y += PDF_STYLES.subtitleSize * 0.5 + PDF_STYLES.sectionSpacing;
+      y += drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+      y += drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
+      y += PDF_STYLES.paragraphSpacing;
       
-      const basedOnContent = reportContent.basedOn.join('\n');
-      const introHeight = drawFormattedText(reportContent.intro, 0,0, {maxWidth: usableWidth}) + PDF_STYLES.sectionSpacing;
-      const basedOnHeight = drawFormattedText(basedOnContent, 0,0, {fontSize: PDF_STYLES.smallSize, maxWidth: usableWidth - 10}) + 12;
-      
+      const introHeight = calculateFormattedTextHeight(reportContent.intro, {maxWidth: usableWidth}) + PDF_STYLES.paragraphSpacing;
+      const basedOnHeight = calculateFormattedTextHeight(reportContent.basedOn.join('\n'), {fontSize: PDF_STYLES.smallSize, maxWidth: usableWidth - 10}) + 12;
       checkY(introHeight + basedOnHeight);
 
       y += drawFormattedText(reportContent.intro, margins.left, y, {maxWidth: usableWidth});
-      y += PDF_STYLES.sectionSpacing;
 
       doc.setFillColor(PDF_COLORS.gray.bg[0], PDF_COLORS.gray.bg[1], PDF_COLORS.gray.bg[2]);
-      doc.roundedRect(margins.left, y, usableWidth, basedOnHeight, 3, 3, 'F');
+      doc.roundedRect(margins.left, y, usableWidth, basedOnHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
       
       let basedOnY = y + 6;
       reportContent.basedOn.forEach(line => {
@@ -304,46 +328,15 @@ export default function VoorbeeldAnalyseRapportPage() {
       });
       y += basedOnHeight + PDF_STYLES.sectionSpacing;
 
+      reportContent.sections.forEach(addSection);
 
-      reportContent.sections.forEach((sectionData) => {
-          const sectionHeight = calculateSectionHeight(sectionData);
-          checkY(sectionHeight);
-          
-          const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
-          doc.setFillColor(theme.bg[0], theme.bg[1], theme.bg[2]);
-          doc.roundedRect(margins.left, y, usableWidth, sectionHeight, 3, 3, 'F');
-          
-          let contentY = y + PDF_STYLES.padding;
-          contentY += drawFormattedText(sectionData.title, margins.left + PDF_STYLES.padding, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title });
-          contentY += PDF_STYLES.paragraphSpacing;
-
-          sectionData.content.forEach(item => {
-              const bulletX = margins.left + PDF_STYLES.padding + 5;
-              const textX = bulletX + 5;
-              const textMaxWidth = usableWidth - (PDF_STYLES.padding * 2) - 10;
-              
-              const itemHeight = drawFormattedText(item, 0, 0, { maxWidth: textMaxWidth });
-              checkY(itemHeight + PDF_STYLES.paragraphSpacing);
-              if (y + itemHeight + PDF_STYLES.paragraphSpacing > pageHeight - margins.bottom) {
-                 contentY = y + PDF_STYLES.padding;
-              }
-              
-              doc.setFillColor(theme.title[0], theme.title[1], theme.title[2]);
-              doc.circle(bulletX, contentY + 2, PDF_STYLES.bulletRadius, 'F');
-              contentY += drawFormattedText(item, textX, contentY, { maxWidth: textMaxWidth });
-              contentY += PDF_STYLES.paragraphSpacing;
-          });
-          y += sectionHeight + PDF_STYLES.sectionSpacing;
-      });
-
-      // Add page footers
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFont(PDF_STYLES.fontFamily, "italic");
         doc.setFontSize(PDF_STYLES.smallSize);
         doc.setTextColor(PDF_COLORS.mutedForeground[0], PDF_COLORS.mutedForeground[1], PDF_COLORS.mutedForeground[2]);
-        const footerText = `Rapport gegenereerd via www.mindnavigator.io - Pagina ${i} van ${pageCount}`;
+        const footerText = `${reportContent.generatedAt} - Pagina ${i} van ${pageCount}`;
         doc.text(footerText, margins.left, pageHeight - 10);
       }
       
@@ -401,7 +394,7 @@ export default function VoorbeeldAnalyseRapportPage() {
               </div>
               {reportContent.sections.map((section, index) => (
                 <React.Fragment key={index}>
-                  <ReportSection title={section.title} Icon={section.Icon} iconColorClass={section.title === 'Disclaimer' ? "text-destructive" : "text-primary"}>
+                  <ReportSection title={section.title} Icon={section.Icon} iconColorClass={section.theme === 'red' ? "text-destructive" : "text-primary"}>
                     <ul className="list-none space-y-3 pl-0">
                       {section.content.map((item, itemIndex) => (
                          <li key={itemIndex} className="flex items-start">
