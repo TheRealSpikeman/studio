@@ -5,10 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight, Search } from 'lucide-react'; // Added Search here
+import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight, Search } from 'lucide-react';
 import Image from 'next/image';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
-
 
 const parentFaqs = [
   {
@@ -24,7 +23,7 @@ const parentFaqs = [
     answer: "Veiligheid en privacy zijn onze topprioriteit. Alle gegevens worden vertrouwelijk behandeld en beveiligd opgeslagen conform de AVG/GDPR-richtlijnen. Resultaten van zelfreflectie-instrumenten zijn persoonlijk en worden niet zonder toestemming gedeeld. Voor betaalde abonnementen voor minderjarigen is altijd ouderlijke toestemming en betaling vereist. Lees meer in ons <a href='/privacy' class='text-primary hover:underline'>Privacybeleid <ExternalLink class='inline-block h-4 w-4'/></a>.",
   },
   {
-    id: "faq-payment", // Added ID for direct linking if needed
+    id: "faq-payment",
     question: "Wat als mijn kind professionele hulp nodig heeft?",
     answer: "MindNavigator is een tool voor zelfinzicht en ondersteuning, maar vervangt geen professionele diagnose of behandeling. Als u of uw kind zorgen heeft, raden wij altijd aan contact op te nemen met een huisarts, psycholoog of andere gekwalificeerde zorgverlener. Meer informatie en verwijzingen vindt u ook op onze <a href='/neurodiversiteit' class='text-primary hover:underline font-medium'>neurodiversiteit pagina <ExternalLink class='inline-block h-4 w-4'/></a>.",
   },
@@ -40,100 +39,121 @@ export default function ForParentsPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/10 to-background py-12 md:py-20 lg:py-28">
-        <div className="container mx-auto">
-          <Card className="shadow-xl max-w-4xl mx-auto">
-            <CardHeader className="text-center pb-8">
-              <Users className="mx-auto h-16 w-16 text-primary mb-4" />
-              <CardTitle className="text-4xl font-bold text-foreground">Informatie voor Ouders</CardTitle>
-              <CardDescription className="text-lg text-muted-foreground mt-2">
-                Ontdek hoe MindNavigator uw kind kan ondersteunen op hun reis naar zelfinzicht en groei.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-10 text-lg leading-relaxed text-foreground/90">
-              
-              <section>
-                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
-                  <Brain className="h-7 w-7" />
-                  Wat is MindNavigator?
-                </h2>
-                <p>
-                  MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve zelfreflectie-instrumenten, persoonlijke overzichten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen. Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>wat neurodiversiteit precies inhoudt <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/> </Link> op onze infopagina.
-                </p>
-                 <p className="mt-3">
-                  We focussen op een positieve benadering van neurodiversiteit, waarbij we de unieke manier van denken en leren van elk kind als een kracht zien.
-                </p>
-              </section>
+        <div className="container mx-auto max-w-4xl space-y-12"> {/* Hoofd container met space-y */}
+          
+          <header className="text-center pb-8"> {/* Header sectie zonder Card */}
+            <Users className="mx-auto h-16 w-16 text-primary mb-4" />
+            <h1 className="text-4xl font-bold text-foreground">Informatie voor Ouders</h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Ontdek hoe MindNavigator uw kind kan ondersteunen op hun reis naar zelfinzicht en groei.
+            </p>
+          </header>
+          
+          <section className="text-lg leading-relaxed text-foreground/90">
+            <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <Brain className="h-7 w-7" />
+              Wat is MindNavigator?
+            </h2>
+            <p>
+              MindNavigator is een online platform speciaal ontwikkeld voor jongeren (12-18 jaar) om hen te helpen hun neurodiversiteit te begrijpen. Door middel van interactieve zelfreflectie-instrumenten, persoonlijke overzichten en een (optionele) dagelijkse coaching-hub, bieden we tools en inzichten die bijdragen aan zelfbewustzijn, het herkennen van talenten en het omgaan met uitdagingen. Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>wat neurodiversiteit precies inhoudt <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/> </Link> op onze infopagina.
+            </p>
+             <p className="mt-3">
+              We focussen op een positieve benadering van neurodiversiteit, waarbij we de unieke manier van denken en leren van elk kind als een kracht zien.
+            </p>
+          </section>
 
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                 <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
-                    <Image
-                        src="https://placehold.co/600x400.png"
-                        alt="Ouder en kind die samen praten en leren"
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        data-ai-hint="parent child learning discussion"
-                    />
-                </div>
-                <section>
-                    <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
-                    <HeartHandshake className="h-7 w-7" />
-                    Hoe ondersteunen wij uw kind?
-                    </h2>
-                    <ul className="list-disc list-inside space-y-2 pl-5">
-                        <li><strong>Zelfinzicht:</strong> Heldere overzichten die neurodivergente eigenschappen (zoals aandachtspatronen, gevoeligheid, sociale voorkeuren) uitleggen in begrijpelijke taal.</li>
-                        <li><strong>Praktische Tips:</strong> Concrete strategieën voor school, thuis, en sociale situaties, afgestemd op hun leeftijd en profiel.</li>
-                        <li><strong>Dagelijkse Groei:</strong> Via de (premium) coaching-hub dagelijkse affirmaties, reflectie-oefeningen en tools voor planning en focus.</li>
-                        <li><strong>Positieve Benadering:</strong> We benadrukken sterke punten en helpen bij het ontwikkelen van copingmechanismen voor uitdagingen.</li>
-                    </ul>
-                </section>
-              </div>
-              
-              <section className="p-6 bg-primary/10 rounded-lg border border-primary/30">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+             <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
+                <Image
+                    src="https://placehold.co/600x400.png"
+                    alt="Ouder en kind die samen praten en leren"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    data-ai-hint="parent child learning discussion"
+                />
+            </div>
+            <section className="text-lg leading-relaxed text-foreground/90">
                 <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
-                  <Search className="h-7 w-7" />
-                  NIEUW: Ouder-Kind Vergelijkende Analyse
+                <HeartHandshake className="h-7 w-7" />
+                Hoe ondersteunen wij uw kind?
                 </h2>
-                <p className="mb-3">
-                  Verkrijg dieper inzicht in de dynamiek tussen u en uw kind. Onze nieuwe module analyseert de resultaten van de "Ken je Kind" quiz (die u invult) en de zelfreflectie van uw kind.
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 pl-5 mb-4 text-base">
-                  <li>Identificeer verschillen en overeenkomsten in percepties.</li>
-                  <li>Ontvang AI-gegenereerde tips voor betere communicatie.</li>
-                  <li>Krijg een concreet familie actieplan met haalbare stappen.</li>
+                <ul className="list-disc list-inside space-y-2 pl-5">
+                    <li><strong>Zelfinzicht:</strong> Heldere overzichten die neurodivergente eigenschappen (zoals aandachtspatronen, gevoeligheid, sociale voorkeuren) uitleggen in begrijpelijke taal.</li>
+                    <li><strong>Praktische Tips:</strong> Concrete strategieën voor school, thuis, en sociale situaties, afgestemd op hun leeftijd en profiel.</li>
+                    <li><strong>Dagelijkse Groei:</strong> Via de (premium) coaching-hub dagelijkse affirmaties, reflectie-oefeningen en tools voor planning en focus.</li>
+                    <li><strong>Positieve Benadering:</strong> We benadrukken sterke punten en helpen bij het ontwikkelen van copingmechanismen voor uitdagingen.</li>
                 </ul>
-                <Button asChild>
-                  <Link href="/for-parents/vergelijkende-analyse">
-                    Lees meer over de Vergelijkende Analyse <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </section>
+            </section>
+          </div>
+          
+          <section>
+            <Card className="bg-orange-50/70 border-2 border-primary/30 shadow-lg">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Search className="h-8 w-8 text-primary" />
+                  <CardTitle className="text-2xl md:text-3xl font-bold text-primary">
+                    NIEUW: Ouder-Kind Vergelijkende Analyse
+                  </CardTitle>
+                </div>
+                <CardDescription className="text-base text-muted-foreground leading-relaxed">
+                  Verkrijg dieper inzicht in de dynamiek tussen u en uw kind. Onze nieuwe module analyseert de resultaten van de "Ken je Kind" quiz (die u invult) en de zelfreflectie van uw kind.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-foreground/90">
+                <ul className="list-none space-y-2 pl-0">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>Identificeer verschillen en overeenkomsten in percepties.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>Ontvang AI-gegenereerde tips voor betere communicatie.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>Krijg een concreet familie actieplan met haalbare stappen.</span>
+                  </li>
+                </ul>
+                <div className="pt-4">
+                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Link href="/for-parents/vergelijkende-analyse">
+                      Lees meer over de Vergelijkende Analyse <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
 
-              <section>
-                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
-                  <ShieldCheck className="h-7 w-7" />
-                  Veiligheid & Privacy
-                </h2>
-                <p>
-                  De veiligheid en privacy van uw kind staan bij ons voorop. We voldoen aan de AVG (GDPR) en zorgen voor een beveiligde omgeving. Persoonlijke resultaten van de tools zijn strikt vertrouwelijk. Voor jongeren onder de 18 jaar is voor betaalde diensten altijd uw toestemming en betalingsafhandeling nodig. U kunt hierover meer lezen in ons <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
-                </p>
-              </section>
+          <section className="text-lg leading-relaxed text-foreground/90">
+            <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <ShieldCheck className="h-7 w-7" />
+              Veiligheid & Privacy
+            </h2>
+            <p>
+              De veiligheid en privacy van uw kind staan bij ons voorop. We voldoen aan de AVG (GDPR) en zorgen voor een beveiligde omgeving. Persoonlijke resultaten van de tools zijn strikt vertrouwelijk. Voor jongeren onder de 18 jaar is voor betaalde diensten altijd uw toestemming en betalingsafhandeling nodig. U kunt hierover meer lezen in ons <Link href="/privacy" className="text-primary hover:underline font-medium">Privacybeleid <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>.
+            </p>
+          </section>
 
-              <section>
-                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
-                  <AlertTriangle className="h-7 w-7 text-destructive" />
-                  Belangrijk: MindNavigator en Professionele Hulp
-                </h2>
-                <p>
-                  MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link>.
-                </p>
-              </section>
+          <section className="text-lg leading-relaxed text-foreground/90">
+            <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+              <AlertTriangle className="h-7 w-7 text-destructive" />
+              Belangrijk: MindNavigator en Professionele Hulp
+            </h2>
+            <p>
+              MindNavigator is een platform voor zelfinzicht en biedt ondersteunende tools. Het is <strong>geen</strong> vervanging voor professionele diagnostiek of medische hulp. Indien u of uw kind specifieke zorgen heeft of een diagnose overweegt, raden wij u ten zeerste aan contact op te nemen met uw huisarts of een gekwalificeerde zorgverlener. Zij kunnen u adviseren over de juiste stappen en eventuele doorverwijzingen. Lees ook onze <Link href="/disclaimer" className="text-primary hover:underline font-medium">volledige disclaimer <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link>.
+            </p>
+          </section>
 
-
-              <section id="faq-payment">
-                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary mb-4">
+          <section id="faq-payment">
+            <Card className="shadow-xl">
+              <CardHeader>
+                <h2 className="flex items-center gap-3 text-2xl font-semibold text-primary">
                   <MessageCircleQuestion className="h-7 w-7" />
                   Veelgestelde Vragen door Ouders
                 </h2>
+              </CardHeader>
+              <CardContent>
                 <Accordion type="single" collapsible className="w-full space-y-3">
                   {parentFaqs.map((faq, index) => (
                     <AccordionItem 
@@ -150,20 +170,19 @@ export default function ForParentsPage() {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </section>
+              </CardContent>
+            </Card>
+          </section>
 
-              <section className="text-center border-t pt-8 mt-10">
-                <h2 className="text-2xl font-semibold text-foreground mb-3">Heeft u nog vragen?</h2>
-                <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                    We staan klaar om uw vragen te beantwoorden en u meer te vertellen over hoe MindNavigator uw kind kan helpen.
-                </p>
-                <Button size="lg" asChild>
-                    <Link href="/contact">Neem contact met ons op</Link>
-                </Button>
-              </section>
-
-            </CardContent>
-          </Card>
+          <section className="text-center border-t pt-12">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">Heeft u nog vragen?</h2>
+            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+                We staan klaar om uw vragen te beantwoorden en u meer te vertellen over hoe MindNavigator uw kind kan helpen.
+            </p>
+            <Button size="lg" asChild>
+                <Link href="/contact">Neem contact met ons op</Link>
+            </Button>
+          </section>
         </div>
       </main>
       <Footer />
