@@ -35,8 +35,10 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
-const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2'; // v2 to indicate new format handling
+// De standaard afbeelding die getoond wordt als er niets in localStorage staat of bij een eerste bezoek.
+// Deze URL moet publiek toegankelijk zijn.
 const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png?alt=media&token=34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
+const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2';
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -63,7 +65,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    dataAiHint: "diverse colorful brains connected" // Updated hint based on new default image
+    dataAiHint: "diverse colorful brains connected"
   },
   {
     id: "add",
@@ -184,7 +186,7 @@ export default function NeurodiversiteitPage() {
   const [isClient, setIsClient] = useState(false);
 
   const gsPathToHttps = (gsPath: string, token?: string): string => {
-    if (!gsPath.startsWith('gs://')) return gsPath; // Return as is if not a gs path
+    if (!gsPath.startsWith('gs://')) return gsPath; 
 
     const parts = gsPath.substring(5).split('/');
     const bucket = parts.shift();
@@ -192,7 +194,7 @@ export default function NeurodiversiteitPage() {
 
     if (!bucket || !filePath) {
       console.warn("Ongeldig gs:// pad formaat:", gsPath);
-      return DEFAULT_INTRO_IMAGE_URL; // Fallback
+      return DEFAULT_INTRO_IMAGE_URL; 
     }
     const encodedFilePath = encodeURIComponent(filePath);
     let httpsUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedFilePath}?alt=media`;
@@ -209,26 +211,28 @@ export default function NeurodiversiteitPage() {
 
     if (storedImageUrl) {
       if (storedImageUrl.startsWith('gs://')) {
-        // Check if it's the specific image with a known token
+        // Specifiek geval voor de bekende afbeelding met token
         if (storedImageUrl === "gs://neurodiversity-navigator.firebasestorage.app/Diverse_colorful_brains_connected.png") {
           finalUrlToSet = gsPathToHttps(storedImageUrl, "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed");
         } else {
-          // For other gs:// paths, convert without token and show warning
+          // Voor andere gs:// paden, converteer zonder token en geef een waarschuwing
           finalUrlToSet = gsPathToHttps(storedImageUrl);
-           toast({
+          toast({
             title: "Afbeeldings-URL geconverteerd",
             description: `Een gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL inclusief token voor privé-afbeeldingen.`,
             variant: "default",
             duration: 8000,
           });
         }
-        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet); // Store converted URL
+        // Update localStorage met de geconverteerde HTTPS URL
+        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
       } else {
+        // Als het al een HTTPS URL is, gebruik die direct
         finalUrlToSet = storedImageUrl;
       }
     }
     setCurrentIntroImageUrl(finalUrlToSet);
-    setImageUrlInput(finalUrlToSet);
+    setImageUrlInput(finalUrlToSet); // Inputveld ook vullen met de (mogelijk geconverteerde) URL
   }, [toast]);
 
 
@@ -251,18 +255,20 @@ export default function NeurodiversiteitPage() {
           variant: "default",
         });
       } else {
-        urlToProcess = gsPathToHttps(urlToProcess); // Converts without token
+        // Voor andere gs:// paden, converteer zonder token en geef een waarschuwing
+        urlToProcess = gsPathToHttps(urlToProcess);
         toast({
           title: "URL Omgezet (zonder token)",
           description: "De gs:// URL is omgezet. Als de afbeelding een token vereist om publiek zichtbaar te zijn, werkt deze mogelijk niet. Plak de volledige HTTPS URL inclusief token voor privé-afbeeldingen.",
           variant: "default",
-          duration: 8000,
+          duration: 8000, // Langere duur voor deze potentieel belangrijke melding
         });
       }
     }
 
     try {
-      new URL(urlToProcess); 
+      // Check if it's a valid URL after potential conversion
+      new URL(urlToProcess); // This will throw an error if the URL is malformed
       setCurrentIntroImageUrl(urlToProcess);
       if (isClient) {
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, urlToProcess);
@@ -310,8 +316,8 @@ export default function NeurodiversiteitPage() {
                         fill
                         style={{ objectFit: 'cover' }}
                         data-ai-hint={introTopic.dataAiHint || "abstract brain"}
-                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
-                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")}
+                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL} // Alleen priority als het de default image is tijdens SSR
+                        unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")} // Vertel Next.js deze niet te optimaliseren
                     />
                   </div>
                   <div>
@@ -319,7 +325,7 @@ export default function NeurodiversiteitPage() {
                     <div className="flex gap-2 mt-1">
                       <Input 
                         id="imageUrlInput"
-                        type="text" // Changed from url to text to allow gs://
+                        type="text" 
                         placeholder="Plak hier de HTTPS of gs:// Firebase Storage URL..."
                         value={imageUrlInput}
                         onChange={(e) => setImageUrlInput(e.target.value)}
@@ -411,3 +417,4 @@ export default function NeurodiversiteitPage() {
     </div>
   );
 }
+
