@@ -26,7 +26,7 @@ interface CoachingType {
 const coachingTypes: CoachingType[] = [
   {
     icon: Zap,
-    title: "Ontdek Jezelf: Digitale Tools & Zelfreflectie",
+    title: "Digitale Tools & Zelfreflectie",
     description: "Start met laagdrempelige, interactieve quizzen en zelfreflectie-instrumenten. Krijg direct inzicht in je denkstijl, sterke punten en mogelijke uitdagingen. De basis voor al onze gepersonaliseerde ondersteuning.",
     features: [
       "Persoonlijke neurodiversiteit-assessments",
@@ -42,7 +42,7 @@ const coachingTypes: CoachingType[] = [
   {
     icon: BookOpenCheck,
     title: "Persoonlijke Huiswerkondersteuning",
-    description: "Onze deskundige tutors bieden 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
+    description: "Onze deskundige tutors bieden 1-op-1 hulp voor specifieke vakken, studieplanning, of het aanleren van effectieve leerstrategieën. Flexibel en afgestemd op jouw tempo. Vind VOG-gescreende begeleiders tegen toegankelijke tarieven, direct via ons platform.",
     features: [
       "Vakspecifieke bijles (alle niveaus)",
       "Hulp bij planning en organisatie",
@@ -57,8 +57,8 @@ const coachingTypes: CoachingType[] = [
   },
   {
     icon: HeartHandshake,
-    title: "Diepgaande Begeleiding: Gesprekken met een Coach",
-    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, het omgaan met emoties, zelfvertrouwen versterken, of het ontwikkelen van strategieën die passen bij jouw neurodivergente profiel. Vind gekwalificeerde begeleiders tegen toegankelijke tarieven, direct via ons platform, zonder lange wachttijden.",
+    title: "Diepgaande Begeleiding (Coach)",
+    description: "Praat met een ervaren coach (psycholoog/orthopedagoog) over persoonlijke uitdagingen, emoties, zelfvertrouwen, of het ontwikkelen van strategieën passend bij jouw neurodivergente profiel. Vind gekwalificeerde, VOG-gescreende begeleiders direct via ons platform.",
     features: [
       "1-op-1 gesprekken (online)",
       "Focus op persoonlijke groei & welzijn",
@@ -66,10 +66,10 @@ const coachingTypes: CoachingType[] = [
       "Ondersteuning bij stress, angst of sociale interacties"
     ],
     ctaText: "Zoek een Coach",
-    ctaLink: "/dashboard/ouder/zoek-professional",
+    ctaLink: "/dashboard/ouder/zoek-professional", // Link kan later specifiek naar coaches filteren
     colorClass: "bg-green-50 border-green-200 hover:shadow-green-100",
     priceIndication: "Indicatie: €75-€125/uur",
-    qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd in het begeleiden van neurodivergente jongeren.",
+    qualityNote: "Onze coaches zijn gekwalificeerde psychologen of orthopedagogen, VOG-gescreend en gespecialiseerd.",
   },
 ];
 
@@ -127,16 +127,16 @@ export default function CoachingAanbodPage() {
             ))}
           </div>
           
-          <Alert variant="default" className="mt-12 mb-12 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
-            <ShieldCheck className="h-5 w-5 !text-blue-600" />
-            <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
-            <AlertDescriptionUi className="text-blue-600">
-              MindNavigator stelt geen medische diagnoses. Onze focus ligt op het bieden van inzicht, praktische tools en het versterken van zelfvertrouwen. Voor diagnostiek en medische behandeling verwijzen wij altijd naar gekwalificeerde professionals.
-            </AlertDescriptionUi>
-          </Alert>
-
-          <section className="py-16 md:py-20 bg-secondary/20 mt-12 mb-12">
-            <div className="container mx-auto px-4 text-center max-w-xl">
+          <section className="py-16 md:py-20 bg-secondary/20 mt-12 mb-12 rounded-lg">
+            <div className="container mx-auto px-4 text-center max-w-2xl">
+                <Alert variant="default" className="mb-10 bg-blue-50 border-blue-200 text-blue-700">
+                    <ShieldCheck className="h-5 w-5 !text-blue-600" />
+                    <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
+                    <AlertDescriptionUi className="text-blue-600">
+                    MindNavigator stelt geen medische diagnoses. Onze focus ligt op het bieden van inzicht, praktische tools en het versterken van zelfvertrouwen. Voor diagnostiek en medische behandeling verwijzen wij altijd naar gekwalificeerde professionals.
+                    </AlertDescriptionUi>
+                </Alert>
+                
                 <Card className="bg-card border-border p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center justify-center gap-2">
                         <Star className="h-6 w-6 text-yellow-500" />
