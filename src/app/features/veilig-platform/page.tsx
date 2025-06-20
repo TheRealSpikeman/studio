@@ -57,7 +57,7 @@ export default function VeiligPlatformPage() {
                 De content en tools op MindNavigator zijn ontwikkeld op basis van erkende educatieve principes en inzichten uit de psychologie en orthopedagogiek. We werken samen met <Link href="/samenwerkingen" className="text-primary hover:underline font-medium">professionals en experts</Link> om de kwaliteit en relevantie van ons aanbod te waarborgen.
               </p>
               <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                <AlertTriangle className="h-7 w-7 text-destructive" />
+                <AlertTriangle className="h-7 w-7 text-destructive" /> {/* Icoon blijft destructive */}
                 Geen Diagnoses
               </h2>
               <p>

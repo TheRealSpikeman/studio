@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight, Search, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Brain, MessageCircleQuestion, HeartHandshake, Users, ExternalLink, AlertTriangle, ArrowRight, Search, CheckCircle2, Compass } from 'lucide-react';
 import Image from 'next/image';
 import { Alert, AlertTitle as AlertTitleUi, AlertDescription as AlertDescriptionUi } from "@/components/ui/alert";
 
@@ -138,7 +138,7 @@ export default function ForParentsPage() {
 
             <section>
               <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                <AlertTriangle className="h-7 w-7 text-destructive" />
+                <AlertTriangle className="h-7 w-7 text-destructive" /> {/* Icoon blijft destructive voor nadruk */}
                 Belangrijk: MindNavigator en Professionele Hulp
               </h2>
               <p>

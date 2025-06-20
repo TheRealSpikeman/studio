@@ -112,7 +112,7 @@ export default function CoachingAanbodPage() {
 
           <Alert variant="default" className="mb-12 md:mb-16 max-w-3xl mx-auto bg-blue-50 border-blue-200 text-blue-700">
             <ShieldCheck className="h-5 w-5 !text-blue-600" />
-            <AlertTitleUi className="text-blue-700 font-semibold">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
+            <AlertTitleUi className="font-semibold text-blue-700">Onze Belofte: Empowerment & Ondersteuning</AlertTitleUi>
             <AlertDescriptionUi className="text-blue-600 text-sm">
             MindNavigator stelt geen medische diagnoses. Onze focus ligt op het bieden van inzicht, praktische tools en het versterken van zelfvertrouwen. Voor diagnostiek en medische behandeling verwijzen wij altijd naar gekwalificeerde professionals.
             </AlertDescriptionUi>

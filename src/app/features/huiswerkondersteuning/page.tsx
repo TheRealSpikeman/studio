@@ -55,7 +55,7 @@ export default function HuiswerkondersteuningPage() {
             </section>
 
             <div className="mt-12 pt-8 border-t border-border">
-              <h4 className="text-2xl font-semibold text-primary mb-6 text-center">Ontdek ook onze andere features:</h4>
+              <h4 className="text-xl font-semibold text-foreground mb-6 text-center">Ontdek ook onze andere features:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 {otherFeatures.map(feature => (
                   <Button

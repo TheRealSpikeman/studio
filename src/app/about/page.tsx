@@ -67,7 +67,7 @@ export default function AboutPage() {
             
             <section>
               <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                <AlertTriangle className="h-7 w-7" /> 
+                <AlertTriangle className="h-7 w-7 text-destructive" /> {/* Icoon blijft destructive voor nadruk */}
                 Onze Beperkingen & Verantwoordelijkheid
               </h2>
               <p className="mb-3">

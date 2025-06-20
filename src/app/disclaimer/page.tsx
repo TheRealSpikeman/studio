@@ -22,7 +22,7 @@ export default function DisclaimerPage() {
           <div className="space-y-10 text-base leading-relaxed text-foreground/90">
             <section>
               <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                <AlertTriangle className="h-7 w-7" />
+                <AlertTriangle className="h-7 w-7 text-destructive" /> {/* Icoon blijft destructive voor nadruk */}
                 Geen Medische Diagnose of Advies
               </h2>
               <p className="mb-3">

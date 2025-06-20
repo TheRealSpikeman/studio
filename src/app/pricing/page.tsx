@@ -389,7 +389,7 @@ export default function PricingPage() {
         <section className="py-12 md:py-20 lg:py-28 bg-secondary/20">
           <div className="container max-w-3xl">
             <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-              <HelpCircle className="h-7 w-7" />
+              <MessageCircleQuestion className="h-7 w-7" />
               Veelgestelde Vragen
             </h2>
             <Accordion type="single" collapsible className="w-full space-y-4">
