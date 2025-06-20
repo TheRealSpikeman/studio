@@ -2,18 +2,18 @@
 // src/app/neurodiversiteit/page.tsx
 "use client"; 
 
-import React, { useState, useEffect, useRef } from 'react'; // Added React and useRef
+import React, { useState, useEffect, useRef } from 'react'; 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion, ImageUp } from 'lucide-react'; // Added ImageUp
+import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion, ImageUp } from 'lucide-react'; 
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import type { ElementType, ReactNode } from 'react';
-import { Input } from '@/components/ui/input'; // Added Input for file upload
+import { Input } from '@/components/ui/input'; 
 
 interface NeurodiversitySectionDetail {
   subTitle: string;
@@ -33,6 +33,7 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
+const LOCAL_STORAGE_INTRO_IMAGE_KEY = 'neurodiversiteit_intro_image_v1';
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -179,13 +180,26 @@ export default function NeurodiversiteitPage() {
     neurodiversityTopicsData.find(topic => topic.id === "algemeen")?.imageUrl
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // Markeer dat we aan de client-side zijn
+    const storedImage = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_KEY);
+    if (storedImage) {
+      setIntroImageSrc(storedImage);
+    }
+  }, []);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setIntroImageSrc(reader.result as string);
+        const dataUrl = reader.result as string;
+        setIntroImageSrc(dataUrl);
+        if (isClient) {
+          localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_KEY, dataUrl);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -227,6 +241,7 @@ export default function NeurodiversiteitPage() {
                           fill
                           style={{ objectFit: 'cover' }}
                           data-ai-hint={topic.dataAiHint || "abstract brain"}
+                          priority={!isClient} // Only priority load if it's the default server-side image
                       />
                     </div>
                   )}
@@ -242,9 +257,11 @@ export default function NeurodiversiteitPage() {
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full"
                   >
-                    <ImageUp className="mr-2 h-4 w-4" /> Afbeelding Kiezen (Preview)
+                    <ImageUp className="mr-2 h-4 w-4" /> Afbeelding Kiezen (Lokaal)
                   </Button>
-                  <p className="text-xs text-muted-foreground text-center">Geselecteerde afbeelding wordt niet opgeslagen.</p>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Geselecteerde afbeelding wordt lokaal in je browser onthouden.
+                  </p>
                 </div>
               </section>
             ))}
@@ -324,3 +341,4 @@ export default function NeurodiversiteitPage() {
   );
 }
 
+    
