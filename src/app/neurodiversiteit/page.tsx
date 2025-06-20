@@ -38,6 +38,7 @@ interface NeurodiversityTopic {
 
 const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png?alt=media&token=34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
 const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v2';
+const ADMIN_FLAG_KEY_NEURO_PAGE = 'isAdminForNeuroPage';
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -64,7 +65,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    dataAiHint: "diverse colorful brains connected"
+    dataAiHint: "brains connection diversity" // Aangepast
   },
   {
     id: "add",
@@ -184,6 +185,7 @@ export default function NeurodiversiteitPage() {
   const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [isClient, setIsClient] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState<boolean>(false);
+  const [isUserAdmin, setIsUserAdmin] = useState<boolean>(false); 
 
   const gsPathToHttps = (gsPath: string, token?: string): string => {
     if (!gsPath.startsWith('gs://')) return gsPath;
@@ -204,24 +206,31 @@ export default function NeurodiversiteitPage() {
   
   useEffect(() => {
     setIsClient(true); 
+    const adminStatus = localStorage.getItem(ADMIN_FLAG_KEY_NEURO_PAGE) === 'true';
+    setIsUserAdmin(adminStatus);
+
     let storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
     let finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
 
     if (storedImageUrl) {
       if (storedImageUrl.startsWith('gs://')) {
-        finalUrlToSet = gsPathToHttps(storedImageUrl, storedImageUrl === "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png" ? "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed" : undefined);
-        if (!finalUrlToSet.includes("token=") && storedImageUrl !== "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png") {
-           toast({
+        const specificGsPath = "gs://neurodiversity-navigator.firebasestorage.app/o/Diverse_colorful_brains_connected.png";
+        const specificToken = "34a3ce36-5a69-4f6f-99b2-5bb49b72c4ed";
+        
+        if (storedImageUrl === specificGsPath) {
+          finalUrlToSet = gsPathToHttps(storedImageUrl, specificToken);
+        } else {
+          finalUrlToSet = gsPathToHttps(storedImageUrl);
+          toast({
             title: "URL Omgezet (zonder token)",
-            description: "De gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL incl. token voor privé-afbeeldingen.",
+            description: "De gs:// URL is omgezet. Als de afbeelding een token vereist, werkt deze mogelijk niet. Gebruik de volledige HTTPS URL incl. token.",
             variant: "default",
             duration: 7000,
           });
         }
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
       } else if (!storedImageUrl.startsWith('http://') && !storedImageUrl.startsWith('https://')) {
-        // Invalid URL found in localStorage, use default and notify
-        toast({ title: "Ongeldige Opgeslagen URL", description: "De opgeslagen afbeeldings-URL was ongeldig. Standaard afbeelding wordt getoond.", variant: "destructive"});
+        toast({ title: "Ongeldige Opgeslagen URL", description: "Standaard afbeelding wordt getoond.", variant: "destructive"});
         finalUrlToSet = DEFAULT_INTRO_IMAGE_URL;
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, finalUrlToSet);
       }
@@ -270,6 +279,7 @@ export default function NeurodiversiteitPage() {
         localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, urlToProcess);
       }
       toast({ title: "Afbeelding ingesteld", description: "De introductieafbeelding is bijgewerkt." });
+      setShowImageUrlInput(false);
     } catch (e) {
       toast({ title: "Ongeldige URL", description: "De ingevoerde URL is niet geldig. Zorg dat het begint met http:// of https://", variant: "destructive" });
     }
@@ -311,7 +321,7 @@ export default function NeurodiversiteitPage() {
                         alt={introTopic.title || "Neurodiversiteit introductie afbeelding"}
                         fill
                         style={{ objectFit: 'cover' }}
-                        data-ai-hint={introTopic.dataAiHint || "abstract brain"}
+                        data-ai-hint={introTopic.dataAiHint}
                         priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
                         unoptimized={currentIntroImageUrl.includes("firebasestorage.googleapis.com")}
                         onError={() => {
@@ -325,28 +335,30 @@ export default function NeurodiversiteitPage() {
                         }}
                     />
                   </div>
-                  <div className="flex justify-end">
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-primary h-8 w-8"
-                            onClick={() => setShowImageUrlInput(prev => !prev)}
-                            aria-label={showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}
-                          >
-                            <ImageUp className="h-5 w-5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  {isUserAdmin && (
+                    <div className="flex justify-end">
+                      <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-primary h-8 w-8"
+                              onClick={() => setShowImageUrlInput(prev => !prev)}
+                              aria-label={showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL"}
+                            >
+                              <ImageUp className="h-5 w-5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{showImageUrlInput ? "Verberg afbeeldings-URL input" : "Wijzig afbeelding URL (Admin)"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
 
-                  {showImageUrlInput && (
+                  {isUserAdmin && showImageUrlInput && (
                     <div className="mt-2 p-4 border rounded-md bg-muted/30 space-y-2">
                       <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Afbeelding URL (Firebase Storage HTTPS of gs://):</Label>
                       <div className="flex gap-2 mt-1">
