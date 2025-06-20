@@ -1,4 +1,3 @@
-
 // src/app/neurodiversiteit/page.tsx
 "use client"; 
 
@@ -7,13 +6,15 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion, ImageUp } from 'lucide-react'; 
+import { Brain, Zap, Sparkles, Compass, ShieldAlert, Info, Users, CheckSquare, AlertTriangle, ExternalLink, BookHeart, MessageCircleQuestion, ImageUp, Link as LinkIcon } from 'lucide-react'; 
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import type { ElementType, ReactNode } from 'react';
 import { Input } from '@/components/ui/input'; 
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 interface NeurodiversitySectionDetail {
   subTitle: string;
@@ -33,7 +34,8 @@ interface NeurodiversityTopic {
   bgClass?: string;
 }
 
-const LOCAL_STORAGE_INTRO_IMAGE_KEY = 'neurodiversiteit_intro_image_v1';
+const LOCAL_STORAGE_INTRO_IMAGE_URL_KEY = 'neurodiversiteit_intro_image_url_v1';
+const DEFAULT_INTRO_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/homepage-2.gif?alt=media";
 
 const neurodiversityTopicsData: NeurodiversityTopic[] = [
   {
@@ -60,7 +62,7 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
         ]
       }
     ],
-    imageUrl: "https://placehold.co/600x400.png?text=Diversiteit+Brein",
+    imageUrl: DEFAULT_INTRO_IMAGE_URL,
     dataAiHint: "brain diversity connection"
   },
   {
@@ -176,34 +178,42 @@ const neurodiversityTopicsData: NeurodiversityTopic[] = [
 ];
 
 export default function NeurodiversiteitPage() {
-  const [introImageSrc, setIntroImageSrc] = useState<string | undefined>(
-    neurodiversityTopicsData.find(topic => topic.id === "algemeen")?.imageUrl
-  );
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const defaultTopic = neurodiversityTopicsData.find(topic => topic.id === "algemeen");
+  const [currentIntroImageUrl, setCurrentIntroImageUrl] = useState<string>(defaultTopic?.imageUrl || DEFAULT_INTRO_IMAGE_URL);
+  const [imageUrlInput, setImageUrlInput] = useState<string>(DEFAULT_INTRO_IMAGE_URL);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true); // Markeer dat we aan de client-side zijn
-    const storedImage = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_KEY);
-    if (storedImage) {
-      setIntroImageSrc(storedImage);
+    setIsClient(true); 
+    const storedImageUrl = localStorage.getItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY);
+    if (storedImageUrl) {
+      setCurrentIntroImageUrl(storedImageUrl);
+      setImageUrlInput(storedImageUrl);
+    } else {
+      setCurrentIntroImageUrl(DEFAULT_INTRO_IMAGE_URL);
+      setImageUrlInput(DEFAULT_INTRO_IMAGE_URL);
     }
   }, []);
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        setIntroImageSrc(dataUrl);
-        if (isClient) {
-          localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_KEY, dataUrl);
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleSetImageUrl = () => {
+    if (imageUrlInput.trim() === "") {
+      toast({ title: "Fout", description: "Voer een geldige URL in.", variant: "destructive" });
+      return;
+    }
+    try {
+      new URL(imageUrlInput); // Validate URL format
+      setCurrentIntroImageUrl(imageUrlInput);
+      if (isClient) {
+        localStorage.setItem(LOCAL_STORAGE_INTRO_IMAGE_URL_KEY, imageUrlInput);
+      }
+      toast({ title: "Afbeelding ingesteld", description: "De introductieafbeelding is bijgewerkt." });
+    } catch (e) {
+      toast({ title: "Ongeldige URL", description: "De ingevoerde URL is niet geldig. Zorg dat het begint met http:// of https://", variant: "destructive" });
     }
   };
+  
+  const introTopic = neurodiversityTopicsData.find(topic => topic.id === "algemeen");
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -220,10 +230,10 @@ export default function NeurodiversiteitPage() {
           </div>
           
           <div className="space-y-10 text-lg leading-relaxed text-foreground/90"> 
-            {neurodiversityTopicsData.filter(topic => topic.id === "algemeen").map(topic => (
-              <section key={topic.id} className="grid md:grid-cols-2 gap-8 items-start mb-12">
+            {introTopic && (
+              <section key={introTopic.id} className="grid md:grid-cols-2 gap-8 items-start mb-12">
                 <div className="space-y-3">
-                  {topic.sections?.map((section, sIndex) => (
+                  {introTopic.sections?.map((section, sIndex) => (
                     <div key={sIndex} className={sIndex > 0 ? "mt-6" : ""}>
                       <h3 className="text-xl font-semibold text-primary mb-2">{section.subTitle}</h3>
                       {section.paragraphs.map((paragraph, pIndex) => (
@@ -232,39 +242,39 @@ export default function NeurodiversiteitPage() {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-3">
-                  {introImageSrc && (
-                    <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
-                      <Image
-                          src={introImageSrc}
-                          alt={topic.title}
-                          fill
-                          style={{ objectFit: 'cover' }}
-                          data-ai-hint={topic.dataAiHint || "abstract brain"}
-                          priority={!isClient} // Only priority load if it's the default server-side image
+                <div className="space-y-4">
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
+                    <Image
+                        src={currentIntroImageUrl}
+                        alt={introTopic.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        data-ai-hint={introTopic.dataAiHint || "abstract brain"}
+                        priority={!isClient && currentIntroImageUrl === DEFAULT_INTRO_IMAGE_URL}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="imageUrlInput" className="text-sm font-medium text-muted-foreground">Firebase Storage Afbeelding URL:</Label>
+                    <div className="flex gap-2 mt-1">
+                      <Input 
+                        id="imageUrlInput"
+                        type="url"
+                        placeholder="Plak hier de Firebase Storage URL..."
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        className="flex-grow"
                       />
+                      <Button onClick={handleSetImageUrl}>
+                        <LinkIcon className="mr-2 h-4 w-4" /> Instellen
+                      </Button>
                     </div>
-                  )}
-                  <Input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    ref={fileInputRef}
-                    onChange={handleImageChange} 
-                  />
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full"
-                  >
-                    <ImageUp className="mr-2 h-4 w-4" /> Afbeelding Kiezen (Lokaal)
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Geselecteerde afbeelding wordt lokaal in je browser onthouden.
-                  </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Zorg dat de afbeelding publiek toegankelijk is. De URL wordt lokaal opgeslagen.
+                    </p>
+                  </div>
                 </div>
               </section>
-            ))}
+            )}
 
             <Accordion type="single" collapsible className="w-full space-y-4">
               {neurodiversityTopicsData.filter(topic => topic.id !== "algemeen").map((topic) => {
@@ -340,5 +350,3 @@ export default function NeurodiversiteitPage() {
     </div>
   );
 }
-
-    
