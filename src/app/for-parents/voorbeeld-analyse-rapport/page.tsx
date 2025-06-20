@@ -1,20 +1,19 @@
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
-import React, { type ElementType } from 'react';
+import React, { useState, useEffect, type ReactNode, type ElementType } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-    ArrowLeft, Download, Bot, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList
+    ArrowLeft, Download, Bot, Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { jsPDF, TextOptionsLight } from 'jspdf';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { PDFThemeProvider, usePDFTheme, type PDFTheme } from '@/contexts/PDFThemeContext';
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
 interface ReportItem {
   title?: string;
@@ -31,7 +30,6 @@ interface ReportSectionData {
   items: ReportItem[];
 }
 
-// New, structured data as requested
 const reportContent = {
   title: "Vergelijkende Analyse",
   subtitle: "Inzichten voor Olivia Ouder en Sofie",
@@ -65,8 +63,8 @@ const reportContent = {
       title: "3. Blinde Vlekken: Wat Ziet De Een (Nog) Niet?",
       Icon: "👁️",
       items: [
-        { title: "Ouder ziet, Kind (nog) niet", text: "U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren.", isKans: true },
-        { title: "Kind ziet, Ouder (nog) niet", text: "Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert.", isKans: true },
+        { text: "[KANS] U maakt zich zorgen over Sofie's slaappatroon en merkt op dat ze vaak tot laat op is. Sofie zelf geeft aan hier geen problemen mee te ervaren. Dit kan een goed startpunt zijn voor een open gesprek over dag- en nachtritme." },
+        { text: "[KANS] Sofie geeft aan soms overprikkeld te raken door geluid en drukte. Dit is een blinde vlek voor u, omdat u dit thuis minder observeert. Het bespreken van strategieën voor drukke omgevingen (school, feestjes) kan helpen." },
       ]
     },
     {
@@ -74,8 +72,8 @@ const reportContent = {
       title: "4. Communicatie Kansen: Hoe Beter Afstemmen?",
       Icon: "💬",
       items: [
-        { text: "Vraag door op Sofie's ervaring met 'focus'.", isTip: true },
-        { text: "Erken haar perspectief op vriendschap.", isTip: true },
+        { text: "[Communicatie Tip] In plaats van te zeggen \"Je moet je beter concentreren\", probeer te vragen: \"Ik zie dat wiskunde soms lastig is. Wat maakt het voor jou moeilijk en wat zou je helpen?\" Dit opent de dialoog." },
+        { text: "[Communicatie Tip] Erken haar perspectief op vriendschap door te zeggen: \"Het is goed dat je weet welke vrienden bij je passen.\" Dit valideert haar gevoel en bouwt vertrouwen op." },
       ]
     },
     {
@@ -86,6 +84,15 @@ const reportContent = {
         { title: "Wekelijks Creatief Uurtje", details: { "📅 Wanneer": "Zaterdag 10:00-11:00", "👤 Verantwoordelijk": "Sofie kiest, ouder faciliteert" } },
         { title: "Focus Plan Maken", details: { "🎯 Wat": "Pomodoro blokken van 25 minuten", "📍 Waar": "Keukentafel of studeerkamer" } },
         { title: "Prikkel Thermometer", details: { "💡 Hoe": "Maak een groen-oranje-rood thermometer voor op de koelkast. Sofie kan aangeven hoe 'vol' haar hoofd zit als startpunt voor een gesprek."} },
+      ]
+    },
+     {
+      id: 'next-steps',
+      title: "6. Volgende Stappen: Hoe Nu Verder?",
+      Icon: "➡️",
+      items: [
+        { title: "**PROBEER DEZE WEEK**:", text: "Plan een kort, informeel moment om te bespreken hoe het actieplan gaat. Wat werkt goed, wat minder?" },
+        { title: "Vervolgvragen om te stellen:", text: "\"Waar ben je deze week trots op qua schoolwerk?\" of \"Was er een moment waarop je je overprikkeld voelde? Wat hielp toen?\"" },
       ]
     },
     {
@@ -99,173 +106,194 @@ const reportContent = {
   ] as ReportSectionData[],
 };
 
+// PDF Styling and Component
+Font.register({
+  family: 'Helvetica',
+  fonts: [
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf', fontWeight: 'normal' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf', fontStyle: 'italic' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bolditalic-webfont.ttf', fontWeight: 'bold', fontStyle: 'italic' },
+  ],
+});
+
+
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 30,
+    paddingTop: 30,
+    paddingBottom: 20,
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: '#334155', // slate-700
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#E57125', // Primary color
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#64748B', // slate-500
+    marginTop: 4,
+  },
+  introSection: {
+    padding: 12,
+    backgroundColor: '#FEF3F2', // Red-50 like
+    borderLeftWidth: 4,
+    borderLeftColor: '#F87171', // Red-400 like
+    marginBottom: 15,
+    borderRadius: 3,
+  },
+  introText: {
+    fontSize: 9,
+    color: '#4B5563', // gray-600
+  },
+  metaInfo: {
+    fontSize: 8,
+    color: '#6B7280', // gray-500
+    marginTop: 8,
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionCard: {
+    backgroundColor: '#F8FAFC', // slate-50
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0', // slate-200
+    padding: 12,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sectionIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#E57125', // Primary color
+  },
+  item: {
+    marginBottom: 10,
+  },
+  itemTitle: {
+    fontWeight: 'bold',
+    fontSize: 11,
+    marginBottom: 2,
+    color: '#1E293B', // slate-800
+  },
+  calloutBox: {
+    backgroundColor: '#FEFCE8', // yellow-50
+    borderLeftWidth: 3,
+    borderLeftColor: '#FACC15', // yellow-400
+    padding: 8,
+    marginVertical: 4,
+    borderRadius: 3,
+  },
+  calloutText: {
+    fontSize: 9.5,
+    fontStyle: 'italic',
+    color: '#4B5563',
+  },
+  actionPlanItem: {
+    marginBottom: 8,
+  },
+  actionDetails: {
+    fontSize: 9,
+    color: '#475569', // slate-600
+    paddingLeft: 12,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 30,
+    right: 30,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#94A3B8', // slate-400
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    paddingTop: 5,
+  },
+});
+
+const ReportPDF = ({ data }: { data: typeof reportContent }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{data.title}</Text>
+        <Text style={styles.subtitle}>{data.subtitle}</Text>
+      </View>
+
+      <View style={styles.introSection}>
+        <Text style={styles.introText}>{data.intro}</Text>
+      </View>
+       <View style={{ marginBottom: 15 }}>
+        {data.basedOn.map((line, i) => (
+          <Text key={i} style={styles.metaInfo}>• {line}</Text>
+        ))}
+        <Text style={styles.metaInfo}>{data.generatedAt}</Text>
+      </View>
+
+      {data.sections.map(section => (
+        <View key={section.id} style={styles.section} wrap={false}>
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionIcon}>{section.Icon}</Text>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+            </View>
+            {section.items.map((item, index) => (
+              <View key={index} style={styles.item}>
+                {item.isKans || item.isTip ? (
+                  <View style={styles.calloutBox}>
+                    <Text style={styles.calloutText}>{item.text}</Text>
+                  </View>
+                ) : item.details ? (
+                  <View style={styles.actionPlanItem}>
+                    <Text style={styles.itemTitle}>□ {item.title}</Text>
+                     {Object.entries(item.details).map(([key, value]) => (
+                       <Text key={key} style={styles.actionDetails}>{`${key}: ${value}`}</Text>
+                     ))}
+                  </View>
+                ) : (
+                  <>
+                    {item.title && <Text style={styles.itemTitle}>• {item.title}</Text>}
+                    <Text style={{ paddingLeft: item.title ? 8 : 0 }}>{item.text}</Text>
+                  </>
+                )}
+              </View>
+            ))}
+          </View>
+        </View>
+      ))}
+      
+      <Text style={styles.footer} fixed>
+        Gegenereerd door MindNavigator | www.mindnavigator.io | Pagina{' '}
+        <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} fixed />
+      </Text>
+    </Page>
+  </Document>
+);
+
 
 function VoorbeeldAnalyseRapportPageContent() {
-  const { toast } = useToast();
-  const theme = usePDFTheme();
+  const [isClient, setIsClient] = useState(false);
 
-  const handlePdfDownloadClick = () => {
-    try {
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      const { colors, styles } = theme;
-      const pageHeight = doc.internal.pageSize.height;
-      const pageWidth = doc.internal.pageSize.width;
-      const margins = styles.pageMargins;
-      const usableWidth = pageWidth - margins.left - margins.right;
-      let y = margins.top;
-      let pageNumber = 1;
-
-      // --- PDF HELPER FUNCTIONS (STABLE IMPLEMENTATION) ---
-
-      const checkPageBreak = (neededHeight: number) => {
-        if (y + neededHeight > pageHeight - margins.bottom) {
-          drawFooter();
-          doc.addPage();
-          pageNumber++;
-          y = margins.top;
-          drawFooter();
-          return true;
-        }
-        return false;
-      };
-
-      const drawFooter = () => {
-        doc.setFontSize(styles.smallSize);
-        doc.setTextColor(...colors.mutedForeground);
-        const footerText = `Gegenereerd door MindNavigator | www.mindnavigator.io | Pagina ${pageNumber}`;
-        doc.text(footerText, pageWidth / 2, pageHeight - (margins.bottom / 2), { align: 'center' });
-      };
-
-      const drawFormattedText = (text: string, x: number, currentY: number, options: any = {}) => {
-        const { fontSize = styles.normalSize, color = colors.foreground, maxWidth = usableWidth, fontStyle = 'normal' } = options;
-        const lineHeight = fontSize * styles.lineHeightFactor * 0.352778; // pt to mm
-        doc.setFont(styles.fontFamily, fontStyle);
-        doc.setFontSize(fontSize);
-        doc.setTextColor(...color);
-
-        const lines = doc.splitTextToSize(text, maxWidth);
-        lines.forEach((line: string, index: number) => {
-          if (checkPageBreak(lineHeight) && index > 0) {
-            currentY = y; // Update y to new page's top margin
-          }
-          doc.text(line, x, currentY);
-          currentY += lineHeight;
-        });
-        
-        doc.setFont(styles.fontFamily, 'normal'); // Reset font
-        return currentY;
-      };
-      
-      // Function to calculate text height without drawing it
-      const calculateTextHeight = (text: string, options: any = {}) => {
-          const { fontSize = styles.normalSize, maxWidth = usableWidth, fontStyle = 'normal' } = options;
-          const lineHeight = fontSize * styles.lineHeightFactor * 0.352778;
-          doc.setFont(styles.fontFamily, fontStyle);
-          doc.setFontSize(fontSize);
-          const lines = doc.splitTextToSize(text, maxWidth);
-          return lines.length * lineHeight;
-      };
-
-
-      // --- PDF GENERATION START ---
-      drawFooter();
-
-      // Title
-      y = drawFormattedText(reportContent.title, pageWidth / 2, y, { fontSize: styles.titleSize, fontStyle: 'bold', color: colors.primary, align: 'center' });
-      y = drawFormattedText(reportContent.subtitle, pageWidth / 2, y, { fontSize: styles.subtitleSize, color: colors.mutedForeground, align: 'center' });
-      y += styles.sectionSpacing;
-
-      // Intro
-      y = drawFormattedText(reportContent.intro, margins.left, y, { color: colors.mutedForeground });
-      y += styles.paragraphSpacing;
-
-      // Based on...
-      reportContent.basedOn.forEach(line => {
-          y = drawFormattedText(`• ${line}`, margins.left, y, { fontSize: styles.smallSize, color: colors.mutedForeground });
-      });
-      y = drawFormattedText(reportContent.generatedAt, margins.left, y, { fontSize: styles.smallSize, color: colors.mutedForeground, fontStyle: 'italic' });
-      y += styles.sectionSpacing;
-
-
-      // Dynamic sections
-      reportContent.sections.forEach(section => {
-        let sectionHeight = calculateTextHeight(section.title, { fontSize: styles.h2Size, fontStyle: 'bold', maxWidth: usableWidth - 15 }) + styles.padding * 2;
-        
-        section.items.forEach(item => {
-          if (item.title) {
-            sectionHeight += calculateTextHeight(item.title, { fontSize: styles.h3Size, fontStyle: 'bold' });
-          }
-          sectionHeight += calculateTextHeight(item.text, { fontSize: styles.normalSize });
-          if(item.details) {
-             Object.entries(item.details).forEach(([key, value]) => {
-                sectionHeight += calculateTextHeight(`${key}: ${value}`, {fontSize: styles.normalSize - 1, fontStyle: 'italic'});
-            });
-          }
-          sectionHeight += styles.paragraphSpacing;
-        });
-
-        checkPageBreak(sectionHeight);
-
-        // Draw section card
-        let cardBg = colors.cardBg;
-        let cardBorder = colors.border;
-        if(section.id === 'disclaimer') cardBg = colors.gray.bg;
-        if(section.id === 'action-plan') cardBg = colors.sectionBlue.bg;
-
-        doc.setFillColor(...cardBg);
-        doc.setDrawColor(...cardBorder);
-        doc.roundedRect(margins.left, y, usableWidth, sectionHeight, styles.cornerRadius, styles.cornerRadius, 'FD');
-        let contentY = y + styles.padding;
-
-        // Draw header with icon
-        const headerText = `${section.Icon} ${section.title}`;
-        contentY = drawFormattedText(headerText, margins.left + styles.padding, contentY, { fontSize: styles.h2Size, fontStyle: 'bold', color: colors.primary });
-        contentY += styles.paragraphSpacing / 2;
-
-        // Draw items
-        section.items.forEach(item => {
-          if (item.isKans) {
-              const boxText = `[KANS] ${item.title}: ${item.text}`;
-              const boxHeight = calculateTextHeight(boxText, {fontSize: styles.normalSize -1, maxWidth: usableWidth - styles.padding * 3}) + styles.padding / 1.5;
-              doc.setFillColor(...colors.yellow.bg);
-              doc.roundedRect(margins.left + styles.padding, contentY, usableWidth - styles.padding*2, boxHeight, styles.cornerRadius, styles.cornerRadius, 'F');
-              contentY = drawFormattedText(boxText, margins.left + styles.padding * 1.5, contentY + styles.padding / 2, {fontSize: styles.normalSize-1, color: colors.yellow.title, fontStyle: 'italic', maxWidth: usableWidth - styles.padding * 3});
-          } else if (item.isTip) {
-              const boxText = `[Communicatie Tip] ${item.text}`;
-              const boxHeight = calculateTextHeight(boxText, {fontSize: styles.normalSize -1, maxWidth: usableWidth - styles.padding * 3}) + styles.padding / 1.5;
-              doc.setFillColor(...colors.sectionGreen.bg);
-              doc.roundedRect(margins.left + styles.padding, contentY, usableWidth - styles.padding*2, boxHeight, styles.cornerRadius, styles.cornerRadius, 'F');
-              contentY = drawFormattedText(boxText, margins.left + styles.padding * 1.5, contentY + styles.padding / 2, {fontSize: styles.normalSize-1, color: colors.sectionGreen.title, fontStyle: 'italic', maxWidth: usableWidth - styles.padding * 3});
-          } else if (item.details) { // Action plan item
-             const checkY = contentY + 1;
-             doc.setDrawColor(0,0,0);
-             doc.rect(margins.left + styles.padding, checkY - 2, 3, 3, 'S'); // Checkbox
-             let itemContentX = margins.left + styles.padding + 5;
-             contentY = drawFormattedText(item.title || "", itemContentX, contentY, {fontSize: styles.h3Size, fontStyle: 'bold'});
-             Object.entries(item.details).forEach(([key, value]) => {
-                contentY = drawFormattedText(`${key}: ${value}`, itemContentX + 2, contentY, {fontSize: styles.normalSize - 1, color: colors.mutedForeground, fontStyle:'italic'});
-            });
-          } else { // Standard item
-            if (item.title) {
-              contentY = drawFormattedText(`• ${item.title}`, margins.left + styles.padding, contentY, { fontStyle: 'bold' });
-            }
-            contentY = drawFormattedText(item.text, margins.left + styles.padding + (item.title ? 2 : 5), contentY, { color: colors.mutedForeground });
-          }
-          contentY += styles.paragraphSpacing;
-        });
-
-        y += sectionHeight + styles.sectionSpacing;
-      });
-
-      const fileName = `vergelijkende_analyse_${reportContent.subtitle.split(' ')[2].toLowerCase()}.pdf`;
-      doc.save(fileName);
-      toast({ title: "Rapport Gedownload", description: `Het rapport is gedownload als ${fileName}.` });
-    } catch (error) {
-      console.error("PDF Downloadfout:", error);
-      toast({ title: "PDF Download Mislukt", description: `Er is een fout opgetreden: ${error instanceof Error ? error.message : String(error)}`, variant: "destructive" });
-    }
-  };
-
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -278,9 +306,23 @@ function VoorbeeldAnalyseRapportPageContent() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar uitleg
               </Link>
             </Button>
-            <Button onClick={handlePdfDownloadClick}>
-              <Download className="mr-2 h-4 w-4" /> Download als PDF
-            </Button>
+            {isClient ? (
+              <PDFDownloadLink
+                document={<ReportPDF data={reportContent} />}
+                fileName={`vergelijkende_analyse_${reportContent.subtitle.split(' ')[2].toLowerCase()}.pdf`}
+              >
+                {({ loading }) => (
+                  <Button disabled={loading}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {loading ? 'Rapport genereren...' : 'Download als PDF'}
+                  </Button>
+                )}
+              </PDFDownloadLink>
+            ) : (
+              <Button disabled>
+                <Download className="mr-2 h-4 w-4" /> PDF laden...
+              </Button>
+            )}
           </div>
 
           <Card className="shadow-xl">
@@ -304,7 +346,7 @@ function VoorbeeldAnalyseRapportPageContent() {
               {reportContent.sections.map((section) => (
                  <div key={section.id} className="mb-8">
                     <h2 className={`text-2xl font-semibold mb-4 flex items-center gap-3 ${section.id === 'disclaimer' ? 'text-destructive' : 'text-primary'}`}>
-                      {section.Icon}
+                      <span className="text-2xl">{section.Icon}</span>
                       {section.title}
                     </h2>
                     <Card className="bg-muted/30 border shadow-sm">
@@ -336,9 +378,5 @@ function VoorbeeldAnalyseRapportPageContent() {
 }
 
 export default function VoorbeeldAnalyseRapportPageWrapper() {
-  return (
-    <PDFThemeProvider>
-      <VoorbeeldAnalyseRapportPageContent />
-    </PDFThemeProvider>
-  );
+  return <VoorbeeldAnalyseRapportPageContent />;
 }
