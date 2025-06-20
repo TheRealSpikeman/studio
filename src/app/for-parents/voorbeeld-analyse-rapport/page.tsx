@@ -1,3 +1,4 @@
+
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
@@ -80,15 +81,15 @@ const PDF_STYLES = {
   fontFamily: "Helvetica",
   pageMargins: { top: 20, bottom: 25, left: 20, right: 20 },
   sectionSpacing: 8,
-  padding: 8, // Meer interne ruimte
-  cornerRadius: 4, // Rondere hoeken
+  padding: 10,
+  cornerRadius: 4,
   titleSize: 22,
   subtitleSize: 11,
   h2Size: 16,
   normalSize: 10.5,
   smallSize: 8,
   lineHeightFactor: 1.5,
-  bulletRadius: 1, // BUGFIX: Radius voor bullet points gedefinieerd
+  bulletRadius: 1,
 };
 
 
@@ -190,14 +191,12 @@ export default function VoorbeeldAnalyseRapportPage() {
   const handlePdfDownloadClick = () => {
     try {
       const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      doc.setFont('Helvetica', 'normal');
-
       const pageHeight = doc.internal.pageSize.height;
       const pageWidth = doc.internal.pageSize.width;
       const margins = PDF_STYLES.pageMargins;
       const usableWidth = pageWidth - margins.left - margins.right;
       let y = margins.top;
-      
+
       const checkY = (neededHeight: number): void => {
         if (y + neededHeight > pageHeight - margins.bottom) {
           doc.addPage();
@@ -214,77 +213,76 @@ export default function VoorbeeldAnalyseRapportPage() {
         } = options;
 
         const lineHeight = fontSize * lineHeightFactor * 0.4;
-        doc.setFontSize(fontSize);
-        doc.setTextColor(color[0], color[1], color[2]);
+        let currentX = x;
+        let currentY = yPos;
 
         const parts = text.split(/(<strong>.*?<\/strong>|<i>.*?<\/i>)/g).filter(Boolean);
-        let lineParts: { text: string; style: 'bold' | 'italic' | 'normal' }[] = [];
 
         parts.forEach(part => {
-          if (part.startsWith('<strong>')) lineParts.push({ text: part.replace(/<\/?strong>/g, ''), style: 'bold' });
-          else if (part.startsWith('<i>')) lineParts.push({ text: part.replace(/<\/?i>/g, ''), style: 'italic' });
-          else lineParts.push({ text: part, style: 'normal' });
-        });
+            let style: 'bold' | 'italic' | 'normal' = 'normal';
+            let content = part;
 
-        let textToSplit = lineParts.map(p => p.text).join('');
-        let lines = doc.splitTextToSize(textToSplit, maxWidth);
-        let currentY = yPos;
-        let partIndex = 0;
-
-        lines.forEach((line: string) => {
-          checkY(lineHeight);
-          if (currentY > yPos) y = currentY; 
-          
-          let remainingLineText = line;
-          let currentLineX = x;
-          
-          while (remainingLineText.length > 0 && partIndex < lineParts.length) {
-            const currentPart = lineParts[partIndex];
-            doc.setFont(PDF_STYLES.fontFamily, currentPart.style);
-
-            if (currentPart.text.length >= remainingLineText.length) {
-              doc.text(remainingLineText, currentLineX, currentY);
-              currentPart.text = currentPart.text.substring(remainingLineText.length);
-              currentLineX += doc.getStringUnitWidth(remainingLineText) * fontSize / doc.internal.scaleFactor;
-              remainingLineText = '';
-              if (currentPart.text.length === 0) partIndex++;
-            } else {
-              doc.text(currentPart.text, currentLineX, currentY);
-              remainingLineText = remainingLineText.substring(currentPart.text.length);
-              currentLineX += doc.getStringUnitWidth(currentPart.text) * fontSize / doc.internal.scaleFactor;
-              partIndex++;
+            if (part.startsWith('<strong>')) {
+                style = 'bold';
+                content = part.replace(/<\/?strong>/g, '');
+            } else if (part.startsWith('<i>')) {
+                style = 'italic';
+                content = part.replace(/<\/?i>/g, '');
             }
-          }
-          currentY += lineHeight;
-        });
 
+            doc.setFont(PDF_STYLES.fontFamily, style);
+            doc.setFontSize(fontSize);
+            doc.setTextColor(color[0], color[1], color[2]);
+
+            const words = content.split(' ');
+            words.forEach((word, index) => {
+                const wordWithSpace = index < words.length - 1 ? word + ' ' : word;
+                const wordWidth = doc.getStringUnitWidth(wordWithSpace) * fontSize / doc.internal.scaleFactor;
+                
+                if (currentX > x && currentX + wordWidth > x + maxWidth) {
+                    currentY += lineHeight;
+                    currentX = x;
+                    checkY(lineHeight);
+                }
+                
+                const subWords = wordWithSpace.split('\n');
+                subWords.forEach((subWord, subIndex) => {
+                    if(subIndex > 0) {
+                         currentY += lineHeight;
+                         currentX = x;
+                         checkY(lineHeight);
+                    }
+                    const subWordWidth = doc.getStringUnitWidth(subWord) * fontSize / doc.internal.scaleFactor;
+                    if(typeof subWord === 'string' && !isNaN(currentX) && !isNaN(currentY)){
+                        doc.text(subWord, currentX, currentY);
+                    }
+                    currentX += subWordWidth;
+                });
+            });
+        });
+        
         doc.setFont(PDF_STYLES.fontFamily, 'normal');
-        return currentY - yPos;
+        return currentY;
       };
 
       const calculateFormattedTextHeight = (text: string, options: any = {}) => {
-        const {
-          fontSize = PDF_STYLES.normalSize,
-          maxWidth = usableWidth,
-          lineHeightFactor = PDF_STYLES.lineHeightFactor
-        } = options;
-        
-        const lineHeight = fontSize * lineHeightFactor * 0.4;
-        const plainText = text.replace(/<[^>]*>/g, '');
-        const lines = doc.splitTextToSize(plainText, maxWidth);
-        return lines.length * lineHeight;
+          const { fontSize = PDF_STYLES.normalSize, maxWidth = usableWidth, lineHeightFactor = PDF_STYLES.lineHeightFactor } = options;
+          const lineHeight = fontSize * lineHeightFactor * 0.4;
+          const plainText = text.replace(/<[^>]*>/g, '');
+          const lines = doc.splitTextToSize(plainText, maxWidth);
+          return lines.length * lineHeight;
       };
       
       const addSection = (sectionData: typeof reportContent.sections[0]) => {
           let contentHeight = PDF_STYLES.padding * 2;
-          contentHeight += calculateFormattedTextHeight(sectionData.title, { fontSize: PDF_STYLES.h2Size });
-          contentHeight += PDF_STYLES.paragraphSpacing;
+          contentHeight += calculateFormattedTextHeight(sectionData.title, { fontSize: PDF_STYLES.h2Size, maxWidth: usableWidth - (PDF_STYLES.padding * 2) });
+          contentHeight += PDF_STYLES.sectionSpacing / 2;
 
           sectionData.content.forEach(item => {
               contentHeight += calculateFormattedTextHeight(item, { maxWidth: usableWidth - (PDF_STYLES.padding * 2) - 10 });
               contentHeight += PDF_STYLES.paragraphSpacing / 2;
           });
-
+          
           checkY(contentHeight);
           
           const theme = PDF_COLORS[sectionData.theme as keyof typeof PDF_COLORS] || PDF_COLORS.sectionDefault;
@@ -292,9 +290,8 @@ export default function VoorbeeldAnalyseRapportPage() {
           doc.roundedRect(margins.left, y, usableWidth, contentHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
           
           let contentY = y + PDF_STYLES.padding;
-          contentY += drawFormattedText(sectionData.title, margins.left + PDF_STYLES.padding, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title });
-          contentY += PDF_STYLES.paragraphSpacing;
-
+          contentY = drawFormattedText(sectionData.title, margins.left + PDF_STYLES.padding, contentY, { fontSize: PDF_STYLES.h2Size, fontStyle: 'bold', color: theme.title, maxWidth: usableWidth - (PDF_STYLES.padding * 2) }) + PDF_STYLES.lineHeightFactor * 2;
+          
           sectionData.content.forEach(item => {
               const bulletX = margins.left + PDF_STYLES.padding + 2;
               const textX = bulletX + 4;
@@ -302,29 +299,30 @@ export default function VoorbeeldAnalyseRapportPage() {
               
               doc.setFillColor(theme.title[0], theme.title[1], theme.title[2]);
               doc.circle(bulletX, contentY + 2, PDF_STYLES.bulletRadius, 'F');
-              contentY += drawFormattedText(item, textX, contentY, { maxWidth: textMaxWidth });
+              contentY = drawFormattedText(item, textX, contentY, { maxWidth: textMaxWidth }) + PDF_STYLES.lineHeightFactor;
               contentY += PDF_STYLES.paragraphSpacing / 2;
           });
           y += contentHeight + PDF_STYLES.sectionSpacing;
       };
 
       // --- PDF Generation START ---
-      y += drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
-      y += drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground });
+      y = drawFormattedText(reportContent.title, margins.left, y, { fontSize: PDF_STYLES.titleSize, fontStyle: 'bold', color: PDF_COLORS.primary });
+      y = drawFormattedText(reportContent.subtitle, margins.left, y, { fontSize: PDF_STYLES.subtitleSize, color: PDF_COLORS.mutedForeground }) + 2;
       y += PDF_STYLES.paragraphSpacing;
       
       const introHeight = calculateFormattedTextHeight(reportContent.intro, {maxWidth: usableWidth}) + PDF_STYLES.paragraphSpacing;
       const basedOnHeight = calculateFormattedTextHeight(reportContent.basedOn.join('\n'), {fontSize: PDF_STYLES.smallSize, maxWidth: usableWidth - 10}) + 12;
       checkY(introHeight + basedOnHeight);
 
-      y += drawFormattedText(reportContent.intro, margins.left, y, {maxWidth: usableWidth});
+      y = drawFormattedText(reportContent.intro, margins.left, y, {maxWidth: usableWidth}) + 2;
+      y += PDF_STYLES.paragraphSpacing;
 
       doc.setFillColor(PDF_COLORS.gray.bg[0], PDF_COLORS.gray.bg[1], PDF_COLORS.gray.bg[2]);
       doc.roundedRect(margins.left, y, usableWidth, basedOnHeight, PDF_STYLES.cornerRadius, PDF_STYLES.cornerRadius, 'F');
       
       let basedOnY = y + 6;
       reportContent.basedOn.forEach(line => {
-        basedOnY += drawFormattedText(line, margins.left + 5, basedOnY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground });
+        basedOnY = drawFormattedText(line, margins.left + 5, basedOnY, { fontSize: PDF_STYLES.smallSize, color: PDF_COLORS.mutedForeground }) + 1;
       });
       y += basedOnHeight + PDF_STYLES.sectionSpacing;
 
