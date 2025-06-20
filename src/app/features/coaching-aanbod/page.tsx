@@ -108,7 +108,7 @@ export default function CoachingAanbodPage() {
             ))}
           </div>
 
-          <section className="mt-20 text-center max-w-2xl mx-auto">
+          <section className="mt-28 text-center max-w-2xl mx-auto"> {/* Increased margin-top here */}
             <h2 className="text-3xl font-bold text-foreground mb-4">Klaar om de volgende stap te zetten?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Of je nu net begint met zelfontdekking of op zoek bent naar specifieke begeleiding, MindNavigator is er om je te ondersteunen.
