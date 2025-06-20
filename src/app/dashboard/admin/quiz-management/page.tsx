@@ -9,17 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap, Loader2 } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
-import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; 
 
 const DUMMY_QUIZZES: QuizAdmin[] = [
   { 
@@ -73,7 +67,7 @@ const DUMMY_QUIZZES: QuizAdmin[] = [
     audience: ['Tiener (15-18 jr, voor zichzelf)', 'Tiener (12-14 jr, voor zichzelf)'], category: 'Thema', status: 'concept', 
     questions: [
       {id:'q_esp_1', text:'Maak je je veel zorgen over toetsen, zelfs als je goed hebt geleerd?', weight: 3},
-      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met leren voor een examen?', weight: 2}
+      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met een examen?', weight: 2}
     ],
     lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
@@ -121,37 +115,6 @@ const categoryOptions: { id: QuizCategory; label: string }[] = [
   { id: 'AngstDepressie', label: 'Subtest: Angst/Depressie Kenmerken' },
 ];
 
-const numQuestionsOptions = [
-  { id: 5, label: '5 vragen' },
-  { id: 10, label: '10 vragen' },
-  { id: 15, label: '15 vragen' },
-  { id: 20, label: '20 vragen' },
-];
-
-const difficultyOptions = [
-    { id: 'laag', label: 'Laag' },
-    { id: 'gemiddeld', label: 'Gemiddeld' },
-    { id: 'hoog', label: 'Hoog' },
-];
-
-const quizPurposeOptions: { id: 'onboarding' | 'deep_dive' | 'reflection' | 'goal_setting' | 'general'; label: string }[] = [
-    { id: 'general', label: 'Algemeen (standaard)' },
-    { id: 'onboarding', label: 'Onboarding (eerste kennismaking)' },
-    { id: 'deep_dive', label: 'Verdieping (na basis quiz)' },
-    { id: 'reflection', label: 'Reflectie (periodieke check-in)' },
-    { id: 'goal_setting', label: 'Doelen Stellen (actiegericht)' },
-];
-
-const aiQuizFormSchema = z.object({
-  topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
-  audience: z.string({ required_error: "Selecteer een doelgroep." }) as z.ZodType<QuizAudience>,
-  category: z.string({ required_error: "Selecteer een domein/categorie." }) as z.ZodType<QuizCategory>,
-  numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
-  difficulty: z.string({ required_error: "Selecteer een moeilijkheidsgraad."}),
-  quizPurpose: z.enum(['onboarding', 'deep_dive', 'reflection', 'goal_setting', 'general']).optional(),
-});
-type AiQuizFormData = z.infer<typeof aiQuizFormSchema>;
-
 export default function QuizManagementPage() {
   const [quizzes, setQuizzes] = useState<QuizAdmin[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -160,8 +123,6 @@ export default function QuizManagementPage() {
   const [categoryFilter, setCategoryFilter] = useState<QuizCategory | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
-  const [isAiQuizDialogOpen, setIsAiQuizDialogOpen] = useState(false);
-  const [isGeneratingAiQuiz, setIsGeneratingAiQuiz] = useState(false);
 
   useEffect(() => {
     const loadedQuizzes: QuizAdmin[] = []; 
@@ -202,19 +163,6 @@ export default function QuizManagementPage() {
     })));
   }, []);
 
-
-  const aiQuizForm = useForm<AiQuizFormData>({
-    resolver: zodResolver(aiQuizFormSchema),
-    defaultValues: {
-      topic: "",
-      audience: undefined,
-      category: undefined,
-      numQuestions: 10,
-      difficulty: "gemiddeld",
-      quizPurpose: "general",
-    },
-  });
-
   const filteredQuizzes = useMemo(() => {
     return quizzes.filter(quiz => {
       const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -251,83 +199,6 @@ export default function QuizManagementPage() {
     return status === 'published' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-yellow-100 text-yellow-700 border-yellow-300';
   };
 
-  const handleGenerateAiQuiz = async (data: AiQuizFormData) => {
-    setIsGeneratingAiQuiz(true);
-    toast({
-      title: "Quiz genereren met AI...",
-      description: `Onderwerp: ${data.topic}. Een ogenblik geduld.`,
-    });
-    
-    try {
-      const aiInput = { 
-        topic: data.topic,
-        audience: data.audience, 
-        category: data.category, 
-        numQuestions: data.numQuestions,
-        difficulty: data.difficulty,
-        quizPurpose: data.quizPurpose || 'general',
-      };
-      const aiResult = await generateAiQuiz(aiInput);
-
-      if (!aiResult || !aiResult.questions || aiResult.questions.length === 0) {
-        throw new Error("AI heeft geen vragen geretourneerd.");
-      }
-
-      const newQuizId = `ai-${Date.now()}`;
-      const newQuiz: QuizAdmin = {
-        id: newQuizId,
-        title: `${data.topic} (AI: ${data.audience} - ${data.quizPurpose})`,
-        description: `AI gegenereerde quiz over ${data.topic} (doelgroep ${data.audience}, cat. ${data.category}, moeilijkheid ${data.difficulty}, doel: ${data.quizPurpose}). Pas de titel en beschrijving eventueel aan.`,
-        audience: [data.audience],
-        category: data.category,
-        status: 'concept',
-        questions: aiResult.questions.map((q, i) => ({
-          id: `ai-q${i+1}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`,
-          text: q.text,
-          example: q.example,
-          weight: q.weight ?? 1 
-        })),
-        lastUpdatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        slug: `ai-${data.topic.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
-        metaTitle: `AI Quiz: ${data.topic}`,
-        metaDescription: `Een door AI gegenereerde quiz over ${data.topic} voor ${data.audience}.`,
-        thumbnailUrl: `https://picsum.photos/seed/ai-${newQuizId}/400/200`,
-        analysisDetailLevel: 'standaard',
-        analysisInstructions: '', 
-      };
-
-      setQuizzes(prev => [newQuiz, ...prev]);
-      try {
-        localStorage.setItem(`ai-quiz-${newQuiz.id}`, JSON.stringify(newQuiz));
-      } catch (error) {
-          console.error("Error saving AI quiz to localStorage:", error);
-          toast({
-              title: "Fout bij opslaan AI Quiz",
-              description: "De quiz is gegenereerd, maar kon niet lokaal worden opgeslagen voor bewerking.",
-              variant: "destructive"
-          });
-      }
-      aiQuizForm.reset();
-      setIsAiQuizDialogOpen(false);
-      toast({
-        title: "AI Quiz gegenereerd!",
-        description: `De quiz "${newQuiz.title}" is aangemaakt. Bewerk deze om details te verfijnen.`,
-        variant: "default", 
-      });
-
-    } catch (error) {
-      console.error("Error generating AI quiz:", error);
-      toast({
-        title: "Fout bij AI Quiz Generatie",
-        description: (error as Error).message || "Er is iets misgegaan. Probeer het later opnieuw of pas je input aan.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingAiQuiz(false);
-    }
-  };
-
   const calculateAverageWeight = (quiz: QuizAdmin): string => {
     if (!quiz.questions || quiz.questions.length === 0) return "N/A";
     const totalWeight = quiz.questions.reduce((sum, q) => sum + (q.weight || 1), 0);
@@ -355,38 +226,11 @@ export default function QuizManagementPage() {
                   <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
                 </Link>
               </Button>
-              <Dialog open={isAiQuizDialogOpen} onOpenChange={setIsAiQuizDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <Bot className="mr-2 h-4 w-4" /> Genereer met AI
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2"><Zap className="text-primary h-5 w-5"/>Genereer Quiz met AI</DialogTitle>
-                    <DialogDescription>
-                      Geef de AI instructies om een nieuwe quiz te genereren.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Form {...aiQuizForm}>
-                    <form onSubmit={aiQuizForm.handleSubmit(handleGenerateAiQuiz)} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-3">
-                      <FormField control={aiQuizForm.control} name="topic" render={({ field }) => (<FormItem><FormLabel>Onderwerp / Thema</FormLabel><FormControl><Input placeholder="Bijv. Sociale Vaardigheden" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={aiQuizForm.control} name="audience" render={({ field }) => (<FormItem><FormLabel>Doelgroep</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl><SelectContent>{audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                      <FormField control={aiQuizForm.control} name="category" render={({ field }) => (<FormItem><FormLabel>Domein / Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                      <FormField control={aiQuizForm.control} name="numQuestions" render={({ field }) => (<FormItem><FormLabel>Aantal Vragen</FormLabel><Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl><SelectContent>{numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                      <FormField control={aiQuizForm.control} name="difficulty" render={({ field }) => (<FormItem><FormLabel>Moeilijkheid / Weging</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl><SelectContent>{difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription><FormMessage /></FormItem>)} />
-                      <FormField control={aiQuizForm.control} name="quizPurpose" render={({ field }) => (<FormItem><FormLabel>Quiz Doel (Journey Moment)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value || 'general'}><FormControl><SelectTrigger><SelectValue placeholder="Kies doel/moment" /></SelectTrigger></FormControl><SelectContent>{quizPurposeOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Context voor AI over het doel van de quiz.</FormDescription><FormMessage /></FormItem>)} />
-                      <DialogFooter className="pt-4 sticky bottom-0 bg-background py-3 z-10">
-                        <Button type="button" variant="outline" onClick={() => setIsAiQuizDialogOpen(false)} disabled={isGeneratingAiQuiz}>Annuleren</Button>
-                        <Button type="submit" disabled={isGeneratingAiQuiz}>
-                          {isGeneratingAiQuiz && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          {isGeneratingAiQuiz ? "Bezig..." : "Genereer Quiz"}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
+              <Button asChild variant="outline" className="w-full sm:w-auto">
+                <Link href="/dashboard/admin/quiz-management/generate">
+                  <Bot className="mr-2 h-4 w-4" /> Genereer met AI
+                </Link>
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -508,4 +352,3 @@ export default function QuizManagementPage() {
     </div>
   );
 }
-
