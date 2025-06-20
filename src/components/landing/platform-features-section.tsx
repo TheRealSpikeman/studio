@@ -136,7 +136,7 @@ export function PlatformFeaturesSection() {
                 alt="Voorbeeld van het MindNavigator Ouder Dashboard interface met grafieken en overzichten"
                 fill
                 style={{ objectFit: 'cover' }}
-                data-ai-hint="dashboard interface analytics"
+                data-ai-hint="parent dashboard"
                 className="opacity-90"
               />
                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent lg:from-transparent lg:via-transparent lg:to-primary/5"></div>
