@@ -92,7 +92,7 @@ export type QuizFormData = z.infer<typeof quizFormSchema> & {
 };
 
 interface QuizFormPageProps {
-  quizData?: QuizFormData & { id?: string }; 
+  quizData?: QuizFormData & { id?: string; createdAt?: string }; 
 }
 
 export default function NewQuizPage({ quizData }: QuizFormPageProps) {
@@ -231,6 +231,17 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             </AccordionContent>
           </AccordionItem>
           
+          <AccordionItem value="item-3" className="border rounded-lg shadow-sm bg-card">
+            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+              <div className="flex flex-col items-start gap-1 w-full"><div className="flex items-center gap-3"><ListChecks className="h-5 w-5 text-primary"/>Vragen</div><p className="text-sm font-normal text-muted-foreground text-left max-w-full">Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd).</p></div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0 space-y-4">
+              {questionFields.map((field, index) => (<div key={field.id} className="p-4 bg-muted/50 rounded-md"><FormLabel className="font-semibold">Vraag {index + 1}</FormLabel><div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-2"><FormField control={form.control} name={`questions.${index}.text`} render={({ field: fld }) => (<FormItem className="md:col-span-4"><FormLabel className="text-xs">Vraagtekst</FormLabel><FormControl><Textarea placeholder="Typ hier de vraag..." {...fld} rows={2} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.weight`} render={({ field: fld }) => (<FormItem className="md:col-span-1"><FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel><FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.example`} render={({ field: fld }) => (<FormItem className="md:col-span-6"><FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl><FormMessage /></FormItem>)} /></div><Button type="button" variant="destructive" size="sm" onClick={() => removeQuestion(index)} className="mt-3"><Trash2 className="mr-1 h-3 w-3" /> Vraag {index + 1} Verwijderen</Button></div>))}
+              <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "", weight: 1 })}><PlusCircle className="mr-2 h-4 w-4" /> Vraag Toevoegen</Button>
+              {form.formState.errors.questions && typeof form.formState.errors.questions === 'object' && !Array.isArray(form.formState.errors.questions) && (<p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>)}
+            </AccordionContent>
+          </AccordionItem>
+          
           <AccordionItem value="item-2" className="border rounded-lg shadow-sm bg-card">
             <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
               <div className="flex items-center gap-3"><ImageUp className="h-5 w-5 text-primary"/>Quiz Afbeelding</div>
@@ -240,17 +251,6 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
               <FormField control={form.control} name="uploadedImage" render={() => (<FormItem><FormLabel>Of upload een afbeelding</FormLabel><FormControl><Input type="file" accept="image/*" ref={imageInputRef} onChange={handleImageChange} className="pt-1.5" /></FormControl><FormMessage /></FormItem>)}/>
               <p className="text-xs text-muted-foreground mt-1"><strong>Let op:</strong> In de huidige demo-omgeving wordt een geüploade afbeelding alleen lokaal op uw computer opgeslagen en is deze niet zichtbaar voor andere gebruikers. Voor productie is een koppeling met een cloudopslagdienst zoals Firebase Storage nodig.</p>
               {imagePreview && (<div className="mt-2"><FormLabel>Voorbeeld:</FormLabel><img src={imagePreview} alt="Quiz thumbnail preview" className="mt-1 max-h-40 rounded-md border" /></div>)}
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-3" className="border rounded-lg shadow-sm bg-card">
-            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
-              <div className="flex flex-col items-start gap-1 w-full"><div className="flex items-center gap-3"><ListChecks className="h-5 w-5 text-primary"/>Vragen</div><p className="text-sm font-normal text-muted-foreground text-left max-w-full">Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd).</p></div>
-            </AccordionTrigger>
-            <AccordionContent className="p-6 pt-0 space-y-4">
-              {questionFields.map((field, index) => (<div key={field.id} className="p-4 bg-muted/50 rounded-md"><FormLabel className="font-semibold">Vraag {index + 1}</FormLabel><div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-2"><FormField control={form.control} name={`questions.${index}.text`} render={({ field: fld }) => (<FormItem className="md:col-span-4"><FormLabel className="text-xs">Vraagtekst</FormLabel><FormControl><Textarea placeholder="Typ hier de vraag..." {...fld} rows={2} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.weight`} render={({ field: fld }) => (<FormItem className="md:col-span-1"><FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel><FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.example`} render={({ field: fld }) => (<FormItem className="md:col-span-6"><FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl><FormMessage /></FormItem>)} /></div><Button type="button" variant="destructive" size="sm" onClick={() => removeQuestion(index)} className="mt-3"><Trash2 className="mr-1 h-3 w-3" /> Vraag {index + 1} Verwijderen</Button></div>))}
-              <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "", weight: 1 })}><PlusCircle className="mr-2 h-4 w-4" /> Vraag Toevoegen</Button>
-              {form.formState.errors.questions && typeof form.formState.errors.questions === 'object' && !Array.isArray(form.formState.errors.questions) && (<p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>)}
             </AccordionContent>
           </AccordionItem>
 
