@@ -78,11 +78,11 @@ const platformFeatures: Feature[] = [
 
 export function PlatformFeaturesSection() {
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section id="platform-features-overview" className="py-12 md:py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span>
+            Ontdek de Kracht van MindNavigator: <span className="text-primary">Ondersteuning op Maat</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
             Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur.
@@ -114,8 +114,11 @@ export function PlatformFeaturesSection() {
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="link" asChild className="p-0 h-auto text-primary">
-                  <Link href={feature.link}>{feature.linkText} &rarr;</Link>
+                <Button variant="link" asChild className="p-0 h-auto text-primary inline-flex items-center group">
+                  <Link href={feature.link}>
+                    {feature.linkText}
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -127,19 +130,19 @@ export function PlatformFeaturesSection() {
             <div className="p-8 md:p-10 lg:p-12">
               <div className="flex items-center gap-3 mb-3">
                 <BarChart3 className="h-10 w-10 text-primary" />
-                <h3 className="text-2xl font-bold text-foreground">Uw Ouder Dashboard: Inzicht &amp; Overzicht</h3>
+                <h3 className="text-2xl font-bold text-foreground">Uw Ouder Dashboard: Inzicht &amp; Controle</h3>
               </div>
               <p className="text-muted-foreground mb-4 text-base leading-relaxed">
                 Met het "Gezins Gids" pakket (en andere betaalde plannen) krijgt u toegang tot een uitgebreid ouderportaal. Hiermee kunt u:
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6 pl-2">
                 <li>De voortgang en inzichten uit de assessment en tools van uw kind (met toestemming) inzien.</li>
-                <li>Abonnementen voor uw gezin eenvoudig beheren.</li>
-                <li>Effectief communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
+                <li>Abonnementen voor uw gezin eenvoudig beheren en aanpassen.</li>
+                <li>Effectief en veilig communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
                 <li>Toegang krijgen tot specifieke bronnen en tips voor ouders.</li>
               </ul>
               <p className="text-foreground font-medium mb-6">
-                U staat er niet alleen voor; wij bieden u de handvatten om uw kind optimaal te ondersteunen.
+                U staat er niet alleen voor; wij bieden u de handvatten om uw kind optimaal te ondersteunen in hun ontwikkeling.
               </p>
               <Button asChild size="lg">
                 <Link href="/#pricing">Ontdek de "Gezins Gids"</Link>
@@ -153,7 +156,6 @@ export function PlatformFeaturesSection() {
                 style={{ objectFit: 'cover' }}
                 data-ai-hint="mother daughter laptop"
                 className="opacity-90"
-                unoptimized={true}
               />
                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent lg:from-transparent lg:via-transparent lg:to-primary/5"></div>
             </div>
