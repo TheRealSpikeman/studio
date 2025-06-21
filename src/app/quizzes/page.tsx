@@ -1,3 +1,4 @@
+
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -73,8 +74,8 @@ const baseTeenQuizzes: Quiz[] = [
     title: 'Zelfreflectie Tool (12-14 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+12-14',
-    dataAiHint: 'teenager study journal',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/young_teenage_boy_13_years_old_with_blonde_hair.png?alt=media&token=79e72caf-3dcd-4dcf-8d01-9074ceb3f8aa',
+    dataAiHint: 'teenage boy',
     ageGroup: '12-14',
     duration: "10-15 min",
     questionCount: 12,
