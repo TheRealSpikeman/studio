@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 
 // This DUMMY_QUIZZES_FOR_EDIT should contain all quizzes that are listed on the quiz-management page.
 // It should mirror the DUMMY_QUIZZES from quiz-management/page.tsx
-const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
+const DUMMY_QUIZZES_FOR_EDIT: QuizAdmin[] = [
   { 
     id: 'teen-neuro-15-18', title: 'Basis Zelfreflectie (15-18 jr)', 
     description: 'Algemene neurodiversiteitstest voor oudere tieners, ontdek jouw unieke eigenschappen.', 
@@ -39,6 +39,20 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
     slug: 'basis-neuro-12-14',
     thumbnailUrl: 'https://picsum.photos/seed/teenquiz1214/400/200',
+    analysisDetailLevel: 'standaard',
+  },
+   { 
+    id: 'ouder-ken-je-kind-6-11', title: 'Ken je Kind (6-11 jr)', 
+    description: 'Vragenlijst voor ouders om gedrag en kenmerken van hun kind (6-11 jr) beter te begrijpen.', 
+    audience: ['Ouder (over kind 6-11 jr)'], category: 'Ouder Observatie', status: 'concept', 
+    questions: [
+        {id:'q_okk_611_1', text:'Hoe vaak merkt u dat uw kind moeite heeft met stilzitten tijdens maaltijden of rustige activiteiten?', weight: 1}, 
+        {id:'q_okk_611_2', text:'In welke mate lijkt uw kind details op te merken die anderen vaak ontgaan?', weight: 2},
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    slug: 'ken-je-kind-6-11',
+    thumbnailUrl: 'https://picsum.photos/seed/kenjekind611/400/200',
     analysisDetailLevel: 'standaard',
   },
   { 
