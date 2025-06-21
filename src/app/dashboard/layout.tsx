@@ -159,7 +159,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <DashboardSidebar />
           <SidebarInset className="flex flex-1 flex-col"> 
             <DashboardHeader /> 
-            <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 bg-secondary/30">
+            <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-b from-background via-secondary/10 to-background">
               <DashboardContentWrapper>{children}</DashboardContentWrapper>
             </main>
           </SidebarInset>
