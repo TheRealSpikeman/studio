@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react';
 import { Step1QuizType } from './steps/Step1_QuizType';
 import { Step2Audience } from './steps/Step2_Audience';
+import { Step3Content } from './steps/Step3_Content';
 
 export const QuizCreatorWizard = () => {
   const { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData } = useQuizCreator();
@@ -29,7 +30,11 @@ export const QuizCreatorWizard = () => {
         return true;
       }
     }
-    // TODO: Add more validation for other steps as they are built
+    if (currentStep === 3) {
+        if (!quizData.mainCategory || !quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) {
+            return true;
+        }
+    }
     return false;
   };
   
@@ -39,6 +44,8 @@ export const QuizCreatorWizard = () => {
         return <Step1QuizType />;
       case 2:
         return <Step2Audience />;
+      case 3:
+        return <Step3Content />;
       default:
         return <div className="p-8 text-center text-muted-foreground">Stap {currentStep} is in ontwikkeling.</div>;
     }

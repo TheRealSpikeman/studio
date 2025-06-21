@@ -10,16 +10,20 @@ export type QuizCreationState = {
   // Step 2
   audienceType?: 'teen' | 'parent' | 'adult';
   targetAgeGroup?: '6-11' | '12-14' | '15-18' | '18+' | 'all';
-  focusFlags?: ('general' | 'adhd-friendly' | 'autism-friendly')[];
+  focusFlags?: ('general' | 'adhd-friendly' | 'autism-friendly' | 'hsp-friendly' | 'dyslexia-friendly' | 'giftedness-focus' | 'executive-functions-focus' | 'sensory-processing-focus' | 'emotion-regulation-focus')[];
 
   // Step 3
+  mainCategory?: string;
   title?: string;
   description?: string;
   estimatedDuration?: string;
-  categories?: string[];
-  questions?: Partial<QuizAdminQuestion>[];
+  resultType?: string;
+  difficulty?: string;
 
   // Step 4
+  questions?: Partial<QuizAdminQuestion>[];
+
+  // Step 5
   settings?: {
       resultType?: string;
       accessibility?: 'free' | 'premium';
@@ -45,7 +49,14 @@ export const QuizCreatorProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
   const [quizData, setQuizData] = useState<QuizCreationState>({
-    focusFlags: ['general']
+    focusFlags: ['general'],
+    // Initial values for step 3
+    mainCategory: undefined,
+    title: "",
+    description: "",
+    estimatedDuration: "3-5",
+    resultType: "personality-4-types",
+    difficulty: undefined,
   });
 
   const setCompletedStep = (step: number, completed: boolean) => {
