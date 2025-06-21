@@ -1,4 +1,3 @@
-
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -109,8 +108,8 @@ const thematicTeenQuizzes: Quiz[] = [
     title: 'Omgaan met Examenvrees', 
     description: 'Leer stress te beheersen en je planning scherp te houden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Examenvrees',
-    dataAiHint: 'student exam stress',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_skin_curly_hair.png?alt=media&token=00582d3b-19c5-4744-be12-8636535829f8', 
+    dataAiHint: 'student thinking',
     ageGroup: 'all',
     duration: "8-12 min",
     questionCount: 10,
@@ -124,7 +123,7 @@ const thematicTeenQuizzes: Quiz[] = [
     title: 'Sociale Situaties &amp; Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties',
+    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties', 
     dataAiHint: 'teenagers friends group',
     ageGroup: 'all',
     duration: "7-10 min",
@@ -152,7 +151,7 @@ const thematicTeenQuizzes: Quiz[] = [
     title: 'Motivatie & Doelen Stellen', 
     description: 'Leer doelen stellen, successen vieren en gemotiveerd blijven.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Motivatie+Doelen',
+    imageUrl: 'https://placehold.co/400x200.png?text=Motivatie+Doelen', 
     dataAiHint: 'success achievement arrow',
     ageGroup: 'all',
     duration: "5-8 min",
