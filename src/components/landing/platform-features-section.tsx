@@ -1,18 +1,19 @@
 
-
-"use client"; 
-
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight } from 'lucide-react'; 
+import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Feature {
   icon: React.ReactNode;
   title: string;
-  description: string; 
+  descriptionPart1: string;
+  descriptionLinkText?: string;
+  descriptionLinkHref?: string;
+  descriptionPart2?: string;
+  descriptionFull?: string; 
   link: string;
   linkText: string;
   colorClass: string;
@@ -21,69 +22,75 @@ interface Feature {
 const platformFeatures: Feature[] = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
-    title: 'Gepersonaliseerde Inzichten & Tools',
-    description: 'Na een korte, kindvriendelijke assessment krijgt uw kind direct inzicht in de eigen denkstijl en sterke punten, plus toegang tot tools die hierop aansluiten.',
-    link: '/features/gepersonaliseerde-inzichten',
-    linkText: 'Ontdek de assessment',
-    colorClass: 'bg-primary/5 border-primary/20 hover:shadow-md',
+    title: 'Gepersonaliseerde Inzichten',
+    descriptionPart1: 'Uw kind start met een assessment en krijgt direct inzicht via zelfreflectie-instrumenten. Lees ',
+    descriptionLinkText: 'hier meer over neurodiversiteit',
+    descriptionLinkHref: '/neurodiversiteit',
+    descriptionPart2: '. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    link: '/quizzes',
+    linkText: 'Ontdek de tools',
+    colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
-    title: 'Dagelijkse Coaching & Groei',
-    description: 'Een (premium) hub met dagelijkse, laagdrempelige coaching, reflectie-oefeningen in een interactief dagboek, en tools voor planning en routine die écht bij uw kind passen.',
-    link: '/features/coaching-en-tools',
-    linkText: 'Verken coaching features',
-    colorClass: 'bg-accent/5 border-accent/20 hover:shadow-md',
+    title: 'Coaching & Tools voor Groei',
+    descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) gebaseerd op assessmentresultaten, die uw kind ondersteunen bij routines, zelfvertrouwen en omgaan met uitdagingen.',
+    link: '/dashboard/coaching',
+    linkText: 'Verken coaching',
+    colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   },
   {
     icon: <BookOpenCheck className="h-10 w-10 text-primary" />,
-    title: 'Effectieve Huiswerkondersteuning',
-    description: 'Praktische tips, tools en strategieën om studie-uitdagingen aan te gaan, afgestemd op de individuele leerstijl en behoeften van uw kind.',
-    link: '/features/huiswerkondersteuning',
-    linkText: 'Bekijk huiswerkhulp',
-    colorClass: 'bg-secondary border-border hover:shadow-md',
+    title: 'Huiswerkondersteuning',
+    descriptionFull: 'Effectieve tools en strategieën afgestemd op leerstijl, om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen.',
+    link: '/dashboard/homework-assistance',
+    linkText: 'Bekijk huiswerk tools',
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
     icon: <GraduationCap className="h-10 w-10 text-primary" />,
     title: '1-op-1 Begeleiding (Optioneel)',
-    description: 'Koppel uw kind aan gekwalificeerde tutors of coaches voor persoonlijke, professionele hulp, afgestemd op hun profiel en specifieke behoeften.',
-    link: '/features/een-op-een-begeleiding',
-    linkText: 'Meer over begeleiding',
-    colorClass: 'bg-accent/10 border-accent/30 hover:shadow-md',
+    descriptionFull: 'Koppel uw kind aan gekwalificeerde tutors of coaches voor persoonlijke hulp, afgestemd op hun assessmentprofiel en behoeften.',
+    link: '/dashboard/ouder/zoek-professional',
+    linkText: 'Vind een Begeleider',
+    colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
   },
   {
     icon: <MessageSquareText className="h-10 w-10 text-primary" />,
-    title: 'Betrokken Ouder Dashboard',
-    description: 'Krijg (met toestemming) inzicht in de voortgang van uw kind, beheer abonnementen en communiceer veilig met gekoppelde begeleiders via uw eigen portaal.',
-    link: '/features/ouder-dashboard',
-    linkText: 'Ontdek het ouderportaal',
-    colorClass: 'bg-primary/10 border-primary/30 hover:shadow-md',
+    title: 'Ouder Dashboard & Communicatie',
+    descriptionFull: 'Krijg via uw eigen portaal (met toestemming) inzicht in de voortgang, beheer abonnementen en communiceer met begeleiders.',
+    link: '/dashboard/ouder',
+    linkText: 'Naar Ouderportaal',
+    colorClass: 'bg-pink-50 border-pink-200 hover:shadow-pink-100',
   },
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
     title: 'Veilig & Deskundig Platform',
-    description: 'Een privacygerichte omgeving, gebouwd op educatieve principes en inzichten van experts. Wij bieden ondersteuning, geen diagnoses.',
-    link: '/features/veilig-platform', 
-    linkText: 'Lees over onze aanpak',
-    colorClass: 'bg-muted border-border hover:shadow-md',
+    descriptionPart1: 'Een privacygerichte omgeving, gebaseerd op educatieve principes en inzichten van experts. Wij bieden geen diagnoses. Lees meer in ons ',
+    descriptionLinkText: 'Privacybeleid',
+    descriptionLinkHref: '/privacy',
+    descriptionPart2: '.',
+    link: '/privacy', 
+    linkText: 'Lees ons privacybeleid',
+    colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
 ];
 
-export function PlatformFeaturesSection() { 
+export function PlatformFeaturesSection() {
   return (
-    <section id="platform-features-overview" className="py-12 md:py-16">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Ontdek de Kracht van MindNavigator: <span className="text-primary">Ondersteuning op Maat</span> 
+            Ontdek de Kracht van MindNavigator: <span className="text-primary">Gepersonaliseerd voor U</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Van een laagdrempelige start-assessment tot dagelijkse coaching en optionele 1-op-1 begeleiding – MindNavigator biedt een complete structuur voor zelfontdekking en groei.
+            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {platformFeatures.map((feature, index) => ( 
+          {platformFeatures.map((feature, index) => (
             <Card key={index} className={cn("shadow-lg hover:shadow-xl transition-shadow flex flex-col h-full", feature.colorClass)}>
               <CardHeader className="flex flex-row items-start gap-4 pb-3">
                 <div className="flex-shrink-0 mt-1">{feature.icon}</div>
@@ -93,15 +100,22 @@ export function PlatformFeaturesSection() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground leading-snug">
-                  {feature.description}
+                  {feature.descriptionFull ? feature.descriptionFull : (
+                    <>
+                      {feature.descriptionPart1}
+                      {feature.descriptionLinkText && feature.descriptionLinkHref && (
+                        <Link href={feature.descriptionLinkHref} className="text-primary hover:underline font-medium">
+                          {feature.descriptionLinkText} <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/>
+                        </Link>
+                      )}
+                      {feature.descriptionPart2}
+                    </>
+                  )}
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="link" asChild className="p-0 h-auto text-primary inline-flex items-center group">
-                  <Link href={feature.link}>
-                    {feature.linkText}
-                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
+                <Button variant="link" asChild className="p-0 h-auto text-primary">
+                  <Link href={feature.link}>{feature.linkText} &rarr;</Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -113,19 +127,19 @@ export function PlatformFeaturesSection() {
             <div className="p-8 md:p-10 lg:p-12">
               <div className="flex items-center gap-3 mb-3">
                 <BarChart3 className="h-10 w-10 text-primary" />
-                <h3 className="text-2xl font-bold text-foreground">Uw Ouder Dashboard: Inzicht &amp; Controle</h3>
+                <h3 className="text-2xl font-bold text-foreground">Uw Ouder Dashboard: Inzicht &amp; Overzicht</h3>
               </div>
               <p className="text-muted-foreground mb-4 text-base leading-relaxed">
                 Met het "Gezins Gids" pakket (en andere betaalde plannen) krijgt u toegang tot een uitgebreid ouderportaal. Hiermee kunt u:
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6 pl-2">
                 <li>De voortgang en inzichten uit de assessment en tools van uw kind (met toestemming) inzien.</li>
-                <li>Abonnementen voor uw gezin eenvoudig beheren en aanpassen.</li>
-                <li>Effectief en veilig communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
+                <li>Abonnementen voor uw gezin eenvoudig beheren.</li>
+                <li>Effectief communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
                 <li>Toegang krijgen tot specifieke bronnen en tips voor ouders.</li>
               </ul>
               <p className="text-foreground font-medium mb-6">
-                U staat er niet alleen voor; wij bieden u de handvatten om uw kind optimaal te ondersteunen in hun ontwikkeling.
+                U staat er niet alleen voor; wij bieden u de handvatten om uw kind optimaal te ondersteunen.
               </p>
               <Button asChild size="lg">
                 <Link href="/#pricing">Ontdek de "Gezins Gids"</Link>
@@ -133,12 +147,13 @@ export function PlatformFeaturesSection() {
             </div>
             <div className="relative h-64 lg:h-full min-h-[300px] order-first lg:order-last">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/parents-2.png?alt=media&token=c8f9238e-81c7-46a3-9499-b36ba37a2e28" 
-                alt="Voorbeeld van het MindNavigator Ouder Dashboard interface met grafieken en overzichten"
+                src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/thespikeman._mother_in_her_40s_and_teenage_daughter_16_years_ol_e628ebd1-1d74-4c4c-be2c-ad9580b26a01.png?alt=media&token=bc6d30f0-4634-441f-a4cc-d30f715f2468"
+                alt="Moeder en dochter die samen het MindNavigator Ouder Dashboard gebruiken"
                 fill
                 style={{ objectFit: 'cover' }}
-                data-ai-hint="parent dashboard"
+                data-ai-hint="mother daughter laptop"
                 className="opacity-90"
+                unoptimized={true}
               />
                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent lg:from-transparent lg:via-transparent lg:to-primary/5"></div>
             </div>
