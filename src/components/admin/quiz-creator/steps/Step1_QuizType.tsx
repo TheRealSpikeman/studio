@@ -32,6 +32,7 @@ export const Step1QuizType = () => {
             
             <div className="grid md:grid-cols-3 gap-6">
                 <Card 
+                    id="quiz-type-scratch"
                     className={cn(
                         "p-6 text-center cursor-pointer transition-all border-2",
                         quizData.creationType === 'scratch' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
@@ -43,6 +44,7 @@ export const Step1QuizType = () => {
                     <p className="text-sm text-muted-foreground">Maak een quiz vanaf een leeg canvas.</p>
                 </Card>
                 <Card 
+                    id="quiz-type-template"
                     className={cn(
                         "p-6 text-center cursor-pointer transition-all border-2",
                         quizData.creationType === 'template' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
@@ -54,6 +56,7 @@ export const Step1QuizType = () => {
                     <p className="text-sm text-muted-foreground">Start met een bestaande, beproefde quiz.</p>
                 </Card>
                 <Card 
+                    id="quiz-type-ai"
                     className={cn(
                         "p-6 text-center cursor-pointer transition-all border-2",
                         quizData.creationType === 'ai' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
@@ -73,6 +76,7 @@ export const Step1QuizType = () => {
                         {popularTemplates.map(template => (
                              <Card 
                                 key={template.id}
+                                id={`template-select-${template.id}`}
                                 className={cn(
                                     "p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col border-2",
                                     quizData.selectedTemplateId === template.id ? 'border-primary bg-primary/5' : ''

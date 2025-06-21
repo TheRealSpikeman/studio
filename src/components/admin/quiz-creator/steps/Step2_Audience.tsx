@@ -78,6 +78,7 @@ export const Step2Audience = () => {
                         {quizTakerOptions.map(({ id, icon: Icon, title, description, tags }) => (
                             <Card
                                 key={id}
+                                id={`audience-type-${id}`}
                                 className={cn(
                                     "p-4 cursor-pointer transition-all border-2 flex flex-col",
                                     quizData.audienceType === id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
@@ -102,6 +103,7 @@ export const Step2Audience = () => {
                             {availableAgeGroups.map(ageOpt => (
                                 <Button
                                     key={ageOpt.id}
+                                    id={`age-group-${ageOpt.id}`}
                                     variant={quizData.targetAgeGroup === ageOpt.id ? 'default' : 'outline'}
                                     onClick={() => handleSelectAgeGroup(ageOpt.id)}
                                     className="rounded-full px-4 py-2 text-sm h-auto"
@@ -120,6 +122,7 @@ export const Step2Audience = () => {
                         {focusOptions.map(({ id, icon: Icon, title, description }) => (
                             <Card
                                 key={id}
+                                id={`focus-flag-${id}`}
                                 className={cn(
                                     "p-4 cursor-pointer transition-all border-2 flex flex-col",
                                     quizData.focusFlags?.includes(id as any) ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
