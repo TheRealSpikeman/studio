@@ -18,13 +18,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight, ImageUp, BotIcon } from "lucide-react";
+import { PlusCircle, Trash2, ArrowLeft, Save, Eye, ListChecks, Settings, Info, Weight, ImageUp } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel } from '@/types/quiz-admin';
-import React from "react"; // Import React for useRef
+import React from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
   { id: 'Tiener (12-14 jr, voor zichzelf)', label: 'Tiener (12-14 jr, voor zichzelf)' },
@@ -47,7 +52,6 @@ const categoryOptions: { id: QuizCategory; label: string }[] = [
   { id: 'AngstDepressie', label: 'Subtest: Angst/Depressie Kenmerken' },
 ];
 
-// Subtest IDs should align with QuizCategory values for subtests
 const subtestProfileOptions = [
   { id: 'ADD', label: 'ADD Profiel' },
   { id: 'ADHD', label: 'ADHD Profiel' },
@@ -66,7 +70,7 @@ const quizFormSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   thumbnailUrl: z.string().url({ message: "Ongeldige URL voor thumbnail." }).optional().or(z.literal('')),
-  uploadedImage: z.any().optional(), // For file upload
+  uploadedImage: z.any().optional(),
   questions: z.array(
     z.object({
       text: z.string().min(5, { message: "Vraagtekst is te kort." }),
@@ -86,7 +90,6 @@ export type QuizFormData = z.infer<typeof quizFormSchema> & {
   analysisDetailLevel?: AnalysisDetailLevel;
   analysisInstructions?: string;
 };
-
 
 interface QuizFormPageProps {
   quizData?: QuizFormData & { id?: string }; 
@@ -137,7 +140,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        form.setValue("thumbnailUrl", ""); // Clear URL if file is uploaded
+        form.setValue("thumbnailUrl", ""); 
       };
       reader.readAsDataURL(file);
     }
@@ -212,315 +215,79 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
             </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5 text-primary"/>Algemene Informatie</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Quiz Titel</FormLabel>
-                  <FormControl><Input placeholder="Bijv. Basis Neuroprofiel (12-14 jr)" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Beschrijving</FormLabel>
-                  <FormControl><Textarea placeholder="Korte omschrijving van de quiz en het doel..." {...field} rows={3} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-                control={form.control}
-                name="audience"
-                render={() => (
-                    <FormItem className="space-y-2">
-                    <FormLabel>Doelgroep(en)</FormLabel>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {audienceOptions.map((item) => (
-                        <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="audience"
-                        render={({ field }) => {
-                            return (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                <Checkbox
-                                    checked={field.value?.includes(item.id)}
-                                    onCheckedChange={(checked) => {
-                                    return checked
-                                        ? field.onChange([...(field.value || []), item.id])
-                                        : field.onChange(
-                                            (field.value || []).filter(
-                                            (value) => value !== item.id
-                                            )
-                                        )
-                                    }}
-                                />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal cursor-pointer">
-                                {item.label}
-                                </FormLabel>
-                            </FormItem>
-                            )
-                        }}
-                        />
-                    ))}
-                    </div>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categorie</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Selecteer een categorie" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Selecteer status" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="concept">Concept</SelectItem>
-                      <SelectItem value="published">Gepubliceerd</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+        <Accordion type="multiple" defaultValue={['item-1', 'item-3']} className="w-full space-y-4">
+          <AccordionItem value="item-1" className="border rounded-lg shadow-sm bg-card">
+            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+              <div className="flex items-center gap-3"><Info className="h-5 w-5 text-primary"/>Algemene Informatie</div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Quiz Titel</FormLabel><FormControl><Input placeholder="Bijv. Basis Neuroprofiel (12-14 jr)" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van de quiz en het doel..." {...field} rows={3} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="audience" render={() => (<FormItem className="space-y-2"><FormLabel>Doelgroep(en)</FormLabel><div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{audienceOptions.map((item) => (<FormField key={item.id} control={form.control} name="audience" render={({ field }) => { return (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => { return checked ? field.onChange([...(field.value || []), item.id]) : field.onChange((field.value || []).filter((value) => value !== item.id))}} /></FormControl><FormLabel className="text-sm font-normal cursor-pointer">{item.label}</FormLabel></FormItem>)}}/>)) }</div><FormMessage /></FormItem>)}/>
+                <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer een categorie" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="concept">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="item-2" className="border rounded-lg shadow-sm bg-card">
+            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+              <div className="flex items-center gap-3"><ImageUp className="h-5 w-5 text-primary"/>Quiz Afbeelding</div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0 space-y-4">
+              <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (<FormItem><FormLabel>Thumbnail URL (optioneel)</FormLabel><FormControl><Input placeholder="https://example.com/image.jpg" {...field} onChange={(e) => { field.onChange(e); if (e.target.value) {setImagePreview(e.target.value); form.setValue("uploadedImage", null);}}} /></FormControl><FormDescription>Plak een URL of upload hieronder een afbeelding.</FormDescription><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="uploadedImage" render={() => (<FormItem><FormLabel>Of upload een afbeelding</FormLabel><FormControl><Input type="file" accept="image/*" ref={imageInputRef} onChange={handleImageChange} className="pt-1.5" /></FormControl><FormMessage /></FormItem>)}/>
+              <p className="text-xs text-muted-foreground mt-1"><strong>Let op:</strong> In de huidige demo-omgeving wordt een geüploade afbeelding alleen lokaal op uw computer opgeslagen en is deze niet zichtbaar voor andere gebruikers. Voor productie is een koppeling met een cloudopslagdienst zoals Firebase Storage nodig.</p>
+              {imagePreview && (<div className="mt-2"><FormLabel>Voorbeeld:</FormLabel><img src={imagePreview} alt="Quiz thumbnail preview" className="mt-1 max-h-40 rounded-md border" /></div>)}
+            </AccordionContent>
+          </AccordionItem>
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ImageUp className="h-5 w-5 text-primary"/>Quiz Afbeelding</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <FormField
-                    control={form.control}
-                    name="thumbnailUrl"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Thumbnail URL (optioneel)</FormLabel>
-                            <FormControl><Input placeholder="https://example.com/image.jpg" {...field} onChange={(e) => { field.onChange(e); if (e.target.value) {setImagePreview(e.target.value); form.setValue("uploadedImage", null);}}} /></FormControl>
-                            <FormDescription>Plak een URL of upload hieronder een afbeelding.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="uploadedImage"
-                    render={({ field }) => ( 
-                        <FormItem>
-                            <FormLabel>Of upload een afbeelding</FormLabel>
-                            <FormControl>
-                                <Input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    ref={imageInputRef}
-                                    onChange={handleImageChange}
-                                    className="pt-1.5"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  <strong>Let op:</strong> In de huidige demo-omgeving wordt een geüploade afbeelding alleen lokaal op uw computer opgeslagen en is deze niet zichtbaar voor andere gebruikers. Voor productie is een koppeling met een cloudopslagdienst zoals Firebase Storage nodig.
-                </p>
-                {imagePreview && (
-                    <div className="mt-2">
-                        <FormLabel>Voorbeeld:</FormLabel>
-                        <img src={imagePreview} alt="Quiz thumbnail preview" className="mt-1 max-h-40 rounded-md border" />
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+          <AccordionItem value="item-3" className="border rounded-lg shadow-sm bg-card">
+            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+              <div className="flex flex-col items-start gap-1 w-full"><div className="flex items-center gap-3"><ListChecks className="h-5 w-5 text-primary"/>Vragen</div><p className="text-sm font-normal text-muted-foreground text-left max-w-full">Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd).</p></div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0 space-y-4">
+              {questionFields.map((field, index) => (<div key={field.id} className="p-4 bg-muted/50 rounded-md"><FormLabel className="font-semibold">Vraag {index + 1}</FormLabel><div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-2"><FormField control={form.control} name={`questions.${index}.text`} render={({ field: fld }) => (<FormItem className="md:col-span-4"><FormLabel className="text-xs">Vraagtekst</FormLabel><FormControl><Textarea placeholder="Typ hier de vraag..." {...fld} rows={2} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.weight`} render={({ field: fld }) => (<FormItem className="md:col-span-1"><FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel><FormControl><Input type="number" min="1" max="5" placeholder="1-5" {...fld} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name={`questions.${index}.example`} render={({ field: fld }) => (<FormItem className="md:col-span-6"><FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl><FormMessage /></FormItem>)} /></div><Button type="button" variant="destructive" size="sm" onClick={() => removeQuestion(index)} className="mt-3"><Trash2 className="mr-1 h-3 w-3" /> Vraag {index + 1} Verwijderen</Button></div>))}
+              <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "", weight: 1 })}><PlusCircle className="mr-2 h-4 w-4" /> Vraag Toevoegen</Button>
+              {form.formState.errors.questions && typeof form.formState.errors.questions === 'object' && !Array.isArray(form.formState.errors.questions) && (<p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>)}
+            </AccordionContent>
+          </AccordionItem>
 
+          {currentCategory === 'Basis' && (
+            <AccordionItem value="item-4" className="border rounded-lg shadow-sm bg-card">
+              <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+                <div className="flex flex-col items-start gap-1 w-full"><div className="flex items-center gap-3"><Settings className="h-5 w-5 text-primary"/>Subtest Configuratie</div><p className="text-sm font-normal text-muted-foreground text-left max-w-full">Voor Basis Quizzen: geef aan welke subtests getriggerd moeten worden en bij welke drempelwaarde.</p></div>
+              </AccordionTrigger>
+              <AccordionContent className="p-6 pt-0 space-y-4">
+                {subtestConfigFields.map((field, index) => (<div key={field.id} className="p-4 bg-muted/50 rounded-md"><FormLabel className="font-semibold">Subtest Trigger {index + 1}</FormLabel><div className="grid grid-cols-2 gap-4 mt-2"><FormField control={form.control} name={`subtestConfigs.${index}.subtestId`} render={({ field: fld }) => (<FormItem><FormLabel className="text-xs">Profiel</FormLabel><Select onValueChange={fld.onChange} defaultValue={fld.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies profiel" /></SelectTrigger></FormControl><SelectContent>{subtestProfileOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} /><FormField control={form.control} name={`subtestConfigs.${index}.threshold`} render={({ field: fld }) => (<FormItem><FormLabel className="text-xs">Drempelwaarde (0-4)</FormLabel><FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} /></FormControl><FormMessage /></FormItem>)} /></div><Button type="button" variant="destructive" size="sm" onClick={() => removeSubtestConfig(index)} className="mt-3"><Trash2 className="mr-1 h-3 w-3" /> Trigger {index + 1} Verwijderen</Button></div>))}
+                <Button type="button" variant="outline" onClick={() => appendSubtestConfig({ subtestId: "", threshold: 2.5 })}><PlusCircle className="mr-2 h-4 w-4" /> Subtest Trigger Toevoegen</Button>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Vragen</CardTitle>
-            <CardDescription>Voeg hier de vragen voor de quiz toe. Antwoordopties zijn standaard (Nooit, Soms, Vaak, Altijd). Stel een gewicht in voor de scoring.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {questionFields.map((field, index) => (
-              <Card key={field.id} className="p-4 bg-muted/50">
-                <FormLabel className="font-semibold">Vraag {index + 1}</FormLabel>
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-2">
-                  <FormField
-                    control={form.control}
-                    name={`questions.${index}.text`}
-                    render={({ field: fld }) => (
-                      <FormItem className="md:col-span-4">
-                        <FormLabel className="text-xs">Vraagtekst</FormLabel>
-                        <FormControl><Textarea placeholder="Typ hier de vraag..." {...fld} rows={2} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`questions.${index}.weight`}
-                    render={({ field: fld }) => (
-                      <FormItem className="md:col-span-1">
-                        <FormLabel className="text-xs flex items-center gap-1"><Weight className="h-3 w-3"/>Gewicht</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min="1" 
-                            max="5" 
-                            placeholder="1-5" 
-                            {...fld}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`questions.${index}.example`}
-                    render={({ field: fld }) => (
-                      <FormItem className="md:col-span-6"> 
-                        <FormLabel className="text-xs">Voorbeeld/Toelichting (optioneel)</FormLabel>
-                        <FormControl><Input placeholder="Bijv. 'Denk aan situaties op school of thuis.'" {...fld} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button type="button" variant="destructive" size="sm" onClick={() => removeQuestion(index)} className="mt-3">
-                  <Trash2 className="mr-1 h-3 w-3" /> Vraag {index + 1} Verwijderen
-                </Button>
-              </Card>
-            ))}
-            <Button type="button" variant="outline" onClick={() => appendQuestion({ text: "", example: "", weight: 1 })}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Vraag Toevoegen
-            </Button>
-             {form.formState.errors.questions && typeof form.formState.errors.questions === 'object' && !Array.isArray(form.formState.errors.questions) && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>
-            )}
-          </CardContent>
-        </Card>
-        
-        {currentCategory === 'Basis' && (
-           <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Subtest Configuratie</CardTitle>
-                <CardDescription>Voor Basis Quizzen: geef aan welke subtests getriggerd moeten worden en bij welke drempelwaarde (gemiddelde score op relevante basisvragen, schaal 1-4).</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {subtestConfigFields.map((field, index) => (
-                <Card key={field.id} className="p-4 bg-muted/50">
-                    <FormLabel className="font-semibold">Subtest Trigger {index + 1}</FormLabel>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                    <FormField
-                        control={form.control}
-                        name={`subtestConfigs.${index}.subtestId`}
-                        render={({ field: fld }) => (
-                        <FormItem>
-                            <FormLabel className="text-xs">Profiel</FormLabel>
-                            <Select onValueChange={fld.onChange} defaultValue={fld.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Kies profiel" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                {subtestProfileOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}
-                            </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name={`subtestConfigs.${index}.threshold`}
-                        render={({ field: fld }) => ( 
-                        <FormItem>
-                            <FormLabel className="text-xs">Drempelwaarde (0-4)</FormLabel>
-                            <FormControl><Input type="number" step="0.1" min="0" max="4" placeholder="Bijv. 2.5" {...fld} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    </div>
-                    <Button type="button" variant="destructive" size="sm" onClick={() => removeSubtestConfig(index)} className="mt-3">
-                    <Trash2 className="mr-1 h-3 w-3" /> Trigger {index + 1} Verwijderen
-                    </Button>
-                </Card>
-                ))}
-                <Button type="button" variant="outline" onClick={() => appendSubtestConfig({ subtestId: "", threshold: 2.5 })}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Subtest Trigger Toevoegen
-                </Button>
-            </CardContent>
-            </Card>
-        )}
+          <AccordionItem value="item-5" className="border rounded-lg shadow-sm bg-card">
+            <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
+               <div className="flex flex-col items-start gap-1 w-full"><div className="flex items-center gap-3"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen</div><p className="text-sm font-normal text-muted-foreground text-left max-w-full">Stel een unieke URL en paginatitel in. Dit is vooral nuttig voor publiek toegankelijke quizzen.</p></div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Slug (URL-onderdeel)</FormLabel><FormControl><Input placeholder="bijv. basis-neuroprofiel-12-14" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="metaTitle" render={({ field }) => (<FormItem><FormLabel>Paginatitel (voor browser tab)</FormLabel><FormControl><Input placeholder="Titel die in de browser tab verschijnt" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="metaDescription" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte omschrijving (voor delen)</FormLabel><FormControl><Textarea placeholder="Deze omschrijving kan getoond worden bij het delen van een link." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen</CardTitle>
-            <CardDescription>
-              Stel een unieke URL in en geef de quiz een duidelijke titel voor in de browser. Dit is vooral nuttig voor publiek toegankelijke quizzen.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Slug (URL-onderdeel)</FormLabel><FormControl><Input placeholder="bijv. basis-neuroprofiel-12-14" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="metaTitle" render={({ field }) => (<FormItem><FormLabel>Paginatitel (voor browser tab)</FormLabel><FormControl><Input placeholder="Titel die in de browser tab verschijnt" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="metaDescription" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte omschrijving (voor delen)</FormLabel><FormControl><Textarea placeholder="Deze omschrijving kan getoond worden bij het delen van een link." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
-          </CardContent>
-        </Card>
-
-        <CardFooter className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t">
           <Button type="button" variant="outline" disabled>
             <Eye className="mr-2 h-4 w-4" /> Voorbeeld Bekijken (binnenkort)
           </Button>
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={() => {
-              form.setValue("status", "concept"); 
-              form.handleSubmit(onSubmit)();
-            }}
-            disabled={form.formState.isSubmitting}
-          >
+          <Button type="button" variant="secondary" onClick={() => { form.setValue("status", "concept"); form.handleSubmit(onSubmit)(); }} disabled={form.formState.isSubmitting}>
             <Save className="mr-2 h-4 w-4" /> Opslaan als Concept
           </Button>
-          <Button 
-            type="submit" 
-            disabled={form.formState.isSubmitting}
-             onClick={() => {
-                if (!isEditMode && form.getValues("status") !== "published") {
-                    form.setValue("status", "published");
-                }
-            }}
-          >
+          <Button type="submit" disabled={form.formState.isSubmitting} onClick={() => { if (!isEditMode && form.getValues("status") !== "published") { form.setValue("status", "published"); } }}>
             <Save className="mr-2 h-4 w-4" /> 
             {isEditMode && currentStatus === 'published' ? 'Quiz Bijwerken & Publiceren' : 
              isEditMode && currentStatus === 'concept' ? 'Concept Bijwerken' :
@@ -529,7 +296,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
              'Publiceren'
             }
           </Button>
-        </CardFooter>
+        </div>
       </form>
     </Form>
   );
