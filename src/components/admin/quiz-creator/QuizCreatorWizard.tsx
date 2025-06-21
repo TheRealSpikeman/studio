@@ -2,18 +2,80 @@
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { WizardStepper } from './WizardStepper';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Rocket, Loader2 } from 'lucide-react';
 import { Step1QuizType } from './steps/Step1_QuizType';
 import { Step2Audience } from './steps/Step2_Audience';
 import { Step3Content } from './steps/Step3_Content';
 import { Step4_Settings } from './steps/Step4_Settings';
-import { Step5_Preview } from './steps/Step5_Preview'; // <-- Import Step 5
+import { Step5_Preview } from './steps/Step5_Preview';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow';
+import type { QuizAudience } from '@/types/quiz-admin';
 
 export const QuizCreatorWizard = () => {
-  const { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData } = useQuizCreator();
+  const { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData, setQuizData } = useQuizCreator();
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
   const TOTAL_STEPS = 5;
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    // If moving from step 3 and type is AI, generate questions
+    if (currentStep === 3 && quizData.creationType === 'ai') {
+      setIsGenerating(true);
+      toast({ title: "AI is aan het werk...", description: "De quizvragen worden nu gegenereerd." });
+      try {
+        const durationMap: Record<string, number> = {
+          '2-3 minuten (2-3 vragen)': 3,
+          '3-5 minuten (4-6 vragen)': 5,
+          '5-8 minuten (7-10 vragen)': 8,
+          '8-12 minuten (11-15 vragen)': 12,
+        };
+        const numQuestions = durationMap[quizData.estimatedDuration || '5-8 minuten (7-10 vragen)'] || 8;
+
+        let audience: QuizAudience;
+        switch (quizData.audienceType) {
+            case 'teen':
+                audience = `Tiener (${quizData.targetAgeGroup} jr, voor zichzelf)`;
+                break;
+            case 'parent':
+                audience = `Ouder (over kind ${quizData.targetAgeGroup} jr)`;
+                break;
+            case 'adult':
+                if (quizData.targetAgeGroup === 'all') {
+                    audience = 'Algemeen (alle leeftijden, voor zichzelf)';
+                } else {
+                    audience = `Volwassene (18+, voor zichzelf)`;
+                }
+                break;
+            default:
+                audience = 'Algemeen (alle leeftijden, voor zichzelf)';
+        }
+
+        const aiInput = {
+          topic: quizData.title!,
+          audience: audience,
+          category: quizData.mainCategory!,
+          numQuestions: numQuestions,
+          difficulty: quizData.difficulty || 'gemiddeld',
+          quizPurpose: quizData.resultType === 'personality-4-types' ? 'onboarding' : 'general',
+        };
+
+        const result = await generateAiQuiz(aiInput);
+        setQuizData(prev => ({...prev, questions: result.questions }));
+        toast({ title: "Vragen gegenereerd!", description: `${result.questions.length} vragen zijn succesvol aangemaakt.` });
+        
+      } catch (error) {
+        console.error("AI Quiz Generation Failed:", error);
+        toast({ title: "Fout bij genereren", description: "Kon de AI vragen niet genereren. Probeer het opnieuw.", variant: "destructive" });
+        setIsGenerating(false);
+        return; // Don't proceed to next step if generation fails
+      } finally {
+        setIsGenerating(false);
+      }
+    }
+
+
     setCompletedStep(currentStep, true);
     setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));
   };
@@ -70,8 +132,10 @@ export const QuizCreatorWizard = () => {
         <span className="text-sm text-muted-foreground">Stap {currentStep} van {TOTAL_STEPS} - {currentStep < 5 ? "Volgende stap: " + (currentStep + 1) : "Klaar voor publicatie!"}</span>
         <div className="flex gap-2">
           {currentStep < TOTAL_STEPS ? (
-            <Button onClick={nextStep} disabled={isNextDisabled()}>
-              Volgende <ArrowRight className="ml-2 h-4 w-4" />
+            <Button onClick={nextStep} disabled={isNextDisabled() || isGenerating}>
+              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {currentStep === 3 && quizData.creationType === 'ai' ? (isGenerating ? 'Vragen genereren...' : 'Genereer & Ga Verder') : 'Volgende'}
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             // De publicatieknop zit nu in Step 5 zelf, dus hier tonen we niets.

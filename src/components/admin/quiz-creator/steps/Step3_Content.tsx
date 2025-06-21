@@ -143,12 +143,12 @@ export const Step3Content = () => {
               <div>
                 <Label htmlFor="quiz-duration">Geschatte Duur</Label>
                 <Select value={quizData.estimatedDuration} onValueChange={(val) => setQuizData(prev => ({...prev, estimatedDuration: val}))}>
-                  <SelectTrigger id="quiz-duration"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="quiz-duration"><SelectValue placeholder="Selecteer duur"/></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="2-3">2-3 minuten (2-3 vragen)</SelectItem>
-                    <SelectItem value="3-5">3-5 minuten (4-6 vragen)</SelectItem>
-                    <SelectItem value="5-8">5-8 minuten (7-10 vragen)</SelectItem>
-                    <SelectItem value="8-12">8-12 minuten (11-15 vragen)</SelectItem>
+                    <SelectItem value="2-3 minuten (2-3 vragen)">2-3 minuten (2-3 vragen)</SelectItem>
+                    <SelectItem value="3-5 minuten (4-6 vragen)">3-5 minuten (4-6 vragen)</SelectItem>
+                    <SelectItem value="5-8 minuten (7-10 vragen)">5-8 minuten (7-10 vragen)</SelectItem>
+                    <SelectItem value="8-12 minuten (11-15 vragen)">8-12 minuten (11-15 vragen)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -160,7 +160,7 @@ export const Step3Content = () => {
               <div>
                 <Label htmlFor="quiz-result-type">Resultaat Type</Label>
                 <Select value={quizData.resultType} onValueChange={(val) => setQuizData(prev => ({...prev, resultType: val}))}>
-                   <SelectTrigger id="quiz-result-type"><SelectValue /></SelectTrigger>
+                   <SelectTrigger id="quiz-result-type"><SelectValue placeholder="Selecteer resultaat type" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="personality-4-types">Persoonlijkheidstype (4 types)</SelectItem>
                     <SelectItem value="score-based">Score-gebaseerd (bijv. 8/10)</SelectItem>
@@ -173,9 +173,9 @@ export const Step3Content = () => {
                 <Select value={quizData.difficulty} onValueChange={(val) => setQuizData(prev => ({...prev, difficulty: val}))}>
                    <SelectTrigger id="quiz-difficulty"><SelectValue placeholder="Selecteer moeilijkheid" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="basisschool-groep-8">Basisschool Groep 8</SelectItem>
-                    <SelectItem value="brugklas">Brugklas niveau (12-14 jaar)</SelectItem>
-                    <SelectItem value="bovenbouw">Bovenbouw niveau (15-18 jaar)</SelectItem>
+                    <SelectItem value="laag">Laag / Eenvoudig</SelectItem>
+                    <SelectItem value="gemiddeld">Gemiddeld</SelectItem>
+                    <SelectItem value="hoog">Hoog / Complex</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
