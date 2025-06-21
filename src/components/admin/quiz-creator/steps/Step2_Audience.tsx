@@ -1,12 +1,15 @@
 'use client';
+
+import React from 'react';
+import { Brain, Check, GraduationCap, Sparkles, User, Users } from 'lucide-react';
+
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
+import type { QuizCreationState } from '@/contexts/QuizCreatorContext';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { User, Users, GraduationCap, Sparkles, Brain, Check } from 'lucide-react';
-import type { QuizCreationState } from '@/contexts/QuizCreatorContext';
-import { Badge } from '@/components/ui/badge';
-import React from 'react';
-import { Button } from '@/components/ui/button';
 
 const quizTakerOptions = [
     { id: 'teen', icon: User, title: 'Tiener (voor zichzelf)', description: 'Jongere doet de quiz over zichzelf.', tags: ['Zelfrapportage', 'Empowerment'] },
