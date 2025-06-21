@@ -1,16 +1,17 @@
 
 'use client';
 
-import React from 'react';
-import { Brain, Check, GraduationCap, Sparkles, User, Users, HeartHandshake, BookHeart, Award, ClipboardList, Puzzle, Smile } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Brain, Check, GraduationCap, Sparkles, User, Users, HeartHandshake, BookHeart, Award, ClipboardList, Puzzle, Smile, Lightbulb, AlertTriangle } from 'lucide-react';
 
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import type { QuizCreationState } from '@/contexts/QuizCreatorContext';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const quizTakerOptions = [
     { id: 'teen', icon: User, title: 'Tiener (voor zichzelf)', description: 'Jongere doet de quiz over zichzelf.', tags: ['Zelfrapportage', 'Empowerment'] },
@@ -44,16 +45,55 @@ const focusOptions = [
     { id: 'executive-functions-focus', icon: ClipboardList, title: 'Executieve Functies Focus', description: 'Gericht op planning, organisatie en zelfregulatie.' },
     { id: 'sensory-processing-focus', icon: Puzzle, title: 'Sensorische Verwerking Focus', description: 'Aandacht voor sensorische voorkeuren.' },
     { id: 'emotion-regulation-focus', icon: Smile, title: 'Emotieregulatie Focus', description: 'Gericht op herkennen en omgaan met emoties.' },
-]
+];
+
+// Logic for smart suggestions and conflicts
+const focusLogic: Record<string, { suggests?: string[], conflicts?: string[] }> = {
+    'general': {
+        conflicts: ['adhd-friendly', 'autism-friendly', 'hsp-friendly', 'dyslexia-friendly', 'giftedness-focus', 'executive-functions-focus', 'sensory-processing-focus', 'emotion-regulation-focus']
+    },
+    'adhd-friendly': {
+        suggests: ['executive-functions-focus']
+    },
+    'autism-friendly': {
+        suggests: ['sensory-processing-focus']
+    },
+    'hsp-friendly': {
+        suggests: ['sensory-processing-focus', 'emotion-regulation-focus']
+    },
+    'executive-functions-focus': {
+        suggests: ['adhd-friendly']
+    }
+};
 
 export const Step2Audience = () => {
     const { quizData, setQuizData } = useQuizCreator();
+    const selectedFlags = quizData.focusFlags || [];
+
+    const { suggestions, conflicts } = useMemo(() => {
+        const newSuggestions = new Set<string>();
+        const newConflicts: { flag1: string, flag2: string }[] = [];
+
+        selectedFlags.forEach(selected => {
+            const logic = focusLogic[selected];
+            if (!logic) return;
+
+            logic.suggests?.forEach(sugg => newSuggestions.add(sugg));
+            logic.conflicts?.forEach(conflictingFlag => {
+                if (selectedFlags.includes(conflictingFlag)) {
+                    newConflicts.push({ flag1: selected, flag2: conflictingFlag });
+                }
+            });
+        });
+        
+        return { suggestions: Array.from(newSuggestions), conflicts: newConflicts };
+    }, [selectedFlags]);
 
     const handleSelectAudienceType = (type: NonNullable<QuizCreationState['audienceType']>) => {
         setQuizData(prev => ({
             ...prev,
             audienceType: type,
-            targetAgeGroup: undefined, // Reset age group when type changes
+            targetAgeGroup: undefined, 
         }));
     };
 
@@ -68,6 +108,16 @@ export const Step2Audience = () => {
                 ? currentFlags.filter(f => f !== flagId)
                 : [...currentFlags, flagId];
             return { ...prev, focusFlags: newFlags };
+        });
+    };
+
+    const handleAddSuggestion = (flagId: string) => {
+        setQuizData(prev => {
+            const currentFlags = prev.focusFlags || [];
+            if (!currentFlags.includes(flagId as any)) {
+                return { ...prev, focusFlags: [...currentFlags, flagId as any] };
+            }
+            return prev;
         });
     };
 
@@ -126,24 +176,59 @@ export const Step2Audience = () => {
                 <section>
                     <h3 className="text-lg font-medium text-foreground mb-3">3. Specifieke Focus (optioneel, meerdere keuzes mogelijk)</h3>
                      <div className="grid md:grid-cols-3 gap-4">
-                        {focusOptions.map(({ id, icon: Icon, title, description }) => (
-                            <Card
-                                key={id}
-                                id={`focus-flag-${id}`}
-                                className={cn(
-                                    "p-4 cursor-pointer transition-all border-2 flex flex-col",
-                                    quizData.focusFlags?.includes(id as any) ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
-                                )}
-                                onClick={() => handleToggleFocusFlag(id as any)}
-                            >
-                                {quizData.focusFlags?.includes(id as any) && <div className="absolute top-2 right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center"><Check className="h-4 w-4"/></div>}
-                                <Icon className="h-8 w-8 mb-3 text-primary" />
-                                <h4 className="font-semibold text-md mb-1">{title}</h4>
-                                <p className="text-sm text-muted-foreground flex-grow">{description}</p>
-                            </Card>
-                        ))}
+                        {focusOptions.map(({ id, icon: Icon, title, description }) => {
+                            const isSelected = selectedFlags.includes(id as any);
+                            const isSuggested = suggestions.includes(id) && !isSelected;
+                            const isConflicting = conflicts.some(c => c.flag1 === id || c.flag2 === id);
+
+                            return (
+                                <Card
+                                    key={id}
+                                    id={`focus-flag-${id}`}
+                                    className={cn(
+                                        "p-4 cursor-pointer transition-all border-2 flex flex-col relative",
+                                        isSelected ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'hover:border-primary/50',
+                                        isSuggested && 'border-dashed border-teal-500 bg-teal-50',
+                                        isConflicting && isSelected && 'border-destructive bg-red-50 ring-2 ring-destructive/20'
+                                    )}
+                                    onClick={() => handleToggleFocusFlag(id as any)}
+                                >
+                                    {isSelected && <div className="absolute top-2 right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center"><Check className="h-4 w-4"/></div>}
+                                    {isConflicting && isSelected && <AlertTriangle className="absolute top-2 left-2 h-5 w-5 text-destructive" />}
+
+                                    <Icon className="h-8 w-8 mb-3 text-primary" />
+                                    <h4 className="font-semibold text-md mb-1">{title}</h4>
+                                    <p className="text-sm text-muted-foreground flex-grow">{description}</p>
+                                    
+                                    {isSuggested && (
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            className="mt-3 bg-teal-500 hover:bg-teal-600 text-white"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAddSuggestion(id);
+                                            }}
+                                        >
+                                            <Lightbulb className="mr-2 h-4 w-4"/> Voeg Suggestie Toe
+                                        </Button>
+                                    )}
+                                </Card>
+                            )
+                        })}
                     </div>
                 </section>
+                
+                {conflicts.length > 0 && (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Conflicterende Selecties</AlertTitle>
+                        <AlertDescription>
+                            Je hebt conflicterende focusgebieden geselecteerd (bijv. "Algemeen" en een specifieke focus). Dit kan leiden tot onlogische quizzen.
+                        </AlertDescription>
+                    </Alert>
+                )}
+
             </div>
         </div>
     );
