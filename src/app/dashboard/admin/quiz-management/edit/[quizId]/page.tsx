@@ -1,17 +1,17 @@
 // src/app/dashboard/admin/quiz-management/edit/[quizId]/page.tsx
 "use client";
 
-import ManualNewQuizPage from '@/app/dashboard/admin/quiz-management/new/manual/page'; // Aangepaste import
-import type { QuizFormData } from '@/app/dashboard/admin/quiz-management/new/manual/page'; // Aangepaste import
+import { QuizEditForm, type QuizFormData } from '@/components/admin/quiz-management/QuizEditForm';
 import type { QuizAdmin } from '@/types/quiz-admin'; 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
-// This DUMMY_QUIZZES_FOR_EDIT should contain all quizzes that are listed on the quiz-management page and are not AI-generated.
+// This DUMMY_QUIZZES_FOR_EDIT should contain all quizzes that are listed on the quiz-management page.
 // It should mirror the DUMMY_QUIZZES from quiz-management/page.tsx
 const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
   { 
-    id: 'teen-neuro-15-18', title: 'Basis Neuroprofiel (15-18 jr)', 
+    id: 'teen-neuro-15-18', title: 'Basis Zelfreflectie (15-18 jr)', 
     description: 'Algemene neurodiversiteitstest voor oudere tieners, ontdek jouw unieke eigenschappen.', 
     audience: ['Tiener (15-18 jr, voor zichzelf)'], category: 'Basis', status: 'published', 
     questions: [
@@ -28,7 +28,7 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     analysisInstructions: 'Focus op het geven van concrete, leeftijdsspecifieke tips voor 15-18 jarigen.',
   },
   { 
-    id: 'teen-neuro-12-14', title: 'Basis Neuroprofiel (12-14 jr)', 
+    id: 'teen-neuro-12-14', title: 'Basis Zelfreflectie (12-14 jr)', 
     description: 'Speciaal voor 12-14 jaar, ontdek jouw unieke eigenschappen.', 
     audience: ['Tiener (12-14 jr, voor zichzelf)'], category: 'Basis', status: 'published', 
     questions: [
@@ -42,12 +42,12 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     analysisDetailLevel: 'standaard',
   },
   { 
-    id: 'exam-stress-planning', title: 'Examenvrees & Planning', 
+    id: 'exam-stress-planning', title: 'Examenvrees & Planning (Tieners)', 
     description: 'Leer stress te beheersen en je planning scherp te houden voor examens.', 
     audience: ['Tiener (15-18 jr, voor zichzelf)', 'Tiener (12-14 jr, voor zichzelf)'], category: 'Thema', status: 'concept', 
     questions: [
       {id:'q_esp_1', text:'Maak je je veel zorgen over toetsen, zelfs als je goed hebt geleerd?', weight: 3},
-      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met leren voor een examen?', weight: 2}
+      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met een examen?', weight: 2}
     ],
     lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
     createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
@@ -57,9 +57,9 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     analysisInstructions: 'Houd de analyse over examenvrees kort en to-the-point.',
   },
   { 
-    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding', 
+    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding (Alle)', 
     description: 'Ontdek hoe social media en andere digitale afleidingen je concentratie beïnvloeden.', 
-    audience: ['Tiener (12-14 jr, voor zichzelf)', 'Tiener (15-18 jr, voor zichzelf)', 'Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'published', 
+    audience: ['Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'published', 
     questions: [
       {id:'q_fdd_1', text:'Raak je snel afgeleid door meldingen op je telefoon tijdens het huiswerk?', weight: 1},
       {id:'q_fdd_2', text:'Hoe vaak controleer je social media terwijl je eigenlijk zou moeten studeren?', weight: 2}
@@ -69,33 +69,6 @@ const DUMMY_QUIZZES_FOR_EDIT: (QuizAdmin & {id: string})[] = [
     slug: 'focus-digitale-afleiding',
     thumbnailUrl: 'https://picsum.photos/seed/digitalfocus/400/200',
     analysisDetailLevel: 'uitgebreid',
-  },
-   { 
-    id: 'social-anxiety-friendships', title: 'Sociale Angst & Vriendschap', 
-    description: 'Verken hoe je je voelt in sociale situaties en bij het maken van vrienden.', 
-    audience: ['Tiener (12-14 jr, voor zichzelf)', 'Tiener (15-18 jr, voor zichzelf)', 'Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'concept', 
-    questions: [
-        {id:'q_saf_1', text:'Vind je het spannend om nieuwe mensen te ontmoeten?', weight: 2},
-        {id:'q_saf_2', text:'Maak je je zorgen over wat anderen van je denken in een groep?', weight: 3}
-    ],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 6).toISOString(), 
-    createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
-    slug: 'sociale-angst-vriendschap',
-    thumbnailUrl: 'https://picsum.photos/seed/socialanxiety/400/200',
-    analysisDetailLevel: 'standaard',
-  },
-  { 
-    id: 'motivation-goals', title: 'Motivatie & Doelen Stellen', 
-    description: 'Leer hoe je gemotiveerd blijft en effectieve doelen kunt stellen voor jezelf.', 
-    audience: ['Tiener (12-14 jr, voor zichzelf)', 'Tiener (15-18 jr, voor zichzelf)', 'Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'published', 
-    questions: [
-        {id:'q_md_1', text:'Vind je het moeilijk om gemotiveerd te blijven voor schoolwerk dat je niet leuk vindt?', weight: 1},
-        {id:'q_md_2', text:'Stel je vaak doelen voor jezelf, maar vind je het lastig om ze te bereiken?', weight: 2}
-    ],
-    lastUpdatedAt: new Date(Date.now() - 86400000 * 4).toISOString(), 
-    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-    slug: 'motivatie-doelen-quiz',
-    thumbnailUrl: 'https://picsum.photos/seed/motivationgoals/400/200'
   },
 ];
 
@@ -169,9 +142,10 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
   return null;
 }
 
-
 export default function EditQuizPage() {
   const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
   const quizId = params.quizId as string;
   const [quizData, setQuizData] = useState<(QuizFormData & {id: string}) | null | undefined>(undefined); 
 
@@ -183,13 +157,45 @@ export default function EditQuizPage() {
     }
   }, [quizId]);
 
+  const handleSave = (data: QuizFormData) => {
+    console.log("Saving quiz data:", data);
+    // Here you would typically have logic to save to your backend.
+    // For this demo, we can update localStorage for AI quizzes.
+    if (quizId.startsWith('ai-')) {
+      const updatedQuiz: QuizAdmin = {
+        id: quizId,
+        title: data.title,
+        description: data.description,
+        audience: data.audience,
+        category: data.category,
+        status: data.status,
+        questions: data.questions.map((q, i) => ({ id: `q_${i}`, text: q.text, example: q.example, weight: q.weight })),
+        subtestConfigs: data.subtestConfigs,
+        slug: data.slug,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+        thumbnailUrl: data.thumbnailUrl,
+        analysisDetailLevel: data.analysisDetailLevel,
+        analysisInstructions: data.analysisInstructions,
+        createdAt: quizData?.createdAt || new Date().toISOString(),
+        lastUpdatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`ai-quiz-${quizId}`, JSON.stringify(updatedQuiz));
+    }
+    toast({
+      title: "Quiz opgeslagen!",
+      description: `De wijzigingen voor "${data.title}" zijn opgeslagen (simulatie).`,
+    });
+    router.push('/dashboard/admin/quiz-management');
+  };
+
   if (quizData === undefined) {
     return <div className="p-8 text-center">Quizgegevens laden...</div>;
   }
 
   if (quizData === null) {
-    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID of probeer de quiz opnieuw te genereren.</div>;
+    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID.</div>;
   }
   
-  return <ManualNewQuizPage quizData={quizData} />;
+  return <QuizEditForm quizData={quizData} onSave={handleSave} />;
 }
