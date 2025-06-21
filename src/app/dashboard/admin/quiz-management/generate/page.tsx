@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; 
 import type { QuizAdmin, QuizAudience, QuizCategory, AnalysisDetailLevel } from '@/types/quiz-admin';
-import { ArrowLeft, Bot, Loader2, Wand2, ListChecks, Settings, Info } from 'lucide-react';
+import { ArrowLeft, Bot, Loader2, Wand2, ListChecks, Settings, Info, ImageUp } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 
@@ -175,7 +175,7 @@ export default function GenerateAiQuizPage() {
                           <div className="flex items-center gap-3"><Info className="h-5 w-5 text-primary"/>Algemene Informatie & Generatie-instructies</div>
                       </AccordionTrigger>
                       <AccordionContent className="p-6 pt-0 space-y-6">
-                        <p className="text-sm text-muted-foreground -mt-2">Geef de AI instructies om een nieuwe quiz te genereren. Na generatie wordt de quiz als concept opgeslagen en kunt u deze direct bewerken.</p>
+                        <p className="text-sm text-muted-foreground pt-2">Geef de AI instructies om een nieuwe quiz te genereren. Na generatie wordt de quiz als concept opgeslagen en kunt u deze direct bewerken.</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Quiz Titel (wordt onderwerp voor AI)</FormLabel><FormControl><Input placeholder="Bijv. Sociale Vaardigheden, Examenvrees, Faalangst" {...field} /></FormControl><FormMessage /></FormItem>)} />
                            <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Beschrijving (voor na generatie)</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van de quiz en het doel..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
@@ -199,12 +199,22 @@ export default function GenerateAiQuizPage() {
 
                       </AccordionContent>
                     </AccordionItem>
+                    
+                    <AccordionItem value="item-afbeelding" disabled className="border rounded-lg shadow-sm bg-card opacity-60">
+                        <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold cursor-not-allowed" disabled>
+                            <div className="flex items-center gap-3"><ImageUp className="h-5 w-5 text-primary"/>Quiz Afbeelding (beschikbaar na generatie)</div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <p className="px-6 pb-6 text-sm text-muted-foreground">U kunt een afbeelding toevoegen op de bewerkpagina nadat de quiz is gegenereerd.</p>
+                        </AccordionContent>
+                    </AccordionItem>
+
                     <AccordionItem value="item-2" className="border rounded-lg shadow-sm bg-card">
                        <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
                           <div className="flex items-center gap-3"><Settings className="h-5 w-5 text-primary"/>AI Analyse Instellingen (Optioneel)</div>
                       </AccordionTrigger>
                       <AccordionContent className="p-6 pt-0 space-y-4">
-                        <p className="text-sm text-muted-foreground -mt-2">Configureer hier hoe de AI de resultaten van de gegenereerde quiz moet analyseren voor de gebruiker.</p>
+                        <p className="text-sm text-muted-foreground pt-2">Configureer hier hoe de AI de resultaten van de gegenereerde quiz moet analyseren voor de gebruiker.</p>
                         <FormField
                         control={form.control}
                         name="analysisDetailLevel"
@@ -235,6 +245,15 @@ export default function GenerateAiQuizPage() {
                         )}
                         />
                       </AccordionContent>
+                    </AccordionItem>
+
+                     <AccordionItem value="item-publicatie" disabled className="border rounded-lg shadow-sm bg-card opacity-60">
+                        <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold cursor-not-allowed" disabled>
+                            <div className="flex items-center gap-3"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen (beschikbaar na generatie)</div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <p className="px-6 pb-6 text-sm text-muted-foreground">URL (slug), Meta Titel en andere publicatie-opties kunt u instellen op de bewerkpagina.</p>
+                        </AccordionContent>
                     </AccordionItem>
                   </Accordion>
 
