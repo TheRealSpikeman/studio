@@ -6,7 +6,7 @@ import { FileText, Puzzle, MessageSquareText, BookOpenCheck, Users, BarChart3, E
 
 export function HeroSection() {
   return (
-    <section className="pt-8 pb-8 md:pt-12 md:pb-12 lg:pt-16 lg:pb-16 bg-gradient-to-b from-background to-secondary/30">
+    <section className="pt-8 pb-8 md:pt-12 md:pb-12 lg:pt-16 lg:pb-16 bg-background">
       <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-[minmax(0,_1.2fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(0,_1.5fr)_minmax(0,_1fr)] md:gap-x-12 lg:gap-x-16">
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
