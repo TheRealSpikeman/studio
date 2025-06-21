@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link'; // <--- FIX: Added the missing import
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Data can be fetched or passed as props in a real scenario
 const reportData = {
@@ -301,5 +302,4 @@ export default function ComparativeAnalysisReportPage() {
             </div>
         </div>
     );
-
-    
+}
