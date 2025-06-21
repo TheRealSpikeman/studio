@@ -11,7 +11,7 @@ export function HeroSection() {
         {/* Text content column */}
         <div className="flex flex-col items-center text-center gap-6 md:items-start md:text-left max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Navigeer Samen met uw Kind door <span className="text-primary">Neurodiversiteit</span>
+            Help je tiener groeien met hun <span className="text-primary">unieke brein</span>
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
             Herkent u dat uw tiener anders denkt, leert, of de wereld beleeft? Worstel u met concentratie, sociale interacties, of schoolprestaties? MindNavigator biedt u en uw kind concrete inzichten in neurodiversiteit (zoals aandachtspatronen, sociale en sensorische voorkeuren). Lees meer over <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>neurodiversiteit <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/></Link>. Ontdek samen sterke punten en praktische strategieën voor thuis en op school.
