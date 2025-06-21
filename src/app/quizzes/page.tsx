@@ -1,3 +1,4 @@
+
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -39,8 +40,8 @@ const recommendedQuizzes: Quiz[] = [
     title: 'Zelfreflectie Tool (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
-    dataAiHint: 'teenager focused thinking',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
+    dataAiHint: 'teenager portrait',
     ageGroup: '15-18',
     duration: "12-18 min",
     questionCount: 15,
@@ -89,8 +90,8 @@ const baseTeenQuizzes: Quiz[] = [
     title: 'Zelfreflectie Tool (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Reflectie+15-18',
-    dataAiHint: 'teenager focused thinking',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
+    dataAiHint: 'teenager portrait',
     ageGroup: '15-18',
     duration: "12-18 min",
     questionCount: 15,
