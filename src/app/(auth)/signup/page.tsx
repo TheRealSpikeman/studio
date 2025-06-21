@@ -5,6 +5,8 @@ import { SignupForm } from '@/components/auth/signup-form';
 import { SiteLogo } from '@/components/common/site-logo';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const dynamic = 'force-dynamic';
+
 function SignupPageSkeleton() {
     return (
         <div className="w-full max-w-lg space-y-6">

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
-// import { GeistMono } from 'geist/font/mono'; // Removed as it's causing a "Module not found" error
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 

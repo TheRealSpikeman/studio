@@ -2,7 +2,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { ExternalLink, FileText, MousePointer2, Copyright, Brain, Bot, CreditCard, ShieldAlert, FileClock, Gavel, Mail, Info } from 'lucide-react';
+import { ExternalLink, FileText, MousePointerClick, Copyright, Brain, Bot, CreditCard, ShieldAlert, FileClock, Gavel, Mail, Info } from 'lucide-react';
 
 export default function TermsPage() {
   return (
@@ -29,7 +29,7 @@ export default function TermsPage() {
 
             <section id="gebruik-dienst" className="space-y-3">
               <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">
-                <MousePointer2 className="h-7 w-7" />
+                <MousePointerClick className="h-7 w-7" />
                 2. Gebruik van de Dienst
               </h2>
               <p className="text-muted-foreground leading-relaxed">U stemt ermee in de Dienst alleen te gebruiken voor wettige doeleinden en op een manier die geen inbreuk maakt op de rechten van, of het gebruik en genot van de Dienst door anderen beperkt of verhindert.</p>
