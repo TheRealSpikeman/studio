@@ -69,25 +69,6 @@ export const Step2Audience = () => {
     const { quizData, setQuizData } = useQuizCreator();
     const selectedFlags = quizData.focusFlags || [];
 
-    const { suggestions, conflicts } = useMemo(() => {
-        const newSuggestions = new Set<string>();
-        const newConflicts: { flag1: string, flag2: string }[] = [];
-
-        selectedFlags.forEach(selected => {
-            const logic = focusLogic[selected];
-            if (!logic) return;
-
-            logic.suggests?.forEach(sugg => newSuggestions.add(sugg));
-            logic.conflicts?.forEach(conflictingFlag => {
-                if (selectedFlags.includes(conflictingFlag)) {
-                    newConflicts.push({ flag1: selected, flag2: conflictingFlag });
-                }
-            });
-        });
-        
-        return { suggestions: Array.from(newSuggestions), conflicts: newConflicts };
-    }, [selectedFlags]);
-
     const handleSelectAudienceType = (type: NonNullable<QuizCreationState['audienceType']>) => {
         setQuizData(prev => ({
             ...prev,
@@ -121,6 +102,16 @@ export const Step2Audience = () => {
     };
 
     const availableAgeGroups = quizData.audienceType ? ageGroupOptions[quizData.audienceType] : [];
+
+    const hasGeneralConflict = selectedFlags.includes('general') && selectedFlags.length > 1;
+
+    const suggestions = useMemo(() => {
+        const newSuggestions = new Set<string>();
+        selectedFlags.forEach(selected => {
+            focusLogic[selected]?.suggests?.forEach(sugg => newSuggestions.add(sugg));
+        });
+        return Array.from(newSuggestions);
+    }, [selectedFlags]);
 
     return (
         <TooltipProvider>
@@ -179,7 +170,7 @@ export const Step2Audience = () => {
                             {focusOptions.map(({ id, icon: Icon, title, description, badge }) => {
                                 const isSelected = selectedFlags.includes(id as any);
                                 const isSuggested = suggestions.includes(id) && !isSelected;
-                                const isConflicting = conflicts.some(c => c.flag1 === id || c.flag2 === id);
+                                const isConflicting = hasGeneralConflict && id === 'general';
 
                                 return (
                                     <Tooltip key={id} delayDuration={300}>
@@ -188,14 +179,15 @@ export const Step2Audience = () => {
                                                 id={`focus-flag-${id}`}
                                                 className={cn(
                                                     "p-4 cursor-pointer transition-all border-2 flex flex-col relative",
-                                                    isSelected ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'hover:border-primary/50',
+                                                    isSelected && 'border-primary bg-primary/5 ring-2 ring-primary/20',
+                                                    !isSelected && 'hover:border-primary/50',
                                                     isSuggested && 'border-dashed border-teal-500 bg-teal-50',
-                                                    isConflicting && isSelected && 'border-destructive bg-red-50 ring-2 ring-destructive/20'
+                                                    isConflicting && 'border-destructive bg-red-50 ring-2 ring-destructive/20'
                                                 )}
                                                 onClick={() => handleToggleFocusFlag(id as any)}
                                             >
-                                                {isSelected && <div className="absolute top-2 right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center"><Check className="h-4 w-4"/></div>}
-                                                {isConflicting && isSelected && <AlertTriangle className="absolute top-2 left-2 h-5 w-5 text-destructive" />}
+                                                {isSelected && !isConflicting && <div className="absolute top-2 right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center"><Check className="h-4 w-4"/></div>}
+                                                {isConflicting && <AlertTriangle className="absolute top-2 left-2 h-5 w-5 text-destructive" />}
 
                                                 <Icon className="h-8 w-8 mb-3 text-primary" />
                                                 <h4 className="font-semibold text-md mb-1">{title}</h4>
@@ -226,12 +218,12 @@ export const Step2Audience = () => {
                         </div>
                     </section>
                     
-                    {conflicts.length > 0 && (
+                    {hasGeneralConflict && (
                         <Alert variant="destructive">
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Conflicterende Selecties</AlertTitle>
                             <AlertDescription>
-                                Je hebt conflicterende focusgebieden geselecteerd (bijv. "Algemeen" en een specifieke focus). Dit kan leiden tot onlogische quizzen.
+                              Je hebt "Algemeen" geselecteerd samen met een of meerdere specifieke focusgebieden. Dit kan leiden tot een onduidelijke of onlogische quiz. Deselecteer "Algemeen" om specifieke focusgebieden te gebruiken.
                             </AlertDescription>
                         </Alert>
                     )}

@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
+import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction, useEffect } from 'react';
 import type { QuizAdminQuestion } from '@/types/quiz-admin';
 
 export type QuizCreationState = {
@@ -41,29 +41,65 @@ interface QuizCreatorContextType {
   setCompletedStep: (step: number, completed: boolean) => void;
   quizData: QuizCreationState;
   setQuizData: Dispatch<SetStateAction<QuizCreationState>>;
+  resetQuizCreator: () => void; // Functie om de state te resetten
 }
 
 const QuizCreatorContext = createContext<QuizCreatorContextType | undefined>(undefined);
 
-export const QuizCreatorProvider = ({ children }: { children: ReactNode }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
-  const [quizData, setQuizData] = useState<QuizCreationState>({
+const LOCAL_STORAGE_KEY = 'quizCreatorDraft_v1';
+
+const initialQuizData: QuizCreationState = {
     focusFlags: ['general'],
-    // Initial values for step 3
     mainCategory: undefined,
     title: "",
     description: "",
     estimatedDuration: "3-5",
     resultType: "personality-4-types",
     difficulty: undefined,
+};
+
+
+export const QuizCreatorProvider = ({ children }: { children: ReactNode }) => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+  
+  const [quizData, setQuizData] = useState<QuizCreationState>(() => {
+    if (typeof window === 'undefined') {
+        return initialQuizData;
+    }
+    try {
+        const savedDraft = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+        return savedDraft ? JSON.parse(savedDraft) : initialQuizData;
+    } catch (error) {
+        console.error("Error reading quiz draft from localStorage", error);
+        return initialQuizData;
+    }
   });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quizData));
+        } catch (error) {
+            console.error("Error saving quiz draft to localStorage", error);
+        }
+    }
+  }, [quizData]);
 
   const setCompletedStep = (step: number, completed: boolean) => {
     setCompletedSteps(prev => ({ ...prev, [step]: completed }));
   };
 
-  const value = { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData, setQuizData };
+  const resetQuizCreator = () => {
+    setCurrentStep(1);
+    setCompletedSteps({});
+    setQuizData(initialQuizData);
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  };
+
+  const value = { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData, setQuizData, resetQuizCreator };
 
   return (
     <QuizCreatorContext.Provider value={value}>
