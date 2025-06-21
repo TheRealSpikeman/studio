@@ -9,7 +9,7 @@ body {
 
 @layer base {
   :root {
-    /* PRD Kleuren: Blauw Primary, Lichtgrijs Background, Teal Accent */
+    /* Oranje & Warm Geel Thema */
     --background: 200 17% 94%; /* #ecf0f1 - Light Gray */
     --foreground: 210 40% 10%; /* Dark Gray for text on light gray */
 
@@ -19,11 +19,8 @@ body {
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 210 40% 10%; /* Dark Gray */
 
-    --primary: 207 68% 53%; /* #3498db - Calming Blue */
-    --primary-foreground: 0 0% 100%; /* White for contrast with blue */
-    --primary-hover: 207 68% 48%; /* Darker blue for hover */
-    --primary-light: 207 68% 63%; /* Lighter blue for accents */
-
+    --primary: 35 91% 55%; /* #f9a825 - Oranje */
+    --primary-foreground: 0 0% 100%; /* White for contrast with orange */
 
     --secondary: 210 16% 90%; /* Slightly darker gray */
     --secondary-foreground: 210 30% 20%; /* Darker gray for text on secondary */
@@ -31,33 +28,33 @@ body {
     --muted: 210 16% 85%; /* Another shade of gray */
     --muted-foreground: 210 20% 45%; /* Lighter gray text */
 
-    --accent: 168 76% 42%; /* #1abc9c - Teal */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 45 93% 47%; /* #eab308 - Warm Geel */
+    --accent-foreground: 24 9.8% 10%; /* Dark text for contrast */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 10% 80%; /* Gray for borders */
     --input: 210 10% 80%; /* Gray for input borders */
-    --ring: 207 68% 53%; /* Primary color for focus rings - Blauw */
+    --ring: 35 91% 55%; /* Primary color for focus rings - Oranje */
 
     --radius: 0.5rem;
 
-    --chart-1: 207 68% 53%; /* Primary - Blauw */
-    --chart-2: 168 76% 42%; /* Accent - Teal */
-    --chart-3: 210 40% 50%; 
-    --chart-4: 43 74% 66%; 
-    --chart-5: 27 87% 67%; 
+    --chart-1: 35 91% 55%; /* Primary - Oranje */
+    --chart-2: 45 93% 47%; /* Accent - Geel */
+    --chart-3: 27 87% 67%; /* Lichter Oranje */
+    --chart-4: 15 80% 60%; /* Rood-oranje */
+    --chart-5: 210 40% 50%; /* Midden Blauw-grijs (contrast) */
 
     /* Sidebar specific colors */
     --sidebar-background: 0 0% 100%; /* White */
     --sidebar-foreground: 210 40% 10%; /* Dark Gray */
-    --sidebar-primary: 207 68% 53%; /* Blauw */
+    --sidebar-primary: 35 91% 55%; /* Oranje */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 168 76% 42%; /* Teal */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 45 93% 47%; /* Geel */
+    --sidebar-accent-foreground: 24 9.8% 10%; /* Dark */
     --sidebar-border: 210 10% 80%; /* Gray */
-    --sidebar-ring: 207 68% 53%; /* Blauw */
+    --sidebar-ring: 35 91% 55%; /* Oranje */
 
     /* Dashboard specific theme variables - can be overridden by user preference later */
     --dashboard-background: hsl(var(--background));
@@ -82,10 +79,8 @@ body {
     --popover: 210 40% 12%;
     --popover-foreground: 200 17% 94%;
 
-    --primary: 207 68% 53%; /* Calming Blue */
-    --primary-foreground: 0 0% 100%; 
-    --primary-hover: 207 68% 48%; /* Darker blue for hover */
-    --primary-light: 207 68% 63%; /* Lighter blue for accents */
+    --primary: 35 91% 55%; /* Oranje */
+    --primary-foreground: 24 9.8% 10%; /* Dark text for contrast */
 
     --secondary: 210 30% 20%;
     --secondary-foreground: 200 17% 94%;
@@ -93,31 +88,31 @@ body {
     --muted: 210 30% 25%;
     --muted-foreground: 210 20% 65%;
 
-    --accent: 168 76% 42%; /* Teal */
-    --accent-foreground: 0 0% 100%; 
+    --accent: 45 93% 47%; /* Geel */
+    --accent-foreground: 24 9.8% 10%; /* Dark text */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 20% 30%;
     --input: 210 20% 30%;
-    --ring: 207 68% 53%; /* Blauw */
+    --ring: 35 91% 55%; /* Oranje */
     
-    --chart-1: 207 68% 53%; /* Blauw */
-    --chart-2: 168 76% 42%; /* Teal */
+    --chart-1: 35 91% 55%; /* Oranje */
+    --chart-2: 45 93% 47%; /* Geel */
 
     /* Sidebar specific colors for dark mode */
     --sidebar-background: 210 40% 12%; /* Darker background */
     --sidebar-foreground: 200 17% 94%; /* Light text */
-    --sidebar-primary: 207 68% 53%; /* Blauw */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 168 76% 42%; /* Teal */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 35 91% 55%; /* Oranje */
+    --sidebar-primary-foreground: 24 9.8% 10%; /* Dark text */
+    --sidebar-accent: 45 93% 47%; /* Geel */
+    --sidebar-accent-foreground: 24 9.8% 10%; /* Dark text */
     --sidebar-border: 210 20% 30%; /* Darker border */
-    --sidebar-ring: 207 68% 53%; /* Blauw */
+    --sidebar-ring: 35 91% 55%; /* Oranje */
 
     /* Dashboard specific theme variables - dark mode */
-    --dashboard-background: hsl(var(--background)); /* These will pick up the dark mode versions of global vars */
+    --dashboard-background: hsl(var(--background));
     --dashboard-foreground: hsl(var(--foreground));
     --dashboard-card: hsl(var(--card));
     --dashboard-card-foreground: hsl(var(--card-foreground));
@@ -133,7 +128,7 @@ body {
 @layer base {
   * {
     @apply border-border;
-    box-sizing: border-box; /* Apply box-sizing globally */
+    box-sizing: border-box;
   }
   body {
     @apply bg-background text-foreground;
@@ -145,29 +140,21 @@ body {
     flex-grow: 1;
   }
   
-  /* Global container class for consistent padding */
   .container {
-    /* @apply w-full mx-auto; /* Tailwind's default container behavior for centering and max-width, removed to strictly follow user's CSS for padding only */
-    padding-left: 1rem;  /* 16px */
+    padding-left: 1rem;
     padding-right: 1rem;
-    /* Ensure it still behaves like a block and can be centered if mx-auto is applied on the element itself or a parent */
     width: 100%; 
     margin-left: auto;
     margin-right: auto;
   }
 
-  @media (min-width: 768px) { /* md breakpoint */
+  @media (min-width: 768px) {
     .container {
       padding-left: 2rem;
       padding-right: 2rem;
     }
   }
-   /* Example for larger screens if needed, adjust breakpoint as per Tailwind config (e.g., lg, xl) */
-  @media (min-width: 1024px) { /* lg breakpoint */
-    .container {
-       /* padding-left: 3rem; */ /* Uncomment and adjust if more padding is needed for larger screens */
-       /* padding-right: 3rem; */
-    }
+  @media (min-width: 1024px) {
   }
 }
 
@@ -193,7 +180,7 @@ body {
     page-break-inside: avoid;
   }
   .print-main {
-    padding: 50px 15mm 50px 15mm !important; /* Added bottom padding */
+    padding: 50px 15mm 50px 15mm !important;
   }
 
   img {
@@ -203,7 +190,7 @@ body {
   }
   
   .print-header {
-    display: flex !important; /* Make it visible on print */
+    display: flex !important;
     position: fixed;
     top: 0;
     left: 0;
