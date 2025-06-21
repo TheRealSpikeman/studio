@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-12 md:py-16 bg-secondary/30 flex flex-col items-center">
+    <section id="pricing" className="py-12 md:py-16 flex flex-col items-center">
       <div className="container">
         <CardHeader className="text-center max-w-2xl mx-auto pb-8">
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-3 flex items-center justify-center gap-2">
@@ -17,7 +17,7 @@ export function PricingSection() {
                 Heldere Plannen, Directe Waarde
             </CardTitle>
             <CardDescription className="text-lg text-muted-foreground">
-                Start gratis en ontdek de basis, of kies een compleet pakket voor de volledige MindNavigator ervaring. Elk pad begint met een waardevolle, persoonlijke assessment voor uw kind.
+                Start gratis om de basis te ontdekken, of kies een compleet pakket voor de volledige MindNavigator ervaring. Elk pad begint met een waardevolle, persoonlijke assessment voor uw kind.
             </CardDescription>
         </CardHeader>
         <CardContent className="text-center">

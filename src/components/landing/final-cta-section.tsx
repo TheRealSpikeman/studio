@@ -5,7 +5,7 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 
 export function FinalCtaSection() {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-secondary/30 to-background">
+    <section className="py-16 md:py-24">
       <div className="container mx-auto text-center max-w-3xl px-4">
         <h2 className="mb-6 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Klaar om uw kind <span className="text-primary">écht te begrijpen</span> en krachtig te ondersteunen?

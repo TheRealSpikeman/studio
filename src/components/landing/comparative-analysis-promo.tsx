@@ -9,7 +9,7 @@ import { Search, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export function ComparativeAnalysisPromoSection() {
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-background via-secondary/10 to-background">
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
         <Card className="bg-orange-50/70 border-2 border-primary/30 shadow-lg max-w-3xl mx-auto">
           <CardHeader className="pb-4">

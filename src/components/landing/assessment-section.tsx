@@ -7,7 +7,7 @@ import { FileText, BarChart3, Target, TrendingUp, Brain, Compass, Clock, ShieldC
 
 export function AssessmentSection() {
   return (
-    <section className="pt-8 pb-12 md:pt-12 md:pb-16 bg-gradient-to-br from-primary/5 to-accent/5">
+    <section className="pt-8 pb-12 md:pt-12 md:pb-16">
       <div className="container mx-auto px-6">
         
         <div className="text-center mb-12">
