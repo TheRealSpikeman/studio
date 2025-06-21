@@ -96,27 +96,29 @@ const initialQuizData: QuizCreationState = {
 export const QuizCreatorProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
-  
-  const [quizData, setQuizData] = useState<QuizCreationState>(() => {
-    if (typeof window === 'undefined') {
-        return initialQuizData;
-    }
-    try {
-        const savedDraft = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-        return savedDraft ? JSON.parse(savedDraft) : initialQuizData;
-    } catch (error) {
-        console.error("Error reading quiz draft from localStorage", error);
-        return initialQuizData;
-    }
-  });
+  const [quizData, setQuizData] = useState<QuizCreationState>(initialQuizData);
 
+  // Load state from localStorage on the client side after initial render
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-        try {
+    try {
+      const savedDraft = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedDraft) {
+        setQuizData(JSON.parse(savedDraft));
+      }
+    } catch (error) {
+      console.error("Error reading quiz draft from localStorage", error);
+    }
+  }, []);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    try {
+        // Prevent saving the initial empty state on first load
+        if (JSON.stringify(quizData) !== JSON.stringify(initialQuizData)) {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quizData));
-        } catch (error) {
-            console.error("Error saving quiz draft to localStorage", error);
         }
+    } catch (error) {
+      console.error("Error saving quiz draft to localStorage", error);
     }
   }, [quizData]);
 
