@@ -1,8 +1,8 @@
 // src/app/dashboard/admin/quiz-management/edit/[quizId]/page.tsx
 "use client";
 
-import NewQuizPage from '@/app/dashboard/admin/quiz-management/new/page';
-import type { QuizFormData } from '@/app/dashboard/admin/quiz-management/new/page'; 
+import ManualNewQuizPage from '@/app/dashboard/admin/quiz-management/new/manual/page'; // Aangepaste import
+import type { QuizFormData } from '@/app/dashboard/admin/quiz-management/new/manual/page'; // Aangepaste import
 import type { QuizAdmin } from '@/types/quiz-admin'; 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -191,6 +191,5 @@ export default function EditQuizPage() {
     return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID of probeer de quiz opnieuw te genereren.</div>;
   }
   
-  return <NewQuizPage quizData={quizData} />;
+  return <ManualNewQuizPage quizData={quizData} />;
 }
-
