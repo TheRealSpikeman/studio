@@ -6,6 +6,7 @@ import { User, Users, GraduationCap, Sparkles, Brain, Check } from 'lucide-react
 import type { QuizCreationState } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 const quizTakerOptions = [
     { id: 'teen', icon: User, title: 'Tiener (voor zichzelf)', description: 'Jongere doet de quiz over zichzelf.', tags: ['Zelfrapportage', 'Empowerment'] },
