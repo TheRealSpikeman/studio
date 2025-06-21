@@ -1,4 +1,5 @@
 
+
 "use client"; 
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -70,7 +71,7 @@ const platformFeatures: Feature[] = [
 
 export function PlatformFeaturesSection() { 
   return (
-    <section id="platform-features-overview" className="py-12 md:py-16 bg-background">
+    <section id="platform-features-overview" className="py-12 md:py-16 bg-gradient-to-b from-background via-secondary/10 to-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
@@ -121,7 +122,7 @@ export function PlatformFeaturesSection() {
                 <li>De voortgang en inzichten uit de assessment en tools van uw kind (met toestemming) inzien.</li>
                 <li>Abonnementen voor uw gezin eenvoudig beheren en aanpassen.</li>
                 <li>Effectief en veilig communiceren met eventueel gekoppelde coaches en huiswerktutors.</li>
-                <li>Toegang krijgen tot specifieke bronnen en tips, speciaal voor ouders.</li>
+                <li>Toegang krijgen tot specifieke bronnen en tips voor ouders.</li>
               </ul>
               <p className="text-foreground font-medium mb-6">
                 U staat er niet alleen voor; wij bieden u de handvatten om uw kind optimaal te ondersteunen in hun ontwikkeling.
