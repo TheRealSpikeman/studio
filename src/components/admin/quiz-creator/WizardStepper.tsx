@@ -36,7 +36,16 @@ export const WizardStepper = () => {
               !isCompleted && !isActive ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             )}
           >
-            {step.name}
+            <div className="flex items-center justify-center gap-2">
+                <div className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-full text-xs shrink-0",
+                    isCompleted ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/30 text-muted-foreground',
+                    isActive && 'bg-primary text-primary-foreground ring-2 ring-primary/50 ring-offset-2'
+                )}>
+                   {isCompleted ? <Check className="h-3 w-3"/> : step.number}
+                </div>
+                <span className="hidden md:inline">{step.name.split('. ')[1]}</span>
+            </div>
           </button>
         );
       })}

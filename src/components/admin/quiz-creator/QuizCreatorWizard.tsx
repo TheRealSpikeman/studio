@@ -7,6 +7,7 @@ import { Step1QuizType } from './steps/Step1_QuizType';
 import { Step2Audience } from './steps/Step2_Audience';
 import { Step3Content } from './steps/Step3_Content';
 import { Step4_Settings } from './steps/Step4_Settings';
+import { Step5_Preview } from './steps/Step5_Preview'; // <-- Import Step 5
 
 export const QuizCreatorWizard = () => {
   const { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData } = useQuizCreator();
@@ -49,6 +50,8 @@ export const QuizCreatorWizard = () => {
         return <Step3Content />;
       case 4:
         return <Step4_Settings />;
+      case 5: // <-- Add case for Step 5
+        return <Step5_Preview />;
       default:
         return <div className="p-8 text-center text-muted-foreground">Stap {currentStep} is in ontwikkeling.</div>;
     }
@@ -61,19 +64,19 @@ export const QuizCreatorWizard = () => {
         {renderStepContent()}
       </div>
       <div className="flex justify-between items-center p-6 border-t bg-muted/30 rounded-b-lg">
-        <span className="text-sm text-muted-foreground">Stap {currentStep} van {TOTAL_STEPS}</span>
+        <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Vorige
+        </Button>
+        <span className="text-sm text-muted-foreground">Stap {currentStep} van {TOTAL_STEPS} - {currentStep < 5 ? "Volgende stap: " + (currentStep + 1) : "Klaar voor publicatie!"}</span>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Vorige
-          </Button>
           {currentStep < TOTAL_STEPS ? (
             <Button onClick={nextStep} disabled={isNextDisabled()}>
               Volgende <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button>
-              <Rocket className="mr-2 h-4 w-4" /> Publiceren
-            </Button>
+            // De publicatieknop zit nu in Step 5 zelf, dus hier tonen we niets.
+            // Dit kan een disabled "Klaar" knop zijn indien gewenst.
+            <div className="w-[107px]"></div> // Placeholder om layout gelijk te houden
           )}
         </div>
       </div>
