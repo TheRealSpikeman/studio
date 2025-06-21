@@ -353,6 +353,9 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
                         </FormItem>
                     )}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Let op:</strong> In de huidige demo-omgeving wordt een geüploade afbeelding alleen lokaal op uw computer opgeslagen en is deze niet zichtbaar voor andere gebruikers. Voor productie is een koppeling met een cloudopslagdienst zoals Firebase Storage nodig.
+                </p>
                 {imagePreview && (
                     <div className="mt-2">
                         <FormLabel>Voorbeeld:</FormLabel>
@@ -482,7 +485,7 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen (Optioneel)</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen</CardTitle>
             <CardDescription>
               Stel een unieke URL in en geef de quiz een duidelijke titel voor in de browser. Dit is vooral nuttig voor publiek toegankelijke quizzen.
             </CardDescription>
