@@ -27,7 +27,7 @@ const benefits = [
 
 export function BecomeTutorBenefits() {
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section className="py-16 md:py-24 bg-secondary/30">
       <div className="container mx-auto px-4">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Waarom tutor worden bij MindNavigator?

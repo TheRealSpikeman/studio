@@ -4,14 +4,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* Pure White */
+    --background: 200 17% 98%;
     --foreground: 210 40% 10%;
 
-    /* Keep cards visible on the white background */
-    --card: 200 17% 98%;
+    --card: 0 0% 100%;
     --card-foreground: 210 40% 10%;
 
-    --popover: 200 17% 98%;
+    --popover: 0 0% 100%;
     --popover-foreground: 210 40% 10%;
     
     /* Theme Colors */
