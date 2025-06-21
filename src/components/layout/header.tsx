@@ -12,7 +12,7 @@ import { Menu } from 'lucide-react';
 
 export function Header() {
   const navLinks = [
-    { href: "/features/coaching-aanbod", label: "Coaching & Tools" }, // Updated link
+    { href: "/features/coaching-aanbod", label: "Coaching & Tools" },
     { href: "/pricing", label: "Prijzen" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
     { href: "/for-parents", label: "Voor ouders" },
