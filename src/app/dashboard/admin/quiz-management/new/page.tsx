@@ -482,12 +482,15 @@ export default function NewQuizPage({ quizData }: QuizFormPageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Meta & SEO (Optioneel)</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Publicatie Instellingen (Optioneel)</CardTitle>
+            <CardDescription>
+              Stel een unieke URL in en geef de quiz een duidelijke titel voor in de browser. Dit is vooral nuttig voor publiek toegankelijke quizzen.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Slug (URL)</FormLabel><FormControl><Input placeholder="bijv. basis-neuroprofiel-12-14" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="metaTitle" render={({ field }) => (<FormItem><FormLabel>Meta Titel</FormLabel><FormControl><Input placeholder="Titel voor zoekmachines" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="metaDescription" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Meta Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte beschrijving voor zoekmachines" {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Slug (URL-onderdeel)</FormLabel><FormControl><Input placeholder="bijv. basis-neuroprofiel-12-14" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="metaTitle" render={({ field }) => (<FormItem><FormLabel>Paginatitel (voor browser tab)</FormLabel><FormControl><Input placeholder="Titel die in de browser tab verschijnt" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="metaDescription" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte omschrijving (voor delen)</FormLabel><FormControl><Textarea placeholder="Deze omschrijving kan getoond worden bij het delen van een link." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
 
