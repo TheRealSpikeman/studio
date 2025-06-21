@@ -184,7 +184,7 @@ export default function QuizManagementPage() {
   const handleDeleteQuiz = (quizId: string) => {
     setQuizzes(prev => prev.filter(q => q.id !== quizId));
     try {
-      localStorage.removeItem(`ai-quiz-${quizId}`); 
+      localStorage.removeItem(quizId); // Use quizId directly as key
     } catch (error) {
       console.error("Error removing quiz from localStorage:", error);
     }
@@ -311,10 +311,7 @@ export default function QuizManagementPage() {
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/admin/quiz-management/edit/${quiz.id}`}><Edit className="mr-2 h-4 w-4" />Bewerken</Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
-                             disabled={quiz.status === 'concept'}
-                             asChild={quiz.status !== 'concept'}
-                          >
+                          <DropdownMenuItem asChild>
                             <Link 
                               href={quiz.id.startsWith('teen-neurodiversity-quiz') || quiz.id.startsWith('teen-neuro-') || quiz.id.startsWith('basis-neuro-') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || 'Tiener (15-18 jr, voor zichzelf)'}` : `/quiz/${quiz.slug || quiz.id}`}
                               target="_blank" 

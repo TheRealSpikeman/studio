@@ -1,56 +1,160 @@
-
+// src/app/quiz/[quizId]/page.tsx
 "use client"; 
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { QuizProgressBar } from '@/components/quiz/quiz-progress-bar';
-import { QuestionDisplay, QuizQuestion as QuestionType } from '@/components/quiz/question-display';
+import { QuestionDisplay } from '@/components/quiz/question-display';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
 
-// Dummy quiz data - replace with actual data fetching
-const dummyQuizData: { [key: string]: QuestionType[] } = {
-  'neuroprofile-101': [
-    { id: 'q1', text: 'Hoe voel je je meestal in sociale situaties?', options: [{ id: 'o1a', text: 'Energiek en spraakzaam' }, { id: 'o1b', text: 'Rustig en observerend' }, { id: 'o1c', text: 'Afhankelijk van de situatie' }] },
-    { id: 'q2', text: 'Als je een nieuwe taak krijgt, hoe pak je die meestal aan?', options: [{ id: 'o2a', text: 'Ik begin direct en zie wel waar ik uitkom' }, { id: 'o2b', text: 'Ik maak eerst een gedetailleerd plan' }, { id: 'o2c', text: 'Ik zoek een balans tussen plannen en doen' }] },
-    { id: 'q3', text: 'Hoe ga je om met onverwachte veranderingen in je routine?', options: [{ id: 'o3a', text: 'Ik vind het lastig en heb tijd nodig om aan te passen' }, { id: 'o3b', text: 'Ik pas me makkelijk aan en zie het als een uitdaging' }, { id: 'o3c', text: 'Het hangt af van de soort verandering' }] },
-  ],
-  'adhd-focus-201': [
-    { id: 'q1-adhd', text: 'Hoe vaak heb je moeite om je aandacht bij taken of spelactiviteiten te houden?', options: [{ id: 'o1a-adhd', text: 'Zelden of nooit' }, { id: 'o1b-adhd', text: 'Soms' }, { id: 'o1c-adhd', text: 'Vaak' }, { id: 'o1d-adhd', text: 'Zeer vaak' }] },
-    { id: 'q2-adhd', text: 'Hoe vaak lijk je niet te luisteren als je direct wordt aangesproken?', options: [{ id: 'o1a-adhd', text: 'Zelden of nooit' }, { id: 'o1b-adhd', text: 'Soms' }, { id: 'o1c-adhd', text: 'Vaak' }, { id: 'o1d-adhd', text: 'Zeer vaak' }] },
-  ],
-};
+import type { QuizAdmin, QuizAdminQuestion } from '@/types/quiz-admin';
+import type { QuizQuestion as QuestionType, QuizOption as OptionType } from '@/components/quiz/question-display';
 
-const quizTitles: { [key: string]: string } = {
-    'neuroprofile-101': 'Basis Zelfreflectie Tool (Volwassenen)',
-    'adhd-focus-201': 'ADHD & Focus Verdieping (Volwassenen)',
-};
+// Dummy data for hardcoded, non-AI thematic quizzes
+const DUMMY_QUIZZES_FOR_PREVIEW: (QuizAdmin & {id: string})[] = [
+  { 
+    id: 'exam-stress-planning', title: 'Examenvrees & Planning (Tieners)', 
+    description: 'Leer stress te beheersen en je planning scherp te houden voor examens.', 
+    audience: ['Tiener (15-18 jr, voor zichzelf)', 'Tiener (12-14 jr, voor zichzelf)'], category: 'Thema', status: 'published', 
+    questions: [
+      {id:'q_esp_1', text:'Maak je je veel zorgen over toetsen, zelfs als je goed hebt geleerd?', weight: 3},
+      {id:'q_esp_2', text:'Vind je het moeilijk om te beginnen met een examen?', weight: 2}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
+    slug: 'examenvrees-planning-quiz',
+  },
+  { 
+    id: 'focus-digital-distraction', title: 'Focus & Digitale Afleiding (Alle)', 
+    description: 'Ontdek hoe social media en andere digitale afleidingen je concentratie beïnvloeden.', 
+    audience: ['Algemeen (alle leeftijden, voor zichzelf)'], category: 'Thema', status: 'published', 
+    questions: [
+      {id:'q_fdd_1', text:'Raak je snel afgeleid door meldingen op je telefoon tijdens het huiswerk?', weight: 1},
+      {id:'q_fdd_2', text:'Hoe vaak controleer je social media terwijl je eigenlijk zou moeten studeren?', weight: 2}
+    ],
+    lastUpdatedAt: new Date(Date.now() - 86400000 * 1).toISOString(), 
+    createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
+    slug: 'focus-digitale-afleiding',
+  },
+];
+
+const answerOptions: OptionType[] = [
+  { value: '1', label: 'Nooit' },
+  { value: '2', label: 'Soms' },
+  { value: '3', label: 'Vaak' },
+  { value: '4', label: 'Altijd' },
+];
+
+function mapQuestionsToDisplay(questions: QuizAdminQuestion[]): QuestionType[] {
+  return questions.map(q => ({
+    id: q.id || `q-${Math.random()}`,
+    text: q.text,
+    options: answerOptions.map(opt => ({ id: `${q.id}-${opt.value}`, text: opt.label }))
+  }));
+}
+
+async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: string; questions: QuestionType[] } | null> {
+    if (typeof window === 'undefined') return null; // Can't access localStorage on server
+
+    // Check dummy data first
+    const dummyQuiz = DUMMY_QUIZZES_FOR_PREVIEW.find(q => q.id === quizIdOrSlug || q.slug === quizIdOrSlug);
+    if (dummyQuiz) {
+        return { title: dummyQuiz.title, questions: mapQuestionsToDisplay(dummyQuiz.questions) };
+    }
+    
+    // Then, check local storage for AI quizzes.
+    // The quizId for AI quizzes is the key in localStorage.
+    const storedQuizData = localStorage.getItem(quizIdOrSlug);
+    if (storedQuizData) {
+        try {
+            const quiz = JSON.parse(storedQuizData) as QuizAdmin;
+            if (quiz.id === quizIdOrSlug || quiz.slug === quizIdOrSlug) {
+              return { title: quiz.title, questions: mapQuestionsToDisplay(quiz.questions) };
+            }
+        } catch (e) { /* ignore parse error */ }
+    }
+
+    // Fallback: iterate localStorage to find by slug if ID doesn't match
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-'))) { 
+            const storedData = localStorage.getItem(key);
+            if (storedData) {
+                try {
+                    const parsed = JSON.parse(storedData) as QuizAdmin;
+                    if (parsed.slug === quizIdOrSlug) {
+                        return { title: parsed.title, questions: mapQuestionsToDisplay(parsed.questions) };
+                    }
+                } catch (e) { /* ignore */ }
+            }
+        }
+    }
+
+    return null;
+}
 
 export default function TakeQuizPage() {
   const params = useParams();
   const router = useRouter();
   const quizId = params.quizId as string;
-
-  useEffect(() => {
-    if (quizId === 'teen-neurodiversity-quiz') {
-      router.replace('/quiz/teen-neurodiversity-quiz'); // This ensures it redirects to the specific teen quiz handler
-    }
-  }, [quizId, router]);
   
-  const questions = quizId === 'teen-neurodiversity-quiz' ? [] : dummyQuizData[quizId] || [];
-  const quizTitle = quizTitles[quizId] || "Zelfreflectie Tool";
-
+  const [quizData, setQuizData] = useState<{ title: string; questions: QuestionType[] } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
+
+  useEffect(() => {
+    // Redirect special quizzes to their dedicated handlers
+    if (quizId === 'teen-neurodiversity-quiz') {
+      router.replace('/quiz/teen-neurodiversity-quiz');
+      return;
+    }
+    
+    async function loadQuiz() {
+      setIsLoading(true);
+      const data = await fetchQuizForPreview(quizId);
+      setQuizData(data);
+      setIsLoading(false);
+    }
+    loadQuiz();
+  }, [quizId, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
+        <p>Laden van de zelfreflectie tool...</p>
+      </div>
+    );
+  }
+
+  if (!quizData) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
+         <div className="absolute top-8 left-8">
+            <SiteLogo />
+        </div>
+        <h1 className="text-2xl font-semibold mb-4">Tool niet gevonden</h1>
+        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde zelfreflectie tool niet laden. Controleer of de slug/ID correct is.</p>
+        <Button asChild>
+          <Link href="/quizzes">Terug naar overzicht</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const { questions, title: quizTitle } = quizData;
+  const currentQuestion = questions[currentQuestionIndex];
 
   const handleNextQuestion = (selectedOptionId: string) => {
     setAnswers(prev => ({ ...prev, [questions[currentQuestionIndex].id]: selectedOptionId }));
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      console.log('Basisvragen voltooid:', answers);
-      router.push(`/quiz/${quizId}/subquiz-selection`);
+      console.log('Quiz voltooid:', answers);
+      router.push(`/quiz/${quizId}/results`); // Go to a generic results page
     }
   };
 
@@ -59,33 +163,9 @@ export default function TakeQuizPage() {
       setCurrentQuestionIndex(prev => prev - 1);
     }
   };
-  
-  if (quizId === 'teen-neurodiversity-quiz') {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
-        <p>Laden van de zelfreflectie tool...</p>
-      </div>
-    );
-  }
-  
-  if (!questions || questions.length === 0) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
-         <div className="absolute top-8 left-8">
-            <SiteLogo />
-        </div>
-        <h1 className="text-2xl font-semibold mb-4">Tool niet gevonden</h1>
-        <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde zelfreflectie tool niet laden of deze is verplaatst.</p>
-        <Button asChild>
-          <Link href="/quizzes">Terug naar overzicht</Link>
-        </Button>
-      </div>
-    );
-  }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const totalSteps = 3; // Basis, Subquiz, Resultaten
-  const currentGlobalStep = 1; // Basisvragen
+  const totalSteps = questions.length;
+  const currentGlobalStep = currentQuestionIndex + 1;
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 pt-16 md:pt-24 pb-16">
@@ -94,7 +174,9 @@ export default function TakeQuizPage() {
       </div>
       <div className="w-full max-w-3xl text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">{quizTitle}</h1>
-        <QuizProgressBar currentStep={currentGlobalStep} totalSteps={totalSteps} stepNames={["Basis", "Verdieping", "Resultaten"]} />
+        {/* Using a simpler progress bar for thematic quizzes */}
+        <Progress value={(currentGlobalStep / totalSteps) * 100} className="w-full" />
+        <p className="text-sm text-muted-foreground mt-2">Vraag {currentGlobalStep} van {totalSteps}</p>
       </div>
       
       <QuestionDisplay
