@@ -1,3 +1,4 @@
+
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -123,8 +124,8 @@ const thematicTeenQuizzes: Quiz[] = [
     title: 'Sociale Situaties &amp; Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties', 
-    dataAiHint: 'teenagers friends group',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/mixed-race_Asian_teenage_boy_with_Chinese_features.png?alt=media&token=09c31095-7bea-4206-9254-7e65c46ea5ec', 
+    dataAiHint: 'asian teenager',
     ageGroup: 'all',
     duration: "7-10 min",
     questionCount: 12,
