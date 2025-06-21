@@ -157,7 +157,7 @@ export default function ManualNewQuizPage({ quizData }: QuizFormPageProps) {
     }
     
     const saveData = { ...data, thumbnailUrl: finalThumbnailUrl };
-    delete saveData.uploadedImage; 
+    delete (saveData as any).uploadedImage; 
 
     console.log("Quiz data submitted for saving:", saveData);
 
@@ -224,7 +224,34 @@ export default function ManualNewQuizPage({ quizData }: QuizFormPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Quiz Titel</FormLabel><FormControl><Input placeholder="Bijv. Basis Neuroprofiel (12-14 jr)" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van de quiz en het doel..." {...field} rows={3} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="audience" render={() => (<FormItem className="space-y-2"><FormLabel>Doelgroep(en)</FormLabel><div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{audienceOptions.map((item) => (<FormField key={item.id} control={form.control} name="audience" render={({ field }) => { return (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => { return checked ? field.onChange([...(field.value || []), item.id]) : field.onChange((field.value || []).filter((value) => value !== item.id))}} /></FormControl><FormLabel className="text-sm font-normal cursor-pointer">{item.label}</FormLabel></FormItem>)}}/>)) }</div><FormMessage /></FormItem>)}/>
+                <FormField
+                  control={form.control}
+                  name="audience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Doelgroep</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange([value])} // Set as an array with one item
+                        defaultValue={field.value?.[0]}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Kies een doelgroep" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {audienceOptions.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                       <FormDescription className="text-xs">
+                        Handmatige quizzen kunnen momenteel maar één doelgroep hebben.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer een categorie" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="concept">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
               </div>
