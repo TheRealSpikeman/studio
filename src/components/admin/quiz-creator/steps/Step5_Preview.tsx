@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -32,13 +33,33 @@ export const Step5_Preview = () => {
     const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
 
     const checklistItems = [
-      { label: "Quiz titel en beschrijving ingevuld", valid: !!quizData.title && !!quizData.description },
-      { label: "Doelgroep en focus opties geconfigureerd", valid: !!quizData.audienceType && !!quizData.targetAgeGroup },
-      { label: "Minimaal 8 vragen gegenereerd", valid: (quizData.questions?.length ?? 0) >= 8 },
-      { label: "Resultaat types en follow-up ingesteld", valid: !!quizData.settings?.resultPresentation?.format },
-      { label: "Content moderatie review pending", valid: false, isWarning: true }, // Example warning
+      { 
+        label: "Quiz titel en beschrijving ingevuld", 
+        valid: !!quizData.title && !!quizData.description 
+      },
+      { 
+        label: "Doelgroep en focus opties geconfigureerd", 
+        valid: !!quizData.audienceType && !!quizData.targetAgeGroup 
+      },
+      { 
+        label: "Minimaal 8 vragen gegenereerd", 
+        valid: (quizData.questions?.length ?? 0) >= 8 
+      },
+      { 
+        label: "Resultaat types en follow-up ingesteld", 
+        valid: !!quizData.settings?.resultPresentation?.format 
+      },
     ];
 
+    // Conditionally add the moderation item ONLY if the setting is enabled
+    if (quizData.settings?.contentModeration?.required) {
+      checklistItems.push({ 
+        label: "Content moderatie review pending", 
+        valid: false, 
+        isWarning: true 
+      });
+    }
+    
     const finalReviewData = {
       "Doelgroep": quizData.targetAgeGroup ? `${quizData.targetAgeGroup} jaar` : 'N/A',
       "Focus": quizData.focusFlags?.filter(f => f !== 'general').map(f => f.replace('-friendly', '').replace('-focus', '').replace(/(^\w)/, c => c.toUpperCase())).join(' + ') || 'Algemeen',
@@ -119,8 +140,17 @@ export const Step5_Preview = () => {
                         <CardContent className="space-y-2">
                           {checklistItems.map(item => (
                             <div key={item.label} className="flex items-center text-sm">
-                                {item.isWarning ? <AlertCircle className="h-4 w-4 mr-2 text-orange-500 flex-shrink-0"/> : <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 flex-shrink-0"/>}
-                                <span className={cn(item.isWarning && "text-orange-600", !item.valid && !item.isWarning && "text-muted-foreground line-through")}>{item.label}</span>
+                                {item.valid ? (
+                                    <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 flex-shrink-0"/>
+                                ) : item.isWarning ? (
+                                    <AlertCircle className="h-4 w-4 mr-2 text-orange-500 flex-shrink-0"/>
+                                ) : (
+                                    <AlertCircle className="h-4 w-4 mr-2 text-muted-foreground/50 flex-shrink-0"/>
+                                )}
+                                <span className={cn(
+                                    item.isWarning && "text-orange-600", 
+                                    !item.valid && !item.isWarning && "text-muted-foreground line-through"
+                                )}>{item.label}</span>
                             </div>
                           ))}
                         </CardContent>
