@@ -222,7 +222,7 @@ export default function QuizManagementPage() {
             </div>
             <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
               <Button asChild className="w-full sm:w-auto">
-                <Link href="/dashboard/admin/quiz-management/new">
+                <Link href="/dashboard/admin/quiz-management/create">
                   <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
                 </Link>
               </Button>
