@@ -4,7 +4,7 @@ import type { QuizAdminQuestion } from '@/types/quiz-admin';
 
 export type QuizCreationState = {
   // Step 1
-  creationType?: 'template' | 'scratch' | 'ai';
+  creationType?: 'template' | 'scratch' | 'ai' | 'bulk';
   selectedTemplateId?: string;
 
   // Step 2
