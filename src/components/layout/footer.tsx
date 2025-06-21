@@ -118,6 +118,19 @@ export function Footer() {
                   <Link href="/word-coach">Meer informatie & Aanmelden (Coach)</Link>
               </Button>
             </div>
+            
+            <div className="mt-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Briefcase className="h-5 w-5 text-primary" />
+                <h5 className="text-sm font-semibold text-foreground">Vacatures</h5>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-xs mb-1">
+                Kom ons team versterken en maak een verschil.
+              </p>
+              <Button variant="link" asChild className="px-0 text-sm text-primary hover:text-primary/80 h-auto py-0">
+                  <Link href="/vacatures">Bekijk onze vacatures</Link>
+              </Button>
+            </div>
           </div>
 
         </div>
