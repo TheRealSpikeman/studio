@@ -1,7 +1,7 @@
 // src/components/admin/quiz-management/QuizEditForm.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,9 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { PlusCircle, Trash2, ArrowLeft, Save, Brain, HelpCircle, FileText, Bot, ImageIcon, Search, Settings, Download } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, Brain, HelpCircle, FileText, Bot, ImageIcon, Search, Settings, Download, Upload } from 'lucide-react';
 import Link from 'next/link';
 import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel } from '@/types/quiz-admin';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 // Re-defining options here for self-containment
 const audienceOptions: { id: QuizAudience; label: string }[] = [
@@ -70,6 +72,9 @@ interface QuizEditFormProps {
 }
 
 export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
+  const { toast } = useToast();
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  
   const form = useForm<QuizFormData>({
     resolver: zodResolver(quizFormSchema),
     defaultValues: quizData,
@@ -92,6 +97,53 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
   const onSubmit = (data: QuizFormData) => {
     onSave(data);
   };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      toast({ title: "Geen bestand geselecteerd", variant: "destructive" });
+      return;
+    }
+
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      toast({ title: "Ongeldig bestandsformaat", description: "Upload a.u.b. een CSV-bestand.", variant: "destructive" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        // Basic CSV parsing: split by newline, then by comma. Assumes no commas within quoted fields for now.
+        // Skips header row with slice(1)
+        const rows = text.split(/\r?\n/).slice(1).filter(row => row.trim() !== '');
+        
+        const newQuestions = rows.map(row => {
+          const columns = row.split(','); // Simple split, not robust for complex CSVs
+          return {
+            text: columns[0]?.trim().replace(/"/g, '') || '',
+            example: columns[1]?.trim().replace(/"/g, '') || '',
+            weight: parseInt(columns[2]?.trim(), 10) || 1,
+          };
+        }).filter(q => q.text); // Filter out rows without text
+
+        if (newQuestions.length > 0) {
+          append(newQuestions);
+          toast({ title: "Upload geslaagd", description: `${newQuestions.length} vragen zijn toegevoegd.` });
+          setIsUploadDialogOpen(false);
+        } else {
+          toast({ title: "Leeg of ongeldig bestand", description: "Geen geldige vragen gevonden in het CSV-bestand.", variant: "destructive" });
+        }
+      } catch (error) {
+        console.error("Error parsing CSV:", error);
+        toast({ title: "Verwerkingsfout", description: "Kon het CSV-bestand niet verwerken.", variant: "destructive" });
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input
+    if(event.target) event.target.value = '';
+  };
+
 
   const handleDownloadJson = () => {
     const data = form.getValues();
@@ -158,7 +210,10 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
                             <Button type="button" variant="destructive" size="sm" onClick={() => remove(index)} className="mt-2"><Trash2 className="h-4 w-4 mr-1" /> Verwijder Vraag</Button>
                         </Card>
                     ))}
-                    <Button type="button" variant="outline" onClick={() => append({ text: '', example: '', weight: 1 })}><PlusCircle className="h-4 w-4 mr-2"/> Vraag Toevoegen</Button>
+                    <div className="flex gap-2">
+                        <Button type="button" variant="outline" onClick={() => append({ text: '', example: '', weight: 1 })}><PlusCircle className="h-4 w-4 mr-2"/> Vraag Toevoegen</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsUploadDialogOpen(true)}><Upload className="h-4 w-4 mr-2"/> Bulk Upload Vragen</Button>
+                    </div>
                 </AccordionContent>
             </AccordionItem>
 
@@ -213,6 +268,31 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
           </div>
         </form>
       </Form>
+
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>Bulk Upload Vragen</DialogTitle>
+            <DialogDescription>
+                Upload een CSV-bestand om meerdere vragen tegelijk toe te voegen.
+                Het bestand moet de kolommen `text,example,weight` bevatten (de eerste rij wordt overgeslagen).
+                <br />
+                <code className="text-xs bg-muted p-1 rounded mt-1 inline-block">"Vraagtekst","Voorbeeld voor vraag",1</code>
+            </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+            <Input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+            />
+            <p className="text-xs text-muted-foreground mt-2">Ondersteuning voor JSON volgt binnenkort.</p>
+            </div>
+            <DialogFooter>
+            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>Annuleren</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
