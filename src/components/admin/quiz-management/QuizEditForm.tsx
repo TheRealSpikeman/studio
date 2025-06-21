@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { PlusCircle, Trash2, ArrowLeft, Save, Brain, HelpCircle, FileText, Bot, ImageIcon, Search, Settings } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, Brain, HelpCircle, FileText, Bot, ImageIcon, Search, Settings, Download } from 'lucide-react';
 import Link from 'next/link';
 import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel } from '@/types/quiz-admin';
 
@@ -65,7 +65,7 @@ const quizFormSchema = z.object({
 export type QuizFormData = z.infer<typeof quizFormSchema>;
 
 interface QuizEditFormProps {
-  quizData: QuizFormData & { id: string, createdAt?: string };
+  quizData: QuizFormData & { id: string, createdAt?: string, slug?: string };
   onSave: (data: QuizFormData) => void;
 }
 
@@ -91,6 +91,24 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
 
   const onSubmit = (data: QuizFormData) => {
     onSave(data);
+  };
+
+  const handleDownloadJson = () => {
+    const data = form.getValues();
+    try {
+      const quizJson = JSON.stringify(data, null, 2);
+      const blob = new Blob([quizJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.slug || quizData.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export quiz:", error);
+    }
   };
   
   const isAiGenerated = quizData.id.startsWith('ai-');
@@ -186,6 +204,9 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
           </Accordion>
           
           <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={handleDownloadJson}>
+                <Download className="mr-2 h-4 w-4" /> Download JSON
+            </Button>
             <Button type="submit">
                 <Save className="mr-2 h-4 w-4" /> Wijzigingen Opslaan
             </Button>
