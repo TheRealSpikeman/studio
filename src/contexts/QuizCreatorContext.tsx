@@ -8,9 +8,9 @@ export type QuizCreationState = {
   selectedTemplateId?: string;
 
   // Step 2
-  targetAudience?: 'teen' | 'parent' | 'adult';
+  audienceType?: 'teen' | 'parent' | 'adult';
   targetAgeGroup?: '6-11' | '12-14' | '15-18' | '18+' | 'all';
-  focusFlags?: ('adhd-friendly' | 'autism-friendly')[];
+  focusFlags?: ('general' | 'adhd-friendly' | 'autism-friendly')[];
 
   // Step 3
   title?: string;
@@ -44,7 +44,9 @@ const QuizCreatorContext = createContext<QuizCreatorContextType | undefined>(und
 export const QuizCreatorProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
-  const [quizData, setQuizData] = useState<QuizCreationState>({});
+  const [quizData, setQuizData] = useState<QuizCreationState>({
+    focusFlags: ['general']
+  });
 
   const setCompletedStep = (step: number, completed: boolean) => {
     setCompletedSteps(prev => ({ ...prev, [step]: completed }));
