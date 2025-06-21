@@ -20,8 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow'; 
 import type { QuizAdmin, QuizAudience, QuizCategory, AnalysisDetailLevel } from '@/types/quiz-admin';
-import { ArrowLeft, Bot, Loader2, Wand2, ListChecks, Settings } from 'lucide-react';
+import { ArrowLeft, Bot, Loader2, Wand2, ListChecks, Settings, Info } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
 const audienceOptions: { id: QuizAudience; label: string }[] = [
   { id: 'Tiener (12-14 jr, voor zichzelf)', label: 'Tiener (12-14 jr, voor zichzelf)' },
@@ -72,7 +73,8 @@ const analysisDetailOptions: { id: AnalysisDetailLevel; label: string }[] = [
 ];
 
 const aiQuizFormSchema = z.object({
-  topic: z.string().min(3, { message: "Onderwerp moet minimaal 3 tekens bevatten." }),
+  title: z.string().min(3, { message: "Titel moet minimaal 3 tekens bevatten." }),
+  description: z.string().optional(),
   audience: z.string({ required_error: "Selecteer een doelgroep." }) as z.ZodType<QuizAudience>,
   category: z.string({ required_error: "Selecteer een domein/categorie." }) as z.ZodType<QuizCategory>,
   numQuestions: z.coerce.number().min(1, { message: "Selecteer het aantal vragen." }),
@@ -91,7 +93,8 @@ export default function GenerateAiQuizPage() {
     const form = useForm<AiQuizFormData>({
         resolver: zodResolver(aiQuizFormSchema),
         defaultValues: {
-          topic: "",
+          title: "",
+          description: "",
           audience: undefined,
           category: undefined,
           numQuestions: 10,
@@ -104,10 +107,19 @@ export default function GenerateAiQuizPage() {
 
     const handleGenerate = async (data: AiQuizFormData) => {
         setIsGenerating(true);
-        toast({ title: "Quiz genereren met AI...", description: `Onderwerp: ${data.topic}. Een ogenblik geduld.` });
+        toast({ title: "Quiz genereren met AI...", description: `Onderwerp: ${data.title}. Een ogenblik geduld.` });
         
         try {
-          const { analysisDetailLevel, analysisInstructions, ...aiInputForGeneration } = data;
+          const { title, description, audience, category, numQuestions, difficulty, quizPurpose, analysisDetailLevel, analysisInstructions } = data;
+
+          const aiInputForGeneration = {
+            topic: title,
+            audience,
+            category,
+            numQuestions,
+            difficulty,
+            quizPurpose,
+          };
           
           const aiResult = await generateAiQuiz(aiInputForGeneration);
     
@@ -115,15 +127,15 @@ export default function GenerateAiQuizPage() {
           
           const newQuiz: QuizAdmin = {
             id: `ai-${Date.now()}`,
-            title: `${data.topic} (AI gegenereerd)`,
-            description: `AI gegenereerde quiz over ${data.topic} voor ${data.audience}. Pas de titel en beschrijving eventueel aan.`,
-            audience: [data.audience],
-            category: data.category,
+            title: `${title} (AI gegenereerd)`,
+            description: description || `AI gegenereerde quiz over ${title} voor ${audience}. Pas de titel en beschrijving eventueel aan.`,
+            audience: [audience],
+            category: category,
             status: 'concept',
             questions: aiResult.questions.map((q, i) => ({ id: `q-ai-${i}`, text: q.text, example: q.example, weight: q.weight ?? 1 })),
             lastUpdatedAt: new Date().toISOString(),
             createdAt: new Date().toISOString(),
-            slug: `ai-${data.topic.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
+            slug: `ai-${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-5)}`,
             analysisDetailLevel: analysisDetailLevel,
             analysisInstructions: analysisInstructions,
           };
@@ -146,7 +158,7 @@ export default function GenerateAiQuizPage() {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
                     <Bot className="h-8 w-8 text-primary" />
-                    Quiz Genereren met AI
+                    Quiz Genereren (AI)
                 </h1>
                 <Button variant="outline" asChild>
                     <Link href="/dashboard/admin/quiz-management/new">
@@ -160,16 +172,31 @@ export default function GenerateAiQuizPage() {
                   <Accordion type="multiple" defaultValue={['item-1']} className="w-full space-y-4">
                     <AccordionItem value="item-1" className="border rounded-lg shadow-sm bg-card">
                       <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
-                          <div className="flex items-center gap-3"><ListChecks className="h-5 w-5 text-primary"/>Quiz Specificaties</div>
+                          <div className="flex items-center gap-3"><Info className="h-5 w-5 text-primary"/>Algemene Informatie & Generatie-instructies</div>
                       </AccordionTrigger>
                       <AccordionContent className="p-6 pt-0 space-y-6">
                         <p className="text-sm text-muted-foreground -mt-2">Geef de AI instructies om een nieuwe quiz te genereren. Na generatie wordt de quiz als concept opgeslagen en kunt u deze direct bewerken.</p>
-                        <FormField control={form.control} name="topic" render={({ field }) => (<FormItem><FormLabel>Onderwerp / Thema</FormLabel><FormControl><Input placeholder="Bijv. Sociale Vaardigheden, Examenvrees, Faalangst" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="audience" render={({ field }) => (<FormItem><FormLabel>Doelgroep</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl><SelectContent>{audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Domein / Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="numQuestions" render={({ field }) => (<FormItem><FormLabel>Aantal Vragen</FormLabel><Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl><SelectContent>{numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="difficulty" render={({ field }) => (<FormItem><FormLabel>Moeilijkheid / Weging</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl><SelectContent>{difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Dit beïnvloedt de complexiteit en de weging van de vragen.</FormDescription><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="quizPurpose" render={({ field }) => (<FormItem><FormLabel>Quiz Doel (Journey Moment)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value || 'general'}><FormControl><SelectTrigger><SelectValue placeholder="Kies doel/moment" /></SelectTrigger></FormControl><SelectContent>{quizPurposeOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription>Context voor AI over het doel van de quiz (bijv. eerste kennismaking of verdieping).</FormDescription><FormMessage /></FormItem>)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Quiz Titel (wordt onderwerp voor AI)</FormLabel><FormControl><Input placeholder="Bijv. Sociale Vaardigheden, Examenvrees, Faalangst" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                           <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Beschrijving (voor na generatie)</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van de quiz en het doel..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="audience" render={({ field }) => (<FormItem><FormLabel>Doelgroep</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies doelgroep" /></SelectTrigger></FormControl><SelectContent>{audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies domein" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                          <FormItem>
+                            <FormLabel>Status</FormLabel>
+                            <Input value="Concept (automatisch)" disabled />
+                            <FormDescription className="text-xs">AI-gegenereerde quizzen worden altijd als concept opgeslagen voor review.</FormDescription>
+                          </FormItem>
+                        </div>
+
+                        <Separator className="my-6" />
+                        
+                        <h3 className="text-md font-semibold text-foreground">Generatie-instructies</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <FormField control={form.control} name="numQuestions" render={({ field }) => (<FormItem><FormLabel>Aantal Vragen</FormLabel><Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Kies aantal" /></SelectTrigger></FormControl><SelectContent>{numQuestionsOptions.map(opt => <SelectItem key={opt.id} value={String(opt.id)}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="difficulty" render={({ field }) => (<FormItem><FormLabel>Moeilijkheid / Weging</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies moeilijkheid" /></SelectTrigger></FormControl><SelectContent>{difficultyOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription className="text-xs">Beïnvloedt de weging van de vragen.</FormDescription><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="quizPurpose" render={({ field }) => (<FormItem><FormLabel>Quiz Doel</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value || 'general'}><FormControl><SelectTrigger><SelectValue placeholder="Kies doel/moment" /></SelectTrigger></FormControl><SelectContent>{quizPurposeOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormDescription className="text-xs">Geeft AI extra context.</FormDescription><FormMessage /></FormItem>)} />
+                        </div>
+
                       </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-2" className="border rounded-lg shadow-sm bg-card">
