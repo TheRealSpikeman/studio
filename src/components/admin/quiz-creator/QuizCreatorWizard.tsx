@@ -21,21 +21,21 @@ export const QuizCreatorWizard = () => {
   };
 
   const isNextDisabled = () => {
-    if (currentStep === 1) {
-      if (!quizData.creationType) return true;
-      if (quizData.creationType === 'template' && !quizData.selectedTemplateId) return true;
+    switch (currentStep) {
+      case 1:
+        if (!quizData.creationType) return true;
+        if (quizData.creationType === 'template' && !quizData.selectedTemplateId) return true;
+        return false;
+      case 2:
+        if (!quizData.audienceType || !quizData.targetAgeGroup) return true;
+        return false;
+      case 3:
+        if (!quizData.mainCategory || !quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) return true;
+        return false;
+      default:
+        // For steps 4 and 5, the button is enabled by default for now.
+        return false;
     }
-    if (currentStep === 2) {
-      if (!quizData.audienceType || !quizData.targetAgeGroup) {
-        return true;
-      }
-    }
-    if (currentStep === 3) {
-        if (!quizData.mainCategory || !quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) {
-            return true;
-        }
-    }
-    return false;
   };
   
   const renderStepContent = () => {
