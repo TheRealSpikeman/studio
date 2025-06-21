@@ -21,17 +21,30 @@ export type QuizCreationState = {
   difficulty?: string;
 
   // Step 4
-  questions?: Partial<QuizAdminQuestion>[];
-
-  // Step 5
   settings?: {
-      resultType?: string;
-      accessibility?: 'free' | 'premium';
-      parentNotification?: 'auto' | 'optional' | 'none';
-      followUpAction?: 'coaching' | 'email' | 'related_quizzes' | 'none';
-      dataCollection?: 'anonymous' | 'pseudonymous' | 'full';
-      integrations?: ('parent_dashboard' | 'coach_matching' | 'pdf_export')[];
+    resultPresentation?: {
+      showToParent: boolean;
+      format: 'visual_report' | 'text_summary' | 'score_only';
+    };
+    coachIntegration?: {
+      enabled: boolean;
+      specializations: string[];
+    };
+    accessibility?: {
+      isPublic: boolean;
+      accessLevel: 'free' | 'premium';
+    };
+    schoolPartnerships?: {
+      enabled: boolean;
+      targetGroups: ('voortgezet_onderwijs' | 'speciaal_onderwijs' | 'zorgcoordinatoren')[];
+    };
+    contentModeration?: {
+      required: boolean;
+    };
   };
+
+  // Step 5 (was 4)
+  questions?: Partial<QuizAdminQuestion>[];
 };
 
 interface QuizCreatorContextType {
@@ -56,6 +69,27 @@ const initialQuizData: QuizCreationState = {
     estimatedDuration: "3-5",
     resultType: "personality-4-types",
     difficulty: undefined,
+    settings: {
+        resultPresentation: {
+            showToParent: true,
+            format: 'visual_report',
+        },
+        coachIntegration: {
+            enabled: true,
+            specializations: [],
+        },
+        accessibility: {
+            isPublic: true,
+            accessLevel: 'free',
+        },
+        schoolPartnerships: {
+            enabled: false,
+            targetGroups: [],
+        },
+        contentModeration: {
+            required: true,
+        },
+    },
 };
 
 

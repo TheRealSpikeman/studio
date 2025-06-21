@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react';
 import { Step1QuizType } from './steps/Step1_QuizType';
 import { Step2Audience } from './steps/Step2_Audience';
 import { Step3Content } from './steps/Step3_Content';
+import { Step4_Settings } from './steps/Step4_Settings';
 
 export const QuizCreatorWizard = () => {
   const { currentStep, setCurrentStep, completedSteps, setCompletedStep, quizData } = useQuizCreator();
@@ -46,6 +47,8 @@ export const QuizCreatorWizard = () => {
         return <Step2Audience />;
       case 3:
         return <Step3Content />;
+      case 4:
+        return <Step4_Settings />;
       default:
         return <div className="p-8 text-center text-muted-foreground">Stap {currentStep} is in ontwikkeling.</div>;
     }
