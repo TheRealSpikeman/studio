@@ -3,10 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     /* Oranje & Warm Geel Thema */
@@ -108,6 +104,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -129,8 +126,6 @@ body {
       padding-left: 2rem;
       padding-right: 2rem;
     }
-  }
-  @media (min-width: 1024px) {
   }
 }
 

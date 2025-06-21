@@ -13,7 +13,7 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 bg-background">
+      <main className="flex-1">
         <HeroSection />
         <AssessmentSection /> 
         <PlatformFeaturesSection /> 
