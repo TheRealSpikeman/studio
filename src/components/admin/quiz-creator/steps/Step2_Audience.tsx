@@ -1,7 +1,8 @@
+
 'use client';
 
 import React from 'react';
-import { Brain, Check, GraduationCap, Sparkles, User, Users } from 'lucide-react';
+import { Brain, Check, GraduationCap, Sparkles, User, Users, HeartHandshake, BookHeart, Award, ClipboardList, Puzzle, Smile } from 'lucide-react';
 
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import type { QuizCreationState } from '@/contexts/QuizCreatorContext';
@@ -36,7 +37,13 @@ const ageGroupOptions: Record<NonNullable<QuizCreationState['audienceType']>, { 
 const focusOptions = [
     { id: 'general', icon: Sparkles, title: 'Algemeen', description: 'Voor alle jongeren, geen specifieke focus.' },
     { id: 'adhd-friendly', icon: Brain, title: 'ADHD-Vriendelijk', description: 'Kortere vragen, meer visuals, pauze-opties.' },
-    { id: 'autism-friendly', icon: Brain, title: 'Autisme-Vriendelijk', description: 'Duidelijke instructies, voorspelbare structuur.' }
+    { id: 'autism-friendly', icon: Brain, title: 'Autisme-Vriendelijk', description: 'Duidelijke instructies, voorspelbare structuur.' },
+    { id: 'hsp-friendly', icon: HeartHandshake, title: 'HSP-Vriendelijk', description: 'Rekening houdend met prikkelgevoeligheid.' },
+    { id: 'dyslexia-friendly', icon: BookHeart, title: 'Dyslexie-Vriendelijk', description: 'Opties voor voorlezen, minder tekst-zwaar.' },
+    { id: 'giftedness-focus', icon: Award, title: 'Hoogbegaafdheid Focus', description: 'Uitdagende vragen, minder herhaling.' },
+    { id: 'executive-functions-focus', icon: ClipboardList, title: 'Executieve Functies Focus', description: 'Gericht op planning, organisatie en zelfregulatie.' },
+    { id: 'sensory-processing-focus', icon: Puzzle, title: 'Sensorische Verwerking Focus', description: 'Aandacht voor sensorische voorkeuren.' },
+    { id: 'emotion-regulation-focus', icon: Smile, title: 'Emotieregulatie Focus', description: 'Gericht op herkennen en omgaan met emoties.' },
 ]
 
 export const Step2Audience = () => {
@@ -117,7 +124,7 @@ export const Step2Audience = () => {
                 )}
 
                 <section>
-                    <h3 className="text-lg font-medium text-foreground mb-3">3. Specifieke Focus (optioneel)</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-3">3. Specifieke Focus (optioneel, meerdere keuzes mogelijk)</h3>
                      <div className="grid md:grid-cols-3 gap-4">
                         {focusOptions.map(({ id, icon: Icon, title, description }) => (
                             <Card
@@ -129,6 +136,7 @@ export const Step2Audience = () => {
                                 )}
                                 onClick={() => handleToggleFocusFlag(id as any)}
                             >
+                                {quizData.focusFlags?.includes(id as any) && <div className="absolute top-2 right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center"><Check className="h-4 w-4"/></div>}
                                 <Icon className="h-8 w-8 mb-3 text-primary" />
                                 <h4 className="font-semibold text-md mb-1">{title}</h4>
                                 <p className="text-sm text-muted-foreground flex-grow">{description}</p>
