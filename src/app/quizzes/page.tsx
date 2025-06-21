@@ -1,4 +1,3 @@
-
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -56,8 +55,8 @@ const recommendedQuizzes: Quiz[] = [
     title: 'Focus & Digitale Afleiding Tool', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
-    dataAiHint: 'teenager portrait',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
+    dataAiHint: 'teenager phone',
     ageGroup: 'all',
     duration: "6-9 min",
     questionCount: 10,
@@ -137,8 +136,8 @@ const thematicTeenQuizzes: Quiz[] = [
     title: 'Focus & Digitale Afleiding Tool', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
-    dataAiHint: 'teenager portrait',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
+    dataAiHint: 'teenager phone',
     ageGroup: 'all',
     duration: "6-9 min",
     questionCount: 10,
