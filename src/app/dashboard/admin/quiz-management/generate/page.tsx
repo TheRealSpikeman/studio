@@ -169,7 +169,7 @@ export default function GenerateAiQuizPage() {
 
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleGenerate)} className="space-y-8">
-                  <Accordion type="multiple" defaultValue={['item-1']} className="w-full space-y-4">
+                  <Accordion type="multiple" className="w-full space-y-4">
                     <AccordionItem value="item-1" className="border rounded-lg shadow-sm bg-card">
                       <AccordionTrigger className="p-6 hover:no-underline text-lg font-semibold">
                           <div className="flex items-center gap-3"><Info className="h-5 w-5 text-primary"/>Algemene Informatie & Generatie-instructies</div>
