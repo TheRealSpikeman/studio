@@ -78,10 +78,10 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  if (id.startsWith('ai-')) {
+  if (id.startsWith('ai-quiz-')) {
     let quiz: QuizAdmin | null = null;
     try {
-        const storedQuizData = localStorage.getItem(`ai-quiz-${id}`);
+        const storedQuizData = localStorage.getItem(id); // Corrected: key is the full ID
         if (storedQuizData) {
             console.log("Found AI quiz in localStorage:", id);
             quiz = JSON.parse(storedQuizData) as QuizAdmin;
@@ -90,13 +90,6 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
         console.error("Error reading AI quiz from localStorage:", error);
     }
     
-    if (!quiz) {
-        quiz = DUMMY_QUIZZES_FOR_EDIT.find(q => q.id === id) || null;
-        if (quiz) {
-            console.log("Found AI quiz in DUMMY_QUIZZES_FOR_EDIT (this should be rare):", id);
-        }
-    }
-
     if (quiz) {
       return {
         id: quiz.id,
@@ -161,7 +154,7 @@ export default function EditQuizPage() {
     console.log("Saving quiz data:", data);
     // Here you would typically have logic to save to your backend.
     // For this demo, we can update localStorage for AI quizzes.
-    if (quizId.startsWith('ai-')) {
+    if (quizId.startsWith('ai-quiz-')) {
       const updatedQuiz: QuizAdmin = {
         id: quizId,
         title: data.title,
@@ -180,7 +173,7 @@ export default function EditQuizPage() {
         createdAt: quizData?.createdAt || new Date().toISOString(),
         lastUpdatedAt: new Date().toISOString(),
       };
-      localStorage.setItem(`ai-quiz-${quizId}`, JSON.stringify(updatedQuiz));
+      localStorage.setItem(quizId, JSON.stringify(updatedQuiz)); // Corrected: key is the quizId itself
     }
     toast({
       title: "Quiz opgeslagen!",

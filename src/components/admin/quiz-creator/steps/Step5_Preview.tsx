@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion } from '@/types/quiz-admin';
 
 type DeviceType = 'desktop' | 'mobile' | 'tablet';
 
@@ -29,8 +32,65 @@ const allCategories = [
 ];
 
 export const Step5_Preview = () => {
-    const { quizData } = useQuizCreator();
+    const { quizData, resetQuizCreator } = useQuizCreator();
+    const router = useRouter();
+    const { toast } = useToast();
     const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
+
+    const handlePublish = () => {
+        // Construct audience
+        let audience: QuizAudience[];
+        switch (quizData.audienceType) {
+            case 'teen':
+                audience = [`Tiener (${quizData.targetAgeGroup} jr, voor zichzelf)`];
+                break;
+            case 'parent':
+                audience = [`Ouder (over kind ${quizData.targetAgeGroup} jr)`];
+                break;
+            case 'adult':
+                if (quizData.targetAgeGroup === 'all') {
+                    audience = ['Algemeen (alle leeftijden, voor zichzelf)'];
+                } else {
+                    audience = [`Volwassene (18+, voor zichzelf)`];
+                }
+                break;
+            default:
+                audience = ['Algemeen (alle leeftijden, voor zichzelf)'];
+        }
+
+        const newQuiz: QuizAdmin = {
+            id: `ai-quiz-${Date.now()}`,
+            title: quizData.title || "Naamloze AI Quiz",
+            description: quizData.description || "Geen beschrijving.",
+            audience: audience,
+            category: (quizData.mainCategory as QuizCategory) || 'Thema',
+            status: 'concept', // Start as concept for final review
+            questions: (quizData.questions || []).map((q, index): QuizAdminQuestion => ({
+                id: q.id || `q-${index}`,
+                text: q.text || '',
+                example: q.example,
+                weight: q.weight || 1,
+            })),
+            createdAt: new Date().toISOString(),
+            lastUpdatedAt: new Date().toISOString(),
+            slug: quizData.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `quiz-${Date.now()}`,
+        };
+        
+        try {
+            localStorage.setItem(newQuiz.id, JSON.stringify(newQuiz));
+        } catch (e) {
+            toast({ title: "Fout bij opslaan", description: "Kon de quiz niet lokaal opslaan.", variant: "destructive" });
+            return;
+        }
+        
+        toast({
+            title: "Quiz Opgeslagen als Concept!",
+            description: `"${newQuiz.title}" is opgeslagen. Je kunt het nu vinden in het Quiz Beheer overzicht.`,
+        });
+
+        resetQuizCreator();
+        router.push('/dashboard/admin/quiz-management');
+    };
 
     const checklistItems = [
       { 
@@ -51,7 +111,6 @@ export const Step5_Preview = () => {
       },
     ];
 
-    // Conditionally add the moderation item ONLY if the setting is enabled
     if (quizData.settings?.contentModeration?.required) {
       checklistItems.push({ 
         label: "Content moderatie review pending", 
@@ -115,7 +174,7 @@ export const Step5_Preview = () => {
                                 </div>
                                 <div className="p-4 bg-slate-50 overflow-y-auto h-full">
                                     <div className="mb-4">
-                                        <p className="font-semibold mb-2">🧠 Wanneer je een sterke emotie voelt, wat doe je dan meestal het eerst?</p>
+                                        <p className="font-semibold mb-2">🧠 {(quizData.questions && quizData.questions[0]?.text) || "Wanneer je een sterke emotie voelt, wat doe je dan meestal het eerst?"}</p>
                                         <RadioGroup className="space-y-2">
                                             <Label className="flex items-center gap-2 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer"><RadioGroupItem value="a" id="a"/> Ik ga naar een rustige plek om na te denken</Label>
                                             <Label className="flex items-center gap-2 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer"><RadioGroupItem value="b" id="b"/> Ik praat erover met iemand die ik vertrouw</Label>
@@ -200,7 +259,7 @@ export const Step5_Preview = () => {
                                 </div>
                               </Label>
                            </RadioGroup>
-                           <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
+                           <Button onClick={handlePublish} className="w-full mt-4 bg-green-600 hover:bg-green-700">
                              <Rocket className="mr-2 h-4 w-4"/>Publiceer Quiz
                            </Button>
                         </CardContent>
