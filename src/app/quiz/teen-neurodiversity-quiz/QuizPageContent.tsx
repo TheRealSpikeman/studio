@@ -641,7 +641,7 @@ export default function QuizPageContent() {
               question={{
                   id: `base-q-${currentQuestionIndex}`,
                   text: currentBaseQuestions[currentQuestionIndex],
-                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label }))
+                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label, value: opt.value }))
               }}
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={currentBaseQuestions.length}
@@ -698,7 +698,7 @@ export default function QuizPageContent() {
               question={{
                   id: `sub-q-${currentFlatSubtestIndex}`,
                   text: flatSubtestQuestions[currentFlatSubtestIndex].text,
-                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label }))
+                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label, value: opt.value }))
               }}
               questionNumber={currentFlatSubtestIndex + 1}
               totalQuestions={flatSubtestQuestions.length}
