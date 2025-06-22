@@ -1,9 +1,10 @@
+
 // src/app/quizzes/page.tsx
 "use client";
 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Sparkles, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
