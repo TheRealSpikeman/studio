@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { ElementType } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
   Lightbulb, Rocket, BarChart3, CheckCircle2, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap,
-  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle
+  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -20,15 +20,58 @@ import { Slider } from '@/components/ui/slider';
 
 // Component for Adaptive Onboarding
 const Step3_AdaptiveContent = () => {
-    // Mock data for display purposes
-    const spectrums = [
-      { id: 'adhd', name: 'ADHD', threshold: 65 },
-      { id: 'ass', name: 'Autisme', threshold: 60 },
-      { id: 'hsp', name: 'HSP', threshold: 55 },
-      { id: 'executive', name: 'Executieve Functies', threshold: 60 },
-      { id: 'sensory', name: 'Sensorische Verwerking', threshold: 58 },
-      { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
-    ];
+    // Local state to manage settings for a live preview
+    const [previewSettings, setPreviewSettings] = useState({
+      phase1Questions: 18,
+      phase1Threshold: 60,
+      phase2MaxPerSpectrum: 12,
+      phase2MaxTotal: 20,
+      spectrums: [
+        { id: 'adhd', name: 'ADHD', threshold: 65 },
+        { id: 'ass', name: 'Autisme', threshold: 60 },
+        { id: 'hsp', name: 'HSP', threshold: 55 },
+        { id: 'executive', name: 'Executieve Functies', threshold: 60 },
+        { id: 'sensory', name: 'Sensorische Verwerking', threshold: 58 },
+        { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
+      ]
+    });
+
+    // State to hold the calculated preview output
+    const [previewOutput, setPreviewOutput] = useState<{ name: string; score: number; triggered: boolean }[]>([]);
+    const [totalPhase2Questions, setTotalPhase2Questions] = useState(0);
+    const [isOverLimit, setIsOverLimit] = useState(false);
+
+    // Update handler for all inputs and sliders
+    const handleSettingChange = (field: keyof typeof previewSettings, value: any) => {
+      setPreviewSettings(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSpectrumThresholdChange = (id: string, newThreshold: number) => {
+      setPreviewSettings(prev => ({
+        ...prev,
+        spectrums: prev.spectrums.map(spec =>
+          spec.id === id ? { ...spec, threshold: newThreshold } : spec
+        ),
+      }));
+    };
+
+    // Memoize the calculation so it only runs when settings change
+    useEffect(() => {
+        let questionCount = 0;
+        const newOutput = previewSettings.spectrums.map(spec => {
+            // Using a pseudo-random but stable score for demo purposes
+            const score = Math.floor(30 + (parseInt(spec.id.replace(/[^0-9a-f]/gi, ''), 16) % 71));
+            const triggered = score >= spec.threshold;
+            if (triggered) {
+                questionCount += previewSettings.phase2MaxPerSpectrum;
+            }
+            return { name: spec.name, score, triggered };
+        });
+
+        setPreviewOutput(newOutput);
+        setTotalPhase2Questions(questionCount);
+        setIsOverLimit(questionCount > previewSettings.phase2MaxTotal);
+    }, [previewSettings]);
 
     return (
         <div className="space-y-6">
@@ -53,12 +96,12 @@ const Step3_AdaptiveContent = () => {
                            <div className="grid grid-cols-2 gap-3">
                                <div className="config-group">
                                     <Label htmlFor="phase1-questions" className="text-xs font-medium text-muted-foreground mb-1 block">Aantal Vragen</Label>
-                                    <Input id="phase1-questions" type="number" defaultValue="18" />
+                                    <Input id="phase1-questions" type="number" value={previewSettings.phase1Questions} onChange={(e) => handleSettingChange('phase1Questions', parseInt(e.target.value, 10) || 0)} />
                                     <p className="text-xs text-muted-foreground mt-1">Optimaal: 15-20 voor accuracy vs completion</p>
                                </div>
                                <div className="config-group">
                                     <Label htmlFor="phase1-threshold" className="text-xs font-medium text-muted-foreground mb-1 block">Min. Score (%)</Label>
-                                    <Input id="phase1-threshold" type="number" defaultValue="60" />
+                                    <Input id="phase1-threshold" type="number" value={previewSettings.phase1Threshold} onChange={(e) => handleSettingChange('phase1Threshold', parseInt(e.target.value, 10) || 0)} />
                                     <p className="text-xs text-muted-foreground mt-1">Threshold om Fase 2 vragen te triggeren</p>
                                </div>
                            </div>
@@ -68,12 +111,12 @@ const Step3_AdaptiveContent = () => {
                            <div className="grid grid-cols-2 gap-3">
                                <div className="config-group">
                                     <Label htmlFor="phase2-max-per" className="text-xs font-medium text-muted-foreground mb-1 block">Max Vragen / Spectrum</Label>
-                                    <Input id="phase2-max-per" type="number" defaultValue="12" />
+                                    <Input id="phase2-max-per" type="number" value={previewSettings.phase2MaxPerSpectrum} onChange={(e) => handleSettingChange('phase2MaxPerSpectrum', parseInt(e.target.value, 10) || 0)} />
                                      <p className="text-xs text-muted-foreground mt-1">Max vragen per gedetecteerd spectrum.</p>
                                </div>
                                <div className="config-group">
                                     <Label htmlFor="phase2-max-total" className="text-xs font-medium text-muted-foreground mb-1 block">Totaal Max Fase 2</Label>
-                                    <Input id="phase2-max-total" type="number" defaultValue="20" />
+                                    <Input id="phase2-max-total" type="number" value={previewSettings.phase2MaxTotal} onChange={(e) => handleSettingChange('phase2MaxTotal', parseInt(e.target.value, 10) || 0)} />
                                     <p className="text-xs text-muted-foreground mt-1">Garandeert voorspelbare quizlengte.</p>
                                </div>
                            </div>
@@ -93,17 +136,24 @@ const Step3_AdaptiveContent = () => {
                         </div>
                         <div className="p-3 border rounded-md bg-background text-sm">
                             <p className="font-semibold">Voorbeeld Output:</p>
-                            <p className="text-muted-foreground text-xs">ADHD: 78% (&gt;65% ✓) → 12 vragen</p>
-                            <p className="text-muted-foreground text-xs">HSP: 67% (&gt;55% ✓) → 12 vragen</p>
-                             <p className="text-muted-foreground text-xs">Autisme: 45% (&lt;60% ✗) → Skip</p>
-                             <p className="font-semibold mt-1">Totaal Fase 2: 24 vragen</p>
+                            {previewOutput.map((item, index) => {
+                                const currentSpectrum = previewSettings.spectrums[index];
+                                return (
+                                <p key={item.name} className="text-muted-foreground text-xs">
+                                    {item.name}: {item.score}% ({item.triggered ? `>${currentSpectrum.threshold}% ✓` : `<${currentSpectrum.threshold}% ✗`}) → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
+                                </p>
+                                )
+                            })}
+                             <p className="font-semibold mt-1">Totaal Fase 2: {totalPhase2Questions} vragen</p>
                         </div>
-                        <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                             <AlertCircle className="h-4 w-4 !text-yellow-600"/>
-                             <AlertDescription className="text-xs text-yellow-800">
-                               Waarschuwing: Het totaal (24) overschrijdt het ingestelde maximum (20).
-                             </AlertDescription>
-                        </Alert>
+                        {isOverLimit && (
+                            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                                 <AlertCircle className="h-4 w-4 !text-yellow-600"/>
+                                 <AlertDescription className="text-xs text-yellow-800">
+                                   Waarschuwing: Het totaal ({totalPhase2Questions}) overschrijdt het ingestelde maximum ({previewSettings.phase2MaxTotal}).
+                                 </AlertDescription>
+                            </Alert>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -113,11 +163,17 @@ const Step3_AdaptiveContent = () => {
                 <p className="text-sm text-muted-foreground -mt-1 mb-3">Stel hier de drempelwaarde in om een verdiepende vragenlijst te activeren.</p>
                 <Card className="p-4">
                     <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 p-0">
-                        {spectrums.map(spec => (
+                        {previewSettings.spectrums.map(spec => (
                             <div key={spec.id}>
                                 <Label htmlFor={`threshold-${spec.id}`} className="text-sm font-medium">{spec.name}</Label>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <Slider defaultValue={[spec.threshold]} max={100} step={1} id={`threshold-${spec.id}`} />
+                                    <Slider
+                                        value={[spec.threshold]}
+                                        onValueChange={(val) => handleSpectrumThresholdChange(spec.id, val[0])}
+                                        max={100}
+                                        step={1}
+                                        id={`threshold-${spec.id}`}
+                                    />
                                     <span className="text-sm font-semibold w-10 text-right">{spec.threshold}%</span>
                                 </div>
                             </div>
