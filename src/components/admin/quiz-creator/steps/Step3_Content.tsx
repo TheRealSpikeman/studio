@@ -20,14 +20,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
+interface Question {
+  id: string;
+  text: string;
+}
+
+interface Phase2Question extends Question {
+  spectrum: string;
+}
 
 // Component for Adaptive Onboarding
 const Step3_AdaptiveContent = () => {
+    const { toast } = useToast();
+
     // Local state to manage settings for a live preview
     const [previewSettings, setPreviewSettings] = useState({
       phase1Questions: 18,
-      phase2MaxPerSpectrum: 12,
+      phase2MaxPerSpectrum: 14,
       phase2MaxTotal: 20,
       spectrums: [
         { id: 'adhd', name: 'ADHD', threshold: 70 },
@@ -38,6 +50,30 @@ const Step3_AdaptiveContent = () => {
         { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
       ]
     });
+
+    const [phase1Questions, setPhase1Questions] = useState<Question[]>([
+        { id: 'p1q1', text: 'Hoe reageer je op veel prikkels tegelijk?' },
+        { id: 'p1q2', text: 'Hoe ga je om met routineveranderingen?' },
+        { id: 'p1q3', text: 'Hoe makkelijk kun je je concentreren op een saaie taak?' },
+    ]);
+    const [phase2Questions, setPhase2Questions] = useState<Phase2Question[]>([
+        { id: 'p2q1', text: 'Welke strategieën helpen bij focus?', spectrum: 'ADHD' },
+        { id: 'p2q2', text: 'Hoe herken je overstimulatie?', spectrum: 'HSP' },
+        { id: 'p2q3', text: 'Wat doe je als je een grap niet begrijpt?', spectrum: 'ASS' },
+    ]);
+
+    const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+    const [modalConfig, setModalConfig] = useState<{
+        mode: 'add' | 'edit';
+        type: 'phase1' | 'phase2';
+        question?: Question | Phase2Question;
+        index?: number;
+    } | null>(null);
+
+    const [modalQuestionText, setModalQuestionText] = useState('');
+    const [modalQuestionSpectrum, setModalQuestionSpectrum] = useState('ADHD');
+
+    const [expandedLists, setExpandedLists] = useState<{phase1: boolean, phase2: boolean}>({ phase1: false, phase2: false });
 
     // State to hold the calculated preview output
     const [previewOutput, setPreviewOutput] = useState<{ name: string; score: number; triggered: boolean; questionsAssigned: number }[]>([]);
@@ -58,14 +94,12 @@ const Step3_AdaptiveContent = () => {
     };
     
      const runSimulation = useCallback(() => {
-        // 1. Simulate scores and determine which spectrums are triggered
         const simulatedResults = previewSettings.spectrums.map(spec => {
-            const score = Math.floor(Math.random() * 71) + 30; // Random score between 30 and 100
+            const score = Math.floor(Math.random() * 71) + 30; 
             const triggered = score >= spec.threshold;
             return { name: spec.name, score, triggered };
         });
     
-        // 2. Filter for triggered spectrums and sort by score (highest first)
         const triggeredSpectrums = simulatedResults
             .filter(res => res.triggered)
             .sort((a, b) => b.score - a.score);
@@ -73,7 +107,6 @@ const Step3_AdaptiveContent = () => {
         let currentTotalQuestions = 0;
         const questionDistribution: Record<string, number> = {};
     
-        // 3. Distribute questions based on priority, up to the max total
         for (const spectrum of triggeredSpectrums) {
             const questionsAvailableForSpectrum = previewSettings.phase2MaxPerSpectrum;
             const spaceRemainingInQuiz = previewSettings.phase2MaxTotal - currentTotalQuestions;
@@ -82,21 +115,16 @@ const Step3_AdaptiveContent = () => {
                 questionDistribution[spectrum.name] = 0;
                 continue;
             }
-
-            const questionsToAdd = Math.min(
-                questionsAvailableForSpectrum,
-                spaceRemainingInQuiz
-            );
+            const questionsToAdd = Math.min(questionsAvailableForSpectrum, spaceRemainingInQuiz);
     
             if (questionsToAdd > 0) {
                 questionDistribution[spectrum.name] = questionsToAdd;
                 currentTotalQuestions += questionsToAdd;
             } else {
-                questionDistribution[spectrum.name] = 0; // Not enough space left
+                questionDistribution[spectrum.name] = 0;
             }
         }
         
-        // 4. Create the final output for the preview, merging triggered and non-triggered
         const newOutput = simulatedResults.map(res => ({
             ...res,
             questionsAssigned: questionDistribution[res.name] || 0
@@ -107,14 +135,8 @@ const Step3_AdaptiveContent = () => {
     }, [previewSettings]);
 
     const handleOptimizeThresholds = () => {
-        // Simulate AI determining "optimal" values. These are just predefined best-practice values.
         const optimizedThresholds = {
-            adhd: 70,
-            ass: 68,
-            hsp: 62,
-            executive: 65,
-            sensory: 55,
-            emotion: 50,
+            adhd: 70, ass: 68, hsp: 62, executive: 65, sensory: 55, emotion: 50,
         };
         setPreviewSettings(prev => ({
             ...prev,
@@ -125,39 +147,74 @@ const Step3_AdaptiveContent = () => {
         }));
     };
 
-    // Run the simulation once on initial mount to populate the preview
-    useEffect(() => {
-        runSimulation();
-    }, [runSimulation]);
+    useEffect(() => { runSimulation(); }, [runSimulation]);
 
     const validationChecks = useMemo(() => {
         const checks: {text: string; isValid?: boolean; isWarning?: boolean; isPending?: boolean}[] = [];
-        
-        checks.push({
-            text: `Minimaal 15 Fase 1 vragen`,
-            isValid: previewSettings.phase1Questions >= 15,
-        });
-
-        checks.push({
-            text: 'Algoritme gekalibreerd',
-            isValid: previewSettings.spectrums.some(s => s.threshold > 0 && s.threshold < 100),
-        });
-
+        checks.push({ text: `Minimaal 15 Fase 1 vragen`, isValid: previewSettings.phase1Questions >= 15 });
+        checks.push({ text: 'Algoritme gekalibreerd', isValid: previewSettings.spectrums.some(s => s.threshold > 0 && s.threshold < 100) });
         const hspThreshold = previewSettings.spectrums.find(s => s.id === 'hsp')?.threshold;
         if (hspThreshold !== undefined && hspThreshold < 55) {
-            checks.push({
-                text: `HSP threshold (${hspThreshold}%) mogelijk te laag`,
-                isWarning: true,
-            });
+            checks.push({ text: `HSP threshold (${hspThreshold}%) mogelijk te laag`, isWarning: true });
         }
-        
-        checks.push({
-            text: 'Expert review pending',
-            isPending: true,
-        });
-
+        checks.push({ text: 'Expert review pending', isPending: true });
         return checks;
     }, [previewSettings]);
+
+    const openNewQuestionModal = () => {
+        setModalConfig({ mode: 'add', type: 'phase1' }); // Default to phase 1
+        setModalQuestionText('');
+        setModalQuestionSpectrum('ADHD'); // Default spectrum for phase 2
+        setIsQuestionModalOpen(true);
+    };
+
+    const openEditQuestionModal = (question: Question | Phase2Question, index: number, type: 'phase1' | 'phase2') => {
+        setModalConfig({ mode: 'edit', type, question, index });
+        setModalQuestionText(question.text);
+        if (type === 'phase2') {
+            setModalQuestionSpectrum((question as Phase2Question).spectrum);
+        }
+        setIsQuestionModalOpen(true);
+    };
+
+    const handleDeleteQuestion = (id: string, type: 'phase1' | 'phase2') => {
+        if (type === 'phase1') {
+            setPhase1Questions(prev => prev.filter(q => q.id !== id));
+        } else {
+            setPhase2Questions(prev => prev.filter(q => q.id !== id));
+        }
+        toast({ title: "Vraag verwijderd." });
+    };
+
+    const handleSaveQuestion = () => {
+        if (!modalQuestionText.trim() || !modalConfig) {
+            toast({ title: "Fout", description: "Vraagtekst mag niet leeg zijn.", variant: "destructive" });
+            return;
+        }
+
+        if (modalConfig.mode === 'edit') {
+            const { type, index } = modalConfig;
+            if (type === 'phase1') {
+                setPhase1Questions(prev => prev.map((q, i) => (i === index ? { ...q, text: modalQuestionText } : q)));
+            } else {
+                setPhase2Questions(prev => prev.map((q, i) => (i === index ? { ...(q as Phase2Question), text: modalQuestionText, spectrum: modalQuestionSpectrum } : q)));
+            }
+            toast({ title: "Vraag bijgewerkt." });
+        } else { // mode === 'add'
+            const newId = `q-${Date.now()}`;
+            if (modalConfig.type === 'phase1') {
+                setPhase1Questions(prev => [...prev, { id: newId, text: modalQuestionText }]);
+            } else {
+                setPhase2Questions(prev => [...prev, { id: newId, text: modalQuestionText, spectrum: modalQuestionSpectrum }]);
+            }
+            toast({ title: "Nieuwe vraag toegevoegd." });
+        }
+        setIsQuestionModalOpen(false);
+    };
+
+    const visiblePhase1Questions = expandedLists.phase1 ? phase1Questions : phase1Questions.slice(0, 2);
+    const visiblePhase2Questions = expandedLists.phase2 ? phase2Questions : phase2Questions.slice(0, 2);
+
 
     return (
         <div className="space-y-6">
@@ -217,7 +274,6 @@ const Step3_AdaptiveContent = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
-                            <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4 text-muted-foreground"/><ArrowRight className="h-4 w-4 text-muted-foreground"/>
                             <span>Scores</span><ArrowRight className="h-4 w-4 text-muted-foreground"/><ArrowRight className="h-4 w-4 text-muted-foreground"/>
                             <span>Thresholds</span>
                         </div>
@@ -275,24 +331,46 @@ const Step3_AdaptiveContent = () => {
                     <CardTitle>Question Bank Management</CardTitle>
                     <CardDescription>Beheer hier de vragen die gebruikt worden in de detectie- en verdiepingsfases.</CardDescription>
                    </div>
-                    <Button><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
+                    <Button onClick={openNewQuestionModal}><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="p-4 border rounded-md bg-muted/30">
-                        <h4 className="font-semibold mb-2 flex justify-between">Fase 1: Detectie Vragen <Badge variant="secondary">24</Badge></h4>
+                        <h4 className="font-semibold mb-2 flex justify-between">Fase 1: Detectie Vragen <Badge variant="secondary">{phase1Questions.length}</Badge></h4>
                         <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe reageer je op veel prikkels tegelijk?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe ga je om met routineveranderingen?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <p className="text-xs text-center text-muted-foreground pt-1">+ 22 meer vragen...</p>
+                             {visiblePhase1Questions.map((q, index) => (
+                                 <div key={q.id} className="text-xs flex justify-between items-center bg-card p-2 rounded border">
+                                     <span className="flex-1 pr-2">{q.text}</span>
+                                     <div className="space-x-1 flex-shrink-0">
+                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => openEditQuestionModal(q, index, 'phase1')}><Pencil className="h-3 w-3"/></Button>
+                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleDeleteQuestion(q.id, 'phase1')}><Trash className="h-3 w-3"/></Button>
+                                     </div>
+                                 </div>
+                             ))}
                         </div>
+                        {phase1Questions.length > 2 && (
+                            <Button variant="link" size="sm" className="text-xs p-0 h-auto mt-2" onClick={() => setExpandedLists(p => ({...p, phase1: !p.phase1}))}>
+                                {expandedLists.phase1 ? 'Verberg' : `+ ${phase1Questions.length - 2} meer vragen...`}
+                            </Button>
+                        )}
                     </div>
                      <div className="p-4 border rounded-md bg-muted/30">
-                        <h4 className="font-semibold mb-2 flex justify-between">Fase 2: Verdiepingsvragen <Badge variant="secondary">67</Badge></h4>
+                        <h4 className="font-semibold mb-2 flex justify-between">Fase 2: Verdiepingsvragen <Badge variant="secondary">{phase2Questions.length}</Badge></h4>
                         <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[ADHD] Welke strategieën helpen bij focus?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[HSP] Hoe herken je overstimulatie?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer spectrum-specifieke vragen...</p>
+                             {visiblePhase2Questions.map((q, index) => (
+                                 <div key={q.id} className="text-xs flex justify-between items-center bg-card p-2 rounded border">
+                                     <span className="flex-1 pr-2">[{q.spectrum}] {q.text}</span>
+                                     <div className="space-x-1 flex-shrink-0">
+                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => openEditQuestionModal(q, index, 'phase2')}><Pencil className="h-3 w-3"/></Button>
+                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleDeleteQuestion(q.id, 'phase2')}><Trash className="h-3 w-3"/></Button>
+                                     </div>
+                                 </div>
+                             ))}
                         </div>
+                        {phase2Questions.length > 2 && (
+                            <Button variant="link" size="sm" className="text-xs p-0 h-auto mt-2" onClick={() => setExpandedLists(p => ({...p, phase2: !p.phase2}))}>
+                                {expandedLists.phase2 ? 'Verberg' : `+ ${phase2Questions.length - 2} meer vragen...`}
+                            </Button>
+                        )}
                     </div>
                 </CardContent>
             </Card>
@@ -303,15 +381,10 @@ const Step3_AdaptiveContent = () => {
                 <AlertDescription className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
                     {validationChecks.map((check, index) => (
                         <span key={index} className="flex items-center gap-1.5">
-                             {check.isValid ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-600"/>
-                            ) : check.isWarning ? (
-                                <AlertCircle className="h-4 w-4 text-orange-600"/>
-                            ) : check.isPending ? (
-                                 <AlertCircle className="h-4 w-4 text-red-600"/>
-                            ) : (
-                                <AlertCircle className="h-4 w-4 text-red-600"/>
-                            )}
+                             {check.isValid ? ( <CheckCircle2 className="h-4 w-4 text-green-600"/>
+                            ) : check.isWarning ? ( <AlertCircle className="h-4 w-4 text-orange-600"/>
+                            ) : check.isPending ? ( <AlertCircle className="h-4 w-4 text-red-600"/>
+                            ) : ( <AlertCircle className="h-4 w-4 text-red-600"/> )}
                             <span className={cn(check.isWarning && "text-orange-700 font-medium", check.isPending && "text-red-700 font-medium")}>
                                 {check.text}
                             </span>
@@ -319,6 +392,49 @@ const Step3_AdaptiveContent = () => {
                     ))}
                 </AlertDescription>
             </Alert>
+
+            {isQuestionModalOpen && (
+                <Dialog open={isQuestionModalOpen} onOpenChange={setIsQuestionModalOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{modalConfig?.mode === 'edit' ? 'Vraag Bewerken' : 'Nieuwe Vraag Toevoegen'}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-2">
+                           {modalConfig?.mode === 'add' && (
+                               <div>
+                                   <Label>Type vraag</Label>
+                                   <Select value={modalConfig.type} onValueChange={(v) => setModalConfig(p => p ? {...p, type: v as 'phase1'|'phase2'} : null)}>
+                                       <SelectTrigger><SelectValue/></SelectTrigger>
+                                       <SelectContent>
+                                           <SelectItem value="phase1">Fase 1 (Detectie)</SelectItem>
+                                           <SelectItem value="phase2">Fase 2 (Verdieping)</SelectItem>
+                                       </SelectContent>
+                                   </Select>
+                               </div>
+                           )}
+                           {modalConfig?.type === 'phase2' && (
+                               <div>
+                                   <Label>Spectrum</Label>
+                                   <Select value={modalQuestionSpectrum} onValueChange={setModalQuestionSpectrum}>
+                                       <SelectTrigger><SelectValue/></SelectTrigger>
+                                       <SelectContent>
+                                           {previewSettings.spectrums.map(s => <SelectItem key={s.id} value={s.id.toUpperCase()}>{s.name}</SelectItem>)}
+                                       </SelectContent>
+                                   </Select>
+                               </div>
+                           )}
+                           <div>
+                               <Label htmlFor="question-text-modal">Vraagtekst</Label>
+                               <Textarea id="question-text-modal" value={modalQuestionText} onChange={(e) => setModalQuestionText(e.target.value)} />
+                           </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsQuestionModalOpen(false)}>Annuleren</Button>
+                            <Button onClick={handleSaveQuestion}>Opslaan</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 };
