@@ -253,6 +253,7 @@ export default function QuizPageContent() {
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(false);
 
   const ageGroupFromQuery = searchParams.get('ageGroup') as AgeGroup;
+  const backLink = `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroupFromQuery}`;
 
   useEffect(() => {
     if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
@@ -620,7 +621,7 @@ export default function QuizPageContent() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                     Wil je eerst meer weten over verschillende denkstijlen? Bezoek onze{' '}
-                    <Link href="/features/coaching-en-tools" className="text-primary underline hover:text-primary/80">info pagina over denkstijlen</Link>.
+                    <Link href={`/features/coaching-en-tools?from=${encodeURIComponent(backLink)}`} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">info pagina over denkstijlen</Link>.
                 </p>
                 </CardContent>
                 <CardFooter className="flex justify-center pt-6 pb-8">

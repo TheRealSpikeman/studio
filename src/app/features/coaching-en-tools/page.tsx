@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Brain, Zap, Sparkles, Compass, Lightbulb, ArrowLeft } from 'lucide-react';
 import type { ElementType } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface ThinkingStyle {
   icon: ElementType;
@@ -52,6 +54,21 @@ const thinkingStyles: ThinkingStyle[] = [
     colorClass: "bg-blue-50 border-blue-200"
   }
 ];
+
+function BackToQuizButton() {
+  const searchParams = useSearchParams();
+  const fromLink = searchParams.get('from');
+  const backHref = fromLink || "/quizzes";
+  const backButtonText = fromLink ? "Terug naar de Quiz" : "Terug naar de Quizzen";
+
+  return (
+    <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
+      <Link href={backHref}>
+        <ArrowLeft className="mr-2 h-5 w-5"/> {backButtonText}
+      </Link>
+    </Button>
+  );
+}
 
 export default function CoachingEnToolsPage() {
   return (
@@ -117,11 +134,9 @@ export default function CoachingEnToolsPage() {
               <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
                 De Zelfreflectie Tool is de perfecte volgende stap.
               </p>
-              <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-                <Link href="/quizzes">
-                  <ArrowLeft className="mr-2 h-5 w-5"/> Terug naar de Quizzen
-                </Link>
-              </Button>
+              <Suspense fallback={<Button size="lg" disabled><ArrowLeft className="mr-2 h-5 w-5"/> Terug naar de Quiz...</Button>}>
+                <BackToQuizButton />
+              </Suspense>
             </section>
           </div>
         </div>
