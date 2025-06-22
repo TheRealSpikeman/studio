@@ -200,6 +200,13 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                                   <span className="text-xs text-muted-foreground">Hoe kunnen ze beter afstemmen?</span>
                               </Button>
                           </div>
+                          <div className="mt-4">
+                            <Button asChild variant="link" className="p-0 h-auto text-base">
+                                <Link href="/methodologie/adaptieve-quiz">
+                                Lees meer over onze adaptieve quiz methodologie <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                          </div>
                       </CardContent>
                     </Card>
                 </StepCard>
@@ -286,4 +293,3 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
     </div>
   );
 }
-

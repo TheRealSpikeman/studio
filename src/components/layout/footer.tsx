@@ -1,8 +1,7 @@
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake, Gavel } from 'lucide-react';
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake, Gavel, GitBranch } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -80,6 +79,9 @@ export function Footer() {
                 </Link>
                 <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Disclaimer
+                </Link>
+                 <Link href="/methodologie/adaptieve-quiz" className="text-sm text-muted-foreground hover:text-primary hover:underline flex items-center gap-1">
+                  <GitBranch className="h-4 w-4"/> Quiz Methodologie
                 </Link>
                 <Link href="/feedback" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                   Feedback (Alpha)
