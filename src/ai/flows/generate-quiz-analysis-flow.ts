@@ -41,6 +41,20 @@ type PromptInternalInput = z.infer<typeof PromptInternalInputSchema>;
 export async function generateQuizAnalysis(
   input: GenerateQuizAnalysisInput
 ): Promise<GenerateQuizAnalysisOutput> {
+  // Robust validation at the entry point to prevent calling the flow with invalid data.
+  if (!input || !input.finalScores || Object.keys(input.finalScores).length === 0 || !input.answeredQuestions || input.answeredQuestions.length === 0) {
+    console.warn("generateQuizAnalysis called with invalid or empty input. Returning default analysis.", input);
+    return {
+      analysis: `## Analyse Onvolledig
+
+We konden geen analyse genereren omdat er onvoldoende gegevens beschikbaar waren. Dit kan gebeuren als de quiz niet volledig is ingevuld of als er een fout is opgetreden.
+
+**Wat nu?**
+* Probeer de quiz opnieuw te doen.
+* Als het probleem aanhoudt, neem dan contact op met support en vermeld de quiz die je deed.
+`
+    };
+  }
   return generateQuizAnalysisFlow(input);
 }
 
