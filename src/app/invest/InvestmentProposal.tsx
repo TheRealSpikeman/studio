@@ -1,4 +1,3 @@
-
 // src/app/invest/InvestmentProposal.tsx
 "use client";
 
@@ -19,15 +18,15 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const marketData: BarChartData[] = [
-    { label: 'Jongeren (12-18)', value: 100, displayValue: '1.2M', badgeClass: 'bg-muted text-muted-foreground', barClass: 'bg-muted' },
-    { label: 'Neurodivergent', value: 16.6, displayValue: '200K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-500' },
-    { label: 'Target Markt', value: 8.3, displayValue: '100K', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/80' },
+    { label: 'Jongeren (12-18)', value: 100, displayValue: '1.2M', badgeClass: 'bg-muted text-muted-foreground', barClass: 'bg-gray-200' },
+    { label: 'Neurodivergent', value: 16.6, displayValue: '200K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-400' },
+    { label: 'Target Markt', value: 8.3, displayValue: '100K', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/70' },
     { label: 'Jaar 3 Target', value: 0.375, displayValue: '4.5K', badgeClass: 'bg-primary text-white', barClass: 'bg-primary' },
 ];
 
 const revenueData: BarChartData[] = [
-  { label: '2026 (Jaar 1)', value: (750 / 7800) * 100, displayValue: '€750K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-500' },
-  { label: '2027 (Jaar 2)', value: (3200 / 7800) * 100, displayValue: '€3.2M', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/80' },
+  { label: '2026 (Jaar 1)', value: (750 / 7800) * 100, displayValue: '€750K', badgeClass: 'bg-teal-500 text-white', barClass: 'bg-teal-400' },
+  { label: '2027 (Jaar 2)', value: (3200 / 7800) * 100, displayValue: '€3.2M', badgeClass: 'bg-primary/80 text-white', barClass: 'bg-primary/70' },
   { label: '2028 (Jaar 3)', value: 100, displayValue: '€7.8M', badgeClass: 'bg-primary text-white', barClass: 'bg-primary' },
 ];
 

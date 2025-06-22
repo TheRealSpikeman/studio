@@ -16,7 +16,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 const MOCKED_TUTOR_ONBOARDING_USER = {
   email: "tutor.test@example.com", 
-  status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval',
+  status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval' | 'actief',
 };
 
 const subjectOptions = [
@@ -47,6 +47,11 @@ export default function TutorOnboardingPage() {
   });
 
   useEffect(() => {
+    // Redirect if user status is not suitable for this page.
+    if (MOCKED_TUTOR_ONBOARDING_USER.status === 'actief') {
+        toast({ title: "Profiel al actief", description: "U wordt doorgestuurd naar uw dashboard.", duration: 3000 });
+        router.replace('/dashboard/tutor');
+    }
   }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
