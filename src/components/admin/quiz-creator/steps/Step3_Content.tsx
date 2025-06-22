@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
   Lightbulb, Rocket, BarChart3, CheckCircle2, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap,
-  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check, RefreshCw, Bot
+  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check, RefreshCw, Bot, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Question {
   id: string;
@@ -95,34 +96,28 @@ const Step3_AdaptiveContent = () => {
     
      const runSimulation = useCallback(() => {
         const simulatedResults = previewSettings.spectrums.map(spec => {
-            const score = Math.floor(Math.random() * 71) + 30; 
+            const score = Math.floor(Math.random() * 71) + 30;
             const triggered = score >= spec.threshold;
             return { name: spec.name, score, triggered };
         });
     
         const triggeredSpectrums = simulatedResults
             .filter(res => res.triggered)
-            .sort((a, b) => b.score - a.score);
+            .sort((a, b) => b.score - a.score); // Prioritize highest scores
     
         let currentTotalQuestions = 0;
         const questionDistribution: Record<string, number> = {};
     
         for (const spectrum of triggeredSpectrums) {
-            const questionsAvailableForSpectrum = previewSettings.phase2MaxPerSpectrum;
             const spaceRemainingInQuiz = previewSettings.phase2MaxTotal - currentTotalQuestions;
-            
             if (spaceRemainingInQuiz <= 0) {
                 questionDistribution[spectrum.name] = 0;
                 continue;
             }
-            const questionsToAdd = Math.min(questionsAvailableForSpectrum, spaceRemainingInQuiz);
-    
-            if (questionsToAdd > 0) {
-                questionDistribution[spectrum.name] = questionsToAdd;
-                currentTotalQuestions += questionsToAdd;
-            } else {
-                questionDistribution[spectrum.name] = 0;
-            }
+            
+            const questionsForThisSpectrum = Math.min(previewSettings.phase2MaxPerSpectrum, spaceRemainingInQuiz);
+            questionDistribution[spectrum.name] = questionsForThisSpectrum;
+            currentTotalQuestions += questionsForThisSpectrum;
         }
         
         const newOutput = simulatedResults.map(res => ({
@@ -138,26 +133,31 @@ const Step3_AdaptiveContent = () => {
         const optimizedThresholds = {
             adhd: 70, ass: 68, hsp: 62, executive: 65, sensory: 55, emotion: 50,
         };
-        setPreviewSettings(prev => ({
-            ...prev,
-            spectrums: prev.spectrums.map(spec => ({
+        setPreviewSettings(currentSettings => {
+            const newSpectrums = currentSettings.spectrums.map(spec => ({
                 ...spec,
                 threshold: optimizedThresholds[spec.id as keyof typeof optimizedThresholds] || spec.threshold,
-            })),
-        }));
+            }));
+            return { ...currentSettings, spectrums: newSpectrums };
+        });
+        toast({ title: "Drempelwaardes geoptimaliseerd", description: "De aanbevolen drempelwaardes zijn ingesteld." });
     };
 
     useEffect(() => { runSimulation(); }, [runSimulation]);
 
     const validationChecks = useMemo(() => {
-        const checks: {text: string; isValid?: boolean; isWarning?: boolean; isPending?: boolean}[] = [];
+        const checks: {text: string; isValid?: boolean; isWarning?: boolean; isPending?: boolean, tooltip?: string}[] = [];
         checks.push({ text: `Minimaal 15 Fase 1 vragen`, isValid: previewSettings.phase1Questions >= 15 });
         checks.push({ text: 'Algoritme gekalibreerd', isValid: previewSettings.spectrums.some(s => s.threshold > 0 && s.threshold < 100) });
         const hspThreshold = previewSettings.spectrums.find(s => s.id === 'hsp')?.threshold;
         if (hspThreshold !== undefined && hspThreshold < 55) {
             checks.push({ text: `HSP threshold (${hspThreshold}%) mogelijk te laag`, isWarning: true });
         }
-        checks.push({ text: 'Expert review pending', isPending: true });
+        checks.push({ 
+            text: 'Expert review pending', 
+            isPending: true,
+            tooltip: 'Een expert (bijv. een psycholoog) moet de configuratie en vraagstelling nog controleren voordat deze live kan gaan. Deze status is informatief.'
+        });
         return checks;
     }, [previewSettings]);
 
@@ -286,9 +286,7 @@ const Step3_AdaptiveContent = () => {
                             )) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
                             <Separator className="my-1"/>
                              <p className="font-semibold mt-1">Totaal Fase 2: {totalPhase2Questions} vragen</p>
-                             {totalPhase2Questions > previewSettings.phase2MaxTotal && (
-                                <p className="text-xs text-destructive font-medium mt-1">Waarschuwing: Limiet van {previewSettings.phase2MaxTotal} vragen bereikt.</p>
-                             )}
+                             <p className="text-xs text-muted-foreground italic mt-1">Geprioriteerd op hoogste score, tot max. {previewSettings.phase2MaxTotal} vragen is bereikt.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -380,15 +378,20 @@ const Step3_AdaptiveContent = () => {
                 <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
                 <AlertDescription className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
                     {validationChecks.map((check, index) => (
-                        <span key={index} className="flex items-center gap-1.5">
-                             {check.isValid ? ( <CheckCircle2 className="h-4 w-4 text-green-600"/>
-                            ) : check.isWarning ? ( <AlertCircle className="h-4 w-4 text-orange-600"/>
-                            ) : check.isPending ? ( <AlertCircle className="h-4 w-4 text-red-600"/>
-                            ) : ( <AlertCircle className="h-4 w-4 text-red-600"/> )}
-                            <span className={cn(check.isWarning && "text-orange-700 font-medium", check.isPending && "text-red-700 font-medium")}>
-                                {check.text}
-                            </span>
-                        </span>
+                        <Tooltip key={index} delayDuration={100}>
+                            <TooltipTrigger asChild>
+                                <span className="flex items-center gap-1.5 cursor-help">
+                                    {check.isValid ? ( <CheckCircle2 className="h-4 w-4 text-green-600"/>
+                                    ) : check.isWarning ? ( <AlertCircle className="h-4 w-4 text-orange-600"/>
+                                    ) : check.isPending ? ( <AlertCircle className="h-4 w-4 text-red-600"/>
+                                    ) : ( <AlertCircle className="h-4 w-4 text-red-600"/> )}
+                                    <span className={cn(check.isWarning && "text-orange-700 font-medium", check.isPending && "text-red-700 font-medium")}>
+                                        {check.text}
+                                    </span>
+                                </span>
+                            </TooltipTrigger>
+                            {check.tooltip && <TooltipContent><p>{check.tooltip}</p></TooltipContent>}
+                        </Tooltip>
                     ))}
                 </AlertDescription>
             </Alert>
