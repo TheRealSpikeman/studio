@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2, MessageCircle } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { QuestionDisplay } from '@/components/quiz/question-display';
 import {
@@ -29,6 +29,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
 import { cn } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 type QuizStep = 'intro' | 'baseQuestions' | 'subtestConfirmation' | 'subtestQuestions' | 'results';
 type AgeGroup = '12-14' | '15-18' | null;
@@ -715,25 +717,18 @@ export default function QuizPageContent() {
             <div className="space-y-8 max-w-[800px] mx-auto">
               <Card className="shadow-xl rounded-lg bg-card text-card-foreground">
                 <CardHeader className="text-center pt-8 px-6">
+                  <p className="text-primary font-semibold mb-2">Een bericht van Dr. Florentine Sage</p>
                   <CardTitle className="text-teal-700 text-[1.75rem] font-bold">Jouw Persoonlijke Overzicht ({ageGroup} jaar)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-10 pt-4 px-6 pb-6 text-base leading-relaxed">
-                  
-                  <div className="bg-[#F0FAF9] p-6 rounded-lg shadow-sm border-l-4 border-teal-500">
-                    <h3 className="text-teal-700 text-[1.25rem] font-semibold mb-2 flex items-center gap-2"><Info className="h-5 w-5"/>Wat Betekenen Deze Scores?</h3>
-                    <AlertDescUi className="leading-relaxed text-base text-gray-700">
-                      De scores (schaal 1-4) geven aan hoe sterk je de kenmerken van een profiel herkent.
-                      <ul className="list-disc pl-5 mt-2 space-y-1 text-base">
-                        <li><strong>Score 3.0 - 4.0:</strong> Kenmerken zijn duidelijk herkenbaar.</li>
-                        <li><strong>Score 2.0 - 2.9:</strong> Kenmerken zijn soms herkenbaar.</li>
-                        <li><strong>Score 1.0 - 1.9:</strong> Kenmerken zijn minder herkenbaar.</li>
-                      </ul>
-                      Een hogere score is niet beter of slechter, het geeft inzicht. Deze quiz is voor zelfreflectie, niet voor diagnose.
-                    </AlertDescUi>
+                  <div className="p-6 rounded-lg shadow-sm">
+                    <p className="text-base text-gray-700 leading-relaxed text-center">
+                        Hoi! Wat goed dat je de Zelfreflectie Tool hebt ingevuld. Hieronder vind je een overzicht van wat jouw antwoorden ons vertellen. Zie dit als een startpunt om jezelf beter te leren kennen. Het is een spiegel, geen label. Klaar om je unieke handleiding te ontdekken?
+                    </p>
                   </div>
                   
                   <div className="bg-primary/5 p-6 rounded-lg shadow-sm border-l-4 border-primary">
-                      <h2 className="mb-2 text-primary text-[1.5rem] font-semibold">Jouw Eigenschappen Samengevat</h2>
+                      <h2 className="mb-2 text-primary text-[1.5rem] font-semibold">In het kort: Jouw Kenmerken</h2>
                       <p className="text-foreground leading-relaxed text-base">{generateSummaryText(finalScores, relevantSubtests)}</p>
                   </div>
                   
@@ -892,6 +887,19 @@ export default function QuizPageContent() {
                           MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Onze quiz dient ter zelfreflectie en educatie.
                       </AlertDescUi>
                   </Alert>
+
+                  <Card className="w-full shadow-lg mt-10 bg-primary/5 border-primary/20 rounded-lg">
+                      <CardHeader className="py-6 px-6">
+                        <h2 className="text-[1.35rem] font-semibold flex items-center gap-3 text-primary">
+                            <MessageCircle className="h-7 w-7"/> Voor je Ouders/Verzorgers
+                        </h2>
+                      </CardHeader>
+                      <CardContent className="px-6 pb-6">
+                        <p className="text-foreground leading-relaxed text-base">
+                            Een apart, gedetailleerder overzicht is beschikbaar gemaakt in het dashboard van je ouders. Dit rapport bevat extra tips en inzichten die hen kunnen helpen om jou nog beter te begrijpen en te ondersteunen. Praat er samen over!
+                        </p>
+                      </CardContent>
+                  </Card>
 
                   <div className="mt-10 p-6 bg-primary/10 rounded-lg shadow-md border-l-4 border-primary">
                       <h3 className="text-[1.35rem] font-semibold text-primary flex items-center gap-3 mb-3">
