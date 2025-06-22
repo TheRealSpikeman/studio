@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import {
   FileText, Star, Rocket, CheckCircle2, AlertCircle, BarChart3,
-  ListChecks, Smartphone, Monitor, Sparkles, ArrowRight, ArrowLeft, Bot, RefreshCw, Loader2
+  ListChecks, Smartphone, Monitor, Sparkles, ArrowRight, ArrowLeft, Bot, RefreshCw, Loader2, Pencil
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ import type { VerifyQuizQuestionsOutput } from '@/ai/flows/verify-quiz-questions
 type DeviceType = 'desktop' | 'mobile';
 
 export const Step5_Preview = () => {
-    const { quizData, resetQuizCreator } = useQuizCreator();
+    const { quizData, setQuizData, resetQuizCreator } = useQuizCreator();
     const router = useRouter();
     const { toast } = useToast();
     const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
@@ -33,6 +33,7 @@ export const Step5_Preview = () => {
     const [previewSelectedOption, setPreviewSelectedOption] = useState<string | undefined>(undefined);
     const [isVerifying, setIsVerifying] = useState(false);
     const [verificationResult, setVerificationResult] = useState<VerifyQuizQuestionsOutput | null>(null);
+    const [appliedSuggestions, setAppliedSuggestions] = useState<number[]>([]);
 
     const questions = quizData.questions || [];
     const currentPreviewQuestion = questions[previewQuestionIndex];
@@ -89,8 +90,29 @@ export const Step5_Preview = () => {
         router.push('/dashboard/admin/quiz-management');
     };
 
+    const handleApplySuggestion = (suggestion: { questionIndex: number; suggestedRevision: string }) => {
+        setQuizData(prev => {
+            const newQuestions = [...(prev.questions || [])];
+            if (newQuestions[suggestion.questionIndex]) {
+                newQuestions[suggestion.questionIndex] = {
+                    ...newQuestions[suggestion.questionIndex],
+                    text: suggestion.suggestedRevision,
+                };
+            }
+            return { ...prev, questions: newQuestions };
+        });
+
+        setAppliedSuggestions(prev => [...prev, suggestion.questionIndex]);
+
+        toast({
+            title: "Suggestie toegepast!",
+            description: `Vraag ${suggestion.questionIndex + 1} is bijgewerkt.`,
+        });
+    };
+
     const handleVerification = async () => {
-        if (!quizData.title || !quizData.audienceType || !quizData.targetAgeGroup || !quizData.mainCategory || !quizData.questions || quizData.questions.length === 0) {
+        const category = quizData.mainCategory || (quizData.creationType === 'adaptive' ? 'Basis' : undefined);
+        if (!quizData.title || !quizData.audienceType || !quizData.targetAgeGroup || !category || !quizData.questions || quizData.questions.length === 0) {
           toast({
             title: "Onvoldoende data",
             description: "Zorg ervoor dat titel, doelgroep, categorie en vragen zijn ingevuld voor verificatie.",
@@ -101,6 +123,7 @@ export const Step5_Preview = () => {
     
         setIsVerifying(true);
         setVerificationResult(null);
+        setAppliedSuggestions([]); // Reset applied suggestions on new verification
     
         try {
           let audience: string;
@@ -119,7 +142,7 @@ export const Step5_Preview = () => {
           const input = {
             quizTitle: quizData.title,
             quizAudience: audience,
-            quizCategory: quizData.mainCategory,
+            quizCategory: category,
             questions: (quizData.questions as QuizAdminQuestion[]).filter(q => q.text).map(q => ({
               text: q.text,
               example: q.example,
@@ -196,7 +219,7 @@ export const Step5_Preview = () => {
                                 previewDevice === 'desktop' && 'w-full',
                                 previewDevice === 'mobile' && 'w-[375px] h-[620px] border-8 border-slate-800 rounded-[40px] shadow-2xl'
                             )}>
-                                <Card className={cn("overflow-hidden flex flex-col h-[620px]", previewDevice === 'mobile' && 'rounded-[32px] h-full')}>
+                                <Card className={cn("overflow-hidden flex flex-col h-[550px]", previewDevice === 'mobile' && 'rounded-[32px] h-full')}>
                                     <div className="bg-gradient-to-br from-primary to-accent text-primary-foreground p-4 text-center">
                                         <h4 className="font-bold text-xl flex items-center justify-center gap-2"><Sparkles className="h-5 w-5"/>{quizData.title || "Voorbeeld Titel"}</h4>
                                         <p className="text-xs opacity-90 mt-1">{quizData.description || "Een korte beschrijving van de quiz komt hier."}</p>
@@ -275,6 +298,16 @@ export const Step5_Preview = () => {
                                                         <p><strong>Vraag {s.questionIndex + 1}:</strong> <span className="italic">"{s.originalText}"</span></p>
                                                         <p><strong>Probleem:</strong> {s.issue}</p>
                                                         <p><strong>Suggestie:</strong> <span className="text-green-600 font-medium">"{s.suggestedRevision}"</span></p>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="mt-2"
+                                                            onClick={() => handleApplySuggestion(s)}
+                                                            disabled={appliedSuggestions.includes(s.questionIndex)}
+                                                        >
+                                                            {appliedSuggestions.includes(s.questionIndex) ? <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" /> : <Pencil className="mr-2 h-4 w-4" />}
+                                                            {appliedSuggestions.includes(s.questionIndex) ? 'Toegepast' : 'Pas suggestie toe'}
+                                                        </Button>
                                                     </div>
                                                 ))}
                                             </AccordionContent>
@@ -289,7 +322,6 @@ export const Step5_Preview = () => {
                             )}
                         </CardContent>
                     </Card>
-
                     <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-medium flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Publicatie Checklist</CardTitle>
