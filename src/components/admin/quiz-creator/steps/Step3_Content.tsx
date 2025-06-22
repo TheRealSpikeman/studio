@@ -5,7 +5,7 @@ import React from 'react';
 import type { ElementType } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -13,8 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Lightbulb, User as UserIcon, Sparkles, HeartHandshake, Users, GraduationCap,
-  Zap, Smile, Cloud, BookOpen, Settings, Bot, TestTube2, Database, AlertCircle, CheckCircle2, List, Plus, Pencil, Trash, GitBranch, ArrowRight, HelpCircle
+  Lightbulb, Rocket, BarChart3, CheckCircle2, Link as LinkIcon, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap,
+  GitBranch, ArrowRight, HelpCircle, Plus, Pencil, Trash, AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -190,14 +190,14 @@ const Step3_AdaptiveContent = () => {
                             <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                                  <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[ADHD] Welke strategieën helpen bij focus?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
                                  <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[HSP] Hoe herken je overstimulatie?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                                 <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer vragen...</p>
+                                 <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer spectrum-specifieke vragen...</p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                    <AlertCircle className="h-5 w-5 !text-yellow-600" />
+                    <AlertCircle className="h-5 w-5 !text-yellow-600"/>
                     <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
                     <AlertDescription className="grid grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
                         <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Minimaal 15 Fase 1 vragen</span>
