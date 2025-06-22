@@ -14,7 +14,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
-import { SEED_QUIZZES_DATA, LOCAL_STORAGE_QUIZ_SEEDED_KEY } from '@/lib/quiz-data/seed-quizzes';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -49,28 +48,22 @@ export default function QuizManagementPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Seed localStorage on first visit if not already seeded
-    if (localStorage.getItem(LOCAL_STORAGE_QUIZ_SEEDED_KEY) !== 'true') {
-        SEED_QUIZZES_DATA.forEach(quiz => {
-            localStorage.setItem(quiz.id, JSON.stringify(quiz));
-        });
-        localStorage.setItem(LOCAL_STORAGE_QUIZ_SEEDED_KEY, 'true');
-    }
-
     const allQuizzes: QuizAdmin[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-') || key.startsWith('exam-stress-') || key.startsWith('social-anxiety-') || key.startsWith('focus-digital-') || key.startsWith('motivation-goals-'))) {
-            const storedData = localStorage.getItem(key);
-            if (storedData) {
+    if (typeof window !== 'undefined') {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) {
                 try {
-                    const quiz = JSON.parse(storedData);
-                    // Basic validation to ensure it's a quiz object
-                    if (quiz.id && quiz.title && Array.isArray(quiz.questions)) {
-                        allQuizzes.push(quiz);
+                    const storedData = localStorage.getItem(key);
+                    if (storedData) {
+                        const quiz = JSON.parse(storedData);
+                        // Basic validation to ensure it's a quiz object
+                        if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category) {
+                            allQuizzes.push(quiz);
+                        }
                     }
                 } catch (e) {
-                    console.error(`Error parsing quiz from localStorage with key: ${key}`, e);
+                    // Not a JSON object or not a quiz object, ignore.
                 }
             }
         }
@@ -202,7 +195,7 @@ export default function QuizManagementPage() {
               </TableHeader>
               <TableBody>
                 {paginatedQuizzes.length === 0 && (
-                  <TableRow><TableCell colSpan={8} className="h-24 text-center">Geen quizzen gevonden.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="h-24 text-center">Geen quizzen gevonden. Maak je eerste quiz aan!</TableCell></TableRow>
                 )}
                 {paginatedQuizzes.map((quiz) => (
                   <TableRow key={quiz.id}>
