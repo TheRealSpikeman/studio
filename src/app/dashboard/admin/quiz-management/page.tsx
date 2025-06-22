@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/quiz-management/page.tsx
 "use client";
 
@@ -49,36 +50,35 @@ export default function QuizManagementPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadedQuizzes: QuizAdmin[] = []; 
+    const quizzesMap = new Map<string, QuizAdmin>();
+
+    // 1. Load dummy data first as a baseline
+    DUMMY_QUIZZES_DATA.forEach(quiz => {
+        quizzesMap.set(quiz.id, quiz);
+    });
+
+    // 2. Iterate localStorage and overwrite/add quizzes
     try {
-      const existingDummyIds = new Set(DUMMY_QUIZZES_DATA.map(q => q.id));
-      
-      DUMMY_QUIZZES_DATA.forEach(q => loadedQuizzes.push(q));
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('ai-quiz-')) {
-          const storedQuizData = localStorage.getItem(key);
-          if (storedQuizData) {
-            const storedQuiz = JSON.parse(storedQuizData) as QuizAdmin;
-            const questionsWithWeight = storedQuiz.questions.map(q => ({...q, weight: q.weight ?? 1}));
-            const quizToAdd = {...storedQuiz, questions: questionsWithWeight};
-
-            if (!existingDummyIds.has(quizToAdd.id) && !loadedQuizzes.find(q => q.id === quizToAdd.id)) {
-              loadedQuizzes.push(quizToAdd);
-            } else if (loadedQuizzes.find(q => q.id === quizToAdd.id)) {
-              const index = loadedQuizzes.findIndex(q => q.id === quizToAdd.id);
-              if (index !== -1) {
-                loadedQuizzes[index] = quizToAdd;
-              }
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            // A simple check to see if it's a quiz object. More robust checks are possible.
+            if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || quizzesMap.has(key))) {
+                const storedData = localStorage.getItem(key);
+                if (storedData) {
+                    const storedQuiz = JSON.parse(storedData) as QuizAdmin;
+                    // Always overwrite with the version from localStorage as it's newer or custom
+                    quizzesMap.set(storedQuiz.id, storedQuiz);
+                }
             }
-          }
         }
-      }
     } catch (error) {
         console.error("Error loading quizzes from localStorage:", error);
     }
-    setQuizzes(loadedQuizzes.map(q => ({
+    
+    // 3. Convert map to array and set state
+    const allLoadedQuizzes = Array.from(quizzesMap.values());
+    
+    setQuizzes(allLoadedQuizzes.map(q => ({
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
         thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200`,
