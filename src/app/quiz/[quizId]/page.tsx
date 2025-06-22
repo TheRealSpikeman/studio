@@ -24,9 +24,10 @@ function mapQuestionsToDisplay(questions: QuizAdminQuestion[]): QuestionType[] {
   return questions.map(q => ({
     id: q.id || `q-${Math.random()}`,
     text: q.text,
-    options: answerOptions.map(opt => ({ id: `${q.id}-${opt.value}`, text: opt.label }))
+    options: answerOptions.map(opt => ({ id: `${q.id}-${opt.value}`, text: opt.label, value: opt.value })) // Added value to option
   }));
 }
+
 
 async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: string; questions: QuestionType[] } | null> {
     if (typeof window === 'undefined') return null;
@@ -116,12 +117,38 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleNextQuestion = (selectedOptionId: string) => {
-    setAnswers(prev => ({ ...prev, [questions[currentQuestionIndex].id]: selectedOptionId }));
+    const newAnswers = {...answers, [currentQuestion.id]: selectedOptionId};
+    setAnswers(newAnswers);
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      console.log('Quiz voltooid:', answers);
-      router.push(`/quiz/${quizIdOrSlug}/results`); // Go to a generic results page
+      // Quiz finished, save results to localStorage
+      const finalAnswers = {
+        ...newAnswers,
+        [currentQuestion.id]: selectedOptionId,
+      };
+
+      const resultsToStore = {
+        quizTitle: quizTitle,
+        answers: Object.entries(finalAnswers).map(([qId, oId]) => {
+          const question = questions.find(q => q.id === qId);
+          const option = question?.options.find(o => o.id === oId);
+          return {
+            question: question?.text || 'Onbekende vraag',
+            answer: option?.text || 'Onbekend antwoord',
+          };
+        }),
+      };
+
+      try {
+        localStorage.setItem(`quizResult_${quizIdOrSlug}`, JSON.stringify(resultsToStore));
+      } catch (e) {
+        console.error("Failed to save quiz results to localStorage", e);
+      }
+      
+      console.log('Quiz voltooid:', resultsToStore);
+      router.push(`/quiz/${quizIdOrSlug}/results`);
     }
   };
 

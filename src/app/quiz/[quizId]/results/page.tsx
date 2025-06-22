@@ -1,4 +1,3 @@
-
 // This page will be client-rendered if it needs to access searchParams for subquiz info
 "use client";
 
@@ -67,39 +66,41 @@ export default function QuizResultsPage() {
   const [coaching, setCoaching] = useState("Laden van coaching inzichten...");
   const [isLoading, setIsLoading] = useState(true);
   
-  const quizTitle = quizTitles[quizId] || "Zelfreflectie Tool";
+  const quizTitle = quizTitles[quizId] || quizId.replace(/-/g, ' ') || "Zelfreflectie Tool";
+
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const quizResultsForAI = { question1: "answerA", question2: "answerB", quizType: quizId }; 
+        const storedResultsRaw = localStorage.getItem(`quizResult_${quizId}`);
+        if (!storedResultsRaw) {
+          throw new Error("Quizresultaten niet gevonden. Doe de quiz eerst.");
+        }
+        const storedResults = JSON.parse(storedResultsRaw);
         
-        const summaryOutput = await generateQuizSummary({ quizResults: quizResultsForAI });
+        const summaryOutput = await generateQuizSummary({ quizResults: JSON.stringify(storedResults) });
         setSummary(summaryOutput.summary);
 
         const coachingInput = {
           onboardingAnalysisText: summaryOutput.summary,
-          userName: "Gebruiker" // Kan later worden gepersonaliseerd als gebruikersdata beschikbaar is
+          userName: "Gebruiker"
         };
-        if (quizId !== 'teen-neurodiversity-quiz') {
-            const coachingOutput = await generateCoachingInsights(coachingInput);
-            const coachingText = `${coachingOutput.dailyAffirmation}\n\n**Tip:** ${coachingOutput.dailyCoachingTip}\n\n**Kleine taak:** ${coachingOutput.microTaskSuggestion}`;
-            setCoaching(coachingText);
-        } else {
-            // Aangepast bericht voor de tiener zelfreflectie tool
-            setCoaching("Bekijk de uitgebreide tips en strategieën in je persoonlijke overzicht hierboven. Deze zijn speciaal voor jou samengesteld!");
-        }
+        const coachingOutput = await generateCoachingInsights(coachingInput);
+        const coachingText = `${coachingOutput.dailyAffirmation}\n\n**Tip:** ${coachingOutput.dailyCoachingTip}\n\n**Kleine taak:** ${coachingOutput.microTaskSuggestion}`;
+        setCoaching(coachingText);
 
       } catch (error) {
         console.error("Error fetching AI results:", error);
-        setSummary("Kon samenvatting niet laden. Probeer het later opnieuw.");
+        const errorMessage = error instanceof Error ? error.message : "Onbekende fout.";
+        setSummary(`Kon samenvatting niet laden. ${errorMessage}`);
         setCoaching("Kon coaching inzichten niet laden.");
+        toast({ title: "Fout", description: `Kon resultaten niet laden: ${errorMessage}`, variant: "destructive" });
       } finally {
         setIsLoading(false);
       }
     }
-    // Aangepaste logica voor de tiener quiz resultaten
+
     if (quizId === 'teen-neurodiversity-quiz') {
         setSummary("Je resultaten worden hieronder weergegeven. Dit is een samenvatting van je Zelfreflectie Tool. Je volledige persoonlijke overzicht vind je op de vorige pagina, of download het als PDF.");
         setCoaching("Specifieke coaching inzichten voor de Zelfreflectie Tool (12-18 jaar) vind je in je uitgebreide persoonlijke overzicht.");
@@ -107,7 +108,7 @@ export default function QuizResultsPage() {
     } else {
        fetchData();
     }
-  }, [quizId, subQuizId, quizTitle]);
+  }, [quizId, subQuizId, toast]);
 
 
   const resultsToDisplay = isLoading ? { summary, profileSections: [], coachingInsights: coaching } : {
