@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -78,6 +79,39 @@ export default function QuizManagementPage() {
     })));
   }, []);
 
+  const handleDeleteAllQuizzes = () => {
+    if (typeof window === 'undefined') return;
+
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+            try {
+                const item = localStorage.getItem(key);
+                if (item) {
+                    const quiz = JSON.parse(item);
+                    // This duck-typing check identifies quiz objects
+                    if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category) {
+                        keysToRemove.push(key);
+                    }
+                }
+            } catch (e) {
+                // Not a JSON object, so definitely not a quiz object we want to delete.
+                // Continue to the next item.
+            }
+        }
+    }
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    setQuizzes([]); // Clear state immediately
+    
+    toast({
+        title: "Alle quizzen verwijderd",
+        description: "De lokale opslag is opgeschoond. U kunt nu met een schone lei beginnen."
+    });
+  };
+
   const filteredQuizzes = useMemo(() => {
     return quizzes.filter(quiz => {
       const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -136,6 +170,25 @@ export default function QuizManagementPage() {
               </CardDescription>
             </div>
             <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="w-full sm:w-auto">
+                    <Trash2 className="mr-2 h-4 w-4" /> Alle Quizzen Verwijderen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Weet u het zeker?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Deze actie zal ALLE quizzen (inclusief uw eigen concepten) permanent verwijderen uit de lokale opslag van uw browser. Dit kan niet ongedaan worden gemaakt. Dit is nuttig om oude, hardgecodeerde data op te ruimen.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAllQuizzes} className="bg-destructive hover:bg-destructive/90">Ja, verwijder alles</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard/admin/quiz-management/create">
                   <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
