@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -80,8 +81,10 @@ export const Step4_Settings = () => {
                 <CardContent className="p-0">
                     <div className="flex flex-wrap gap-2">
                         {quizData.targetAgeGroup && <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">{quizData.targetAgeGroup} jaar</Badge>}
-                        {quizData.audienceType === 'parent' && <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">Ouder over kind</Badge>}
-                        {quizData.focusFlags?.map(flag => flag !== 'general' && <Badge key={flag} variant="secondary">{flag.replace('-friendly', '').replace('-focus', '').replace(/(^\w)/, c => c.toUpperCase())}</Badge>)}
+                        {quizData.audienceType === 'parent' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Ouder over kind</Badge>}
+                        {quizData.audienceType === 'teen' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Tiener (zelf)</Badge>}
+                        {quizData.audienceType === 'adult' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Volwassene (zelf)</Badge>}
+                        {quizData.focusFlags?.map(flag => flag !== 'general' && <Badge key={flag} variant="outline" className="capitalize">{flag.replace(/-friendly|-focus/g, '')}</Badge>)}
                         {quizData.mainCategory && <Badge variant="outline">{allCategories.find(c => c.id === quizData.mainCategory)?.title || quizData.mainCategory}</Badge>}
                     </div>
                 </CardContent>
