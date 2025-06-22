@@ -1,3 +1,4 @@
+
 // src/app/dashboard/results/page.tsx
 "use client";
 
@@ -19,11 +20,11 @@ import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } fr
 const completedQuizzes = [
   { 
     id: 'neuroprofile-101', 
-    title: 'Basis Zelfreflectie Tool', 
+    title: 'Basis Zelfreflectie Quiz', 
     dateCompleted: '2024-03-10', 
     score: 'Uitgebalanceerd Profiel', 
     reportData: { 
-      summary: "Dit is een voorlopige samenvatting voor de Basis Zelfreflectie Tool. U vertoont een evenwichtige mix van eigenschappen, wat wijst op een flexibele aanpassing aan verschillende situaties. Uw sterke punten liggen mogelijk in het combineren van analytisch denken met creatieve oplossingen.",
+      summary: "Dit is een voorlopige samenvatting voor de Basis Zelfreflectie Quiz. U vertoont een evenwichtige mix van eigenschappen, wat wijst op een flexibele aanpassing aan verschillende situaties. Uw sterke punten liggen mogelijk in het combineren van analytisch denken met creatieve oplossingen.",
       answers: [
         {question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie"}, 
         {question: "Als je een nieuwe taak krijgt, hoe pak je die meestal aan?", answer: "Ik zoek een balans tussen plannen en doen"},
@@ -76,7 +77,7 @@ const completedQuizzes = [
   },
   { 
     id: 'teen-neurodiversity-quiz', 
-    title: 'Neurodiversiteit Zelfreflectie Tool (15-18 jaar)', 
+    title: 'Neurodiversiteit Zelfreflectie Quiz (15-18 jaar)', 
     dateCompleted: '2024-04-05', 
     score: 'Profiel: ADD & HSP',
     ageGroup: '15-18',
@@ -569,7 +570,7 @@ export default function ResultsHistoryPage() {
       <section>
         <h1 className="text-3xl font-bold text-foreground">Resultatenoverzicht</h1>
         <p className="text-muted-foreground">
-          Bekijk hier de resultaten van al je voltooide zelfreflectie tools en download je rapporten.
+          Bekijk hier de resultaten van al je voltooide zelfreflectie-quizzen en download je rapporten.
         </p>
       </section>
 
@@ -577,10 +578,10 @@ export default function ResultsHistoryPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
              <BarChart3 className="h-6 w-6 text-primary" />
-            Voltooide Zelfreflectie Tools
+            Voltooide Zelfreflectie-Quizzen
           </CardTitle>
           <CardDescription>
-            Een overzicht van al je afgeronde tools en bijbehorende rapporten.
+            Een overzicht van al je afgeronde quizzen en bijbehorende rapporten.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -588,7 +589,7 @@ export default function ResultsHistoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Titel Zelfreflectie Tool</TableHead>
+                  <TableHead>Titel Quiz</TableHead>
                   <TableHead>Datum Voltooid</TableHead>
                   <TableHead>Indicatief Profiel</TableHead>
                   <TableHead className="text-right">Acties</TableHead>
@@ -622,7 +623,7 @@ export default function ResultsHistoryPage() {
             </Table>
           ) : (
             <p className="text-muted-foreground text-center py-10">
-              Je hebt nog geen tools voor zelfreflectie voltooid. Ga naar het <Link href="/quizzes" className="text-primary hover:underline">overzicht</Link> om te starten.
+              Je hebt nog geen quizzen voltooid. Ga naar het <Link href="/quizzes" className="text-primary hover:underline">overzicht</Link> om te starten.
             </p>
           )}
         </CardContent>
@@ -631,7 +632,7 @@ export default function ResultsHistoryPage() {
           <AlertTriangle className="h-5 w-5" />
           <AlertTitleUi className="font-semibold">Belangrijk: Geen Diagnose</AlertTitleUi>
           <AlertDescUi>
-              De inzichten uit deze tools zijn bedoeld voor zelfreflectie en educatie. Ze vervangen <strong className="font-bold">geen</strong> professioneel medisch of psychologisch advies, diagnose of behandeling.
+              De inzichten uit deze instrumenten zijn bedoeld voor zelfreflectie en educatie. Ze vervangen <strong className="font-bold">geen</strong> professioneel medisch of psychologisch advies, diagnose of behandeling.
               Raadpleeg altijd een gekwalificeerde zorgverlener voor persoonlijke begeleiding. Bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4"/> </Link> voor meer informatie en bronnen.
           </AlertDescUi>
       </Alert>

@@ -37,7 +37,7 @@ export interface Quiz {
 const recommendedQuizzes: Quiz[] = [
     { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
-    title: 'Zelfreflectie Tool (15-18 jr)', 
+    title: 'Zelfreflectie Quiz (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
@@ -53,7 +53,7 @@ const recommendedQuizzes: Quiz[] = [
   },
   { 
     id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding Tool', 
+    title: 'Focus & Digitale Afleiding Quiz', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
@@ -71,7 +71,7 @@ const recommendedQuizzes: Quiz[] = [
 const baseTeenQuizzes: Quiz[] = [
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
-    title: 'Zelfreflectie Tool (12-14 jr)', 
+    title: 'Zelfreflectie Quiz (12-14 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/young_teenage_boy_13_years_old_with_blonde_hair.png?alt=media&token=79e72caf-3dcd-4dcf-8d01-9074ceb3f8aa',
@@ -87,7 +87,7 @@ const baseTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
-    title: 'Zelfreflectie Tool (15-18 jr)', 
+    title: 'Zelfreflectie Quiz (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
@@ -134,7 +134,7 @@ const thematicTeenQuizzes: Quiz[] = [
   },
   { 
     id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding Tool', 
+    title: 'Focus & Digitale Afleiding Quiz', 
     description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
@@ -229,20 +229,20 @@ function PublicQuizzesContent() {
         <div className="container space-y-12">
           <section className="text-center">
             <BookOpen className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">Zelfreflectie Tools</h1>
+            <h1 className="text-4xl font-bold text-foreground">Zelfreflectie Quizzen</h1>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Ontdek onze tools om meer inzicht te krijgen in jouw unieke denkstijl, sterke punten en uitdagingen.
+              Ontdek onze quizzen om meer inzicht te krijgen in jouw unieke denkstijl, sterke punten en uitdagingen.
             </p>
              <p className="text-md text-accent mt-3 flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Elke tool helpt je dichter bij betere focus en zelfinzicht.
+              Elke quiz helpt je dichter bij betere focus en zelfinzicht.
             </p>
           </section>
 
           <Card className="shadow-md">
             <CardContent className="p-6 space-y-4 md:space-y-0 md:flex md:items-end md:gap-4">
               <div className="flex-grow relative">
-                <Label htmlFor="search-quiz" className="sr-only">Zoek tools</Label>
+                <Label htmlFor="search-quiz" className="sr-only">Zoek quizzen</Label>
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   id="search-quiz"
@@ -293,9 +293,9 @@ function PublicQuizzesContent() {
              <Card className="bg-secondary/50 border-secondary">
                 <CardContent className="p-6 flex flex-col items-center text-center">
                 <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Geen tools gevonden</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen gevonden</h3>
                 <p className="text-muted-foreground">
-                    Er zijn geen zelfreflectie-instrumenten die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
+                    Er zijn geen zelfreflectie-quizzen die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
                 </p>
                 <Button onClick={() => {setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); setDurationFilter('all');}} className="mt-4">
                     Wis filters &amp; zoekopdracht
@@ -318,7 +318,7 @@ function PublicQuizzesContent() {
               )}
 
               <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Basistools voor jouw leeftijd</h2>
+                <h2 className="mb-2 text-2xl font-semibold text-foreground">Basisquizzen voor jouw leeftijd</h2>
                  <p className="text-sm text-muted-foreground mb-6">Start hier als je voor het eerst jouw eigenschappen wilt verkennen.</p>
                 {filteredBaseQuizzes.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -328,7 +328,7 @@ function PublicQuizzesContent() {
                   </div>
                 ) : (
                    <p className="text-muted-foreground text-center py-6">
-                    Geen basistools gevonden die voldoen aan de huidige filters.
+                    Geen basisquizzen gevonden die voldoen aan de huidige filters.
                   </p>
                 )}
               </section>
@@ -344,7 +344,7 @@ function PublicQuizzesContent() {
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-6">
-                    Geen thematische tools gevonden die voldoen aan de huidige filters.
+                    Geen thematische quizzen gevonden die voldoen aan de huidige filters.
                   </p>
                 )}
               </section>
@@ -356,10 +356,10 @@ function PublicQuizzesContent() {
               Klaar om te ontdekken wat <span className="text-primary">jouw brein uniek</span> maakt?
             </h2>
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
-              <Link href="/quizzes?ageGroup=12-14">Start gratis tool (12-14jr)</Link>
+              <Link href="/quizzes?ageGroup=12-14">Start gratis quiz (12-14jr)</Link>
             </Button>
              <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow ml-4">
-              <Link href="/quizzes?ageGroup=15-18">Start gratis tool (15-18jr)</Link>
+              <Link href="/quizzes?ageGroup=15-18">Start gratis quiz (15-18jr)</Link>
             </Button>
             <p className="mt-6 text-muted-foreground">
               <Sparkles className="inline-block h-5 w-5 mr-1 text-accent" />

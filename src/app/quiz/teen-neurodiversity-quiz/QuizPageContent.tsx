@@ -459,7 +459,7 @@ export default function QuizPageContent() {
           });
 
           const analysisInput = {
-            quizTitle: `Neurodiversiteit Zelfreflectie Tool (${ageGroup} jaar)`,
+            quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`,
             ageGroup: ageGroup,
             finalScores: finalScores,
             answeredQuestions: answeredQuestions,
@@ -555,7 +555,7 @@ export default function QuizPageContent() {
 
           {currentStep !== 'intro' && currentStep !== 'results' && (
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-foreground mb-2">Zelfreflectie Tool ({ageGroup} jaar)</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-2">Zelfreflectie Quiz ({ageGroup} jaar)</h1>
                 <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
             </div>
           )}
@@ -568,7 +568,7 @@ export default function QuizPageContent() {
                     Jouw Reis naar Zelfinzicht Start Hier!
                 </CardTitle>
                 <CardDescription className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-                    Deze tool helpt je ontdekken wat jouw unieke denk- en leerstijl is. Er zijn geen foute antwoorden, alleen jouw ervaring telt.
+                    Deze zelfreflectie-quiz helpt je ontdekken wat jouw unieke denk- en leerstijl is. Er zijn geen foute antwoorden, alleen jouw ervaring telt.
                 </CardDescription>
                 </CardHeader>
                 <CardContent className="px-6 sm:px-8 space-y-6 pt-4">
@@ -605,7 +605,7 @@ export default function QuizPageContent() {
                           <PauseCircle className="h-7 w-7 text-primary flex-shrink-0" />
                           <div>
                               <strong className="text-foreground">Pauzeren</strong>
-                              <p className="text-muted-foreground">Je kunt de tool altijd later afmaken.</p>
+                              <p className="text-muted-foreground">Je kunt de quiz altijd later afmaken.</p>
                           </div>
                       </div>
                       <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
@@ -635,6 +635,7 @@ export default function QuizPageContent() {
 
           {currentStep === 'baseQuestions' && (
             <QuestionDisplay
+              key={`base-q-${currentQuestionIndex}`}
               question={{
                   id: `base-q-${currentQuestionIndex}`,
                   text: currentBaseQuestions[currentQuestionIndex],
@@ -696,6 +697,7 @@ export default function QuizPageContent() {
 
           {currentStep === 'subtestQuestions' && (
              <QuestionDisplay
+              key={`sub-q-${currentFlatSubtestIndex}`}
               question={{
                   id: `sub-q-${currentFlatSubtestIndex}`,
                   text: flatSubtestQuestions[currentFlatSubtestIndex].text,
@@ -726,7 +728,7 @@ export default function QuizPageContent() {
                         <li><strong>Score 2.0 - 2.9:</strong> Kenmerken zijn soms herkenbaar.</li>
                         <li><strong>Score 1.0 - 1.9:</strong> Kenmerken zijn minder herkenbaar.</li>
                       </ul>
-                      Een hogere score is niet beter of slechter, het geeft inzicht. Deze tool is voor zelfreflectie, niet voor diagnose.
+                      Een hogere score is niet beter of slechter, het geeft inzicht. Deze quiz is voor zelfreflectie, niet voor diagnose.
                     </AlertDescUi>
                   </div>
                   
@@ -743,9 +745,9 @@ export default function QuizPageContent() {
                     </header>
                     <div className="space-y-10">
                     {isAnalysisLoading ? (
-                        <div className="space-y-3 animate-pulse pt-2">
-                            <div className="h-5 bg-muted rounded w-3/4"></div><div className="h-5 bg-muted rounded w-1/2"></div><div className="h-5 bg-muted rounded w-5/6"></div>
-                            <div className="h-5 bg-muted rounded w-2/3 mt-4"></div><div className="h-5 bg-muted rounded w-full"></div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            <span>Persoonlijke analyse wordt geladen...</span>
                         </div>
                     ) : parsedAiAnalysis.length > 0 ? (
                        parsedAiAnalysis.map((section, index) => {
@@ -883,11 +885,11 @@ export default function QuizPageContent() {
                       <AlertTriangle className="h-5 w-5" />
                       <AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
                       <AlertDescUi className="leading-relaxed text-base">
-                          Deze zelfreflectie tool en het resulterende overzicht zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is nadrukkelijk <strong className="font-bold">geen</strong> formele (medische) diagnose.
+                          Deze zelfreflectie-quiz en het resulterende overzicht zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is nadrukkelijk <strong className="font-bold">geen</strong> formele (medische) diagnose.
                           <br/><br/>
                           Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen. Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
                           <br/><br/>
-                          MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Onze tool dient ter zelfreflectie en educatie.
+                          MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Onze quiz dient ter zelfreflectie en educatie.
                       </AlertDescUi>
                   </Alert>
 
@@ -912,11 +914,11 @@ export default function QuizPageContent() {
                   </CardHeader>
                   <CardContent className="px-6 pb-6">
                   <p className="text-muted-foreground mb-4 leading-relaxed text-base">
-                      Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met meer zelfreflectie tools en dagelijkse, persoonlijke coaching ontvangen?
+                      Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met meer zelfreflectie-quizzen en dagelijkse, persoonlijke coaching ontvangen?
                   </p>
                   <p className="text-lg font-semibold mb-2 text-foreground">Krijg toegang tot premium functies:</p>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1.5 mb-5 pl-5 leading-relaxed text-base">
-                      <li>Alle verdiepende zelfreflectie modules</li>
+                      <li>Alle verdiepende zelfreflectie-quizzen</li>
                       <li>Dagelijkse coaching tips & routines</li>
                       <li>Uitgebreide PDF overzichten</li>
                       <li>Voortgangstracking en meer!</li>
@@ -962,13 +964,13 @@ export default function QuizPageContent() {
               <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
                   <AlertDialog>
                       <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="lg" className="shadow-sm"><RefreshCw className="mr-2 h-4 w-4" />Doe de zelfreflectie opnieuw</Button>
+                          <Button variant="outline" size="lg" className="shadow-sm"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="rounded-lg shadow-lg">
                           <AlertDialogHeader>
-                          <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Zelfreflectie Tool opnieuw starten?</AlertDialogTitle>
+                          <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Quiz opnieuw starten?</AlertDialogTitle>
                           <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
-                              Weet je zeker dat je de tool opnieuw wilt starten? Alle antwoorden worden gewist.
+                              Weet je zeker dat je de quiz opnieuw wilt starten? Alle antwoorden worden gewist.
                           </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -978,7 +980,7 @@ export default function QuizPageContent() {
                       </AlertDialogContent>
                   </AlertDialog>
                   <Button variant="link" asChild className="mt-2">
-                      <Link href="/quizzes">Terug naar overzicht zelfreflectie tools</Link>
+                      <Link href="/quizzes">Terug naar overzicht quizzen</Link>
                   </Button>
               </CardFooter>
             </div>
