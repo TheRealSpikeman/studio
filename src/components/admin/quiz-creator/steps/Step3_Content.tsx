@@ -1,10 +1,11 @@
+
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { ElementType } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -13,9 +14,157 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Lightbulb, User as UserIcon, Sparkles, HeartHandshake, Users, GraduationCap,
-  Zap, Smile, Cloud, BookOpen
+  Zap, Smile, Cloud, BookOpen, Settings, Bot, TestTube2, Database, AlertCircle, CheckCircle2, List, Plus, Pencil, Trash, GitBranch, ArrowRight
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
+
+// Component for Adaptive Onboarding
+const Step3_AdaptiveContent = () => {
+    // Mock data for display purposes
+    const spectrums = [
+      { id: 'adhd', name: 'ADHD', threshold: 65 },
+      { id: 'ass', name: 'Autisme', threshold: 60 },
+      { id: 'hsp', name: 'HSP', threshold: 55 },
+      { id: 'executive', name: 'Executieve Functies', threshold: 60 },
+      { id: 'sensory', name: 'Sensorische Verwerking', threshold: 58 },
+      { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
+    ];
+
+    return (
+        <div className="space-y-6">
+            <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
+                <GitBranch className="h-5 w-5 !text-blue-600" />
+                <AlertTitle className="text-blue-700 font-semibold">Adaptive Onboarding Quiz Setup</AlertTitle>
+                <AlertDescription className="text-blue-800">
+                    <strong>Geen handmatige focus selectie nodig!</strong> Deze quiz detecteert automatisch welke neurodiversiteit spectrums relevant zijn.
+                    Hieronder configureer je hoe de detectie werkt en welke vragen gebruikt worden.
+                </AlertDescription>
+            </Alert>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Detection Algorithm</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="p-3 border rounded-md bg-muted/50">
+                           <h4 className="font-semibold text-sm mb-2 text-primary">Fase 1: Spectrum Detectie</h4>
+                           <div className="grid grid-cols-2 gap-3">
+                               <div>
+                                   <Label htmlFor="phase1-questions" className="text-xs">Aantal Vragen</Label>
+                                   <Input id="phase1-questions" type="number" defaultValue="18" />
+                               </div>
+                               <div>
+                                   <Label htmlFor="phase1-threshold" className="text-xs">Min. Score (%)</Label>
+                                   <Input id="phase1-threshold" type="number" defaultValue="60" />
+                               </div>
+                           </div>
+                        </div>
+                         <div className="p-3 border rounded-md bg-muted/50">
+                           <h4 className="font-semibold text-sm mb-2 text-primary">Fase 2: Gerichte Verdieping</h4>
+                           <div className="grid grid-cols-2 gap-3">
+                               <div>
+                                   <Label htmlFor="phase2-max-per" className="text-xs">Max Vragen / Spectrum</Label>
+                                   <Input id="phase2-max-per" type="number" defaultValue="12" />
+                               </div>
+                               <div>
+                                   <Label htmlFor="phase2-max-total" className="text-xs">Totaal Max Fase 2</Label>
+                                   <Input id="phase2-max-total" type="number" defaultValue="20" />
+                               </div>
+                           </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                       <CardTitle className="flex items-center gap-2"><TestTube2 className="h-5 w-5 text-primary"/>Algorithm Preview</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
+                            <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4"/>
+                            <span>Scores</span><ArrowRight className="h-4 w-4"/>
+                            <span>Thresholds</span>
+                        </div>
+                        <div className="p-3 border rounded-md bg-background text-sm">
+                            <p className="font-semibold">Voorbeeld Output:</p>
+                            <p className="text-muted-foreground text-xs">ADHD: 78% (&gt;65% ✓) → 12 vragen</p>
+                            <p className="text-muted-foreground text-xs">HSP: 67% (&gt;55% ✓) → 12 vragen</p>
+                             <p className="text-muted-foreground text-xs">Autisme: 45% (&lt;60% ✗) → Skip</p>
+                             <p className="font-semibold mt-1">Totaal Fase 2: 24 vragen</p>
+                        </div>
+                        <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                             <AlertCircle className="h-4 w-4 !text-yellow-600"/>
+                             <AlertDescription className="text-xs text-yellow-800">
+                               Waarschuwing: Het totaal (24) overschrijdt het ingestelde maximum (20).
+                             </AlertDescription>
+                        </Alert>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div>
+                <h3 className="text-lg font-medium text-foreground mb-3">🎯 Spectrum Detection Thresholds (%)</h3>
+                <Card className="p-4">
+                    <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 p-0">
+                        {spectrums.map(spec => (
+                            <div key={spec.id}>
+                                <Label htmlFor={`threshold-${spec.id}`} className="text-sm font-medium">{spec.name}</Label>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Slider defaultValue={[spec.threshold]} max={100} step={1} id={`threshold-${spec.id}`} />
+                                    <span className="text-sm font-semibold w-10 text-right">{spec.threshold}%</span>
+                                </div>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            </div>
+            
+            <Card>
+                <CardHeader className="flex flex-row justify-between items-center">
+                   <div>
+                    <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5 text-primary"/>Question Bank Management</CardTitle>
+                   </div>
+                    <Button><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-4 border rounded-md bg-muted/30">
+                        <h4 className="font-semibold mb-2 flex justify-between">Fase 1: Detectie Vragen <Badge variant="secondary">24</Badge></h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe reageer je op veel prikkels tegelijk?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe ga je om met routineveranderingen?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                             <p className="text-xs text-center text-muted-foreground pt-1">+ 22 meer vragen...</p>
+                        </div>
+                    </div>
+                     <div className="p-4 border rounded-md bg-muted/30">
+                        <h4 className="font-semibold mb-2 flex justify-between">Fase 2: Verdiepingsvragen <Badge variant="secondary">67</Badge></h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[ADHD] Welke strategieën helpen bij focus?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[HSP] Hoe herken je overstimulatie?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                             <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer vragen...</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                <AlertCircle className="h-5 w-5 !text-yellow-600" />
+                <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
+                <AlertDescription className="grid grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Minimaal 15 Fase 1 vragen</span>
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Algorithm gecalibreerd</span>
+                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-orange-600"/>HSP threshold mogelijk te laag</span>
+                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-red-600"/>Expert review pending</span>
+                </AlertDescription>
+            </Alert>
+
+        </div>
+    );
+};
+
+
+// Main Component for Step 3
 interface CategoryInfo {
   id: string;
   icon: ElementType;
@@ -37,6 +186,10 @@ const allCategories: CategoryInfo[] = [
 
 export const Step3Content = () => {
   const { quizData, setQuizData } = useQuizCreator();
+
+  if (quizData.creationType === 'adaptive') {
+    return <Step3_AdaptiveContent />;
+  }
 
   const handleCategorySelect = (category: CategoryInfo) => {
     setQuizData(prev => ({
@@ -75,7 +228,7 @@ export const Step3Content = () => {
         <span className="text-sm font-medium text-muted-foreground mr-2">Je selecties tot nu toe:</span>
         <Badge variant="secondary" className="mr-1">{quizData.targetAgeGroup} jaar</Badge>
         <Badge variant="secondary" className="mr-1">{quizData.audienceType === 'parent' ? 'Ouder over kind' : 'Voor zichzelf'}</Badge>
-        {quizData.focusFlags?.map(flag => <Badge key={flag} variant="secondary" className="mr-1 capitalize">{flag.replace('-friendly', '')}</Badge>)}
+        {quizData.focusFlags?.map(flag => <Badge key={flag} variant="secondary" className="mr-1 capitalize">{flag.replace('-friendly', '').replace('-focus', '').replace(/(^\w)/, c => c.toUpperCase())}</Badge>)}
       </div>
       
       {smartSuggestions && (
@@ -99,7 +252,6 @@ export const Step3Content = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Categories */}
         <div className="lg:col-span-2 space-y-3">
           <h3 className="text-lg font-medium text-foreground">Kies je Hoofdcategorie</h3>
           {allCategories.map(cat => {
@@ -130,7 +282,6 @@ export const Step3Content = () => {
           })}
         </div>
 
-        {/* Right Column: Settings */}
         <div className="lg:col-span-1">
           <Card className="sticky top-24 p-6 shadow-md border">
             <h3 className="text-lg font-medium text-foreground mb-4 flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/>Quiz Instellingen</h3>
