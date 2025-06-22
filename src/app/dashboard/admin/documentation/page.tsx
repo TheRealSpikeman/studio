@@ -4,23 +4,31 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser } from 'lucide-react'; // Added BookUser
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot } from 'lucide-react';
 
 const documentationLinks = [
   {
     title: "Uitleg: Adaptieve Quiz Methodologie",
-    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen. Ideaal om te delen met toetsende professionals.",
+    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen.",
     icon: GitBranch,
     href: "/methodologie/adaptieve-quiz",
     linkText: "Bekijk Methodologie",
-    isExternal: true, // Let's assume it opens in a new tab
+    isExternal: true,
   },
   {
     title: "Volledige Platform Handleiding",
-    description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform. Essentieel voor nieuwe teamleden en beheerders.",
-    icon: BookUser, // New icon
+    description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform.",
+    icon: BookUser,
     href: "/dashboard/admin/documentation/platform-guide",
     linkText: "Open Handleiding",
+    isExternal: false,
+  },
+   {
+    title: "AI Persona: Dr. Florentine Sage",
+    description: "Het gedetailleerde profiel en de professionele filosofie van onze AI-gedreven psycholoog, Dr. F. Sage.",
+    icon: Bot,
+    href: "/dashboard/admin/documentation/ai-persona",
+    linkText: "Bekijk Persona Profiel",
     isExternal: false,
   },
   {

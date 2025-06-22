@@ -30,7 +30,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch 
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -179,6 +179,7 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/methodologie/adaptieve-quiz', label: 'Quiz Methodologie', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/faq', label: 'Publieke FAQ', icon: MessageCircleQuestion, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
     ]
@@ -312,8 +313,8 @@ function SidebarNavigationContent() {
                 if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
                 if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
                 if (currentDashboardRole === 'coach') return (!!child.coachOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.tutorOnly;
-                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.ouderOnly && !child.coachOnly;
-                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.tutorOnly && !child.leerlingOnly && !child.coachOnly;
+                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
+                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
                 return false;
             }) || [];
 
