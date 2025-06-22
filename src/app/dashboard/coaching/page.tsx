@@ -95,7 +95,7 @@ export default function CoachingPage() {
   }, []);
 
   const fetchAiCoachingData = useCallback(async (date: Date) => {
-    if (!onboardingAnalysisText) {
+    if (!onboardingAnalysisText || onboardingAnalysisText.trim() === '') {
       toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
       setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
       setIsLoadingAiContent(false);
