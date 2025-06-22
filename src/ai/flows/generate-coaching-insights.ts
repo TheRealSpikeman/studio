@@ -15,7 +15,6 @@ import {z} from 'genkit';
 const GenerateCoachingInsightsInputSchema = z.object({
   onboardingAnalysisText: z
     .string()
-    .min(1, { message: "Onboarding analysis text cannot be empty." })
     .describe('The AI-generated analysis text from the user\'s onboarding quiz/self-reflection tool. This provides context about the user\'s neurodiversity profile, strengths, and challenges.'),
   userName: z.string().optional().describe('The name of the user for personalization in the coaching content.'),
   currentDate: z.string().optional().describe('The current date (e.g., "maandag 1 januari") for context, if needed.')
