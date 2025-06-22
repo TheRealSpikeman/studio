@@ -25,15 +25,24 @@ export const QuizCreatorWizard = () => {
       setIsGenerating(true);
       toast({ title: "AI is aan het werk...", description: "De quizvragen worden nu gegenereerd." });
       try {
+        let topic: string;
         let numQuestions: number;
         let category: string;
         let quizPurpose: 'onboarding' | 'general' | 'deep_dive' | 'reflection' | 'goal_setting';
         
         if (quizData.creationType === 'adaptive') {
+            topic = `Adaptieve Onboarding Quiz (${quizData.targetAgeGroup} jr)`;
             numQuestions = 18; // Default for Phase 1 of adaptive quiz
             category = 'Basis'; // Adaptive quiz is a base quiz
             quizPurpose = 'onboarding';
+            // Also set it in the main state so it's available in the preview
+            setQuizData(prev => ({
+              ...prev,
+              title: topic,
+              description: `Een adaptieve quiz die zich aanpast aan de gebruiker om een eerste neurodiversiteitsprofiel op te stellen.`
+            }));
         } else { // 'ai'
+            topic = quizData.title!;
             const durationMap: Record<string, number> = {
               '2-3 minuten (2-3 vragen)': 3,
               '3-5 minuten (4-6 vragen)': 5,
@@ -65,7 +74,7 @@ export const QuizCreatorWizard = () => {
         }
 
         const aiInput = {
-          topic: quizData.title!,
+          topic: topic,
           audience: audience,
           category: category,
           numQuestions: numQuestions,
@@ -106,6 +115,9 @@ export const QuizCreatorWizard = () => {
         if (!quizData.audienceType || !quizData.targetAgeGroup) return true;
         return false;
       case 3:
+        if (quizData.creationType === 'adaptive') {
+            return false;
+        }
         if (!quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) return true;
         if (quizData.creationType === 'ai' && !quizData.mainCategory) return true;
         return false;
