@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export interface QuizOption {
   id: string;
@@ -59,8 +60,10 @@ export function QuestionDisplay({
             <Label
               key={option.id}
               htmlFor={option.id}
-              className={`flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors
-                ${selectedOption === option.value ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}
+              className={cn(
+                "flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors hover:bg-muted/50",
+                "has-[input:checked]:border-primary has-[input:checked]:bg-primary/5 has-[input:checked]:ring-1 has-[input:checked]:ring-primary"
+              )}
             >
               <RadioGroupItem value={option.value} id={option.id} />
               <span>{option.text}</span>
