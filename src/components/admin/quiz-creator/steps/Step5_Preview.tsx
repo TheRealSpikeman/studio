@@ -11,13 +11,16 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import {
   FileText, Star, Rocket, CheckCircle2, AlertCircle, BarChart3,
-  ListChecks, Smartphone, Monitor, Sparkles, ArrowRight, ArrowLeft
+  ListChecks, Smartphone, Monitor, Sparkles, ArrowRight, ArrowLeft, Bot, RefreshCw, Loader2
 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion } from '@/types/quiz-admin';
 import { answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
+import { verifyQuizQuestions } from '@/ai/flows/verify-quiz-questions-flow';
+import type { VerifyQuizQuestionsOutput } from '@/ai/flows/verify-quiz-questions-flow';
 
 type DeviceType = 'desktop' | 'mobile';
 
@@ -28,6 +31,8 @@ export const Step5_Preview = () => {
     const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
     const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
     const [previewSelectedOption, setPreviewSelectedOption] = useState<string | undefined>(undefined);
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationResult, setVerificationResult] = useState<VerifyQuizQuestionsOutput | null>(null);
 
     const questions = quizData.questions || [];
     const currentPreviewQuestion = questions[previewQuestionIndex];
@@ -84,12 +89,90 @@ export const Step5_Preview = () => {
         router.push('/dashboard/admin/quiz-management');
     };
 
+    const handleVerification = async () => {
+        if (!quizData.title || !quizData.audienceType || !quizData.targetAgeGroup || !quizData.mainCategory || !quizData.questions || quizData.questions.length === 0) {
+          toast({
+            title: "Onvoldoende data",
+            description: "Zorg ervoor dat titel, doelgroep, categorie en vragen zijn ingevuld voor verificatie.",
+            variant: "destructive",
+          });
+          return;
+        }
+    
+        setIsVerifying(true);
+        setVerificationResult(null);
+    
+        try {
+          let audience: string;
+          switch (quizData.audienceType) {
+            case 'teen':
+              audience = `Tiener (${quizData.targetAgeGroup} jr, voor zichzelf)`;
+              break;
+            case 'parent':
+              audience = `Ouder (over kind ${quizData.targetAgeGroup} jr)`;
+              break;
+            case 'adult':
+            default:
+              audience = `Volwassene (18+, voor zichzelf)`;
+          }
+    
+          const input = {
+            quizTitle: quizData.title,
+            quizAudience: audience,
+            quizCategory: quizData.mainCategory,
+            questions: (quizData.questions as QuizAdminQuestion[]).filter(q => q.text).map(q => ({
+              text: q.text,
+              example: q.example,
+            })),
+          };
+    
+          const result = await verifyQuizQuestions(input);
+          setVerificationResult(result);
+        } catch (error) {
+          console.error("AI verification failed:", error);
+          toast({
+            title: "Verificatie Mislukt",
+            description: "De AI kon de verificatie niet voltooien. Probeer het later opnieuw.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsVerifying(false);
+        }
+    };
+
+
     const checklistItems = [
       { label: "Quiz titel en beschrijving ingevuld", valid: !!quizData.title && !!quizData.description },
       { label: "Doelgroep en focus opties geconfigureerd", valid: !!quizData.audienceType && !!quizData.targetAgeGroup },
       { label: `Minimaal ${quizData.creationType === 'adaptive' ? 15 : 3} vragen`, valid: (quizData.questions?.length ?? 0) >= (quizData.creationType === 'adaptive' ? 15 : 3) },
       { label: "Resultaat types en follow-up ingesteld", valid: !!quizData.settings?.resultPresentation?.format },
     ];
+
+    const getStatusBadgeVariant = (status?: string): "default" | "secondary" | "destructive" => {
+        switch (status) {
+          case 'Goedgekeurd':
+            return 'default';
+          case 'Goedgekeurd met suggesties':
+            return 'secondary';
+          case 'Revisie nodig':
+            return 'destructive';
+          default:
+            return 'default';
+        }
+    };
+
+    const getStatusBadgeClasses = (status?: string): string => {
+        switch (status) {
+          case 'Goedgekeurd':
+            return 'bg-green-100 text-green-700 border-green-300';
+          case 'Goedgekeurd met suggesties':
+            return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+          case 'Revisie nodig':
+            return 'bg-red-100 text-red-700 border-red-300';
+          default:
+            return 'bg-gray-100 text-gray-700 border-gray-300';
+        }
+    };
     
     return (
         <div>
@@ -113,7 +196,7 @@ export const Step5_Preview = () => {
                                 previewDevice === 'desktop' && 'w-full',
                                 previewDevice === 'mobile' && 'w-[375px] h-[620px] border-8 border-slate-800 rounded-[40px] shadow-2xl'
                             )}>
-                                <Card className={cn("overflow-hidden flex flex-col", previewDevice === 'mobile' ? 'rounded-[32px] h-full' : 'h-[620px]')}>
+                                <Card className={cn("overflow-hidden flex flex-col h-[620px]", previewDevice === 'mobile' && 'rounded-[32px] h-full')}>
                                     <div className="bg-gradient-to-br from-primary to-accent text-primary-foreground p-4 text-center">
                                         <h4 className="font-bold text-xl flex items-center justify-center gap-2"><Sparkles className="h-5 w-5"/>{quizData.title || "Voorbeeld Titel"}</h4>
                                         <p className="text-xs opacity-90 mt-1">{quizData.description || "Een korte beschrijving van de quiz komt hier."}</p>
@@ -154,6 +237,61 @@ export const Step5_Preview = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
                         <CardHeader>
+                            <CardTitle className="text-lg font-medium flex items-center gap-2">
+                                <Bot className="h-5 w-5 text-primary" />
+                                AI Verificatie (Psycholoog)
+                            </CardTitle>
+                            <CardDescription>
+                                Laat de AI de vragen controleren op duidelijkheid, toon en geschiktheid.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {isVerifying ? (
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                    <span>Verificatie bezig...</span>
+                                </div>
+                            ) : verificationResult ? (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-sm">Status:</span>
+                                        <Badge variant={getStatusBadgeVariant(verificationResult.overallStatus)} className={getStatusBadgeClasses(verificationResult.overallStatus)}>
+                                            {verificationResult.overallStatus}
+                                        </Badge>
+                                        </div>
+                                        <Button variant="ghost" size="sm" onClick={handleVerification}><RefreshCw className="mr-2 h-4 w-4"/>Opnieuw</Button>
+                                    </div>
+                                    
+                                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md border">{verificationResult.overallFeedback}</p>
+
+                                    {verificationResult.suggestions && verificationResult.suggestions.length > 0 && (
+                                        <Accordion type="single" collapsible className="w-full">
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger>Bekijk {verificationResult.suggestions.length} suggestie(s)</AccordionTrigger>
+                                            <AccordionContent className="space-y-3">
+                                                {verificationResult.suggestions.map((s, i) => (
+                                                    <div key={i} className="text-xs p-2 border bg-background rounded-md">
+                                                        <p><strong>Vraag {s.questionIndex + 1}:</strong> <span className="italic">"{s.originalText}"</span></p>
+                                                        <p><strong>Probleem:</strong> {s.issue}</p>
+                                                        <p><strong>Suggestie:</strong> <span className="text-green-600 font-medium">"{s.suggestedRevision}"</span></p>
+                                                    </div>
+                                                ))}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        </Accordion>
+                                    )}
+                                </div>
+                            ) : (
+                                <Button onClick={handleVerification}>
+                                    <Bot className="mr-2 h-4 w-4" /> Start AI Verificatie
+                                </Button>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
                           <CardTitle className="text-lg font-medium flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary"/>Publicatie Checklist</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
@@ -163,17 +301,6 @@ export const Step5_Preview = () => {
                                 <span className={!item.valid ? "text-muted-foreground line-through" : ""}>{item.label}</span>
                             </div>
                           ))}
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg font-medium flex items-center gap-2"><BarChart3 className="h-5 w-5 text-primary"/>Voorspelde Performance</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Label className="text-xs text-muted-foreground">Verwachte Voltooiing</Label>
-                            <div className="flex items-baseline gap-2 mb-1"><span className="text-4xl font-bold text-primary">87%</span></div>
-                            <Progress value={87} className="h-2"/>
-                            <p className="text-xs text-muted-foreground mt-1">Bovengemiddeld voor deze doelgroep</p>
                         </CardContent>
                     </Card>
                     <Card>
