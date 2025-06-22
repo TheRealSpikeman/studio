@@ -42,6 +42,16 @@ export type GenerateCoachingInsightsOutput = z.infer<
 export async function generateCoachingInsights(
   input: GenerateCoachingInsightsInput
 ): Promise<GenerateCoachingInsightsOutput> {
+  // Robust check to prevent calling the flow with empty text, which causes an error.
+  // This returns a safe, default object instead.
+  if (!input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
+    console.warn("generateCoachingInsights called with empty analysis text. Returning default content.");
+    return {
+      dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
+      dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
+      microTaskSuggestion: "Schrijf één ding op waar je vandaag trots op was."
+    };
+  }
   return generateCoachingInsightsFlow(input);
 }
 
