@@ -35,7 +35,7 @@ export interface Quiz {
 
 const recommendedQuizzes: Quiz[] = [
     { 
-    id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
+    id: 'teen-neuro-15-18', 
     title: 'Zelfreflectie Quiz (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 
@@ -69,7 +69,7 @@ const recommendedQuizzes: Quiz[] = [
 
 const baseTeenQuizzes: Quiz[] = [
   { 
-    id: 'teen-neurodiversity-quiz?ageGroup=12-14', 
+    id: 'teen-neuro-12-14', 
     title: 'Zelfreflectie Quiz (12-14 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
     status: 'Nog niet gestart', 
@@ -85,7 +85,7 @@ const baseTeenQuizzes: Quiz[] = [
     isNeuroIntake: true,
   },
   { 
-    id: 'teen-neurodiversity-quiz?ageGroup=15-18', 
+    id: 'teen-neuro-15-18', 
     title: 'Zelfreflectie Quiz (15-18 jr)', 
     description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
     status: 'Nog niet gestart', 

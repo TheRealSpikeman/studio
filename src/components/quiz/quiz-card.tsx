@@ -48,10 +48,11 @@ export function QuizCard({
   let actionButtonText;
   let actionButtonVariant: "default" | "outline" | "secondary" = "default";
   
-  // Construct the correct href for the quiz link
-  let href = `/quiz/${id}`; // Default link structure
-  if (id.startsWith('neuro-intake-')) { // Handle new neuro-intake IDs
-    href = `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroup}`; // Point to the generic teen quiz page with ageGroup
+  let href: string;
+  if (isNeuroIntake) {
+    href = `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroup}`;
+  } else {
+    href = `/quiz/${id}`;
   }
 
 
@@ -69,7 +70,7 @@ export function QuizCard({
       statusIcon = <CheckCircle className="h-5 w-5 text-green-500" />;
       actionButtonText = 'Bekijk Resultaten';
       actionButtonVariant = "outline";
-      if (id.startsWith('neuro-intake-')) {
+      if (isNeuroIntake) {
          href = `/quiz/teen-neurodiversity-quiz/results?ageGroup=${ageGroup}`; // Ensure results link for intake is also correct
       } else {
         href = `/quiz/${id}/results`;

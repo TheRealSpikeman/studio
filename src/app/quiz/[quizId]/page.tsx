@@ -84,12 +84,6 @@ export default function TakeQuizPage() {
   const [answers, setAnswers] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
-    // Redirect special quizzes to their dedicated handlers
-    if (quizIdOrSlug === 'teen-neurodiversity-quiz') {
-      router.replace('/quiz/teen-neurodiversity-quiz');
-      return;
-    }
-    
     async function loadQuiz() {
       setIsLoading(true);
       const data = await fetchQuizForPreview(quizIdOrSlug);
@@ -97,7 +91,7 @@ export default function TakeQuizPage() {
       setIsLoading(false);
     }
     loadQuiz();
-  }, [quizIdOrSlug, router]);
+  }, [quizIdOrSlug]);
 
   if (isLoading) {
     return (
