@@ -62,7 +62,7 @@ export function QuestionDisplay({
               htmlFor={option.id}
               className={cn(
                 "flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors hover:bg-muted/50",
-                "has-[input:checked]:border-primary has-[input:checked]:bg-primary/5 has-[input:checked]:ring-1 has-[input:checked]:ring-primary"
+                "has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary"
               )}
             >
               <RadioGroupItem value={option.value} id={option.id} />
