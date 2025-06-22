@@ -115,6 +115,10 @@ Every question you generate **MUST** be a statement or a frequency question that
 
 This rule is the most important constraint. Do not deviate from it.
 
+**!! PSYCHOMETRIC CONSIDERATIONS !!**
+- All questions should be positively worded. A higher frequency ("Vaak", "Altijd") should consistently indicate a stronger presence of the trait being measured (e.g., "Ik heb moeite met concentreren").
+- Avoid reverse-scored items where a lower frequency would indicate a stronger trait (e.g., "Ik kan me gemakkelijk concentreren"). This uniform scoring approach is similar to validated questionnaires like the Conners scales and simplifies analysis.
+
 Specific instructions based on Target Audience:
 {{#if isSelfReflection}}
   The questions should help the user (a tiener or volwassene) reflect on THEMSELVES regarding the given topic and domain. The phrasing must fit the Likert scale.
