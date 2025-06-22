@@ -30,39 +30,60 @@ const GenerateQuizAnalysisOutputSchema = z.object({
 });
 export type GenerateQuizAnalysisOutput = z.infer<typeof GenerateQuizAnalysisOutputSchema>;
 
-// Define een type voor de input van de prompt-functie zelf, inclusief de dynamische instructies.
-// Dit is intern aan de flow.
-const PromptInternalInputSchema = GenerateQuizAnalysisInputSchema.extend({
-  analysisInstructions: z.string().optional(),
-});
-type PromptInternalInput = z.infer<typeof PromptInternalInputSchema>;
-
-
-export async function generateQuizAnalysis(
-  input: GenerateQuizAnalysisInput
-): Promise<GenerateQuizAnalysisOutput> {
-  // Robust validation at the entry point to prevent calling the flow with invalid data.
-  if (!input || !input.finalScores || Object.keys(input.finalScores).length === 0 || !input.answeredQuestions || input.answeredQuestions.length === 0) {
-    console.warn("generateQuizAnalysis called with invalid or empty input. Returning default analysis.", input);
-    return {
-      analysis: `## Analyse Onvolledig
+// Helper function for default analysis text
+function getDefaultAnalysis(): string {
+  return `## Analyse Onvolledig
 
 We konden geen analyse genereren omdat er onvoldoende gegevens beschikbaar waren. Dit kan gebeuren als de quiz niet volledig is ingevuld of als er een fout is opgetreden.
 
 **Wat nu?**
 * Probeer de quiz opnieuw te doen.
-* Als het probleem aanhoudt, neem dan contact op met support en vermeld de quiz die je deed.
-`
-    };
+* Als het probleem aanhoudt, neem dan contact op met support en vermeld de quiz die je deed.`;
+}
+
+
+export async function generateQuizAnalysis(
+  input: GenerateQuizAnalysisInput
+): Promise<GenerateQuizAnalysisOutput> {
+  console.log("=== ANALYSIS INPUT VALIDATION ===");
+  console.log("Received input:", JSON.stringify(input, null, 2));
+
+  if (!input) {
+    console.error("No input provided");
+    return { analysis: getDefaultAnalysis() };
   }
+  
+  if (!input.finalScores || typeof input.finalScores !== 'object' || Object.keys(input.finalScores).length === 0) {
+    console.error("Invalid or empty finalScores:", input.finalScores);
+    return { analysis: getDefaultAnalysis() };
+  }
+  
+  if (!input.answeredQuestions || !Array.isArray(input.answeredQuestions) || input.answeredQuestions.length === 0) {
+    console.error("Invalid or empty answeredQuestions:", input.answeredQuestions);
+    return { analysis: getDefaultAnalysis() };
+  }
+  
+  if (!input.ageGroup || !input.quizTitle) {
+    console.error("Missing ageGroup or quizTitle:", { ageGroup: input.ageGroup, quizTitle: input.quizTitle });
+    return { analysis: getDefaultAnalysis() };
+  }
+  
+  console.log("Input validation passed, calling flow...");
   return generateQuizAnalysisFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateQuizAnalysisPrompt',
-  input: {schema: PromptInternalInputSchema}, // Gebruik het interne schema hier
-  output: {schema: GenerateQuizAnalysisOutputSchema},
-  prompt: `CONTEXT: Je bent Dr. Florentine Sage, een GZ-psycholoog gespecialiseerd in neurodiversiteit bij adolescenten. Je analyseert de resultaten van een zelfreflectie-instrument voor een jongere in de leeftijdscategorie {{{ageGroup}}}. Je schrijfstijl is warm, empowerend, bemoedigend en makkelijk te begrijpen voor deze doelgroep.
+
+const generateQuizAnalysisFlow = ai.defineFlow(
+  {
+    name: 'generateQuizAnalysisFlow',
+    inputSchema: GenerateQuizAnalysisInputSchema,
+    outputSchema: GenerateQuizAnalysisOutputSchema,
+  },
+  async (input: GenerateQuizAnalysisInput) => {
+    console.log("=== MANUAL PROMPT BUILDING IN FLOW ===");
+    
+    // Manually build the prompt string to avoid Handlebars issues
+    let promptText = `CONTEXT: Je bent Dr. Florentine Sage, een GZ-psycholoog gespecialiseerd in neurodiversiteit bij adolescenten. Je analyseert de resultaten van een zelfreflectie-instrument voor een jongere in de leeftijdscategorie ${input.ageGroup}. Je schrijfstijl is warm, empowerend, bemoedigend en makkelijk te begrijpen voor deze doelgroep.
 
 BELANGRIJKE INSTRUCTIES:
 1.  **GEEN MEDISCHE LABELS**: Gebruik **NOOIT** acroniemen zoals ADD, ADHD, ASS, HSP, of termen als 'stoornis'. Gebruik in plaats daarvan beschrijvende, neutrale thema's:
@@ -77,53 +98,19 @@ BELANGRIJKE INSTRUCTIES:
 5.  **TOON**: Schrijf direct tegen de jongere ('jij' en 'jouw'). Wees positief en focus op sterktes en groeimogelijkheden.
 
 ANALYSEER DE VOLGENDE DATA:
--   Quiz Titel: {{{quizTitle}}}
--   Leeftijdsgroep: {{{ageGroup}}}
--   Scores per Thema (ALLEEN VOOR JOUW INTERNE ANALYSE, NIET TONEN):
-    {{#each finalScores}}
-    - {{@key}}: {{{this}}}
-    {{/each}}
--   Gegeven Antwoorden:
-    {{#each answeredQuestions}}
-    - Vraag over "{{this.profileKey}}": "{{this.question}}" - Antwoord: "{{this.answer}}"
-    {{/each}}
+-   Quiz Titel: ${input.quizTitle}
+-   Leeftijdsgroep: ${input.ageGroup}
+-   Scores per Thema (ALLEEN VOOR JOUW INTERNE ANALYSE, NIET TONEN):`;
 
-OUTPUT FORMAT:
+    for (const [key, value] of Object.entries(input.finalScores)) {
+      promptText += `\n    - ${key}: ${value}`;
+    }
 
-## Jouw Profiel In Vogelvlucht
-Begin met een korte, algemene en bemoedigende introductie. Vat daarna per relevant thema (zie de thema's hierboven) in een paar zinnen samen wat de antwoorden suggereren. Focus op het normaliseren van de ervaring.
-*Voorbeeld: "Aandacht & Focus: Je lijkt te herkennen dat je gedachten soms alle kanten op schieten. Dat is een teken van een creatief brein!"*
+    promptText += `\n-   Gegeven Antwoorden:`;
 
-## Sterke Kanten
-Lijst 2-3 positieve sterke punten op basis van de antwoorden, gebruikmakend van bullet points (`* `). Frame ze als talenten of superkrachten en verbind ze aan concrete voorbeelden.
-*Voorbeeld: "* Je vermogen om je intensief te focussen op een hobby die je interessant vindt (zoals aangegeven bij 'Sociale & Sensorische Voorkeuren') is een grote kracht. Dit kan je helpen om een expert te worden in iets wat je leuk vindt!"*
-
-## Aandachtspunten
-Lijst 2-3 uitdagingen op, geframed als 'groeikansen' of 'dingen om op te letten'. Wees zacht en constructief. Vermijd negatieve taal.
-*Voorbeeld: "* De quiz laat zien dat je het soms lastig vindt om je te concentreren op taken die je minder boeien. Het is belangrijk om te weten dat je hier niet alleen in bent en dat er manieren zijn om hiermee om te gaan."*
-
-## Tips voor Jou
-Geef 3-4 concrete, praktische en direct toepasbare tips. Geef de tips creatieve, herkenbare namen.
-*Voorbeeld: "* **De Focus Sprint:** Probeer eens te werken met een timer voor 20 minuten en neem daarna 5 minuten pauze. Dit kan helpen om taken minder overweldigend te maken."*
-
-{{{analysisInstructions}}}
-`,
-});
-
-const generateQuizAnalysisFlow = ai.defineFlow(
-  {
-    name: 'generateQuizAnalysisFlow',
-    inputSchema: GenerateQuizAnalysisInputSchema, // De flow gebruikt het externe input schema
-    outputSchema: GenerateQuizAnalysisOutputSchema,
-  },
-  async (input: GenerateQuizAnalysisInput) => {
-    // Debug logging as requested
-    console.log("=== GENKIT FLOW DEBUG ===");
-    console.log("input.quizTitle:", input.quizTitle);
-    console.log("input.ageGroup:", input.ageGroup);
-    console.log("input.finalScores:", input.finalScores);
-    console.log("input.answeredQuestions length:", input.answeredQuestions?.length);
-    console.log("answeredQuestions:", JSON.stringify(input.answeredQuestions, null, 2));
+    input.answeredQuestions.forEach(q => {
+      promptText += `\n    - Vraag over "${q.profileKey || 'algemeen'}": "${q.question}" - Antwoord: "${q.answer}"`;
+    });
 
     let analysisInstructions = "";
     switch (input.analysisDetailLevel) {
@@ -138,15 +125,40 @@ const generateQuizAnalysisFlow = ai.defineFlow(
         analysisInstructions = "De analyse moet gedetailleerd zijn (minstens 250-300 woorden).";
         break;
     }
-    
-    const promptInput = { ...input, analysisInstructions };
-    console.log("Calling prompt with:", JSON.stringify(promptInput, null, 2));
 
-    // Roep de prompt aan met de originele input PLUS de gegenereerde instructies
-    const {output} = await prompt(promptInput);
+    promptText += `\n\nOUTPUT FORMAT:
+
+## Jouw Profiel In Vogelvlucht
+Begin met een korte, algemene en bemoedigende introductie. Vat daarna per relevant thema (zie de thema's hierboven) in een paar zinnen samen wat de antwoorden suggereren. Focus op het normaliseren van de ervaring.
+*Voorbeeld: "Aandacht & Focus: Je lijkt te herkennen dat je gedachten soms alle kanten op schieten. Dat is een teken van een creatief brein!"*
+
+## Sterke Kanten
+Lijst 2-3 positieve sterke punten op basis van de antwoorden, gebruikmakend van bullet points (\`* \`). Frame ze als talenten of superkrachten en verbind ze aan concrete voorbeelden.
+*Voorbeeld: "* Je vermogen om je intensief te focussen op een hobby die je interessant vindt (zoals aangegeven bij 'Sociale & Sensorische Voorkeuren') is een grote kracht. Dit kan je helpen om een expert te worden in iets wat je leuk vindt!"*
+
+## Aandachtspunten
+Lijst 2-3 uitdagingen op, geframed als 'groeikansen' of 'dingen om op te letten'. Wees zacht en constructief. Vermijd negatieve taal.
+*Voorbeeld: "* De quiz laat zien dat je het soms lastig vindt om je te concentreren op taken die je minder boeien. Het is belangrijk om te weten dat je hier niet alleen in bent en dat er manieren zijn om hiermee om te gaan."*
+
+## Tips voor Jou
+Geef 3-4 concrete, praktische en direct toepasbare tips. Geef de tips creatieve, herkenbare namen.
+*Voorbeeld: "* **De Focus Sprint:** Probeer eens te werken met een timer voor 20 minuten en neem daarna 5 minuten pauze. Dit kan helpen om taken minder overweldigend te maken."*
+
+${analysisInstructions}`;
+    
+    console.log("Built prompt text length:", promptText.length);
+    console.log("First 100 chars of prompt:", promptText.substring(0, 100));
+
+    // Use ai.generate directly to bypass the definePrompt templating engine
+    const { output } = await ai.generate({
+      prompt: promptText,
+      output: { schema: GenerateQuizAnalysisOutputSchema }
+    });
+
     if (!output) {
       throw new Error('AI did not return an analysis.');
     }
+    
     return output;
   }
 );
