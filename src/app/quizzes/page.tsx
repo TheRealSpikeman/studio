@@ -1,3 +1,4 @@
+
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -8,12 +9,13 @@ import { QuizCard, QuizStatus } from '@/components/quiz/quiz-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Search, AlertTriangle, BookOpen, Sparkles, User, Clock, List, Brain, Zap, Award } from 'lucide-react';
+import { Search, AlertTriangle, BookOpen, Sparkles, User, Clock, List, Brain, Zap, Award, Users as UsersIcon } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import type { QuizAdmin, QuizAudience } from '@/types/quiz-admin';
 
 export interface Quiz {
   id: string; 
@@ -33,149 +35,51 @@ export interface Quiz {
   isNeuroIntake?: boolean; // Toegevoegd om intake te identificeren
 }
 
-const recommendedQuizzes: Quiz[] = [
-    { 
-    id: 'teen-neuro-15-18', 
-    title: 'Zelfreflectie Quiz (15-18 jr)', 
-    description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
-    dataAiHint: 'teenager portrait',
-    ageGroup: '15-18',
-    duration: "12-18 min",
-    questionCount: 15,
-    difficulty: 'gemiddeld',
-    icon: Brain,
-    badgeText: "Aanrader",
-    badgeClass: "bg-purple-500 text-white",
-    isNeuroIntake: true,
-  },
-  { 
-    id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding Quiz', 
-    description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
-    dataAiHint: 'teenager phone',
-    ageGroup: 'all',
-    duration: "6-9 min",
-    questionCount: 10,
-    difficulty: 'makkelijk',
-    icon: Zap,
-    badgeText: "Nieuw",
-    badgeClass: "bg-green-500 text-white",
-  },
-];
+const getAgeGroupFromAudience = (audience: QuizAudience[]): '12-14' | '15-18' | 'all' => {
+  if (!audience || audience.length === 0) return 'all';
+  const audStr = audience.join(' ');
+  if (audStr.includes('12-14')) return '12-14';
+  if (audStr.includes('15-18')) return '15-18';
+  return 'all';
+};
 
-const baseTeenQuizzes: Quiz[] = [
-  { 
-    id: 'teen-neuro-12-14', 
-    title: 'Zelfreflectie Quiz (12-14 jr)', 
-    description: 'Verken jouw unieke eigenschappen. Speciaal voor 12-14 jaar.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/young_teenage_boy_13_years_old_with_blonde_hair.png?alt=media&token=79e72caf-3dcd-4dcf-8d01-9074ceb3f8aa',
-    dataAiHint: 'teenage boy',
-    ageGroup: '12-14',
-    duration: "10-15 min",
-    questionCount: 12,
-    difficulty: 'gemiddeld',
-    icon: Brain,
-    badgeText: "Basis",
-    badgeClass: "bg-blue-500 text-white",
-    isNeuroIntake: true,
-  },
-  { 
-    id: 'teen-neuro-15-18', 
-    title: 'Zelfreflectie Quiz (15-18 jr)', 
-    description: 'Verken jouw unieke eigenschappen. Speciaal voor 15-18 jaar.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytai.png?alt=media&token=055da5d1-2291-4858-8c90-b903be950264',
-    dataAiHint: 'teenager portrait',
-    ageGroup: '15-18',
-    duration: "12-18 min",
-    questionCount: 15,
-    difficulty: 'gemiddeld',
-    icon: Brain,
-    badgeText: "Basis",
-    badgeClass: "bg-blue-500 text-white",
-    isNeuroIntake: true,
-  },
-];
+const getDuration = (questionCount: number): string => {
+  if (questionCount <= 3) return '1-2 min';
+  if (questionCount <= 6) return '3-5 min';
+  if (questionCount <= 10) return '5-8 min';
+  if (questionCount <= 15) return '8-12 min';
+  return '>15 min';
+};
 
-const thematicTeenQuizzes: Quiz[] = [
-  {
-    id: 'debug-flow-test',
-    title: 'Foutopsporing-Quiz',
-    description: 'Een simpele testquiz om de data flow van begin tot eind te controleren.',
+const getIconForCategory = (category: string): ElementType => {
+  switch (category) {
+    case 'Basis': return Brain;
+    case 'Thema': return Award;
+    case 'Ouder Observatie': return UsersIcon;
+    default: return Sparkles;
+  }
+};
+
+const mapAdminQuizToDisplayQuiz = (adminQuiz: QuizAdmin): Quiz => {
+  const questionCount = adminQuiz.questions.length;
+  const isNeuroIntake = adminQuiz.category === 'Basis';
+  return {
+    id: adminQuiz.slug || adminQuiz.id,
+    title: adminQuiz.title,
+    description: adminQuiz.description,
     status: 'Nog niet gestart',
-    imageUrl: 'https://placehold.co/400x200.png?text=DEBUG',
-    dataAiHint: 'computer code bug',
-    ageGroup: 'all',
-    duration: "1 min",
-    questionCount: 3,
-    difficulty: 'makkelijk',
-    icon: AlertTriangle,
-    badgeText: "DEBUG",
-    badgeClass: "bg-destructive text-destructive-foreground",
-    isNeuroIntake: false,
-  },
-  { 
-    id: 'exam-stress-planning', 
-    title: 'Omgaan met Examenvrees', 
-    description: 'Leer stress te beheersen en je planning scherp te houden.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_skin_curly_hair.png?alt=media&token=00582d3b-19c5-4744-be12-8636535829f8', 
-    dataAiHint: 'student thinking',
-    ageGroup: 'all',
-    duration: "8-12 min",
-    questionCount: 10,
-    difficulty: 'gemiddeld',
-    icon: Award,
-    badgeText: "Populair!",
-    badgeClass: "bg-accent text-accent-foreground",
-  },
-  { 
-    id: 'social-anxiety-friendships', 
-    title: 'Sociale Situaties &amp; Vriendschap', 
-    description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/mixed-race_Asian_teenage_boy_with_Chinese_features.png?alt=media&token=09c31095-7bea-4206-9254-7e65c46ea5ec', 
-    dataAiHint: 'asian teenager',
-    ageGroup: 'all',
-    duration: "7-10 min",
-    questionCount: 12,
-    difficulty: 'makkelijk',
-    icon: User,
-  },
-  { 
-    id: 'focus-digital-distraction', 
-    title: 'Focus & Digitale Afleiding Quiz', 
-    description: 'Ontdek hoe social media je concentratie beïnvloeden.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_girl_with_dark_hair_in_ponytail-screen-time.png?alt=media&token=17820a6c-b5ad-4719-ac21-6541d59ada65',
-    dataAiHint: 'teenager phone',
-    ageGroup: 'all',
-    duration: "6-9 min",
-    questionCount: 10,
-    difficulty: 'makkelijk',
-    icon: Zap,
-    badgeText: "Nieuw",
-    badgeClass: "bg-green-500 text-white",
-  },
-  { 
-    id: 'motivation-goals', 
-    title: 'Motivatie & Doelen Stellen', 
-    description: 'Leer doelen stellen, successen vieren en gemotiveerd blijven.', 
-    status: 'Nog niet gestart', 
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/teenage_boy_with_dark_skin_setting_goals_and_celeb.png?alt=media&token=91f4d153-37f2-468f-a40e-4a6606ba1670', 
-    dataAiHint: 'success celebration',
-    ageGroup: 'all',
-    duration: "5-8 min",
-    questionCount: 8,
-    difficulty: 'makkelijk',
-    icon: User,
-  },
-];
+    imageUrl: adminQuiz.thumbnailUrl || `https://placehold.co/400x200.png?text=${adminQuiz.title.replace(/\s/g, '+')}`,
+    dataAiHint: 'abstract quiz',
+    ageGroup: getAgeGroupFromAudience(adminQuiz.audience),
+    duration: getDuration(questionCount),
+    questionCount: questionCount,
+    difficulty: 'gemiddeld', // This could be enhanced if difficulty is stored in QuizAdmin
+    icon: getIconForCategory(adminQuiz.category),
+    isNeuroIntake: isNeuroIntake,
+    badgeText: isNeuroIntake ? 'Basis' : 'Thema',
+    badgeClass: isNeuroIntake ? 'bg-blue-500 text-white' : 'bg-teal-500 text-white',
+  };
+};
 
 type AgeFilterType = 'all' | '12-14' | '15-18';
 
@@ -186,7 +90,34 @@ function PublicQuizzesContent() {
   const [durationFilter, setDurationFilter] = useState('all');
   const [themeFilter, setThemeFilter] = useState('');
 
+  const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const ageGroupFromQuery = searchParams.get('ageGroup');
+
+  useEffect(() => {
+    setIsLoading(true);
+    const loadedQuizzes: Quiz[] = [];
+    if (typeof window !== 'undefined') {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          try {
+            const storedData = localStorage.getItem(key);
+            if (storedData) {
+              const quiz = JSON.parse(storedData) as QuizAdmin;
+              if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category && quiz.status === 'published') {
+                loadedQuizzes.push(mapAdminQuizToDisplayQuiz(quiz));
+              }
+            }
+          } catch (e) { /* Not a valid quiz object, ignore. */ }
+        }
+      }
+    }
+    setAllQuizzes(loadedQuizzes);
+    setIsLoading(false);
+  }, []);
+
 
   useEffect(() => {
     if (ageGroupFromQuery) {
@@ -198,26 +129,24 @@ function PublicQuizzesContent() {
     }
   }, [ageGroupFromQuery]);
 
-
-  const filterQuizzes = (quizzesToFilter: Quiz[], isRecommendedSection: boolean = false) => {
-    return quizzesToFilter.filter(quiz => {
+  const filteredQuizzes = useMemo(() => {
+    return allQuizzes.filter(quiz => {
       const matchesSearch = !searchTerm || 
         quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         quiz.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (quiz.badgeText && quiz.badgeText.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      let matchesAge = true;
-      if (!isRecommendedSection) { 
-        matchesAge = ageFilter === 'all' || quiz.ageGroup === ageFilter || quiz.ageGroup === 'all';
-      }
+      const matchesAge = ageFilter === 'all' || quiz.ageGroup === ageFilter || quiz.ageGroup === 'all';
       
       let matchesDuration = true;
       if (quiz.duration && durationFilter !== 'all') {
-        const [minDuration, maxDuration] = quiz.duration.replace(' min', '').split('-').map(d => parseInt(d));
-        const avgDuration = maxDuration ? (minDuration + maxDuration) / 2 : minDuration;
-        if (durationFilter === '<5' && avgDuration >= 5) matchesDuration = false;
-        if (durationFilter === '5-10' && (avgDuration < 5 || avgDuration > 10)) matchesDuration = false;
-        if (durationFilter === '>10' && avgDuration <= 10) matchesDuration = false;
+        const minDurationMatch = quiz.duration.match(/^(\d+)-/);
+        if(minDurationMatch){
+          const minDuration = parseInt(minDurationMatch[1]);
+          if (durationFilter === '<5' && minDuration >= 5) matchesDuration = false;
+          if (durationFilter === '5-10' && (minDuration < 5 || minDuration > 10)) matchesDuration = false;
+          if (durationFilter === '>10' && minDuration <= 10) matchesDuration = false;
+        }
       }
 
       const matchesTheme = !themeFilter || 
@@ -226,16 +155,20 @@ function PublicQuizzesContent() {
 
       return matchesSearch && matchesAge && matchesDuration && matchesTheme;
     });
-  };
-
-  const filteredRecommendedQuizzes = filterQuizzes(recommendedQuizzes, true);
-  const filteredBaseQuizzes = filterQuizzes(baseTeenQuizzes);
-  const filteredThematicQuizzes = filterQuizzes(thematicTeenQuizzes);
+  }, [allQuizzes, searchTerm, ageFilter, durationFilter, themeFilter]);
   
-  const noResultsForSearch = searchTerm && 
-                             filteredRecommendedQuizzes.length === 0 && 
-                             filteredBaseQuizzes.length === 0 && 
-                             filteredThematicQuizzes.length === 0;
+  const baseQuizzes = filteredQuizzes.filter(q => q.isNeuroIntake);
+  const thematicQuizzes = filteredQuizzes.filter(q => !q.isNeuroIntake);
+
+  const noResultsForSearch = searchTerm && baseQuizzes.length === 0 && thematicQuizzes.length === 0;
+
+  if (isLoading) {
+    return (
+        <div className="flex flex-1 items-center justify-center">
+            <p>Quizzen laden...</p>
+        </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -244,13 +177,13 @@ function PublicQuizzesContent() {
         <div className="container space-y-12">
           <section className="text-center">
             <BookOpen className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">Zelfreflectie Quizzen</h1>
+            <h1 className="text-4xl font-bold text-foreground">Zelfreflectie Tools</h1>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Ontdek onze quizzen om meer inzicht te krijgen in jouw unieke denkstijl, sterke punten en uitdagingen.
+              Ontdek onze tools om meer inzicht te krijgen in jouw unieke denkstijl, sterke punten en uitdagingen.
             </p>
              <p className="text-md text-accent mt-3 flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Elke quiz helpt je dichter bij betere focus en zelfinzicht.
+              Elke tool helpt je dichter bij betere focus en zelfinzicht.
             </p>
           </section>
 
@@ -310,7 +243,7 @@ function PublicQuizzesContent() {
                 <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Geen quizzen gevonden</h3>
                 <p className="text-muted-foreground">
-                    Er zijn geen zelfreflectie-quizzen die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
+                    Er zijn geen zelfreflectie-tools die overeenkomen met je zoekterm "{searchTerm}". Probeer een andere zoekterm of pas je filters aan.
                 </p>
                 <Button onClick={() => {setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); setDurationFilter('all');}} className="mt-4">
                     Wis filters &amp; zoekopdracht
@@ -321,48 +254,41 @@ function PublicQuizzesContent() {
 
           {!noResultsForSearch && (
             <>
-              {filteredRecommendedQuizzes.length > 0 && (
+              {baseQuizzes.length > 0 && (
                 <section>
-                  <h2 className="mb-6 text-2xl font-semibold text-foreground">⭐ Voor jou aanbevolen</h2>
+                  <h2 className="mb-2 text-2xl font-semibold text-foreground">Basis Zelfreflectie Tools</h2>
+                  <p className="text-sm text-muted-foreground mb-6">Start hier als je voor het eerst jouw eigenschappen wilt verkennen.</p>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredRecommendedQuizzes.map((quiz) => (
-                      <QuizCard key={`${quiz.id}-recommended`} {...quiz} />
-                    ))}
+                      {baseQuizzes.map((quiz) => (
+                        <QuizCard key={quiz.id} {...quiz} />
+                      ))}
                   </div>
                 </section>
               )}
 
-              <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Basisquizzen voor jouw leeftijd</h2>
-                 <p className="text-sm text-muted-foreground mb-6">Start hier als je voor het eerst jouw eigenschappen wilt verkennen.</p>
-                {filteredBaseQuizzes.length > 0 ? (
+              {thematicQuizzes.length > 0 && (
+                <section>
+                  <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale situaties &amp; meer</h2>
+                  <p className="text-sm text-muted-foreground mb-6">Duik dieper in specifieke onderwerpen die voor jou relevant zijn.</p>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredBaseQuizzes.map((quiz) => (
-                      <QuizCard key={quiz.id} {...quiz} />
-                    ))}
+                      {thematicQuizzes.map((quiz) => (
+                        <QuizCard key={quiz.id} {...quiz} />
+                      ))}
                   </div>
-                ) : (
-                   <p className="text-muted-foreground text-center py-6">
-                    Geen basisquizzen gevonden die voldoen aan de huidige filters.
-                  </p>
-                )}
-              </section>
+                </section>
+              )}
 
-              <section>
-                <h2 className="mb-2 text-2xl font-semibold text-foreground">Kies jouw verdieping: examenvrees, sociale situaties &amp; meer</h2>
-                <p className="text-sm text-muted-foreground mb-6">Duik dieper in specifieke onderwerpen die voor jou relevant zijn.</p>
-                {filteredThematicQuizzes.length > 0 ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredThematicQuizzes.map((quiz) => (
-                      <QuizCard key={quiz.id} {...quiz} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-6">
-                    Geen thematische quizzen gevonden die voldoen aan de huidige filters.
-                  </p>
-                )}
-              </section>
+               {baseQuizzes.length === 0 && thematicQuizzes.length === 0 && (
+                  <Card className="bg-secondary/50 border-secondary">
+                    <CardContent className="p-6 flex flex-col items-center text-center">
+                    <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Geen Quizzen Beschikbaar</h3>
+                    <p className="text-muted-foreground">
+                        Er zijn momenteel geen gepubliceerde quizzen die aan je filters voldoen. Kom later terug!
+                    </p>
+                    </CardContent>
+                  </Card>
+              )}
             </>
           )}
 
@@ -381,7 +307,6 @@ function PublicQuizzesContent() {
               Geen oordeel—alleen inzicht en tips.
             </p>
           </section>
-
         </div>
       </main>
       <Footer />
@@ -396,3 +321,4 @@ export default function QuizzesOverviewPage() {
     </Suspense>
   );
 }
+
