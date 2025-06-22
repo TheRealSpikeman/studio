@@ -111,9 +111,9 @@ export const Step5_Preview = () => {
                             </div>
                             <div className={cn("mx-auto transition-all duration-300", 
                                 previewDevice === 'desktop' && 'w-full',
-                                previewDevice === 'mobile' && 'w-[375px] h-[720px] border-8 border-slate-800 rounded-[40px] shadow-2xl'
+                                previewDevice === 'mobile' && 'w-[375px] h-[620px] border-8 border-slate-800 rounded-[40px] shadow-2xl'
                             )}>
-                                <Card className={cn("overflow-hidden flex flex-col", previewDevice === 'mobile' ? 'rounded-[32px] h-full' : 'h-[720px]')}>
+                                <Card className={cn("overflow-hidden flex flex-col", previewDevice === 'mobile' ? 'rounded-[32px] h-full' : 'h-[620px]')}>
                                     <div className="bg-gradient-to-br from-primary to-accent text-primary-foreground p-4 text-center">
                                         <h4 className="font-bold text-xl flex items-center justify-center gap-2"><Sparkles className="h-5 w-5"/>{quizData.title || "Voorbeeld Titel"}</h4>
                                         <p className="text-xs opacity-90 mt-1">{quizData.description || "Een korte beschrijving van de quiz komt hier."}</p>
