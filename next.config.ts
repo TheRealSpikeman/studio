@@ -34,6 +34,13 @@ const nextConfig: NextConfig = {
   experimental: {
     allowedDevOrigins: ["https://6000-firebase-studio-1746800952268.cluster-oayqgyglpfgseqclbygurw4xd4.cloudworkstations.dev"],
   },
+  webpack: (config) => {
+    config.watchOptions = {
+      poll: 300, // Check for changes every 300ms
+      aggregateTimeout: 300, // delay before rebuilding
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
