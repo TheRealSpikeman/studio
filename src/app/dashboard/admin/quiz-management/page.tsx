@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/quiz-management/page.tsx
 "use client";
 
@@ -10,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, Zap } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import { SEED_QUIZZES_DATA, LOCAL_STORAGE_QUIZ_SEEDED_KEY } from '@/lib/quiz-data/seed-quizzes';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -49,30 +49,37 @@ export default function QuizManagementPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const quizzesMap = new Map<string, QuizAdmin>();
+    // Seed localStorage on first visit if not already seeded
+    if (localStorage.getItem(LOCAL_STORAGE_QUIZ_SEEDED_KEY) !== 'true') {
+        SEED_QUIZZES_DATA.forEach(quiz => {
+            localStorage.setItem(quiz.id, JSON.stringify(quiz));
+        });
+        localStorage.setItem(LOCAL_STORAGE_QUIZ_SEEDED_KEY, 'true');
+    }
 
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            // A simple check to see if it's a quiz object. More robust checks are possible.
-            if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-'))) {
-                const storedData = localStorage.getItem(key);
-                if (storedData) {
-                    const storedQuiz = JSON.parse(storedData) as QuizAdmin;
-                    quizzesMap.set(storedQuiz.id, storedQuiz);
+    const allQuizzes: QuizAdmin[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-') || key.startsWith('exam-stress-') || key.startsWith('social-anxiety-') || key.startsWith('focus-digital-') || key.startsWith('motivation-goals-'))) {
+            const storedData = localStorage.getItem(key);
+            if (storedData) {
+                try {
+                    const quiz = JSON.parse(storedData);
+                    // Basic validation to ensure it's a quiz object
+                    if (quiz.id && quiz.title && Array.isArray(quiz.questions)) {
+                        allQuizzes.push(quiz);
+                    }
+                } catch (e) {
+                    console.error(`Error parsing quiz from localStorage with key: ${key}`, e);
                 }
             }
         }
-    } catch (error) {
-        console.error("Error loading quizzes from localStorage:", error);
     }
     
-    const allLoadedQuizzes = Array.from(quizzesMap.values());
-    
-    setQuizzes(allLoadedQuizzes.map(q => ({
+    setQuizzes(allQuizzes.map(q => ({
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
-        thumbnailUrl: q.thumbnailUrl || `https://picsum.photos/seed/${q.slug || q.id}/400/200`,
+        thumbnailUrl: q.thumbnailUrl || `https://placehold.co/400x200.png?text=${q.title.replace(/\s/g, '+')}`,
         analysisDetailLevel: q.analysisDetailLevel || 'standaard',
         analysisInstructions: q.analysisInstructions || '',
     })));
@@ -83,7 +90,7 @@ export default function QuizManagementPage() {
       const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || quiz.status === statusFilter;
-      const matchesAudience = audienceFilter === 'all' || quiz.audience.includes(audienceFilter as QuizAudience);
+      const matchesAudience = audienceFilter === 'all' || (Array.isArray(quiz.audience) && quiz.audience.includes(audienceFilter as QuizAudience));
       const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
       return matchesSearch && matchesStatus && matchesAudience && matchesCategory;
     });
@@ -99,7 +106,7 @@ export default function QuizManagementPage() {
   const handleDeleteQuiz = (quizId: string) => {
     setQuizzes(prev => prev.filter(q => q.id !== quizId));
     try {
-      localStorage.removeItem(quizId); // Use quizId directly as key
+      localStorage.removeItem(quizId);
     } catch (error) {
       console.error("Error removing quiz from localStorage:", error);
     }
@@ -203,7 +210,7 @@ export default function QuizManagementPage() {
                       {quiz.title}
                       {quiz.id.startsWith('ai-') && <Bot className="inline-block ml-2 h-4 w-4 text-primary" title="AI Gegenereerd"/>}
                     </TableCell>
-                    <TableCell>{quiz.audience.join(', ')}</TableCell>
+                    <TableCell>{Array.isArray(quiz.audience) ? quiz.audience.join(', ') : quiz.audience}</TableCell>
                     <TableCell>{quiz.category}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(quiz.status)} className={getStatusBadgeClass(quiz.status)}>
@@ -228,7 +235,7 @@ export default function QuizManagementPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link 
-                              href={quiz.id.startsWith('teen-neurodiversity-quiz') || quiz.id.startsWith('teen-neuro-') || quiz.id.startsWith('basis-neuro-') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] || 'Tiener (15-18 jr, voor zichzelf)'}` : `/quiz/${quiz.slug || quiz.id}`}
+                              href={quiz.id.startsWith('teen-neuro') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] === 'Tiener (12-14 jr, voor zichzelf)' ? '12-14' : '15-18'}` : `/quiz/${quiz.slug || quiz.id}`}
                               target="_blank" 
                               rel="noopener noreferrer"
                             >

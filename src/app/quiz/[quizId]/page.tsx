@@ -31,21 +31,22 @@ function mapQuestionsToDisplay(questions: QuizAdminQuestion[]): QuestionType[] {
 async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: string; questions: QuestionType[] } | null> {
     if (typeof window === 'undefined') return null;
     
-    // Check localStorage by ID first
+    // First, try to get by ID, which is the key
     const storedById = localStorage.getItem(quizIdOrSlug);
     if (storedById) {
-      try {
-        const quiz = JSON.parse(storedById);
-        if (quiz.id === quizIdOrSlug) {
-          return { title: quiz.title, questions: mapQuestionsToDisplay(quiz.questions) };
-        }
-      } catch (e) {}
+        try {
+            const quiz = JSON.parse(storedById);
+            if (quiz.id === quizIdOrSlug) {
+              return { title: quiz.title, questions: mapQuestionsToDisplay(quiz.questions) };
+            }
+        } catch (e) { /* ignore parse error, continue to slug search */ }
     }
 
-    // Fallback: iterate localStorage to find by slug
+    // If not found by ID, iterate all localStorage items to find by slug
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-'))) { 
+        // Add all prefixes that might denote a quiz
+        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-') || key.startsWith('exam-stress-') || key.startsWith('social-anxiety-') || key.startsWith('focus-digital-') || key.startsWith('motivation-goals-'))) {
             const storedData = localStorage.getItem(key);
             if (storedData) {
                 try {
@@ -64,7 +65,7 @@ async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: strin
 export default function TakeQuizPage() {
   const params = useParams();
   const router = useRouter();
-  const quizId = params.quizId as string;
+  const quizIdOrSlug = params.quizId as string;
   
   const [quizData, setQuizData] = useState<{ title: string; questions: QuestionType[] } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,19 +74,19 @@ export default function TakeQuizPage() {
 
   useEffect(() => {
     // Redirect special quizzes to their dedicated handlers
-    if (quizId === 'teen-neurodiversity-quiz') {
+    if (quizIdOrSlug === 'teen-neurodiversity-quiz') {
       router.replace('/quiz/teen-neurodiversity-quiz');
       return;
     }
     
     async function loadQuiz() {
       setIsLoading(true);
-      const data = await fetchQuizForPreview(quizId);
+      const data = await fetchQuizForPreview(quizIdOrSlug);
       setQuizData(data);
       setIsLoading(false);
     }
     loadQuiz();
-  }, [quizId, router]);
+  }, [quizIdOrSlug, router]);
 
   if (isLoading) {
     return (
@@ -104,7 +105,7 @@ export default function TakeQuizPage() {
         <h1 className="text-2xl font-semibold mb-4">Tool niet gevonden</h1>
         <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde zelfreflectie tool niet laden. Controleer of de slug/ID correct is.</p>
         <Button asChild>
-          <Link href="/quizzes">Terug naar overzicht</Link>
+          <Link href="/dashboard/leerling/quizzes">Terug naar overzicht</Link>
         </Button>
       </div>
     );
@@ -119,7 +120,7 @@ export default function TakeQuizPage() {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       console.log('Quiz voltooid:', answers);
-      router.push(`/quiz/${quizId}/results`); // Go to a generic results page
+      router.push(`/quiz/${quizIdOrSlug}/results`); // Go to a generic results page
     }
   };
 

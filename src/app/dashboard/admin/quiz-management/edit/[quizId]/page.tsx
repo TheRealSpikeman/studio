@@ -11,36 +11,34 @@ import { useToast } from '@/hooks/use-toast';
 async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) | null> {
   console.log("Fetching quiz data for ID:", id);
   // Simulate API call delay for loading states
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 50));
 
-  let quiz: QuizAdmin | null = null;
   try {
-      const storedQuizData = localStorage.getItem(id);
-      if (storedQuizData) {
-          console.log("Found quiz in localStorage:", id);
-          quiz = JSON.parse(storedQuizData) as QuizAdmin;
-      }
+    const storedQuizData = localStorage.getItem(id);
+    if (storedQuizData) {
+        const quiz = JSON.parse(storedQuizData) as QuizAdmin;
+        // Basic validation
+        if (quiz.id === id) {
+            return {
+              id: quiz.id,
+              title: quiz.title,
+              description: quiz.description,
+              audience: Array.isArray(quiz.audience) ? quiz.audience : [quiz.audience], // Ensure it's an array
+              category: quiz.category,
+              status: quiz.status,
+              questions: quiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1 })),
+              subtestConfigs: quiz.subtestConfigs?.map(sc => ({subtestId: sc.subtestId, threshold: sc.threshold})) || [],
+              slug: quiz.slug || "",
+              metaTitle: quiz.metaTitle || "",
+              metaDescription: quiz.metaDescription || "",
+              thumbnailUrl: quiz.thumbnailUrl || "",
+              analysisDetailLevel: quiz.analysisDetailLevel || 'standaard',
+              analysisInstructions: quiz.analysisInstructions || "",
+            };
+        }
+    }
   } catch (error) {
-      console.error("Error reading quiz from localStorage:", error);
-  }
-
-  if (quiz) {
-    return {
-      id: quiz.id,
-      title: quiz.title,
-      description: quiz.description,
-      audience: quiz.audience,
-      category: quiz.category,
-      status: quiz.status,
-      questions: quiz.questions.map(q => ({ text: q.text, example: q.example || "", weight: q.weight || 1 })),
-      subtestConfigs: quiz.subtestConfigs?.map(sc => ({subtestId: sc.subtestId, threshold: sc.threshold})) || [],
-      slug: quiz.slug || "",
-      metaTitle: quiz.metaTitle || "",
-      metaDescription: quiz.metaDescription || "",
-      thumbnailUrl: quiz.thumbnailUrl || "",
-      analysisDetailLevel: quiz.analysisDetailLevel || 'standaard',
-      analysisInstructions: quiz.analysisInstructions || "",
-    };
+    console.error("Error reading quiz from localStorage:", error);
   }
   
   return null; // Return null if not found
@@ -64,7 +62,10 @@ export default function EditQuizPage() {
   const handleSave = (data: QuizFormData) => {
     console.log("Saving quiz data:", data);
     
-    const storedQuizData = JSON.parse(localStorage.getItem(quizId) || '{}');
+    // It's safer to get the original item to preserve fields not in the form, like createdAt
+    const storedQuizDataRaw = localStorage.getItem(quizId);
+    const storedQuizData = storedQuizDataRaw ? JSON.parse(storedQuizDataRaw) : {};
+
     const updatedQuiz: QuizAdmin = {
       ...storedQuizData, // Keep original data like createdAt
       id: quizId,
@@ -98,7 +99,7 @@ export default function EditQuizPage() {
   }
 
   if (quizData === null) {
-    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID.</div>;
+    return <div className="p-8 text-center text-destructive">Quiz niet gevonden. Controleer het ID en zorg dat de quiz in localStorage staat.</div>;
   }
   
   return <QuizEditForm quizData={quizData} onSave={handleSave} />;
