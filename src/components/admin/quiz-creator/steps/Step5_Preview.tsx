@@ -14,7 +14,6 @@ import {
   ListChecks, Smartphone, Tablet, Monitor, Sparkles, ChevronDown, Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion } from '@/types/quiz-admin';
@@ -60,7 +59,7 @@ export const Step5_Preview = () => {
 
         const newQuiz: QuizAdmin = {
             id: `ai-quiz-${Date.now()}`,
-            title: quizData.title || "Naamloze AI Quiz",
+            title: quizData.title || (quizData.creationType === 'adaptive' ? `Adaptieve Onboarding Quiz (${quizData.targetAgeGroup} jr)` : "Naamloze Quiz"),
             description: quizData.description || "Geen beschrijving.",
             audience: audience,
             category: (quizData.mainCategory as QuizCategory) || 'Thema',
@@ -102,8 +101,8 @@ export const Step5_Preview = () => {
         valid: !!quizData.audienceType && !!quizData.targetAgeGroup 
       },
       { 
-        label: "Minimaal 8 vragen gegenereerd", 
-        valid: (quizData.questions?.length ?? 0) >= 8 
+        label: `Minimaal ${quizData.creationType === 'adaptive' ? 15 : 3} vragen`,
+        valid: quizData.creationType === 'adaptive' ? (quizData.questions?.length ?? 0) >= 15 : (quizData.questions?.length ?? 0) >= 3,
       },
       { 
         label: "Resultaat types en follow-up ingesteld", 
@@ -155,26 +154,27 @@ export const Step5_Preview = () => {
                         )}>
                             <Card className={cn(
                                 "overflow-hidden",
-                                previewDevice === 'mobile' ? 'rounded-[32px] h-full' : ''
+                                previewDevice === 'mobile' ? 'rounded-[32px] h-full flex flex-col' : 'flex flex-col'
                             )}>
-                                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-4 text-center">
+                                <div className="bg-gradient-to-br from-primary to-accent text-primary-foreground p-4 text-center">
                                     <h4 className="font-bold text-xl flex items-center justify-center gap-2">
                                         <Sparkles className="h-5 w-5"/> 
-                                        {quizData.title || "Ontdek Jouw Emotie-Superkracht"}
+                                        {quizData.title || (quizData.creationType === 'adaptive' ? `Adaptieve Onboarding Quiz (${quizData.targetAgeGroup} jr)` : "Voorbeeld Titel")}
                                     </h4>
                                     <p className="text-xs opacity-90 mt-1">
-                                      {quizData.description || "Leer hoe jij omgaat met gevoelens en ontdek praktische tips om je emoties te begrijpen. Speciaal aangepast voor gevoelige jongeren!"}
+                                      {quizData.description || (quizData.creationType === 'adaptive' ? `Een adaptieve quiz die zich aanpast aan de gebruiker om een eerste neurodiversiteitsprofiel op te stellen.` : "Een korte beschrijving van de quiz komt hier.")}
                                     </p>
                                     <div className="flex flex-wrap gap-1.5 justify-center mt-2 text-xs">
-                                        {quizData.focusFlags?.includes('autism-friendly') && <Badge variant="secondary">⭐ Autisme-Vriendelijk</Badge>}
-                                        {quizData.focusFlags?.includes('sensory-processing-focus') && <Badge variant="secondary">👂 Sensory-Processing</Badge>}
-                                        {quizData.estimatedDuration && <Badge variant="secondary">🕒 8-12 min</Badge>}
-                                        {quizData.targetAgeGroup && <Badge variant="secondary">👥 15-18 jaar</Badge>}
+                                        {quizData.estimatedDuration && <Badge variant="secondary">🕒 {quizData.estimatedDuration}</Badge>}
+                                        {quizData.targetAgeGroup && <Badge variant="secondary">👥 {quizData.targetAgeGroup} jaar</Badge>}
                                     </div>
                                 </div>
-                                <div className="p-4 bg-slate-50 overflow-y-auto h-full">
+                                <div className="p-4 bg-slate-50 overflow-y-auto flex-grow">
                                     <div className="mb-4">
-                                        <p className="font-semibold mb-2">🧠 {(quizData.questions && quizData.questions[0]?.text) || "Wanneer je een sterke emotie voelt, wat doe je dan meestal het eerst?"}</p>
+                                        <p className="font-semibold mb-2 flex items-center gap-2">
+                                            <span className="text-primary">•</span> 
+                                            {(quizData.questions && quizData.questions[0]?.text) || "Als je iets nieuws leert, vind je het dan fijn als iemand je stap voor stap uitlegt hoe het moet?"}
+                                        </p>
                                         <RadioGroup className="space-y-2">
                                             <Label className="flex items-center gap-2 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer"><RadioGroupItem value="a" id="a"/> Ik ga naar een rustige plek om na te denken</Label>
                                             <Label className="flex items-center gap-2 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer"><RadioGroupItem value="b" id="b"/> Ik praat erover met iemand die ik vertrouw</Label>
@@ -183,7 +183,7 @@ export const Step5_Preview = () => {
                                         </RadioGroup>
                                     </div>
                                     <div className="text-sm text-muted-foreground flex justify-between items-center p-3 border rounded-md bg-white">
-                                        <span>🔊 Welke omgeving helpt jou het beste om je emoties te verwerken?</span>
+                                        <span>Welke omgeving helpt jou het beste om je emoties te verwerken?</span>
                                         <ChevronDown className="h-5 w-5"/>
                                     </div>
                                 </div>
@@ -224,12 +224,6 @@ export const Step5_Preview = () => {
                             </div>
                             <Progress value={87} className="h-2"/>
                             <p className="text-xs text-muted-foreground mt-1">Bovengemiddeld voor deze doelgroep</p>
-                            <div className="grid grid-cols-2 gap-4 mt-4 text-center">
-                                <div className="p-2 bg-muted/50 rounded-md"><p className="font-bold text-lg">~450</p><p className="text-xs text-muted-foreground">deelnemers/maand</p></div>
-                                <div className="p-2 bg-muted/50 rounded-md"><p className="font-bold text-lg flex items-center justify-center">4.6 <Star className="h-4 w-4 ml-1 text-yellow-500 fill-yellow-500"/></p><p className="text-xs text-muted-foreground">voorspelde waardering</p></div>
-                                <div className="p-2 bg-muted/50 rounded-md"><p className="font-bold text-lg">23%</p><p className="text-xs text-muted-foreground">coach matching kans</p></div>
-                                <div className="p-2 bg-muted/50 rounded-md"><p className="font-bold text-lg">12 min</p><p className="text-xs text-muted-foreground">gemiddelde duur</p></div>
-                            </div>
                         </CardContent>
                     </Card>
 
@@ -251,13 +245,6 @@ export const Step5_Preview = () => {
                                   <p className="text-xs text-muted-foreground">Kies wanneer de quiz live gaat.</p>
                                 </div>
                               </Label>
-                              <Label className="flex items-center gap-2 border p-3 rounded-md has-[:checked]:border-primary has-[:checked]:bg-primary/5 cursor-pointer">
-                                <RadioGroupItem value="beta" id="beta"/>
-                                <div>
-                                  <p className="font-medium">Beta Test</p>
-                                  <p className="text-xs text-muted-foreground">Eerst testen met beperkte groep.</p>
-                                </div>
-                              </Label>
                            </RadioGroup>
                            <Button onClick={handlePublish} className="w-full mt-4 bg-green-600 hover:bg-green-700">
                              <Rocket className="mr-2 h-4 w-4"/>Publiceer Quiz
@@ -276,7 +263,6 @@ export const Step5_Preview = () => {
                           ))}
                         </CardContent>
                     </Card>
-
                 </div>
             </div>
         </div>
