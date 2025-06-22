@@ -39,9 +39,8 @@ const Step3_AdaptiveContent = () => {
     });
 
     // State to hold the calculated preview output
-    const [previewOutput, setPreviewOutput] = useState<{ name: string; score: number; triggered: boolean }[]>([]);
+    const [previewOutput, setPreviewOutput] = useState<{ name: string; score: number; triggered: boolean; questionsAssigned: number }[]>([]);
     const [totalPhase2Questions, setTotalPhase2Questions] = useState(0);
-    const [isOverLimit, setIsOverLimit] = useState(false);
 
     // Update handler for all inputs and sliders
     const handleSettingChange = (field: keyof typeof previewSettings, value: any) => {
@@ -58,20 +57,47 @@ const Step3_AdaptiveContent = () => {
     };
     
     const runSimulation = useCallback(() => {
-        let questionCount = 0;
-        const newOutput = previewSettings.spectrums.map(spec => {
-            // Use Math.random for a new result each time
+        // 1. Simulate scores and determine which spectrums are triggered
+        const simulatedResults = previewSettings.spectrums.map(spec => {
             const score = Math.floor(Math.random() * 71) + 30; // Random score between 30 and 100
             const triggered = score >= spec.threshold;
-            if (triggered) {
-                questionCount += previewSettings.phase2MaxPerSpectrum;
-            }
             return { name: spec.name, score, triggered };
         });
-
+    
+        // 2. Filter for triggered spectrums and sort by score (highest first)
+        const triggeredSpectrums = simulatedResults
+            .filter(res => res.triggered)
+            .sort((a, b) => b.score - a.score);
+    
+        let currentTotalQuestions = 0;
+        const questionDistribution: Record<string, number> = {};
+    
+        // 3. Distribute questions based on priority, up to the max total
+        for (const spectrum of triggeredSpectrums) {
+            const questionsAvailableForSpectrum = previewSettings.phase2MaxPerSpectrum;
+            const spaceRemainingInQuiz = previewSettings.phase2MaxTotal - currentTotalQuestions;
+            
+            const questionsToAdd = Math.min(
+                questionsAvailableForSpectrum,
+                spaceRemainingInQuiz
+            );
+    
+            if (questionsToAdd > 0) {
+                questionDistribution[spectrum.name] = questionsToAdd;
+                currentTotalQuestions += questionsToAdd;
+            } else {
+                questionDistribution[spectrum.name] = 0; // Not enough space left
+            }
+        }
+        
+        // 4. Create the final output for the preview, merging triggered and non-triggered
+        const newOutput = simulatedResults.map(res => ({
+            ...res,
+            questionsAssigned: questionDistribution[res.name] || 0
+        }));
+    
         setPreviewOutput(newOutput);
-        setTotalPhase2Questions(questionCount);
-        setIsOverLimit(questionCount > previewSettings.phase2MaxTotal);
+        setTotalPhase2Questions(currentTotalQuestions);
     }, [previewSettings]);
 
     const handleOptimizeThresholds = () => {
@@ -162,24 +188,13 @@ const Step3_AdaptiveContent = () => {
                         </div>
                         <div className="p-3 border rounded-md bg-background text-sm">
                             <p className="font-semibold">Voorbeeld Output:</p>
-                            {previewOutput.length > 0 ? previewOutput.map((item, index) => {
-                                const currentSpectrum = previewSettings.spectrums[index];
-                                return (
+                            {previewOutput.length > 0 ? previewOutput.map((item, index) => (
                                 <p key={item.name} className={cn("text-xs", item.triggered ? "text-green-600 font-medium" : "text-muted-foreground")}>
-                                    {item.name}: {item.score}% {item.triggered ? `(✓)` : `(✗)`} → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
+                                    {item.name}: {item.score}% {item.triggered ? `(✓) → ${item.questionsAssigned} vragen` : `(✗) → Skip`}
                                 </p>
-                                )
-                            }) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
+                            )) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
                              <p className="font-semibold mt-1">Totaal Fase 2: {totalPhase2Questions} vragen</p>
                         </div>
-                        {isOverLimit && (
-                            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                                 <AlertCircle className="h-4 w-4 !text-yellow-600"/>
-                                 <AlertDescription className="text-xs text-yellow-800">
-                                   Waarschuwing: Het totaal ({totalPhase2Questions}) overschrijdt het ingestelde maximum ({previewSettings.phase2MaxTotal}).
-                                 </AlertDescription>
-                            </Alert>
-                        )}
                     </CardContent>
                 </Card>
             </div>
