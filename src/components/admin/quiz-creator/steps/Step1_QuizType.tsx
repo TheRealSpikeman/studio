@@ -2,7 +2,7 @@
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { FileText, Wand2, Bot, Upload } from 'lucide-react';
+import { FileText, Compass, Bot, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 // I'll define templates directly here for now.
@@ -15,7 +15,7 @@ const popularTemplates = [
 export const Step1QuizType = () => {
     const { quizData, setQuizData } = useQuizCreator();
 
-    const handleSelectQuizType = (type: 'template' | 'scratch' | 'ai' | 'bulk') => {
+    const handleSelectQuizType = (type: 'template' | 'scratch' | 'ai' | 'adaptive') => {
         setQuizData(prev => ({ ...prev, creationType: type, selectedTemplateId: undefined }));
     };
 
@@ -26,9 +26,9 @@ export const Step1QuizType = () => {
     return (
         <div>
             <h2 className="text-2xl font-semibold mb-2">Kies je Quiz Type</h2>
-            <p className="text-muted-foreground mb-6">Start met een template, vanaf nul, met AI, of importeer vragen.</p>
+            <p className="text-muted-foreground mb-6">Start met een template, vanaf nul, of gebruik onze nieuwe adaptive technologie.</p>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card 
                     id="quiz-type-scratch"
                     className={cn(
@@ -49,9 +49,22 @@ export const Step1QuizType = () => {
                     )}
                     onClick={() => handleSelectQuizType('template')}
                 >
-                    <Wand2 className="h-10 w-10 mx-auto mb-3 text-primary"/>
+                    <Target className="h-10 w-10 mx-auto mb-3 text-primary"/>
                     <h3 className="font-semibold text-lg">Template Gebruiken</h3>
                     <p className="text-sm text-muted-foreground">Start met een bestaande, beproefde quiz.</p>
+                </Card>
+                <Card 
+                    id="quiz-type-adaptive"
+                    className={cn(
+                        "p-6 text-center cursor-pointer transition-all border-2 relative",
+                        quizData.creationType === 'adaptive' ? 'border-green-500 bg-green-50/70' : 'hover:border-green-500/50'
+                    )}
+                    onClick={() => handleSelectQuizType('adaptive')}
+                >
+                    <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-primary-foreground">NIEUW</Badge>
+                    <Compass className="h-10 w-10 mx-auto mb-3 text-green-600"/>
+                    <h3 className="font-semibold text-lg">Adaptive Onboarding</h3>
+                    <p className="text-sm text-muted-foreground">Intelligente twee-fase quiz: detecteer spectrum, dan diepgaande vragen.</p>
                 </Card>
                 <Card 
                     id="quiz-type-ai"
@@ -64,18 +77,6 @@ export const Step1QuizType = () => {
                     <Bot className="h-10 w-10 mx-auto mb-3 text-primary"/>
                     <h3 className="font-semibold text-lg">AI Quiz Generator</h3>
                     <p className="text-sm text-muted-foreground">Laat AI een conceptquiz voor je maken.</p>
-                </Card>
-                 <Card 
-                    id="quiz-type-bulk"
-                    className={cn(
-                        "p-6 text-center cursor-pointer transition-all border-2",
-                        quizData.creationType === 'bulk' ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
-                    )}
-                    onClick={() => handleSelectQuizType('bulk')}
-                >
-                    <Upload className="h-10 w-10 mx-auto mb-3 text-primary"/>
-                    <h3 className="font-semibold text-lg">Bulk Import</h3>
-                    <p className="text-sm text-muted-foreground">Importeer vragen uit een CSV-bestand.</p>
                 </Card>
             </div>
 
