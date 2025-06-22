@@ -15,7 +15,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
-import { DUMMY_QUIZZES_DATA } from '@/lib/quiz-data/dummy-quizzes';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -52,21 +51,14 @@ export default function QuizManagementPage() {
   useEffect(() => {
     const quizzesMap = new Map<string, QuizAdmin>();
 
-    // 1. Load dummy data first as a baseline
-    DUMMY_QUIZZES_DATA.forEach(quiz => {
-        quizzesMap.set(quiz.id, quiz);
-    });
-
-    // 2. Iterate localStorage and overwrite/add quizzes
     try {
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             // A simple check to see if it's a quiz object. More robust checks are possible.
-            if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || quizzesMap.has(key))) {
+            if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-'))) {
                 const storedData = localStorage.getItem(key);
                 if (storedData) {
                     const storedQuiz = JSON.parse(storedData) as QuizAdmin;
-                    // Always overwrite with the version from localStorage as it's newer or custom
                     quizzesMap.set(storedQuiz.id, storedQuiz);
                 }
             }
@@ -75,7 +67,6 @@ export default function QuizManagementPage() {
         console.error("Error loading quizzes from localStorage:", error);
     }
     
-    // 3. Convert map to array and set state
     const allLoadedQuizzes = Array.from(quizzesMap.values());
     
     setQuizzes(allLoadedQuizzes.map(q => ({

@@ -6,15 +6,13 @@ import type { QuizAdmin } from '@/types/quiz-admin';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { DUMMY_QUIZZES_DATA } from '@/lib/quiz-data/dummy-quizzes';
 
-// This function fetches quiz data from both dummy data and localStorage.
+// This function fetches quiz data from localStorage.
 async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) | null> {
   console.log("Fetching quiz data for ID:", id);
   // Simulate API call delay for loading states
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  // Check localStorage first, as AI quizzes are only there.
   let quiz: QuizAdmin | null = null;
   try {
       const storedQuizData = localStorage.getItem(id);
@@ -24,14 +22,6 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
       }
   } catch (error) {
       console.error("Error reading quiz from localStorage:", error);
-  }
-  
-  // If not in localStorage, check dummy data
-  if (!quiz) {
-    const nonAiQuiz = DUMMY_QUIZZES_DATA.find(q => q.id === id);
-    if(nonAiQuiz) {
-        quiz = nonAiQuiz;
-    }
   }
 
   if (quiz) {
@@ -53,7 +43,7 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
     };
   }
   
-  return null; // Return null if not found anywhere
+  return null; // Return null if not found
 }
 
 export default function EditQuizPage() {
@@ -74,9 +64,7 @@ export default function EditQuizPage() {
   const handleSave = (data: QuizFormData) => {
     console.log("Saving quiz data:", data);
     
-    // Logic to save to backend or localStorage.
-    // For this demo, we can update localStorage for both AI and dummy quizzes.
-    const storedQuizData = DUMMY_QUIZZES_DATA.find(q => q.id === quizId) || JSON.parse(localStorage.getItem(quizId) || '{}');
+    const storedQuizData = JSON.parse(localStorage.getItem(quizId) || '{}');
     const updatedQuiz: QuizAdmin = {
       ...storedQuizData, // Keep original data like createdAt
       id: quizId,
@@ -96,12 +84,11 @@ export default function EditQuizPage() {
       lastUpdatedAt: new Date().toISOString(),
     };
     
-    // Save to localStorage (for both AI and potentially overriding dummy for the session)
     localStorage.setItem(quizId, JSON.stringify(updatedQuiz));
 
     toast({
       title: "Quiz opgeslagen!",
-      description: `De wijzigingen voor "${data.title}" zijn opgeslagen (simulatie).`,
+      description: `De wijzigingen voor "${data.title}" zijn opgeslagen.`,
     });
     router.push('/dashboard/admin/quiz-management');
   };

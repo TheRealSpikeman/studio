@@ -12,7 +12,6 @@ import { Progress } from '@/components/ui/progress';
 
 import type { QuizAdmin, QuizAdminQuestion } from '@/types/quiz-admin';
 import type { QuizQuestion as QuestionType, QuizOption as OptionType } from '@/components/quiz/question-display';
-import { DUMMY_QUIZZES_DATA } from '@/lib/quiz-data/dummy-quizzes';
 
 const answerOptions: OptionType[] = [
   { value: '1', label: 'Nooit' },
@@ -31,14 +30,8 @@ function mapQuestionsToDisplay(questions: QuizAdminQuestion[]): QuestionType[] {
 
 async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: string; questions: QuestionType[] } | null> {
     if (typeof window === 'undefined') return null;
-
-    // Check dummy data first for hardcoded quizzes
-    const dummyQuiz = DUMMY_QUIZZES_DATA.find(q => q.id === quizIdOrSlug || q.slug === quizIdOrSlug);
-    if (dummyQuiz) {
-        return { title: dummyQuiz.title, questions: mapQuestionsToDisplay(dummyQuiz.questions) };
-    }
     
-    // Check localStorage by ID
+    // Check localStorage by ID first
     const storedById = localStorage.getItem(quizIdOrSlug);
     if (storedById) {
       try {
@@ -52,7 +45,7 @@ async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: strin
     // Fallback: iterate localStorage to find by slug
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-'))) { 
+        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-'))) { 
             const storedData = localStorage.getItem(key);
             if (storedData) {
                 try {
