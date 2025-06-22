@@ -1,3 +1,4 @@
+
 // src/ai/flows/generate-coaching-insights.ts
 'use server';
 
@@ -41,10 +42,10 @@ export type GenerateCoachingInsightsOutput = z.infer<
 export async function generateCoachingInsights(
   input: GenerateCoachingInsightsInput
 ): Promise<GenerateCoachingInsightsOutput> {
-  // Robust check to prevent calling the flow with empty text, which causes an error.
+  // Robust check to prevent calling the flow with empty or invalid input, which causes an error.
   // This returns a safe, default object instead.
-  if (!input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
-    console.warn("generateCoachingInsights called with empty analysis text. Returning default content.");
+  if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
+    console.warn("generateCoachingInsights called with invalid input. Returning default content.");
     return {
       dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
       dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
@@ -61,7 +62,7 @@ const prompt = ai.definePrompt({
   prompt: `Je bent een empathische en deskundige coach gespecialiseerd in neurodiversiteit bij tieners.
 De gebruiker, {{#if userName}}{{{userName}}}{{else}}een tiener{{/if}}, heeft een zelfreflectie tool gedaan. Hun persoonlijke analyse is als volgt:
 ---
-{{onboardingAnalysisText}}
+{{{onboardingAnalysisText}}}
 ---
 
 Jouw taak is om voor vandaag, {{#if currentDate}}{{{currentDate}}}{{else}}vandaag{{/if}}, drie dingen te genereren:

@@ -1,3 +1,4 @@
+
 // This page will be client-rendered if it needs to access searchParams for subquiz info
 "use client";
 
@@ -82,18 +83,13 @@ export default function QuizResultsPage() {
         const summaryOutput = await generateQuizSummary({ quizResults: JSON.stringify(storedResults) });
         setSummary(summaryOutput.summary);
 
-        // Guard against calling coaching flow with empty summary
-        if (summaryOutput.summary && summaryOutput.summary.trim()) {
-          const coachingInput = {
-            onboardingAnalysisText: summaryOutput.summary,
-            userName: "Gebruiker"
-          };
-          const coachingOutput = await generateCoachingInsights(coachingInput);
-          const coachingText = `${coachingOutput.dailyAffirmation}\n\n**Tip:** ${coachingOutput.dailyCoachingTip}\n\n**Kleine taak:** ${coachingOutput.microTaskSuggestion}`;
-          setCoaching(coachingText);
-        } else {
-          setCoaching("Kon geen persoonlijke coaching inzichten genereren op basis van de quizresultaten. Probeer het eventueel later opnieuw.");
-        }
+        const coachingInput = {
+          onboardingAnalysisText: summaryOutput.summary, // This can be an empty string, but the flow handles it.
+          userName: "Gebruiker"
+        };
+        const coachingOutput = await generateCoachingInsights(coachingInput);
+        const coachingText = `${coachingOutput.dailyAffirmation}\n\n**Tip:** ${coachingOutput.dailyCoachingTip}\n\n**Kleine taak:** ${coachingOutput.microTaskSuggestion}`;
+        setCoaching(coachingText);
 
       } catch (error) {
         console.error("Error fetching AI results:", error);
@@ -297,3 +293,5 @@ export default function QuizResultsPage() {
     </div>
   );
 }
+
+    

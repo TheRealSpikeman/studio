@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -22,6 +23,9 @@ const GenerateQuizSummaryOutputSchema = z.object({
 export type GenerateQuizSummaryOutput = z.infer<typeof GenerateQuizSummaryOutputSchema>;
 
 export async function generateQuizSummary(input: GenerateQuizSummaryInput): Promise<GenerateQuizSummaryOutput> {
+  if (!input || !input.quizResults) {
+    return { summary: "Bedankt voor het invullen van de quiz! Zelfreflectie is een belangrijke stap in persoonlijke groei." };
+  }
   return generateQuizSummaryFlow(input);
 }
 
@@ -47,7 +51,7 @@ const generateQuizSummaryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    if (!output || !output.summary) {
+    if (!output || !output.summary || output.summary.trim().length === 0) {
       return { summary: "Bedankt voor het invullen van de quiz! Zelfreflectie is een belangrijke stap in persoonlijke groei. Op basis van de antwoorden kan er geen gedetailleerde samenvatting worden gemaakt, maar het invullen zelf is al waardevol." };
     }
     return output;
