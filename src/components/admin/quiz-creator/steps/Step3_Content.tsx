@@ -56,7 +56,7 @@ const Step3_AdaptiveContent = () => {
       }));
     };
     
-    const runSimulation = useCallback(() => {
+     const runSimulation = useCallback(() => {
         // 1. Simulate scores and determine which spectrums are triggered
         const simulatedResults = previewSettings.spectrums.map(spec => {
             const score = Math.floor(Math.random() * 71) + 30; // Random score between 30 and 100
@@ -77,6 +77,11 @@ const Step3_AdaptiveContent = () => {
             const questionsAvailableForSpectrum = previewSettings.phase2MaxPerSpectrum;
             const spaceRemainingInQuiz = previewSettings.phase2MaxTotal - currentTotalQuestions;
             
+            if (spaceRemainingInQuiz <= 0) {
+                questionDistribution[spectrum.name] = 0;
+                continue;
+            }
+
             const questionsToAdd = Math.min(
                 questionsAvailableForSpectrum,
                 spaceRemainingInQuiz
@@ -123,6 +128,35 @@ const Step3_AdaptiveContent = () => {
     useEffect(() => {
         runSimulation();
     }, [runSimulation]);
+
+    const validationChecks = useMemo(() => {
+        const checks: {text: string; isValid?: boolean; isWarning?: boolean; isPending?: boolean}[] = [];
+        
+        checks.push({
+            text: `Minimaal 15 Fase 1 vragen`,
+            isValid: previewSettings.phase1Questions >= 15,
+        });
+
+        checks.push({
+            text: 'Algoritme gekalibreerd',
+            isValid: previewSettings.spectrums.some(s => s.threshold > 0 && s.threshold < 100),
+        });
+
+        const hspThreshold = previewSettings.spectrums.find(s => s.id === 'hsp')?.threshold;
+        if (hspThreshold !== undefined && hspThreshold < 55) {
+            checks.push({
+                text: `HSP threshold (${hspThreshold}%) mogelijk te laag`,
+                isWarning: true,
+            });
+        }
+        
+        checks.push({
+            text: 'Expert review pending',
+            isPending: true,
+        });
+
+        return checks;
+    }, [previewSettings]);
 
     return (
         <div className="space-y-6">
@@ -193,7 +227,11 @@ const Step3_AdaptiveContent = () => {
                                     {item.name}: {item.score}% {item.triggered ? `(✓) → ${item.questionsAssigned} vragen` : `(✗) → Skip`}
                                 </p>
                             )) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
+                            <Separator className="my-1"/>
                              <p className="font-semibold mt-1">Totaal Fase 2: {totalPhase2Questions} vragen</p>
+                             {totalPhase2Questions > previewSettings.phase2MaxTotal && (
+                                <p className="text-xs text-destructive font-medium mt-1">Waarschuwing: Limiet van {previewSettings.phase2MaxTotal} vragen bereikt.</p>
+                             )}
                         </div>
                     </CardContent>
                 </Card>
@@ -258,14 +296,26 @@ const Step3_AdaptiveContent = () => {
                 </CardContent>
             </Card>
 
-            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+             <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
                 <AlertCircle className="h-5 w-5 !text-yellow-600"/>
                 <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
-                <AlertDescription className="grid grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Minimaal 15 Fase 1 vragen</span>
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Algorithm gecalibreerd</span>
-                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-orange-600"/>HSP threshold mogelijk te laag</span>
-                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-red-600"/>Expert review pending</span>
+                <AlertDescription className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
+                    {validationChecks.map((check, index) => (
+                        <span key={index} className="flex items-center gap-1.5">
+                             {check.isValid ? (
+                                <CheckCircle2 className="h-4 w-4 text-green-600"/>
+                            ) : check.isWarning ? (
+                                <AlertCircle className="h-4 w-4 text-orange-600"/>
+                            ) : check.isPending ? (
+                                 <AlertCircle className="h-4 w-4 text-red-600"/>
+                            ) : (
+                                <AlertCircle className="h-4 w-4 text-red-600"/>
+                            )}
+                            <span className={cn(check.isWarning && "text-orange-700 font-medium", check.isPending && "text-red-700 font-medium")}>
+                                {check.text}
+                            </span>
+                        </span>
+                    ))}
                 </AlertDescription>
             </Alert>
         </div>
