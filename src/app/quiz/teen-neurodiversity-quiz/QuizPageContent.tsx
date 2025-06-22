@@ -572,32 +572,50 @@ export default function QuizPageContent() {
                 </CardDescription>
                 </CardHeader>
                 <CardContent className="px-6 sm:px-8 space-y-6 pt-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-sm text-muted-foreground">
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <Clock className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                        <strong>Duur:</strong> Ongeveer 10-15 minuten.
-                    </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <ShieldCheck className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                        <strong>Privacy:</strong> Je antwoorden zijn privé.
-                    </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <PauseCircle className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                        <strong>Pauzeren:</strong> Je kunt de tool later afmaken.
-                    </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <UsersIcon className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                        <strong>Delen:</strong> Jij bepaalt of je ouders je resultaten zien.
-                    </div>
-                    </div>
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left text-sm">
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <User className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Voor wie?</strong>
+                              <p className="text-muted-foreground">Speciaal voor jongeren van {ageGroup} jaar.</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <Target className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Doel</strong>
+                              <p className="text-muted-foreground">Zelfinzicht krijgen, geen 'goed' of 'fout'.</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <Clock className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Duur</strong>
+                              <p className="text-muted-foreground">Ongeveer 10-15 minuten.</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <ShieldCheck className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Privacy</strong>
+                              <p className="text-muted-foreground">Je antwoorden zijn privé en worden veilig opgeslagen.</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <PauseCircle className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Pauzeren</strong>
+                              <p className="text-muted-foreground">Je kunt de tool altijd later afmaken.</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border">
+                          <UsersIcon className="h-7 w-7 text-primary flex-shrink-0" />
+                          <div>
+                              <strong className="text-foreground">Delen</strong>
+                              <p className="text-muted-foreground">Jij bepaalt of je ouders je resultaten zien. Delen is nodig voor een vergelijkende analyse.</p>
+                          </div>
+                      </div>
+                  </div>
                 <p className="text-base text-foreground/90">
                     We stellen je zo'n {currentBaseQuestions.length} vragen over hoe jij dingen ervaart. Op basis van je antwoorden, krijg je misschien wat extra vragen om je profiel nog duidelijker te maken. Aan het eind ontvang je een persoonlijk overzicht met tips die bij jou passen.
                 </p>
