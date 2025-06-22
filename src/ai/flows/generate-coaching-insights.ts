@@ -42,21 +42,13 @@ export type GenerateCoachingInsightsOutput = z.infer<
 export async function generateCoachingInsights(
   input: GenerateCoachingInsightsInput
 ): Promise<GenerateCoachingInsightsOutput> {
-  // Robust check to prevent calling the flow with empty or invalid input, which causes an error.
-  // This returns a safe, default object instead.
-  if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
-    console.warn("generateCoachingInsights called with invalid input. Returning default content.");
-    return {
-      dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
-      dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
-      microTaskSuggestion: "Schrijf één ding op waar je vandaag trots op was."
-    };
-  }
+  // The primary validation is now inside the flow itself, ensuring any call is safe.
+  // This wrapper simply calls the flow.
   return generateCoachingInsightsFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'generateDailyCoachingContentPrompt', // Renamed for clarity
+  name: 'generateDailyCoachingContentPrompt',
   input: {schema: GenerateCoachingInsightsInputSchema},
   output: {schema: GenerateCoachingInsightsOutputSchema},
   prompt: `Je bent een empathische en deskundige coach gespecialiseerd in neurodiversiteit bij tieners.
@@ -81,11 +73,22 @@ Zorg dat de output direct bruikbaar en bemoedigend is voor de tiener.
 
 const generateCoachingInsightsFlow = ai.defineFlow(
   {
-    name: 'generateDailyCoachingContentFlow', // Renamed
+    name: 'generateDailyCoachingContentFlow',
     inputSchema: GenerateCoachingInsightsInputSchema,
     outputSchema: GenerateCoachingInsightsOutputSchema,
   },
   async input => {
+    // Robust check to prevent calling the flow with empty or invalid input.
+    // This is the definitive fix for the INVALID_ARGUMENT error.
+    if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
+      console.warn("generateCoachingInsightsFlow called with invalid input. Returning default content from within the flow.");
+      return {
+        dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
+        dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
+        microTaskSuggestion: "Schrijf één ding op waar je vandaag trots op was."
+      };
+    }
+
     const {output} = await prompt(input);
     if (!output) {
         throw new Error('AI model did not return the expected daily coaching content structure.');
