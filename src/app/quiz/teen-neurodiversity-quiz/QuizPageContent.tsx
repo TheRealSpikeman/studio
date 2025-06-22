@@ -645,6 +645,12 @@ export default function QuizPageContent() {
                   <div key={subtestKey} className="mb-6 last:mb-0">
                     <h3 className="mb-3 text-[1.25rem] font-semibold text-accent">{neurotypeDescriptionsTeen[subtestKey].title}</h3>
                     <p className="mb-3 text-sm text-muted-foreground leading-relaxed">{subtestDescriptionsTeen[subtestKey]}</p>
+                    <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
+                        <p className="font-semibold text-primary">Een noot van Dr. Florentine Sage:</p>
+                        <blockquote className="mt-1 italic text-muted-foreground">
+                        "We gaan nu wat dieper in op de thema's die bij jou naar voren kwamen. Onthoud: we zoeken niet naar wat 'fout' is, maar naar wat jou uniek maakt. Jouw antwoorden helpen ons een completer beeld te krijgen van jouw superkrachten en uitdagingen. Wees eerlijk, er zijn geen foute antwoorden!"
+                        </blockquote>
+                    </div>
                     {currentSubTests[subtestKey]?.map((q, index) => (
                       <TeenQuestion
                         key={`${subtestKey}-${index}`}
@@ -944,4 +950,3 @@ export default function QuizPageContent() {
     </div>
   );
 }
-
