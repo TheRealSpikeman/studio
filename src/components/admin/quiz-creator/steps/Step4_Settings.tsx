@@ -143,6 +143,18 @@ export const Step4_Settings = () => {
                         </CardContent>
                     </Card>
 
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <Label htmlFor="saveResultsSwitch" className="flex items-center justify-between text-base">
+                                <span>Sla resultaten op in profiel</span>
+                                <Switch id="saveResultsSwitch" checked={settings.saveResultsToProfile ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'saveResultsToProfile'], val)} />
+                            </Label>
+                             <CardDescription>
+                                Sla de quizresultaten op onder de 'Resultaten' pagina van de gebruiker.
+                            </CardDescription>
+                        </CardHeader>
+                    </Card>
+
                 </div>
 
                 {/* Column 2: Toegang & Distributie */}

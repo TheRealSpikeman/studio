@@ -26,6 +26,7 @@ export type QuizCreationState = {
       showToParent: boolean;
       format: 'visual_report' | 'text_summary' | 'score_only';
     };
+    saveResultsToProfile?: boolean;
     coachIntegration?: {
       enabled: boolean;
       specializations: string[];
@@ -74,6 +75,7 @@ const initialQuizData: QuizCreationState = {
             showToParent: true,
             format: 'visual_report',
         },
+        saveResultsToProfile: true,
         coachIntegration: {
             enabled: true,
             specializations: [],
