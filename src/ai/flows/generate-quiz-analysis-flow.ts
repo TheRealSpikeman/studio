@@ -117,6 +117,14 @@ const generateQuizAnalysisFlow = ai.defineFlow(
     outputSchema: GenerateQuizAnalysisOutputSchema,
   },
   async (input: GenerateQuizAnalysisInput) => {
+    // Debug logging as requested
+    console.log("=== GENKIT FLOW DEBUG ===");
+    console.log("input.quizTitle:", input.quizTitle);
+    console.log("input.ageGroup:", input.ageGroup);
+    console.log("input.finalScores:", input.finalScores);
+    console.log("input.answeredQuestions length:", input.answeredQuestions?.length);
+    console.log("answeredQuestions:", JSON.stringify(input.answeredQuestions, null, 2));
+
     let analysisInstructions = "";
     switch (input.analysisDetailLevel) {
       case 'beknopt':
@@ -130,9 +138,12 @@ const generateQuizAnalysisFlow = ai.defineFlow(
         analysisInstructions = "De analyse moet gedetailleerd zijn (minstens 250-300 woorden).";
         break;
     }
+    
+    const promptInput = { ...input, analysisInstructions };
+    console.log("Calling prompt with:", JSON.stringify(promptInput, null, 2));
 
     // Roep de prompt aan met de originele input PLUS de gegenereerde instructies
-    const {output} = await prompt({ ...input, analysisInstructions });
+    const {output} = await prompt(promptInput);
     if (!output) {
       throw new Error('AI did not return an analysis.');
     }
