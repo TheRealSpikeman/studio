@@ -42,8 +42,18 @@ export type GenerateCoachingInsightsOutput = z.infer<
 export async function generateCoachingInsights(
   input: GenerateCoachingInsightsInput
 ): Promise<GenerateCoachingInsightsOutput> {
-  // The primary validation is now inside the flow itself, ensuring any call is safe.
-  // This wrapper simply calls the flow.
+  // Robust check at the entry point. This prevents the flow from being called with invalid data.
+  // This is the definitive fix for the INVALID_ARGUMENT error.
+  if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
+    console.warn("generateCoachingInsights called with invalid input. Returning default content from the wrapper function.");
+    return {
+      dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
+      dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
+      microTaskSuggestion: "Schrijf één ding op waar je vandaag trots op was."
+    };
+  }
+
+  // Only call the flow if input is valid.
   return generateCoachingInsightsFlow(input);
 }
 
@@ -78,17 +88,7 @@ const generateCoachingInsightsFlow = ai.defineFlow(
     outputSchema: GenerateCoachingInsightsOutputSchema,
   },
   async input => {
-    // Robust check to prevent calling the flow with empty or invalid input.
-    // This is the definitive fix for the INVALID_ARGUMENT error.
-    if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
-      console.warn("generateCoachingInsightsFlow called with invalid input. Returning default content from within the flow.");
-      return {
-        dailyAffirmation: "Elke dag is een nieuwe kans om te groeien.",
-        dailyCoachingTip: "Neem vandaag een moment voor jezelf. Een korte wandeling of even rustig ademhalen kan al een groot verschil maken.",
-        microTaskSuggestion: "Schrijf één ding op waar je vandaag trots op was."
-      };
-    }
-
+    // This flow can now assume it receives valid input because of the wrapper function.
     const {output} = await prompt(input);
     if (!output) {
         throw new Error('AI model did not return the expected daily coaching content structure.');
