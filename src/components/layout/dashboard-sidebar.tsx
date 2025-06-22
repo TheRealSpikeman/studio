@@ -30,7 +30,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart 
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch 
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -171,7 +171,18 @@ const navItems: NavItem[] = [
   { href: '/dashboard/admin/finance', label: 'Financiën', icon: Euro, adminOnly: true },
   { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
   { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
-  { href: '/dashboard/admin/documentation', label: 'Documentatie', icon: BookHeart, adminOnly: true },
+  {
+    href: '/dashboard/admin/documentation',
+    label: 'Documentatie',
+    icon: BookHeart,
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/methodologie/adaptieve-quiz', label: 'Quiz Methodologie', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/faq', label: 'Publieke FAQ', icon: MessageCircleQuestion, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+    ]
+  },
   
   { href: '/dashboard/profile', label: 'Profiel', icon: User }, 
 ];

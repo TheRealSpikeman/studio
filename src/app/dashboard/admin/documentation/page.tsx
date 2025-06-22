@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion } from 'lucide-react';
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser } from 'lucide-react'; // Added BookUser
 
 const documentationLinks = [
   {
@@ -13,6 +13,15 @@ const documentationLinks = [
     icon: GitBranch,
     href: "/methodologie/adaptieve-quiz",
     linkText: "Bekijk Methodologie",
+    isExternal: true, // Let's assume it opens in a new tab
+  },
+  {
+    title: "Volledige Platform Handleiding",
+    description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform. Essentieel voor nieuwe teamleden en beheerders.",
+    icon: BookUser, // New icon
+    href: "/dashboard/admin/documentation/platform-guide",
+    linkText: "Open Handleiding",
+    isExternal: false,
   },
   {
     title: "Veelgestelde Vragen (Publiek)",
@@ -20,6 +29,7 @@ const documentationLinks = [
     icon: MessageCircleQuestion,
     href: "/faq",
     linkText: "Bekijk FAQ",
+    isExternal: true,
   },
 ];
 
@@ -51,8 +61,8 @@ export default function AdminDocumentationPage() {
             <CardContent className="flex-grow"></CardContent>
             <CardContent>
               <Button asChild>
-                <Link href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.linkText} <ExternalLink className="ml-2 h-4 w-4" />
+                <Link href={link.href} target={link.isExternal ? "_blank" : "_self"} rel={link.isExternal ? "noopener noreferrer" : ""}>
+                  {link.linkText} {link.isExternal && <ExternalLink className="ml-2 h-4 w-4" />}
                 </Link>
               </Button>
             </CardContent>
