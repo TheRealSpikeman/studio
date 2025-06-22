@@ -47,6 +47,9 @@ const generateQuizSummaryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output || !output.summary) {
+      return { summary: "Bedankt voor het invullen van de quiz! Zelfreflectie is een belangrijke stap in persoonlijke groei. Op basis van de antwoorden kan er geen gedetailleerde samenvatting worden gemaakt, maar het invullen zelf is al waardevol." };
+    }
+    return output;
   }
 );
