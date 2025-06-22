@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { TeenQuestion } from '@/components/quiz/teen-question';
 import {
@@ -506,44 +506,63 @@ export default function QuizPageContent() {
       </div>
 
       <div className="w-full max-w-3xl"> 
-          {ageGroup && (
-              <Alert variant="default" className="mb-6 bg-primary/10 border-primary/30 text-primary shadow-sm">
-                  <Info className="h-5 w-5 !text-primary" />
-                  <AlertTitleUi className="font-semibold text-accent text-[1.25rem]">Zelfreflectie Tool voor {ageGroup} jaar</AlertTitleUi>
-                  <AlertDescUi className="text-foreground/80 text-base leading-relaxed">
-                      Deze vragen en inzichten zijn speciaal voor jouw leeftijdscategorie om je te helpen jezelf beter te begrijpen.
-                  </AlertDescUi>
-              </Alert>
-          )}
 
           {currentStep !== 'intro' && (
             <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
           )}
 
           {currentStep === 'intro' && (
-            <Card className="shadow-xl rounded-lg">
-              <CardHeader className="pt-8">
-                <CardTitle className="text-3xl font-bold text-center text-accent">Welkom bij de Zelfreflectie Tool ({ageGroup} jaar)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-center pt-4 px-6 leading-relaxed">
-                <p className="text-foreground/90 text-base">
-                  Deze tool helpt je inzicht te krijgen in eigenschappen die samenhangen met o.a. ADD, ADHD, HSP, ASS en Angst/Depressie. Er zijn {currentBaseQuestions.length} basisvragen; op basis van je antwoorden kun je één of meerdere verdiepende modules doen.
-                </p>
-                <p className="text-foreground/90 text-base">
-                  Je ontvangt een persoonlijk overzicht met uitleg, herkenbare voorbeelden en tips. Er zijn geen foute antwoorden; kijk wat bij jou past.
-                </p>
-                <div className="rounded-md border border-accent/50 bg-accent/10 p-4 text-left shadow-sm">
-                  <h3 className="mb-2 flex items-center text-[1.25rem] font-semibold text-accent"><Info className="mr-2 h-5 w-5" />Over neurodiversiteit</h3>
-                  <p className="text-sm text-foreground/80 leading-relaxed">
-                    Neurodiversiteit betekent dat ieders brein uniek is. Deze tool helpt je ontdekken welke eigenschappen bij jou het sterkst aanwezig zijn. <Link href='/neurodiversiteit' className='text-primary hover:underline font-medium'>Meer weten over neurodiversiteit en de verschillende eigenschappen?</Link>
-                  </p>
+            <Card className="w-full max-w-3xl text-center shadow-xl border-border/50">
+                <CardHeader className="pt-10 px-6">
+                <Sparkles className="mx-auto h-12 w-12 text-primary mb-4" />
+                <CardTitle className="text-3xl font-bold text-foreground">
+                    Jouw Reis naar Zelfinzicht Start Hier!
+                </CardTitle>
+                <CardDescription className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
+                    Deze tool helpt je ontdekken wat jouw unieke denk- en leerstijl is. Er zijn geen foute antwoorden, alleen jouw ervaring telt.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="px-6 sm:px-8 space-y-6 pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-sm text-muted-foreground">
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                    <Clock className="h-6 w-6 text-primary flex-shrink-0" />
+                    <div>
+                        <strong>Duur:</strong> Ongeveer 10-15 minuten.
+                    </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                    <ShieldCheck className="h-6 w-6 text-primary flex-shrink-0" />
+                    <div>
+                        <strong>Privacy:</strong> Je antwoorden zijn privé.
+                    </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                    <PauseCircle className="h-6 w-6 text-primary flex-shrink-0" />
+                    <div>
+                        <strong>Pauzeren:</strong> Je kunt de tool later afmaken.
+                    </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                    <UsersIcon className="h-6 w-6 text-primary flex-shrink-0" />
+                    <div>
+                        <strong>Delen:</strong> Jij bepaalt of je ouders je resultaten zien.
+                    </div>
+                    </div>
                 </div>
-              </CardContent>
-              <CardFooter className="flex justify-center pt-6 pb-8">
+                <p className="text-base text-foreground/90">
+                    We stellen je zo'n {currentBaseQuestions.length} vragen over hoe jij dingen ervaart. Op basis van je antwoorden, krijg je misschien wat extra vragen om je profiel nog duidelijker te maken. Aan het eind ontvang je een persoonlijk overzicht met tips die bij jou passen.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                    Wil je eerst meer weten over verschillende denkstijlen? Bezoek onze{' '}
+                    <Link href="/neurodiversiteit" className="text-primary underline hover:text-primary/80">info pagina over neurodiversiteit</Link>.
+                </p>
+                </CardContent>
+                <CardFooter className="flex justify-center pt-6 pb-8">
                 <Button size="lg" onClick={() => setCurrentStep('baseQuestions')} className="shadow-md">
-                  Start de Zelfreflectie <ArrowRight className="ml-2 h-5 w-5" />
+                    Start de Zelfreflectie
+                    <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </CardFooter>
+                </CardFooter>
             </Card>
           )}
 
