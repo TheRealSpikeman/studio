@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 
 
 // Component for Adaptive Onboarding
@@ -23,15 +26,14 @@ const Step3_AdaptiveContent = () => {
     // Local state to manage settings for a live preview
     const [previewSettings, setPreviewSettings] = useState({
       phase1Questions: 18,
-      phase1Threshold: 60,
       phase2MaxPerSpectrum: 12,
       phase2MaxTotal: 20,
       spectrums: [
-        { id: 'adhd', name: 'ADHD', threshold: 65 },
-        { id: 'ass', name: 'Autisme', threshold: 60 },
-        { id: 'hsp', name: 'HSP', threshold: 63 },
-        { id: 'executive', name: 'Executieve Functies', threshold: 60 },
-        { id: 'sensory', name: 'Sensorische Verwerking', threshold: 58 },
+        { id: 'adhd', name: 'ADHD', threshold: 70 },
+        { id: 'ass', name: 'Autisme', threshold: 68 },
+        { id: 'hsp', name: 'HSP', threshold: 62 },
+        { id: 'executive', name: 'Executieve Functies', threshold: 65 },
+        { id: 'sensory', name: 'Sensorische Verwerking', threshold: 55 },
         { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
       ]
     });
@@ -94,8 +96,7 @@ const Step3_AdaptiveContent = () => {
     // Run the simulation once on initial mount to populate the preview
     useEffect(() => {
         runSimulation();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [previewSettings]); // Now re-runs simulation when settings change
+    }, [runSimulation]);
 
     return (
         <div className="space-y-6">
@@ -117,31 +118,24 @@ const Step3_AdaptiveContent = () => {
                     <CardContent className="space-y-4">
                         <div className="p-3 border rounded-md bg-muted/50">
                            <h4 className="font-semibold text-sm mb-2 text-primary">Fase 1: Spectrum Detectie</h4>
-                           <div className="grid grid-cols-2 gap-3">
-                               <div className="config-group">
-                                    <Label htmlFor="phase1-questions" className="text-xs font-medium text-muted-foreground mb-1 block">Aantal Vragen</Label>
-                                    <Input id="phase1-questions" type="number" value={previewSettings.phase1Questions} onChange={(e) => handleSettingChange('phase1Questions', parseInt(e.target.value, 10) || 0)} />
-                                    <p className="text-xs text-muted-foreground mt-1">Optimaal: 15-20 voor accuracy vs completion</p>
-                               </div>
-                               <div className="config-group">
-                                    <Label htmlFor="phase1-threshold" className="text-xs font-medium text-muted-foreground mb-1 block">Min. Score (%)</Label>
-                                    <Input id="phase1-threshold" type="number" value={previewSettings.phase1Threshold} onChange={(e) => handleSettingChange('phase1Threshold', parseInt(e.target.value, 10) || 0)} />
-                                    <p className="text-xs text-muted-foreground mt-1">Threshold om Fase 2 vragen te triggeren</p>
-                               </div>
+                           <div className="config-group">
+                                <Label htmlFor="phase1-questions" className="text-xs font-medium text-muted-foreground mb-1 block">Aantal Vragen</Label>
+                                <Input id="phase1-questions" type="number" value={previewSettings.phase1Questions} onChange={(e) => handleSettingChange('phase1Questions', parseInt(e.target.value, 10) || 0)} />
+                                <p className="text-xs text-muted-foreground mt-1">Optimaal: 15-20 voor accuracy vs completion</p>
                            </div>
                         </div>
                          <div className="p-3 border rounded-md bg-muted/50">
                            <h4 className="font-semibold text-sm mb-2 text-primary">Fase 2: Gerichte Verdieping</h4>
                            <div className="grid grid-cols-2 gap-3">
                                <div className="config-group">
-                                    <Label htmlFor="phase2-max-per" className="text-xs font-medium text-muted-foreground mb-1 block">Max Vragen / Spectrum</Label>
+                                    <Label htmlFor="phase2-max-per" className="text-xs font-medium text-muted-foreground mb-1 block">Vragen per Verdieping</Label>
                                     <Input id="phase2-max-per" type="number" value={previewSettings.phase2MaxPerSpectrum} onChange={(e) => handleSettingChange('phase2MaxPerSpectrum', parseInt(e.target.value, 10) || 0)} />
-                                     <p className="text-xs text-muted-foreground mt-1">Max vragen per gedetecteerd spectrum.</p>
+                                     <p className="text-xs text-muted-foreground mt-1">Aantal vragen per getriggerde verdieping.</p>
                                </div>
                                <div className="config-group">
-                                    <Label htmlFor="phase2-max-total" className="text-xs font-medium text-muted-foreground mb-1 block">Totaal Max Fase 2</Label>
+                                    <Label htmlFor="phase2-max-total" className="text-xs font-medium text-muted-foreground mb-1 block">Maximum Totaal Vragen (Fase 2)</Label>
                                     <Input id="phase2-max-total" type="number" value={previewSettings.phase2MaxTotal} onChange={(e) => handleSettingChange('phase2MaxTotal', parseInt(e.target.value, 10) || 0)} />
-                                    <p className="text-xs text-muted-foreground mt-1">Garandeert voorspelbare quizlengte.</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Veiligheidslimiet voor totale quizlengte.</p>
                                </div>
                            </div>
                         </div>
@@ -172,7 +166,7 @@ const Step3_AdaptiveContent = () => {
                                 const currentSpectrum = previewSettings.spectrums[index];
                                 return (
                                 <p key={item.name} className={cn("text-xs", item.triggered ? "text-green-600 font-medium" : "text-muted-foreground")}>
-                                    {item.name}: {item.score}% {item.triggered ? `(>${currentSpectrum.threshold}% ✓)` : `(<${currentSpectrum.threshold}% ✗)`} → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
+                                    {item.name}: {item.score}% {item.triggered ? `(✓)` : `(✗)`} → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
                                 </p>
                                 )
                             }) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
