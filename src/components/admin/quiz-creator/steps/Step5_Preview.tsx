@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion } from '@/types/quiz-admin';
+import { answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 
 type DeviceType = 'desktop' | 'mobile' | 'tablet';
 
@@ -122,10 +123,12 @@ export const Step5_Preview = () => {
                                         <>
                                             <p className="font-semibold text-lg mb-4 text-foreground">{currentPreviewQuestion.text}</p>
                                             <RadioGroup value={previewSelectedOption} onValueChange={setPreviewSelectedOption} className="space-y-3">
-                                                <Label className="flex items-center gap-3 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer has-[input:checked]:border-primary has-[input:checked]:bg-primary/5"><RadioGroupItem value="a" id="a"/> Antwoord A (voorbeeld)</Label>
-                                                <Label className="flex items-center gap-3 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer has-[input:checked]:border-primary"><RadioGroupItem value="b" id="b"/> Antwoord B (voorbeeld)</Label>
-                                                <Label className="flex items-center gap-3 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer has-[input:checked]:border-primary"><RadioGroupItem value="c" id="c"/> Antwoord C (voorbeeld)</Label>
-                                                <Label className="flex items-center gap-3 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer has-[input:checked]:border-primary"><RadioGroupItem value="d" id="d"/> Antwoord D (voorbeeld)</Label>
+                                                {answerOptions.map((option) => (
+                                                    <Label key={option.value} htmlFor={`preview-option-${option.value}`} className="flex items-center gap-3 border p-3 rounded-md bg-white hover:bg-slate-100 cursor-pointer has-[input:checked]:border-primary has-[input:checked]:bg-primary/5">
+                                                        <RadioGroupItem value={option.value} id={`preview-option-${option.value}`}/> 
+                                                        {option.label}
+                                                    </Label>
+                                                ))}
                                             </RadioGroup>
                                         </>
                                     ) : (
@@ -180,4 +183,3 @@ export const Step5_Preview = () => {
         </div>
     );
 };
-
