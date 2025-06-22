@@ -65,6 +65,14 @@ export const Step4_Settings = () => {
         });
     }
 
+    const creationTypeLabels = {
+        scratch: 'Vanaf Nul',
+        template: 'Template',
+        ai: 'AI Gegenereerd',
+        adaptive: 'Adaptieve Quiz'
+    };
+    const creationTypeLabel = quizData.creationType ? creationTypeLabels[quizData.creationType] : 'Onbekend';
+
     const settings = quizData.settings || {};
     const showADHDAlert = quizData.focusFlags?.includes('adhd-friendly') || quizData.focusFlags?.includes('executive-functions-focus');
     const showADHDCoachOption = quizData.mainCategory?.toLowerCase().includes('adhd') || quizData.focusFlags?.includes('adhd-friendly');
@@ -80,11 +88,12 @@ export const Step4_Settings = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="flex flex-wrap gap-2">
+                        {quizData.creationType && <Badge variant="default" className="bg-purple-500 hover:bg-purple-600">Type: {creationTypeLabel}</Badge>}
                         {quizData.targetAgeGroup && <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">{quizData.targetAgeGroup} jaar</Badge>}
                         {quizData.audienceType === 'parent' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Ouder over kind</Badge>}
                         {quizData.audienceType === 'teen' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Tiener (zelf)</Badge>}
                         {quizData.audienceType === 'adult' && <Badge variant="secondary" className="bg-indigo-200 text-indigo-800">Volwassene (zelf)</Badge>}
-                        {quizData.focusFlags?.map(flag => flag !== 'general' && <Badge key={flag} variant="outline" className="capitalize">{flag.replace(/-friendly|-focus/g, '')}</Badge>)}
+                        {quizData.focusFlags?.map(flag => flag !== 'general' && <Badge key={flag} variant="outline" className="capitalize">{flag.replace(/-friendly|-focus/g, '').replace(/(^\w)/, c => c.toUpperCase())}</Badge>)}
                         {quizData.mainCategory && <Badge variant="outline">{allCategories.find(c => c.id === quizData.mainCategory)?.title || quizData.mainCategory}</Badge>}
                     </div>
                 </CardContent>
