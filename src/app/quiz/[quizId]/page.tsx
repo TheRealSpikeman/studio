@@ -12,25 +12,34 @@ import { Progress } from '@/components/ui/progress';
 
 import type { QuizAdmin, QuizAdminQuestion } from '@/types/quiz-admin';
 import type { QuizQuestion as QuestionType, QuizOption as OptionType } from '@/components/quiz/question-display';
-
-const answerOptions: OptionType[] = [
-  { value: '1', label: 'Nooit' },
-  { value: '2', label: 'Soms' },
-  { value: '3', label: 'Vaak' },
-  { value: '4', label: 'Altijd' },
-];
+import { answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 
 function mapQuestionsToDisplay(questions: QuizAdminQuestion[]): QuestionType[] {
   return questions.map(q => ({
     id: q.id || `q-${Math.random()}`,
     text: q.text,
-    options: answerOptions.map(opt => ({ id: `${q.id}-${opt.value}`, text: opt.label, value: opt.value })) // Added value to option
+    options: answerOptions.map(opt => ({ 
+        id: `${q.id}-${opt.value}`, // a unique ID for the option
+        text: opt.label,
+        value: opt.value, // The actual value for the radio group
+    }))
   }));
 }
 
 
 async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: string; questions: QuestionType[] } | null> {
     if (typeof window === 'undefined') return null;
+
+    if (quizIdOrSlug === 'debug-flow-test') {
+        return {
+            title: 'Foutopsporing-Quiz: Data Flow',
+            questions: [
+                { id: 'dq1', text: 'Vraag 1: Geeft de quiz data correct door?', options: answerOptions.map(o => ({ id: `dq1-${o.value}`, text: o.label, value: o.value })) },
+                { id: 'dq2', text: 'Vraag 2: Worden de resultaten correct opgeslagen?', options: answerOptions.map(o => ({ id: `dq2-${o.value}`, text: o.label, value: o.value })) },
+                { id: 'dq3', text: 'Vraag 3: Wordt de AI-samenvatting correct gegenereerd?', options: answerOptions.map(o => ({ id: `dq3-${o.value}`, text: o.label, value: o.value })) },
+            ]
+        };
+    }
     
     // First, try to get by ID, which is the key
     const storedById = localStorage.getItem(quizIdOrSlug);
@@ -116,8 +125,8 @@ export default function TakeQuizPage() {
   const { questions, title: quizTitle } = quizData;
   const currentQuestion = questions[currentQuestionIndex];
 
-  const handleNextQuestion = (selectedOptionId: string) => {
-    const newAnswers = {...answers, [currentQuestion.id]: selectedOptionId};
+  const handleNextQuestion = (selectedOptionValue: string) => {
+    const newAnswers = {...answers, [currentQuestion.id]: selectedOptionValue};
     setAnswers(newAnswers);
 
     if (currentQuestionIndex < questions.length - 1) {
@@ -126,17 +135,17 @@ export default function TakeQuizPage() {
       // Quiz finished, save results to localStorage
       const finalAnswers = {
         ...newAnswers,
-        [currentQuestion.id]: selectedOptionId,
+        [currentQuestion.id]: selectedOptionValue,
       };
 
       const resultsToStore = {
         quizTitle: quizTitle,
-        answers: Object.entries(finalAnswers).map(([qId, oId]) => {
+        answers: Object.entries(finalAnswers).map(([qId, val]) => {
           const question = questions.find(q => q.id === qId);
-          const option = question?.options.find(o => o.id === oId);
+          const option = answerOptions.find(o => o.value === val); // find option by value
           return {
             question: question?.text || 'Onbekende vraag',
-            answer: option?.text || 'Onbekend antwoord',
+            answer: option ? `${option.label} (${option.value})` : `Score ${val}`,
           };
         }),
       };

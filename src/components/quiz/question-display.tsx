@@ -10,6 +10,7 @@ import { useState } from "react";
 export interface QuizOption {
   id: string;
   text: string;
+  value: string;
 }
 
 export interface QuizQuestion {
@@ -22,10 +23,9 @@ interface QuestionDisplayProps {
   question: QuizQuestion;
   questionNumber: number;
   totalQuestions: number;
-  onNext: (selectedOptionId: string) => void;
+  onNext: (selectedOptionValue: string) => void;
   onBack: () => void;
   isFirstQuestion: boolean;
-  // isLastQuestion: boolean; // Not needed if "Next" changes to "Finish" or similar
 }
 
 export function QuestionDisplay({
@@ -60,9 +60,9 @@ export function QuestionDisplay({
               key={option.id}
               htmlFor={option.id}
               className={`flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors
-                ${selectedOption === option.id ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}
+                ${selectedOption === option.value ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}
             >
-              <RadioGroupItem value={option.id} id={option.id} />
+              <RadioGroupItem value={option.value} id={option.id} />
               <span>{option.text}</span>
             </Label>
           ))}

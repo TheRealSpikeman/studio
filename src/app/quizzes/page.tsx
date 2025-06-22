@@ -1,4 +1,3 @@
-
 // src/app/quizzes/page.tsx
 "use client"; 
 
@@ -104,6 +103,22 @@ const baseTeenQuizzes: Quiz[] = [
 ];
 
 const thematicTeenQuizzes: Quiz[] = [
+  {
+    id: 'debug-flow-test',
+    title: 'Foutopsporing-Quiz',
+    description: 'Een simpele testquiz om de data flow van begin tot eind te controleren.',
+    status: 'Nog niet gestart',
+    imageUrl: 'https://placehold.co/400x200.png?text=DEBUG',
+    dataAiHint: 'computer code bug',
+    ageGroup: 'all',
+    duration: "1 min",
+    questionCount: 3,
+    difficulty: 'makkelijk',
+    icon: AlertTriangle,
+    badgeText: "DEBUG",
+    badgeClass: "bg-destructive text-destructive-foreground",
+    isNeuroIntake: false,
+  },
   { 
     id: 'exam-stress-planning', 
     title: 'Omgaan met Examenvrees', 
