@@ -5,7 +5,7 @@ import React from 'react';
 import type { ElementType } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -66,7 +66,7 @@ const Step3_AdaptiveContent = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Detection Algorithm</CardTitle>
+                            <CardTitle>Detection Algorithm</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="p-3 border rounded-md bg-muted/50">
@@ -115,7 +115,7 @@ const Step3_AdaptiveContent = () => {
                     </Card>
                     <Card>
                         <CardHeader>
-                           <CardTitle className="flex items-center gap-2"><TestTube2 className="h-5 w-5 text-primary"/>Algorithm Preview</CardTitle>
+                           <CardTitle>Algorithm Preview</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
@@ -125,9 +125,9 @@ const Step3_AdaptiveContent = () => {
                             </div>
                             <div className="p-3 border rounded-md bg-background text-sm">
                                 <p className="font-semibold">Voorbeeld Output:</p>
-                                <p className="text-muted-foreground text-xs">ADHD: 78% (&gt;65% ✓) → 12 vragen</p>
-                                <p className="text-muted-foreground text-xs">HSP: 67% (&gt;55% ✓) → 12 vragen</p>
-                                 <p className="text-muted-foreground text-xs">Autisme: 45% (&lt;60% ✗) → Skip</p>
+                                <p className="text-muted-foreground text-xs">ADHD: 78% (>65% ✓) → 12 vragen</p>
+                                <p className="text-muted-foreground text-xs">HSP: 67% (>55% ✓) → 12 vragen</p>
+                                 <p className="text-muted-foreground text-xs">Autisme: 45% (<60% ✗) → Skip</p>
                                  <p className="font-semibold mt-1">Totaal Fase 2: 24 vragen</p>
                             </div>
                             <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
@@ -142,7 +142,7 @@ const Step3_AdaptiveContent = () => {
 
                 <div>
                     <h3 className="text-lg font-medium text-foreground mb-3 flex items-center gap-1.5">
-                        🎯 Spectrum Detection Thresholds (%)
+                        Spectrum Detection Thresholds (%)
                         <Tooltip delayDuration={200}>
                             <TooltipTrigger asChild>
                                 <button type="button" className="text-muted-foreground hover:text-foreground cursor-help" onClick={(e) => e.preventDefault()}>
@@ -172,7 +172,7 @@ const Step3_AdaptiveContent = () => {
                 <Card>
                     <CardHeader className="flex flex-row justify-between items-center">
                        <div>
-                        <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5 text-primary"/>Question Bank Management</CardTitle>
+                        <CardTitle>Question Bank Management</CardTitle>
                        </div>
                         <Button><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
                     </CardHeader>
@@ -276,7 +276,7 @@ export const Step3Content = () => {
         <span className="text-sm font-medium text-muted-foreground mr-2">Je selecties tot nu toe:</span>
         <Badge variant="secondary" className="mr-1">{quizData.targetAgeGroup} jaar</Badge>
         <Badge variant="secondary" className="mr-1">{quizData.audienceType === 'parent' ? 'Ouder over kind' : 'Voor zichzelf'}</Badge>
-        {quizData.focusFlags?.map(flag => <Badge key={flag} variant="secondary" className="mr-1 capitalize">{flag.replace('-friendly', '').replace('-focus', '').replace(/(^\w)/, c => c.toUpperCase())}</Badge>)}
+        {quizData.focusFlags?.map(flag => flag !== 'general' && <Badge key={flag} variant="secondary" className="mr-1 capitalize">{flag.replace('-friendly', '').replace('-focus', '').replace(/(^\w)/, c => c.toUpperCase())}</Badge>)}
       </div>
       
       {smartSuggestions && (
