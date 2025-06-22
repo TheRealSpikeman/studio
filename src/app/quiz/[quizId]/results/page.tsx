@@ -79,12 +79,13 @@ export default function QuizResultsPage() {
         setSummary(summaryOutput.summary);
 
         const coachingInput = {
-          quizResults: JSON.stringify(quizResultsForAI),
-          profileDescription: `Gebruiker heeft zojuist de ${quizTitle} voltooid.`
+          onboardingAnalysisText: summaryOutput.summary,
+          userName: "Gebruiker" // Kan later worden gepersonaliseerd als gebruikersdata beschikbaar is
         };
         if (quizId !== 'teen-neurodiversity-quiz') {
             const coachingOutput = await generateCoachingInsights(coachingInput);
-            setCoaching(coachingOutput.coachingInsights);
+            const coachingText = `${coachingOutput.dailyAffirmation}\n\n**Tip:** ${coachingOutput.dailyCoachingTip}\n\n**Kleine taak:** ${coachingOutput.microTaskSuggestion}`;
+            setCoaching(coachingText);
         } else {
             // Aangepast bericht voor de tiener zelfreflectie tool
             setCoaching("Bekijk de uitgebreide tips en strategieën in je persoonlijke overzicht hierboven. Deze zijn speciaal voor jou samengesteld!");
@@ -199,7 +200,7 @@ export default function QuizResultsPage() {
               <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
             </div>
           ) : (
-           <p className="text-muted-foreground">{resultsToDisplay.coachingInsights}</p>
+           <p className="text-muted-foreground whitespace-pre-wrap">{resultsToDisplay.coachingInsights}</p>
           )}
         </CardContent>
       </Card>
