@@ -838,7 +838,6 @@ export default function QuizPageContent() {
                                                     <h4 className="text-lg font-semibold text-teal-700 flex items-center gap-2 mb-2">
                                                         <ThemeIcon className="h-6 w-6" />
                                                         {sanitizeAiText(subScore.profileName)}
-                                                        {sanitizeAiText(subScore.score) && <span className="text-teal-600 font-bold">&ndash; Score: {sanitizeAiText(subScore.score)}</span>}
                                                     </h4>
                                                     <p className="text-base leading-relaxed text-gray-700 mb-3">{sanitizeAiText(subScore.comment)}</p>
                                                 </div>
@@ -854,7 +853,6 @@ export default function QuizPageContent() {
                                         <ItemIcon className="h-6 w-6 text-teal-700 flex-shrink-0 mt-0.5" />
                                         <div>
                                           <p className="text-[1.25rem] font-semibold text-teal-700">{item.profileName}</p>
-                                          {item.score && <p className="text-sm text-teal-600">Score: {item.score}</p>}
                                         </div>
                                       </div>
                                       <p className={cn(contentClasses, "text-[1rem] mb-0")}>{item.comment}</p>
