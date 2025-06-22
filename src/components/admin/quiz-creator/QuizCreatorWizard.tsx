@@ -20,18 +20,30 @@ export const QuizCreatorWizard = () => {
   const TOTAL_STEPS = 5;
 
   const nextStep = async () => {
-    // If moving from step 3 and type is AI, generate questions
-    if (currentStep === 3 && quizData.creationType === 'ai') {
+    // If moving from step 3 and type is AI or adaptive, generate questions
+    if (currentStep === 3 && (quizData.creationType === 'ai' || quizData.creationType === 'adaptive')) {
       setIsGenerating(true);
       toast({ title: "AI is aan het werk...", description: "De quizvragen worden nu gegenereerd." });
       try {
-        const durationMap: Record<string, number> = {
-          '2-3 minuten (2-3 vragen)': 3,
-          '3-5 minuten (4-6 vragen)': 5,
-          '5-8 minuten (7-10 vragen)': 8,
-          '8-12 minuten (11-15 vragen)': 12,
-        };
-        const numQuestions = durationMap[quizData.estimatedDuration || '5-8 minuten (7-10 vragen)'] || 8;
+        let numQuestions: number;
+        let category: string;
+        let quizPurpose: 'onboarding' | 'general' | 'deep_dive' | 'reflection' | 'goal_setting';
+        
+        if (quizData.creationType === 'adaptive') {
+            numQuestions = 18; // Default for Phase 1 of adaptive quiz
+            category = 'Basis'; // Adaptive quiz is a base quiz
+            quizPurpose = 'onboarding';
+        } else { // 'ai'
+            const durationMap: Record<string, number> = {
+              '2-3 minuten (2-3 vragen)': 3,
+              '3-5 minuten (4-6 vragen)': 5,
+              '5-8 minuten (7-10 vragen)': 8,
+              '8-12 minuten (11-15 vragen)': 12,
+            };
+            numQuestions = durationMap[quizData.estimatedDuration || '5-8 minuten (7-10 vragen)'] || 8;
+            category = quizData.mainCategory!;
+            quizPurpose = quizData.resultType === 'personality-4-types' ? 'onboarding' : 'general';
+        }
 
         let audience: QuizAudience;
         switch (quizData.audienceType) {
@@ -55,10 +67,10 @@ export const QuizCreatorWizard = () => {
         const aiInput = {
           topic: quizData.title!,
           audience: audience,
-          category: quizData.mainCategory!,
+          category: category,
           numQuestions: numQuestions,
           difficulty: quizData.difficulty || 'gemiddeld',
-          quizPurpose: quizData.resultType === 'personality-4-types' ? 'onboarding' : 'general',
+          quizPurpose: quizPurpose,
         };
 
         const result = await generateAiQuiz(aiInput);
@@ -94,7 +106,8 @@ export const QuizCreatorWizard = () => {
         if (!quizData.audienceType || !quizData.targetAgeGroup) return true;
         return false;
       case 3:
-        if (!quizData.mainCategory || !quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) return true;
+        if (!quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) return true;
+        if (quizData.creationType === 'ai' && !quizData.mainCategory) return true;
         return false;
       default:
         // For steps 4 and 5, the button is enabled by default for now.
@@ -134,7 +147,7 @@ export const QuizCreatorWizard = () => {
           {currentStep < TOTAL_STEPS ? (
             <Button onClick={nextStep} disabled={isNextDisabled() || isGenerating}>
               {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {currentStep === 3 && quizData.creationType === 'ai' ? (isGenerating ? 'Vragen genereren...' : 'Genereer & Ga Verder') : 'Volgende'}
+              {currentStep === 3 && (quizData.creationType === 'ai' || quizData.creationType === 'adaptive') ? (isGenerating ? 'Vragen genereren...' : 'Genereer & Ga Verder') : 'Volgende'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
