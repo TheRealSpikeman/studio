@@ -1,16 +1,17 @@
+
 // src/app/quiz/teen-neurodiversity-quiz/QuizPageContent.tsx
 "use client"; 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation'; 
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2 } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
-import { TeenQuestion } from '@/components/quiz/teen-question';
+import { QuestionDisplay } from '@/components/quiz/question-display';
 import {
   baseQuestionsTeen12_14,
   baseQuestionsTeen15_18,
@@ -243,11 +244,10 @@ export default function QuizPageContent() {
   const [subtestAnswers, setSubtestAnswers] = useState<Record<string, (number | undefined)[]>>({});
   const [relevantSubtests, setRelevantSubtests] = useState<string[]>([]);
   const [finalScores, setFinalScores] = useState<Scores>({});
-  const [showUnansweredWarning, setShowUnansweredWarning] = useState(false);
-
-  const [currentBaseQuestions, setCurrentBaseQuestions] = useState<string[]>([]);
-  const [currentSubTests, setCurrentSubTests] = useState<Record<string, string[]>>({});
-  const [currentThresholds, setCurrentThresholds] = useState<Record<string, number>>({});
+  
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [flatSubtestQuestions, setFlatSubtestQuestions] = useState<{ key: string; index: number; text: string; }[]>([]);
+  const [currentFlatSubtestIndex, setCurrentFlatSubtestIndex] = useState(0);
 
   const [quizAnalysis, setQuizAnalysis] = useState<string | null>(null);
   const [parsedAiAnalysis, setParsedAiAnalysis] = useState<AiAnalysisSection[]>([]);
@@ -258,22 +258,157 @@ export default function QuizPageContent() {
   useEffect(() => {
     if (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18') {
       setAgeGroup(ageGroupFromQuery);
-      if (ageGroupFromQuery === '12-14') {
-        setCurrentBaseQuestions(baseQuestionsTeen12_14);
-        setCurrentSubTests(subTestsTeen12_14);
-        setCurrentThresholds(thresholdsTeen12_14);
-        setBaseAnswers(new Array(baseQuestionsTeen12_14.length).fill(undefined));
-      } else {
-        setCurrentBaseQuestions(baseQuestionsTeen15_18);
-        setCurrentSubTests(subTestsTeen15_18);
-        setCurrentThresholds(thresholdsTeen15_18);
-        setBaseAnswers(new Array(baseQuestionsTeen15_18.length).fill(undefined));
-      }
     } else {
         // router.replace('/quizzes'); 
     }
   }, [ageGroupFromQuery, router]);
 
+  const currentBaseQuestions = useMemo(() => {
+    if (ageGroup === '12-14') return baseQuestionsTeen12_14;
+    if (ageGroup === '15-18') return baseQuestionsTeen15_18;
+    return [];
+  }, [ageGroup]);
+
+  const currentSubTests = useMemo(() => {
+    if (ageGroup === '12-14') return subTestsTeen12_14;
+    if (ageGroup === '15-18') return subTestsTeen15_18;
+    return {};
+  }, [ageGroup]);
+
+  const currentThresholds = useMemo(() => {
+    if (ageGroup === '12-14') return thresholdsTeen12_14;
+    if (ageGroup === '15-18') return thresholdsTeen15_18;
+    return {};
+  }, [ageGroup]);
+
+  // Initialize answers array when questions are loaded
+  useEffect(() => {
+    if (currentBaseQuestions.length > 0) {
+      setBaseAnswers(new Array(currentBaseQuestions.length).fill(undefined));
+    }
+  }, [currentBaseQuestions]);
+
+
+  const calculateRelevantSubtests = useCallback((answers: (number | undefined)[]): string[] => {
+    if (currentBaseQuestions.length === 0 || Object.keys(currentThresholds).length === 0 || answers.some(a => a === undefined)) return [];
+
+    const scores: Scores = {};
+    if (ageGroup === '15-18') {
+        scores.ADD = calculateAverage(answers.slice(0, 3));
+        scores.ADHD = calculateAverage(answers.slice(3, 6));
+        scores.HSP = calculateAverage(answers.slice(6, 9));
+        scores.ASS = calculateAverage(answers.slice(9, 12));
+        scores.AngstDepressie = calculateAverage(answers.slice(12, 15));
+    } else if (ageGroup === '12-14') {
+        scores.ADD = calculateAverage(answers.slice(0, 2));
+        scores.ADHD = calculateAverage(answers.slice(2, 4));
+        scores.HSP = calculateAverage(answers.slice(4, 6));
+        scores.ASS = calculateAverage(answers.slice(6, 8));
+        scores.AngstDepressie = calculateAverage(answers.slice(8, 10));
+    }
+
+    return Object.keys(scores).filter(key => currentThresholds[key] && scores[key] >= currentThresholds[key] && !isNaN(scores[key]));
+  }, [ageGroup, currentBaseQuestions.length, currentThresholds]);
+
+
+  const calculateFinalScores = useCallback((currentRelevantSubtests: string[], currentSubtestAnswers: Record<string, (number | undefined)[]>): Scores => {
+    if (Object.keys(currentThresholds).length === 0) return {};
+    const scores: Scores = {};
+
+    let baseScoresCalc: Scores = {};
+     if (ageGroup === '15-18') {
+        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 3));
+        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(3, 6));
+        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(6, 9));
+        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(9, 12));
+        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
+    } else if (ageGroup === '12-14') {
+        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 2));
+        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(2, 4));
+        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(4, 6));
+        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(6, 8));
+        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
+    }
+
+    Object.keys(currentThresholds).forEach(key => {
+      if (currentRelevantSubtests.includes(key) && currentSubtestAnswers[key] && currentSubtestAnswers[key]?.filter(ans => ans !== undefined).length > 0) {
+        scores[key] = calculateAverage(currentSubtestAnswers[key]);
+      } else {
+         scores[key] = baseScoresCalc[key] || 0;
+      }
+       scores[key] = Math.round(scores[key] * 100) / 100; 
+    });
+    return scores;
+  }, [ageGroup, baseAnswers, currentThresholds]);
+  
+  
+  const proceedToBaseNext = useCallback((currentAnswers: (number | undefined)[]) => {
+    const relSubtests = calculateRelevantSubtests(currentAnswers);
+    setRelevantSubtests(relSubtests);
+    if (relSubtests.length === 0) {
+      setFinalScores(calculateFinalScores([], {}));
+      setCurrentStep('results');
+    } else {
+      const flattenedQuestions = relSubtests.flatMap(key =>
+        (currentSubTests[key] || []).map((qText, qIndex) => ({
+          key: key,
+          index: qIndex,
+          text: qText,
+        }))
+      );
+      setFlatSubtestQuestions(flattenedQuestions);
+      setCurrentFlatSubtestIndex(0);
+
+      const initialSubAnswers: Record<string, (number | undefined)[]> = {};
+      relSubtests.forEach(key => {
+        initialSubAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
+      });
+      setSubtestAnswers(initialSubAnswers);
+      setCurrentStep('subtestConfirmation');
+    }
+  }, [calculateRelevantSubtests, calculateFinalScores, currentSubTests]);
+
+  const handleBaseQuestionAnswer = useCallback((selectedOptionValue: string) => {
+    const newAnswers = [...baseAnswers];
+    newAnswers[currentQuestionIndex] = parseInt(selectedOptionValue, 10);
+    setBaseAnswers(newAnswers);
+
+    if (currentQuestionIndex < currentBaseQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      proceedToBaseNext(newAnswers);
+    }
+  }, [baseAnswers, currentQuestionIndex, currentBaseQuestions.length, proceedToBaseNext]);
+
+  const handleSubtestQuestionAnswer = useCallback((selectedOptionValue: string) => {
+    const currentQuestion = flatSubtestQuestions[currentFlatSubtestIndex];
+    if (!currentQuestion) return;
+    
+    const { key, index } = currentQuestion;
+
+    setSubtestAnswers(prev => {
+        const newAnswers = { ...prev };
+        if (!newAnswers[key]) {
+          newAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
+        }
+        const newSubtestAnswers = [...newAnswers[key]];
+        newSubtestAnswers[index] = parseInt(selectedOptionValue, 10);
+        newAnswers[key] = newSubtestAnswers;
+
+        if (currentFlatSubtestIndex >= flatSubtestQuestions.length - 1) {
+            setFinalScores(calculateFinalScores(relevantSubtests, newAnswers));
+            setCurrentStep('results');
+        }
+
+        return newAnswers;
+    });
+
+    if (currentFlatSubtestIndex < flatSubtestQuestions.length - 1) {
+      setCurrentFlatSubtestIndex(prev => prev + 1);
+    }
+  }, [flatSubtestQuestions, currentFlatSubtestIndex, currentSubTests, calculateFinalScores, relevantSubtests]);
+
+  
   useEffect(() => {
     if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
       const fetchAnalysis = async () => {
@@ -352,99 +487,7 @@ export default function QuizPageContent() {
       fetchAnalysis();
     }
   }, [currentStep, finalScores, ageGroup, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests, quizAnalysis, isAnalysisLoading]);
-
-
-  const answeredBaseQuestionsCount = useMemo(() => baseAnswers.filter(ans => ans !== undefined).length, [baseAnswers]);
-
-  const handleBaseAnswerChange = (index: number, value: string) => {
-    const newAnswers = [...baseAnswers];
-    newAnswers[index] = parseInt(value, 10);
-    setBaseAnswers(newAnswers);
-  };
-
-  const handleSubtestAnswerChange = (subtestKey: string, questionIndex: number, value: string) => {
-    setSubtestAnswers(prev => {
-      const currentSubtestAns = prev[subtestKey] ? [...prev[subtestKey]] : new Array(currentSubTests[subtestKey]?.length || 0).fill(undefined);
-      currentSubtestAns[questionIndex] = parseInt(value, 10);
-      return { ...prev, [subtestKey]: currentSubtestAns };
-    });
-  };
-
-  const calculateRelevantSubtests = (): string[] => {
-    if (currentBaseQuestions.length === 0 || Object.keys(currentThresholds).length === 0) return [];
-
-    const scores: Scores = {};
-    if (ageGroup === '15-18') {
-        scores.ADD = calculateAverage(baseAnswers.slice(0, 3));
-        scores.ADHD = calculateAverage(baseAnswers.slice(3, 6));
-        scores.HSP = calculateAverage(baseAnswers.slice(6, 9));
-        scores.ASS = calculateAverage(baseAnswers.slice(9, 12));
-        scores.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
-    } else if (ageGroup === '12-14') {
-        scores.ADD = calculateAverage(baseAnswers.slice(0, 2));
-        scores.ADHD = calculateAverage(baseAnswers.slice(2, 4));
-        scores.HSP = calculateAverage(baseAnswers.slice(4, 6));
-        scores.ASS = calculateAverage(baseAnswers.slice(6, 8));
-        scores.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
-    }
-
-    return Object.keys(scores).filter(key => currentThresholds[key] && scores[key] >= currentThresholds[key] && !isNaN(scores[key]));
-  };
-
-  const calculateFinalScores = (currentRelevantSubtests: string[]): Scores => {
-    if (Object.keys(currentThresholds).length === 0) return {};
-    const scores: Scores = {};
-
-    let baseScoresCalc: Scores = {};
-     if (ageGroup === '15-18') {
-        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 3));
-        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(3, 6));
-        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(6, 9));
-        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(9, 12));
-        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
-    } else if (ageGroup === '12-14') {
-        baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 2));
-        baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(2, 4));
-        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(4, 6));
-        baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(6, 8));
-        baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
-    }
-
-    Object.keys(currentThresholds).forEach(key => {
-      if (currentRelevantSubtests.includes(key) && subtestAnswers[key] && subtestAnswers[key]?.filter(ans => ans !== undefined).length > 0) {
-        scores[key] = calculateAverage(subtestAnswers[key]);
-      } else {
-         scores[key] = baseScoresCalc[key] || 0;
-      }
-       scores[key] = Math.round(scores[key] * 100) / 100; 
-    });
-    return scores;
-  };
-
-  const proceedToBaseNext = () => {
-    const relSubtests = calculateRelevantSubtests();
-    setRelevantSubtests(relSubtests);
-    if (relSubtests.length === 0) {
-      setFinalScores(calculateFinalScores([]));
-      setCurrentStep('results');
-    } else {
-      const initialSubAnswers: Record<string, (number | undefined)[]> = {};
-      relSubtests.forEach(key => {
-        initialSubAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
-      });
-      setSubtestAnswers(initialSubAnswers);
-      setCurrentStep('subtestConfirmation');
-    }
-  };
-
-  const handleBaseNext = () => {
-    if (currentBaseQuestions.length > 0 && answeredBaseQuestionsCount < currentBaseQuestions.length) {
-      setShowUnansweredWarning(true);
-      return;
-    }
-    proceedToBaseNext();
-  };
-
+  
   const handleRestart = () => {
     setCurrentStep('intro');
     if (ageGroup === '12-14') {
@@ -459,6 +502,9 @@ export default function QuizPageContent() {
     setFinalScores({});
     setQuizAnalysis(null);
     setParsedAiAnalysis([]);
+    setCurrentQuestionIndex(0);
+    setFlatSubtestQuestions([]);
+    setCurrentFlatSubtestIndex(0);
   };
 
   const generateSummaryText = (scores: Scores, shownSubtests: string[]): string => {
@@ -487,7 +533,7 @@ export default function QuizPageContent() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [currentStep]);
+  }, [currentStep, currentQuestionIndex, currentFlatSubtestIndex]);
 
   if (!ageGroup || currentBaseQuestions.length === 0) {
     return (
@@ -507,8 +553,11 @@ export default function QuizPageContent() {
 
       <div className="w-full max-w-3xl"> 
 
-          {currentStep !== 'intro' && (
-            <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
+          {currentStep !== 'intro' && currentStep !== 'results' && (
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-foreground mb-2">Zelfreflectie Tool ({ageGroup} jaar)</h1>
+                <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
+            </div>
           )}
 
           {currentStep === 'intro' && (
@@ -567,48 +616,18 @@ export default function QuizPageContent() {
           )}
 
           {currentStep === 'baseQuestions' && (
-            <Card className="shadow-xl rounded-lg">
-              <CardHeader className="pt-8 px-6">
-                <CardTitle className="text-[1.5rem] font-semibold text-accent">Basisvragen ({ageGroup} jaar)</CardTitle>
-                <CardDescription className="pt-1 text-foreground/80 leading-relaxed text-base">
-                  Deze eerste {currentBaseQuestions.length} vragen helpen om te bepalen welke eigenschappen bij jou het sterkst aanwezig zijn. Kies bij elke vraag het antwoord dat het beste bij jou past.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2 px-6">
-                {currentBaseQuestions.map((q, index) => (
-                  <TeenQuestion
-                    key={index}
-                    questionText={q}
-                    questionIndex={index}
-                    options={answerOptions}
-                    selectedValue={baseAnswers[index]?.toString()}
-                    onValueChange={(value) => handleBaseAnswerChange(index, value)}
-                  />
-                ))}
-                <p className="mt-4 text-sm italic text-muted-foreground text-center">
-                  Vraag {answeredBaseQuestionsCount} van {currentBaseQuestions.length} beantwoord
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-end pt-6 pb-8 px-6">
-                <AlertDialog open={showUnansweredWarning} onOpenChange={setShowUnansweredWarning}>
-                  <AlertDialogContent className="rounded-lg shadow-lg">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Niet alle vragen beantwoord</AlertDialogTitle>
-                      <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
-                        Je hebt nog niet alle basisvragen beantwoord. Voor het meest complete beeld raden we aan alle vragen in te vullen. Wil je toch doorgaan?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                      <AlertDialogAction onClick={proceedToBaseNext}>Toch doorgaan</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <Button onClick={handleBaseNext}>
-                  Volgende <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
+            <QuestionDisplay
+              question={{
+                  id: `base-q-${currentQuestionIndex}`,
+                  text: currentBaseQuestions[currentQuestionIndex],
+                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label }))
+              }}
+              questionNumber={currentQuestionIndex + 1}
+              totalQuestions={currentBaseQuestions.length}
+              onNext={handleBaseQuestionAnswer}
+              onBack={() => setCurrentQuestionIndex(prev => prev - 1)}
+              isFirstQuestion={currentQuestionIndex === 0}
+            />
           )}
 
           {currentStep === 'subtestConfirmation' && (
@@ -636,12 +655,18 @@ export default function QuizPageContent() {
                         </li>
                       ))}
                     </ul>
-                    <p className="text-foreground/90 text-base">Voor elk relevant gebied stellen we je {currentSubTests[relevantSubtests[0]]?.length || 0} verdiepende vragen voor meer inzicht.</p>
+                    <p className="text-foreground/90 text-base">Voor elk relevant gebied stellen we je een aantal verdiepende vragen voor meer inzicht.</p>
                   </>
                 )}
+                 <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
+                    <p className="font-semibold text-primary">Een noot van Dr. Florentine Sage:</p>
+                    <blockquote className="mt-1 italic text-muted-foreground">
+                    "We gaan nu wat dieper in op de thema's die bij jou naar voren kwamen. Onthoud: we zoeken niet naar wat 'fout' is, maar naar wat jou uniek maakt. Jouw antwoorden helpen ons een completer beeld te krijgen van jouw superkrachten en uitdagingen. Wees eerlijk, er zijn geen foute antwoorden!"
+                    </blockquote>
+                </div>
               </CardContent>
               <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-6 pb-8 px-6">
-                <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([])); setCurrentStep('results'); }}>
+                <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([], {})); setCurrentStep('results'); }}>
                   Direct naar resultaten <CheckSquare className="ml-2 h-4 w-4" />
                 </Button>
                 <Button onClick={() => setCurrentStep('subtestQuestions')}>
@@ -652,43 +677,18 @@ export default function QuizPageContent() {
           )}
 
           {currentStep === 'subtestQuestions' && (
-            <Card className="shadow-xl rounded-lg">
-              <CardHeader className="pt-8 px-6">
-                <CardTitle className="text-[1.5rem] font-semibold text-accent">Vervolgvragen ({ageGroup} jaar)</CardTitle>
-                <CardDescription className="pt-1 text-foreground/80 leading-relaxed text-base">
-                  Deze vragen helpen om een beter beeld te krijgen van de gebieden die bij jou het sterkst naar voren komen.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2 px-6">
-                {relevantSubtests.map(subtestKey => (
-                  <div key={subtestKey} className="mb-6 last:mb-0">
-                    <h3 className="mb-3 text-[1.25rem] font-semibold text-accent">{neurotypeDescriptionsTeen[subtestKey].title}</h3>
-                    <p className="mb-3 text-sm text-muted-foreground leading-relaxed">{subtestDescriptionsTeen[subtestKey]}</p>
-                    <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
-                        <p className="font-semibold text-primary">Een noot van Dr. Florentine Sage:</p>
-                        <blockquote className="mt-1 italic text-muted-foreground">
-                        "We gaan nu wat dieper in op de thema's die bij jou naar voren kwamen. Onthoud: we zoeken niet naar wat 'fout' is, maar naar wat jou uniek maakt. Jouw antwoorden helpen ons een completer beeld te krijgen van jouw superkrachten en uitdagingen. Wees eerlijk, er zijn geen foute antwoorden!"
-                        </blockquote>
-                    </div>
-                    {currentSubTests[subtestKey]?.map((q, index) => (
-                      <TeenQuestion
-                        key={`${subtestKey}-${index}`}
-                        questionText={q}
-                        questionIndex={index}
-                        options={answerOptions}
-                        selectedValue={subtestAnswers[subtestKey]?.[index]?.toString()}
-                        onValueChange={(value) => handleSubtestAnswerChange(subtestKey, index, value)}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </CardContent>
-              <CardFooter className="flex justify-end pt-6 pb-8 px-6">
-                <Button onClick={() => { setFinalScores(calculateFinalScores(relevantSubtests)); setCurrentStep('results'); }}>
-                  Bekijk resultaten <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
+             <QuestionDisplay
+              question={{
+                  id: `sub-q-${currentFlatSubtestIndex}`,
+                  text: flatSubtestQuestions[currentFlatSubtestIndex].text,
+                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label }))
+              }}
+              questionNumber={currentFlatSubtestIndex + 1}
+              totalQuestions={flatSubtestQuestions.length}
+              onNext={handleSubtestQuestionAnswer}
+              onBack={() => setCurrentFlatSubtestIndex(prev => prev - 1)}
+              isFirstQuestion={currentFlatSubtestIndex === 0}
+            />
           )}
 
          {currentStep === 'results' && (
@@ -869,7 +869,7 @@ export default function QuizPageContent() {
                           <br/><br/>
                           Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen. Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
                           <br/><br/>
-                          MindNavigator is niet aansprakelijk voor beslissingen genomen op basis van dit overzicht. Onze tool dient ter zelfreflectie en educatie.
+                          MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Onze tool dient ter zelfreflectie en educatie.
                       </AlertDescUi>
                   </Alert>
 
