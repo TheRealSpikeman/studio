@@ -151,6 +151,7 @@ ${analysisInstructions}`;
 
     // Use ai.generate directly to bypass the definePrompt templating engine
     const { output } = await ai.generate({
+      model: 'googleai/gemini-2.0-flash',
       prompt: promptText,
       output: { schema: GenerateQuizAnalysisOutputSchema }
     });
