@@ -36,25 +36,26 @@ async function fetchQuizForPreview(quizIdOrSlug: string): Promise<{ title: strin
     if (storedById) {
         try {
             const quiz = JSON.parse(storedById);
-            if (quiz.id === quizIdOrSlug) {
+            // Check if it's a quiz object and ID matches. This works if the URL param is the ID.
+            if (quiz.id === quizIdOrSlug && quiz.title && Array.isArray(quiz.questions)) {
               return { title: quiz.title, questions: mapQuestionsToDisplay(quiz.questions) };
             }
-        } catch (e) { /* ignore parse error, continue to slug search */ }
+        } catch (e) { /* ignore parse error, continue to slug/loop search */ }
     }
 
     // If not found by ID, iterate all localStorage items to find by slug
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        // Add all prefixes that might denote a quiz
-        if (key && (key.startsWith('ai-quiz-') || key.startsWith('manual-quiz-') || key.startsWith('teen-neuro-') || key.startsWith('exam-stress-') || key.startsWith('social-anxiety-') || key.startsWith('focus-digital-') || key.startsWith('motivation-goals-'))) {
+        if (key) { // Check if key is not null
             const storedData = localStorage.getItem(key);
             if (storedData) {
                 try {
                     const parsed = JSON.parse(storedData) as QuizAdmin;
-                    if (parsed.slug === quizIdOrSlug) {
+                    // Check if it's a quiz object and if the slug matches.
+                    if (parsed.id && parsed.title && Array.isArray(parsed.questions) && parsed.slug === quizIdOrSlug) {
                         return { title: parsed.title, questions: mapQuestionsToDisplay(parsed.questions) };
                     }
-                } catch (e) { /* ignore */ }
+                } catch (e) { /* ignore items that are not valid JSON or not quiz objects */ }
             }
         }
     }
@@ -105,7 +106,7 @@ export default function TakeQuizPage() {
         <h1 className="text-2xl font-semibold mb-4">Tool niet gevonden</h1>
         <p className="text-muted-foreground mb-6">Sorry, we konden de gevraagde zelfreflectie tool niet laden. Controleer of de slug/ID correct is.</p>
         <Button asChild>
-          <Link href="/dashboard/leerling/quizzes">Terug naar overzicht</Link>
+          <Link href="/dashboard/admin/quiz-management">Terug naar overzicht</Link>
         </Button>
       </div>
     );
