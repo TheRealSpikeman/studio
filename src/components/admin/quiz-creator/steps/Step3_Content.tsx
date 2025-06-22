@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
   Lightbulb, Rocket, BarChart3, CheckCircle2, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap,
-  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check, RefreshCw
+  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check, RefreshCw, Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -29,7 +29,7 @@ const Step3_AdaptiveContent = () => {
       spectrums: [
         { id: 'adhd', name: 'ADHD', threshold: 65 },
         { id: 'ass', name: 'Autisme', threshold: 60 },
-        { id: 'hsp', name: 'HSP', threshold: 55 },
+        { id: 'hsp', name: 'HSP', threshold: 63 },
         { id: 'executive', name: 'Executieve Functies', threshold: 60 },
         { id: 'sensory', name: 'Sensorische Verwerking', threshold: 58 },
         { id: 'emotion', name: 'Emotieregulatie', threshold: 50 },
@@ -72,11 +72,30 @@ const Step3_AdaptiveContent = () => {
         setIsOverLimit(questionCount > previewSettings.phase2MaxTotal);
     }, [previewSettings]);
 
+    const handleOptimizeThresholds = () => {
+        // Simulate AI determining "optimal" values. These are just predefined best-practice values.
+        const optimizedThresholds = {
+            adhd: 70,
+            ass: 68,
+            hsp: 62,
+            executive: 65,
+            sensory: 55,
+            emotion: 50,
+        };
+        setPreviewSettings(prev => ({
+            ...prev,
+            spectrums: prev.spectrums.map(spec => ({
+                ...spec,
+                threshold: optimizedThresholds[spec.id as keyof typeof optimizedThresholds] || spec.threshold,
+            })),
+        }));
+    };
+
     // Run the simulation once on initial mount to populate the preview
     useEffect(() => {
         runSimulation();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Empty dependency array ensures this runs only once
+    }, [previewSettings]); // Now re-runs simulation when settings change
 
     return (
         <div className="space-y-6">
@@ -172,8 +191,15 @@ const Step3_AdaptiveContent = () => {
             </div>
 
             <div>
-                <h3 className="text-lg font-medium text-foreground">Spectrum Detection Thresholds (%)</h3>
-                <p className="text-sm text-muted-foreground -mt-1 mb-3">Stel hier de drempelwaarde in om een verdiepende vragenlijst te activeren.</p>
+                <div className="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 className="text-lg font-medium text-foreground">Spectrum Detection Thresholds (%)</h3>
+                        <p className="text-sm text-muted-foreground -mt-1">Stel hier de drempelwaarde in om een verdiepende vragenlijst te activeren.</p>
+                    </div>
+                    <Button onClick={handleOptimizeThresholds} variant="outline" size="sm">
+                        <Bot className="mr-2 h-4 w-4" /> Bepaal Optimale Waardes (AI)
+                    </Button>
+                </div>
                 <Card className="p-4">
                     <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 p-0">
                         {previewSettings.spectrums.map(spec => (
