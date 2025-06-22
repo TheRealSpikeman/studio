@@ -39,7 +39,8 @@ export const QuizCreatorWizard = () => {
             setQuizData(prev => ({
               ...prev,
               title: topic,
-              description: `Een adaptieve quiz die zich aanpast aan de gebruiker om een eerste neurodiversiteitsprofiel op te stellen.`
+              description: `Een adaptieve quiz die zich aanpast aan de gebruiker om een eerste neurodiversiteitsprofiel op te stellen.`,
+              mainCategory: category,
             }));
         } else { // 'ai'
             topic = quizData.title!;
