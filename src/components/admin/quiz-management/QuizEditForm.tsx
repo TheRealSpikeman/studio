@@ -18,6 +18,7 @@ import Link from 'next/link';
 import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel } from '@/types/quiz-admin';
 import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Re-defining options here for self-containment
 const audienceOptions: { id: QuizAudience; label: string }[] = [
@@ -142,8 +143,48 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
               <AccordionContent className="p-4 border-t space-y-4">
                  <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Quiz Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                  <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Omschrijving</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
-                 <FormField control={form.control} name="audience" render={({ field }) => (<FormItem><FormLabel>Doelgroep(en)</FormLabel><Controller control={form.control} name="audience" render={({ field: controllerField }) => (
-                     <Select onValueChange={(value) => controllerField.onChange([value])} value={controllerField.value?.[0] || ''}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer een doelgroep" /></SelectTrigger></FormControl><SelectContent>{audienceOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select>)}/> <FormMessage /></FormItem>)} />
+                 <FormField
+                  control={form.control}
+                  name="audience"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Doelgroep(en)</FormLabel>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {audienceOptions.map((item) => (
+                          <FormField
+                            key={item.id}
+                            control={form.control}
+                            name="audience"
+                            render={({ field }) => {
+                              return (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(item.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...(field.value || []), item.id])
+                                          : field.onChange(
+                                              (field.value || []).filter(
+                                                (value) => value !== item.id
+                                              )
+                                            )
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-sm font-normal">
+                                    {item.label}
+                                  </FormLabel>
+                                </FormItem>
+                              )
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer een categorie" /></SelectTrigger></FormControl><SelectContent>{categoryOptions.map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                  <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="concept">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
               </AccordionContent>
