@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ElementType } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
   Lightbulb, Rocket, BarChart3, CheckCircle2, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap,
-  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check
+  GitBranch, ArrowRight, Plus, Pencil, Trash, AlertCircle, Brain, Puzzle, Check, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -54,13 +54,12 @@ const Step3_AdaptiveContent = () => {
         ),
       }));
     };
-
-    // Memoize the calculation so it only runs when settings change
-    useEffect(() => {
+    
+    const runSimulation = useCallback(() => {
         let questionCount = 0;
         const newOutput = previewSettings.spectrums.map(spec => {
-            // Using a pseudo-random but stable score for demo purposes
-            const score = Math.floor(30 + (parseInt(spec.id.replace(/[^0-9a-f]/gi, ''), 16) % 71));
+            // Use Math.random for a new result each time
+            const score = Math.floor(Math.random() * 71) + 30; // Random score between 30 and 100
             const triggered = score >= spec.threshold;
             if (triggered) {
                 questionCount += previewSettings.phase2MaxPerSpectrum;
@@ -72,6 +71,12 @@ const Step3_AdaptiveContent = () => {
         setTotalPhase2Questions(questionCount);
         setIsOverLimit(questionCount > previewSettings.phase2MaxTotal);
     }, [previewSettings]);
+
+    // Run the simulation once on initial mount to populate the preview
+    useEffect(() => {
+        runSimulation();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array ensures this runs only once
 
     return (
         <div className="space-y-6">
@@ -125,25 +130,33 @@ const Step3_AdaptiveContent = () => {
                 </Card>
                 <Card>
                     <CardHeader>
-                       <CardTitle>Algorithm Preview</CardTitle>
-                       <CardDescription>Live simulatie van hoe de detectie werkt op basis van uw instellingen.</CardDescription>
+                       <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle>Algorithm Preview</CardTitle>
+                                <CardDescription>Live simulatie van de detectie.</CardDescription>
+                            </div>
+                            <Button onClick={runSimulation} variant="outline" size="sm">
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Run Simulatie
+                            </Button>
+                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
-                            <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4"/>
-                            <span>Scores</span><ArrowRight className="h-4 w-4"/>
+                            <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4 text-muted-foreground"/><ArrowRight className="h-4 w-4 text-muted-foreground"/>
+                            <span>Scores</span><ArrowRight className="h-4 w-4 text-muted-foreground"/><ArrowRight className="h-4 w-4 text-muted-foreground"/>
                             <span>Thresholds</span>
                         </div>
                         <div className="p-3 border rounded-md bg-background text-sm">
                             <p className="font-semibold">Voorbeeld Output:</p>
-                            {previewOutput.map((item, index) => {
+                            {previewOutput.length > 0 ? previewOutput.map((item, index) => {
                                 const currentSpectrum = previewSettings.spectrums[index];
                                 return (
-                                <p key={item.name} className="text-muted-foreground text-xs">
-                                    {item.name}: {item.score}% ({item.triggered ? `>${currentSpectrum.threshold}% ✓` : `<${currentSpectrum.threshold}% ✗`}) → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
+                                <p key={item.name} className={cn("text-xs", item.triggered ? "text-green-600 font-medium" : "text-muted-foreground")}>
+                                    {item.name}: {item.score}% {item.triggered ? `(>${currentSpectrum.threshold}% ✓)` : `(<${currentSpectrum.threshold}% ✗)`} → {item.triggered ? `${previewSettings.phase2MaxPerSpectrum} vragen` : 'Skip'}
                                 </p>
                                 )
-                            })}
+                            }) : <p className="text-xs text-muted-foreground">Klik op "Run Simulatie" om een voorbeeld te zien.</p>}
                              <p className="font-semibold mt-1">Totaal Fase 2: {totalPhase2Questions} vragen</p>
                         </div>
                         {isOverLimit && (
