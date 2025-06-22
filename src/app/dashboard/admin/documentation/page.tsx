@@ -15,13 +15,6 @@ const documentationLinks = [
     linkText: "Bekijk Methodologie",
   },
   {
-    title: "Volledige Platform Handleiding (HANDBOOK.md)",
-    description: "Het complete handboek voor alle gebruikersrollen binnen het MindNavigator platform. Bevat gedetailleerde uitleg over elke feature en elk dashboard.",
-    icon: BookHeart,
-    href: "/HANDBOOK.md",
-    linkText: "Open Handleiding",
-  },
-  {
     title: "Veelgestelde Vragen (Publiek)",
     description: "De openbare FAQ-pagina die antwoord geeft op de meest voorkomende vragen van (potentiële) gebruikers, ouders en begeleiders.",
     icon: MessageCircleQuestion,
