@@ -14,10 +14,29 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Lightbulb, User as UserIcon, Sparkles, HeartHandshake, Users, GraduationCap,
-  Zap, Smile, Cloud, BookOpen, Settings, Bot, TestTube2, Database, AlertCircle, CheckCircle2, List, Plus, Pencil, Trash, GitBranch, ArrowRight
+  Zap, Smile, Cloud, BookOpen, Settings, Bot, TestTube2, Database, AlertCircle, CheckCircle2, List, Plus, Pencil, Trash, GitBranch, ArrowRight, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const TooltipLabel = ({ label, tooltipText, htmlFor }: { label: string; tooltipText: string; htmlFor?: string }) => (
+    <div className="flex items-center gap-1.5 mb-1">
+        <Label htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground">
+            {label}
+        </Label>
+        <Tooltip delayDuration={200}>
+            <TooltipTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground cursor-help" onClick={(e) => e.preventDefault()}>
+                    <HelpCircle className="h-3.5 w-3.5" />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs p-2 text-sm bg-popover text-popover-foreground shadow-lg">
+                <p>{tooltipText}</p>
+            </TooltipContent>
+        </Tooltip>
+    </div>
+);
 
 
 // Component for Adaptive Onboarding
@@ -33,133 +52,162 @@ const Step3_AdaptiveContent = () => {
     ];
 
     return (
-        <div className="space-y-6">
-            <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
-                <GitBranch className="h-5 w-5 !text-blue-600" />
-                <AlertTitle className="text-blue-700 font-semibold">Adaptive Onboarding Quiz Setup</AlertTitle>
-                <AlertDescription className="text-blue-800">
-                    <strong>Geen handmatige focus selectie nodig!</strong> Deze quiz detecteert automatisch welke neurodiversiteit spectrums relevant zijn.
-                    Hieronder configureer je hoe de detectie werkt en welke vragen gebruikt worden.
-                </AlertDescription>
-            </Alert>
+        <TooltipProvider>
+            <div className="space-y-6">
+                <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
+                    <GitBranch className="h-5 w-5 !text-blue-600" />
+                    <AlertTitle className="text-blue-700 font-semibold">Adaptive Onboarding Quiz Setup</AlertTitle>
+                    <AlertDescription className="text-blue-800">
+                        <strong>Geen handmatige focus selectie nodig!</strong> Deze quiz detecteert automatisch welke neurodiversiteit spectrums relevant zijn.
+                        Hieronder configureer je hoe de detectie werkt en welke vragen gebruikt worden.
+                    </AlertDescription>
+                </Alert>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Detection Algorithm</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="p-3 border rounded-md bg-muted/50">
-                           <h4 className="font-semibold text-sm mb-2 text-primary">Fase 1: Spectrum Detectie</h4>
-                           <div className="grid grid-cols-2 gap-3">
-                               <div>
-                                   <Label htmlFor="phase1-questions" className="text-xs">Aantal Vragen</Label>
-                                   <Input id="phase1-questions" type="number" defaultValue="18" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Detection Algorithm</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-3 border rounded-md bg-muted/50">
+                               <h4 className="font-semibold text-sm mb-2 text-primary">Fase 1: Spectrum Detectie</h4>
+                               <div className="grid grid-cols-2 gap-3">
+                                   <div className="config-group">
+                                        <TooltipLabel 
+                                            htmlFor="phase1-questions"
+                                            label="Aantal Vragen"
+                                            tooltipText="Stelt het aantal vragen in voor de eerste fase. Deze vragen zijn bedoeld om een algemeen beeld te krijgen en te detecteren welke neurodiversiteitsspectrums mogelijk relevant zijn. Een goed startpunt is 15-20 vragen."
+                                        />
+                                        <Input id="phase1-questions" type="number" defaultValue="18" />
+                                   </div>
+                                   <div className="config-group">
+                                        <TooltipLabel
+                                            htmlFor="phase1-threshold"
+                                            label="Min. Score (%)"
+                                            tooltipText="De minimale score (in procent) die een gebruiker op een spectrum moet halen in Fase 1 om de verdiepende vragen (Fase 2) voor dat spectrum te activeren. Dit is een algemene drempel die kan worden overschreven door de specifieke drempels hieronder."
+                                        />
+                                        <Input id="phase1-threshold" type="number" defaultValue="60" />
+                                   </div>
                                </div>
-                               <div>
-                                   <Label htmlFor="phase1-threshold" className="text-xs">Min. Score (%)</Label>
-                                   <Input id="phase1-threshold" type="number" defaultValue="60" />
-                               </div>
-                           </div>
-                        </div>
-                         <div className="p-3 border rounded-md bg-muted/50">
-                           <h4 className="font-semibold text-sm mb-2 text-primary">Fase 2: Gerichte Verdieping</h4>
-                           <div className="grid grid-cols-2 gap-3">
-                               <div>
-                                   <Label htmlFor="phase2-max-per" className="text-xs">Max Vragen / Spectrum</Label>
-                                   <Input id="phase2-max-per" type="number" defaultValue="12" />
-                               </div>
-                               <div>
-                                   <Label htmlFor="phase2-max-total" className="text-xs">Totaal Max Fase 2</Label>
-                                   <Input id="phase2-max-total" type="number" defaultValue="20" />
-                               </div>
-                           </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                       <CardTitle className="flex items-center gap-2"><TestTube2 className="h-5 w-5 text-primary"/>Algorithm Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
-                            <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4"/>
-                            <span>Scores</span><ArrowRight className="h-4 w-4"/>
-                            <span>Thresholds</span>
-                        </div>
-                        <div className="p-3 border rounded-md bg-background text-sm">
-                            <p className="font-semibold">Voorbeeld Output:</p>
-                            <p className="text-muted-foreground text-xs">ADHD: 78% (&gt;65% ✓) → 12 vragen</p>
-                            <p className="text-muted-foreground text-xs">HSP: 67% (&gt;55% ✓) → 12 vragen</p>
-                             <p className="text-muted-foreground text-xs">Autisme: 45% (&lt;60% ✗) → Skip</p>
-                             <p className="font-semibold mt-1">Totaal Fase 2: 24 vragen</p>
-                        </div>
-                        <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                             <AlertCircle className="h-4 w-4 !text-yellow-600"/>
-                             <AlertDescription className="text-xs text-yellow-800">
-                               Waarschuwing: Het totaal (24) overschrijdt het ingestelde maximum (20).
-                             </AlertDescription>
-                        </Alert>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div>
-                <h3 className="text-lg font-medium text-foreground mb-3">🎯 Spectrum Detection Thresholds (%)</h3>
-                <Card className="p-4">
-                    <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 p-0">
-                        {spectrums.map(spec => (
-                            <div key={spec.id}>
-                                <Label htmlFor={`threshold-${spec.id}`} className="text-sm font-medium">{spec.name}</Label>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <Slider defaultValue={[spec.threshold]} max={100} step={1} id={`threshold-${spec.id}`} />
-                                    <span className="text-sm font-semibold w-10 text-right">{spec.threshold}%</span>
-                                </div>
                             </div>
-                        ))}
+                             <div className="p-3 border rounded-md bg-muted/50">
+                               <h4 className="font-semibold text-sm mb-2 text-primary">Fase 2: Gerichte Verdieping</h4>
+                               <div className="grid grid-cols-2 gap-3">
+                                   <div className="config-group">
+                                        <TooltipLabel
+                                            htmlFor="phase2-max-per"
+                                            label="Max Vragen / Spectrum"
+                                            tooltipText="Stelt het maximale aantal verdiepende vragen in dat wordt getoond voor een enkel gedetecteerd spectrum in Fase 2. Dit zorgt ervoor dat de quiz niet te lang wordt als één spectrum heel hoog scoort."
+                                        />
+                                        <Input id="phase2-max-per" type="number" defaultValue="12" />
+                                   </div>
+                                   <div className="config-group">
+                                        <TooltipLabel
+                                            htmlFor="phase2-max-total"
+                                            label="Totaal Max Fase 2"
+                                            tooltipText="Het absolute maximum aantal vragen voor de gehele Fase 2. Als de som van de vragen voor de gedetecteerde spectrums dit getal overschrijdt, worden de vragen proportioneel verminderd. Dit garandeert een voorspelbare maximale quizlengte."
+                                        />
+                                        <Input id="phase2-max-total" type="number" defaultValue="20" />
+                                   </div>
+                               </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                           <CardTitle className="flex items-center gap-2"><TestTube2 className="h-5 w-5 text-primary"/>Algorithm Preview</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex items-center justify-between text-xs font-mono bg-muted px-2 py-1 rounded">
+                                <span>Fase 1 Vragen</span><ArrowRight className="h-4 w-4"/>
+                                <span>Scores</span><ArrowRight className="h-4 w-4"/>
+                                <span>Thresholds</span>
+                            </div>
+                            <div className="p-3 border rounded-md bg-background text-sm">
+                                <p className="font-semibold">Voorbeeld Output:</p>
+                                <p className="text-muted-foreground text-xs">ADHD: 78% (&gt;65% ✓) → 12 vragen</p>
+                                <p className="text-muted-foreground text-xs">HSP: 67% (&gt;55% ✓) → 12 vragen</p>
+                                 <p className="text-muted-foreground text-xs">Autisme: 45% (&lt;60% ✗) → Skip</p>
+                                 <p className="font-semibold mt-1">Totaal Fase 2: 24 vragen</p>
+                            </div>
+                            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                                 <AlertCircle className="h-4 w-4 !text-yellow-600"/>
+                                 <AlertDescription className="text-xs text-yellow-800">
+                                   Waarschuwing: Het totaal (24) overschrijdt het ingestelde maximum (20).
+                                 </AlertDescription>
+                            </Alert>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div>
+                    <h3 className="text-lg font-medium text-foreground mb-3 flex items-center gap-1.5">
+                        🎯 Spectrum Detection Thresholds (%)
+                        <Tooltip delayDuration={200}>
+                            <TooltipTrigger asChild>
+                                <button type="button" className="text-muted-foreground hover:text-foreground cursor-help" onClick={(e) => e.preventDefault()}>
+                                    <HelpCircle className="h-4 w-4" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs p-2 text-sm">
+                                <p>Stel hier voor elk specifiek neurodiversiteitsspectrum de individuele drempelwaarde in. Als de score van een gebruiker in Fase 1 hoger is dan deze drempel, worden de verdiepende vragen voor dit spectrum geactiveerd in Fase 2.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </h3>
+                    <Card className="p-4">
+                        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 p-0">
+                            {spectrums.map(spec => (
+                                <div key={spec.id}>
+                                    <Label htmlFor={`threshold-${spec.id}`} className="text-sm font-medium">{spec.name}</Label>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <Slider defaultValue={[spec.threshold]} max={100} step={1} id={`threshold-${spec.id}`} />
+                                        <span className="text-sm font-semibold w-10 text-right">{spec.threshold}%</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                <Card>
+                    <CardHeader className="flex flex-row justify-between items-center">
+                       <div>
+                        <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5 text-primary"/>Question Bank Management</CardTitle>
+                       </div>
+                        <Button><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-4 border rounded-md bg-muted/30">
+                            <h4 className="font-semibold mb-2 flex justify-between">Fase 1: Detectie Vragen <Badge variant="secondary">24</Badge></h4>
+                            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                 <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe reageer je op veel prikkels tegelijk?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                                 <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe ga je om met routineveranderingen?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                                 <p className="text-xs text-center text-muted-foreground pt-1">+ 22 meer vragen...</p>
+                            </div>
+                        </div>
+                         <div className="p-4 border rounded-md bg-muted/30">
+                            <h4 className="font-semibold mb-2 flex justify-between">Fase 2: Verdiepingsvragen <Badge variant="secondary">67</Badge></h4>
+                            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                 <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[ADHD] Welke strategieën helpen bij focus?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                                 <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[HSP] Hoe herken je overstimulatie?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
+                                 <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer vragen...</p>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
+
+                <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
+                    <AlertCircle className="h-5 w-5 !text-yellow-600" />
+                    <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
+                    <AlertDescription className="grid grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
+                        <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Minimaal 15 Fase 1 vragen</span>
+                        <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Algorithm gecalibreerd</span>
+                        <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-orange-600"/>HSP threshold mogelijk te laag</span>
+                        <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-red-600"/>Expert review pending</span>
+                    </AlertDescription>
+                </Alert>
             </div>
-            
-            <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
-                   <div>
-                    <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5 text-primary"/>Question Bank Management</CardTitle>
-                   </div>
-                    <Button><Plus className="mr-2 h-4 w-4"/>Nieuwe Vraag</Button>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="p-4 border rounded-md bg-muted/30">
-                        <h4 className="font-semibold mb-2 flex justify-between">Fase 1: Detectie Vragen <Badge variant="secondary">24</Badge></h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe reageer je op veel prikkels tegelijk?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>Hoe ga je om met routineveranderingen?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <p className="text-xs text-center text-muted-foreground pt-1">+ 22 meer vragen...</p>
-                        </div>
-                    </div>
-                     <div className="p-4 border rounded-md bg-muted/30">
-                        <h4 className="font-semibold mb-2 flex justify-between">Fase 2: Verdiepingsvragen <Badge variant="secondary">67</Badge></h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[ADHD] Welke strategieën helpen bij focus?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <div className="text-xs flex justify-between items-center bg-card p-2 rounded border"><span>[HSP] Hoe herken je overstimulatie?</span><div className="space-x-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Pencil className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash className="h-3 w-3"/></Button></div></div>
-                             <p className="text-xs text-center text-muted-foreground pt-1">+ 65 meer vragen...</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-                <AlertCircle className="h-5 w-5 !text-yellow-600" />
-                <AlertTitle className="text-yellow-700 font-semibold">Quiz Validation Status</AlertTitle>
-                <AlertDescription className="grid grid-cols-2 gap-x-4 gap-y-1 text-yellow-800 text-sm">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Minimaal 15 Fase 1 vragen</span>
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-600"/>Algorithm gecalibreerd</span>
-                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-orange-600"/>HSP threshold mogelijk te laag</span>
-                    <span className="flex items-center gap-1.5"><AlertCircle className="h-4 w-4 text-red-600"/>Expert review pending</span>
-                </AlertDescription>
-            </Alert>
-
-        </div>
+        </TooltipProvider>
     );
 };
 
