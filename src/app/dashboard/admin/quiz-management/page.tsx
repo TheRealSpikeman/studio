@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/quiz-management/page.tsx
 "use client";
 
@@ -154,6 +155,14 @@ export default function QuizManagementPage() {
     const avg = totalWeight / quiz.questions.length;
     return isNaN(avg) ? "N/A" : avg.toFixed(1);
   };
+  
+  const getAgeGroupFromAudience = (audience: QuizAudience[]): '12-14' | '15-18' | 'all' => {
+    if (!audience || audience.length === 0) return 'all';
+    const audStr = audience[0];
+    if (audStr.includes('12-14')) return '12-14';
+    if (audStr.includes('15-18')) return '15-18';
+    return 'all';
+  };
 
   return (
     <div className="space-y-8">
@@ -250,52 +259,60 @@ export default function QuizManagementPage() {
                 {paginatedQuizzes.length === 0 && (
                   <TableRow><TableCell colSpan={8} className="h-24 text-center">Geen quizzen gevonden. Maak je eerste quiz aan!</TableCell></TableRow>
                 )}
-                {paginatedQuizzes.map((quiz) => (
-                  <TableRow key={quiz.id}>
-                    <TableCell className="font-medium">
-                      {quiz.title}
-                      {quiz.id.startsWith('ai-') && <Bot className="inline-block ml-2 h-4 w-4 text-primary" title="AI Gegenereerd"/>}
-                    </TableCell>
-                    <TableCell>{Array.isArray(quiz.audience) ? quiz.audience.join(', ') : quiz.audience}</TableCell>
-                    <TableCell>{quiz.category}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(quiz.status)} className={getStatusBadgeClass(quiz.status)}>
-                        {quiz.status.charAt(0).toUpperCase() + quiz.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{quiz.questions.length}</TableCell>
-                    <TableCell>{calculateAverageWeight(quiz)}</TableCell>
-                    <TableCell>
-                        <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="P" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" /><span className="sr-only">Acties</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/admin/quiz-management/edit/${quiz.id}`}><Edit className="mr-2 h-4 w-4" />Bewerken</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link 
-                              href={quiz.id.startsWith('teen-neuro') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${quiz.audience[0] === 'Tiener (12-14 jr, voor zichzelf)' ? '12-14' : '15-18'}` : `/quiz/${quiz.slug || quiz.id}`}
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                            >
-                                <Eye className="mr-2 h-4 w-4" />Voorbeeld
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteQuiz(quiz.id)} className="text-destructive focus:text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />Verwijderen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {paginatedQuizzes.map((quiz) => {
+                  const isAdaptiveOrLegacyTeenQuiz = quiz.category === 'Basis' || quiz.id.startsWith('teen-neuro');
+                  const ageGroup = getAgeGroupFromAudience(quiz.audience);
+                  const previewHref = isAdaptiveOrLegacyTeenQuiz
+                    ? `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroup}`
+                    : `/quiz/${quiz.slug || quiz.id}`;
+                  
+                  return (
+                    <TableRow key={quiz.id}>
+                      <TableCell className="font-medium">
+                        {quiz.title}
+                        {quiz.id.startsWith('ai-') && <Bot className="inline-block ml-2 h-4 w-4 text-primary" title="AI Gegenereerd"/>}
+                      </TableCell>
+                      <TableCell>{Array.isArray(quiz.audience) ? quiz.audience.join(', ') : quiz.audience}</TableCell>
+                      <TableCell>{quiz.category}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusBadgeVariant(quiz.status)} className={getStatusBadgeClass(quiz.status)}>
+                          {quiz.status.charAt(0).toUpperCase() + quiz.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{quiz.questions.length}</TableCell>
+                      <TableCell>{calculateAverageWeight(quiz)}</TableCell>
+                      <TableCell>
+                          <FormattedDateCell isoDateString={quiz.lastUpdatedAt} dateFormatPattern="P" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" /><span className="sr-only">Acties</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/admin/quiz-management/edit/${quiz.id}`}><Edit className="mr-2 h-4 w-4" />Bewerken</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link 
+                                href={previewHref}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                              >
+                                  <Eye className="mr-2 h-4 w-4" />Voorbeeld
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeleteQuiz(quiz.id)} className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />Verwijderen
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -312,3 +329,4 @@ export default function QuizManagementPage() {
     </div>
   );
 }
+
