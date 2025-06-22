@@ -652,48 +652,43 @@ export default function QuizPageContent() {
           )}
 
           {currentStep === 'subtestConfirmation' && (
-            <Card className="shadow-xl rounded-lg">
-              <CardHeader className="pt-8 px-6">
-                <CardTitle className="text-[1.5rem] font-semibold text-accent">Verdiepende vragen ({ageGroup} jaar)</CardTitle>
-                <CardDescription className="pt-1 text-foreground/80 leading-relaxed text-base">
-                  Op basis van je antwoorden raden we je aan om je verder te verdiepen in de volgende thema's.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-2 px-6 leading-relaxed">
-                {relevantSubtests.length === 1 ? (
-                  <>
-                    <p className="text-foreground/90 text-base">Op basis van je antwoorden lijkt het zinvol om verder te kijken naar <strong>{neurotypeDescriptionsTeen[relevantSubtests[0]].title}</strong>.</p>
-                    <p className="text-sm text-muted-foreground">{subtestDescriptionsTeen[relevantSubtests[0]]}</p>
-                    <p className="text-foreground/90 text-base">We stellen je graag nog {currentSubTests[relevantSubtests[0]]?.length || 0} verdiepende vragen voor meer inzicht.</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-foreground/90 text-base">Op basis van je antwoorden lijkt het zinvol om verder te kijken naar de volgende gebieden:</p>
-                    <ul className="list-disc space-y-1.5 pl-5 text-foreground/90 text-base">
-                      {relevantSubtests.map(key => (
-                        <li key={key}>
-                          <strong>{neurotypeDescriptionsTeen[key].title}</strong>: <span className="text-sm text-muted-foreground">{subtestDescriptionsTeen[key]}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-foreground/90 text-base">Voor elk relevant gebied stellen we je een aantal verdiepende vragen voor meer inzicht.</p>
-                  </>
-                )}
-                 <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
-                    <p className="font-semibold text-primary">Een noot van Dr. Florentine Sage:</p>
-                    <blockquote className="mt-1 italic text-muted-foreground">
-                    "We gaan nu wat dieper in op de thema's die bij jou naar voren kwamen. Onthoud: we zoeken niet naar wat 'fout' is, maar naar wat jou uniek maakt. Jouw antwoorden helpen ons een completer beeld te krijgen van jouw superkrachten en uitdagingen. Wees eerlijk, er zijn geen foute antwoorden!"
-                    </blockquote>
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-6 pb-8 px-6">
-                <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([], {})); setCurrentStep('results'); }}>
-                  Direct naar resultaten <CheckSquare className="ml-2 h-4 w-4" />
-                </Button>
-                <Button onClick={() => setCurrentStep('subtestQuestions')}>
-                  Doorgaan naar verdiepende vragen <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
+             <Card className="w-full max-w-2xl shadow-xl rounded-lg">
+                <CardHeader className="text-center pt-8 px-6">
+                    <CardTitle className="text-[1.75rem] font-bold text-accent">Klaar voor de volgende stap?</CardTitle>
+                    <CardDescription className="pt-1 text-foreground/80 leading-relaxed text-base">
+                        Op basis van je antwoorden gaan we dieper in op een paar thema's die bij jou passen. Dit helpt je nog meer te ontdekken!
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-2 px-6">
+                    <div className="space-y-4">
+                        {relevantSubtests.map(key => {
+                            const Icon = neurotypeIcons[key] || HelpCircle;
+                            return (
+                                <Card key={key} className="bg-muted/50 border p-4 flex items-center gap-4">
+                                    <Icon className="h-8 w-8 text-primary flex-shrink-0" />
+                                    <div>
+                                        <h4 className="font-semibold text-foreground">{neurotypeDescriptionsTeen[key].title}</h4>
+                                        <p className="text-sm text-muted-foreground">{subtestDescriptionsTeen[key]}</p>
+                                    </div>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                    <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
+                        <p className="font-semibold text-primary">Een noot van Dr. Florentine Sage:</p>
+                        <blockquote className="mt-1 italic text-muted-foreground">
+                            "We gaan nu wat dieper in op de thema's die bij jou naar voren kwamen. Onthoud: we zoeken niet naar wat 'fout' is, maar naar wat jou uniek maakt. Jouw antwoorden helpen ons een completer beeld te krijgen van jouw superkrachten en uitdagingen. Wees eerlijk, er zijn geen foute antwoorden!"
+                        </blockquote>
+                    </div>
+                </CardContent>
+                <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-6 pb-8 px-6">
+                    <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([], {})); setCurrentStep('results'); }}>
+                        Sla over & bekijk basisinzichten
+                    </Button>
+                    <Button onClick={() => setCurrentStep('subtestQuestions')} className="w-full sm:w-auto">
+                        Ja, stel me de verdiepende vragen! <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                </CardFooter>
             </Card>
           )}
 
