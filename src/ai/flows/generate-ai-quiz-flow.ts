@@ -96,18 +96,33 @@ For each question:
    - For 'gemiddeld' (medium) difficulty, weights should mostly be 2 or 3, but can range from 1 to 4.
    - For 'hoog' (high) difficulty, weights should mostly be 3 or 4, but can range from 2 to 5.
 
-The answer options for all questions will be fixed and provided separately in the application (e.g., Nooit, Soms, Vaak, Altijd, or similar Likert scale). You DO NOT need to generate answer options.
+The answer options for all questions will be fixed and provided separately in the application. They are Likert scale options like "Nooit", "Soms", "Vaak", "Altijd".
+
+**!! CRITICAL QUESTION FORMATTING RULE !!**
+Every question you generate **MUST** be a statement or a frequency question that can be logically answered with "Nooit", "Soms", "Vaak", of "Altijd".
+
+**CORRECT Examples (Statements or Frequency Questions):**
+- "Ik merk dat ik snel ben afgeleid als er achtergrondgeluid is."
+- "Hoe vaak voel je je overweldigd in een drukke menigte?"
+- "Ik vind het moeilijk om aan een taak te beginnen, zelfs als ik weet dat het moet."
+- "Mijn gedachten dwalen af als ik probeer te lezen."
+
+**INCORRECT Examples (AVOID THESE AT ALL COSTS):**
+- "Wat voor soort omgeving helpt jou het beste om te leren?" (Asks for a type, not a frequency)
+- "Wat zijn je grootste sterke punten?" (Asks for a list, not a frequency)
+- "Hoe ga je om met stress?" (Asks for a method, not a frequency)
+- "Welke van deze activiteiten geeft je energie?" (Multiple choice, not a Likert scale)
+
+This rule is the most important constraint. Do not deviate from it.
 
 Specific instructions based on Target Audience:
 {{#if isSelfReflection}}
-  The questions should help the user (a tiener or volwassene) reflect on THEMSELVES regarding the given topic and domain in the context of their neurodiversity and personal growth.
-  When the category is 'Thema (algemeen)' or the topic is about personal development, the questions should explicitly guide the user towards self-discovery, understanding their behaviors, and identifying opportunities for personal growth.
-  Example for "Tiener (12-14 jr, voor zichzelf)" on "Focus": "Merk je dat je gedachten afdwalen als je huiswerk maakt?"
+  The questions should help the user (a tiener or volwassene) reflect on THEMSELVES regarding the given topic and domain. The phrasing must fit the Likert scale.
+  Example for "Tiener (12-14 jr, voor zichzelf)" on "Focus": "Ik merk dat mijn gedachten afdwalen als ik huiswerk maak."
 {{/if}}
 {{#if isParentObservation}}
-  The questions should be phrased for a PARENT to answer ABOUT THEIR CHILD. They should focus on observable behaviors and patterns of the child.
+  The questions should be phrased for a PARENT to answer ABOUT THEIR CHILD. They should focus on observable behaviors and patterns that can be rated by frequency.
   Example for "Ouder (over kind 6-11 jr)" on "Routine": "Hoe vaak merkt u dat uw kind van slag raakt bij onverwachte veranderingen in de dagelijkse routine?"
-  The questions should help the parent reflect on their child's behavior, challenges, and strengths related to the {{{topic}}} within the {{{category}}}.
 {{/if}}
 
 {{#if isQuizPurposeOnboarding}}
@@ -119,27 +134,16 @@ CONTEXT: This quiz is the starting point of a personalized journey for a neurodi
 
 TONE: Use an age-appropriate, encouraging, and non-judgmental tone for {{{audience}}}.
 
-QUESTION TYPES that work well for personalization:
-- Situational scenarios: "When you feel stressed, what do you usually do?"
-- Preferences: "What way of learning works best for you?"
-- Strength recognition: "What are you really good at?"
-- Challenge acknowledgment: "What do you find difficult sometimes?"
-
-AVOID:
-- Yes/no questions (they provide little input for personalization)
-- Medical/diagnostic language
-- Negatively charged words
-
-RESULT FOCUS: Generate questions that yield rich, usable data for meaningful personalization. Focus on basic self-discovery and creating a positive first impression.
+RESULT FOCUS: Generate questions that yield rich, usable data for meaningful personalization. Focus on basic self-discovery and creating a positive first impression. The questions must adhere to the CRITICAL QUESTION FORMATTING RULE.
 {{/if}}
 {{#if isQuizPurposeDeepDive}}
-Focus on deeper questions about behavior patterns and coping strategies.
+Focus on deeper questions about behavior patterns and coping strategies that can be answered on a Likert scale.
 {{/if}}
 {{#if isQuizPurposeReflection}}
-This is a monthly check-in. Focus on reflection on progress and current feelings.
+This is a monthly check-in. Focus on reflection on progress and current feelings, phrased as statements or frequency questions.
 {{/if}}
 {{#if isQuizPurposeGoalSetting}}
-Focus on questions that help the user identify and articulate personal goals.
+Focus on questions that help the user identify and articulate personal goals, phrased as statements or frequency questions. E.g., "Ik weet duidelijk wat mijn doelen zijn voor de komende maand."
 {{/if}}
 
 Focus on creating thoughtful questions that encourage self-reflection relevant to the {{{audience}}} on the {{{topic}}} within the {{{category}}}.
