@@ -15,23 +15,21 @@ import {
   SidebarMenu, 
   SidebarMenuItem, 
   SidebarMenuButton, 
-  SidebarMenuAction,
-  SidebarMenuBadge,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem, // Correctly imported
+  SidebarMenuSubItem,
   SidebarSeparator,
   useSidebar
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
-  Users as UsersIconLucide, Menu, BookOpenCheck, Users2, Lightbulb, Briefcase, 
+  Users as UsersIconLucide, BookOpenCheck, Users2, Briefcase, 
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
-  Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench
+  HelpCircle, CreditCard, 
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -119,7 +117,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true },
   { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true },
 
-  // Admin specific section - NEW STRUCTURE
+  // Admin specific section
   { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
   {
     href: '#user-management-parent',
@@ -304,7 +302,7 @@ function SidebarNavigationContent() {
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
             const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
             const isDirectlyActive = !item.children && pathname === item.href;
-            const isOpen = openSubMenus[item.href];
+            const isOpen = !!openSubMenus[item.href];
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -350,14 +348,8 @@ function SidebarNavigationContent() {
                       <Link href={item.href}>
                         <item.icon />
                         <span className="group-data-[collapsible=icon]:hidden flex-grow">{item.label}</span>
-                         {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
-                          <span title="Facturatie actie vereist" className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden" />
-                        )}
                       </Link>
                     </SidebarMenuButton>
-                    {item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && (
-                      <SidebarMenuBadge title="Nieuwe berichten" />
-                    )}
                   </SidebarMenuItem>
                 )}
               </Fragment>
@@ -388,7 +380,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -409,9 +401,14 @@ export function DashboardSidebar() {
 
   if (isMobile) {
     return (
-      <Sidebar side="left" collapsible="offcanvas">
-        <SidebarNavigationContent />
-      </Sidebar>
+      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+        <SheetContent side="left" className="w-[300px] p-0 bg-card">
+          <SheetTitle className="sr-only">Hoofdnavigatie</SheetTitle>
+          <Sidebar side="left" collapsible="offcanvas" className="h-full w-full">
+            <SidebarNavigationContent />
+          </Sidebar>
+        </SheetContent>
+      </Sheet>
     );
   }
 
