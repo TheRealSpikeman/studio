@@ -31,6 +31,10 @@ export default function LeerlingWelcomePage() {
     router.push('/dashboard');
   };
 
+  const neurodiversityLink = currentUser.ageGroup === '12-14' 
+    ? "/features/coaching-en-tools" 
+    : "/neurodiversiteit";
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-2xl text-center">
@@ -118,7 +122,7 @@ export default function LeerlingWelcomePage() {
           <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-xs">
             Ik begrijp het, ga verder naar mijn dashboard
           </Button>
-          <Link href="/neurodiversiteit" className="text-xs text-primary hover:underline">
+          <Link href={neurodiversityLink} className="text-xs text-primary hover:underline">
             Wat is neurodiversiteit eigenlijk?
           </Link>
         </div>
