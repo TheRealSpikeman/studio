@@ -20,7 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  useSidebar,
+  SidebarMenuSubItem,
   SidebarSeparator
 } from '@/components/ui/sidebar';
 import { 
@@ -222,7 +222,7 @@ function SidebarNavigationContent() {
     const initialOpenState: Record<string, boolean> = {};
     navItems.forEach(item => {
       if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href !== '#');
+        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href.startsWith('#'));
         if (isParentOfActivePage) {
           initialOpenState[item.href] = true;
         }
