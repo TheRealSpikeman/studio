@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckSquare, BookOpen, ArrowRight, UserCircle, Sparkles, Check } from 'lucide-react';
+import { CheckSquare, BookOpen, ArrowRight, UserCircle, Sparkles, Check, Info } from 'lucide-react';
+import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
 // Dummy user data - in a real app, this would come from context/auth
 const currentUser = {
@@ -44,6 +45,14 @@ export default function LeerlingWelcomePage() {
         <p className="text-lg text-muted-foreground mt-2 mb-8">
           Klaar om jezelf beter te leren kennen en je sterke punten te ontdekken?
         </p>
+        
+        <Alert variant="default" className="mb-8 bg-blue-50 border-blue-200 text-blue-700 text-left shadow-sm">
+          <Info className="h-5 w-5 !text-blue-600" />
+          <AlertTitleUi className="text-blue-700 font-semibold">Jouw reis begint hier!</AlertTitleUi>
+          <AlertDescUi className="text-blue-600">
+            De meeste functies in het dashboard, zoals de Coaching Hub en je persoonlijke resultaten, worden ontgrendeld zodra je de eerste Zelfreflectie Tool hebt voltooid. Dit is jouw startpunt.
+          </AlertDescUi>
+        </Alert>
         
         <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-primary/20 mb-10 text-left shadow-md">
           <CardHeader>
@@ -120,7 +129,7 @@ export default function LeerlingWelcomePage() {
         
         <div className="flex flex-col items-center gap-3">
           <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-xs">
-            Ik begrijp het, ga verder naar mijn dashboard
+            Ik sla dit over en ga naar mijn (beperkte) dashboard
           </Button>
           <Link href={neurodiversityLink} className="text-xs text-primary hover:underline">
             Wat is neurodiversiteit eigenlijk?

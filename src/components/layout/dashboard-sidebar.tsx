@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -157,6 +156,7 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/methodologie/adaptieve-quiz', label: 'Quiz Methodologie', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/faq', label: 'Publieke FAQ', icon: MessageCircleQuestion, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
@@ -325,10 +325,19 @@ function SidebarNavigationContent() {
               isParentHighlighted = true;
             }
 
-            const itemIsDisabled = currentDashboardRole === 'ouder' && 
-                                   isOuderOnboardingPending && 
-                                   !item.isOuderOnboardingLink &&
-                                   item.href !== '/dashboard/profile';
+            // Centralized logic for disabling links during onboarding
+            const isLeerlingOnWelcome = currentDashboardRole === 'leerling' && pathname === '/dashboard/leerling/welcome';
+            const isOuderOnWelcome = currentDashboardRole === 'ouder' && isOuderOnboardingPending;
+            const allowedLinksOnLeerlingWelcome = ['/dashboard/leerling/welcome', '/dashboard/leerling/quizzes', '/dashboard/profile'];
+            const allowedLinksOnOuderWelcome = ['/dashboard/ouder/welcome', '/dashboard/profile'];
+            
+            let itemIsDisabled = false;
+            if (isLeerlingOnWelcome) {
+              itemIsDisabled = !allowedLinksOnLeerlingWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnLeerlingWelcome.includes(child.href));
+            } else if (isOuderOnWelcome) {
+              itemIsDisabled = !allowedLinksOnOuderWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnOuderWelcome.includes(child.href));
+            }
+
 
             return (
               <Fragment key={`${item.href}-${index}`}>
