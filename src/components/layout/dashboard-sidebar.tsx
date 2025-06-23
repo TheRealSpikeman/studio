@@ -21,7 +21,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarSeparator
+  SidebarSeparator,
+  useSidebar
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
@@ -407,7 +408,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -415,7 +416,7 @@ export function DashboardSidebar() {
   }, []);
 
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  
   useEffect(() => {
     if (isMobile) {
       setOpenMobile(false);
