@@ -122,8 +122,13 @@ export const QuizCreatorWizard = () => {
         if (!quizData.title || (quizData.title.length < 5) || !quizData.description || (quizData.description.length < 10)) return true;
         if (quizData.creationType === 'ai' && !quizData.mainCategory) return true;
         return false;
+      case 4:
+        if (!quizData.settings?.accessibility?.allowedPlans || quizData.settings.accessibility.allowedPlans.length === 0) {
+          return true; // Disable if no plans are selected
+        }
+        return false;
       default:
-        // For steps 4 and 5, the button is enabled by default for now.
+        // For step 5, the button is not a "next" button.
         return false;
     }
   };
