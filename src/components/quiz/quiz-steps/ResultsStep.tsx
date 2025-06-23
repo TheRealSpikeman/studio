@@ -1,3 +1,4 @@
+
 // src/components/quiz/quiz-steps/ResultsStep.tsx
 "use client";
 
@@ -12,12 +13,11 @@ import Link from 'next/link';
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
 import { neurotypeDescriptionsTeen, answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 import type { Tool } from '@/lib/quiz-data/tools-data';
-import { allTools } from '@/lib/quiz-data/tools-data';
+import { allTools, calculateToolRecommendations, type ToolScores } from '@/lib/quiz-data/tools-data';
 import { cn } from '@/lib/utils';
 
 // Types (should be in a shared file eventually)
 type Scores = Record<string, number>;
-type ToolScores = { attention: number; energy: number; prikkels: number; sociaal: number; stemming: number; };
 interface ParsedProfileScore { profileName: string; score: string; comment: string; subScores?: ParsedProfileScore[]; }
 interface AiAnalysisSection { title: string; content: string | ParsedProfileScore[]; isList?: boolean; icon?: React.ElementType; }
 const mainSectionIcons: Record<string, React.ElementType> = { "Jouw Profiel In Vogelvlucht": User, "Sterke Kanten": ThumbsUp, "Aandachtspunten": AlertTriangle, "Tips voor Jou": Lightbulb };
@@ -112,61 +112,6 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
 };
 
-const getCategoryForScore = (score: number, thresholds: [number, number, number]): 'low' | 'medium' | 'high' => {
-  if (score <= thresholds[0]) return 'low';
-  if (score <= thresholds[1]) return 'medium';
-  return 'high';
-}
-
-const calculateToolRecommendations = (scores: ToolScores): { high: Tool[], medium: Tool[], low: Tool[] } => {
-  const recommendations: { high: Set<string>, medium: Set<string>, low: Set<string> } = { high: new Set(), medium: new Set(), low: new Set() };
-  const addTools = (toolIds: string[], priority: 'high' | 'medium' | 'low') => {
-    toolIds.forEach(id => {
-      if (!recommendations.high.has(id) && !recommendations.medium.has(id)) { recommendations[priority].add(id); } 
-      else if (priority === 'medium' && !recommendations.high.has(id)) { recommendations.medium.add(id); }
-      else if (priority === 'high') { recommendations.high.add(id); }
-    });
-  };
-
-  const attentionCat = getCategoryForScore(scores.attention, [2, 5, 8]);
-  if (attentionCat === 'high') { addTools(['focus-timer-pro', 'concentratie-games'], 'high'); addTools(['distraction-blocker', 'study-planner'], 'medium'); addTools(['bewegings-breaks'], 'low'); }
-  else if (attentionCat === 'medium') { addTools(['focus-timer-pro'], 'high'); addTools(['study-planner', 'concentratie-games'], 'medium'); addTools(['distraction-blocker'], 'low'); }
-  else { addTools(['study-planner'], 'medium'); addTools(['focus-timer-pro', 'concentratie-games'], 'low'); }
-
-  const energyCat = getCategoryForScore(scores.energy, [2, 5, 8]);
-  if (energyCat === 'high') { addTools(['bewegings-breaks', 'impulse-pause'], 'high'); addTools(['fidget-simulator', 'energie-monitor'], 'medium'); addTools(['ademhalings-gids'], 'low'); }
-  else if (energyCat === 'medium') { addTools(['bewegings-breaks'], 'high'); addTools(['energie-monitor', 'fidget-simulator'], 'medium'); addTools(['impulse-pause'], 'low'); }
-  else { addTools(['energie-monitor'], 'medium'); }
-
-  const prikkelsCat = getCategoryForScore(scores.prikkels, [2, 5, 8]);
-  if (prikkelsCat === 'high') { addTools(['sensory-calm-space', 'overprikkel-alarm'], 'high'); addTools(['ademhalings-gids', 'progressive-relaxatie'], 'medium'); addTools(['empathie-balancer'], 'low'); }
-  else if (prikkelsCat === 'medium') { addTools(['sensory-calm-space'], 'high'); addTools(['ademhalings-gids'], 'medium'); addTools(['overprikkel-alarm'], 'low'); }
-  else { addTools(['sensory-calm-space'], 'low'); }
-
-  const sociaalCat = getCategoryForScore(scores.sociaal, [2, 5, 8]);
-  if (sociaalCat === 'high') { addTools(['deep-dive-planner', 'interest-sharing'], 'high'); addTools(['hobby-organizer', 'sociale-scripts'], 'medium'); addTools(['creative-outlet'], 'low'); }
-  else if (sociaalCat === 'medium') { addTools(['sociale-scripts'], 'high'); addTools(['vriendschap-tracker', 'conflict-navigator'], 'medium'); }
-  else { addTools(['vriendschap-tracker'], 'medium'); addTools(['sociale-scripts'], 'low'); }
-
-  const stemmingCat = getCategoryForScore(scores.stemming, [2, 5, 8]);
-  if (stemmingCat === 'high') { addTools(['mood-tracker', 'emotie-gids'], 'high'); addTools(['zorgen-dagboek', 'ademhalings-gids'], 'medium'); addTools(['sensory-calm-space'], 'low'); }
-  else if (stemmingCat === 'medium') { addTools(['mood-tracker'], 'high'); addTools(['emotie-gids', 'gratitude-journal'], 'medium'); addTools(['zorgen-dagboek'], 'low'); }
-  else { addTools(['gratitude-journal'], 'medium'); addTools(['mood-tracker'], 'low'); }
-
-  if (sociaalCat === 'high' && prikkelsCat === 'low') { addTools(['creative-outlet'], 'medium'); addTools(['deep-dive-planner'], 'high'); }
-  if (prikkelsCat === 'high' && stemmingCat === 'high' && attentionCat === 'high') {
-    const rustTools = ['sensory-calm-space', 'ademhalings-gids', 'mood-tracker'].filter(id => recommendations.high.has(id));
-    recommendations.high = new Set(rustTools.slice(0, 2));
-  } else if (recommendations.high.size > 4) { recommendations.high = new Set(Array.from(recommendations.high).slice(0, 4)); }
-  if (recommendations.high.size === 0 && recommendations.medium.size > 0) {
-    const top2Medium = Array.from(recommendations.medium).slice(0, 2);
-    top2Medium.forEach(id => { recommendations.high.add(id); recommendations.medium.delete(id); });
-  }
-
-  const findToolById = (id: string): Tool | undefined => allTools.find(tool => tool.id === id);
-  return { high: Array.from(recommendations.high).map(findToolById).filter((t): t is Tool => !!t), medium: Array.from(recommendations.medium).map(findToolById).filter((t): t is Tool => !!t), low: Array.from(recommendations.low).map(findToolById).filter((t): t is Tool => !!t) };
-};
-
 // Main Component
 interface ResultsStepProps {
   finalScores: Scores;
@@ -179,7 +124,7 @@ interface ResultsStepProps {
   currentSubTests: Record<string, string[]>;
 }
 
-export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup, relevantSubtests, onRestart, currentBaseQuestions, currentSubTests }: ResultsStepProps) => {
+export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup, onRestart, currentBaseQuestions, currentSubTests }: ResultsStepProps) => {
   const [quizAnalysis, setQuizAnalysis] = useState<string | null>(null);
   const [parsedAiAnalysis, setParsedAiAnalysis] = useState<AiAnalysisSection[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(true);
