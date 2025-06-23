@@ -18,7 +18,7 @@ import {
   Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, CalendarPlus, CalendarDays, GraduationCap
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, CalendarPlus, CalendarDays, CalendarClock, GraduationCap
 } from 'lucide-react'; 
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
