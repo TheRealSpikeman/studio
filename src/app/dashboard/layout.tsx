@@ -12,6 +12,7 @@ import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/context
 import { usePathname, useRouter } from 'next/navigation'; 
 import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
   leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
@@ -34,7 +35,10 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <SidebarTrigger className="mr-2" /> 
+      <SidebarTrigger className="mr-2 md:hidden" /> 
+      <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9" asChild>
+        <SidebarTrigger />
+      </Button>
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
@@ -165,15 +169,10 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 
 
 function DashboardMainContainer({ children }: { children: React.ReactNode }) {
+    // This component is now simplified. The layout is handled by flexbox
+    // and the placeholder div from the sidebar component itself.
     return (
-        <div 
-            className={cn(
-                "flex flex-1 flex-col",
-                "transition-[margin-left] duration-200 ease-in-out",
-                "md:peer-data-[state=expanded]:ml-[16rem]",
-                "md:peer-data-[state=collapsed]:ml-[3.5rem]"
-            )}
-        >
+        <div className="flex flex-1 flex-col">
             <DashboardHeader /> 
             <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
                 {children}
@@ -183,6 +182,37 @@ function DashboardMainContainer({ children }: { children: React.ReactNode }) {
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => { setIsClient(true); }, []);
+
+  // Server-side rendering skeleton to prevent hydration errors.
+  // This matches the initial state of the client before useEffect runs.
+  if (!isClient) {
+    return (
+      <div className="flex min-h-screen w-full">
+        {/* Renders a static skeleton of the collapsed sidebar */}
+        <div className="hidden md:block w-[3.5rem] border-r bg-card shadow-lg" />
+        <div className="flex flex-1 flex-col">
+           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+             <Skeleton className="h-9 w-9" />
+             <div className="flex-1" />
+             <div className="flex items-center gap-4">
+                <div className="flex flex-col items-end">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-40 mt-1" />
+                </div>
+                <Skeleton className="h-9 w-9 rounded-full" />
+             </div>
+           </header>
+           <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
+             {children}
+           </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Client-side render with full context and dynamic classes
   return (
     <SidebarProvider>
       <DashboardRoleProvider>
