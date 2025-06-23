@@ -5,7 +5,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, ShieldCheck, PlayCircle, ClipboardList, Target, BarChart3, LayoutDashboard, GitBranch, Users as UsersIcon } from 'lucide-react';
+import { ArrowLeft, UserPlus, ShieldCheck, PlayCircle, ClipboardList, Target, BarChart3, LayoutDashboard, GitBranch, Users as UsersIcon, Bot } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const journeySteps = [
@@ -56,9 +56,10 @@ const journeySteps = [
     {
         step: 5,
         icon: BarChart3,
-        title: "Resultaten & Gepersonaliseerde Aanbevelingen",
-        description: "Na de quiz ontvangt de gebruiker direct waardevolle, op maat gemaakte inzichten.",
+        title: "Resultaten & Analyse (AI)",
+        description: "Na de quiz ontvangt de gebruiker direct waardevolle, AI-gedreven inzichten.",
         details: [
+            "De antwoorden worden geanalyseerd door de 'generateQuizAnalysis' AI flow.",
             "De gebruiker komt op de resultatenpagina met een duidelijke, AI-gegenereerde analyse van hun profiel.",
             "Een nieuwe sectie 'Aanbevolen Tools' toont de 3-4 meest relevante tools (bv. Focus Timer, Sensory Calm Space) op basis van de quizscores.",
             "Elke aanbeveling bevat een uitleg waarom de tool nuttig is en hoe deze gebruikt kan worden."
@@ -67,11 +68,12 @@ const journeySteps = [
     {
         step: 6,
         icon: LayoutDashboard,
-        title: "Aankomst in het Dashboard",
-        description: "De cirkel is rond: de gebruiker landt in een omgeving die nu is afgestemd op hun profiel.",
+        title: "Gepersonaliseerd Dashboard (AI)",
+        description: "De gebruiker landt in een omgeving die nu dagelijks door AI wordt afgestemd op hun profiel.",
         details: [
             "De primaire knop op de resultatenpagina is 'Ga naar mijn Dashboard'.",
-            "De gebruiker komt in de leerling-dashboardomgeving, waar de dagelijkse coaching en andere content nu gepersonaliseerd zijn op basis van de quizresultaten."
+            "De 'generateCoachingInsights' AI flow gebruikt de analyse om dagelijks unieke content te creëren.",
+            "Het dashboard toont een persoonlijke affirmatie, een coaching tip en een micro-taak, speciaal voor de gebruiker gegenereerd."
         ]
     }
 ];
@@ -105,7 +107,7 @@ export default function CustomerJourneyPage() {
                             {item.step}
                         </div>
                         <div>
-                            <h3 className="text-left">{item.title}</h3>
+                            <h3 className="text-left flex items-center gap-2">{item.title} {item.title.includes('(AI)') && <Bot className="h-5 w-5 text-accent"/>}</h3>
                             <p className="text-sm font-normal text-muted-foreground text-left">{item.description}</p>
                         </div>
                     </div>
