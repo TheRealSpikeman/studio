@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Package, Search, ListFilter } from 'lucide-react';
+import { PlusCircle, Package, Search } from 'lucide-react';
 import { FeatureTable } from '@/components/admin/feature-management/FeatureTable';
 import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feature-management/FeatureFormDialog';
 import { useToast } from '@/hooks/use-toast';
@@ -133,9 +133,7 @@ export default function FeatureManagementPage() {
             if (linkedPlanIdsSet.has(plan.id)) {
                 newFeatureAccess[featureId] = true;
             } else {
-                // Only explicitly set to false if the feature existed in the plan before, to avoid polluting featureAccess with all features
-                // However, for simplicity and direct control from feature form, we set it explicitly.
-                newFeatureAccess[featureId] = false; 
+                delete newFeatureAccess[featureId];
             }
             return { ...plan, featureAccess: newFeatureAccess };
         });
@@ -159,16 +157,20 @@ export default function FeatureManagementPage() {
   const handleDeleteFeature = (featureId: string) => {
     const featureLabel = features.find(f => f.id === featureId)?.label || featureId;
     
-    const updatedPlans = allSubscriptionPlans.map(plan => {
+    // Read all plans, not just active ones, to clean up everywhere
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+    const allStoredPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
+
+    const updatedPlans = allStoredPlans.map(plan => {
         const newFeatureAccess = { ...plan.featureAccess };
         if (newFeatureAccess.hasOwnProperty(featureId)) {
             delete newFeatureAccess[featureId];
         }
         return { ...plan, featureAccess: newFeatureAccess };
     });
-    const sortedUpdatedPlans = updatedPlans.sort((a,b) => a.id.localeCompare(b.id));
-    setAllSubscriptionPlans(sortedUpdatedPlans);
-    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(sortedUpdatedPlans));
+
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
+    setAllSubscriptionPlans(updatedPlans.filter(p => p.active).sort((a,b) => a.id.localeCompare(b.id)));
     
     const updatedFeatures = features.filter(f => f.id !== featureId);
     const sortedUpdatedFeatures = updatedFeatures.sort((a, b) => a.label.localeCompare(b.label));
@@ -263,4 +265,3 @@ export default function FeatureManagementPage() {
     </div>
   );
 }
-
