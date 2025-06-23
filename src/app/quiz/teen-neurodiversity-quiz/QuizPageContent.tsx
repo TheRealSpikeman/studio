@@ -1,3 +1,4 @@
+
 // src/app/quiz/teen-neurodiversity-quiz/QuizPageContent.tsx
 "use client"; 
 
@@ -411,29 +412,135 @@ export default function QuizPageContent() {
     }
   }, [currentBaseQuestions]);
 
+  const fetchAndSetAnalysis = useCallback(async (scores: Scores, baseAns: (number | undefined)[], subAns: Record<string, (number | undefined)[]>) => {
+    setIsAnalysisLoading(true);
+    setParsedAiAnalysis([]);
+    try {
+      const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
+      currentBaseQuestions.forEach((qText, index) => {
+        const answerValue = baseAns[index];
+        if (answerValue !== undefined) {
+          const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
+          let profileKeyForQuestion: string | undefined = undefined;
+          if (ageGroup === '15-18') {
+            if (index < 3) profileKeyForQuestion = 'ADD'; else if (index < 6) profileKeyForQuestion = 'ADHD'; else if (index < 9) profileKeyForQuestion = 'HSP'; else if (index < 12) profileKeyForQuestion = 'ASS'; else if (index < 15) profileKeyForQuestion = 'AngstDepressie';
+          } else if (ageGroup === '12-14') {
+            if (index < 2) profileKeyForQuestion = 'ADD'; else if (index < 4) profileKeyForQuestion = 'ADHD'; else if (index < 6) profileKeyForQuestion = 'HSP'; else if (index < 8) profileKeyForQuestion = 'ASS'; else if (index < 10) profileKeyForQuestion = 'AngstDepressie';
+          }
+          answeredQuestions.push({ question: qText, answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`, profileKey: profileKeyForQuestion });
+        }
+      });
 
-  const calculateRelevantSubtests = useCallback((answers: (number | undefined)[]): string[] => {
-    if (currentBaseQuestions.length === 0 || Object.keys(currentThresholds).length === 0 || answers.some(a => a === undefined)) return [];
+      Object.entries(subAns).forEach(([subtestKey, answers]) => {
+        const questionsForSubtest = currentSubTests[subtestKey] || [];
+        answers.forEach((ansVal, qIdx) => {
+          if (ansVal !== undefined) {
+            const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
+            answeredQuestions.push({ question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`, answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`, profileKey: subtestKey });
+          }
+        });
+      });
 
-    const scores: Scores = {};
-    if (ageGroup === '15-18') {
-        scores.ADD = calculateAverage(answers.slice(0, 3));
-        scores.ADHD = calculateAverage(answers.slice(3, 6));
-        scores.HSP = calculateAverage(answers.slice(6, 9));
-        scores.ASS = calculateAverage(answers.slice(9, 12));
-        scores.AngstDepressie = calculateAverage(answers.slice(12, 15));
-    } else if (ageGroup === '12-14') {
-        scores.ADD = calculateAverage(answers.slice(0, 2));
-        scores.ADHD = calculateAverage(answers.slice(2, 4));
-        scores.HSP = calculateAverage(answers.slice(4, 6));
-        scores.ASS = calculateAverage(answers.slice(6, 8));
-        scores.AngstDepressie = calculateAverage(answers.slice(8, 10));
+      const analysisInput = { quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`, ageGroup: ageGroup || '15-18', finalScores: scores, answeredQuestions, analysisDetailLevel: 'standaard' as const };
+      const result = await generateQuizAnalysis(analysisInput);
+      setQuizAnalysis(result.analysis);
+      setParsedAiAnalysis(parseAiAnalysis(result.analysis));
+      if (typeof window !== 'undefined' && result.analysis) {
+        localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
+        localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({ name: "Alex", ageGroup }));
+        localStorage.setItem('journey_quiz_completed_v1', 'true');
+      }
+    } catch (error) {
+      console.error("Failed to generate quiz analysis:", error);
+      const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
+      setQuizAnalysis(errorMsg);
+      setParsedAiAnalysis([{ title: "Fout", content: errorMsg, icon: AlertTriangle }]);
+    } finally {
+      setIsAnalysisLoading(false);
     }
+  }, [ageGroup, currentBaseQuestions, currentSubTests]);
 
-    return Object.keys(scores).filter(key => currentThresholds[key] && scores[key] >= currentThresholds[key] && !isNaN(scores[key]));
-  }, [ageGroup, currentBaseQuestions.length, currentThresholds]);
+  const handleQuizCompletion = useCallback((finalScores: Scores, finalBaseAnswers: (number | undefined)[], finalSubtestAnswers: Record<string, (number | undefined)[]>) => {
+    setCurrentStep('results');
+    setFinalScores(finalScores);
+    
+    // Calculate and set tool recommendations
+    const toolScores: ToolScores = {
+      attention: (finalScores.ADD || 0) * 2,
+      energy: (finalScores.ADHD || 0) * 2,
+      prikkels: (finalScores.HSP || 0) * 2,
+      sociaal: (finalScores.ASS || 0) * 2,
+      stemming: (finalScores.AngstDepressie || 0) * 2,
+    };
+    setRecommendedTools(calculateToolRecommendations(toolScores));
 
+    // Fetch AI analysis
+    fetchAndSetAnalysis(finalScores, finalBaseAnswers, finalSubtestAnswers);
+  }, [fetchAndSetAnalysis]);
 
+  const proceedToBaseNext = useCallback((currentAnswers: (number | undefined)[]) => {
+    const relSubtests = calculateRelevantSubtests(currentAnswers);
+    setRelevantSubtests(relSubtests);
+
+    if (relSubtests.length === 0) {
+      const finalScores = calculateFinalScores([], {});
+      handleQuizCompletion(finalScores, currentAnswers, {});
+    } else {
+      const flattenedQuestions = relSubtests.flatMap(key =>
+        (currentSubTests[key] || []).map((qText, qIndex) => ({
+          key: key,
+          index: qIndex,
+          text: qText,
+        }))
+      );
+      setFlatSubtestQuestions(flattenedQuestions);
+      setCurrentFlatSubtestIndex(0);
+
+      const initialSubAnswers: Record<string, (number | undefined)[]> = {};
+      relSubtests.forEach(key => {
+        initialSubAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
+      });
+      setSubtestAnswers(initialSubAnswers);
+      setCurrentStep('subtestConfirmation');
+    }
+  }, [calculateRelevantSubtests, calculateFinalScores, currentSubTests, handleQuizCompletion]);
+
+  const handleBaseQuestionAnswer = useCallback((selectedOptionValue: string) => {
+    const newAnswers = [...baseAnswers];
+    newAnswers[currentQuestionIndex] = parseInt(selectedOptionValue, 10);
+    setBaseAnswers(newAnswers);
+
+    if (currentQuestionIndex < currentBaseQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      proceedToBaseNext(newAnswers);
+    }
+  }, [baseAnswers, currentQuestionIndex, currentBaseQuestions.length, proceedToBaseNext]);
+
+  const handleSubtestQuestionAnswer = useCallback((selectedOptionValue: string) => {
+    const currentQuestion = flatSubtestQuestions[currentFlatSubtestIndex];
+    if (!currentQuestion) return;
+    
+    const { key, index } = currentQuestion;
+
+    const newSubtestAnswers = { ...subtestAnswers };
+    if (!newSubtestAnswers[key]) {
+      newSubtestAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
+    }
+    const newAnswersForSubtest = [...newSubtestAnswers[key]];
+    newAnswersForSubtest[index] = parseInt(selectedOptionValue, 10);
+    newSubtestAnswers[key] = newAnswersForSubtest;
+
+    setSubtestAnswers(newSubtestAnswers);
+
+    if (currentFlatSubtestIndex >= flatSubtestQuestions.length - 1) {
+      const scores = calculateFinalScores(relevantSubtests, newSubtestAnswers);
+      handleQuizCompletion(scores, baseAnswers, newSubtestAnswers);
+    } else {
+      setCurrentFlatSubtestIndex(prev => prev + 1);
+    }
+  }, [flatSubtestQuestions, currentFlatSubtestIndex, subtestAnswers, currentSubTests, relevantSubtests, calculateFinalScores, handleQuizCompletion, baseAnswers]);
+  
   const calculateFinalScores = useCallback((currentRelevantSubtests: string[], currentSubtestAnswers: Record<string, (number | undefined)[]>): Scores => {
     if (Object.keys(currentThresholds).length === 0) return {};
     const scores: Scores = {};
@@ -463,138 +570,6 @@ export default function QuizPageContent() {
     });
     return scores;
   }, [ageGroup, baseAnswers, currentThresholds]);
-  
-  
-  const proceedToBaseNext = useCallback((currentAnswers: (number | undefined)[]) => {
-    const relSubtests = calculateRelevantSubtests(currentAnswers);
-    setRelevantSubtests(relSubtests);
-    if (relSubtests.length === 0) {
-      setFinalScores(calculateFinalScores([], {}));
-      setCurrentStep('results');
-    } else {
-      const flattenedQuestions = relSubtests.flatMap(key =>
-        (currentSubTests[key] || []).map((qText, qIndex) => ({
-          key: key,
-          index: qIndex,
-          text: qText,
-        }))
-      );
-      setFlatSubtestQuestions(flattenedQuestions);
-      setCurrentFlatSubtestIndex(0);
-
-      const initialSubAnswers: Record<string, (number | undefined)[]> = {};
-      relSubtests.forEach(key => {
-        initialSubAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
-      });
-      setSubtestAnswers(initialSubAnswers);
-      setCurrentStep('subtestConfirmation');
-    }
-  }, [calculateRelevantSubtests, calculateFinalScores, currentSubTests]);
-
-  const handleBaseQuestionAnswer = useCallback((selectedOptionValue: string) => {
-    const newAnswers = [...baseAnswers];
-    newAnswers[currentQuestionIndex] = parseInt(selectedOptionValue, 10);
-    setBaseAnswers(newAnswers);
-
-    if (currentQuestionIndex < currentBaseQuestions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      proceedToBaseNext(newAnswers);
-    }
-  }, [baseAnswers, currentQuestionIndex, currentBaseQuestions.length, proceedToBaseNext]);
-
-  const handleSubtestQuestionAnswer = useCallback((selectedOptionValue: string) => {
-    const currentQuestion = flatSubtestQuestions[currentFlatSubtestIndex];
-    if (!currentQuestion) return;
-    
-    const { key, index } = currentQuestion;
-
-    setSubtestAnswers(prev => {
-        const newAnswers = { ...prev };
-        if (!newAnswers[key]) {
-          newAnswers[key] = new Array(currentSubTests[key]?.length || 0).fill(undefined);
-        }
-        const newSubtestAnswers = [...newAnswers[key]];
-        newSubtestAnswers[index] = parseInt(selectedOptionValue, 10);
-        newAnswers[key] = newSubtestAnswers;
-
-        if (currentFlatSubtestIndex >= flatSubtestQuestions.length - 1) {
-            setFinalScores(calculateFinalScores(relevantSubtests, newAnswers));
-            setCurrentStep('results');
-        }
-
-        return newAnswers;
-    });
-
-    if (currentFlatSubtestIndex < flatSubtestQuestions.length - 1) {
-      setCurrentFlatSubtestIndex(prev => prev + 1);
-    }
-  }, [flatSubtestQuestions, currentFlatSubtestIndex, currentSubTests, calculateFinalScores, relevantSubtests]);
-
-  
-  useEffect(() => {
-    if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0) {
-      const toolScores: ToolScores = {
-        attention: (finalScores.ADD || 0) * 2,
-        energy: (finalScores.ADHD || 0) * 2,
-        prikkels: (finalScores.HSP || 0) * 2,
-        sociaal: (finalScores.ASS || 0) * 2,
-        stemming: (finalScores.AngstDepressie || 0) * 2,
-      };
-      const recommendations = calculateToolRecommendations(toolScores);
-      setRecommendedTools(recommendations);
-      
-      const fetchAnalysis = async () => {
-        setIsAnalysisLoading(true);
-        setParsedAiAnalysis([]);
-        try {
-          const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
-          currentBaseQuestions.forEach((qText, index) => {
-            const answerValue = baseAnswers[index];
-            if (answerValue !== undefined) {
-              const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
-              let profileKeyForQuestion: string | undefined = undefined;
-              if (ageGroup === '15-18') {
-                if (index < 3) profileKeyForQuestion = 'ADD'; else if (index < 6) profileKeyForQuestion = 'ADHD'; else if (index < 9) profileKeyForQuestion = 'HSP'; else if (index < 12) profileKeyForQuestion = 'ASS'; else if (index < 15) profileKeyForQuestion = 'AngstDepressie';
-              } else if (ageGroup === '12-14') {
-                if (index < 2) profileKeyForQuestion = 'ADD'; else if (index < 4) profileKeyForQuestion = 'ADHD'; else if (index < 6) profileKeyForQuestion = 'HSP'; else if (index < 8) profileKeyForQuestion = 'ASS'; else if (index < 10) profileKeyForQuestion = 'AngstDepressie';
-              }
-              answeredQuestions.push({ question: qText, answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`, profileKey: profileKeyForQuestion });
-            }
-          });
-          Object.entries(subtestAnswers).forEach(([subtestKey, answers]) => {
-            const questionsForSubtest = currentSubTests[subtestKey] || [];
-            answers.forEach((ansVal, qIdx) => {
-              if (ansVal !== undefined) {
-                const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
-                answeredQuestions.push({ question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`, answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`, profileKey: subtestKey });
-              }
-            });
-          });
-          const analysisInput = { quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`, ageGroup, finalScores, answeredQuestions, analysisDetailLevel: 'standaard' as const };
-          const result = await generateQuizAnalysis(analysisInput);
-          setQuizAnalysis(result.analysis);
-          setParsedAiAnalysis(parseAiAnalysis(result.analysis));
-          if (typeof window !== 'undefined' && result.analysis) {
-            localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
-            localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup}));
-            localStorage.setItem('journey_quiz_completed_v1', 'true');
-          }
-        } catch (error) {
-          console.error("Failed to generate quiz analysis:", error);
-          const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
-          setQuizAnalysis(errorMsg);
-          setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
-        } finally {
-          setIsAnalysisLoading(false);
-        }
-      };
-
-      if (quizAnalysis === null) {
-        fetchAnalysis();
-      }
-    }
-  }, [currentStep, finalScores, ageGroup, quizAnalysis, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests]);
   
   const handleRestart = () => {
     setCurrentStep('intro');
@@ -788,7 +763,10 @@ export default function QuizPageContent() {
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-6 pb-8 px-6">
-                    <Button variant="secondary" onClick={() => { setFinalScores(calculateFinalScores([], {})); setCurrentStep('results'); }}>
+                    <Button variant="secondary" onClick={() => { 
+                        const finalScores = calculateFinalScores([], {});
+                        handleQuizCompletion(finalScores, baseAnswers, {});
+                     }}>
                         Sla over & bekijk basisinzichten
                     </Button>
                     <Button onClick={() => setCurrentStep('subtestQuestions')} className="w-full sm:w-auto">
@@ -1017,3 +995,4 @@ export default function QuizPageContent() {
     </div>
   );
 }
+
