@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Edit, Trash2, MoreVertical, Link2 } from 'lucide-react';
+import { Edit, Trash2, MoreVertical, Link2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FeatureTableProps {
@@ -82,7 +82,10 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
             return (
               <TableRow key={feature.id}>
                 <TableCell className="font-mono text-xs text-muted-foreground">{feature.id}</TableCell>
-                <TableCell className="font-medium">{feature.label}</TableCell>
+                <TableCell className="font-medium flex items-center gap-2">
+                  {feature.label}
+                  {feature.isRecommendedTool && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" title="Aanbevolen Tool" />}
+                </TableCell>
                 <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                   {feature.description || '-'}
                 </TableCell>

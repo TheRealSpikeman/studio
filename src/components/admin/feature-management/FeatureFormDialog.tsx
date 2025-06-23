@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { AppFeature, TargetAudience, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
 import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch'; // Import Switch
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },
@@ -47,6 +48,7 @@ const featureFormSchema = z.object({
   description: z.string().optional(),
   targetAudience: z.array(z.string() as z.ZodType<TargetAudience[], any>).min(1, { message: "Selecteer minimaal één doelgroep." }),
   category: z.string().optional(),
+  isRecommendedTool: z.boolean().optional(),
   linkedPlans: z.array(z.string()).optional(), 
 });
 
@@ -70,6 +72,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
       description: "",
       targetAudience: ['leerling'],
       category: "",
+      isRecommendedTool: false,
       linkedPlans: [],
     },
   });
@@ -101,6 +104,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
           description: feature.description || "",
           targetAudience: feature.targetAudience,
           category: feature.category || "",
+          isRecommendedTool: feature.isRecommendedTool || false,
           linkedPlans: initialLinkedPlans,
         });
       } else { 
@@ -110,6 +114,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
           description: "",
           targetAudience: ['leerling'],
           category: "",
+          isRecommendedTool: false,
           linkedPlans: [],
         });
       }
@@ -229,6 +234,27 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+
+              <FormField
+                  control={form.control}
+                  name="isRecommendedTool"
+                  render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                          <div className="space-y-0.5">
+                              <FormLabel className="text-base">Aanbevolen Tool?</FormLabel>
+                              <FormDescription>
+                                  Markeer dit als een aanbevolen tool op de resultatenpagina.
+                              </FormDescription>
+                          </div>
+                          <FormControl>
+                              <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                              />
+                          </FormControl>
+                      </FormItem>
+                  )}
               />
 
               <FormField

@@ -40,6 +40,7 @@ export default function FeatureManagementPage() {
             description: feat.description || '',
             targetAudience: feat.targetAudience && Array.isArray(feat.targetAudience) ? feat.targetAudience : ['leerling'],
             category: feat.category || 'Algemeen',
+            isRecommendedTool: feat.isRecommendedTool || false,
         } as AppFeature));
         setFeatures(completeFeatures.sort((a, b) => a.label.localeCompare(b.label)));
       } else {
@@ -104,6 +105,7 @@ export default function FeatureManagementPage() {
         description: featureFormData.description,
         targetAudience: featureFormData.targetAudience,
         category: featureFormData.category,
+        isRecommendedTool: featureFormData.isRecommendedTool,
     };
 
     let updatedFeaturesList;

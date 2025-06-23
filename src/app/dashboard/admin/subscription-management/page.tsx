@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -22,12 +23,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v2';
 export const LOCAL_STORAGE_FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
+// Definieer de mogelijke doelgroepen
+export type TargetAudience = 'leerling' | 'ouder' | 'tutor' | 'coach' | 'platform' | 'beide';
+
 // Subscription Plan Types & Zod Schema
 const appFeatureSchema = z.object({
     id: z.string(),
     label: z.string(),
     description: z.string().optional(),
-    adminOnly: z.boolean().optional(),
+    targetAudience: z.array(z.custom<TargetAudience>()),
+    category: z.string().optional(),
+    isRecommendedTool: z.boolean().optional(),
 });
 export type AppFeature = z.infer<typeof appFeatureSchema>;
 
@@ -50,29 +56,29 @@ export type SubscriptionPlan = z.infer<typeof subscriptionPlanSchema>;
 
 // Initial/Default App Features
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
-    { id: 'startAssessment', label: 'Start Neurodivergentie Assessment', description: 'Toegang tot de eerste assessment.' },
-    { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie email', description: 'Wekelijkse e-mails vol tips voor zelfreflectie' },
-    { id: 'basicReflectionToolLimited', label: 'Zelfreflectie Tools (basis, beperkt)', description: 'Basistools voor zelfreflectie' },
-    { id: 'allReflectionToolsUnlimited', label: 'Zelfreflectie Tools (alles, onbeperkt)', description: 'Toegang tot alle zelfreflectietools.' },
-    { id: 'interactiveJournal', label: 'Interactief Dagboek', description: 'Interactief dagboek om ideeën te ordenen.' },
-    { id: 'homeworkPlannerFocusTools', label: 'Huiswerk Planner & Focus Tools', description: 'Tools om huiswerk te plannen en beter te focussen.' },
-    { id: 'motivationTracking', label: 'Motivatie Tracker', description: 'Tool om persoonlijke motivatie te monitoren.' },
-    { id: 'basicPdfOverview', label: 'PDF rapportages (basis)', description: 'PDF export van de assessment resultaten (basis).' },
-    { id: 'extensivePdfReports', label: 'PDF rapportages (uitgebreid)', description: 'PDF export van de assessment resultaten (uitgebreid).' },
-    { id: 'noProgressAnalytics', label: 'Geen voortgangsanalyse', description: 'Gebruikers kunnen voortgangsanalyse uitzetten', adminOnly: true },
-    { id: 'childProgressTracking', label: 'Kind voortgang volgen', description: 'Voortgang volgen van een kind.' },
-    { id: 'familyInsights', label: 'Familie inzichten', description: 'Inzichten over het hele gezin.' },
-    { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met tutors/coaches', description: 'Direct communiceren met gekoppelde begeleiders.' },
-    { id: 'browseProfessionals', label: 'Browse Geregistreerde Professionals', description: 'Browse door geregistreerde professionals.' },
-    { id: 'professionalRates', label: 'Inzien Tarieven Professionals', description: 'Inzien van de tarieven van geregistreerde professionals.' },
-    { id: 'bookPaySessions', label: 'Sessie Boeken & Betalen', description: 'Mogelijkheid tot het boeken en betalen van sessies.' },
-    { id: 'sessionPlanningReminders', label: 'Sessie Planning & Reminders', description: 'Sessie planning met automatische reminders.' },
-    { id: 'aiPoweredInsights', label: 'AI gedreven inzichten', description: 'AI gedreven inzichten voor kind en ouder' },
-    { id: 'exclusiveCoachingModules', label: 'Exclusive coaching modules', description: 'Exclusieve coaching modules' },
-    { id: 'accountManagement', label: 'Accountbeheer', description: 'Toegang tot accountbeheer' },
-    { id: 'max3ChildrenIncluded', label: 'Max 3 kinderen', description: 'Account heeft tot 3 kinderen' },
-    { id: 'max4ChildrenIncluded', label: 'Max 4 kinderen', description: 'Account heeft tot 4 kinderen' },
-    { id: 'yearlyDiscount15', label: '15% jaarkorting', description: '15% korting voor jaarabonnement', adminOnly: true },
+    { id: 'startAssessment', label: 'Start Neurodivergentie Assessment', description: 'Toegang tot de eerste assessment.', targetAudience: ['leerling', 'ouder'], category: 'Onboarding', isRecommendedTool: true },
+    { id: 'weeklyMotivationEmail', label: 'Wekelijkse motivatie email', description: 'Wekelijkse e-mails vol tips voor zelfreflectie', targetAudience: ['leerling'], category: 'Communicatie' },
+    { id: 'basicReflectionToolLimited', label: 'Zelfreflectie Tools (basis, beperkt)', description: 'Basistools voor zelfreflectie', targetAudience: ['leerling'], category: 'Gratis Tier' },
+    { id: 'allReflectionToolsUnlimited', label: 'Zelfreflectie Tools (alles, onbeperkt)', description: 'Toegang tot alle zelfreflectietools.', targetAudience: ['leerling'], category: 'Coaching' },
+    { id: 'interactiveJournal', label: 'Interactief Dagboek', description: 'Interactief dagboek om ideeën te ordenen.', targetAudience: ['leerling'], category: 'Coaching', isRecommendedTool: true },
+    { id: 'homeworkPlannerFocusTools', label: 'Huiswerk Planner & Focus Tools', description: 'Tools om huiswerk te plannen en beter te focussen.', targetAudience: ['leerling'], category: 'Tools', isRecommendedTool: true },
+    { id: 'motivationTracking', label: 'Motivatie Tracker', description: 'Tool om persoonlijke motivatie te monitoren.', targetAudience: ['leerling'], category: 'Tools' },
+    { id: 'basicPdfOverview', label: 'PDF rapportages (basis)', description: 'PDF export van de assessment resultaten (basis).', targetAudience: ['leerling', 'ouder'], category: 'Gratis Tier' },
+    { id: 'extensivePdfReports', label: 'PDF rapportages (uitgebreid)', description: 'PDF export van de assessment resultaten (uitgebreid).', targetAudience: ['leerling', 'ouder'], category: 'Rapportage' },
+    { id: 'noProgressAnalytics', label: 'Geen voortgangsanalyse', description: 'Gebruikers kunnen voortgangsanalyse uitzetten', targetAudience: ['platform'], category: 'Privacy', adminOnly: true },
+    { id: 'childProgressTracking', label: 'Kind voortgang volgen', description: 'Voortgang volgen van een kind.', targetAudience: ['ouder'], category: 'Ouder Dashboard' },
+    { id: 'familyInsights', label: 'Familie inzichten', description: 'Inzichten over het hele gezin.', targetAudience: ['ouder'], category: 'Ouder Dashboard' },
+    { id: 'communicationWithLinkedProfessionals', label: 'Communicatie met tutors/coaches', description: 'Direct communiceren met gekoppelde begeleiders.', targetAudience: ['ouder', 'leerling'], category: 'Communicatie' },
+    { id: 'browseProfessionals', label: 'Browse Geregistreerde Professionals', description: 'Browse door geregistreerde professionals.', targetAudience: ['ouder'], category: 'Marktplaats' },
+    { id: 'professionalRates', label: 'Inzien Tarieven Professionals', description: 'Inzien van de tarieven van geregistreerde professionals.', targetAudience: ['ouder'], category: 'Marktplaats' },
+    { id: 'bookPaySessions', label: 'Sessie Boeken & Betalen', description: 'Mogelijkheid tot het boeken en betalen van sessies.', targetAudience: ['ouder'], category: 'Marktplaats' },
+    { id: 'sessionPlanningReminders', label: 'Sessie Planning & Reminders', description: 'Sessie planning met automatische reminders.', targetAudience: ['ouder', 'leerling', 'tutor', 'coach'], category: 'Planning' },
+    { id: 'aiPoweredInsights', label: 'AI gedreven inzichten', description: 'AI gedreven inzichten voor kind en ouder', targetAudience: ['leerling', 'ouder'], category: 'AI', isRecommendedTool: true },
+    { id: 'exclusiveCoachingModules', label: 'Exclusive coaching modules', description: 'Exclusieve coaching modules', targetAudience: ['leerling'], category: 'Coaching' },
+    { id: 'accountManagement', label: 'Accountbeheer', description: 'Toegang tot accountbeheer', targetAudience: ['platform'], category: 'Algemeen' },
+    { id: 'max3ChildrenIncluded', label: 'Max 3 kinderen', description: 'Account heeft tot 3 kinderen', targetAudience: ['ouder'], category: 'Abonnementen' },
+    { id: 'max4ChildrenIncluded', label: 'Max 4 kinderen', description: 'Account heeft tot 4 kinderen', targetAudience: ['ouder'], category: 'Abonnementen' },
+    { id: 'yearlyDiscount15', label: '15% jaarkorting', description: '15% korting voor jaarabonnement', targetAudience: ['platform'], category: 'Abonnementen', adminOnly: true },
 ];
 
 // Default Subscription Plans
@@ -468,3 +474,4 @@ function SubscriptionPlanEditForm({ plan, allAppFeatures, onSave, onCancel }: Su
         </Form>
     );
 }
+
