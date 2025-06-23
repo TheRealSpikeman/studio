@@ -854,62 +854,6 @@ export default function QuizPageContent() {
                 </CardContent>
               </Card>
 
-              <Card className="w-full shadow-xl mt-10 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 rounded-lg">
-                  <CardHeader className="py-6 px-6">
-                  <h2 className="text-[1.5rem] font-bold flex items-center gap-3 text-primary">
-                      <Sparkles className="h-7 w-7" />
-                      Ontgrendel je volledige potentieel!
-                  </h2>
-                  </CardHeader>
-                  <CardContent className="px-6 pb-6">
-                  <p className="text-muted-foreground mb-4 leading-relaxed text-base">
-                      Je hebt een eerste blik op je profiel gekregen. Wil je dieper graven met meer zelfreflectie-quizzen en dagelijkse, persoonlijke coaching ontvangen?
-                  </p>
-                  <p className="text-lg font-semibold mb-2 text-foreground">Krijg toegang tot premium functies:</p>
-                  <ul className="list-disc list-inside text-muted-foreground space-y-1.5 mb-5 pl-5 leading-relaxed text-base">
-                      <li>Alle verdiepende zelfreflectie-quizzen</li>
-                      <li>Dagelijkse coaching tips & routines</li>
-                      <li>Uitgebreide PDF overzichten</li>
-                      <li>Voortgangstracking en meer!</li>
-                  </ul>
-                  <p className="text-center text-xl font-bold text-primary mb-5">
-                      Vanaf slechts €2,50 per maand!
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                      <Button asChild className="flex-1" size="lg">
-                      <Link href="/#pricing">
-                          Bekijk abonnementen & maak account
-                      </Link>
-                      </Button>
-                  </div>
-                  </CardContent>
-              </Card>
-
-              <Card className="w-full shadow-xl mt-10 rounded-lg">
-                <CardHeader className="py-6 px-6">
-                  <h2 className="text-[1.35rem] font-bold flex items-center gap-2 text-foreground">
-                    Sla je overzicht op (zonder coaching)
-                  </h2>
-                </CardHeader>
-                <CardContent className="px-6 pb-6">
-                  <p className="text-muted-foreground mb-4 leading-relaxed text-base">
-                    Wil je alleen dit overzicht opslaan en je voortgang bijhouden zonder direct te abonneren op coaching? Maak een gratis account aan.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button asChild className="flex-1">
-                      <Link href="/signup">
-                        <UserPlus className="mr-2 h-4 w-4" /> Registreer gratis
-                      </Link>
-                    </Button>
-                    <Button variant="outline" asChild className="flex-1">
-                      <Link href="/login">
-                        <LogIn className="mr-2 h-4 w-4" /> Inloggen
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
               <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
                   <AlertDialog>
                       <AlertDialogTrigger asChild>
