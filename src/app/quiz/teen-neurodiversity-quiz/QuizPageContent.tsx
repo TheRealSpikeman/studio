@@ -448,7 +448,7 @@ export default function QuizPageContent() {
     } else if (ageGroup === '12-14') {
         baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 2));
         baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(2, 4));
-        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(4, 6));
+        baseScoresCalc.HSP = calculateAverage(answers.slice(4, 6));
         baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(6, 8));
         baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
     }
@@ -534,9 +534,8 @@ export default function QuizPageContent() {
   
   useEffect(() => {
     if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0) {
-       // Tool recommendation logic
       const toolScores: ToolScores = {
-        attention: (finalScores.ADD || 0) * 2, // Scale to 0-8 range
+        attention: (finalScores.ADD || 0) * 2,
         energy: (finalScores.ADHD || 0) * 2,
         prikkels: (finalScores.HSP || 0) * 2,
         sociaal: (finalScores.ASS || 0) * 2,
@@ -545,85 +544,57 @@ export default function QuizPageContent() {
       const recommendations = calculateToolRecommendations(toolScores);
       setRecommendedTools(recommendations);
       
-      if (!quizAnalysis && !isAnalysisLoading) {
-          const fetchAnalysis = async () => {
-            setIsAnalysisLoading(true);
-            setParsedAiAnalysis([]);
-            try {
-              const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
-
-              currentBaseQuestions.forEach((qText, index) => {
-                const answerValue = baseAnswers[index];
-                if (answerValue !== undefined) {
-                  const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
-                  let profileKeyForQuestion: string | undefined = undefined;
-                  if (ageGroup === '15-18') {
-                    if (index < 3) profileKeyForQuestion = 'ADD'; 
-                    else if (index < 6) profileKeyForQuestion = 'ADHD'; 
-                    else if (index < 9) profileKeyForQuestion = 'HSP'; 
-                    else if (index < 12) profileKeyForQuestion = 'ASS'; 
-                    else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; 
-                  } else if (ageGroup === '12-14') {
-                    if (index < 2) profileKeyForQuestion = 'ADD'; 
-                    else if (index < 4) profileKeyForQuestion = 'ADHD'; 
-                    else if (index < 6) profileKeyForQuestion = 'HSP'; 
-                    else if (index < 8) profileKeyForQuestion = 'ASS'; 
-                    else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; 
-                  }
-
-                  answeredQuestions.push({
-                    question: qText,
-                    answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`,
-                    profileKey: profileKeyForQuestion,
-                  });
-                }
-              });
-
-              Object.entries(subtestAnswers).forEach(([subtestKey, answers]) => {
-                const questionsForSubtest = currentSubTests[subtestKey] || [];
-                answers.forEach((ansVal, qIdx) => {
-                  if (ansVal !== undefined) {
-                    const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
-                    answeredQuestions.push({
-                      question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`,
-                      answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`,
-                      profileKey: subtestKey
-                    });
-                  }
-                });
-              });
-
-              const analysisInput = {
-                quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`,
-                ageGroup: ageGroup,
-                finalScores: finalScores,
-                answeredQuestions: answeredQuestions,
-                analysisDetailLevel: 'standaard' // Default, kan later per quiz ingesteld worden
-              };
-              const result = await generateQuizAnalysis(analysisInput);
-              setQuizAnalysis(result.analysis);
-              setParsedAiAnalysis(parseAiAnalysis(result.analysis));
-
-              // Opslaan in localStorage voor Coaching Hub
-              if (typeof window !== 'undefined' && result.analysis) {
-                localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
-                localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup})); // Dummy naam
-                localStorage.setItem('journey_quiz_completed_v1', 'true');
+      const fetchAnalysis = async () => {
+        setIsAnalysisLoading(true);
+        setParsedAiAnalysis([]);
+        try {
+          const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
+          currentBaseQuestions.forEach((qText, index) => {
+            const answerValue = baseAnswers[index];
+            if (answerValue !== undefined) {
+              const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
+              let profileKeyForQuestion: string | undefined = undefined;
+              if (ageGroup === '15-18') {
+                if (index < 3) profileKeyForQuestion = 'ADD'; else if (index < 6) profileKeyForQuestion = 'ADHD'; else if (index < 9) profileKeyForQuestion = 'HSP'; else if (index < 12) profileKeyForQuestion = 'ASS'; else if (index < 15) profileKeyForQuestion = 'AngstDepressie';
+              } else if (ageGroup === '12-14') {
+                if (index < 2) profileKeyForQuestion = 'ADD'; else if (index < 4) profileKeyForQuestion = 'ADHD'; else if (index < 6) profileKeyForQuestion = 'HSP'; else if (index < 8) profileKeyForQuestion = 'ASS'; else if (index < 10) profileKeyForQuestion = 'AngstDepressie';
               }
-
-            } catch (error) {
-              console.error("Failed to generate quiz analysis:", error);
-              const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
-              setQuizAnalysis(errorMsg);
-              setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
-            } finally {
-              setIsAnalysisLoading(false);
+              answeredQuestions.push({ question: qText, answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`, profileKey: profileKeyForQuestion });
             }
-          };
-          fetchAnalysis();
+          });
+          Object.entries(subtestAnswers).forEach(([subtestKey, answers]) => {
+            const questionsForSubtest = currentSubTests[subtestKey] || [];
+            answers.forEach((ansVal, qIdx) => {
+              if (ansVal !== undefined) {
+                const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
+                answeredQuestions.push({ question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`, answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`, profileKey: subtestKey });
+              }
+            });
+          });
+          const analysisInput = { quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`, ageGroup, finalScores, answeredQuestions, analysisDetailLevel: 'standaard' as const };
+          const result = await generateQuizAnalysis(analysisInput);
+          setQuizAnalysis(result.analysis);
+          setParsedAiAnalysis(parseAiAnalysis(result.analysis));
+          if (typeof window !== 'undefined' && result.analysis) {
+            localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
+            localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup}));
+            localStorage.setItem('journey_quiz_completed_v1', 'true');
+          }
+        } catch (error) {
+          console.error("Failed to generate quiz analysis:", error);
+          const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
+          setQuizAnalysis(errorMsg);
+          setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
+        } finally {
+          setIsAnalysisLoading(false);
+        }
+      };
+
+      if (!quizAnalysis) {
+        fetchAnalysis();
       }
     }
-  }, [currentStep, finalScores, ageGroup, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests, quizAnalysis, isAnalysisLoading]);
+  }, [currentStep, finalScores, ageGroup, quizAnalysis, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests]);
   
   const handleRestart = () => {
     setCurrentStep('intro');
