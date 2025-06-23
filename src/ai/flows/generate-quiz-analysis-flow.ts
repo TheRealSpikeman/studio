@@ -69,12 +69,15 @@ export async function generateQuizAnalysis(
   return generateQuizAnalysisFlow(input);
 }
 
-// New internal schema to make data iterable for Handlebars
+// New internal schema to make data iterable for Handlebars and add booleans
 const PromptInternalInputSchema = GenerateQuizAnalysisInputSchema.extend({
   finalScoresArray: z.array(z.object({
     key: z.string(),
     value: z.number(),
   })),
+  isDetailBeknopt: z.boolean(),
+  isDetailStandaard: z.boolean(),
+  isDetailUitgebreid: z.boolean(),
 });
 
 const prompt = ai.definePrompt({
@@ -127,9 +130,9 @@ Geef 3-4 concrete, praktische en direct toepasbare tips. Geef de tips creatieve,
 
 {{#if analysisInstructions}}{{{analysisInstructions}}}{{/if}}
 {{#if analysisDetailLevel}}
-{{#if (eq analysisDetailLevel 'beknopt')}}Houd de analyse beknopt en focus op de hoofdpunten, ongeveer 150 woorden.{{/if}}
-{{#if (eq analysisDetailLevel 'standaard')}}De analyse moet gedetailleerd zijn (minstens 250-300 woorden).{{/if}}
-{{#if (eq analysisDetailLevel 'uitgebreid')}}De analyse moet zeer gedetailleerd zijn (minstens 350-400 woorden), diep ingaan op nuances en meerdere voorbeelden of reflectiepunten per sectie bieden.{{/if}}
+{{#if isDetailBeknopt}}Houd de analyse beknopt en focus op de hoofdpunten, ongeveer 150 woorden.{{/if}}
+{{#if isDetailStandaard}}De analyse moet gedetailleerd zijn (minstens 250-300 woorden).{{/if}}
+{{#if isDetailUitgebreid}}De analyse moet zeer gedetailleerd zijn (minstens 350-400 woorden), diep ingaan op nuances en meerdere voorbeelden of reflectiepunten per sectie bieden.{{/if}}
 {{else}}
 De analyse moet gedetailleerd zijn (minstens 250-300 woorden).
 {{/if}}
@@ -149,6 +152,9 @@ const generateQuizAnalysisFlow = ai.defineFlow(
     const promptInput = {
       ...input,
       finalScoresArray,
+      isDetailBeknopt: input.analysisDetailLevel === 'beknopt',
+      isDetailStandaard: input.analysisDetailLevel === 'standaard',
+      isDetailUitgebreid: input.analysisDetailLevel === 'uitgebreid',
     };
 
     const { output } = await prompt(promptInput);
