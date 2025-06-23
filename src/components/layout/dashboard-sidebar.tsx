@@ -20,7 +20,6 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
   SidebarSeparator
 } from '@/components/ui/sidebar';
@@ -170,6 +169,7 @@ const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, isSubItem: true, parent: '#platform-parent' },
+      { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, isSubItem: true, parent: '#platform-parent' },
       { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, isSubItem: true, parent: '#platform-parent' },
       { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '#platform-parent' },
     ]
