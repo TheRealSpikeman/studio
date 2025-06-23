@@ -31,7 +31,7 @@ import {
   Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarClock
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarClock, GraduationCap
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment, useMemo } from 'react';
@@ -54,6 +54,7 @@ interface NavItem {
   ouderOnly?: boolean;
   sectionTitle?: string;
   children?: NavItem[];
+  parent?: string; // Used to identify parent for active state
   isOuderOnboardingLink?: boolean; 
 }
 
