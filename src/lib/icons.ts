@@ -2,32 +2,37 @@
 // This central icon registry resolves all import problems.
 
 export {
-  // === NAVIGATION BASICS ===
-  ChevronDown,
-  ChevronRight,
-  ChevronLeft,
-  ChevronUp,
+  // === LAYOUT & NAVIGATION ===
+  LayoutDashboard,
   Home,
   Menu,
-  X,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ArrowRight,
+  ArrowLeft,
+  ExternalLink,
+  Link2,
   Shuffle,
+  X,
   
-  // === MAIN CATEGORIES ===
-  BookOpen,        
+  // === MAIN CATEGORIES & ICONS ===
   BookOpenCheck,
-  BookHeart,
   BookUser,
-  Brain,           
-  Users,           
-  Settings,        
-  Cog,
+  BookHeart,
+  Brain,
+  Users,
+  Settings,
   Briefcase,
   ListChecks,
   TrendingUp,
   Euro,
   FileBarChart,
+  BarChartHorizontal,
   Package,
   Wrench,
+  MessageCircleQuestion,
   
   // === TIME & SCHEDULING ===
   Calendar,
@@ -38,35 +43,38 @@ export {
   Timer,
   
   // === CONTENT & FILES ===
+  ClipboardList,
   FileText,
   FileEdit,
   FilePlus,
-  BarChartHorizontal,
   
   // === USER MANAGEMENT ===
   User,
-  UserPlus,
   UserCheck,
-  UserX,
   GraduationCap,
-  HeartHandshake,
   
   // === SECURITY & PRIVACY ===
   ShieldCheck,
-  Lock,
-  Eye,
-  EyeOff,
   
   // === COMMUNICATION ===
   MessageSquare,
-  MessageCircleQuestion,
+  MessagesSquare,
   
-  // === AI & BOTS ===
+  // === ACTIONS ===
+  PlayCircle,
+
+  // === TECHNICAL ===
   Bot,
-  Sparkles,
-  
-  // === OTHER ===
-  Link2,
   GitBranch,
+  Zap,
+  
+  // === WELLBEING & HEALTH ===
+  HeartHandshake,
+
+  // === HELP & SUPPORT ===
+  HelpCircle,
+  
+  // === BUSINESS/PAYMENT ===
+  CreditCard,
   
 } from 'lucide-react';

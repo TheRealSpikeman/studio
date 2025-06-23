@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { useState, useEffect, Fragment, useMemo } from 'react';
 import { 
-  LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
-  Users, BookOpenCheck, Briefcase, Euro, FileBarChart, ListChecks, FilePlus, 
+  LayoutDashboard, ClipboardList, MessageSquare, User, Settings, 
+  Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, FileBarChart, ListChecks, FilePlus, 
   BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
   HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 
@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/leerling/welcome', label: 'Welkom!', icon: PlayCircle, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
-  { href: '/dashboard/results', label: 'Mijn Resultaten', icon: BarChart3, leerlingOnly: true },
+  { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   {
     href: '#coaching-tools-parent',
     label: 'Coaching & Tools',
@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
-  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Users, ouderOnly: true },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true },
   { 
     href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
@@ -91,7 +91,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true },
   { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true },
-  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: Users, tutorOnly: true },
+  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true },
 
   // Coach specific section
   { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "COACH PORTAAL" },
@@ -104,10 +104,10 @@ const navItems: NavItem[] = [
   {
     href: '#user-management-parent',
     label: 'Gebruikersbeheer',
-    icon: Users,
+    icon: UsersIconLucide,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: Users, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, parent: '#user-management-parent' },
       { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, parent: '#user-management-parent' },
       { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, parent: '#user-management-parent' },
     ]
@@ -164,7 +164,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: Users, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
     ]
   },
