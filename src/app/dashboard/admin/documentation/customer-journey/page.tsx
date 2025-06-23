@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/customer-journey/page.tsx
 "use client";
 
