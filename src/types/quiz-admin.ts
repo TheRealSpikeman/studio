@@ -51,4 +51,5 @@ export interface QuizAdmin {
   createdAt: string; // ISO date string
   analysisDetailLevel?: AnalysisDetailLevel; // Nieuw
   analysisInstructions?: string; // Nieuw: Admin-specifieke instructies voor de AI-analyse
+  showRecommendedTools?: boolean; // Nieuw
 }

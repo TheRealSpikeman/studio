@@ -34,6 +34,7 @@ async function fetchQuizData(id: string): Promise<(QuizFormData & {id: string}) 
               thumbnailUrl: quiz.thumbnailUrl || "",
               analysisDetailLevel: quiz.analysisDetailLevel || 'standaard',
               analysisInstructions: quiz.analysisInstructions || "",
+              showRecommendedTools: quiz.showRecommendedTools ?? true, // Add this
             };
         }
     }
@@ -82,6 +83,7 @@ export default function EditQuizPage() {
       thumbnailUrl: data.thumbnailUrl,
       analysisDetailLevel: data.analysisDetailLevel,
       analysisInstructions: data.analysisInstructions,
+      showRecommendedTools: data.showRecommendedTools, // Add this
       lastUpdatedAt: new Date().toISOString(),
     };
     

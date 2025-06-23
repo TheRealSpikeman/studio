@@ -148,6 +148,18 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
+                            <Label htmlFor="showRecommendedToolsSwitch" className="flex items-center justify-between text-base">
+                                <span>Toon Aanbevolen Tools</span>
+                                <Switch id="showRecommendedToolsSwitch" checked={settings.showRecommendedTools ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'showRecommendedTools'], val)} />
+                            </Label>
+                             <CardDescription>
+                                Toon na afloop van de quiz een sectie met aanbevolen tools op basis van de scores.
+                            </CardDescription>
+                        </CardHeader>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="pb-4">
                             <Label htmlFor="coachIntegrationSwitch" className="flex items-center justify-between text-base">
                                 <span>Coach Marketplace Integratie</span>
                                 <Switch id="coachIntegrationSwitch" checked={settings.coachIntegration?.enabled ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'coachIntegration', 'enabled'], val)} />

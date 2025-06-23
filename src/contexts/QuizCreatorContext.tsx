@@ -42,6 +42,7 @@ export type QuizCreationState = {
     contentModeration?: {
       required: boolean;
     };
+    showRecommendedTools?: boolean; // New setting
   };
 
   // Step 5 (was 4)
@@ -91,6 +92,7 @@ const initialQuizData: QuizCreationState = {
         contentModeration: {
             required: true,
         },
+        showRecommendedTools: true,
     },
 };
 

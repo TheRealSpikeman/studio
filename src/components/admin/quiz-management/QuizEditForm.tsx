@@ -19,6 +19,7 @@ import type { QuizAudience, QuizCategory, QuizStatusAdmin, AnalysisDetailLevel }
 import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 
 // Re-defining options here for self-containment
 const audienceOptions: { id: QuizAudience; label: string }[] = [
@@ -63,6 +64,7 @@ const quizFormSchema = z.object({
   thumbnailUrl: z.string().url("Ongeldige URL.").optional().or(z.literal('')),
   analysisDetailLevel: z.enum(['beknopt', 'standaard', 'uitgebreid']).optional(),
   analysisInstructions: z.string().optional(),
+  showRecommendedTools: z.boolean().optional(),
 });
 
 export type QuizFormData = z.infer<typeof quizFormSchema>;
@@ -136,7 +138,7 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Accordion type="multiple" className="w-full space-y-4">
+          <Accordion type="multiple" defaultValue={['item-1', 'item-2']} className="w-full space-y-4">
 
             <AccordionItem value="item-1" className="border rounded-lg bg-card shadow-sm">
               <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">Algemene Informatie</AccordionTrigger>
@@ -220,6 +222,32 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
                         </Card>
                     ))}
                     <Button type="button" variant="outline" onClick={() => appendSubtest({ subtestId: '', threshold: 2.5 })}><PlusCircle className="h-4 w-4 mr-2"/> Subtest Regel Toevoegen</Button>
+                </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-7" className="border rounded-lg bg-card shadow-sm">
+                <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">Resultaatpagina Instellingen</AccordionTrigger>
+                <AccordionContent className="p-4 border-t space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="showRecommendedTools"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Toon Aanbevolen Tools</FormLabel>
+                                    <FormDescription>
+                                        Toon een sectie met aanbevolen tools na het voltooien van deze quiz.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                 </AccordionContent>
             </AccordionItem>
 
