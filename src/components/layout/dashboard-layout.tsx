@@ -3,7 +3,7 @@
 "use client";
 
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
-import React, { ReactNode, useEffect, useState, useRef } from 'react';
+import React, { ReactNode, useEffect } from 'react'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -11,7 +11,7 @@ import { LogOut, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
   leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
@@ -21,9 +21,10 @@ const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; 
   admin: { name: "Adam Admin", email: "adam.admin@example.com", avatarSeed: "adam-admin" },
 };
 
+
 function DashboardHeader() {
   const { currentDashboardRole } = useDashboardRole(); 
-  const currentUser = roleSpecificUserData[currentDashboardRole] || roleSpecificUserData.leerling; // Fallback to leerling if role undefined
+  const currentUser = roleSpecificUserData[currentDashboardRole] || roleSpecificUserData.leerling; 
 
   const userName = currentUser.name;
   const userEmail = currentUser.email;
@@ -33,7 +34,7 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <SidebarTrigger className="mr-2 md:hidden" /> {/* Alleen op mobiel, sidebar wordt niet meer door header getoggled op desktop */}
+      <SidebarTrigger className="mr-2" /> 
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
@@ -134,8 +135,8 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
           '/dashboard/homework-assistance', 
           '/dashboard/community',
           '/dashboard/leerling/lessons',
-          '/dashboard/leerling/quizzes', // Expliciet toestaan
-          '/dashboard/leerling/welcome' // Expliciet toestaan
+          '/dashboard/leerling/quizzes',
+          '/dashboard/leerling/welcome'
         ];
         const isPathAllowedForLeerling = 
           pathname === '/dashboard' || 
@@ -165,16 +166,18 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <DashboardRoleProvider>
-        <div className="flex min-h-screen w-full">
-          <DashboardSidebar />
-          <div className="flex flex-1 flex-col md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-[margin-left] duration-300 ease-in-out"> {/* Updated md:pl for icon width */}
-            <DashboardHeader /> 
-            <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
-              <DashboardContentWrapper>{children}</DashboardContentWrapper>
-            </main>
+    <SidebarProvider>
+      <DashboardRoleProvider>
+          <div className="flex min-h-screen w-full">
+            <DashboardSidebar />
+            <div className="flex flex-1 flex-col">
+              <DashboardHeader /> 
+              <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
+                <DashboardContentWrapper>{children}</DashboardContentWrapper>
+              </main>
+            </div>
           </div>
-        </div>
-    </DashboardRoleProvider>
+      </DashboardRoleProvider>
+    </SidebarProvider>
   );
 }
