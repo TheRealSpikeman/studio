@@ -6,31 +6,43 @@ import React, { ReactNode, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, Menu as MenuIcon } from 'lucide-react'; 
+import { LogOut, UserCircle } from 'lucide-react'; 
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'; // Import Sidebar components
+import { SidebarTrigger } from '@/components/ui/sidebar';
+
+const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
+  leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
+  ouder: { name: "Olivia Ouder", email: "olivia.ouder@example.com", avatarSeed: "olivia-ouder" },
+  tutor: { name: "Thomas Tutor", email: "thomas.tutor@example.com", avatarSeed: "thomas-tutor" },
+  coach: { name: "Carla Coach", email: "carla.coach@example.com", avatarSeed: "carla-coach" },
+  admin: { name: "Adam Admin", email: "adam.admin@example.com", avatarSeed: "adam-admin" },
+};
+
 
 function DashboardHeader() {
   const { currentDashboardRole } = useDashboardRole(); 
-  const userName = "Alex";
-  const userEmail = "alex.tester@example.com";
-  const userAvatarUrl = "https://picsum.photos/seed/alex-avatar/40/40";
+  const currentUser = roleSpecificUserData[currentDashboardRole] || roleSpecificUserData.leerling; 
+
+  const userName = currentUser.name;
+  const userEmail = currentUser.email;
+  const userAvatarUrl = `https://picsum.photos/seed/${currentUser.avatarSeed}/40/40`;
+
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <SidebarTrigger className="mr-2" /> 
+      <SidebarTrigger className="mr-2 md:hidden" /> 
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
       </div>
       
       <div className="flex items-center gap-4">
-        <div className="hidden sm:flex sm:flex-col sm:items-end">
+        <div className="flex flex-col items-end">
             <p className="text-sm font-medium">Welkom, {userName}!</p>
-            <p className="text-xs text-muted-foreground">{userEmail} (Rol: {currentDashboardRole})</p>
+            <p className="text-xs text-muted-foreground">{userEmail} (Actieve rol: {currentDashboardRole})</p>
         </div>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -154,17 +166,15 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <DashboardRoleProvider>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full"> 
+        <div className="flex min-h-screen w-full">
           <DashboardSidebar />
-          <SidebarInset className="flex flex-1 flex-col"> 
+          <div className="flex flex-1 flex-col md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-[margin-left] duration-300 ease-in-out">
             <DashboardHeader /> 
-            <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 bg-secondary/30">
+            <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
               <DashboardContentWrapper>{children}</DashboardContentWrapper>
             </main>
-          </SidebarInset>
+          </div>
         </div>
-      </SidebarProvider>
     </DashboardRoleProvider>
   );
 }

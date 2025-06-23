@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -265,147 +264,97 @@ function SidebarNavigationContent() {
       <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
         <SidebarMenu>
           {navItems.map((item, index) => {
-            let showItem = false;
-            // Centralized logic for disabling links during onboarding
-            let itemIsDisabled = false;
-            if (currentDashboardRole === 'leerling' && isLeerlingOnboardingPending) {
-              const allowedLinksOnLeerlingWelcome = ['/dashboard/leerling/welcome', '/dashboard/leerling/quizzes', '/dashboard/profile'];
-              itemIsDisabled = !allowedLinksOnLeerlingWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnLeerlingWelcome.includes(child.href));
-            } else if (currentDashboardRole === 'ouder' && isOuderOnboardingPending) {
-              const allowedLinksOnOuderWelcome = ['/dashboard/ouder/welcome', '/dashboard/profile'];
-              itemIsDisabled = !allowedLinksOnOuderWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnOuderWelcome.includes(child.href));
+            
+            const roleFlags = {
+              admin: !!item.adminOnly,
+              tutor: !!item.tutorOnly,
+              coach: !!item.coachOnly,
+              leerling: !!item.leerlingOnly,
+              ouder: !!item.ouderOnly,
+            };
+
+            const isForCurrentRole = (role: UserRoleType) => {
+                const hasNoSpecificRole = !roleFlags.admin && !roleFlags.tutor && !roleFlags.coach && !roleFlags.leerling && !roleFlags.ouder;
+                return hasNoSpecificRole || roleFlags[role];
+            };
+
+            if (!isForCurrentRole(currentDashboardRole)) {
+                return null;
             }
 
-
-            if (currentDashboardRole === 'admin') {
-              showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
-            } else if (currentDashboardRole === 'tutor') {
-              showItem = (!!item.tutorOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
-            } else if (currentDashboardRole === 'coach') {
-              showItem = (!!item.coachOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.leerlingOnly && !item.ouderOnly && !item.tutorOnly && !item.isOuderOnboardingLink;
-            } else if (currentDashboardRole === 'leerling') {
-              if (item.href === '/dashboard/community') {
-                showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
-              } else {
-                showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
-              }
-              if (item.href === '/dashboard/leerling/welcome') {
-                  showItem = isLeerlingOnboardingPending;
-              } else if (isLeerlingOnboardingPending) {
-                 // only show welcome and profile links during onboarding
-                 if (item.href !== '/dashboard/profile') showItem = false;
-              }
-            } else if (currentDashboardRole === 'ouder') {
-              if (item.isOuderOnboardingLink) {
-                showItem = isOuderOnboardingPending; 
-              } else {
-                showItem = (!!item.ouderOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
-              }
-            }
-
-
-            if (!showItem) return null;
+            // Handle special visibility cases
+            if (currentDashboardRole === 'ouder' && item.isOuderOnboardingLink !== isOuderOnboardingPending) return null;
+            if (currentDashboardRole === 'ouder' && !item.isOuderOnboardingLink && isOuderOnboardingPending) return null;
+            if (currentDashboardRole === 'leerling' && item.href === '/dashboard/leerling/welcome' && !isLeerlingOnboardingPending) return null;
+            if (currentDashboardRole === 'leerling' && item.href !== '/dashboard/leerling/welcome' && item.href !== '/dashboard/profile' && isLeerlingOnboardingPending) return null;
+            if (currentDashboardRole === 'leerling' && item.href === '/dashboard/community' && !showCommunityNavItemForLeerling) return null;
             
             let renderSectionHeader = false;
-            if (item.sectionTitle) { 
-                if (item.sectionTitle !== currentSectionTitleDisplayed) { 
-                    if (currentDashboardRole === 'admin' && item.sectionTitle === "ADMIN DASHBOARD") {
-                        renderSectionHeader = true;
-                    } else if (currentDashboardRole === 'tutor' && item.sectionTitle === "TUTOR PORTAAL") {
-                        renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'coach' && item.sectionTitle === "COACH PORTAAL") {
-                        renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL" && !isOuderOnboardingPending) {
-                        renderSectionHeader = true;
-                    } else if (currentDashboardRole === 'leerling' && !isLeerlingOnboardingPending) {
-                         if (item.sectionTitle === "Leerling Portaal") {
-                            renderSectionHeader = true; 
-                        }
-                    }
-                    if(renderSectionHeader) {
-                      currentSectionTitleDisplayed = item.sectionTitle;
-                    }
-                }
+            if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) { 
+                renderSectionHeader = true;
+                currentSectionTitleDisplayed = item.sectionTitle;
             }
             
-            // New, simplified logic for active/expanded state
-            const visibleChildren = item.children?.filter(child => {
-                if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
-                if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
-                if (currentDashboardRole === 'coach') return (!!child.coachOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.tutorOnly;
-                if (currentDashboardRole === 'leerling') return (!!child.leerlingOnly || child.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly;
-                if (currentDashboardRole === 'ouder') return (!!child.ouderOnly || child.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.leerlingOnly && !item.coachOnly;
-                return false;
-            }) || [];
-
-            const isParentDirectlyActive = pathname === item.href;
-            const hasActiveChild = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== '/');
-            const isChildExactMatch = visibleChildren.some(child => child.href === pathname);
-            
-            const isParentExpanded = hasActiveChild;
-            const isParentHighlighted = isParentDirectlyActive && !isChildExactMatch;
-
-
-            if (item.href === '/dashboard' && isLeerlingOnboardingPending) return null; // Hide main dashboard link for onboarding leerling
+            const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
+            const isParentExpanded = visibleChildren.some(child => pathname.startsWith(child.href));
+            const isParentActive = pathname === item.href && visibleChildren.length === 0;
 
             return (
               <Fragment key={`${item.href}-${index}`}>
-                {renderSectionHeader && item.sectionTitle && (
+                {renderSectionHeader && (
                     <SidebarGroup className="pt-3 pb-1 group-data-[collapsible=icon]:hidden">
                         <SidebarGroupLabel>{item.sectionTitle}</SidebarGroupLabel>
                     </SidebarGroup>
                 )}
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending) || (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending)} 
-                    tooltip={item.label}
-                    disabled={itemIsDisabled}
-                    className={cn(
-                        (item.isOuderOnboardingLink && isOuderOnboardingPending && 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse'),
-                        (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending && 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse')
-                    )}
-                  >
-                    <Link href={itemIsDisabled ? '#' : item.href} aria-disabled={itemIsDisabled} className={itemIsDisabled ? 'pointer-events-none opacity-50' : ''}>
-                      <item.icon />
-                      <span className="group-data-[collapsible=icon]:hidden flex-grow">
-                        {item.label}
-                      </span>
-                       {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && !itemIsDisabled && (
-                        <span
-                          title="Facturatie actie vereist"
-                          className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden"
-                        />
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                  {(item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && !itemIsDisabled) && (
-                    <SidebarMenuBadge title="Nieuwe berichten"></SidebarMenuBadge>
-                  )}
-                </SidebarMenuItem>
 
-                {isParentExpanded && item.children && visibleChildren.length > 0 && !itemIsDisabled && (
-                  <SidebarMenuSub>
-                    {visibleChildren.map((child, childIndex) => {
-                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
-                       const childIsDisabled = (currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile') || (currentDashboardRole === 'leerling' && isLeerlingOnboardingPending && child.href !== '/dashboard/profile');
-                      return (
-                        <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
-                          <SidebarMenuSubButton 
-                            asChild 
-                            isActive={isChildActive}
-                            disabled={childIsDisabled}
-                           >
-                            <Link href={childIsDisabled ? '#' : child.href} aria-disabled={childIsDisabled} className={childIsDisabled ? 'pointer-events-none opacity-50' : ''}>
-                              <child.icon />
-                              {child.label}
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      );
-                    })}
-                  </SidebarMenuSub>
+                {item.children && visibleChildren.length > 0 ? (
+                  // Render parent item with children (sub-menu)
+                   <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        isActive={isParentExpanded} 
+                        tooltip={item.label}
+                      >
+                        <item.icon />
+                        <span className="group-data-[collapsible=icon]:hidden flex-grow">
+                          {item.label}
+                        </span>
+                      </SidebarMenuButton>
+                      <SidebarMenuSub>
+                          {visibleChildren.map((child, childIndex) => (
+                              <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
+                                <SidebarMenuSubButton 
+                                  asChild 
+                                  isActive={pathname === child.href}
+                                >
+                                  <Link href={child.href}>
+                                    <child.icon />
+                                    {child.label}
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                          ))}
+                      </SidebarMenuSub>
+                   </SidebarMenuItem>
+                ) : (
+                  // Render regular item
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isParentActive} tooltip={item.label}>
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span className="group-data-[collapsible=icon]:hidden flex-grow">
+                          {item.label}
+                        </span>
+                         {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
+                          <span title="Facturatie actie vereist" className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden" />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                    {item.href === '/dashboard/ouder/berichten' && currentDashboardRole === 'ouder' && hasUnreadMessages && (
+                      <SidebarMenuBadge title="Nieuwe berichten" />
+                    )}
+                  </SidebarMenuItem>
                 )}
+
               </Fragment>
             );
           })}

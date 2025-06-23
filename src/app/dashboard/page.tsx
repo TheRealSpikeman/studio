@@ -5,14 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from 'lucide-react';
-import { useDashboardRole } from '@/contexts/DashboardRoleContext'; 
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react'; // Added useState
-import { useRouter } from 'next/navigation'; // Added useRouter
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import AdminDashboardOverviewPage from './admin/page'; 
-import TutorDashboardPage from './tutor/page';
-import OuderDashboardPage from './ouder/page';
+// This component is now dedicated to the "Leerling" (student) role.
+// The main layout handles routing to the correct dashboard based on role.
 
 const currentUserData = { 
   name: "Alex", 
@@ -80,7 +78,7 @@ const leerlingDashboardItems: DashboardActionItem[] = [
 
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
 
-function LeerlingDashboardContent() {
+export default function DashboardPage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
@@ -98,15 +96,14 @@ function LeerlingDashboardContent() {
   }, [isClient, router]);
   
   if (isClient && typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_LEERLING)) {
-    // Return null or a loading indicator while redirecting to prevent flash of content
     return <div className="flex h-full w-full items-center justify-center p-8">Welkomstpagina laden...</div>;
   }
 
 
   return (
     <div className="space-y-8">
-      <section className="pt-10 md:pt-0"> {/* Adjusted top padding for container instruction */}
-        <h1 className="text-3xl font-extrabold text-foreground">
+      <section>
+        <h1 className="text-3xl font-bold text-foreground">
           Welkom terug, <span className="text-primary">{currentUserData.name}</span>!
         </h1>
         <p className="text-lg text-muted-foreground">Klaar om meer over jezelf te ontdekken en te groeien?</p>
@@ -118,24 +115,24 @@ function LeerlingDashboardContent() {
             <Card 
                 key={item.id} 
                 className={cn(
-                    "group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full min-h-72", // min-h-72 for 288px
+                    "group flex flex-col shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-in-out h-full min-h-72",
                     item.colorClass || "bg-card"
                 )}
             >
-              <CardHeader className="p-8 items-center text-center"> {/* Centered icon and title */}
+              <CardHeader className="items-center text-center">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 mb-5">
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle className="text-2xl font-bold leading-tight">{item.title}</CardTitle>
               </CardHeader>
-              <CardContent className="p-8 pt-0 text-center flex-grow">
+              <CardContent className="pt-0 text-center flex-grow">
                 <p className="text-base font-normal leading-relaxed">{item.description}</p>
               </CardContent>
-              <CardFooter className="p-8 pt-6 mt-auto"> {/* mt-auto to push footer down */}
+              <CardFooter className="pt-6 mt-auto">
                 <Button 
                   asChild 
                   variant={item.buttonVariant} 
-                  className="w-full h-12 py-3 px-6 rounded-lg font-semibold" // Specific height, padding, border-radius, font-weight
+                  className="w-full h-12 py-3 px-6 rounded-lg font-semibold"
                 >
                   <Link href={item.link}>{item.buttonText}</Link>
                 </Button>
@@ -148,16 +145,16 @@ function LeerlingDashboardContent() {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="lg:col-span-2">
           <Card className="shadow-lg h-full flex flex-col">
-            <CardHeader className="p-8">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-primary">
                 <MessageSquare className="h-6 w-6 text-primary" />
                 {latestCoachingTip.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-8 pt-0 flex-grow">
+            <CardContent className="flex-grow">
               <p className="text-muted-foreground">{latestCoachingTip.message}</p>
             </CardContent>
-            <CardFooter className="p-8 pt-6 flex flex-col sm:flex-row gap-2 mt-auto">
+            <CardFooter className="flex flex-col sm:flex-row gap-2 mt-auto">
                 <Button asChild className="flex-1 h-12 py-3 px-6 rounded-lg font-semibold" variant="default">
                     <Link href="/dashboard/coaching">Naar Coaching Hub</Link>
                 </Button>
@@ -170,13 +167,13 @@ function LeerlingDashboardContent() {
         
         <section>
             <Card className="shadow-lg h-full flex flex-col">
-                 <CardHeader className="p-8">
+                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl text-accent">
                         <TrendingUp className="h-6 w-6 text-accent"/>
                         Mijn Voortgang
                     </CardTitle>
                  </CardHeader>
-                 <CardContent className="p-8 pt-0 flex-grow">
+                 <CardContent className="flex-grow">
                     <p className="text-muted-foreground text-sm">
                         Je hebt recent de "Sociale Angst & Vriendschap" quiz voltooid. Goed bezig!
                     </p>
@@ -184,7 +181,7 @@ function LeerlingDashboardContent() {
                         Volgende stap: verdiep je in de coaching tips over communicatiestijlen.
                     </p>
                  </CardContent>
-                 <CardFooter className="p-8 pt-6 mt-auto">
+                 <CardFooter className="mt-auto">
                     <Button variant="outline" asChild className="w-full h-12 py-3 px-6 rounded-lg font-semibold">
                         <Link href="/dashboard/results">Bekijk alle resultaten</Link>
                     </Button>
@@ -194,22 +191,4 @@ function LeerlingDashboardContent() {
       </div>
     </div>
   );
-}
-
-export default function DashboardPage() {
-  const { currentDashboardRole } = useDashboardRole();
-
-  if (currentDashboardRole === 'admin') {
-    return <AdminDashboardOverviewPage />;
-  }
-
-  if (currentDashboardRole === 'tutor') {
-    return <TutorDashboardPage />;
-  }
-
-  if (currentDashboardRole === 'ouder') {
-    return <OuderDashboardPage />; 
-  }
-
-  return <LeerlingDashboardContent />;
 }
