@@ -18,6 +18,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarSeparator,
   useSidebar
 } from '@/components/ui/sidebar';
@@ -211,7 +212,7 @@ function SidebarNavigationContent() {
     const initialOpenState: Record<string, boolean> = {};
     navItems.forEach(item => {
       if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname === child.href || pathname.startsWith(`${child.href}/`));
+        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href));
         if (isParentOfActivePage) {
           initialOpenState[item.href] = true;
         }
@@ -298,7 +299,7 @@ function SidebarNavigationContent() {
             }
             
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentOfActivePage = visibleChildren.some(child => pathname === child.href || pathname.startsWith(`${child.href}/`));
+            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
             const isDirectlyActive = !item.children && pathname === item.href;
             const isOpen = !!openSubMenus[item.href];
 
@@ -342,7 +343,7 @@ function SidebarNavigationContent() {
                    </SidebarMenuItem>
                 ) : (
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isDirectlyActive} tooltip={item.label}>
+                    <SidebarMenuButton asChild isActive={isDirectlyActive || pathname.startsWith(`${item.href}/`)} tooltip={item.label}>
                       <Link href={item.href}>
                         <item.icon />
                         <span className="group-data-[collapsible=icon]:hidden flex-grow">{item.label}</span>
@@ -378,7 +379,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, openMobile, setOpenMobile, state: sidebarState } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
