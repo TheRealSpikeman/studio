@@ -1,4 +1,3 @@
-
 // src/app/dashboard/leerling/quizzes/page.tsx
 "use client"; 
 
@@ -80,7 +79,7 @@ const allAvailableQuizzes: Quiz[] = [
   },
   { 
     id: 'social-anxiety-friendships', 
-    title: 'Sociale Situaties &amp; Vriendschap', 
+    title: 'Sociale Situaties & Vriendschap', 
     description: 'Verken hoe je je voelt in groepen en bij presentaties.', 
     status: 'Nog niet gestart', 
     imageUrl: 'https://placehold.co/400x200.png?text=Sociale+Situaties', 
@@ -133,8 +132,8 @@ function DashboardQuizContent() {
     if (ageGroupFromQuery && (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18')) {
       setCurrentUserAgeGroup(ageGroupFromQuery);
     } else {
-      // Fallback or default if no valid ageGroup in query, e.g., to a common one or 'all'
-      setCurrentUserAgeGroup('15-18'); // Example: default to 15-18 if not specified or invalid
+      // Fallback or default if no valid ageGroup in query
+      setCurrentUserAgeGroup('15-18');
     }
   }, [searchParams]);
 
@@ -151,6 +150,28 @@ function DashboardQuizContent() {
 
   // Simulate intake completion for demo purposes
   const toggleIntakeStatus = () => setNeuroIntakeCompleted(prev => !prev);
+
+  if (!neuroIntakeTest) {
+    return (
+      <div className="space-y-12">
+        <section className="text-center">
+          <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+          <h1 className="text-4xl font-bold text-foreground">
+            Geen Passende Start Quiz Gevonden
+          </h1>
+          <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
+            Helaas konden we geen specifieke start-quiz vinden die past bij jouw leeftijdsgroep ({currentUserAgeGroup}).
+          </p>
+          <p className="mt-4">
+            Dit is waarschijnlijk een fout in de configuratie. Neem alstublieft contact op met support.
+          </p>
+          <Button asChild className="mt-6">
+            <Link href="/dashboard">Terug naar Dashboard</Link>
+          </Button>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">
@@ -176,7 +197,7 @@ function DashboardQuizContent() {
             </Button>
         </div>
 
-        {!neuroIntakeCompleted && neuroIntakeTest && (
+        {!neuroIntakeCompleted && (
             <section>
                 <h2 className="mb-6 text-2xl font-semibold text-foreground text-center">Jouw Start Tool</h2>
                 <div className="flex justify-center">
@@ -218,7 +239,7 @@ function DashboardQuizContent() {
         <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl mb-4">
             Klaar om <span className="text-primary">jezelf beter te leren kennen</span>?
         </h2>
-        {neuroIntakeTest && !neuroIntakeCompleted && (
+        {!neuroIntakeCompleted && (
             <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow">
                 <Link href={neuroIntakeTest.id.startsWith('teen-neurodiversity-quiz') || neuroIntakeTest.id.startsWith('neuro-intake-') ? `/quiz/teen-neurodiversity-quiz?ageGroup=${neuroIntakeTest.ageGroup}` : `/quiz/${neuroIntakeTest.id}`}>
                     Start de Zelfreflectie Tool

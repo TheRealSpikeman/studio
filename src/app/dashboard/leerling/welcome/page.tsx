@@ -35,6 +35,8 @@ export default function LeerlingWelcomePage() {
   const neurodiversityLink = currentUser.ageGroup === '12-14' 
     ? "/features/coaching-en-tools" 
     : "/neurodiversiteit";
+  
+  const startQuizLink = `/quiz/teen-neurodiversity-quiz?ageGroup=${currentUser.ageGroup}`;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -109,7 +111,7 @@ export default function LeerlingWelcomePage() {
               Deze set vragen is speciaal voor jouw leeftijdscategorie ({currentUser.ageGroup} jaar). Er zijn geen goede of foute antwoorden!
             </p>
             <Button size="lg" className="w-full" asChild>
-              <Link href={`/dashboard/leerling/quizzes?ageGroup=${currentUser.ageGroup}`}>
+              <Link href={startQuizLink}>
                 Start de Zelfreflectie Tool Nu <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -117,7 +119,7 @@ export default function LeerlingWelcomePage() {
         </Card>
         
         <div className="flex flex-col items-center gap-3">
-          <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-md">
+          <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-xs sm:max-w-md">
             Ik sla dit over en ga naar mijn (beperkte) dashboard
           </Button>
           <Link href={neurodiversityLink} className="text-xs text-primary hover:underline">
