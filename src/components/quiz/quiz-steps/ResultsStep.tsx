@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, AlertTriangle, RefreshCw, LayoutDashboard, Brain, User, ThumbsUp, Info, HelpCircle, Sparkles, MessageSquareHeart, Edit2Icon, Lightbulb, Compass, ShieldAlert, Zap, Users as UsersIcon, ExternalLink, Rocket } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw, LayoutDashboard, Brain, User, ThumbsUp, Info, HelpCircle, Sparkles, MessageSquareHeart, Edit2Icon, Lightbulb, Compass, ShieldAlert, Zap, Users as UsersIcon, ExternalLink, Rocket, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
