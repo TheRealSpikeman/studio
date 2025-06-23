@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { useState, useEffect, Fragment, useMemo } from 'react';
 import { 
-  LayoutDashboard, ClipboardList, MessageSquare, User, Settings, 
-  Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, FileBarChart, ListChecks, FilePlus, 
+  LayoutDashboard, ClipboardList, FileBarChart, MessageSquare, User, Settings, 
+  Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
   BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
   HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 

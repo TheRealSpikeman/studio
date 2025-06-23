@@ -18,13 +18,14 @@ export {
   X,
   
   // === MAIN CATEGORIES & ICONS ===
+  BookOpen,
   BookOpenCheck,
   BookUser,
   BookHeart,
   Brain,
   Users,
-  Settings,
   Briefcase,
+  Settings,
   ListChecks,
   TrendingUp,
   Euro,
