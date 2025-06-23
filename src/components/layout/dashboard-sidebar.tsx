@@ -327,9 +327,8 @@ function SidebarNavigationContent() {
                     }
                 }
             }
-
-            const isItemDirectlyActive = pathname === item.href;
             
+            // New, simplified logic for active/expanded state
             const visibleChildren = item.children?.filter(child => {
                 if (currentDashboardRole === 'admin') return !child.tutorOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
                 if (currentDashboardRole === 'tutor') return (!!child.tutorOnly || child.href === '/dashboard/profile') && !child.adminOnly && !child.leerlingOnly && !child.ouderOnly && !child.coachOnly;
@@ -339,29 +338,14 @@ function SidebarNavigationContent() {
                 return false;
             }) || [];
 
-            let isParentExpanded = isItemDirectlyActive || visibleChildren.some(child => child.href !== '/' && pathname.startsWith(child.href));
+            const isParentDirectlyActive = pathname === item.href;
+            const hasActiveChild = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== '/');
+            const isChildExactMatch = visibleChildren.some(child => child.href === pathname);
+            
+            const isParentExpanded = hasActiveChild;
+            const isParentHighlighted = isParentDirectlyActive && !isChildExactMatch;
 
-            let isParentHighlighted = false;
-            if (isItemDirectlyActive) {
-                 const childWithIdenticalHrefIsActive = visibleChildren.some(child => child.href === item.href && child.href === pathname);
-                 if (!childWithIdenticalHrefIsActive) {
-                     isParentHighlighted = true;
-                 }
-            } else if (item.children && visibleChildren.length > 0 && isParentExpanded) {
-                const noChildIsMoreSpecificOrExactMatch = !visibleChildren.some(child =>
-                    child.href === pathname || 
-                    (child.href !== item.href && pathname.startsWith(child.href)) 
-                );
-                if (pathname.startsWith(item.href) && item.href !== '/' && noChildIsMoreSpecificOrExactMatch && item.href !== '/dashboard/ouder/lessen/overzicht') {
-                    isParentHighlighted = true;
-                }
-            }
-            if (item.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht' && !item.isSubItem) {
-               isParentHighlighted = true;
-            }
-             if (item.label === "Mijn Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
-              isParentHighlighted = true;
-            }
+
             if (item.href === '/dashboard' && isLeerlingOnboardingPending) return null; // Hide main dashboard link for onboarding leerling
 
             return (
@@ -374,7 +358,7 @@ function SidebarNavigationContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={(isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending) || (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending)) && !item.isSubItem} 
+                    isActive={isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending) || (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending)} 
                     tooltip={item.label}
                     disabled={itemIsDisabled}
                     className={cn(
@@ -403,14 +387,13 @@ function SidebarNavigationContent() {
                 {isParentExpanded && item.children && visibleChildren.length > 0 && !itemIsDisabled && (
                   <SidebarMenuSub>
                     {visibleChildren.map((child, childIndex) => {
-                      const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
-                       const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
+                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href));
                        const childIsDisabled = (currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile') || (currentDashboardRole === 'leerling' && isLeerlingOnboardingPending && child.href !== '/dashboard/profile');
                       return (
                         <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
                           <SidebarMenuSubButton 
                             asChild 
-                            isActive={isChildActive || isExactLessenOverzichtActive}
+                            isActive={isChildActive}
                             disabled={childIsDisabled}
                            >
                             <Link href={childIsDisabled ? '#' : child.href} aria-disabled={childIsDisabled} className={childIsDisabled ? 'pointer-events-none opacity-50' : ''}>
