@@ -38,7 +38,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 
-const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1'; 
+const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
+const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
 
 interface NavItem {
   href: string;
@@ -58,7 +59,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   // Leerling Items
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
+  { href: '/dashboard/leerling/welcome', label: 'Welkom!', icon: PlayCircle, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Mijn Resultaten', icon: BarChart3, leerlingOnly: true },
   {
@@ -175,11 +177,12 @@ function SidebarNavigationContent() {
   const [hasBillingAction, setHasBillingAction] = useState(true); 
   const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
   const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true); 
+  const [isLeerlingOnboardingPending, setIsLeerlingOnboardingPending] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true';
-        setIsOuderOnboardingPending(!onboardingCompleted);
+        setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
+        setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
 
         if (currentDashboardRole === 'leerling') {
             const communityAccessAllowed = JSON.parse(localStorage.getItem(`privacySettings_child1_allowCommunityAccess`) ?? 'true');
@@ -240,6 +243,17 @@ function SidebarNavigationContent() {
         <SidebarMenu>
           {navItems.map((item, index) => {
             let showItem = false;
+            // Centralized logic for disabling links during onboarding
+            let itemIsDisabled = false;
+            if (currentDashboardRole === 'leerling' && isLeerlingOnboardingPending) {
+              const allowedLinksOnLeerlingWelcome = ['/dashboard/leerling/welcome', '/dashboard/leerling/quizzes', '/dashboard/profile'];
+              itemIsDisabled = !allowedLinksOnLeerlingWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnLeerlingWelcome.includes(child.href));
+            } else if (currentDashboardRole === 'ouder' && isOuderOnboardingPending) {
+              const allowedLinksOnOuderWelcome = ['/dashboard/ouder/welcome', '/dashboard/profile'];
+              itemIsDisabled = !allowedLinksOnOuderWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnOuderWelcome.includes(child.href));
+            }
+
+
             if (currentDashboardRole === 'admin') {
               showItem = !item.tutorOnly && !item.leerlingOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
             } else if (currentDashboardRole === 'tutor') {
@@ -251,6 +265,12 @@ function SidebarNavigationContent() {
                 showItem = !!item.leerlingOnly && showCommunityNavItemForLeerling && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
               } else {
                 showItem = (!!item.leerlingOnly || item.href === '/dashboard/profile') && !item.adminOnly && !item.tutorOnly && !item.ouderOnly && !item.coachOnly && !item.isOuderOnboardingLink;
+              }
+              if (item.href === '/dashboard/leerling/welcome') {
+                  showItem = isLeerlingOnboardingPending;
+              } else if (isLeerlingOnboardingPending) {
+                 // only show welcome and profile links during onboarding
+                 if (item.href !== '/dashboard/profile') showItem = false;
               }
             } else if (currentDashboardRole === 'ouder') {
               if (item.isOuderOnboardingLink) {
@@ -272,10 +292,10 @@ function SidebarNavigationContent() {
                         renderSectionHeader = true; 
                     } else if (currentDashboardRole === 'coach' && item.sectionTitle === "COACH PORTAAL") {
                         renderSectionHeader = true; 
-                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL") {
+                    } else if (currentDashboardRole === 'ouder' && item.sectionTitle === "OUDER PORTAAL" && !isOuderOnboardingPending) {
                         renderSectionHeader = true;
-                    } else if (currentDashboardRole === 'leerling') {
-                         if (item.sectionTitle !== "ADMIN DASHBOARD" && item.sectionTitle !== "TUTOR PORTAAL" && item.sectionTitle !== "OUDER PORTAAL" && item.sectionTitle !== "COACH PORTAAL") {
+                    } else if (currentDashboardRole === 'leerling' && !isLeerlingOnboardingPending) {
+                         if (item.sectionTitle === "Leerling Portaal") {
                             renderSectionHeader = true; 
                         }
                     }
@@ -324,20 +344,7 @@ function SidebarNavigationContent() {
              if (item.label === "Mijn Kinderen" && pathname.startsWith("/dashboard/ouder/kinderen/") && pathname !== "/dashboard/ouder/kinderen") {
               isParentHighlighted = true;
             }
-
-            // Centralized logic for disabling links during onboarding
-            const isLeerlingOnWelcome = currentDashboardRole === 'leerling' && pathname === '/dashboard/leerling/welcome';
-            const isOuderOnWelcome = currentDashboardRole === 'ouder' && isOuderOnboardingPending;
-            const allowedLinksOnLeerlingWelcome = ['/dashboard/leerling/welcome', '/dashboard/leerling/quizzes', '/dashboard/profile'];
-            const allowedLinksOnOuderWelcome = ['/dashboard/ouder/welcome', '/dashboard/profile'];
-            
-            let itemIsDisabled = false;
-            if (isLeerlingOnWelcome) {
-              itemIsDisabled = !allowedLinksOnLeerlingWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnLeerlingWelcome.includes(child.href));
-            } else if (isOuderOnWelcome) {
-              itemIsDisabled = !allowedLinksOnOuderWelcome.includes(item.href) && !item.children?.some(child => allowedLinksOnOuderWelcome.includes(child.href));
-            }
-
+            if (item.href === '/dashboard' && isLeerlingOnboardingPending) return null; // Hide main dashboard link for onboarding leerling
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -349,11 +356,12 @@ function SidebarNavigationContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={(isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending)) && !item.isSubItem} 
+                    isActive={(isParentHighlighted || (item.isOuderOnboardingLink && isOuderOnboardingPending) || (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending)) && !item.isSubItem} 
                     tooltip={item.label}
                     disabled={itemIsDisabled}
                     className={cn(
-                        item.isOuderOnboardingLink && isOuderOnboardingPending && "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse"
+                        (item.isOuderOnboardingLink && isOuderOnboardingPending && 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse'),
+                        (item.href === '/dashboard/leerling/welcome' && isLeerlingOnboardingPending && 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 font-semibold animate-pulse')
                     )}
                   >
                     <Link href={itemIsDisabled ? '#' : item.href} aria-disabled={itemIsDisabled} className={itemIsDisabled ? 'pointer-events-none opacity-50' : ''}>
@@ -379,7 +387,7 @@ function SidebarNavigationContent() {
                     {visibleChildren.map((child, childIndex) => {
                       const isChildActive = pathname === child.href || (child.href !== '/' && child.href !== item.href && pathname.startsWith(child.href) && child.href !== '/dashboard/ouder/lessen/overzicht');
                        const isExactLessenOverzichtActive = child.href === '/dashboard/ouder/lessen/overzicht' && pathname === '/dashboard/ouder/lessen/overzicht';
-                       const childIsDisabled = currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile';
+                       const childIsDisabled = (currentDashboardRole === 'ouder' && isOuderOnboardingPending && child.href !== '/dashboard/profile') || (currentDashboardRole === 'leerling' && isLeerlingOnboardingPending && child.href !== '/dashboard/profile');
                       return (
                         <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
                           <SidebarMenuSubButton 
