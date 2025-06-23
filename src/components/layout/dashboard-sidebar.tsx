@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -224,7 +225,7 @@ function SidebarNavigationContent() {
     const initialOpenState: Record<string, boolean> = {};
     navItems.forEach(item => {
       if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href.startsWith('#'));
+        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href));
         if (isParentOfActivePage) {
           initialOpenState[item.href] = true;
         }
@@ -232,6 +233,7 @@ function SidebarNavigationContent() {
     });
     setOpenSubMenus(initialOpenState);
   }, [pathname]);
+
 
   const toggleSubMenu = (href: string) => {
     setOpenSubMenus(prev => ({ ...prev, [href]: !prev[href] }));
@@ -318,9 +320,9 @@ function SidebarNavigationContent() {
             }
             
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href.startsWith('#'));
+            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
             const isDirectlyActive = !item.children && pathname === item.href;
-            const isOpen = openSubMenus[item.href] === true;
+            const isOpen = openSubMenus[item.href] || isParentOfActivePage;
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -335,7 +337,7 @@ function SidebarNavigationContent() {
                       <SidebarMenuButton 
                         onClick={() => toggleSubMenu(item.href)}
                         data-state={isOpen ? "open" : "closed"}
-                        isActive={isParentOfActivePage} 
+                        isActive={isParentOfActivePage || pathname.startsWith(item.href)} 
                         tooltip={item.label}
                       >
                         <item.icon />
