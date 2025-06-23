@@ -14,12 +14,12 @@ import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleCon
 import { useState, useEffect, Fragment, useMemo } from 'react';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
-  Users as UsersIconLucide, BookOpenCheck, Briefcase, 
-  Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
-  FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
-  HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, CalendarPlus, CalendarDays, CalendarClock, GraduationCap
-} from 'lucide-react'; 
+  Users, BookOpenCheck, Briefcase, Euro, FileBarChart, ListChecks, FilePlus, 
+  BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
+  HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
+  HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 
+  CalendarPlus, CalendarDays, CalendarClock, GraduationCap, BookHeart
+} from '@/lib/icons'; 
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
-  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Users, ouderOnly: true },
   { 
     href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
@@ -84,14 +84,14 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true },
-  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheckIcon, ouderOnly: true },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },
   { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true },
   { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true },
-  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true },
+  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: Users, tutorOnly: true },
 
   // Coach specific section
   { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "COACH PORTAAL" },
@@ -104,10 +104,10 @@ const navItems: NavItem[] = [
   {
     href: '#user-management-parent',
     label: 'Gebruikersbeheer',
-    icon: UsersIconLucide,
+    icon: Users,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: Users, parent: '#user-management-parent' },
       { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, parent: '#user-management-parent' },
       { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, parent: '#user-management-parent' },
     ]
@@ -164,7 +164,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: Users, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
     ]
   },
