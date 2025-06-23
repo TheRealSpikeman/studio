@@ -66,14 +66,14 @@ const navItems: NavItem[] = [
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Mijn Resultaten', icon: BarChart3, leerlingOnly: true },
   {
-    href: '/dashboard/coaching',
+    href: '#coaching-tools-parent',
     label: 'Coaching & Tools',
     icon: Zap,
     leerlingOnly: true,
     children: [
-      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, isSubItem: true, parent: '/dashboard/coaching' },
-      { href: '/dashboard/tools', label: 'Alle Tools', icon: Wrench, isSubItem: true, parent: '/dashboard/coaching' },
-      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
+      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, isSubItem: true, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/tools', label: 'Alle Tools', icon: Wrench, isSubItem: true, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '#coaching-tools-parent' },
     ]
   },
   {
