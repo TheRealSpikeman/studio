@@ -722,7 +722,7 @@ interface SidebarMenuSubButtonProps
 const SidebarMenuSubButton = React.forwardRef<
   HTMLAnchorElement,
   SidebarMenuSubButtonProps
->(({ asChild = false, size = "md", isActive, disabled, className, ...props }, ref) => {
+>(({ asChild = false, size = "sm", isActive, disabled, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
 
   return (
