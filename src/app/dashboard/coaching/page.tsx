@@ -11,10 +11,10 @@ import {
   Sparkles, Repeat, BarChartBig, NotebookPen, ListTodo, 
   PlaySquare, Library, Rocket, Users, Bot, Trophy, Image as ImageIcon, Mic, CalendarDays, Eye, EyeOff, Zap, Loader2, Info
 } from 'lucide-react'; 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Calendar } from '@/components/ui/calendar';
-import { format, startOfDay, isEqual, parseISO } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateCoachingInsights } from '@/ai/flows/generate-coaching-insights';
@@ -28,7 +28,7 @@ interface DailyTask {
   completed: boolean;
 }
 
-const COACHING_START_DATE = startOfDay(new Date(Date.now() - 86400000 * 30)); // Approx 30 days ago
+const COACHING_START_DATE = startOfDay(new Date(Date.now() - 86400000 * 30)); 
 
 const JOURNEY_STEPS = {
   WELCOME_SEEN: 'journey_welcome_seen_v1',
@@ -36,7 +36,6 @@ const JOURNEY_STEPS = {
   FIRST_COACHING_VIEWED: 'journey_first_coaching_viewed_v1',
   SEVEN_DAY_STREAK: 'journey_seven_day_streak_v1'
 };
-
 
 const generateStaticDailyTasks = (date: Date): DailyTask[] => {
   const baseTasks = [
@@ -66,16 +65,16 @@ export default function CoachingPage() {
   const { toast } = useToast();
 
   const [aiCoachingContent, setAiCoachingContent] = useState<AiCoachingContent | null>(null);
-  const [isLoadingAiContent, setIsLoadingAiContent] = useState(true); // Start as true
+  const [isLoadingAiContent, setIsLoadingAiContent] = useState(true);
   const [userName, setUserName] = useState<string>("een MindNavigator gebruiker");
   const [onboardingAnalysisText, setOnboardingAnalysisText] = useState<string | undefined>(undefined);
   const [showFirstTimeCoachingExplanation, setShowFirstTimeCoachingExplanation] = useState(false);
 
-
+  // Effect 1: Set client-side flag and load initial data from localStorage
   useEffect(() => {
     setIsClient(true);
     setSelectedDate(startOfDay(new Date())); 
-    
+
     if (typeof window !== 'undefined') {
       const storedUserData = localStorage.getItem('mindnavigator_onboardingUser');
       if (storedUserData) {
@@ -84,64 +83,67 @@ export default function CoachingPage() {
           if (userData.name) setUserName(userData.name);
         } catch (e) { console.warn("Kon gebruikersnaam niet laden."); }
       }
-      // Load analysis text but set loading to false after. The next useEffect will handle the fetch.
+      
       const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
-      setOnboardingAnalysisText(storedAnalysis ?? null); // Use null if not found
+      setOnboardingAnalysisText(storedAnalysis ?? null); 
       
       const firstCoachingViewed = localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED);
-      if (!firstCoachingViewed) {
+      if (!firstCoachingViewed && storedAnalysis) { 
          setShowFirstTimeCoachingExplanation(true);
       }
     }
   }, []);
 
-  const fetchAiCoachingData = useCallback(async (date: Date, analysisText: string | null) => {
-    setIsLoadingAiContent(true); // Always set loading to true when fetching
-    setAiCoachingContent(null);
-    
-    if (!analysisText || analysisText.trim() === '') {
-      toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
-      setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
-      setIsLoadingAiContent(false);
-      return;
-    }
-
-    try {
-      const input = {
-        onboardingAnalysisText: analysisText,
-        userName: userName,
-        currentDate: format(date, "EEEE d MMMM", { locale: nl })
-      };
-      const result: GenerateCoachingInsightsOutput = await generateCoachingInsights(input);
-      setAiCoachingContent(result);
-      
-      const aiTask: DailyTask = { id: `ai-task-${format(date, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
-      const staticTasks = generateStaticDailyTasks(date);
-      setTasksForSelectedDate([aiTask, ...staticTasks]);
-
-      if (!localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED)) {
-        localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
-        setShowFirstTimeCoachingExplanation(false);
-      }
-
-    } catch (error) {
-      console.error("Error fetching AI coaching insights:", error);
-      toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
-      setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
-    } finally {
-        setIsLoadingAiContent(false);
-    }
-  }, [toast, userName]); // Removed onboardingAnalysisText from here
-
+  // Effect 2: Fetch AI data when dependencies change. This is the new robust version.
   useEffect(() => {
-    // This effect now correctly triggers when onboardingAnalysisText is loaded or selectedDate changes.
-    // The fetchAiCoachingData function reference is stable, breaking the loop.
-    if (selectedDate && onboardingAnalysisText !== undefined) { 
+    const doFetch = async () => {
+      if (!isClient || !selectedDate || onboardingAnalysisText === undefined) {
+        return;
+      }
+      
+      setIsLoadingAiContent(true);
+      setAiCoachingContent(null);
       setTasksForSelectedDate(generateStaticDailyTasks(selectedDate));
-      fetchAiCoachingData(selectedDate, onboardingAnalysisText);
-    }
-  }, [selectedDate, onboardingAnalysisText, fetchAiCoachingData]);
+      
+      try {
+        const input = {
+          onboardingAnalysisText: onboardingAnalysisText || "",
+          userName: userName,
+          currentDate: format(selectedDate, "EEEE d MMMM", { locale: nl })
+        };
+        
+        const result = await generateCoachingInsights(input);
+        
+        setAiCoachingContent(result);
+        
+        const aiTask: DailyTask = { id: `ai-task-${format(selectedDate, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
+        setTasksForSelectedDate(prevStaticTasks => [aiTask, ...prevStaticTasks]);
 
+        if (showFirstTimeCoachingExplanation) {
+          localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
+          setShowFirstTimeCoachingExplanation(false);
+        }
+        
+      } catch (error) {
+        console.error("Error fetching AI coaching insights:", error);
+        toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
+        setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
+      } finally {
+          setIsLoadingAiContent(false);
+      }
+    };
+    
+    doFetch();
+  }, [isClient, selectedDate, onboardingAnalysisText, userName, toast, showFirstTimeCoachingExplanation]);
+
+
+  // Effect 3: Load journal entries when date changes
+  useEffect(() => {
+    if (selectedDate && isClient) {
+        const savedEntry = localStorage.getItem(`journalEntry_${format(selectedDate, 'yyyy-MM-dd')}`);
+        setJournalEntries(prev => ({ ...prev, [format(selectedDate, 'yyyy-MM-dd')]: savedEntry || "" }));
+    }
+  }, [selectedDate, isClient]);
 
   const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
   const videoSeedForSelectedDate = selectedDate ? getVideoSeedForDate(selectedDate) : "defaultvideo";
@@ -166,17 +168,6 @@ export default function CoachingPage() {
     }
   };
 
-  useEffect(() => {
-    if (selectedDate && isClient) {
-        const savedEntry = localStorage.getItem(`journalEntry_${format(selectedDate, 'yyyy-MM-dd')}`);
-        if (savedEntry) {
-            setJournalEntries(prev => ({ ...prev, [format(selectedDate, 'yyyy-MM-dd')]: savedEntry }));
-        } else {
-            setJournalEntries(prev => ({ ...prev, [format(selectedDate, 'yyyy-MM-dd')]: "" }));
-        }
-    }
-  }, [selectedDate, isClient]);
-
   const handleTaskToggle = (taskId: string) => {
     setTasksForSelectedDate(prevTasks => 
       prevTasks.map(task => 
@@ -198,7 +189,7 @@ export default function CoachingPage() {
         </p>
       </section>
 
-      {isClient && onboardingAnalysisText && (
+      {isClient && onboardingAnalysisText && !showFirstTimeCoachingExplanation && (
         <div className="mb-6">
           <Alert variant="default" className="bg-gradient-to-r from-primary/5 to-purple-50/50 border-primary/20 shadow-sm">
             <Sparkles className="h-5 w-5 !text-primary" />
