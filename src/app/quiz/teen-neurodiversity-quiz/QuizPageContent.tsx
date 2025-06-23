@@ -1,3 +1,4 @@
+
 // src/app/quiz/teen-neurodiversity-quiz/QuizPageContent.tsx
 "use client"; 
 
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2, MessageCircle, AlertCircle, LayoutDashboard } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2, MessageCircle, AlertCircle, LayoutDashboard, Rocket } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { QuestionDisplay } from '@/components/quiz/question-display';
 import {
@@ -442,7 +443,7 @@ export default function QuizPageContent() {
      if (ageGroup === '15-18') {
         baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 3));
         baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(3, 6));
-        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(6, 9));
+        scores.HSP = calculateAverage(baseAnswers.slice(6, 9));
         baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(9, 12));
         baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(12, 15));
     } else if (ageGroup === '12-14') {
@@ -664,7 +665,7 @@ export default function QuizPageContent() {
           {currentStep !== 'intro' && currentStep !== 'results' && (
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-foreground mb-2">Zelfreflectie Quiz ({ageGroup} jaar)</h1>
-                <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={progressStepNames} />
+                <TeenQuizProgressBar currentStep={progressCurrentStepNumber} stepNames={stepNames} />
             </div>
           )}
 
