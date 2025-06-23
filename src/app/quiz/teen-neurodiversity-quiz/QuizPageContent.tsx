@@ -1,4 +1,3 @@
-
 // src/app/quiz/teen-neurodiversity-quiz/QuizPageContent.tsx
 "use client"; 
 
@@ -31,13 +30,21 @@ import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } fr
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
+import type { Tool, ToolCategory } from '@/lib/quiz-data/tools-data';
+import { allTools } from '@/lib/quiz-data/tools-data';
 
 type QuizStep = 'intro' | 'baseQuestions' | 'subtestConfirmation' | 'subtestQuestions' | 'results';
 type AgeGroup = '12-14' | '15-18' | null;
 
 interface Scores {
   [key: string]: number;
+}
+interface ToolScores {
+  attention: number;
+  energy: number;
+  prikkels: number;
+  sociaal: number;
+  stemming: number;
 }
 
 const mainSectionIcons: Record<string, React.ElementType> = {
@@ -215,6 +222,138 @@ const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
   return sections.filter(s => s.content && (typeof s.content === 'string' ? s.content.trim() !== "" : s.content.length > 0));
 };
 
+const getCategoryForScore = (score: number, thresholds: [number, number, number]): 'low' | 'medium' | 'high' => {
+  if (score <= thresholds[0]) return 'low';
+  if (score <= thresholds[1]) return 'medium';
+  return 'high';
+}
+
+const calculateToolRecommendations = (scores: ToolScores): { high: Tool[], medium: Tool[], low: Tool[] } => {
+  const recommendations: { high: Set<string>, medium: Set<string>, low: Set<string> } = {
+    high: new Set(),
+    medium: new Set(),
+    low: new Set(),
+  };
+
+  const addTools = (toolIds: string[], priority: 'high' | 'medium' | 'low') => {
+    toolIds.forEach(id => {
+      // Avoid adding a tool to a lower priority if it's already in a higher one
+      if (!recommendations.high.has(id) && !recommendations.medium.has(id)) {
+        recommendations[priority].add(id);
+      } else if (priority === 'medium' && !recommendations.high.has(id)) {
+        recommendations.medium.add(id);
+      } else if (priority === 'high') {
+         recommendations.high.add(id);
+      }
+    });
+  };
+
+  // Logic based on the provided matrix
+  // Aandacht & Focus
+  const attentionCat = getCategoryForScore(scores.attention, [2, 5, 8]);
+  if (attentionCat === 'high') { // 6-8 -> Laag
+    addTools(['focus-timer-pro', 'concentratie-games'], 'high');
+    addTools(['distraction-blocker', 'study-planner'], 'medium');
+    addTools(['bewegings-breaks'], 'low');
+  } else if (attentionCat === 'medium') { // 3-5 -> Gemiddeld
+    addTools(['focus-timer-pro'], 'high');
+    addTools(['study-planner', 'concentratie-games'], 'medium');
+    addTools(['distraction-blocker'], 'low');
+  } else { // 0-2 -> Hoog
+    addTools(['study-planner'], 'medium');
+    addTools(['focus-timer-pro', 'concentratie-games'], 'low');
+  }
+
+  // Energie & Impulsiviteit
+  const energyCat = getCategoryForScore(scores.energy, [2, 5, 8]);
+  if (energyCat === 'high') { // 6-8
+    addTools(['bewegings-breaks', 'impulse-pause'], 'high');
+    addTools(['fidget-simulator', 'energie-monitor'], 'medium');
+    addTools(['ademhalings-gids'], 'low');
+  } else if (energyCat === 'medium') { // 3-5
+    addTools(['bewegings-breaks'], 'high');
+    addTools(['energie-monitor', 'fidget-simulator'], 'medium');
+    addTools(['impulse-pause'], 'low');
+  } else { // 0-2
+    addTools(['energie-monitor'], 'medium');
+  }
+
+  // Prikkelverwerking & Empathie
+  const prikkelsCat = getCategoryForScore(scores.prikkels, [2, 5, 8]);
+  if (prikkelsCat === 'high') { // 6-8
+    addTools(['sensory-calm-space', 'overprikkel-alarm'], 'high');
+    addTools(['ademhalings-gids', 'progressive-relaxatie'], 'medium');
+    addTools(['empathie-balancer'], 'low');
+  } else if (prikkelsCat === 'medium') { // 3-5
+    addTools(['sensory-calm-space'], 'high');
+    addTools(['ademhalings-gids'], 'medium');
+    addTools(['overprikkel-alarm'], 'low');
+  } else { // 0-2
+    addTools(['sensory-calm-space'], 'low');
+  }
+
+  // Sociale & Sensorische Voorkeuren
+  const sociaalCat = getCategoryForScore(scores.sociaal, [2, 5, 8]);
+  if (sociaalCat === 'high') { // 6-8
+    addTools(['deep-dive-planner', 'interest-sharing'], 'high');
+    addTools(['hobby-organizer', 'sociale-scripts'], 'medium');
+    addTools(['creative-outlet'], 'low');
+  } else if (sociaalCat === 'medium') { // 3-5
+    addTools(['sociale-scripts'], 'high');
+    addTools(['vriendschap-tracker', 'conflict-navigator'], 'medium');
+  } else { // 0-2
+    addTools(['vriendschap-tracker'], 'medium');
+    addTools(['sociale-scripts'], 'low');
+  }
+
+  // Stemmings- & Zorgpatronen
+  const stemmingCat = getCategoryForScore(scores.stemming, [2, 5, 8]);
+  if (stemmingCat === 'high') { // 6-8
+    addTools(['mood-tracker', 'emotie-gids'], 'high');
+    addTools(['zorgen-dagboek', 'ademhalings-gids'], 'medium');
+    addTools(['sensory-calm-space'], 'low');
+  } else if (stemmingCat === 'medium') { // 3-5
+    addTools(['mood-tracker'], 'high');
+    addTools(['emotie-gids', 'gratitude-journal'], 'medium');
+    addTools(['zorgen-dagboek'], 'low');
+  } else { // 0-2
+    addTools(['gratitude-journal'], 'medium');
+    addTools(['mood-tracker'], 'low');
+  }
+
+  // Combination Rules
+  if (sociaalCat === 'high' && prikkelsCat === 'low') {
+    addTools(['creative-outlet'], 'medium'); // Promoot naar medium ipv low
+    addTools(['deep-dive-planner'], 'high');
+  }
+
+  if (prikkelsCat === 'high' && stemmingCat === 'high' && attentionCat === 'high') {
+    // Overweldigd Profiel: beperk tot max 2 rust tools
+    const rustTools = ['sensory-calm-space', 'ademhalings-gids', 'mood-tracker'].filter(id => recommendations.high.has(id));
+    recommendations.high.clear();
+    rustTools.slice(0, 2).forEach(id => recommendations.high.add(id));
+  } else if (recommendations.high.size > 4) { // Veel aanbevolen tools (aangepast naar 4)
+    const top4 = Array.from(recommendations.high).slice(0, 4);
+    recommendations.high = new Set(top4);
+  }
+
+  if (recommendations.high.size === 0 && recommendations.medium.size > 0) {
+    const top2Medium = Array.from(recommendations.medium).slice(0, 2);
+    top2Medium.forEach(id => {
+      recommendations.high.add(id);
+      recommendations.medium.delete(id);
+    });
+  }
+
+  const findToolById = (id: string): Tool | undefined => allTools.find(tool => tool.id === id);
+
+  return {
+    high: Array.from(recommendations.high).map(findToolById).filter((t): t is Tool => !!t),
+    medium: Array.from(recommendations.medium).map(findToolById).filter((t): t is Tool => !!t),
+    low: Array.from(recommendations.low).map(findToolById).filter((t): t is Tool => !!t),
+  };
+};
+
 export default function QuizPageContent() { 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -233,6 +372,8 @@ export default function QuizPageContent() {
   const [quizAnalysis, setQuizAnalysis] = useState<string | null>(null);
   const [parsedAiAnalysis, setParsedAiAnalysis] = useState<AiAnalysisSection[]>([]);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(false);
+  const [recommendedTools, setRecommendedTools] = useState<{ high: Tool[], medium: Tool[], low: Tool[] }>({ high: [], medium: [], low: [] });
+
 
   const ageGroupFromQuery = searchParams.get('ageGroup') as AgeGroup;
   const backLink = `/quiz/teen-neurodiversity-quiz?ageGroup=${ageGroupFromQuery}`;
@@ -392,81 +533,95 @@ export default function QuizPageContent() {
 
   
   useEffect(() => {
-    if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0 && !quizAnalysis && !isAnalysisLoading) {
-      const fetchAnalysis = async () => {
-        setIsAnalysisLoading(true);
-        setParsedAiAnalysis([]);
-        try {
-          const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
-
-          currentBaseQuestions.forEach((qText, index) => {
-            const answerValue = baseAnswers[index];
-            if (answerValue !== undefined) {
-              const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
-              let profileKeyForQuestion: string | undefined = undefined;
-              if (ageGroup === '15-18') {
-                if (index < 3) profileKeyForQuestion = 'ADD'; 
-                else if (index < 6) profileKeyForQuestion = 'ADHD'; 
-                else if (index < 9) profileKeyForQuestion = 'HSP'; 
-                else if (index < 12) profileKeyForQuestion = 'ASS'; 
-                else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; 
-              } else if (ageGroup === '12-14') {
-                 if (index < 2) profileKeyForQuestion = 'ADD'; 
-                 else if (index < 4) profileKeyForQuestion = 'ADHD'; 
-                 else if (index < 6) profileKeyForQuestion = 'HSP'; 
-                 else if (index < 8) profileKeyForQuestion = 'ASS'; 
-                 else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; 
-              }
-
-              answeredQuestions.push({
-                question: qText,
-                answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`,
-                profileKey: profileKeyForQuestion,
-              });
-            }
-          });
-
-          Object.entries(subtestAnswers).forEach(([subtestKey, answers]) => {
-            const questionsForSubtest = currentSubTests[subtestKey] || [];
-            answers.forEach((ansVal, qIdx) => {
-              if (ansVal !== undefined) {
-                const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
-                answeredQuestions.push({
-                  question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`,
-                  answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`,
-                  profileKey: subtestKey
-                });
-              }
-            });
-          });
-
-          const analysisInput = {
-            quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`,
-            ageGroup: ageGroup,
-            finalScores: finalScores,
-            answeredQuestions: answeredQuestions,
-            analysisDetailLevel: 'standaard' // Default, kan later per quiz ingesteld worden
-          };
-          const result = await generateQuizAnalysis(analysisInput);
-          setQuizAnalysis(result.analysis);
-          setParsedAiAnalysis(parseAiAnalysis(result.analysis));
-
-          // Opslaan in localStorage voor Coaching Hub
-          if (typeof window !== 'undefined' && result.analysis) {
-            localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
-            localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup})); // Dummy naam
-          }
-
-        } catch (error) {
-          console.error("Failed to generate quiz analysis:", error);
-          const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
-          setQuizAnalysis(errorMsg);
-          setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
-        } finally {
-          setIsAnalysisLoading(false);
-        }
+    if (currentStep === 'results' && ageGroup && Object.keys(finalScores).length > 0) {
+       // Tool recommendation logic
+      const toolScores: ToolScores = {
+        attention: (finalScores.ADD || 0) * 2, // Scale to 0-8 range
+        energy: (finalScores.ADHD || 0) * 2,
+        prikkels: (finalScores.HSP || 0) * 2,
+        sociaal: (finalScores.ASS || 0) * 2,
+        stemming: (finalScores.AngstDepressie || 0) * 2,
       };
-      fetchAnalysis();
+      const recommendations = calculateToolRecommendations(toolScores);
+      setRecommendedTools(recommendations);
+      
+      if (!quizAnalysis && !isAnalysisLoading) {
+          const fetchAnalysis = async () => {
+            setIsAnalysisLoading(true);
+            setParsedAiAnalysis([]);
+            try {
+              const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
+
+              currentBaseQuestions.forEach((qText, index) => {
+                const answerValue = baseAnswers[index];
+                if (answerValue !== undefined) {
+                  const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === answerValue);
+                  let profileKeyForQuestion: string | undefined = undefined;
+                  if (ageGroup === '15-18') {
+                    if (index < 3) profileKeyForQuestion = 'ADD'; 
+                    else if (index < 6) profileKeyForQuestion = 'ADHD'; 
+                    else if (index < 9) profileKeyForQuestion = 'HSP'; 
+                    else if (index < 12) profileKeyForQuestion = 'ASS'; 
+                    else if (index < 15) profileKeyForQuestion = 'AngstDepressie'; 
+                  } else if (ageGroup === '12-14') {
+                    if (index < 2) profileKeyForQuestion = 'ADD'; 
+                    else if (index < 4) profileKeyForQuestion = 'ADHD'; 
+                    else if (index < 6) profileKeyForQuestion = 'HSP'; 
+                    else if (index < 8) profileKeyForQuestion = 'ASS'; 
+                    else if (index < 10) profileKeyForQuestion = 'AngstDepressie'; 
+                  }
+
+                  answeredQuestions.push({
+                    question: qText,
+                    answer: answerOption ? `${answerOption.label} (${answerValue})` : `Score ${answerValue}`,
+                    profileKey: profileKeyForQuestion,
+                  });
+                }
+              });
+
+              Object.entries(subtestAnswers).forEach(([subtestKey, answers]) => {
+                const questionsForSubtest = currentSubTests[subtestKey] || [];
+                answers.forEach((ansVal, qIdx) => {
+                  if (ansVal !== undefined) {
+                    const answerOption = answerOptions.find(opt => parseInt(opt.value, 10) === ansVal);
+                    answeredQuestions.push({
+                      question: `${neurotypeDescriptionsTeen[subtestKey]?.title || subtestKey} - ${questionsForSubtest[qIdx]}`,
+                      answer: answerOption ? `${answerOption.label} (${ansVal})` : `Score ${ansVal}`,
+                      profileKey: subtestKey
+                    });
+                  }
+                });
+              });
+
+              const analysisInput = {
+                quizTitle: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`,
+                ageGroup: ageGroup,
+                finalScores: finalScores,
+                answeredQuestions: answeredQuestions,
+                analysisDetailLevel: 'standaard' // Default, kan later per quiz ingesteld worden
+              };
+              const result = await generateQuizAnalysis(analysisInput);
+              setQuizAnalysis(result.analysis);
+              setParsedAiAnalysis(parseAiAnalysis(result.analysis));
+
+              // Opslaan in localStorage voor Coaching Hub
+              if (typeof window !== 'undefined' && result.analysis) {
+                localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
+                localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({name: "Alex", ageGroup: ageGroup})); // Dummy naam
+                localStorage.setItem('journey_quiz_completed_v1', 'true');
+              }
+
+            } catch (error) {
+              console.error("Failed to generate quiz analysis:", error);
+              const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
+              setQuizAnalysis(errorMsg);
+              setParsedAiAnalysis([{title: "Fout", content: errorMsg, icon: AlertTriangle}]);
+            } finally {
+              setIsAnalysisLoading(false);
+            }
+          };
+          fetchAnalysis();
+      }
     }
   }, [currentStep, finalScores, ageGroup, baseAnswers, subtestAnswers, currentBaseQuestions, currentSubTests, quizAnalysis, isAnalysisLoading]);
   
@@ -522,7 +677,7 @@ export default function QuizPageContent() {
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
         <SiteLogo />
         <p className="mt-4">Quiz informatie laden...</p>
-        <p className="text-xs text-muted-foreground">Zorg dat je een leeftijdsgroep hebt gekozen via de <Link href="/quizzes" className="text-primary hover:underline">quizzen pagina</Link>.</p>
+        <p className="text-xs text-muted-foreground">Zorg dat je een leeftijdsgroep hebt gekozen via de <Link href="/dashboard/leerling/quizzes" className="text-primary hover:underline">quizzen pagina</Link>.</p>
       </div>
     );
   }
@@ -817,6 +972,40 @@ export default function QuizPageContent() {
                   </div>
                 </CardContent>
               </Card>
+
+              {recommendedTools.high.length > 0 && (
+                <Card className="shadow-xl rounded-lg bg-card text-card-foreground">
+                  <CardHeader>
+                      <h2 className="text-teal-600 text-[1.75rem] font-semibold flex items-center gap-3">
+                        <Rocket className="h-8 w-8" /> Aanbevolen Tools voor Jou
+                      </h2>
+                      <CardDescription>Op basis van jouw antwoorden, zijn dit de tools die jou het beste kunnen helpen op dit moment.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Accordion type="multiple" className="w-full space-y-4">
+                          {recommendedTools.high.map((tool, index) => (
+                              <AccordionItem key={tool.id} value={tool.id} className="bg-primary/5 border border-primary/20 rounded-lg">
+                                  <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline data-[state=open]:text-primary">
+                                      <div className="flex items-center gap-3">
+                                          <tool.icon className="h-6 w-6 text-primary"/>
+                                          {tool.title}
+                                      </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="p-4 pt-0">
+                                      <p className="text-muted-foreground mb-3">{tool.description}</p>
+                                      <h4 className="font-semibold text-primary mb-1">Waarom is dit voor jou?</h4>
+                                      <p className="text-sm text-muted-foreground">{tool.reasoning.high}</p>
+                                      <h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4>
+                                      <p className="text-sm text-muted-foreground">{tool.usage.when}</p>
+                                      <Button size="sm" className="mt-3">Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/></Button>
+                                  </AccordionContent>
+                              </AccordionItem>
+                          ))}
+                      </Accordion>
+                  </CardContent>
+                </Card>
+              )}
+
 
               <Alert variant="destructive" className="mt-10 text-base rounded-lg shadow-sm">
                   <AlertTriangle className="h-5 w-5" />
