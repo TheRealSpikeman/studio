@@ -1,9 +1,8 @@
-
 // src/app/dashboard/layout.tsx
 "use client";
 
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
-import React, { ReactNode, useEffect } from 'react'; 
+import React, { ReactNode, useEffect, useState } from 'react'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -11,7 +10,8 @@ import { LogOut, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
   leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
@@ -34,7 +34,7 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <SidebarTrigger className="mr-2 md:hidden" /> 
+      <SidebarTrigger className="mr-2" /> 
       
       <div className="flex-1">
         {/* Potentiële plek voor broodkruimels of paginatitel als nodig */}
@@ -164,18 +164,40 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 }
 
 
+function DashboardMainContainer({ children }: { children: React.ReactNode }) {
+    const { isMobile, state } = useSidebar();
+    const [isClient, setIsClient] = useState(false);
+    
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    return (
+        <div 
+            className={cn(
+                "flex flex-1 flex-col",
+                isClient && !isMobile && "transition-[margin-left] duration-200 ease-in-out",
+                isClient && !isMobile && state === 'expanded' && "md:ml-[16rem]",
+                isClient && !isMobile && state === 'collapsed' && "md:ml-[3.5rem]"
+            )}
+        >
+            <DashboardHeader /> 
+            <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
+                <DashboardContentWrapper>{children}</DashboardContentWrapper>
+            </main>
+        </div>
+    );
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
       <DashboardRoleProvider>
           <div className="flex min-h-screen w-full">
             <DashboardSidebar />
-            <div className="flex flex-1 flex-col">
-              <DashboardHeader /> 
-              <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
-                <DashboardContentWrapper>{children}</DashboardContentWrapper>
-              </main>
-            </div>
+            <DashboardMainContainer>
+              <DashboardContentWrapper>{children}</DashboardContentWrapper>
+            </DashboardMainContainer>
           </div>
       </DashboardRoleProvider>
     </SidebarProvider>

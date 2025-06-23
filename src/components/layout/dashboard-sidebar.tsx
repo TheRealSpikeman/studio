@@ -37,6 +37,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -121,25 +122,25 @@ const navItems: NavItem[] = [
   // Admin specific section - NEW STRUCTURE
   { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
   {
-    href: '/dashboard/admin/user-management',
+    href: '#user-management-parent',
     label: 'Gebruikersbeheer',
     icon: UsersIconLucide,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
-      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
-      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
+      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
+      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
     ]
   },
   {
-    href: '/dashboard/admin/quiz-management',
+    href: '#quiz-management-parent',
     label: 'Quizbeheer',
     icon: ListChecks,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
-      { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
-      { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
+      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, isSubItem: true, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, isSubItem: true, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '#quiz-management-parent' },
     ]
   },
   {
@@ -174,16 +175,16 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '/dashboard/admin/documentation',
+    href: '#documentation-parent',
     label: 'Documentatie',
     icon: BookHeart,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
+      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
+      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
     ]
   },
   
@@ -221,7 +222,7 @@ function SidebarNavigationContent() {
     const initialOpenState: Record<string, boolean> = {};
     navItems.forEach(item => {
       if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href);
+        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href !== '#');
         if (isParentOfActivePage) {
           initialOpenState[item.href] = true;
         }
@@ -315,8 +316,8 @@ function SidebarNavigationContent() {
             }
             
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
-            const isDirectlyActive = pathname === item.href;
+            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href) && child.href !== item.href && item.href.startsWith('#'));
+            const isDirectlyActive = !item.children && pathname === item.href;
             const isOpen = openSubMenus[item.href] === true;
 
             return (
@@ -388,8 +389,30 @@ function SidebarNavigationContent() {
   );
 }
 
+const SidebarSkeleton = () => (
+    <div className="hidden md:flex flex-col h-full w-[3.5rem] bg-card border-r p-2 gap-4">
+        <div className="flex items-center justify-center h-16">
+            <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+        <div className="flex items-center justify-center">
+            <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+        <div className="flex-grow space-y-2 pt-4">
+            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
+            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
+            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
+            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
+        </div>
+    </div>
+);
+
 export function DashboardSidebar() {
   const { isMobile } = useSidebar();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
@@ -398,6 +421,10 @@ export function DashboardSidebar() {
       setOpenMobile(false);
     }
   }, [pathname, isMobile, setOpenMobile]);
+
+  if (!isClient) {
+    return <SidebarSkeleton />;
+  }
 
   if (isMobile) {
     return (
