@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuizCreator } from '@/contexts/QuizCreatorContext';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,8 +12,9 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Lightbulb, Rocket, BarChart3, CheckCircle2, Link as LinkIcon, User as UserIcon, Search, Settings, Download, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, BookOpen, Zap
+  Lightbulb, Rocket, BarChart3, Users, Briefcase, GraduationCap, HeartHandshake, Cloud, Zap
 } from 'lucide-react';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, type SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
 
 // Re-defining allCategories here to avoid circular dependencies if moved to context
 const allCategories = [
@@ -21,13 +22,25 @@ const allCategories = [
   { id: 'vriendschappen_sociaal', icon: Users, title: 'Vriendschappen & Sociaal', description: 'Hoe ga je om met groepsdruk en vind je echte vrienden?', tags: ['Vrienden maken', 'Grenzen stellen', 'Groepsdruk'], suggestedTitle: "Jouw Vriendschap-Stijl", suggestedDescription: "Ontdek hoe jij je verhoudt tot anderen, hoe je vrienden maakt en wat voor jou belangrijk is in sociale situaties." },
   { id: 'leren_school', icon: GraduationCap, title: 'Leren & School', description: 'Ontdek hoe jij het beste leert en je concentreert.', tags: ['Concentratie', 'Huiswerk tips', 'Leer-stijl'], suggestedTitle: "Jouw Leer-Superpower", suggestedDescription: "Iedereen leert anders. Ontdek met deze quiz wat voor jou de beste manier is om te leren en je te concentreren op school." },
   { id: 'prikkels_omgeving', icon: Zap, title: 'Prikkels & Omgeving', description: 'Hoe reageer je op geluiden, licht en drukte?', tags: ['Geluidsgevoelig', 'Drukte', 'Rustplekken'], suggestedTitle: "Jouw Prikkels & Energie Meter", suggestedDescription: "Ben jij gevoelig voor geluiden, licht of drukte? Deze quiz helpt je te begrijpen hoe jouw omgeving je energie beïnvloedt." },
-  { id: 'wie_ben_ik', icon: UserIcon, title: 'Wie ben ik?', description: 'Ontdek je persoonlijkheid en sterke punten.', tags: ['Sterke punten', 'Interesses', 'Waarden'], suggestedTitle: "Ontdek Jouw Unieke Zelf", suggestedDescription: "Wat maakt jou, jou? Ontdek je persoonlijke eigenschappen, je interesses en wat je belangrijk vindt in het leven." },
+  { id: 'wie_ben_ik', icon: User, title: 'Wie ben ik?', description: 'Ontdek je persoonlijkheid en sterke punten.', tags: ['Sterke punten', 'Interesses', 'Waarden'], suggestedTitle: "Ontdek Jouw Unieke Zelf", suggestedDescription: "Wat maakt jou, jou? Ontdek je persoonlijke eigenschappen, je interesses en wat je belangrijk vindt in het leven." },
   { id: 'dromen_toekomst', icon: Cloud, title: 'Dromen & Toekomst', description: 'Verken je toekomstdromen en hoe je die kunt bereiken.', tags: ['Toekomst', 'Doelen stellen', 'Motivatie'], suggestedTitle: "Jouw Toekomst Kompas", suggestedDescription: "Wat wil je later worden? Waar droom je van? Deze quiz helpt je om je toekomst te verkennen en doelen te stellen." }
 ];
 
-
 export const Step4_Settings = () => {
     const { quizData, setQuizData } = useQuizCreator();
+    const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+
+    useEffect(() => {
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        if (storedPlansRaw) {
+            try {
+                const plans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
+                setAllSubscriptionPlans(plans.filter(p => p.active));
+            } catch (error) {
+                console.error("Error loading subscription plans from localStorage:", error);
+            }
+        }
+    }, []);
 
     const handleSettingChange = (path: (string | number)[], value: any) => {
         setQuizData(prev => {
@@ -55,7 +68,7 @@ export const Step4_Settings = () => {
                 currentLevel = currentLevel[key];
             });
             
-            const currentArray = currentLevel[path[path.length-1]] || [];
+            const currentArray = currentLevel[path[path.length - 1]] || [];
             const newArray = isChecked
                 ? [...currentArray, value]
                 : currentArray.filter((item: string) => item !== value);
@@ -175,20 +188,26 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
-                             <Label htmlFor="quizAccessSwitch" className="flex items-center justify-between text-base">
-                                <span>Quiz Toegankelijkheid</span>
-                                <Switch id="quizAccessSwitch" checked={settings.accessibility?.isPublic ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'accessibility', 'isPublic'], val)} />
-                            </Label>
-                            <CardDescription>Wie kan deze quiz invullen?</CardDescription>
+                             <Label className="text-base">Quiz Toegankelijkheid</Label>
+                            <CardDescription>Selecteer welke abonnementsplannen toegang hebben tot deze quiz.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Select value={settings.accessibility?.accessLevel ?? 'free'} onValueChange={(val) => handleSettingChange(['settings', 'accessibility', 'accessLevel'], val)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="free">Gratis voor alle MindNavigator gebruikers</SelectItem>
-                                    <SelectItem value="premium">Alleen voor premium abonnees</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <div className="space-y-2">
+                                {allSubscriptionPlans.length > 0 ? allSubscriptionPlans.map(plan => (
+                                    <div key={plan.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`plan-${plan.id}`}
+                                            checked={settings.accessibility?.allowedPlans?.includes(plan.id) ?? false}
+                                            onCheckedChange={(checked) => handleCheckboxArrayChange(['settings', 'accessibility', 'allowedPlans'], plan.id, checked as boolean)}
+                                        />
+                                        <Label htmlFor={`plan-${plan.id}`} className="font-normal cursor-pointer">
+                                            {plan.name} <span className="text-xs text-muted-foreground">({plan.shortName || plan.id})</span>
+                                        </Label>
+                                    </div>
+                                )) : (
+                                    <p className="text-xs text-muted-foreground">Geen actieve abonnementen gevonden. Configureer deze eerst in Abonnementenbeheer.</p>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
 

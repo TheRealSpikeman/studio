@@ -33,7 +33,7 @@ export type QuizCreationState = {
     };
     accessibility?: {
       isPublic: boolean;
-      accessLevel: 'free' | 'premium';
+      allowedPlans: string[]; // Changed from accessLevel
     };
     schoolPartnerships?: {
       enabled: boolean;
@@ -82,7 +82,7 @@ const initialQuizData: QuizCreationState = {
         },
         accessibility: {
             isPublic: true,
-            accessLevel: 'free',
+            allowedPlans: [], // Changed from accessLevel
         },
         schoolPartnerships: {
             enabled: false,
