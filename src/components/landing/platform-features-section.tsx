@@ -1,10 +1,9 @@
-
 // src/components/landing/platform-features-section.tsx
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight } from 'lucide-react';
+import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Feature {
@@ -27,11 +26,19 @@ const platformFeatures: Feature[] = [
   },
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
-    title: 'Coaching & Tools voor Groei',
-    descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) gebaseerd op assessmentresultaten, die uw kind ondersteunen bij routines en zelfvertrouwen.',
+    title: 'Coaching & Huiswerk Tools',
+    descriptionFull: 'Een hub met dagelijkse coaching, een interactief dagboek en effectieve tools voor planning en focus, gebaseerd op de assessmentresultaten.',
     link: '/dashboard/coaching',
-    linkText: 'Verken coaching',
+    linkText: 'Verken de tools',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
+  },
+   {
+    icon: <Search className="h-10 w-10 text-primary" />,
+    title: 'Ouder-Kind Analyse',
+    descriptionFull: 'Ontvang AI-gegenereerde inzichten en communicatietips door de "Ken je Kind" quiz te vergelijken met de zelfreflectie van uw kind.',
+    link: '/for-parents/vergelijkende-analyse',
+    linkText: 'Lees over de analyse',
+    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
     icon: <GraduationCap className="h-10 w-10 text-primary" />,
