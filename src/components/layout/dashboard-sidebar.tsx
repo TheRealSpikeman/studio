@@ -21,7 +21,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  SidebarMenuSubItem, // Correctly imported
   SidebarSeparator,
   useSidebar
 } from '@/components/ui/sidebar';
@@ -89,37 +89,35 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
   { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
-    href: '/dashboard/ouder/lessen/overzicht', 
+    href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
     icon: BookOpenCheck, 
     ouderOnly: true, 
-    isSubItem: false, 
-    parent: '/dashboard/ouder',
     children: [
-        { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
-        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
-        { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '/dashboard/ouder/lessen/overzicht', ouderOnly: true },
+        { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, isSubItem: true, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, isSubItem: true, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarSearch, isSubItem: true, parent: '#ouder-lessen-parent' },
     ]
   },
-  { href: '/dashboard/ouder/zoek-professional', label: 'Zoek Begeleiding', icon: Link2, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/gekoppelde-professionals', label: 'Mijn Begeleiders', icon: UserCheck, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheckIcon, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
-  { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/zoek-professional', label: 'Zoek Begeleiding', icon: Link2, ouderOnly: true },
+  { href: '/dashboard/ouder/gekoppelde-professionals', label: 'Mijn Begeleiders', icon: UserCheck, ouderOnly: true },
+  { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
+  { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
+  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheckIcon, ouderOnly: true },
+  { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },
-  { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
-  { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
-  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true, isSubItem: false, parent: '/dashboard/tutor' },
+  { href: '/dashboard/tutor/availability', label: 'Mijn Beschikbaarheid', icon: Clock, tutorOnly: true },
+  { href: '/dashboard/tutor/lessons', label: 'Alle Lessen (Tutor)', icon: BookOpenCheck, tutorOnly: true },
+  { href: '/dashboard/tutor/students', label: 'Mijn Leerlingen', icon: UsersIconLucide, tutorOnly: true },
 
   // Coach specific section
   { href: '/dashboard/coach', label: 'Coach Dashboard', icon: LayoutDashboard, coachOnly: true, sectionTitle: "COACH PORTAAL" },
-  { href: '/dashboard/coach/availability', label: 'Mijn Beschikbaarheid (Coach)', icon: Clock, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
-  { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
-  { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
+  { href: '/dashboard/coach/availability', label: 'Mijn Beschikbaarheid (Coach)', icon: Clock, coachOnly: true },
+  { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true },
+  { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true },
 
   // Admin specific section - NEW STRUCTURE
   { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
@@ -129,9 +127,9 @@ const navItems: NavItem[] = [
     icon: UsersIconLucide,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
-      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
-      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '#user-management-parent', adminOnly: true },
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '#user-management-parent' },
     ]
   },
   {
@@ -146,7 +144,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '#insights-parent', // Non-clickable parent
+    href: '#insights-parent',
     label: 'Inzichten',
     icon: TrendingUp,
     adminOnly: true,
@@ -156,7 +154,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '#finance-parent', // Non-clickable parent
+    href: '#finance-parent',
     label: 'Financieel Beheer',
     icon: Euro,
     adminOnly: true,
@@ -166,7 +164,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '#platform-parent', // Non-clickable parent
+    href: '#platform-parent',
     label: 'Platformbeheer',
     icon: Settings,
     adminOnly: true,
@@ -183,11 +181,11 @@ const navItems: NavItem[] = [
     icon: BookHeart,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
-      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
-      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
-      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '#documentation-parent', adminOnly: true },
+      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '#documentation-parent' },
     ]
   },
   
@@ -200,7 +198,6 @@ function SidebarNavigationContent() {
   const { state: sidebarState } = useSidebar();
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
   
-  let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
   const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
@@ -211,15 +208,8 @@ function SidebarNavigationContent() {
     if (typeof window !== 'undefined') {
         setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
         setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
-
-        if (currentDashboardRole === 'leerling') {
-            const communityAccessAllowed = JSON.parse(localStorage.getItem(`privacySettings_child1_allowCommunityAccess`) ?? 'true');
-            setShowCommunityNavItemForLeerling(communityAccessAllowed);
-        } else {
-            setShowCommunityNavItemForLeerling(true);
-        }
     }
-  }, [currentDashboardRole]);
+  }, []);
 
   useEffect(() => {
     const initialOpenState: Record<string, boolean> = {};
@@ -234,11 +224,11 @@ function SidebarNavigationContent() {
     setOpenSubMenus(initialOpenState);
   }, [pathname]);
 
-
   const toggleSubMenu = (href: string) => {
     setOpenSubMenus(prev => ({ ...prev, [href]: !prev[href] }));
   };
-
+  
+  let currentSectionTitleDisplayed: string | null = null;
 
   return (
     <>
@@ -288,31 +278,23 @@ function SidebarNavigationContent() {
       <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
         <SidebarMenu>
           {navItems.map((item, index) => {
-            
             const roleFlags = {
-              admin: !!item.adminOnly,
-              tutor: !!item.tutorOnly,
-              coach: !!item.coachOnly,
-              leerling: !!item.leerlingOnly,
-              ouder: !!item.ouderOnly,
+              admin: !!item.adminOnly, tutor: !!item.tutorOnly, coach: !!item.coachOnly,
+              leerling: !!item.leerlingOnly, ouder: !!item.ouderOnly,
             };
-
             const isForCurrentRole = (role: UserRoleType) => {
-                const hasNoSpecificRole = !roleFlags.admin && !roleFlags.tutor && !roleFlags.coach && !roleFlags.leerling && !roleFlags.ouder;
-                return hasNoSpecificRole || roleFlags[role];
+              const hasNoSpecificRole = Object.values(roleFlags).every(v => !v);
+              return hasNoSpecificRole || roleFlags[role];
             };
 
-            if (!isForCurrentRole(currentDashboardRole)) {
-                return null;
-            }
+            if (!isForCurrentRole(currentDashboardRole)) return null;
 
-            // Handle special visibility cases
             if (currentDashboardRole === 'ouder' && item.isOuderOnboardingLink !== isOuderOnboardingPending) return null;
             if (currentDashboardRole === 'ouder' && !item.isOuderOnboardingLink && isOuderOnboardingPending) return null;
             if (currentDashboardRole === 'leerling' && item.href === '/dashboard/leerling/welcome' && !isLeerlingOnboardingPending) return null;
-            if (currentDashboardRole === 'leerling' && item.href !== '/dashboard/leerling/welcome' && item.href !== '/dashboard/profile' && isLeerlingOnboardingPending) return null;
+            if (currentDashboardRole === 'leerling' && !['/dashboard/leerling/welcome', '/dashboard/profile'].includes(item.href) && isLeerlingOnboardingPending) return null;
             if (currentDashboardRole === 'leerling' && item.href === '/dashboard/community' && !showCommunityNavItemForLeerling) return null;
-            
+
             let renderSectionHeader = false;
             if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) { 
                 renderSectionHeader = true;
@@ -322,7 +304,7 @@ function SidebarNavigationContent() {
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
             const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
             const isDirectlyActive = !item.children && pathname === item.href;
-            const isOpen = openSubMenus[item.href] || isParentOfActivePage;
+            const isOpen = openSubMenus[item.href];
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -344,10 +326,7 @@ function SidebarNavigationContent() {
                         <span className="group-data-[collapsible=icon]:hidden flex-grow">
                           {item.label}
                         </span>
-                        <ChevronRight className={cn(
-                            "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
-                            isOpen && "rotate-90"
-                        )} />
+                        <ChevronRight className={cn( "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden", isOpen && "rotate-90" )} />
                       </SidebarMenuButton>
                       <SidebarMenuSub data-state={isOpen ? "open" : "closed"}>
                           {visibleChildren.map((child, childIndex) => (
@@ -357,7 +336,7 @@ function SidebarNavigationContent() {
                                   isActive={pathname.startsWith(child.href)}
                                 >
                                   <Link href={child.href}>
-                                    <child.icon />
+                                    {child.icon && <child.icon />}
                                     {child.label}
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -366,14 +345,11 @@ function SidebarNavigationContent() {
                       </SidebarMenuSub>
                    </SidebarMenuItem>
                 ) : (
-                  // Render regular item
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={isDirectlyActive} tooltip={item.label}>
                       <Link href={item.href}>
                         <item.icon />
-                        <span className="group-data-[collapsible=icon]:hidden flex-grow">
-                          {item.label}
-                        </span>
+                        <span className="group-data-[collapsible=icon]:hidden flex-grow">{item.label}</span>
                          {item.href === '/dashboard/ouder/facturatie' && currentDashboardRole === 'ouder' && hasBillingAction && (
                           <span title="Facturatie actie vereist" className="ml-auto mr-1 inline-block h-2 w-2 rounded-full bg-primary min-w-0 group-data-[collapsible=icon]:hidden" />
                         )}
@@ -393,6 +369,7 @@ function SidebarNavigationContent() {
   );
 }
 
+
 const SidebarSkeleton = () => (
     <div className="hidden md:flex flex-col h-full w-[3.5rem] bg-card border-r p-2 gap-4">
         <div className="flex items-center justify-center h-16">
@@ -411,7 +388,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile, setOpenMobile, state } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
