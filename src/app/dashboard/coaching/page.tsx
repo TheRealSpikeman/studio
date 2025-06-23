@@ -31,10 +31,10 @@ interface DailyTask {
 const COACHING_START_DATE = startOfDay(new Date(Date.now() - 86400000 * 30)); // Approx 30 days ago
 
 const JOURNEY_STEPS = {
-  WELCOME_SEEN: 'journey_welcome_seen_v1', // Assuming this might be set elsewhere
-  QUIZ_COMPLETED: 'journey_quiz_completed_v1', // Should be set after quiz completion
+  WELCOME_SEEN: 'journey_welcome_seen_v1',
+  QUIZ_COMPLETED: 'journey_quiz_completed_v1',
   FIRST_COACHING_VIEWED: 'journey_first_coaching_viewed_v1',
-  SEVEN_DAY_STREAK: 'journey_seven_day_streak_v1' // For future use
+  SEVEN_DAY_STREAK: 'journey_seven_day_streak_v1'
 };
 
 
@@ -66,9 +66,9 @@ export default function CoachingPage() {
   const { toast } = useToast();
 
   const [aiCoachingContent, setAiCoachingContent] = useState<AiCoachingContent | null>(null);
-  const [isLoadingAiContent, setIsLoadingAiContent] = useState(false);
+  const [isLoadingAiContent, setIsLoadingAiContent] = useState(true); // Start as true
   const [userName, setUserName] = useState<string>("een MindNavigator gebruiker");
-  const [onboardingAnalysisText, setOnboardingAnalysisText] = useState<string | null>(null);
+  const [onboardingAnalysisText, setOnboardingAnalysisText] = useState<string | undefined>(undefined);
   const [showFirstTimeCoachingExplanation, setShowFirstTimeCoachingExplanation] = useState(false);
 
 
@@ -84,9 +84,10 @@ export default function CoachingPage() {
           if (userData.name) setUserName(userData.name);
         } catch (e) { console.warn("Kon gebruikersnaam niet laden."); }
       }
+      // Load analysis text but set loading to false after. The next useEffect will handle the fetch.
       const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
-      setOnboardingAnalysisText(storedAnalysis);
-
+      setOnboardingAnalysisText(storedAnalysis ?? null); // Use null if not found
+      
       const firstCoachingViewed = localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED);
       if (!firstCoachingViewed) {
          setShowFirstTimeCoachingExplanation(true);
@@ -94,19 +95,20 @@ export default function CoachingPage() {
     }
   }, []);
 
-  const fetchAiCoachingData = useCallback(async (date: Date) => {
-    if (!onboardingAnalysisText || onboardingAnalysisText.trim() === '') {
+  const fetchAiCoachingData = useCallback(async (date: Date, analysisText: string | null) => {
+    setIsLoadingAiContent(true); // Always set loading to true when fetching
+    setAiCoachingContent(null);
+    
+    if (!analysisText || analysisText.trim() === '') {
       toast({ title: "Info", description: "Voltooi eerst de Zelfreflectie Tool voor gepersonaliseerde coaching.", duration: 5000});
       setAiCoachingContent({ dailyAffirmation: "Elke dag is een nieuw begin.", dailyCoachingTip: "Ontdek vandaag iets nieuws over jezelf.", microTaskSuggestion: "Denk na over één ding dat je vandaag wilt bereiken." });
       setIsLoadingAiContent(false);
       return;
     }
 
-    setIsLoadingAiContent(true);
-    setAiCoachingContent(null); 
     try {
       const input = {
-        onboardingAnalysisText: onboardingAnalysisText,
+        onboardingAnalysisText: analysisText,
         userName: userName,
         currentDate: format(date, "EEEE d MMMM", { locale: nl })
       };
@@ -114,31 +116,31 @@ export default function CoachingPage() {
       setAiCoachingContent(result);
       
       const aiTask: DailyTask = { id: `ai-task-${format(date, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
-      // setTasksForSelectedDate(prevTasks => [aiTask, ...prevTasks.filter(t => !t.id.startsWith('ai-task-'))]);
-      // Update tasksForSelectedDate based on current static tasks + AI task
       const staticTasks = generateStaticDailyTasks(date);
       setTasksForSelectedDate([aiTask, ...staticTasks]);
 
-
       if (!localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED)) {
         localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
-        setShowFirstTimeCoachingExplanation(false); // Hide after first successful load
+        setShowFirstTimeCoachingExplanation(false);
       }
 
     } catch (error) {
       console.error("Error fetching AI coaching insights:", error);
       toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
       setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
+    } finally {
+        setIsLoadingAiContent(false);
     }
-    setIsLoadingAiContent(false);
-  }, [toast, userName, onboardingAnalysisText]);
+  }, [toast, userName]); // Removed onboardingAnalysisText from here
 
   useEffect(() => {
-    if (selectedDate && onboardingAnalysisText !== undefined) { // Ensure onboardingAnalysisText has been attempted to load
-      setTasksForSelectedDate(generateStaticDailyTasks(selectedDate)); // Set static tasks first
-      fetchAiCoachingData(selectedDate); // Then fetch AI data which might add to tasks
+    // This effect now correctly triggers when onboardingAnalysisText is loaded or selectedDate changes.
+    // The fetchAiCoachingData function reference is stable, breaking the loop.
+    if (selectedDate && onboardingAnalysisText !== undefined) { 
+      setTasksForSelectedDate(generateStaticDailyTasks(selectedDate));
+      fetchAiCoachingData(selectedDate, onboardingAnalysisText);
     }
-  }, [selectedDate, fetchAiCoachingData, onboardingAnalysisText]);
+  }, [selectedDate, onboardingAnalysisText, fetchAiCoachingData]);
 
 
   const currentJournalText = selectedDate ? journalEntries[format(selectedDate, 'yyyy-MM-dd')] || "" : "";
@@ -319,7 +321,7 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {isLoadingAiContent && tasksForSelectedDate.length === 0 && onboardingAnalysisText ? <Skeleton className="h-20 w-full" /> : null}
+            {isLoadingAiContent && onboardingAnalysisText !== null ? <Skeleton className="h-20 w-full" /> : null}
             {!isLoadingAiContent && selectedDate && tasksForSelectedDate.length > 0 ? (
               tasksForSelectedDate.map(task => (
                 <div key={task.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
