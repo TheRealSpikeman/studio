@@ -10,7 +10,7 @@ import { LogOut, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname, useRouter } from 'next/navigation'; 
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
   leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
@@ -165,16 +165,18 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <DashboardRoleProvider>
-        <div className="flex min-h-screen w-full">
-          <DashboardSidebar />
-          <div className="flex flex-1 flex-col md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-[margin-left] duration-300 ease-in-out">
-            <DashboardHeader /> 
-            <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
-              <DashboardContentWrapper>{children}</DashboardContentWrapper>
-            </main>
+    <SidebarProvider>
+      <DashboardRoleProvider>
+          <div className="flex min-h-screen w-full">
+            <DashboardSidebar />
+            <div className="flex flex-1 flex-col md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-[margin-left] duration-300 ease-in-out">
+              <DashboardHeader /> 
+              <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
+                <DashboardContentWrapper>{children}</DashboardContentWrapper>
+              </main>
+            </div>
           </div>
-        </div>
-    </DashboardRoleProvider>
+      </DashboardRoleProvider>
+    </SidebarProvider>
   );
 }
