@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -19,7 +18,6 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarSeparator,
   useSidebar
 } from '@/components/ui/sidebar';
@@ -85,7 +83,7 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
-  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: Contact, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
   { 
     href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
@@ -213,7 +211,7 @@ function SidebarNavigationContent() {
     const initialOpenState: Record<string, boolean> = {};
     navItems.forEach(item => {
       if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href));
+        const isParentOfActivePage = item.children.some(child => pathname === child.href || pathname.startsWith(`${child.href}/`));
         if (isParentOfActivePage) {
           initialOpenState[item.href] = true;
         }
@@ -300,7 +298,7 @@ function SidebarNavigationContent() {
             }
             
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
+            const isParentOfActivePage = visibleChildren.some(child => pathname === child.href || pathname.startsWith(`${child.href}/`));
             const isDirectlyActive = !item.children && pathname === item.href;
             const isOpen = !!openSubMenus[item.href];
 
@@ -331,7 +329,7 @@ function SidebarNavigationContent() {
                               <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
                                 <SidebarMenuSubButton 
                                   asChild 
-                                  isActive={pathname.startsWith(child.href)}
+                                  isActive={pathname === child.href || pathname.startsWith(`${child.href}/`)}
                                 >
                                   <Link href={child.href}>
                                     {child.icon && <child.icon />}
