@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 // Simulate user data and role for redirection logic
 const MOCKED_CURRENT_COACH = {
@@ -69,7 +70,7 @@ const coachDashboardItems: DashboardItem[] = [
     description: 'Bekijk je factuurhistorie en verdiende bedragen.',
     icon: Euro,
     link: '#', 
-    buttonText: 'Bekijk Verdiensten (binnenkort)',
+    buttonText: 'Bekijk Verdiensten',
     buttonVariant: 'outline',
     disabled: true,
     isLink: false,
@@ -126,7 +127,10 @@ export default function CoachDashboardPage() {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <item.icon className="h-5 w-5" />
                 </div>
-                <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                  {item.title}
+                  {item.disabled && <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">Binnenkort</Badge>}
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -139,7 +143,7 @@ export default function CoachDashboardPage() {
                 asChild={item.isLink} 
                 disabled={item.disabled}
               >
-                {item.isLink ? <Link href={item.link}>{item.buttonText}</Link> : item.buttonText}
+                {item.isLink ? <Link href={item.link}>{item.buttonText}</Link> : <>{item.buttonText}</>}
               </Button>
             </CardFooter>
           </Card>

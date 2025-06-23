@@ -4,12 +4,15 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Euro, CreditCard, TrendingUp, Download } from 'lucide-react'; // Changed DollarSign to Euro
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminFinancePage() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-3xl font-bold text-foreground">Financieel Overzicht</h1>
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          Financieel Overzicht <Badge variant="outline" className="text-lg">Placeholder</Badge>
+        </h1>
         <p className="text-muted-foreground">
           Beheer betalingen, transfers, refunds en genereer financiële rapportages.
         </p>

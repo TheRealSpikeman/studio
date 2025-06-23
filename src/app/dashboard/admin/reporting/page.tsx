@@ -7,6 +7,7 @@ import { FileBarChart, Users, Briefcase, CalendarClock, Download, Filter } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/common/date-picker-with-range'; // Assume this component exists or will be created
 import { Input } from '@/components/ui/input'; // Added Input import
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminReportingPage() {
   // State for filters would go here
@@ -16,7 +17,9 @@ export default function AdminReportingPage() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-3xl font-bold text-foreground">Rapportages</h1>
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          Rapportages <Badge variant="outline" className="text-lg">In Ontwikkeling</Badge>
+        </h1>
         <p className="text-muted-foreground">
           Genereer en download aangepaste rapporten over gebruikers, tutors, sessies en financiën.
         </p>

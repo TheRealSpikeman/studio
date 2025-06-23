@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CreditCard, Euro, CheckCircle, Download, FileText, CalendarClock, AlertCircle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import Link from 'next/link';
 
 interface Subscription {
   id: string;
@@ -196,8 +197,11 @@ export default function FacturatiePage() {
                 </Alert>
             )}
           <div>
-            <p className="text-sm text-muted-foreground">Primaire betaalmethode: Visa **** **** **** 1234</p>
-            <Button variant="outline" size="sm" className="mt-2" disabled>Betaalmethoden Beheren (binnenkort)</Button>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Primaire betaalmethode: Visa **** **** **** 1234</p>
+              <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge>
+            </div>
+            <Button variant="outline" size="sm" className="mt-2" disabled>Betaalmethoden Beheren</Button>
           </div>
         </CardContent>
       </Card>

@@ -3,6 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChartHorizontal } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function QuizReportsPage() {
   return (
@@ -12,6 +13,7 @@ export default function QuizReportsPage() {
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
             <BarChartHorizontal className="h-6 w-6 text-primary" />
             Quiz Rapportages
+            <Badge variant="outline" className="text-base border-amber-400 text-amber-600">In Ontwikkeling</Badge>
           </CardTitle>
           <CardDescription>
             Gedetailleerde analyses van quizdeelnames, scores en vraagprestaties.

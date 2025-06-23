@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock } from 'lucide-react'; // Changed DollarSign to Euro
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 // Simulate user data and role for redirection logic
 // In a real app, this would come from an authentication context
 const MOCKED_CURRENT_TUTOR = {
   isLoggedIn: true, // Assume logged in to reach this page
   role: 'tutor' as 'tutor' | 'admin', // Role must be tutor or admin
-  status: 'pending_onboarding' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Current status of the tutor
+  status: 'actief' as 'pending_onboarding' | 'pending_approval' | 'actief' | 'rejected', // Current status of the tutor
 };
 
 interface DashboardItem {
@@ -27,7 +28,7 @@ interface DashboardItem {
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
   disabled?: boolean;
   isLink: boolean;
-  colorClass?: string; // For unique card styling
+  colorClass?: string;
 }
 
 const dashboardItems: DashboardItem[] = [
@@ -70,7 +71,7 @@ const dashboardItems: DashboardItem[] = [
     description: 'Bekijk je factuurhistorie en verdiende bedragen.',
     icon: Euro, // Changed DollarSign to Euro
     link: '#', // Placeholder
-    buttonText: 'Bekijk Verdiensten (binnenkort)',
+    buttonText: 'Bekijk Verdiensten',
     buttonVariant: 'outline',
     disabled: true,
     isLink: false,
@@ -82,7 +83,7 @@ const dashboardItems: DashboardItem[] = [
     description: 'Lees feedback van leerlingen die je hebt geholpen.',
     icon: FileText,
     link: '#', // Placeholder
-    buttonText: 'Bekijk Beoordelingen (binnenkort)',
+    buttonText: 'Bekijk Beoordelingen',
     buttonVariant: 'outline',
     disabled: true,
     isLink: false,
@@ -179,7 +180,10 @@ export default function TutorDashboardPage() {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <item.icon className="h-5 w-5" />
                 </div>
-                <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                  {item.title}
+                  {item.disabled && <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">Binnenkort</Badge>}
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -192,7 +196,7 @@ export default function TutorDashboardPage() {
                 asChild={item.isLink} 
                 disabled={item.disabled}
               >
-                {item.isLink ? <Link href={item.link}>{item.buttonText}</Link> : item.buttonText}
+                {item.isLink ? <Link href={item.link}>{item.buttonText}</Link> : <>{item.buttonText}</>}
               </Button>
             </CardFooter>
           </Card>

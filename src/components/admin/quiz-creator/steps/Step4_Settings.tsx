@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -119,13 +118,15 @@ export const Step4_Settings = () => {
                     
                     <Card>
                         <CardHeader className="pb-4">
-                            <Label htmlFor="resultPresentationSwitch" className="flex items-center justify-between text-base">
-                                <span>Resultaat Presentatie</span>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base">Resultaat Presentatie</CardTitle>
+                                    <CardDescription className="text-xs">
+                                        {quizData.audienceType === 'parent' ? 'Hoe worden de resultaten aan de ouder getoond?' : 'Hoe worden resultaten getoond (indien gedeeld met ouders)?'}
+                                    </CardDescription>
+                                </div>
                                 <Switch id="resultPresentationSwitch" checked={settings.resultPresentation?.showToParent ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'resultPresentation', 'showToParent'], val)} />
-                            </Label>
-                             <CardDescription>
-                                {quizData.audienceType === 'parent' ? 'Hoe worden de resultaten aan de ouder getoond?' : 'Hoe worden resultaten getoond (indien gedeeld met ouders)?'}
-                            </CardDescription>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                            <Select value={settings.resultPresentation?.format ?? 'visual_report'} onValueChange={(val) => handleSettingChange(['settings', 'resultPresentation', 'format'], val)}>
@@ -148,23 +149,28 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
-                            <Label htmlFor="showRecommendedToolsSwitch" className="flex items-center justify-between text-base">
-                                <span>Toon Aanbevolen Tools</span>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                  <CardTitle className="text-base">Toon Aanbevolen Tools</CardTitle>
+                                  <CardDescription className="text-xs">Toon een sectie met aanbevolen tools na de quiz.</CardDescription>
+                                </div>
                                 <Switch id="showRecommendedToolsSwitch" checked={settings.showRecommendedTools ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'showRecommendedTools'], val)} />
-                            </Label>
-                             <CardDescription>
-                                Toon na afloop van de quiz een sectie met aanbevolen tools op basis van de scores.
-                            </CardDescription>
+                            </div>
                         </CardHeader>
                     </Card>
 
                     <Card>
                         <CardHeader className="pb-4">
-                            <Label htmlFor="coachIntegrationSwitch" className="flex items-center justify-between text-base">
-                                <span>Coach Marketplace Integratie</span>
-                                <Switch id="coachIntegrationSwitch" checked={settings.coachIntegration?.enabled ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'coachIntegration', 'enabled'], val)} />
-                            </Label>
-                            <CardDescription>Suggereer passende coaches gebaseerd op resultaten.</CardDescription>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base">Coach Marketplace Integratie</CardTitle>
+                                    <CardDescription className="text-xs">Suggereer passende coaches gebaseerd op resultaten.</CardDescription>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge>
+                                  <Switch id="coachIntegrationSwitch" checked={settings.coachIntegration?.enabled ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'coachIntegration', 'enabled'], val)} />
+                                </div>
+                            </div>
                         </CardHeader>
                          <CardContent>
                            {showADHDCoachOption && (
@@ -182,13 +188,13 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
-                            <Label htmlFor="saveResultsSwitch" className="flex items-center justify-between text-base">
-                                <span>Sla resultaten op in profiel</span>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                  <CardTitle className="text-base">Sla resultaten op in profiel</CardTitle>
+                                  <CardDescription className="text-xs">Sla de quizresultaten op onder de 'Resultaten' pagina.</CardDescription>
+                                </div>
                                 <Switch id="saveResultsSwitch" checked={settings.saveResultsToProfile ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'saveResultsToProfile'], val)} />
-                            </Label>
-                             <CardDescription>
-                                Sla de quizresultaten op onder de 'Resultaten' pagina van de gebruiker.
-                            </CardDescription>
+                            </div>
                         </CardHeader>
                     </Card>
 
@@ -200,8 +206,8 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
-                             <Label className="text-base">Quiz Toegankelijkheid</Label>
-                            <CardDescription>Selecteer welke abonnementsplannen toegang hebben tot deze quiz.</CardDescription>
+                             <CardTitle className="text-base">Quiz Toegankelijkheid</CardTitle>
+                            <CardDescription className="text-xs">Selecteer welke abonnementsplannen toegang hebben tot deze quiz.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
@@ -225,11 +231,16 @@ export const Step4_Settings = () => {
 
                     <Card>
                         <CardHeader className="pb-4">
-                            <Label htmlFor="schoolPartnershipsSwitch" className="flex items-center justify-between text-base">
-                                <span>School Partnerships</span>
-                                <Switch id="schoolPartnershipsSwitch" checked={settings.schoolPartnerships?.enabled ?? false} onCheckedChange={(val) => handleSettingChange(['settings', 'schoolPartnerships', 'enabled'], val)}/>
-                            </Label>
-                             <CardDescription>Beschikbaar maken voor scholen en docenten.</CardDescription>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base">School Partnerships</CardTitle>
+                                    <CardDescription className="text-xs">Beschikbaar maken voor scholen en docenten.</CardDescription>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge>
+                                    <Switch id="schoolPartnershipsSwitch" checked={settings.schoolPartnerships?.enabled ?? false} onCheckedChange={(val) => handleSettingChange(['settings', 'schoolPartnerships', 'enabled'], val)}/>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-2">
                              <div className="flex items-center space-x-2">
@@ -249,11 +260,13 @@ export const Step4_Settings = () => {
                     
                     <Card>
                          <CardHeader className="pb-4">
-                             <Label htmlFor="contentModerationSwitch" className="flex items-center justify-between text-base">
-                                <span>Content Moderatie</span>
+                             <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base">Content Moderatie</CardTitle>
+                                    <CardDescription className="text-xs">Handmatige review voordat quiz live gaat.</CardDescription>
+                                </div>
                                 <Switch id="contentModerationSwitch" checked={settings.contentModeration?.required ?? true} onCheckedChange={(val) => handleSettingChange(['settings', 'contentModeration', 'required'], val)} />
-                            </Label>
-                            <CardDescription>Handmatige review voordat quiz live gaat.</CardDescription>
+                             </div>
                         </CardHeader>
                     </Card>
 

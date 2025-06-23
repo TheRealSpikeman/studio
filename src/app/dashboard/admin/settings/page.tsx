@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 const platformRoles = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder'];
 const platformPermissions = [
@@ -89,7 +90,10 @@ export default function AdminSettingsPage() {
                     Schakel onderhoudsmodus in om tijdelijk toegang tot het platform te beperken.
                   </p>
                 </div>
-                <Switch id="maintenanceMode" disabled />
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge>
+                  <Switch id="maintenanceMode" disabled />
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -101,7 +105,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="roles">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Rollen &amp; Permissies Beheer</CardTitle>
+              <CardTitle className="flex items-center gap-2">Rollen &amp; Permissies Beheer <Badge variant="outline" className="text-amber-600 border-amber-400">In Ontwikkeling</Badge></CardTitle>
               <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen. (Momenteel alleen weergave)</CardDescription>
             </CardHeader>
             <CardContent>
@@ -146,7 +150,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="notifications">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Notificatie &amp; E-mail Templates</CardTitle>
+              <CardTitle className="flex items-center gap-2">Notificatie &amp; E-mail Templates <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge></CardTitle>
               <CardDescription>
                 Overzicht van typen automatische e-mails. Het daadwerkelijke beheer van templates en verzending zal waarschijnlijk via een gespecialiseerde externe dienst (bijv. SendGrid, Hubspot) verlopen.
               </CardDescription>
@@ -172,7 +176,7 @@ export default function AdminSettingsPage() {
         <TabsContent value="security">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Beveiligingsinstellingen</CardTitle>
+              <CardTitle className="flex items-center gap-2">Beveiligingsinstellingen <Badge variant="outline" className="text-amber-600 border-amber-400">Binnenkort</Badge></CardTitle>
               <CardDescription>Beheer API-sleutels, integraties en beveiligingsprotocollen.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

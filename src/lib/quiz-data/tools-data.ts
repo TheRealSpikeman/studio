@@ -172,7 +172,7 @@ export const allTools: Tool[] = [
   {
     id: 'ademhalings-gids',
     title: 'Ademhalings Gids',
-    description: 'Visuele gidsen voor verschillende ademhalingstechnieken zoals de 'box breathing' en 4-7-8 methode.',
+    description: "Visuele gidsen voor verschillende ademhalingstechnieken zoals de 'box breathing' en 4-7-8 methode.",
     icon: Sun,
     category: 'Rust & Regulatie',
     reasoning: {
@@ -204,7 +204,7 @@ export const allTools: Tool[] = [
   {
     id: 'overprikkel-alarm',
     title: 'Overprikkel Alarm',
-    description: 'Leer je eigen signalen van overprikkeling herkennen en stel een 'alarm' in om op tijd een pauze te nemen.',
+    description: "Leer je eigen signalen van overprikkeling herkennen en stel een 'alarm' in om op tijd een pauze te nemen.",
     icon: BarChartHorizontal,
     category: 'Rust & Regulatie',
     reasoning: {
@@ -254,7 +254,7 @@ export const allTools: Tool[] = [
   {
     id: 'zorgen-dagboek',
     title: 'Zorgen Dagboek',
-    description: 'Een gestructureerde methode om piekergedachten op te schrijven en een vast 'piekerkwartier' in te plannen.',
+    description: "Een gestructureerde methode om piekergedachten op te schrijven en een vast 'piekerkwartier' in te plannen.",
     icon: NotebookText,
     category: 'Stemming & Emotie',
     reasoning: {
@@ -416,9 +416,3 @@ export const allTools: Tool[] = [
     }
   }
 ];
-```
-
-  </change>
-  <change>
-    <file>/src/app/dashboard/homework-assistance/[subjectId]/page.tsx</file>
-    <content><![CDATA[
