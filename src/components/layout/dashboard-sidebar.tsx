@@ -8,30 +8,32 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { 
   Sidebar, 
   SidebarHeader, 
   SidebarContent, 
-  SidebarMenu, 
   SidebarMenuItem, 
   SidebarMenuButton, 
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarSeparator,
   useSidebar
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
-  Users as UsersIconLucide, BookOpenCheck, Users2, Briefcase, 
+  Users as UsersIconLucide, BookOpenCheck, Briefcase, 
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarClock, CalendarDays, CalendarPlus 
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarSearch
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
@@ -50,8 +52,6 @@ interface NavItem {
   leerlingOnly?: boolean;
   ouderOnly?: boolean;
   sectionTitle?: string;
-  isSubItem?: boolean;
-  parent?: string;
   children?: NavItem[];
   isOuderOnboardingLink?: boolean; 
 }
@@ -68,9 +68,9 @@ const navItems: NavItem[] = [
     icon: Zap,
     leerlingOnly: true,
     children: [
-      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, isSubItem: true, parent: '#coaching-tools-parent' },
-      { href: '/dashboard/tools', label: 'Alle Tools', icon: Wrench, isSubItem: true, parent: '#coaching-tools-parent' },
-      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/tools', label: 'Alle Tools', icon: Wrench, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, parent: '#coaching-tools-parent' },
     ]
   },
   {
@@ -84,16 +84,16 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
-  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true, isSubItem: false, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true, parent: '/dashboard/ouder' },
   { 
     href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
     icon: BookOpenCheck, 
     ouderOnly: true, 
     children: [
-        { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, isSubItem: true, parent: '#ouder-lessen-parent' },
-        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, isSubItem: true, parent: '#ouder-lessen-parent' },
-        { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarDays, isSubItem: true, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarDays, parent: '#ouder-lessen-parent' },
     ]
   },
   { href: '/dashboard/ouder/zoek-professional', label: 'Zoek Begeleiding', icon: Link2, ouderOnly: true },
@@ -124,9 +124,9 @@ const navItems: NavItem[] = [
     icon: UsersIconLucide,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '#user-management-parent' },
-      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '#user-management-parent' },
-      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, parent: '#user-management-parent' },
     ]
   },
   {
@@ -135,9 +135,9 @@ const navItems: NavItem[] = [
     icon: ListChecks,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, isSubItem: true, parent: '#quiz-management-parent' },
-      { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, isSubItem: true, parent: '#quiz-management-parent' },
-      { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, parent: '#quiz-management-parent' },
     ]
   },
   {
@@ -146,8 +146,8 @@ const navItems: NavItem[] = [
     icon: TrendingUp,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, isSubItem: true, parent: '#insights-parent' },
-      { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, isSubItem: true, parent: '#insights-parent' },
+      { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, parent: '#insights-parent' },
+      { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, parent: '#insights-parent' },
     ]
   },
   {
@@ -156,8 +156,8 @@ const navItems: NavItem[] = [
     icon: Euro,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/subscription-management', label: 'Abonnementen', icon: CreditCard, isSubItem: true, parent: '#finance-parent' },
-      { href: '/dashboard/admin/finance', label: 'Betalingen', icon: Euro, isSubItem: true, parent: '#finance-parent' },
+      { href: '/dashboard/admin/subscription-management', label: 'Abonnementen', icon: CreditCard, parent: '#finance-parent' },
+      { href: '/dashboard/admin/finance', label: 'Betalingen', icon: Euro, parent: '#finance-parent' },
     ]
   },
   {
@@ -166,10 +166,10 @@ const navItems: NavItem[] = [
     icon: Settings,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, isSubItem: true, parent: '#platform-parent' },
-      { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, isSubItem: true, parent: '#platform-parent' },
-      { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, isSubItem: true, parent: '#platform-parent' },
-      { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '#platform-parent' },
+      { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, parent: '#platform-parent' },
+      { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, parent: '#platform-parent' },
+      { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, parent: '#platform-parent' },
+      { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, parent: '#platform-parent' },
     ]
   },
   {
@@ -178,11 +178,11 @@ const navItems: NavItem[] = [
     icon: BookHeart,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
     ]
   },
   
@@ -193,7 +193,6 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   const { state: sidebarState } = useSidebar();
-  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
   
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
@@ -207,23 +206,13 @@ function SidebarNavigationContent() {
         setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
     }
   }, []);
-
-  useEffect(() => {
-    const initialOpenState: Record<string, boolean> = {};
-    navItems.forEach(item => {
-      if (item.children) {
-        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href));
-        if (isParentOfActivePage) {
-          initialOpenState[item.href] = true;
-        }
-      }
-    });
-    setOpenSubMenus(initialOpenState);
+  
+  const defaultOpenAccordionItems = useMemo(() => {
+    const activeParent = navItems.find(item =>
+        item.children?.some(child => pathname.startsWith(child.href))
+    );
+    return activeParent ? [activeParent.href] : [];
   }, [pathname]);
-
-  const toggleSubMenu = (href: string) => {
-    setOpenSubMenus(prev => ({ ...prev, [href]: !prev[href] }));
-  };
   
   let currentSectionTitleDisplayed: string | null = null;
 
@@ -273,6 +262,7 @@ function SidebarNavigationContent() {
       <SidebarSeparator />
 
       <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
+        <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full">
         <SidebarMenu>
           {navItems.map((item, index) => {
             const roleFlags = {
@@ -301,8 +291,7 @@ function SidebarNavigationContent() {
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
             const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
             const isDirectlyActive = !item.children && pathname === item.href;
-            const isOpen = !!openSubMenus[item.href];
-
+            
             return (
               <Fragment key={`${item.href}-${index}`}>
                 {renderSectionHeader && (
@@ -312,35 +301,39 @@ function SidebarNavigationContent() {
                 )}
 
                 {item.children && visibleChildren.length > 0 ? (
-                  <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        onClick={() => toggleSubMenu(item.href)}
-                        data-state={isOpen ? "open" : "closed"}
-                        isActive={isParentOfActivePage} 
-                        tooltip={item.label}
-                      >
-                        <item.icon />
-                        <span className="group-data-[collapsible=icon]:hidden flex-grow">
-                          {item.label}
-                        </span>
-                        <ChevronRight className={cn( "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden", isOpen && "rotate-90" )} />
-                      </SidebarMenuButton>
-                      <SidebarMenuSub data-state={isOpen ? "open" : "closed"}>
-                          {visibleChildren.map((child, childIndex) => (
-                              <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
-                                <SidebarMenuSubButton 
-                                  asChild 
-                                  isActive={pathname === child.href || pathname.startsWith(`${child.href}/`)}
-                                >
-                                  <Link href={child.href}>
-                                    {child.icon && <child.icon />}
-                                    {child.label}
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                          ))}
-                      </SidebarMenuSub>
-                   </SidebarMenuItem>
+                  <AccordionItem value={item.href} className="border-none">
+                    <AccordionTrigger asChild>
+                      <SidebarMenuItem className="p-0">
+                          <SidebarMenuButton 
+                            className="w-full justify-between"
+                            isActive={isParentOfActivePage} 
+                            tooltip={item.label}
+                          >
+                            <span className="flex items-center gap-2">
+                              <item.icon />
+                              <span className="group-data-[collapsible=icon]:hidden flex-grow">
+                                {item.label}
+                              </span>
+                            </span>
+                             <ChevronRight className={cn( "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden AccordionChevron" )} />
+                          </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-0 pl-7 pr-2 group-data-[collapsible=icon]:hidden">
+                      <SidebarMenu>
+                        {visibleChildren.map((child, childIndex) => (
+                           <SidebarMenuItem key={`${child.href}-${childIndex}`}>
+                             <SidebarMenuButton asChild isActive={pathname.startsWith(child.href)} size="sm">
+                                <Link href={child.href}>
+                                  {child.icon && <child.icon />}
+                                  {child.label}
+                                </Link>
+                             </SidebarMenuButton>
+                           </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </AccordionContent>
+                  </AccordionItem>
                 ) : (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={isDirectlyActive || pathname.startsWith(`${item.href}/`)} tooltip={item.label}>
@@ -355,11 +348,11 @@ function SidebarNavigationContent() {
             );
           })}
         </SidebarMenu>
+        </Accordion>
       </SidebarContent>
     </>
   );
 }
-
 
 const SidebarSkeleton = () => (
     <div className="hidden md:flex flex-col h-full w-[3.5rem] bg-card border-r p-2 gap-4">
@@ -379,7 +372,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile, openMobile, setOpenMobile, state: sidebarState } = useSidebar();
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
