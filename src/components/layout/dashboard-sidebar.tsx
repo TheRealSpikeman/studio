@@ -20,6 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
   SidebarSeparator
 } from '@/components/ui/sidebar';
