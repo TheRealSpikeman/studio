@@ -67,13 +67,13 @@ const leerlingDashboardItems: DashboardActionItem[] = [
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
   },
   {
-    id: 'homework',
-    title: 'Slimmer Studeren',
-    description: 'Krijg hulp bij je huiswerk met handige tools, tips en planninghulpmiddelen.',
+    id: 'tools',
+    title: 'Tools & Oefeningen',
+    description: 'Ontdek planners, timers en andere handige tools die je helpen met focus en organisatie.',
     icon: BookOpenCheck,
-    link: '/dashboard/homework-assistance',
-    buttonText: 'Naar Huiswerk Tools',
-    buttonVariant: 'outline', // Secondary button
+    link: '/dashboard/coaching',
+    buttonText: 'Bekijk alle Tools',
+    buttonVariant: 'outline',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
   }
 ];
