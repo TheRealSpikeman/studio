@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { SiteLogo } from '@/components/common/site-logo';
 import Link from 'next/link';
-import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2, MessageCircle, AlertCircle } from 'lucide-react';
+import { ArrowRight, CheckSquare, RefreshCw, Info, AlertTriangle, Sparkles, UserPlus, LogIn, Brain, Zap, User, ThumbsUp, Compass, ShieldAlert, Lightbulb, Target, Users as UsersIcon, Edit, ListChecks, MessageSquareHeart, HelpCircle, FileText, Edit2Icon, ExternalLink, Clock, ShieldCheck, PauseCircle, Loader2, MessageCircle, AlertCircle, LayoutDashboard } from 'lucide-react';
 import { TeenQuizProgressBar } from '@/components/quiz/teen-quiz-progress-bar';
 import { QuestionDisplay } from '@/components/quiz/question-display';
 import {
@@ -827,28 +827,31 @@ export default function QuizPageContent() {
                   </AlertDescUi>
               </Alert>
               
-              <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
-                  <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="lg" className="shadow-sm"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="rounded-lg shadow-lg">
-                          <AlertDialogHeader>
-                          <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Quiz opnieuw starten?</AlertDialogTitle>
-                          <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
-                              Weet je zeker dat je de quiz opnieuw wilt starten? Alle antwoorden worden gewist.
-                          </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                          <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleRestart}>Opnieuw starten</AlertDialogAction>
-                          </AlertDialogFooter>
-                      </AlertDialogContent>
-                  </AlertDialog>
-                  <Button variant="link" asChild className="mt-2">
-                      <Link href="/quizzes">Terug naar overzicht quizzen</Link>
-                  </Button>
-              </CardFooter>
+               <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
+                    <Button size="lg" asChild className="w-full sm:w-auto">
+                        <Link href="/dashboard">
+                            <LayoutDashboard className="mr-2 h-5 w-5" />
+                            Ga naar mijn Dashboard
+                        </Link>
+                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="link" className="text-muted-foreground"><RefreshCw className="mr-2 h-4 w-4" />Doe de quiz opnieuw</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="rounded-lg shadow-lg">
+                            <AlertDialogHeader>
+                            <AlertDialogTitle className="text-accent font-bold text-[1.25rem]">Quiz opnieuw starten?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-foreground/80 leading-relaxed text-base">
+                                Weet je zeker dat je de quiz opnieuw wilt starten? Alle antwoorden worden gewist.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleRestart}>Opnieuw starten</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardFooter>
             </div>
           )}
         </div>
