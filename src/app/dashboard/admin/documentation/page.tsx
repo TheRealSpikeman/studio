@@ -4,17 +4,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot } from 'lucide-react';
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users } from 'lucide-react';
 
 const documentationLinks = [
-  {
-    title: "Uitleg: Adaptieve Quiz Methodologie",
-    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen.",
-    icon: GitBranch,
-    href: "/methodologie/adaptieve-quiz",
-    linkText: "Bekijk Methodologie",
-    isExternal: true,
-  },
   {
     title: "Volledige Platform Handleiding",
     description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform.",
@@ -22,6 +14,22 @@ const documentationLinks = [
     href: "/dashboard/admin/documentation/platform-guide",
     linkText: "Open Handleiding",
     isExternal: false,
+  },
+  {
+    title: "Customer Journey (12-jarige)",
+    description: "Stap-voor-stap overzicht van de gebruikersreis voor een nieuwe 12-jarige leerling, van registratie tot dashboard.",
+    icon: Users, // Using Users icon
+    href: "/dashboard/admin/documentation/customer-journey",
+    linkText: "Bekijk Journey",
+    isExternal: false,
+  },
+  {
+    title: "Uitleg: Adaptieve Quiz Methodologie",
+    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen.",
+    icon: GitBranch,
+    href: "/methodologie/adaptieve-quiz",
+    linkText: "Bekijk Methodologie",
+    isExternal: true,
   },
    {
     title: "AI Persona: Dr. Florentine Sage",
