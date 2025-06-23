@@ -1,3 +1,4 @@
+
 // src/app/dashboard/layout.tsx
 "use client";
 
@@ -169,7 +170,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <DashboardRoleProvider>
           <div className="flex min-h-screen w-full">
             <DashboardSidebar />
-            <div className="flex flex-1 flex-col md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-[margin-left] duration-300 ease-in-out">
+            <div className="flex flex-1 flex-col">
               <DashboardHeader /> 
               <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
                 <DashboardContentWrapper>{children}</DashboardContentWrapper>
