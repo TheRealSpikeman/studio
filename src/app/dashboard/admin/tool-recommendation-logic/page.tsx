@@ -74,16 +74,19 @@ const ToolCard = ({ tool }: { tool: Tool }) => (
   </div>
 );
 
-const ScoreLevelCard = ({ title, icon, toolIds }: { title: string, icon: ElementType, toolIds: string[] }) => {
+const ScoreLevelCard = ({ title, icon, toolIds, scoreRange }: { title: string, icon: ElementType, toolIds: string[], scoreRange: string }) => {
     const Icon = icon;
     const tools = toolIds.map(id => allTools.find(t => t.id === id)).filter((t): t is Tool => !!t);
 
     return (
         <Card className="flex-1 min-w-[280px]">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Icon className="h-6 w-6 text-primary"/>
-                    {title}
+                <CardTitle className="flex items-center justify-between gap-2 text-lg">
+                     <div className="flex items-center gap-2">
+                        <Icon className="h-6 w-6 text-primary"/>
+                        {title}
+                    </div>
+                    <Badge variant="outline" className="font-mono text-xs font-semibold">{scoreRange}</Badge>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -112,7 +115,7 @@ export default function ToolRecommendationLogicPage() {
         </Button>
       </div>
       <p className="text-muted-foreground">
-        Dit overzicht toont welke tools worden aanbevolen op basis van de scores op de verschillende neurodiversiteitsprofielen. Deze logica wordt toegepast op de resultatenpagina van de quiz.
+        Dit overzicht toont welke tools worden aanbevolen op basis van de scores (schaal 0-8) op de verschillende neurodiversiteitsprofielen. Deze logica wordt toegepast op de resultatenpagina van de quiz.
       </p>
 
       <div className="space-y-10">
@@ -124,9 +127,9 @@ export default function ToolRecommendationLogicPage() {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col lg:flex-row gap-4">
-                    <ScoreLevelCard title="Hoge Score" icon={TrendingUp} toolIds={matrixItem.recommendations.high} />
-                    <ScoreLevelCard title="Gemiddelde Score" icon={Minus} toolIds={matrixItem.recommendations.medium} />
-                    <ScoreLevelCard title="Lage Score" icon={TrendingDown} toolIds={matrixItem.recommendations.low} />
+                    <ScoreLevelCard title="Hoge Score" icon={TrendingUp} toolIds={matrixItem.recommendations.high} scoreRange="> 5.0" />
+                    <ScoreLevelCard title="Gemiddelde Score" icon={Minus} toolIds={matrixItem.recommendations.medium} scoreRange="2.1 - 5.0" />
+                    <ScoreLevelCard title="Lage Score" icon={TrendingDown} toolIds={matrixItem.recommendations.low} scoreRange="0.0 - 2.0" />
                 </div>
             </CardContent>
           </Card>
