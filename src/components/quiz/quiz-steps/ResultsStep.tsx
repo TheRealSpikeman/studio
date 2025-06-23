@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, AlertTriangle, RefreshCw, LayoutDashboard, Brain, User, ThumbsUp, Info, HelpCircle, Sparkles, MessageSquareHeart, Edit2Icon, Lightbulb, Compass, ShieldAlert, Zap, Users as UsersIcon, ExternalLink, Rocket, AlertCircle, ArrowRight } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw, LayoutDashboard, Brain, User, ThumbsUp, Info, HelpCircle, Sparkles, MessageSquareHeart, Edit2Icon, Lightbulb, Compass, ShieldAlert, Zap, Users as UsersIcon, ExternalLink, Rocket, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
@@ -20,7 +20,7 @@ type Scores = Record<string, number>;
 type ToolScores = { attention: number; energy: number; prikkels: number; sociaal: number; stemming: number; };
 interface ParsedProfileScore { profileName: string; score: string; comment: string; subScores?: ParsedProfileScore[]; }
 interface AiAnalysisSection { title: string; content: string | ParsedProfileScore[]; isList?: boolean; icon?: React.ElementType; }
-const mainSectionIcons: Record<string, React.ElementType> = { "Jouw Profiel In Vogelvlucht": User, "Sterke Kanten": ThumbsUp, "Aandachtspunten": AlertCircle, "Tips voor Jou": Lightbulb };
+const mainSectionIcons: Record<string, React.ElementType> = { "Jouw Profiel In Vogelvlucht": User, "Sterke Kanten": ThumbsUp, "Aandachtspunten": AlertTriangle, "Tips voor Jou": Lightbulb };
 
 // Helper Functions
 const sanitizeAiText = (text: string): string => {
@@ -307,7 +307,18 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
                   {recommendedTools.high.map((tool) => (
                       <AccordionItem key={tool.id} value={tool.id} className="bg-primary/5 border border-primary/20 rounded-lg">
                           <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline data-[state=open]:text-primary"><div className="flex items-center gap-3"><tool.icon className="h-6 w-6 text-primary"/>{tool.title}</div></AccordionTrigger>
-                          <AccordionContent className="p-4 pt-0"><p className="text-muted-foreground mb-3">{tool.description}</p><h4 className="font-semibold text-primary mb-1">Waarom is dit voor jou?</h4><p className="text-sm text-muted-foreground">{tool.reasoning.high}</p><h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4><p className="text-sm text-muted-foreground">{tool.usage.when}</p><Button size="sm" className="mt-3">Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/></Button></AccordionContent>
+                          <AccordionContent className="p-4 pt-0">
+                            <p className="text-muted-foreground mb-3">{tool.description}</p>
+                            <h4 className="font-semibold text-primary mb-1">Waarom is dit voor jou?</h4>
+                            <p className="text-sm text-muted-foreground">{tool.reasoning.high}</p>
+                            <h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4>
+                            <p className="text-sm text-muted-foreground">{tool.usage.when}</p>
+                            <Button asChild size="sm" className="mt-3">
+                                <Link href="/dashboard/coaching">
+                                    Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/>
+                                </Link>
+                            </Button>
+                          </AccordionContent>
                       </AccordionItem>
                   ))}
               </Accordion>
