@@ -165,25 +165,18 @@ function DashboardContentWrapper({ children }: { children: ReactNode }) {
 
 
 function DashboardMainContainer({ children }: { children: React.ReactNode }) {
-    const { isMobile, state } = useSidebar();
-    const [isClient, setIsClient] = useState(false);
-    
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
     return (
         <div 
             className={cn(
                 "flex flex-1 flex-col",
-                isClient && !isMobile && "transition-[margin-left] duration-200 ease-in-out",
-                isClient && !isMobile && state === 'expanded' && "md:ml-[16rem]",
-                isClient && !isMobile && state === 'collapsed' && "md:ml-[3.5rem]"
+                "transition-[margin-left] duration-200 ease-in-out",
+                "md:peer-data-[state=expanded]:ml-[16rem]",
+                "md:peer-data-[state=collapsed]:ml-[3.5rem]"
             )}
         >
             <DashboardHeader /> 
             <main className="flex-1 p-6 md:p-8 lg:p-10 bg-secondary/30">
-                <DashboardContentWrapper>{children}</DashboardContentWrapper>
+                {children}
             </main>
         </div>
     );
