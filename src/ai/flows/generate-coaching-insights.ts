@@ -43,7 +43,7 @@ export async function generateCoachingInsights(
   input: GenerateCoachingInsightsInput
 ): Promise<GenerateCoachingInsightsOutput> {
   // Robust check at the entry point. This prevents the flow from being called with invalid data.
-  // This is the definitive fix for the INVALID_ARGUMENT error.
+  // This is the definitive fix for the INVALID_ARGUMENT error that could cause spinners downstream.
   if (!input || !input.onboardingAnalysisText || input.onboardingAnalysisText.trim().length === 0) {
     console.warn("generateCoachingInsights called with invalid input. Returning default content from the wrapper function.");
     return {

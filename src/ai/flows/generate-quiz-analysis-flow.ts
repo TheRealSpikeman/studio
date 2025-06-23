@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A Genkit flow for generating AI-powered analysis of quiz results.
@@ -41,49 +42,46 @@ We konden geen analyse genereren omdat er onvoldoende gegevens beschikbaar waren
 * Als het probleem aanhoudt, neem dan contact op met support en vermeld de quiz die je deed.`;
 }
 
-
 export async function generateQuizAnalysis(
   input: GenerateQuizAnalysisInput
 ): Promise<GenerateQuizAnalysisOutput> {
-  console.log("=== ANALYSIS INPUT VALIDATION ===");
-  console.log("Received input:", JSON.stringify(input, null, 2));
-
+  // Input validation wrapper to prevent calling the flow with invalid data.
   if (!input) {
-    console.error("No input provided");
+    console.error("No input provided to generateQuizAnalysis.");
     return { analysis: getDefaultAnalysis() };
   }
   
   if (!input.finalScores || typeof input.finalScores !== 'object' || Object.keys(input.finalScores).length === 0) {
-    console.error("Invalid or empty finalScores:", input.finalScores);
+    console.error("Invalid or empty finalScores in generateQuizAnalysis:", input.finalScores);
     return { analysis: getDefaultAnalysis() };
   }
   
   if (!input.answeredQuestions || !Array.isArray(input.answeredQuestions) || input.answeredQuestions.length === 0) {
-    console.error("Invalid or empty answeredQuestions:", input.answeredQuestions);
+    console.error("Invalid or empty answeredQuestions in generateQuizAnalysis:", input.answeredQuestions);
     return { analysis: getDefaultAnalysis() };
   }
   
   if (!input.ageGroup || !input.quizTitle) {
-    console.error("Missing ageGroup or quizTitle:", { ageGroup: input.ageGroup, quizTitle: input.quizTitle });
+    console.error("Missing ageGroup or quizTitle in generateQuizAnalysis:", { ageGroup: input.ageGroup, quizTitle: input.quizTitle });
     return { analysis: getDefaultAnalysis() };
   }
   
-  console.log("Input validation passed, calling flow...");
   return generateQuizAnalysisFlow(input);
 }
 
+// New internal schema to make data iterable for Handlebars
+const PromptInternalInputSchema = GenerateQuizAnalysisInputSchema.extend({
+  finalScoresArray: z.array(z.object({
+    key: z.string(),
+    value: z.number(),
+  })),
+});
 
-const generateQuizAnalysisFlow = ai.defineFlow(
-  {
-    name: 'generateQuizAnalysisFlow',
-    inputSchema: GenerateQuizAnalysisInputSchema,
-    outputSchema: GenerateQuizAnalysisOutputSchema,
-  },
-  async (input: GenerateQuizAnalysisInput) => {
-    console.log("=== MANUAL PROMPT BUILDING IN FLOW ===");
-    
-    // Manually build the prompt string to avoid Handlebars issues
-    let promptText = `CONTEXT: Je bent Dr. Florentine Sage, een GZ-psycholoog gespecialiseerd in neurodiversiteit bij adolescenten. Je analyseert de resultaten van een zelfreflectie-instrument voor een jongere in de leeftijdscategorie ${input.ageGroup}. Je schrijfstijl is warm, empowerend, bemoedigend en makkelijk te begrijpen voor deze doelgroep.
+const prompt = ai.definePrompt({
+    name: 'generateQuizAnalysisPrompt',
+    input: { schema: PromptInternalInputSchema },
+    output: { schema: GenerateQuizAnalysisOutputSchema },
+    prompt: `CONTEXT: Je bent Dr. Florentine Sage, een GZ-psycholoog gespecialiseerd in neurodiversiteit bij adolescenten. Je analyseert de resultaten van een zelfreflectie-instrument voor een jongere in de leeftijdscategorie {{{ageGroup}}}. Je schrijfstijl is warm, empowerend, bemoedigend en makkelijk te begrijpen voor deze doelgroep.
 
 BELANGRIJKE INSTRUCTIES:
 1.  **GEEN MEDISCHE LABELS**: Gebruik **NOOIT** acroniemen zoals ADD, ADHD, ASS, HSP, of termen als 'stoornis'. Gebruik in plaats daarvan beschrijvende, neutrale thema's:
@@ -98,35 +96,18 @@ BELANGRIJKE INSTRUCTIES:
 5.  **TOON**: Schrijf direct tegen de jongere ('jij' en 'jouw'). Wees positief en focus op sterktes en groeimogelijkheden.
 
 ANALYSEER DE VOLGENDE DATA:
--   Quiz Titel: ${input.quizTitle}
--   Leeftijdsgroep: ${input.ageGroup}
--   Scores per Thema (ALLEEN VOOR JOUW INTERNE ANALYSE, NIET TONEN):`;
+-   Quiz Titel: {{{quizTitle}}}
+-   Leeftijdsgroep: {{{ageGroup}}}
+-   Scores per Thema (ALLEEN VOOR JOUW INTERNE ANALYSE, NIET TONEN):
+{{#each finalScoresArray}}
+    - {{this.key}}: {{this.value}}
+{{/each}}
+-   Gegeven Antwoorden:
+{{#each answeredQuestions}}
+    - Vraag over "{{this.profileKey}}": "{{this.question}}" - Antwoord: "{{this.answer}}"
+{{/each}}
 
-    for (const [key, value] of Object.entries(input.finalScores)) {
-      promptText += `\n    - ${key}: ${value}`;
-    }
-
-    promptText += `\n-   Gegeven Antwoorden:`;
-
-    input.answeredQuestions.forEach(q => {
-      promptText += `\n    - Vraag over "${q.profileKey || 'algemeen'}": "${q.question}" - Antwoord: "${q.answer}"`;
-    });
-
-    let analysisInstructions = "";
-    switch (input.analysisDetailLevel) {
-      case 'beknopt':
-        analysisInstructions = "Houd de analyse beknopt en focus op de hoofdpunten, ongeveer 150 woorden.";
-        break;
-      case 'uitgebreid':
-        analysisInstructions = "De analyse moet zeer gedetailleerd zijn (minstens 350-400 woorden), diep ingaan op nuances en meerdere voorbeelden of reflectiepunten per sectie bieden.";
-        break;
-      case 'standaard':
-      default:
-        analysisInstructions = "De analyse moet gedetailleerd zijn (minstens 250-300 woorden).";
-        break;
-    }
-
-    promptText += `\n\nOUTPUT FORMAT:
+OUTPUT FORMAT:
 
 ## Jouw Profiel In Vogelvlucht
 Begin met een korte, algemene en bemoedigende introductie. Vat daarna per relevant thema (zie de thema's hierboven) in een paar zinnen samen wat de antwoorden suggereren. Focus op het normaliseren van de ervaring.
@@ -144,17 +125,33 @@ Lijst 2-3 uitdagingen op, geframed als 'groeikansen' of 'dingen om op te letten'
 Geef 3-4 concrete, praktische en direct toepasbare tips. Geef de tips creatieve, herkenbare namen.
 *Voorbeeld: "* **De Focus Sprint:** Probeer eens te werken met een timer voor 20 minuten en neem daarna 5 minuten pauze. Dit kan helpen om taken minder overweldigend te maken."*
 
-${analysisInstructions}`;
-    
-    console.log("Built prompt text length:", promptText.length);
-    console.log("First 100 chars of prompt:", promptText.substring(0, 100));
+{{#if analysisInstructions}}{{{analysisInstructions}}}{{/if}}
+{{#if analysisDetailLevel}}
+{{#if (eq analysisDetailLevel 'beknopt')}}Houd de analyse beknopt en focus op de hoofdpunten, ongeveer 150 woorden.{{/if}}
+{{#if (eq analysisDetailLevel 'standaard')}}De analyse moet gedetailleerd zijn (minstens 250-300 woorden).{{/if}}
+{{#if (eq analysisDetailLevel 'uitgebreid')}}De analyse moet zeer gedetailleerd zijn (minstens 350-400 woorden), diep ingaan op nuances en meerdere voorbeelden of reflectiepunten per sectie bieden.{{/if}}
+{{else}}
+De analyse moet gedetailleerd zijn (minstens 250-300 woorden).
+{{/if}}
+`,
+});
 
-    // Use ai.generate directly to bypass the definePrompt templating engine
-    const { output } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
-      prompt: promptText,
-      output: { schema: GenerateQuizAnalysisOutputSchema }
-    });
+const generateQuizAnalysisFlow = ai.defineFlow(
+  {
+    name: 'generateQuizAnalysisFlow',
+    inputSchema: GenerateQuizAnalysisInputSchema,
+    outputSchema: GenerateQuizAnalysisOutputSchema,
+  },
+  async (input: GenerateQuizAnalysisInput) => {
+    // Transform the finalScores record into an array for Handlebars iteration
+    const finalScoresArray = Object.entries(input.finalScores).map(([key, value]) => ({ key, value }));
+
+    const promptInput = {
+      ...input,
+      finalScoresArray,
+    };
+
+    const { output } = await prompt(promptInput);
 
     if (!output) {
       throw new Error('AI did not return an analysis.');
