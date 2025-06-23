@@ -1,5 +1,4 @@
 
-// src/components/layout/dashboard-sidebar.tsx
 "use client";
 
 import Link from 'next/link';
@@ -8,37 +7,19 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { 
-  Sidebar, 
-  SidebarHeader, 
-  SidebarContent, 
-  SidebarMenuItem, 
-  SidebarMenuButton, 
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarSeparator,
-  useSidebar
-} from '@/components/ui/sidebar';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
+import { useState, useEffect, Fragment, useMemo } from 'react';
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, 
   Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarClock, GraduationCap
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, Wrench, CalendarPlus, CalendarClock, CalendarDays, GraduationCap
 } from 'lucide-react'; 
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
-import { useState, useEffect, Fragment, useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
-import { Skeleton } from "@/components/ui/skeleton";
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -191,61 +172,66 @@ const navItems: NavItem[] = [
   { href: '/dashboard/profile', label: 'Profiel', icon: User }, 
 ];
 
-function SidebarNavigationContent() {
+export function SidebarNavContent() {
   const pathname = usePathname();
-  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
-  const { state: sidebarState } = useSidebar();
-  
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
-  const [hasBillingAction, setHasBillingAction] = useState(true); 
-  const [showCommunityNavItemForLeerling, setShowCommunityNavItemForLeerling] = useState(true);
-  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true); 
+  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole();
+  const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true);
   const [isLeerlingOnboardingPending, setIsLeerlingOnboardingPending] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
-        setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
+      setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
+      setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
     }
   }, []);
-  
+
+  const filteredNavItems = useMemo(() => {
+    return navItems.filter(item => {
+      const roleFlags = {
+        admin: !!item.adminOnly,
+        tutor: !!item.tutorOnly,
+        coach: !!item.coachOnly,
+        leerling: !!item.leerlingOnly,
+        ouder: !!item.ouderOnly,
+      };
+      const hasNoSpecificRole = Object.values(roleFlags).every(v => !v);
+      const isForCurrentRole = hasNoSpecificRole || roleFlags[currentDashboardRole];
+
+      if (!isForCurrentRole) return false;
+
+      if (currentDashboardRole === 'ouder') {
+        if (item.isOuderOnboardingLink !== isOuderOnboardingPending) return false;
+        if (!item.isOuderOnboardingLink && isOuderOnboardingPending) return false;
+      }
+      if (currentDashboardRole === 'leerling') {
+        if (item.href === '/dashboard/leerling/welcome' && !isLeerlingOnboardingPending) return false;
+        if (!['/dashboard/leerling/welcome', '/dashboard/profile'].includes(item.href) && isLeerlingOnboardingPending) return false;
+      }
+      return true;
+    });
+  }, [currentDashboardRole, isOuderOnboardingPending, isLeerlingOnboardingPending]);
+
   const defaultOpenAccordionItems = useMemo(() => {
-    const activeParent = navItems.find(item =>
-        item.children?.some(child => pathname.startsWith(child.href))
+    const activeParent = filteredNavItems.find(item =>
+      item.children?.some(child => pathname.startsWith(child.href))
     );
     return activeParent ? [activeParent.href] : [];
-  }, [pathname]);
-  
+  }, [pathname, filteredNavItems]);
+
   let currentSectionTitleDisplayed: string | null = null;
 
   return (
     <>
-      <SidebarHeader>
-        <div className="flex h-16 items-center justify-between px-4 group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1">
-          <SiteLogo 
-            textClassName="group-data-[collapsible=icon]:hidden" 
-            iconClassName="group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" 
-          />
-        </div>
-        <div className={cn(
-            "p-4",
-            "group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:border-b-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
-        )}>
-          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1 group-data-[collapsible=icon]:hidden">
-            <Shuffle className="h-3 w-3"/>
+      <div className="p-4 border-b">
+        <SiteLogo />
+        <div className="mt-4 space-y-1">
+          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+            <Shuffle className="h-3 w-3" />
             Testrol Wisselaar
           </Label>
           <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
-            <SelectTrigger 
-              id="role-switcher" 
-              className={cn(
-                "h-9", 
-                "group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center"
-              )}
-              aria-label="Selecteer een rol"
-            >
-               <span className="group-data-[collapsible=icon]:hidden"><SelectValue placeholder="Selecteer een rol" /></span>
-               <Shuffle className={cn("h-5 w-5", sidebarState === 'expanded' ? 'group-data-[collapsible=icon]:hidden' : 'group-data-[collapsible=icon]:block')} />
+            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol">
+              <SelectValue placeholder="Selecteer een rol" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="leerling">Leerling</SelectItem>
@@ -255,160 +241,72 @@ function SidebarNavigationContent() {
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground mt-1 group-data-[collapsible=icon]:hidden">
-            Sidebar past zich aan de gekozen rol aan.
-          </p>
         </div>
-      </SidebarHeader>
-      
-      <SidebarSeparator />
-
-      <SidebarContent className="group-data-[state=collapsed]:group-data-[collapsible=icon]:pt-1">
-        <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full">
-        <SidebarMenu>
-          {navItems.map((item, index) => {
-            const roleFlags = {
-              admin: !!item.adminOnly, tutor: !!item.tutorOnly, coach: !!item.coachOnly,
-              leerling: !!item.leerlingOnly, ouder: !!item.ouderOnly,
-            };
-            const isForCurrentRole = (role: UserRoleType) => {
-              const hasNoSpecificRole = Object.values(roleFlags).every(v => !v);
-              return hasNoSpecificRole || roleFlags[role];
-            };
-
-            if (!isForCurrentRole(currentDashboardRole)) return null;
-
-            if (currentDashboardRole === 'ouder' && item.isOuderOnboardingLink !== isOuderOnboardingPending) return null;
-            if (currentDashboardRole === 'ouder' && !item.isOuderOnboardingLink && isOuderOnboardingPending) return null;
-            if (currentDashboardRole === 'leerling' && item.href === '/dashboard/leerling/welcome' && !isLeerlingOnboardingPending) return null;
-            if (currentDashboardRole === 'leerling' && !['/dashboard/leerling/welcome', '/dashboard/profile'].includes(item.href) && isLeerlingOnboardingPending) return null;
-            if (currentDashboardRole === 'leerling' && item.href === '/dashboard/community' && !showCommunityNavItemForLeerling) return null;
-
-            let renderSectionHeader = false;
-            if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) { 
+      </div>
+      <ScrollArea className="flex-1">
+        <nav className="p-4 space-y-1">
+          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full">
+            {filteredNavItems.map((item) => {
+              let renderSectionHeader = false;
+              if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
                 renderSectionHeader = true;
                 currentSectionTitleDisplayed = item.sectionTitle;
-            }
-            
-            const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
-            const isDirectlyActive = !item.children && pathname === item.href;
-            
-            return (
-              <Fragment key={`${item.href}-${index}`}>
-                {renderSectionHeader && (
-                    <SidebarGroup className="pt-3 pb-1 group-data-[collapsible=icon]:hidden">
-                        <SidebarGroupLabel>{item.sectionTitle}</SidebarGroupLabel>
-                    </SidebarGroup>
-                )}
+              }
 
-                {item.children && visibleChildren.length > 0 ? (
-                  <AccordionItem value={item.href} className="border-none">
-                    <AccordionTrigger asChild>
-                      <SidebarMenuItem className="p-0">
-                          <SidebarMenuButton 
-                            className="w-full justify-between"
-                            isActive={isParentOfActivePage} 
-                            tooltip={item.label}
-                          >
-                            <span className="flex items-center gap-2">
-                              <item.icon />
-                              <span className="group-data-[collapsible=icon]:hidden flex-grow">
-                                {item.label}
-                              </span>
-                            </span>
-                             <ChevronRight className={cn( "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden AccordionChevron" )} />
-                          </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-0 pl-7 pr-2 group-data-[collapsible=icon]:hidden">
-                      <SidebarMenu>
-                        {visibleChildren.map((child, childIndex) => (
-                           <SidebarMenuItem key={`${child.href}-${childIndex}`}>
-                             <SidebarMenuButton asChild isActive={pathname === child.href || pathname.startsWith(`${child.href}/`)} size="sm">
-                                <Link href={child.href}>
-                                  {child.icon && <child.icon />}
-                                  {child.label}
-                                </Link>
-                             </SidebarMenuButton>
-                           </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    </AccordionContent>
-                  </AccordionItem>
-                ) : (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isDirectlyActive || pathname.startsWith(`${item.href}/`)} tooltip={item.label}>
+              const isDirectlyActive = !item.children && pathname === item.href;
+              const isParentOfActivePage = item.children?.some(child => pathname.startsWith(child.href));
+
+              return (
+                <Fragment key={item.href}>
+                  {renderSectionHeader && (
+                    <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider px-2 pt-4 pb-1">
+                      {item.sectionTitle}
+                    </h4>
+                  )}
+
+                  {item.children && item.children.length > 0 ? (
+                    <AccordionItem value={item.href} className="border-none">
+                      <AccordionTrigger className={cn("rounded-md hover:bg-muted hover:no-underline p-2", isParentOfActivePage && "bg-muted text-primary")}>
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pl-6 pt-1 pb-0">
+                        <div className="flex flex-col space-y-1 border-l border-muted-foreground/20 ml-1">
+                          {item.children.map(child => (
+                            <Button key={child.href} asChild variant="ghost" size="sm" className={cn("justify-start ml-2", pathname.startsWith(child.href) && "bg-accent text-accent-foreground")}>
+                              <Link href={child.href}>
+                                <child.icon className="mr-2 h-4 w-4" />
+                                {child.label}
+                              </Link>
+                            </Button>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ) : (
+                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start">
                       <Link href={item.href}>
-                        <item.icon />
-                        <span className="group-data-[collapsible=icon]:hidden flex-grow">{item.label}</span>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {item.label}
                       </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-              </Fragment>
-            );
-          })}
-        </SidebarMenu>
-        </Accordion>
-      </SidebarContent>
+                    </Button>
+                  )}
+                </Fragment>
+              );
+            })}
+          </Accordion>
+        </nav>
+      </ScrollArea>
     </>
   );
 }
 
-const SidebarSkeleton = () => (
-    <div className="hidden md:flex flex-col h-full w-[3.5rem] bg-card border-r p-2 gap-4">
-        <div className="flex items-center justify-center h-16">
-            <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
-        <div className="flex items-center justify-center">
-            <Skeleton className="h-8 w-8 rounded-md" />
-        </div>
-        <div className="flex-grow space-y-2 pt-4">
-            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
-            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
-            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
-            <Skeleton className="h-8 w-8 rounded-md mx-auto" />
-        </div>
-    </div>
-);
-
 export function DashboardSidebar() {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const pathname = usePathname();
-  
-  useEffect(() => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  }, [pathname, isMobile, setOpenMobile]);
-
-  if (!isClient) {
-    return <SidebarSkeleton />;
-  }
-
-  if (isMobile) {
-    return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[300px] p-0 bg-card">
-          <SheetTitle className="sr-only">Hoofdnavigatie</SheetTitle>
-          <Sidebar side="left" collapsible="offcanvas" className="h-full w-full">
-            <SidebarNavigationContent />
-          </Sidebar>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
   return (
-    <Sidebar side="left" collapsible="icon" className="bg-card border-r shadow-lg">
-      <SidebarNavigationContent />
-    </Sidebar>
+    <div className="hidden md:flex h-screen w-72 flex-col fixed inset-y-0 z-40 border-r bg-card">
+      <SidebarNavContent />
+    </div>
   );
 }
