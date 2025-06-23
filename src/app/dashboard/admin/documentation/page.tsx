@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users } from 'lucide-react';
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit } from 'lucide-react';
 
 const documentationLinks = [
   {
@@ -18,18 +18,18 @@ const documentationLinks = [
   {
     title: "Customer Journey (12-jarige)",
     description: "Stap-voor-stap overzicht van de gebruikersreis voor een nieuwe 12-jarige leerling, van registratie tot dashboard.",
-    icon: Users, // Using Users icon
+    icon: Users,
     href: "/dashboard/admin/documentation/customer-journey",
     linkText: "Bekijk Journey",
     isExternal: false,
   },
   {
-    title: "Uitleg: Adaptieve Quiz Methodologie",
-    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen.",
-    icon: GitBranch,
-    href: "/methodologie/adaptieve-quiz",
-    linkText: "Bekijk Methodologie",
-    isExternal: true,
+    title: "Data & Inzichten Flow",
+    description: "Gedetailleerde uitleg over hoe quizdata wordt omgezet in gepersonaliseerde coaching content.",
+    icon: BrainCircuit,
+    href: "/dashboard/admin/documentation/data-flow",
+    linkText: "Bekijk Data Flow",
+    isExternal: false,
   },
    {
     title: "AI Persona: Dr. Florentine Sage",
@@ -38,6 +38,14 @@ const documentationLinks = [
     href: "/dashboard/admin/documentation/ai-persona",
     linkText: "Bekijk Persona Profiel",
     isExternal: false,
+  },
+    {
+    title: "Uitleg: Adaptieve Quiz Methodologie",
+    description: "Een diepgaande uitleg van de twee-fase-structuur, het algoritme en de onderliggende principes van onze adaptieve quizzen.",
+    icon: GitBranch,
+    href: "/methodologie/adaptieve-quiz",
+    linkText: "Bekijk Methodologie",
+    isExternal: true,
   },
   {
     title: "Veelgestelde Vragen (Publiek)",

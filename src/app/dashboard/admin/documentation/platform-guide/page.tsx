@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, BookUser, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpenCheck, CreditCard, BarChart3, GitBranch, MessageSquareText } from 'lucide-react';
+import { ArrowLeft, BookUser, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpenCheck, CreditCard, BarChart3, GitBranch, MessageSquareText, ExternalLink } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function PlatformGuidePage() {
@@ -81,6 +81,9 @@ export default function PlatformGuidePage() {
                 <li><strong>Ouder Onboarding:</strong> Een ouder registreert zich en kan direct kinderen aan zijn/haar gezin toevoegen. Het kind ontvangt dan een uitnodiging per e-mail om het eigen account te activeren en te koppelen. De ouder beheert de abonnementen.</li>
                 <li><strong>Tutor/Coach Onboarding:</strong> Professionals melden zich aan via een aparte pagina. Ze doorlopen een onboarding wizard om hun profiel, kwalificaties (incl. VOG) en beschikbaarheid in te vullen. Een admin beoordeelt de aanvraag voordat het profiel wordt goedgekeurd en zichtbaar wordt op het platform.</li>
              </ul>
+             <Button variant="link" asChild className="p-0 h-auto mt-2">
+                <Link href="/dashboard/admin/documentation/customer-journey">Bekijk de gedetailleerde Customer Journey <ExternalLink className="ml-1 h-4 w-4"/></Link>
+             </Button>
           </AccordionContent>
         </AccordionItem>
 
@@ -140,13 +143,14 @@ export default function PlatformGuidePage() {
              <div className="flex items-center gap-2"><BarChart3 className="h-6 w-6 text-primary" />Data & Inzichten Flow</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
-            <p>Het proces van data naar waardevol inzicht:</p>
+            <p>Het proces van data naar waardevol inzicht is een cruciale, tweeledige AI-operatie:</p>
              <ol className="list-decimal list-inside pl-5 space-y-2">
-                <li><strong>Dataverzameling:</strong> Antwoorden op quizzen worden veilig opgeslagen (zowel van leerling als, indien van toepassing, de ouder in de "Ken je Kind" test).</li>
-                <li><strong>AI Analyse (Genkit):</strong> Google's Genkit wordt ingezet om deze data te analyseren. Het kan individuele resultaten samenvatten of ouder- en kindperspectieven vergelijken voor een dieper gezinsinzicht.</li>
-                <li><strong>Rapportage:</strong> De analyse wordt omgezet in een helder, begrijpelijk en visueel aantrekkelijk rapport, beschikbaar in het dashboard en als PDF.</li>
-                <li><strong>Actie:</strong> De inzichten voeden direct de gepersonaliseerde content in de Coaching Hub en vormen de basis voor concrete actieplannen.</li>
+                <li><strong>Quiz Analyse:</strong> Antwoorden worden omgezet in een uitgebreide, tekstuele analyse van het profiel.</li>
+                <li><strong>Coaching Generatie:</strong> Deze analyse-tekst wordt gebruikt als context om dagelijks nieuwe, relevante coaching tips te genereren.</li>
              </ol>
+              <Button variant="link" asChild className="p-0 h-auto mt-2">
+                <Link href="/dashboard/admin/documentation/data-flow">Bekijk de gedetailleerde Data Flow <ExternalLink className="ml-1 h-4 w-4"/></Link>
+             </Button>
           </AccordionContent>
         </AccordionItem>
         
