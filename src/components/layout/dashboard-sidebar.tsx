@@ -56,12 +56,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, parent: '#coaching-tools-parent' },
     ]
   },
-  {
-    href: '/dashboard/leerling/lessons', 
-    label: 'Mijn Lessen',
-    icon: BookOpenCheck, 
-    leerlingOnly: true,
-  },
+  { href: '/dashboard/leerling/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, leerlingOnly: true },
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   
   // Ouder Items
@@ -118,7 +113,7 @@ const navItems: NavItem[] = [
     icon: ListChecks,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, parent: '#quiz-management-parent' },
+      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzen', icon: ListChecks, parent: '#quiz-management-parent' },
       { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, parent: '#quiz-management-parent' },
       { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, parent: '#quiz-management-parent' },
     ]
