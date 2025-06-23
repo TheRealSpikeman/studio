@@ -117,7 +117,7 @@ export default function LeerlingWelcomePage() {
         </Card>
         
         <div className="flex flex-col items-center gap-3">
-          <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-xs">
+          <Button onClick={handleCompleteOnboarding} variant="outline" className="w-full max-w-md">
             Ik sla dit over en ga naar mijn (beperkte) dashboard
           </Button>
           <Link href={neurodiversityLink} className="text-xs text-primary hover:underline">
