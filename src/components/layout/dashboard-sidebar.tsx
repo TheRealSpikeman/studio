@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -30,7 +31,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -60,14 +61,15 @@ const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
-  { href: '/dashboard/results', label: 'Resultaten', icon: BarChart3, leerlingOnly: true },
+  { href: '/dashboard/results', label: 'Mijn Resultaten', icon: BarChart3, leerlingOnly: true },
   {
     href: '/dashboard/coaching',
-    label: 'Coaching',
-    icon: MessageSquare,
+    label: 'Coaching & Tools',
+    icon: Zap,
     leerlingOnly: true,
     children: [
-      { href: '/dashboard/coaching/settings', label: 'Instellingen Coaching', icon: Settings, isSubItem: true, parent: '/dashboard/coaching', leerlingOnly: true },
+      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, isSubItem: true, parent: '/dashboard/coaching' },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '/dashboard/coaching' },
     ]
   },
   {
@@ -75,30 +77,6 @@ const navItems: NavItem[] = [
     label: 'Mijn Lessen',
     icon: BookOpenCheck, 
     leerlingOnly: true,
-  },
-  {
-    href: '/dashboard/homework-assistance',
-    label: 'Huiswerkbegeleiding',
-    icon: GraduationCap, 
-    leerlingOnly: true,
-    children: [
-      {
-        href: '/dashboard/homework-assistance', 
-        label: 'Online Tips & Tools',
-        icon: Lightbulb,
-        isSubItem: true,
-        parent: '/dashboard/homework-assistance',
-        leerlingOnly: true,
-      },
-      {
-        href: '/dashboard/homework-assistance/tutors',
-        label: '1-op-1 Begeleiding',
-        icon: Users2,
-        isSubItem: true,
-        parent: '/dashboard/homework-assistance',
-        leerlingOnly: true,
-      },
-    ]
   },
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   

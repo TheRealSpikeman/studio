@@ -1,4 +1,5 @@
 
+// src/components/landing/platform-features-section.tsx
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -9,11 +10,7 @@ import { cn } from '@/lib/utils';
 interface Feature {
   icon: React.ReactNode;
   title: string;
-  descriptionPart1: string;
-  descriptionLinkText?: string;
-  descriptionLinkHref?: string;
-  descriptionPart2?: string;
-  descriptionFull?: string; 
+  descriptionFull: string; 
   link: string;
   linkText: string;
   colorClass: string;
@@ -23,29 +20,18 @@ const platformFeatures: Feature[] = [
   {
     icon: <Brain className="h-10 w-10 text-primary" />,
     title: 'Gepersonaliseerde Inzichten',
-    descriptionPart1: 'Uw kind start met een assessment en krijgt direct inzicht via zelfreflectie-instrumenten. Lees ',
-    descriptionLinkText: 'hier meer over neurodiversiteit',
-    descriptionLinkHref: '/neurodiversiteit',
-    descriptionPart2: '. Ontvang heldere overzichten die u en uw kind helpen unieke krachten en uitdagingen te begrijpen.',
+    descriptionFull: 'Uw kind start met een assessment en krijgt direct inzicht in de eigen denkstijl en sterke punten, plus toegang tot tools die hierop aansluiten.',
     link: '/quizzes',
-    linkText: 'Ontdek de tools',
+    linkText: 'Ontdek de assessment',
     colorClass: 'bg-orange-50 border-orange-200 hover:shadow-orange-100',
   },
   {
     icon: <Zap className="h-10 w-10 text-primary" />,
     title: 'Coaching & Tools voor Groei',
-    descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) gebaseerd op assessmentresultaten, die uw kind ondersteunen bij routines, zelfvertrouwen en omgaan met uitdagingen.',
+    descriptionFull: 'Dagelijkse, laagdrempelige coaching en tools (dagboek, planning) gebaseerd op assessmentresultaten, die uw kind ondersteunen bij routines en zelfvertrouwen.',
     link: '/dashboard/coaching',
     linkText: 'Verken coaching',
     colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
-  },
-  {
-    icon: <BookOpenCheck className="h-10 w-10 text-primary" />,
-    title: 'Huiswerkondersteuning',
-    descriptionFull: 'Effectieve tools en strategieën afgestemd op leerstijl, om uw kind te helpen bij planning, focus en het overwinnen van studie-uitdagingen.',
-    link: '/dashboard/homework-assistance',
-    linkText: 'Bekijk huiswerk tools',
-    colorClass: 'bg-green-50 border-green-200 hover:shadow-green-100',
   },
   {
     icon: <GraduationCap className="h-10 w-10 text-primary" />,
@@ -66,10 +52,7 @@ const platformFeatures: Feature[] = [
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary" />,
     title: 'Veilig & Deskundig Platform',
-    descriptionPart1: 'Een privacygerichte omgeving, gebaseerd op educatieve principes en inzichten van experts. Wij bieden geen diagnoses. Lees meer in ons ',
-    descriptionLinkText: 'Privacybeleid',
-    descriptionLinkHref: '/privacy',
-    descriptionPart2: '.',
+    descriptionFull: 'Een privacygerichte omgeving, gebouwd op educatieve principes en inzichten van experts. Wij bieden ondersteuning, geen diagnoses.',
     link: '/privacy', 
     linkText: 'Lees ons privacybeleid',
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
@@ -85,7 +68,7 @@ export function PlatformFeaturesSection() {
             Ontdek de Kracht van MindNavigator: <span className="text-primary">Ondersteuning op Maat</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Alles begint met een korte assessment om een gepersonaliseerd pad voor uw kind te creëren. MindNavigator biedt een complete ondersteuningsstructuur.
+            Van een laagdrempelige start-assessment tot dagelijkse coaching en optionele 1-op-1 begeleiding – MindNavigator biedt een complete structuur voor zelfontdekking en groei.
           </p>
         </div>
 
@@ -100,17 +83,7 @@ export function PlatformFeaturesSection() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground leading-snug">
-                  {feature.descriptionFull ? feature.descriptionFull : (
-                    <>
-                      {feature.descriptionPart1}
-                      {feature.descriptionLinkText && feature.descriptionLinkHref && (
-                        <Link href={feature.descriptionLinkHref} className="text-primary hover:underline font-medium">
-                          {feature.descriptionLinkText} <ExternalLink className="inline-block h-4 w-4 align-text-bottom"/>
-                        </Link>
-                      )}
-                      {feature.descriptionPart2}
-                    </>
-                  )}
+                  {feature.descriptionFull}
                 </p>
               </CardContent>
               <CardFooter>
@@ -150,7 +123,7 @@ export function PlatformFeaturesSection() {
             </div>
             <div className="relative h-64 lg:h-full min-h-[300px] order-first lg:order-last">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/thespikeman._mother_in_her_40s_and_teenage_daughter_16_years_ol_e628ebd1-1d74-4c4c-be2c-ad9580b26a01.png?alt=media&token=bc6d30f0-4634-441f-a4cc-d30f715f2468"
+                src="https://firebasestorage.googleapis.com/v0/b/neurodiversity-navigator.firebasestorage.app/o/parents-2.png?alt=media&token=c8f9238e-81c7-46a3-9499-b36ba37a2e28"
                 alt="Moeder en dochter die samen het MindNavigator Ouder Dashboard gebruiken"
                 fill
                 style={{ objectFit: 'cover' }}

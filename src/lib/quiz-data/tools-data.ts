@@ -421,4 +421,4 @@ export const allTools: Tool[] = [
   </change>
   <change>
     <file>/src/app/dashboard/homework-assistance/[subjectId]/page.tsx</file>
-    <content><
+    <content><![CDATA[
