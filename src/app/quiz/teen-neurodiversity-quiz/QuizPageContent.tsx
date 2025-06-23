@@ -725,7 +725,6 @@ export default function QuizPageContent() {
 
                         let sectionContainerClasses = "rounded-lg p-6 shadow-sm border-l-4";
                         let titleClasses = "text-2xl font-bold mb-4 flex items-center gap-3"; 
-                        let contentClasses = "text-base text-gray-800 leading-relaxed";
                         let listClasses = "list-disc space-y-2 pl-5 text-base text-gray-800 leading-relaxed";
                         let tipContainerClasses = "p-3 bg-gray-50 rounded-lg";
                         let tipTitleClasses = "font-semibold text-gray-900";
@@ -781,13 +780,13 @@ export default function QuizPageContent() {
                                     })}
                                 </ul>
                             ) : typeof section.content === 'string' && !section.isList ? (
-                                  <p className={contentClasses}>{section.content}</p>
+                                  <p className="text-base text-gray-800 leading-relaxed">{section.content}</p>
                             ) : ( 
                                Array.isArray(section.content) && section.content.map((item, itemIdx) => {
                                 if (item.profileName === "Algemeen Overzicht") {
                                   return (
                                     <div key={itemIdx} className="mb-4">
-                                      <p className={contentClasses}>{item.comment}</p>
+                                      <p className="text-base text-gray-800 leading-relaxed">{item.comment}</p>
                                     </div>
                                   );
                                 } else if (item.profileName === "Score Inzichten per Thema" && Array.isArray(item.subScores)) {
