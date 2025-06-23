@@ -621,7 +621,7 @@ export default function QuizPageContent() {
               question={{
                   id: `base-q-${currentQuestionIndex}`,
                   text: currentBaseQuestions[currentQuestionIndex],
-                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label, value: opt.value }))
+                  options: answerOptions.map(opt => ({ id: `base-opt-${opt.value}`, text: opt.label, value: opt.value }))
               }}
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={currentBaseQuestions.length}
@@ -678,7 +678,7 @@ export default function QuizPageContent() {
               question={{
                   id: `sub-q-${currentFlatSubtestIndex}`,
                   text: flatSubtestQuestions[currentFlatSubtestIndex].text,
-                  options: answerOptions.map(opt => ({ id: opt.value, text: opt.label, value: opt.value }))
+                  options: answerOptions.map(opt => ({ id: `sub-opt-${opt.value}`, text: opt.label, value: opt.value }))
               }}
               questionNumber={currentFlatSubtestIndex + 1}
               totalQuestions={flatSubtestQuestions.length}
@@ -816,44 +816,17 @@ export default function QuizPageContent() {
                     )}
                     </div>
                   </div>
-
-                  <Alert variant="destructive" className="mt-10 text-base rounded-lg shadow-sm">
-                      <AlertTriangle className="h-5 w-5" />
-                      <AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
-                      <AlertDescUi className="leading-relaxed text-base">
-                          Deze zelfreflectie-quiz en het resulterende overzicht zijn bedoeld om je meer inzicht te geven in jezelf en mogelijke neurodivergente kenmerken. Het is nadrukkelijk <strong className="font-bold">geen</strong> formele (medische) diagnose.
-                          <br/><br/>
-                          Als je vragen of zorgen hebt over je welzijn, of als je overweegt professionele hulp te zoeken, bespreek dit dan met je ouders, een vertrouwenspersoon op school, je huisarts, of een andere gekwalificeerde zorgverlener. Zij kunnen je verder helpen. Voor meer informatie over neurodiversiteit en waar je terecht kunt, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
-                          <br/><br/>
-                          MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Onze quiz dient ter zelfreflectie en educatie.
-                      </AlertDescUi>
-                  </Alert>
-
-                  <Card className="w-full shadow-lg mt-10 bg-primary/5 border-primary/20 rounded-lg">
-                      <CardHeader className="py-6 px-6">
-                        <h2 className="text-[1.35rem] font-semibold flex items-center gap-3 text-primary">
-                            <MessageCircle className="h-7 w-7"/> Voor je Ouders/Verzorgers
-                        </h2>
-                      </CardHeader>
-                      <CardContent className="px-6 pb-6">
-                        <p className="text-foreground leading-relaxed text-base">
-                            Een apart, gedetailleerder overzicht is beschikbaar gemaakt in het dashboard van je ouders. Dit rapport bevat extra tips en inzichten die hen kunnen helpen om jou nog beter te begrijpen en te ondersteunen. Praat er samen over!
-                        </p>
-                      </CardContent>
-                  </Card>
-
-                  <div className="mt-10 p-6 bg-primary/10 rounded-lg shadow-md border-l-4 border-primary">
-                      <h3 className="text-[1.35rem] font-semibold text-primary flex items-center gap-3 mb-3">
-                          <Sparkles className="h-7 w-7" />
-                          Jouw Reis Gaat Verder!
-                      </h3>
-                      <p className="text-foreground leading-relaxed text-base">
-                          Iedereen heeft unieke sterke kanten en uitdagingen. Dit overzicht is een startpunt om jezelf beter te leren kennen. Onthoud dat je niet alleen bent op deze ontdekkingsreis. Er zijn altijd manieren om te groeien en je welzijn te verbeteren.
-                      </p>
-                  </div>
                 </CardContent>
               </Card>
 
+              <Alert variant="destructive" className="mt-10 text-base rounded-lg shadow-sm">
+                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
+                  <AlertDescUi className="leading-relaxed text-base">
+                      Dit overzicht is bedoeld voor zelfreflectie en is nadrukkelijk <strong>geen</strong> formele (medische) diagnose. Heb je vragen of zorgen over je welzijn? Bespreek dit dan met je ouders, een vertrouwenspersoon of je huisarts. MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Voor meer info, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.
+                  </AlertDescUi>
+              </Alert>
+              
               <CardFooter className="flex flex-col items-center gap-4 pt-10 pb-8">
                   <AlertDialog>
                       <AlertDialogTrigger asChild>
