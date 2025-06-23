@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -27,10 +28,10 @@ import {
 import { 
   LayoutDashboard, ClipboardList, BarChart3, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, 
-  GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
+  Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp,
-  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarSearch
+  Link2, UserCheck, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight, Wrench, Contact, CalendarDays, CalendarPlus, CalendarClock
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment, useMemo } from 'react';
@@ -84,7 +85,7 @@ const navItems: NavItem[] = [
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
   { href: '/dashboard/ouder', label: 'Ouder Dashboard', icon: LayoutDashboard, ouderOnly: true, sectionTitle: "OUDER PORTAAL" },
-  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true, parent: '/dashboard/ouder' },
+  { href: '/dashboard/ouder/kinderen', label: 'Mijn Kinderen', icon: UsersIconLucide, ouderOnly: true },
   { 
     href: '#ouder-lessen-parent', 
     label: 'Lessen Kinderen', 
@@ -323,7 +324,7 @@ function SidebarNavigationContent() {
                       <SidebarMenu>
                         {visibleChildren.map((child, childIndex) => (
                            <SidebarMenuItem key={`${child.href}-${childIndex}`}>
-                             <SidebarMenuButton asChild isActive={pathname.startsWith(child.href)} size="sm">
+                             <SidebarMenuButton asChild isActive={pathname === child.href || pathname.startsWith(`${child.href}/`)} size="sm">
                                 <Link href={child.href}>
                                   {child.icon && <child.icon />}
                                   {child.label}
