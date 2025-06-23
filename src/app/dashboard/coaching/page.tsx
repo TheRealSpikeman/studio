@@ -66,48 +66,49 @@ export default function CoachingPage() {
 
   const [aiCoachingContent, setAiCoachingContent] = useState<AiCoachingContent | null>(null);
   const [isLoadingAiContent, setIsLoadingAiContent] = useState(true);
-  const [userName, setUserName] = useState<string>("een MindNavigator gebruiker");
-  const [onboardingAnalysisText, setOnboardingAnalysisText] = useState<string | undefined>(undefined);
   const [showFirstTimeCoachingExplanation, setShowFirstTimeCoachingExplanation] = useState(false);
 
-  // Effect 1: Set client-side flag and load initial data from localStorage
+  // Effect 1: Set client-side flag and initial date on mount
   useEffect(() => {
     setIsClient(true);
-    setSelectedDate(startOfDay(new Date())); 
-
-    if (typeof window !== 'undefined') {
-      const storedUserData = localStorage.getItem('mindnavigator_onboardingUser');
-      if (storedUserData) {
-        try {
-          const userData = JSON.parse(storedUserData);
-          if (userData.name) setUserName(userData.name);
-        } catch (e) { console.warn("Kon gebruikersnaam niet laden."); }
-      }
-      
-      const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
-      setOnboardingAnalysisText(storedAnalysis ?? null); 
-      
-      const firstCoachingViewed = localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED);
-      if (!firstCoachingViewed && storedAnalysis) { 
-         setShowFirstTimeCoachingExplanation(true);
-      }
-    }
+    setSelectedDate(startOfDay(new Date()));
   }, []);
 
-  // Effect 2: Fetch AI data when dependencies change. This is the new robust version.
+  // Effect 2: Main data fetching effect, depends only on selectedDate
   useEffect(() => {
+    if (!isClient || selectedDate === undefined) {
+      return;
+    }
+
     const doFetch = async () => {
-      if (!isClient || !selectedDate || onboardingAnalysisText === undefined) {
-        return;
-      }
-      
       setIsLoadingAiContent(true);
       setAiCoachingContent(null);
       setTasksForSelectedDate(generateStaticDailyTasks(selectedDate));
       
+      // Read directly from localStorage
+      const storedAnalysis = localStorage.getItem('mindnavigator_onboardingAnalysis');
+      const storedUserData = localStorage.getItem('mindnavigator_onboardingUser');
+      const firstCoachingViewed = localStorage.getItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED);
+      
+      let userName = "een MindNavigator gebruiker";
+      if (storedUserData) {
+        try {
+          userName = JSON.parse(storedUserData).name || userName;
+        } catch {}
+      }
+
+      // Check for first time visit *inside* the effect
+      if (storedAnalysis && !firstCoachingViewed) {
+        setShowFirstTimeCoachingExplanation(true);
+        // Mark as viewed immediately to prevent re-triggering
+        localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
+      } else {
+        setShowFirstTimeCoachingExplanation(false);
+      }
+      
       try {
         const input = {
-          onboardingAnalysisText: onboardingAnalysisText || "",
+          onboardingAnalysisText: storedAnalysis || "",
           userName: userName,
           currentDate: format(selectedDate, "EEEE d MMMM", { locale: nl })
         };
@@ -118,24 +119,22 @@ export default function CoachingPage() {
         
         const aiTask: DailyTask = { id: `ai-task-${format(selectedDate, 'yyyy-MM-dd')}`, label: result.microTaskSuggestion, completed: false };
         setTasksForSelectedDate(prevStaticTasks => [aiTask, ...prevStaticTasks]);
-
-        if (showFirstTimeCoachingExplanation) {
-          localStorage.setItem(JOURNEY_STEPS.FIRST_COACHING_VIEWED, 'true');
-          setShowFirstTimeCoachingExplanation(false);
-        }
         
       } catch (error) {
         console.error("Error fetching AI coaching insights:", error);
         toast({ title: "Fout", description: "Kon gepersonaliseerde coaching content niet laden.", variant: "destructive"});
-        setAiCoachingContent({ dailyAffirmation: "Begin de dag met een glimlach.", dailyCoachingTip: "Neem vandaag even tijd voor jezelf.", microTaskSuggestion: "Adem diep in en uit." });
+        setAiCoachingContent({
+          dailyAffirmation: "Begin de dag met een glimlach.",
+          dailyCoachingTip: "Neem vandaag even tijd voor jezelf.",
+          microTaskSuggestion: "Adem diep in en uit."
+        });
       } finally {
-          setIsLoadingAiContent(false);
+        setIsLoadingAiContent(false);
       }
     };
     
     doFetch();
-  }, [isClient, selectedDate, onboardingAnalysisText, userName, toast, showFirstTimeCoachingExplanation]);
-
+  }, [isClient, selectedDate, toast]); // Clean, stable dependency array
 
   // Effect 3: Load journal entries when date changes
   useEffect(() => {
@@ -189,7 +188,7 @@ export default function CoachingPage() {
         </p>
       </section>
 
-      {isClient && onboardingAnalysisText && !showFirstTimeCoachingExplanation && (
+      {isClient && !isLoadingAiContent && !showFirstTimeCoachingExplanation && localStorage.getItem('mindnavigator_onboardingAnalysis') && (
         <div className="mb-6">
           <Alert variant="default" className="bg-gradient-to-r from-primary/5 to-purple-50/50 border-primary/20 shadow-sm">
             <Sparkles className="h-5 w-5 !text-primary" />
@@ -312,7 +311,7 @@ export default function CoachingPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {isLoadingAiContent && onboardingAnalysisText !== null ? <Skeleton className="h-20 w-full" /> : null}
+            {isLoadingAiContent && localStorage.getItem('mindnavigator_onboardingAnalysis') ? <Skeleton className="h-20 w-full" /> : null}
             {!isLoadingAiContent && selectedDate && tasksForSelectedDate.length > 0 ? (
               tasksForSelectedDate.map(task => (
                 <div key={task.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
@@ -391,7 +390,7 @@ export default function CoachingPage() {
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-10">
-                {selectedDate && isClient && onboardingAnalysisText ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum of voltooi de Zelfreflectie Tool voor een tip."}
+                {selectedDate && isClient && localStorage.getItem('mindnavigator_onboardingAnalysis') ? "Geen coaching bericht gevonden voor deze dag." : "Selecteer een datum of voltooi de Zelfreflectie Tool voor een tip."}
               </p>
             )}
           </CardContent>
