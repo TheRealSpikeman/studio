@@ -448,7 +448,7 @@ export default function QuizPageContent() {
     } else if (ageGroup === '12-14') {
         baseScoresCalc.ADD = calculateAverage(baseAnswers.slice(0, 2));
         baseScoresCalc.ADHD = calculateAverage(baseAnswers.slice(2, 4));
-        baseScoresCalc.HSP = calculateAverage(answers.slice(4, 6));
+        baseScoresCalc.HSP = calculateAverage(baseAnswers.slice(4, 6));
         baseScoresCalc.ASS = calculateAverage(baseAnswers.slice(6, 8));
         baseScoresCalc.AngstDepressie = calculateAverage(baseAnswers.slice(8, 10));
     }
