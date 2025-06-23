@@ -337,7 +337,7 @@ function SidebarNavigationContent() {
                       <SidebarMenuButton 
                         onClick={() => toggleSubMenu(item.href)}
                         data-state={isOpen ? "open" : "closed"}
-                        isActive={isParentOfActivePage || pathname.startsWith(item.href)} 
+                        isActive={isParentOfActivePage} 
                         tooltip={item.label}
                       >
                         <item.icon />
@@ -354,7 +354,7 @@ function SidebarNavigationContent() {
                               <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
                                 <SidebarMenuSubButton 
                                   asChild 
-                                  isActive={pathname === child.href}
+                                  isActive={pathname.startsWith(child.href)}
                                 >
                                   <Link href={child.href}>
                                     <child.icon />
@@ -411,7 +411,7 @@ const SidebarSkeleton = () => (
 );
 
 export function DashboardSidebar() {
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, state } = useSidebar();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
