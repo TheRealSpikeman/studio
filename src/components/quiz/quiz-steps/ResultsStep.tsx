@@ -1,4 +1,3 @@
-
 // src/components/quiz/quiz-steps/ResultsStep.tsx
 "use client";
 
@@ -259,7 +258,7 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
                             <h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4>
                             <p className="text-sm text-muted-foreground">{tool.usage.when}</p>
                             <Button asChild size="sm" className="mt-3">
-                                <Link href="/dashboard/coaching">
+                                <Link href={`/dashboard/tools/${tool.id}`}>
                                     Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/>
                                 </Link>
                             </Button>
