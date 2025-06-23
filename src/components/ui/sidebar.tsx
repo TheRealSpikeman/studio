@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -540,7 +539,7 @@ interface SidebarMenuButtonProps
   asChild?: boolean
   isActive?: boolean
   tooltip?: string | React.ComponentProps<typeof TooltipContent>
-  disabled?: boolean; // Added disabled prop
+  disabled?: boolean;
 }
 
 const SidebarMenuButton = React.forwardRef<
@@ -555,7 +554,7 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
-      disabled, // Consume disabled prop
+      disabled, 
       ...props
     },
     ref
@@ -570,7 +569,7 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        disabled={disabled} // Pass disabled to the underlying component
+        disabled={disabled}
         {...props}
       />
     )
@@ -696,12 +695,20 @@ const SidebarMenuSub = React.forwardRef<
     ref={ref}
     data-sidebar="menu-sub"
     className={cn(
-      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+      "grid overflow-hidden transition-all duration-200 ease-in-out",
+      "data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0",
+      "data-[state=open]:grid-rows-[1fr] data-[state=open]:opacity-100",
       "group-data-[collapsible=icon]:hidden",
       className
     )}
     {...props}
-  />
+  >
+    <div className="min-h-0">
+      <div className="mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-1.5">
+          {props.children}
+      </div>
+    </div>
+  </ul>
 ))
 SidebarMenuSub.displayName = "SidebarMenuSub"
 

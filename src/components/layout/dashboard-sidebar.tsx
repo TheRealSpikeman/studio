@@ -20,7 +20,6 @@ import {
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
   SidebarSeparator
 } from '@/components/ui/sidebar';
@@ -30,7 +29,7 @@ import {
   GraduationCap, Euro, FileBarChart, ListChecks, FilePlus, BarChartHorizontal, 
   FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   Contact, CalendarPlus, CalendarSearch, CalendarClock, HelpCircle, CreditCard, 
-  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap
+  TrendingUp, Link2, UserCheck, ChevronsRightLeft, ShieldCheck as ShieldCheckIcon, Package, HeartHandshake, PlayCircle, MessageCircleQuestion, BookHeart, BookUser, GitBranch, Bot, Zap, ChevronRight
 } from 'lucide-react'; 
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useState, useEffect, Fragment } from 'react';
@@ -194,6 +193,8 @@ function SidebarNavigationContent() {
   const pathname = usePathname();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole(); 
   const { state: sidebarState } = useSidebar();
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
+  
   let currentSectionTitleDisplayed: string | null = null;
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true); 
   const [hasBillingAction, setHasBillingAction] = useState(true); 
@@ -214,6 +215,23 @@ function SidebarNavigationContent() {
         }
     }
   }, [currentDashboardRole]);
+
+  useEffect(() => {
+    const initialOpenState: Record<string, boolean> = {};
+    navItems.forEach(item => {
+      if (item.children) {
+        const isParentOfActivePage = item.children.some(child => pathname.startsWith(child.href) && child.href !== item.href);
+        if (isParentOfActivePage) {
+          initialOpenState[item.href] = true;
+        }
+      }
+    });
+    setOpenSubMenus(initialOpenState);
+  }, [pathname]);
+
+  const toggleSubMenu = (href: string) => {
+    setOpenSubMenus(prev => ({ ...prev, [href]: !prev[href] }));
+  };
 
 
   return (
@@ -296,8 +314,9 @@ function SidebarNavigationContent() {
             }
             
             const visibleChildren = item.children?.filter(child => isForCurrentRole(currentDashboardRole)) || [];
-            const isParentExpanded = visibleChildren.some(child => pathname.startsWith(child.href));
-            const isParentActive = pathname === item.href && visibleChildren.length === 0;
+            const isParentOfActivePage = visibleChildren.some(child => pathname.startsWith(child.href));
+            const isDirectlyActive = pathname === item.href;
+            const isOpen = openSubMenus[item.href] === true;
 
             return (
               <Fragment key={`${item.href}-${index}`}>
@@ -308,18 +327,23 @@ function SidebarNavigationContent() {
                 )}
 
                 {item.children && visibleChildren.length > 0 ? (
-                  // Render parent item with children (sub-menu)
-                   <SidebarMenuItem>
+                  <SidebarMenuItem>
                       <SidebarMenuButton 
-                        isActive={isParentExpanded} 
+                        onClick={() => toggleSubMenu(item.href)}
+                        data-state={isOpen ? "open" : "closed"}
+                        isActive={isParentOfActivePage} 
                         tooltip={item.label}
                       >
                         <item.icon />
                         <span className="group-data-[collapsible=icon]:hidden flex-grow">
                           {item.label}
                         </span>
+                        <ChevronRight className={cn(
+                            "h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
+                            isOpen && "rotate-90"
+                        )} />
                       </SidebarMenuButton>
-                      <SidebarMenuSub>
+                      <SidebarMenuSub data-state={isOpen ? "open" : "closed"}>
                           {visibleChildren.map((child, childIndex) => (
                               <SidebarMenuSubItem key={`${child.href}-${childIndex}`}>
                                 <SidebarMenuSubButton 
@@ -338,7 +362,7 @@ function SidebarNavigationContent() {
                 ) : (
                   // Render regular item
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isParentActive} tooltip={item.label}>
+                    <SidebarMenuButton asChild isActive={isDirectlyActive} tooltip={item.label}>
                       <Link href={item.href}>
                         <item.icon />
                         <span className="group-data-[collapsible=icon]:hidden flex-grow">
@@ -354,7 +378,6 @@ function SidebarNavigationContent() {
                     )}
                   </SidebarMenuItem>
                 )}
-
               </Fragment>
             );
           })}
@@ -365,9 +388,10 @@ function SidebarNavigationContent() {
 }
 
 export function DashboardSidebar() {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile } = useSidebar();
 
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
   useEffect(() => {
     if (isMobile) {
       setOpenMobile(false);
