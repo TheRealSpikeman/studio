@@ -339,12 +339,7 @@ function SidebarNavigationContent() {
                 return false;
             }) || [];
 
-            let isParentExpanded = isItemDirectlyActive;
-             if(item.children && visibleChildren.length > 0){ 
-                 isParentExpanded = visibleChildren.some(child => 
-                    pathname === child.href || (child.parent && pathname.startsWith(child.parent))
-                ) || isItemDirectlyActive;
-            }
+            let isParentExpanded = isItemDirectlyActive || visibleChildren.some(child => child.href !== '/' && pathname.startsWith(child.href));
 
             let isParentHighlighted = false;
             if (isItemDirectlyActive) {
