@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -118,38 +119,61 @@ const navItems: NavItem[] = [
   { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
   { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true, isSubItem: false, parent: '/dashboard/coach' },
 
-  // Admin specific section
-  { href: '/dashboard/admin', label: 'Admin Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
-  { href: '/dashboard/admin/user-management', label: 'Gebruikersbeheer', icon: UsersIconLucide, adminOnly: true },
-  { href: '/dashboard/admin/student-management', label: 'Leerlingenbeheer', icon: GraduationCap, adminOnly: true },
-  { href: '/dashboard/admin/tutor-management', label: 'Tutorbeheer', icon: Briefcase, adminOnly: true },
+  // Admin specific section - NEW STRUCTURE
+  { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },
+  {
+    href: '/dashboard/admin/user-management',
+    label: 'Gebruikersbeheer',
+    icon: UsersIconLucide,
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIconLucide, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
+      { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
+      { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, isSubItem: true, parent: '/dashboard/admin/user-management', adminOnly: true },
+    ]
+  },
   {
     href: '/dashboard/admin/quiz-management',
-    label: 'Quizzen Beheer',
+    label: 'Quizbeheer',
     icon: ListChecks,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzen', icon: ListChecks, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
+      { href: '/dashboard/admin/quiz-management', label: 'Alle Quizzes', icon: ListChecks, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
       { href: '/dashboard/admin/quiz-management/create', label: 'Nieuwe Quiz', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
       { href: '/dashboard/admin/quiz-management/reports', label: 'Rapportages', icon: BarChartHorizontal, isSubItem: true, parent: '/dashboard/admin/quiz-management' },
     ]
   },
-  { href: '/dashboard/admin/subscription-management', label: 'Abonnementenbeheer', icon: CreditCard, adminOnly: true },
-  { href: '/dashboard/admin/feature-management', label: 'Feature Beheer', icon: Package, adminOnly: true }, 
   {
-    href: '/dashboard/admin/content-management',
-    label: 'Content Management',
-    icon: FileEdit,
+    href: '#insights-parent', // Non-clickable parent
+    label: 'Inzichten',
+    icon: TrendingUp,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/content-management', label: 'Pagina Overzicht', icon: FileText, isSubItem: true, parent: '/dashboard/admin/content-management' },
-      { href: '/dashboard/admin/content-management/new', label: 'Nieuwe Pagina', icon: FilePlus, isSubItem: true, parent: '/dashboard/admin/content-management' },
+      { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, isSubItem: true, parent: '#insights-parent' },
+      { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, isSubItem: true, parent: '#insights-parent' },
     ]
   },
-  { href: '/dashboard/admin/feedback-overview', label: 'Feedback Overzicht', icon: MessageCircleQuestion, adminOnly: true }, 
-  { href: '/dashboard/admin/finance', label: 'Financiën', icon: Euro, adminOnly: true },
-  { href: '/dashboard/admin/reporting', label: 'Platform Rapportages', icon: FileBarChart, adminOnly: true },
-  { href: '/dashboard/admin/settings', label: 'Admin Instellingen', icon: Settings, adminOnly: true },
+  {
+    href: '#finance-parent', // Non-clickable parent
+    label: 'Financieel Beheer',
+    icon: Euro,
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/subscription-management', label: 'Abonnementen', icon: CreditCard, isSubItem: true, parent: '#finance-parent' },
+      { href: '/dashboard/admin/finance', label: 'Betalingen', icon: Euro, isSubItem: true, parent: '#finance-parent' },
+    ]
+  },
+  {
+    href: '#platform-parent', // Non-clickable parent
+    label: 'Platformbeheer',
+    icon: Settings,
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, isSubItem: true, parent: '#platform-parent' },
+      { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, isSubItem: true, parent: '#platform-parent' },
+      { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, isSubItem: true, parent: '#platform-parent' },
+    ]
+  },
   {
     href: '/dashboard/admin/documentation',
     label: 'Documentatie',
@@ -158,10 +182,9 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/methodologie/adaptieve-quiz', label: 'Quiz Methodologie', icon: GitBranch, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
-      { href: '/faq', label: 'Publieke FAQ', icon: MessageCircleQuestion, isSubItem: true, parent: '/dashboard/admin/documentation', adminOnly: true },
     ]
   },
   
