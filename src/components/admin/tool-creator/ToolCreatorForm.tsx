@@ -101,6 +101,14 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     }
   };
 
+  const handleGenerateToolComponent = () => {
+    toast({
+        title: "Tool generatie gestart (simulatie)",
+        description: `De AI begint nu met het bouwen van de component voor: ${initialData?.title}. Dit is een placeholder actie.`
+    });
+    // In a real app, this would trigger a complex AI flow to generate and write a new file.
+  };
+
   const renderToolPreview = () => {
     if (isNewTool) {
       return <p className="text-sm text-muted-foreground p-4 text-center">Sla de tool eigenschappen eerst op om de live preview te zien en te bewerken.</p>;
@@ -112,7 +120,16 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
             return <FocusTimer />;
         // Add other tools here in the future
         default:
-            return <p className="text-sm text-muted-foreground p-4 text-center">Geen live preview beschikbaar voor deze tool-ID ({initialData?.id}).</p>;
+            return (
+              <div className="text-center p-4 space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Geen live preview beschikbaar voor deze tool-ID ({initialData?.id}).
+                </p>
+                <Button type="button" onClick={handleGenerateToolComponent}>
+                  <Bot className="mr-2 h-4 w-4" /> Genereer Tool Component met AI
+                </Button>
+              </div>
+            );
     }
   };
 
