@@ -1,7 +1,7 @@
 // src/components/admin/tool-management/ToolTable.tsx
 "use client";
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,8 @@ interface ToolTableProps {
 }
 
 export function ToolTable({ tools, onDelete }: ToolTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <TableHeader>
@@ -46,10 +48,8 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/admin/tool-management/edit/${tool.id}`}>
-                        <Edit className="mr-2 h-4 w-4" /> Bewerken
-                      </Link>
+                    <DropdownMenuItem onSelect={() => router.push(`/dashboard/admin/tool-management/edit/${tool.id}`)}>
+                      <Edit className="mr-2 h-4 w-4" /> Bewerken
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() => onDelete(tool)}
