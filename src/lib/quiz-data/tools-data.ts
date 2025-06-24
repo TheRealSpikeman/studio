@@ -1,6 +1,5 @@
-
 // src/lib/quiz-data/tools-data.ts
-import { Timer, Gamepad2, ShieldBan, NotebookText, BarChart, Bell, PauseCircle, Fingerprint, Waves, Sun, Gauge, BarChartHorizontal, GitBranch, Share2, Lightbulb, Users, Compass, BookOpenCheck, Brain, Zap, Sparkles, MessageCircle, ClipboardList } from 'lucide-react';
+import { Timer, Gamepad2, ShieldBan, NotebookText, BarChart, Bell, PauseCircle, Fingerprint, Waves, Sun, Gauge, GitBranch, Share2, Lightbulb, Users, Compass, BookOpenCheck, Brain, Zap, Sparkles, MessageCircle, ClipboardList } from 'lucide-react';
 import type { ElementType } from 'react';
 
 export interface Tool {
@@ -206,7 +205,7 @@ export const allTools: Tool[] = [
     id: 'overprikkel-alarm',
     title: 'Overprikkel Alarm',
     description: "Leer je eigen signalen van overprikkeling herkennen en stel een 'alarm' in om op tijd een pauze te nemen.",
-    icon: BarChartHorizontal,
+    icon: BarChart,
     category: 'Rust & Regulatie',
     reasoning: {
       high: "Je raakt snel overweldigd. Deze tool maakt je bewust van je vroege waarschuwingssignalen, zodat je kunt ingrijpen voordat het te veel wordt.",
