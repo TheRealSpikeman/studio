@@ -17,6 +17,9 @@ interface ToolTableProps {
   onDelete: (tool: Tool) => void;
 }
 
+// Define which tool components are implemented.
+const existingToolComponentIds = ['focus-timer-pro', 'concentratie-games', 'distraction-blocker'];
+
 export function ToolTable({ tools, onDelete }: ToolTableProps) {
   const router = useRouter();
 
@@ -33,13 +36,27 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
       <TableBody>
         {tools.map(tool => {
           const Icon = getToolIconComponent(tool.icon);
+          const componentExists = existingToolComponentIds.includes(tool.id);
+          
+          let statusColorClass = "fill-gray-400 text-gray-400"; // Default: Offline
+          let statusTitle = "Offline";
+
+          if (!componentExists) {
+            statusColorClass = "fill-orange-500 text-orange-500";
+            statusTitle = "Component niet gegenereerd";
+          } else if (tool.status === 'online') {
+            statusColorClass = "fill-green-500 text-green-500";
+            statusTitle = "Online";
+          }
+
           return (
             <TableRow key={tool.id}>
               <TableCell className="font-medium flex items-center gap-3">
-                <Circle aria-label={tool.status === 'online' ? 'Online' : 'Offline'} title={tool.status === 'online' ? 'Online' : 'Offline'} className={cn(
-                    "h-3 w-3 flex-shrink-0",
-                    tool.status === 'online' ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400"
-                )} />
+                <Circle 
+                  aria-label={statusTitle} 
+                  title={statusTitle} 
+                  className={cn("h-3 w-3 flex-shrink-0", statusColorClass)} 
+                />
                 {Icon && <Icon className="h-5 w-5 text-primary" />}
                 {tool.title}
               </TableCell>
@@ -54,7 +71,7 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild disabled={!componentExists}>
                       <Link
                         href={`/dashboard/tools/${tool.id}`}
                         target="_blank"
