@@ -1,9 +1,9 @@
-
 // src/lib/icons.ts
-// DEFINITIEVE WERKENDE VERSIE - ALLE ALIASES IN EXPORT STATEMENT
+// BULLETPROOF OPLOSSING - Dual Export Method
 
-export {
-  // === CORE ICONS ===
+// === STAP 1: IMPORTEER ALLE ICONS ===
+import {
+  // Core icons
   LayoutDashboard,
   ClipboardList,
   MessageSquare,
@@ -102,7 +102,7 @@ export {
   X,
   XCircle,
   
-  // === EXTRA ICONS ===
+  // Extra icons
   Plus,
   Minus,
   Edit,
@@ -139,51 +139,188 @@ export {
   Scale,
   Monitor,
   Cpu,
-  
-  // === SEPARATOR FIX ===
-  SeparatorHorizontal as Separator,
-
-  // === ALLE ALIASES DIRECT IN EXPORT ===
-  // Dashboard-sidebar.tsx specifieke aliases:
-  BarChart as FileBarChart,
-  Users as UsersIconLucide, 
-  BookOpen as BookOpenCheck,
-  MessageSquare as MessagesSquare,        // ← FIX: Dit was het probleem!
-  MessageSquare as MessagesSquareIcon,
-  ArrowUp as TrendingUp,                  // Fallback voor TrendingUp
-  ExternalLink as Link2,
-  User as UserCheck,
-  Shield as ShieldCheck,
-  Handshake as HeartHandshake,
-  MessageCircle as MessageCircleQuestion,
-  BookOpen as BookUser,
-  Menu as PanelLeft,
-  Save as SaveIcon,
-  BarChart as BarChartHorizontal,
-  Calendar as CalendarDays,
-  Calendar as CalendarClock,
-  
-  // Extra backwards compatibility aliases:
-  BarChart as BarChart3,
-  BarChart as BarChartBig,
-  Calendar as CalendarIcon,
-  CheckCircle as CheckCircle2,
-  ClipboardList as ClipboardCheck,
-  Clock as ClockIcon,
-  Settings as SettingsIcon,
-  User as UserIcon,
-  Users as Users2,
-  Users as UsersIcon,
-  Edit2 as Edit2Icon,
-  FileText as FileTextIcon,
-  PlusCircle as PlusCircleIcon,
-  Link as LinkIcon,
-  Heart as MessageSquareHeart,
-  MessageSquare as MessageSquareIcon,
-  MessageSquare as MessageSquarePlus,
-  MessageSquare as MessageSquareText,
-
+  SeparatorHorizontal,
 } from 'lucide-react';
+
+// === STAP 2: EXPORT ALLE CORE ICONS ===
+export {
+  LayoutDashboard,
+  ClipboardList,
+  MessageSquare,
+  User,
+  Settings,
+  Users,
+  Briefcase,
+  Euro,
+  ListChecks,
+  FilePlus,
+  FileEdit,
+  Shuffle,
+  Clock,
+  HelpCircle,
+  CreditCard,
+  Package,
+  PlayCircle,
+  GitBranch,
+  Bot,
+  Zap,
+  Wrench,
+  CalendarPlus,
+  GraduationCap,
+  Activity,
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  BarChart,
+  CheckCircle,
+  Circle,
+  Compass,
+  Download,
+  Eye,
+  EyeOff,
+  FileText,
+  Filter,
+  Folder,
+  FolderOpen,
+  Gavel,
+  Handshake,
+  Heart,
+  Home,
+  Hourglass,
+  ImageUp,
+  Info,
+  KeyRound,
+  Languages,
+  Lightbulb,
+  Link2Off,
+  LogOut,
+  Mail,
+  MapPin,
+  Menu,
+  Mic,
+  Moon,
+  MoreVertical,
+  MousePointerClick,
+  Navigation,
+  NotebookPen,
+  PauseCircle,
+  Percent,
+  Phone,
+  PieChart,
+  Power,
+  Puzzle,
+  RefreshCw,
+  Repeat,
+  Rocket,
+  Save,
+  School,
+  ScrollText,
+  Search,
+  Send,
+  Shield,
+  ShieldAlert,
+  ShieldBan,
+  ShoppingBag,
+  ShoppingCart,
+  Siren,
+  Smile,
+  Star,
+  Stethoscope,
+  Sun,
+  SunMedium,
+  Target,
+  Telescope,
+  ThumbsUp,
+  Timer,
+  Trash,
+  Trash2,
+  Trophy,
+  Upload,
+  Video,
+  Wallet,
+  Waves,
+  X,
+  XCircle,
+  Plus,
+  Minus,
+  Edit,
+  Edit2,
+  Check,
+  Bell,
+  Globe,
+  Calendar,
+  Copy,
+  Share2,
+  Loader2,
+  ExternalLink,
+  Link,
+  BookOpen,
+  BookHeart,
+  Brain,
+  BrainCircuit,
+  Sparkles,
+  Award,
+  MessageCircle,
+  ArrowUp,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  UserCircle,
+  UserPlus,
+  UserX,
+  PlusCircle,
+  List,
+  ListTodo,
+  Pencil,
+  Hash,
+  Scale,
+  Monitor,
+  Cpu,
+};
+
+// === STAP 3: MAAK EXPLICIETE ALIASES ===
+// Dashboard-sidebar.tsx specifieke aliases:
+export const FileBarChart = BarChart;                    // ✅ KRITIEK!
+export const UsersIconLucide = Users;                   // ✅
+export const BookOpenCheck = BookOpen;                  // ✅
+export const MessagesSquare = MessageSquare;            // ✅
+export const MessagesSquareIcon = MessageSquare;        // ✅
+export const TrendingUp = ArrowUp;                      // ✅ Fallback
+export const Link2 = ExternalLink;                      // ✅
+export const UserCheck = User;                          // ✅
+export const ShieldCheck = Shield;                      // ✅
+export const HeartHandshake = Handshake;               // ✅
+export const MessageCircleQuestion = MessageCircle;     // ✅
+export const BookUser = BookOpen;                       // ✅
+export const PanelLeft = Menu;                         // ✅
+export const SaveIcon = Save;                          // ✅
+export const BarChartHorizontal = BarChart;            // ✅
+export const CalendarDays = Calendar;                  // ✅
+export const CalendarClock = Calendar;                 // ✅
+
+// Separator fix:
+export const Separator = SeparatorHorizontal;          // ✅
+
+// Extra backwards compatibility:
+export const BarChart3 = BarChart;
+export const BarChartBig = BarChart;
+export const CalendarIcon = Calendar;
+export const CheckCircle2 = CheckCircle;
+export const ClipboardCheck = ClipboardList;
+export const ClockIcon = Clock;
+export const SettingsIcon = Settings;
+export const UserIcon = User;
+export const Users2 = Users;
+export const UsersIcon = Users;
+export const Edit2Icon = Edit2;
+export const FileTextIcon = FileText;
+export const PlusCircleIcon = PlusCircle;
+export const LinkIcon = Link;
+export const MessageSquareHeart = Heart;
+export const MessageSquareIcon = MessageSquare;
+export const MessageSquarePlus = MessageSquare;
+export const MessageSquareText = MessageSquare;
 
 // TypeScript type
 export type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;
