@@ -1,4 +1,4 @@
-// src/components/icons/index.ts
+// src/lib/icons.ts
 // EENVOUDIGE OPLOSSING - Alleen core exports, aliases in components
 
 export {
@@ -60,7 +60,6 @@ export {
   FlaskConical,
   Folder,
   FolderOpen,
-  Gamepad2,
   Gavel,
   GitBranch,
   Globe,
@@ -78,9 +77,9 @@ export {
   KeyRound,
   Languages,
   LayoutDashboard,
-  Lightbulb,
   Library,
   LifeBuoy,
+  Lightbulb,
   LineChart,
   Link,
   Link2Off,
