@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export const metadata: Metadata = {
   title: 'MindNavigator – Ontdek je unieke sterktes en uitdagingen',
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <body className={`${GeistSans.variable} font-sans antialiased`}>
-        {children}
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
         <Toaster />
       </body>
     </html>
