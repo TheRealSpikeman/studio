@@ -24,6 +24,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Link from "next/link";
 import { FocusTimer } from '@/components/tools/FocusTimer';
 import { ConcentrationGames } from '@/components/tools/ConcentrationGames';
+import { DistractionBlocker } from '@/components/tools/DistractionBlocker'; // Nieuwe import
 import { Switch } from '@/components/ui/switch';
 
 const toolFormSchema = z.object({
@@ -70,12 +71,9 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
 
   useEffect(() => {
     if (initialData) {
-      form.reset({
-        ...initialData,
-        status: initialData.status || 'online',
-      });
+      form.reset(initialData);
     }
-  }, [initialData]);
+  }, [initialData, form]);
 
   const handleGenerateWithAI = async () => {
     if (!toolIdea.trim()) {
@@ -127,7 +125,8 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
             return <FocusTimer />;
         case 'concentratie-games':
             return <ConcentrationGames />;
-        // Add other tools here in the future
+        case 'distraction-blocker': // Nieuwe case
+            return <DistractionBlocker />;
         default:
             return (
               <div className="text-center p-4 space-y-4">
