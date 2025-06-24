@@ -7,11 +7,11 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, PanelLeft } from 'lucide-react'; 
+import { LogOut, UserCircle, PanelLeft } from '@/lib/icons'; 
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname } from 'next/navigation'; 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 
 // The role-specific data can remain here as it's for the header display
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
@@ -39,6 +39,7 @@ function MobileSidebar() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-72 bg-card flex flex-col">
+        <SheetTitle className="sr-only">Sidebar Menu</SheetTitle>
         <SidebarNavContent />
       </SheetContent>
     </Sheet>
