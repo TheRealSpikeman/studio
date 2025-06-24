@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Save, Bot, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
@@ -128,28 +128,38 @@ export function ToolCreatorForm({ onSave, initialData }: ToolCreatorFormProps) {
                             <Separator />
                         </>
                     )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="id" render={({ field }) => (
-                            <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={isEditMode} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="title" render={({ field }) => (
-                             <FormItem><FormLabel>Titel</FormLabel><FormControl><Input placeholder="Titel van de tool" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </div>
-
-                    <FormField control={form.control} name="description" render={({ field }) => (
-                        <FormItem><FormLabel>Korte Omschrijving</FormLabel><FormControl><Textarea placeholder="Wat doet deze tool?" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="icon" render={({ field }) => (
-                            <FormItem><FormLabel>Icoon</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een icoon"/></SelectTrigger></FormControl><SelectContent>{allToolIcons.map(icon => <SelectItem key={icon.name} value={icon.name}><div className="flex items-center gap-2"><icon.component className="h-4 w-4"/>{icon.name}</div></SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )}/>
-                         <FormField control={form.control} name="category" render={({ field }) => (
-                            <FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een categorie"/></SelectTrigger></FormControl><SelectContent>{allToolCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )}/>
-                    </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Tool Eigenschappen</CardTitle>
+                            <CardDescription>
+                                Beheer hier de metadata van de tool, zoals de titel, het icoon en de beschrijving die gebruikers zien.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-6">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField control={form.control} name="id" render={({ field }) => (
+                                    <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={isEditMode} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="title" render={({ field }) => (
+                                    <FormItem><FormLabel>Titel</FormLabel><FormControl><Input placeholder="Titel van de tool" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                            </div>
+
+                            <FormField control={form.control} name="description" render={({ field }) => (
+                                <FormItem><FormLabel>Korte Omschrijving</FormLabel><FormControl><Textarea placeholder="Wat doet deze tool?" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField control={form.control} name="icon" render={({ field }) => (
+                                    <FormItem><FormLabel>Icoon</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een icoon"/></SelectTrigger></FormControl><SelectContent>{allToolIcons.map(icon => <SelectItem key={icon.name} value={icon.name}><div className="flex items-center gap-2"><icon.component className="h-4 w-4"/>{icon.name}</div></SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="category" render={({ field }) => (
+                                    <FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een categorie"/></SelectTrigger></FormControl><SelectContent>{allToolCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                            </div>
+                        </CardContent>
+                    </Card>
 
                     <Card className="p-4 bg-muted/50">
                         <CardTitle className="text-lg mb-2">Aanbevelingslogica</CardTitle>

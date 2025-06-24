@@ -1,13 +1,12 @@
 // src/components/admin/tool-management/ToolTable.tsx
 "use client";
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Edit, Trash2, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Pencil, Trash2, MoreVertical, Eye } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { cn } from '@/lib/utils';
@@ -18,8 +17,6 @@ interface ToolTableProps {
 }
 
 export function ToolTable({ tools, onDelete }: ToolTableProps) {
-  const router = useRouter();
-
   return (
     <Table>
       <TableHeader>
@@ -50,16 +47,23 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    {/* This is the robust solution: A styled Link component */}
-                    <Link
-                      href={`/dashboard/admin/tool-management/edit/${tool.id}`}
-                      className={cn(
-                        "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                      )}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Bewerken</span>
-                    </Link>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/dashboard/tools/${tool.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Eye className="mr-2 h-4 w-4" /> Bekijken (Live)
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/dashboard/admin/tool-management/edit/${tool.id}`}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" /> Eigenschappen Bewerken
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onSelect={() => onDelete(tool)}
                       className="text-destructive focus:text-destructive"
