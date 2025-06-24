@@ -1,4 +1,4 @@
-
+// src/app/quiz/ouder-symptomen-check/results/page.tsx
 "use client";
 
 import { Suspense } from 'react';
@@ -22,13 +22,25 @@ function OuderSymptomenCheckResultsContent() {
         router.push('/dashboard/ouder/kinderen');
         return;
     }
-    const summary = "Ouder observeert dat het kind soms moeite heeft met starten aan taken, maar zeer creatief en rechtvaardig is. Gevoeligheid voor drukte is ook een aandachtspunt.";
+    
+    // Simulate structured answers from the parent quiz
+    const parentAnswers = [
+      { question: "Hoe vaak heeft uw kind moeite met het starten van taken?", answer: "Soms" },
+      { question: "Hoe beschrijft u de creativiteit van uw kind?", answer: "Zeer creatief, kan originele verhalen bedenken." },
+      { question: "Hoe reageert uw kind op drukke omgevingen?", answer: "Gevoelig, heeft daarna rust nodig." }
+    ];
+
     try {
-        localStorage.setItem(`parentObservation_${kindId}`, summary);
+        localStorage.setItem(`parentObservation_${kindId}`, JSON.stringify(parentAnswers));
         toast({ 
           title: "Observaties Opgeslagen!", 
           description: "U kunt nu de vergelijkende analyse genereren op de voortgangspagina.",
           duration: 6000,
+          action: (
+            <Button variant="link" size="sm" asChild onClick={() => router.push(`/dashboard/ouder/kinderen/${kindId}/voortgang`)}>
+              <Link href={`/dashboard/ouder/kinderen/${kindId}/voortgang`}>Bekijk Voortgang</Link>
+            </Button>
+          ),
         });
         router.push(`/dashboard/ouder/kinderen/${kindId}/voortgang`);
     } catch (e) {

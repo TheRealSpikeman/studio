@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx
 "use client";
 
@@ -13,14 +12,20 @@ import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck,
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { compareParentChildInsights } from '@/ai/flows/compare-parent-child-insights-flow';
+import { compareParentChildInsights, type CompareParentChildInput } from '@/ai/flows/compare-parent-child-insights-flow';
 import { useToast } from '@/hooks/use-toast';
+
+interface QuizAnswer {
+  question: string;
+  answer: string;
+}
 
 interface QuizResult {
   quizId: string;
   title: string;
   dateCompleted: string; // ISO
   summary: string;
+  answers?: QuizAnswer[]; // Changed from summary
   isShared: boolean;
   reportLink?: string;
 }
@@ -51,7 +56,6 @@ interface ChildProgressData {
   avatarUrl?: string;
   ageGroup?: "12-14" | "15-18" | "adult"; // Toegevoegd voor AI flow
   recentQuizzes: QuizResult[];
-  parentObservationsSummary?: string; // Dummy data voor "Ken je Kind"
   tutorFeedback: TutorFeedback[];
   activityData: ActivityPoint[];
   goals?: Goal[];
@@ -64,10 +68,31 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80',
     ageGroup: '12-14',
     recentQuizzes: [
-      { quizId: 'neuro1', title: 'Basis Neuroprofiel (12-14 jr)', dateCompleted: new Date(Date.now() - 5 * 86400000).toISOString(), summary: 'Sofie laat een sterk ontwikkeld empathisch vermogen zien en een goed oog voor detail. Concentratie bij routineuze taken is een aandachtspunt.', isShared: true, reportLink: '#' },
-      { quizId: 'focus1', title: 'Focus & Planning Quiz', dateCompleted: new Date(Date.now() - 12 * 86400000).toISOString(), summary: 'Resultaten wijzen op een behoefte aan meer structuur in planning. Tips voor Pomodoro techniek gegeven.', isShared: true },
+      { 
+        quizId: 'neuro1', 
+        title: 'Basis Neuroprofiel (12-14 jr)', 
+        dateCompleted: new Date(Date.now() - 5 * 86400000).toISOString(), 
+        summary: 'Sofie laat een sterk ontwikkeld empathisch vermogen zien en een goed oog voor detail. Concentratie bij routineuze taken is een aandachtspunt.', 
+        answers: [
+            { question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie" },
+            { question: "Hoe ga je om met onverwachte veranderingen?", answer: "Ik vind het lastig, maar pas me aan." },
+            { question: "Wat doe je als je overprikkeld raakt?", answer: "Ik zoek een rustig plekje op." }
+        ],
+        isShared: true, 
+        reportLink: '#' 
+      },
+      { 
+        quizId: 'focus1', 
+        title: 'Focus & Planning Quiz', 
+        dateCompleted: new Date(Date.now() - 12 * 86400000).toISOString(), 
+        summary: 'Resultaten wijzen op een behoefte aan meer structuur in planning. Tips voor Pomodoro techniek gegeven.', 
+        isShared: true,
+        answers: [
+            { question: "Hoe vaak stel je huiswerk uit?", answer: "Soms" },
+            { question: "Gebruik je een agenda of planner?", answer: "Niet altijd consequent" }
+        ],
+      },
     ],
-    parentObservationsSummary: "Ouder merkt op dat Sofie soms moeite heeft met beginnen aan huiswerk, maar heel creatief kan zijn. Soms gevoelig voor drukte.",
     tutorFeedback: [
       { feedbackId: 'fb1', date: new Date(Date.now() - 3 * 86400000).toISOString(), tutorName: 'Mevr. Jansen', lessonSubject: 'Wiskunde A', comment: 'Sofie was vandaag erg betrokken en stelde goede vragen over algebra. We hebben de basis van vergelijkingen oplossen doorgenomen. Huiswerk: oefeningen 1 t/m 5.' },
       { feedbackId: 'fb2', date: new Date(Date.now() - 10 * 86400000).toISOString(), tutorName: 'Dhr. Pietersen', lessonSubject: 'Engels Grammatica', comment: 'De onregelmatige werkwoorden blijven lastig. Extra oefening met de lijst is aanbevolen. Goed gewerkt aan de uitspraak.' },
@@ -87,9 +112,17 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     avatarUrl: 'https://picsum.photos/seed/maxchild/80/80',
     ageGroup: '15-18',
     recentQuizzes: [
-      { quizId: 'neuro2', title: 'Basis Neuroprofiel (15-18 jr)', dateCompleted: new Date(Date.now() - 8 * 86400000).toISOString(), summary: 'Max is een creatieve denker en komt snel tot oplossingen. Het vasthouden van aandacht bij langere uitleg kan een uitdaging zijn.', isShared: false },
+      { 
+        quizId: 'neuro2', 
+        title: 'Basis Neuroprofiel (15-18 jr)', 
+        dateCompleted: new Date(Date.now() - 8 * 86400000).toISOString(), 
+        summary: 'Max is een creatieve denker en komt snel tot oplossingen. Het vasthouden van aandacht bij langere uitleg kan een uitdaging zijn.', 
+        isShared: false,
+        answers: [
+             { question: "Hoe ga je om met deadlines?", answer: "Ik werk het beste onder druk, dus vaak op het laatste moment." },
+        ]
+      },
     ],
-    parentObservationsSummary: "Ouder ziet dat Max slim is maar snel afgeleid en moeite heeft met motivatie voor school. Wel erg sociaal.",
     tutorFeedback: [
       { feedbackId: 'fb3', date: new Date(Date.now() - 6 * 86400000).toISOString(), tutorName: 'Mevr. de Wit', lessonSubject: 'Nederlands', comment: 'Tekstanalyse van gedichten ging goed. Max kan zijn argumenten goed onderbouwen. Focus volgende keer op synoniemen.' },
     ],
@@ -118,10 +151,6 @@ export default function KindVoortgangPage() {
     try {
       const data = dummyProgressData[kindId];
       if (data) {
-        const storedObservations = localStorage.getItem(`parentObservation_${kindId}`);
-        if (storedObservations) {
-          data.parentObservationsSummary = storedObservations;
-        }
         dataToSet = data;
       }
     } catch (error) {
@@ -134,22 +163,30 @@ export default function KindVoortgangPage() {
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   const handleGenereerVergelijkendAdvies = async () => {
-    if (!childData || !childData.parentObservationsSummary || childData.recentQuizzes.length === 0 || !childData.recentQuizzes.some(q => q.isShared)) {
-      toast({
-        title: "Onvoldoende gegevens",
-        description: "Zorg ervoor dat de 'Ken je Kind' quiz is voltooid en de resultaten van minimaal één kind-zelfreflectie gedeeld zijn.",
-        variant: "destructive"
-      });
-      return;
+    if (!childData) return;
+    
+    const parentDataRaw = localStorage.getItem(`parentObservation_${childData.id}`);
+    const parentObservations = parentDataRaw ? JSON.parse(parentDataRaw) : [];
+    const sharedChildQuiz = childData.recentQuizzes.find(q => q.isShared && q.answers && q.answers.length > 0);
+
+    if (parentObservations.length === 0 || !sharedChildQuiz) {
+        toast({
+            title: "Onvoldoende gegevens",
+            description: "Zorg ervoor dat de 'Ken je Kind' quiz is voltooid en de resultaten van minimaal één kind-zelfreflectie gedeeld zijn.",
+            variant: "destructive"
+        });
+        return;
     }
+
     setIsLoadingVergelijkendAdvies(true);
     setVergelijkendAdvies(null);
+
     try {
-      const input = {
+      const input: CompareParentChildInput = {
         childName: childData.name,
         childAgeGroup: childData.ageGroup || "onbekend",
-        parentObservations: childData.parentObservationsSummary,
-        childSelfReflection: childData.recentQuizzes.find(q => q.isShared)!.summary,
+        parentObservations: parentObservations,
+        childSelfReflection: sharedChildQuiz.answers || [],
       };
       const result = await compareParentChildInsights(input);
       setVergelijkendAdvies(result.parentingAdvice);
@@ -165,9 +202,10 @@ export default function KindVoortgangPage() {
   const renderComparativeAnalysisContent = () => {
     if (!childData) return null;
 
-    const hasParentObservation = !!childData.parentObservationsSummary;
-    const hasChildReflection = childData.recentQuizzes.some(q => q.isShared);
-
+    const parentDataRaw = localStorage.getItem(`parentObservation_${childData.id}`);
+    const hasParentObservation = parentDataRaw && JSON.parse(parentDataRaw).length > 0;
+    const hasChildReflection = childData.recentQuizzes.some(q => q.isShared && q.answers && q.answers.length > 0);
+    
     if (hasParentObservation && hasChildReflection) {
       return (
         <div className="space-y-4">
@@ -190,7 +228,6 @@ export default function KindVoortgangPage() {
       );
     }
 
-    // Determine which message to show if not all data is available
     let alertTitle = "";
     let alertDescription = "";
     let alertLink: string | null = null;
