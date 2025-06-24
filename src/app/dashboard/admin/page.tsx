@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-3xl font-bold text-foreground">Admin Dashboard Overzicht</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Admin Dashboard Overzicht</h1>
         <p className="text-muted-foreground">
           Een overzicht van de belangrijkste statistieken en activiteiten op het platform.
         </p>
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                 <LineChart className="h-5 w-5 text-primary" />
                 Sessies per Dag (laatste 30d)
             </CardTitle>
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
         </Card>
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                 <BarChart className="h-5 w-5 text-primary" />
                 Omzet per Tutor/Vak
             </CardTitle>
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
         </Card>
         <Card className="shadow-lg lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                 <PieChart className="h-5 w-5 text-primary" />
                 Leeftijdsverdeling Leerlingen
             </CardTitle>
