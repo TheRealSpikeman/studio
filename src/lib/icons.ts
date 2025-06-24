@@ -1,3 +1,4 @@
+
 // src/lib/icons.ts
 // This is the single source of truth for all icons used in the application.
 // It uses aliases for icons that might not have direct names in lucide-react
@@ -153,7 +154,7 @@ export {
   ScrollText,
   Search,
   Send,
-  Separator,
+  SeparatorHorizontal as Separator,
   Settings,
   Settings as SettingsIcon,
   Settings2,
@@ -179,8 +180,8 @@ export {
   Timer,
   Trash,
   Trash2,
-  Twitter,
   Trophy,
+  Twitter,
   Upload,
   User,
   User as UserCheck,
