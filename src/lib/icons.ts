@@ -1,3 +1,4 @@
+
 // src/lib/icons.ts
 // This central icon registry resolves all import problems.
 
@@ -5,7 +6,6 @@ export {
   // === LAYOUT & NAVIGATION ===
   ArrowLeft,
   ArrowRight,
-  BookUser,
   ChevronDown,
   ChevronUp,
   ExternalLink,
@@ -15,7 +15,6 @@ export {
   LayoutDashboard,
   Menu,
   MessageCircleQuestion,
-  PanelLeft,
   PlayCircle,
   Shuffle,
   X,
@@ -155,6 +154,7 @@ export {
   Sun,
   SunMedium,
   Waves,
+  Power,
   
   // === ALIASSES FOR COMPATIBILITY ===
   Circle as Target,
@@ -166,5 +166,7 @@ export {
   BookOpen as BookHeart,
   MessageSquare as MessagesSquare,
   Link as Link2,
+  Power as LogOut,
+  Menu as PanelLeft,
   
 } from 'lucide-react';
