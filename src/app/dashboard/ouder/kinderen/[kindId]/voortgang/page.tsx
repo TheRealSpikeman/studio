@@ -13,8 +13,8 @@ import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck,
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { compareParentChildInsights } from '@/ai/flows/compare-parent-child-insights-flow'; // Nieuwe import
-import { useToast } from '@/hooks/use-toast'; // Toast voor feedback
+import { compareParentChildInsights } from '@/ai/flows/compare-parent-child-insights-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuizResult {
   quizId: string;
@@ -116,6 +116,15 @@ export default function KindVoortgangPage() {
     setIsLoading(true);
     const data = dummyProgressData[kindId];
     if (data) {
+      // Check localStorage for parent observations
+      try {
+        const storedObservations = localStorage.getItem(`parentObservation_${kindId}`);
+        if (storedObservations) {
+          data.parentObservationsSummary = storedObservations;
+        }
+      } catch (e) {
+        console.error("Could not read from localStorage", e);
+      }
       setChildData(data);
     } else {
       console.error("Kind data niet gevonden voor ID:", kindId);
@@ -216,7 +225,11 @@ export default function KindVoortgangPage() {
                     <AlertDescUi className="text-blue-600">
                       Om dit advies te genereren, dient u eerst de "Ken je Kind" vragenlijst voor {childData.name} in te vullen en dient {childData.name} de basis zelfreflectie tool te voltooien en de resultaten te delen.
                       <br />
-                      <Button variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800" disabled>Start "Ken je Kind" test (binnenkort hier)</Button>
+                      <Button asChild variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800">
+                          <Link href={`/quiz/ouder-symptomen-check?kindId=${childData.id}`}>
+                              Start "Ken je Kind" test
+                          </Link>
+                      </Button>
                     </AlertDescUi>
                   </Alert>
                 )}
@@ -347,4 +360,3 @@ export default function KindVoortgangPage() {
     </div>
   );
 }
-
