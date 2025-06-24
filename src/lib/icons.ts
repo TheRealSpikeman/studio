@@ -11,7 +11,7 @@ export {
   LayoutDashboard,
   ClipboardList, 
   MessageSquare,
-  MessagesSquare,
+  MessagesSquare, // Added for MessagesSquareIcon alias
   User,
   Settings,
   Users,
@@ -24,7 +24,7 @@ export {
   Clock,
   HelpCircle,
   CreditCard,
-  TrendingUp,
+  ArrowUp as TrendingUp,  // <-- FIX: Using ArrowUp as a replacement for the non-existent TrendingUp
   Package,
   PlayCircle,
   GitBranch,
@@ -33,6 +33,7 @@ export {
   Wrench,
   CalendarPlus,
   CalendarDays,
+  Calendar,
   GraduationCap,
   BookHeart,
   Activity,
@@ -60,6 +61,7 @@ export {
   KeyRound,
   Languages,
   Lightbulb,
+  Link,
   Link2Off,
   LogOut,
   Mail,
@@ -85,6 +87,8 @@ export {
   ScrollText,
   Search,
   Send,
+  SeparatorHorizontal,
+  SeparatorVertical,
   Shield,
   ShieldAlert,
   ShieldBan,
@@ -111,14 +115,12 @@ export {
   XCircle,
 
   // ===== EXTRA BELANGRIJKE ICONS =====
-  ArrowUp,
   ArrowDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   ChevronDown,
   ExternalLink,
-  Link,
   Plus,
   Minus,
   Edit,
@@ -127,7 +129,6 @@ export {
   Check,
   Bell,
   Globe,
-  Calendar,
   Copy,
   Share2,
   Loader2,
@@ -147,7 +148,6 @@ export {
   Volume2,
   VolumeOff,
   Play,
-  Square as Stop, // Use Square as a replacement for the non-existent Stop icon
   Bookmark,
   Flag,
   Gauge,
@@ -185,9 +185,8 @@ export {
   RotateCcw,
 
   // ===== LAYOUT & STRUCTURE =====
-  LayoutGrid as Grid3X3, // Use LayoutGrid as replacement for non-existent Grid3X3
+  // LayoutGrid as Grid3X3, // Use LayoutGrid if needed
   SeparatorHorizontal as Separator,
-  SeparatorVertical,
 
   // ===== ALLE ALIASES VOOR BACKWARDS COMPATIBILITY =====
   // Dashboard-sidebar.tsx gebruikt deze specifieke aliases:
