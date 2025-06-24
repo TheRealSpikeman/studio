@@ -1,4 +1,3 @@
-
 // src/components/admin/tool-management/ToolTable.tsx
 "use client";
 
@@ -7,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Pencil, Trash2, MoreVertical, Eye } from 'lucide-react';
+import { Pencil, Trash2, MoreVertical, Eye, Circle } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { cn } from '@/lib/utils';
@@ -36,7 +35,11 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
           const Icon = getToolIconComponent(tool.icon);
           return (
             <TableRow key={tool.id}>
-              <TableCell className="font-medium flex items-center gap-2">
+              <TableCell className="font-medium flex items-center gap-3">
+                <Circle aria-label={tool.status === 'online' ? 'Online' : 'Offline'} title={tool.status === 'online' ? 'Online' : 'Offline'} className={cn(
+                    "h-3 w-3 flex-shrink-0",
+                    tool.status === 'online' ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400"
+                )} />
                 {Icon && <Icon className="h-5 w-5 text-primary" />}
                 {tool.title}
               </TableCell>
@@ -53,7 +56,7 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <Link
-                        href={`/dashboard/admin/tools/${tool.id}`}
+                        href={`/dashboard/tools/${tool.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

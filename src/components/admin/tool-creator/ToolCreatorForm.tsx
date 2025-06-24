@@ -24,6 +24,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Link from "next/link";
 import { FocusTimer } from '@/components/tools/FocusTimer';
 import { ConcentrationGames } from '@/components/tools/ConcentrationGames';
+import { Switch } from '@/components/ui/switch';
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -31,6 +32,7 @@ const toolFormSchema = z.object({
   description: z.string().min(10, "Omschrijving is te kort."),
   icon: z.string({ required_error: "Selecteer een icoon." }),
   category: z.string({ required_error: "Selecteer een categorie." }),
+  status: z.enum(['online', 'offline']).optional(),
   reasoning: z.object({
     high: z.string().min(10, "Reden voor hoge score is te kort."),
     medium: z.string().min(10, "Reden voor gemiddelde score is te kort."),
@@ -62,13 +64,16 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
     defaultValues: initialData || {
-      id: "", title: "", description: "", reasoning: { high: "", medium: "", low: "" }, usage: { when: "", benefit: "" },
+      id: "", title: "", description: "", status: 'online', reasoning: { high: "", medium: "", low: "" }, usage: { when: "", benefit: "" },
     },
   });
 
   useEffect(() => {
     if (initialData) {
-      form.reset(initialData);
+      form.reset({
+        ...initialData,
+        status: initialData.status || 'online',
+      });
     }
   }, [initialData, form]);
 
@@ -89,6 +94,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       
       form.reset({
         ...result,
+        status: 'online', // Default to online when generating
         reasoning: { ...result.reasoning },
         usage: { ...result.usage }
       });
@@ -173,6 +179,26 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-2 space-y-6">
+                    <FormField
+                        control={form.control}
+                        name="status"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-muted/30">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-base">Tool Status</FormLabel>
+                                    <FormDescription>
+                                        Zet de tool online (zichtbaar voor gebruikers) of offline (verborgen).
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value === 'online'}
+                                        onCheckedChange={(checked) => field.onChange(checked ? 'online' : 'offline')}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField control={form.control} name="id" render={({ field }) => (
                             <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={!isNewTool} /></FormControl><FormMessage /></FormItem>

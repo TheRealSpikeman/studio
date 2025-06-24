@@ -1,4 +1,3 @@
-
 // src/lib/quiz-data/tools-data.ts
 import { Timer, Gamepad2, ShieldBan, NotebookText, BarChart, Bell, PauseCircle, Fingerprint, Waves, Sun, Gauge, GitBranch, Share2, Lightbulb, Users, Compass, BookOpenCheck, Brain, Zap, Sparkles, MessageCircle, ClipboardList } from 'lucide-react';
 import type { ElementType } from 'react';
@@ -9,6 +8,7 @@ export interface Tool {
   description: string;
   icon: string; // Changed to string to store the icon name
   category: 'Focus & Concentratie' | 'Energie & Beweging' | 'Rust & Regulatie' | 'Stemming & Emotie' | 'Sociaal & Communicatie' | 'Interesses & Hobby';
+  status?: 'online' | 'offline'; // Added status
   reasoning: {
     high: string;
     medium: string;
@@ -54,6 +54,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Een Pomodoro timer met optionele achtergrondgeluiden om je te helpen in de zone te komen.',
     icon: 'Timer',
     category: 'Focus & Concentratie',
+    status: 'online',
     reasoning: {
       high: "Je focus kan soms alle kanten op gaan. Deze tool helpt je om werk in behapbare blokken op te delen, wat het starten en volhouden makkelijker maakt.",
       medium: "Je hebt een gemiddelde focus. Deze timer kan je helpen om die focus te trainen en bewuster met je tijd om te gaan.",
@@ -70,6 +71,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Gamified trainingsoefeningen ontworpen om je aandachtsspanne op een leuke manier te vergroten.',
     icon: 'Gamepad2',
     category: 'Focus & Concentratie',
+    status: 'online',
     reasoning: {
       high: "Je vindt het moeilijk om je lang te concentreren. Deze games trainen je 'focus-spier' op een leuke, laagdrempelige manier.",
       medium: "Je kunt je al redelijk concentreren. Deze games dagen je uit om je focus naar een hoger niveau te tillen.",
@@ -87,6 +89,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Blokkeer tijdelijk afleidende websites en apps tijdens je studiesessies.',
     icon: 'ShieldBan',
     category: 'Focus & Concentratie',
+    status: 'online',
     reasoning: {
       high: "Je bent snel afgeleid. Deze tool creëert een 'digitale stiltecoupé' zodat je brein niet constant wordt weggetrokken.",
       medium: "Je hebt soms moeite met de verleiding van social media. Deze tool is een extra steuntje in de rug.",
@@ -103,6 +106,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Een intelligente planner die je helpt taken op te delen en in te plannen op basis van je focuspatronen.',
     icon: 'NotebookText',
     category: 'Focus & Concentratie',
+    status: 'online',
     reasoning: {
       high: "Je bent snel afgeleid en vindt plannen lastig. Deze tool geeft je de structuur die je nodig hebt.",
       medium: "Je hebt een goede basis, maar kunt soms het overzicht verliezen. De planner helpt je om consistent te blijven.",
@@ -121,6 +125,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Houd dagelijks je energieniveau bij om patronen te ontdekken in wat je energie geeft of kost.',
     icon: 'BarChart',
     category: 'Energie & Beweging',
+    status: 'online',
     reasoning: {
       high: "Jouw energieniveau wisselt sterk. Deze tool helpt je te begrijpen waar dat door komt, zodat je er beter op kunt inspelen.",
       medium: "Je hebt soms pieken en dalen in je energie. De monitor geeft je inzicht om je dagen beter in te delen.",
@@ -137,6 +142,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Korte, geleide video-oefeningen (2-5 min) om overtollige energie kwijt te raken en je daarna weer te kunnen focussen.',
     icon: 'Bell',
     category: 'Energie & Beweging',
+    status: 'online',
     reasoning: {
       high: "Je hebt vaak veel energie en moeite met stilzitten. Deze korte breaks zijn een perfecte uitlaatklep.",
       medium: "Je voelt je soms onrustig. Gebruik deze breaks om je hoofd leeg te maken en je lichaam te activeren.",
@@ -153,6 +159,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Een simpele tool die je helpt een korte pauze in te lassen voordat je reageert of handelt.',
     icon: 'PauseCircle',
     category: 'Energie & Beweging',
+    status: 'online',
     reasoning: {
       high: "Je handelt vaak impulsief. Deze tool traint je om een moment van reflectie in te bouwen, wat leidt tot betere beslissingen.",
       medium: "Je bent soms wat ongeduldig. De 'Impulse Pause' helpt je om bewuster en rustiger te reageren.",
@@ -169,6 +176,7 @@ export const DEFAULT_TOOLS: Tool[] = [
     description: 'Een verzameling digitale fidgets (knoppen, schakelaars, etc.) om je handen bezig te houden tijdens het luisteren.',
     icon: 'Fingerprint',
     category: 'Energie & Beweging',
+    status: 'online',
     reasoning: {
       high: "Je bent vaak onrustig en hebt iets nodig om mee te 'friemelen'. Dit is een stille, digitale oplossing.",
       medium: "Soms helpt het je te concentreren als je handen iets te doen hebben. Dit is een handig alternatief voor een tikkende pen.",
