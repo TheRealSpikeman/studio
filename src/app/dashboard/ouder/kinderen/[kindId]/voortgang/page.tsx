@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown, Bot, Loader2 } from 'lucide-react';
+import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown, Bot, Loader2, Info } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -114,21 +114,20 @@ export default function KindVoortgangPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    const data = dummyProgressData[kindId];
-    if (data) {
-      // Check localStorage for parent observations
-      try {
+    let dataToSet: ChildProgressData | null = null;
+    try {
+      const data = dummyProgressData[kindId];
+      if (data) {
         const storedObservations = localStorage.getItem(`parentObservation_${kindId}`);
         if (storedObservations) {
           data.parentObservationsSummary = storedObservations;
         }
-      } catch (e) {
-        console.error("Could not read from localStorage", e);
+        dataToSet = data;
       }
-      setChildData(data);
-    } else {
-      console.error("Kind data niet gevonden voor ID:", kindId);
+    } catch (error) {
+      console.error("Error loading data:", error);
     }
+    setChildData(dataToSet);
     setIsLoading(false);
   }, [kindId]);
 
@@ -163,6 +162,75 @@ export default function KindVoortgangPage() {
     }
   };
 
+  const renderComparativeAnalysisContent = () => {
+    if (!childData) return null;
+
+    const hasParentObservation = !!childData.parentObservationsSummary;
+    const hasChildReflection = childData.recentQuizzes.some(q => q.isShared);
+
+    if (hasParentObservation && hasChildReflection) {
+      return (
+        <div className="space-y-4">
+          <Button onClick={handleGenereerVergelijkendAdvies} disabled={isLoadingVergelijkendAdvies}>
+            {isLoadingVergelijkendAdvies && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Genereer Advies
+          </Button>
+          {isLoadingVergelijkendAdvies && (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="ml-2 text-muted-foreground">Advies wordt gegenereerd...</p>
+            </div>
+          )}
+          {vergelijkendAdvies && (
+            <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-md border">
+              <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/\n/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Determine which message to show if not all data is available
+    let alertTitle = "";
+    let alertDescription = "";
+    let alertLink: string | null = null;
+    let alertLinkText = "Start de vragenlijst (voor u als ouder)";
+
+    if (!hasParentObservation && !hasChildReflection) {
+      alertTitle = "Start de Analyse";
+      alertDescription = `Om een vergelijkende analyse te maken, vult u de "Ken je Kind" vragenlijst in en vraagt u ${childData.name} om de zelfreflectie te voltooien en te delen.`;
+      alertLink = `/quiz/ouder-symptomen-check?kindId=${childData.id}`;
+    } else if (hasParentObservation && !hasChildReflection) {
+      alertTitle = `Wachten op Zelfreflectie van ${childData.name}`;
+      alertDescription = `U heeft uw observaties ingevuld. Zodra ${childData.name} de zelfreflectie heeft voltooid en de resultaten heeft gedeeld, kunt u hier de analyse genereren.`;
+    } else if (!hasParentObservation && hasChildReflection) {
+      alertTitle = "Actie Vereist: Vul uw Observaties in";
+      alertDescription = `${childData.name} heeft de zelfreflectie voltooid! Vul nu de "Ken je Kind" vragenlijst in om de analyse te ontgrendelen.`;
+      alertLink = `/quiz/ouder-symptomen-check?kindId=${childData.id}`;
+    }
+
+    return (
+      <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
+        <Bot className="h-5 w-5 !text-blue-600"/>
+        <AlertTitleUi className="text-blue-700 font-semibold">{alertTitle}</AlertTitleUi>
+        <AlertDescUi className="text-blue-600">
+          {alertDescription}
+          {alertLink && (
+            <>
+              <br />
+              <Button asChild variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800">
+                <Link href={alertLink}>
+                  {alertLinkText}
+                </Link>
+              </Button>
+            </>
+          )}
+        </AlertDescUi>
+      </Alert>
+    );
+  };
+
+
   if (isLoading) {
     return <div className="p-8 text-center">Voortgangsgegevens laden...</div>;
   }
@@ -181,10 +249,6 @@ export default function KindVoortgangPage() {
       </div>
     );
   }
-
-  const canGenerateComparativeAdvice = 
-    childData.parentObservationsSummary && 
-    childData.recentQuizzes.some(q => q.isShared);
 
   return (
     <div className="space-y-8">
@@ -206,7 +270,7 @@ export default function KindVoortgangPage() {
         </Button>
       </div>
 
-      <Accordion type="multiple" defaultValue={["quiz-results-section", "tutor-feedback-section", "comparative-analysis-section"]} className="w-full space-y-6">
+      <Accordion type="multiple" defaultValue={["comparative-analysis-section", "quiz-results-section", "tutor-feedback-section"]} className="w-full space-y-6">
         
         <AccordionItem value="comparative-analysis-section" className="border-0">
           <Card className="shadow-lg">
@@ -218,38 +282,7 @@ export default function KindVoortgangPage() {
             </AccordionTrigger>
             <AccordionContent>
               <CardContent className="space-y-4 pt-6">
-                {!canGenerateComparativeAdvice && (
-                  <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
-                    <FileText className="h-5 w-5 !text-blue-600"/>
-                    <AlertTitleUi className="text-blue-700 font-semibold">Nog niet beschikbaar</AlertTitleUi>
-                    <AlertDescUi className="text-blue-600">
-                      Om dit advies te genereren, dient u eerst de "Ken je Kind" vragenlijst voor {childData.name} in te vullen en dient {childData.name} de basis zelfreflectie tool te voltooien en de resultaten te delen.
-                      <br />
-                      <Button asChild variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800">
-                          <Link href={`/quiz/ouder-symptomen-check?kindId=${childData.id}`}>
-                              Start de vragenlijst (voor u als ouder)
-                          </Link>
-                      </Button>
-                    </AlertDescUi>
-                  </Alert>
-                )}
-                {canGenerateComparativeAdvice && !vergelijkendAdvies && (
-                  <Button onClick={handleGenereerVergelijkendAdvies} disabled={isLoadingVergelijkendAdvies}>
-                    {isLoadingVergelijkendAdvies && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Genereer Advies
-                  </Button>
-                )}
-                {isLoadingVergelijkendAdvies && (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="ml-2 text-muted-foreground">Advies wordt gegenereerd...</p>
-                  </div>
-                )}
-                {vergelijkendAdvies && (
-                  <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-md border">
-                    <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/\n/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
-                  </div>
-                )}
+                {renderComparativeAnalysisContent()}
               </CardContent>
             </AccordionContent>
           </Card>
@@ -272,7 +305,7 @@ export default function KindVoortgangPage() {
                         <h4 className="font-semibold text-primary">{quiz.title}</h4>
                         <p className="text-xs text-muted-foreground">Voltooid op: <FormattedDateCell isoDateString={quiz.dateCompleted} dateFormatPattern="P" /></p>
                       </div>
-                      <Badge variant={quiz.isShared ? "default" : "secondary"} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-300"}>
+                      <Badge variant={quiz.isShared ? 'default' : 'secondary'} className={quiz.isShared ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-300"}>
                         {quiz.isShared ? <ShieldCheck className="mr-1.5 h-3.5 w-3.5"/> : <ShieldAlert className="mr-1.5 h-3.5 w-3.5"/>}
                         {quiz.isShared ? 'Gedeeld' : 'Niet Gedeeld'}
                       </Badge>
