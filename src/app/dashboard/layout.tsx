@@ -3,6 +3,7 @@
 
 import { DashboardSidebar, SidebarNavContent } from '@/components/layout/dashboard-sidebar';
 import type { ReactNode } from 'react'; 
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
