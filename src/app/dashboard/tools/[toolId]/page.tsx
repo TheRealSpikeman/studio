@@ -1,25 +1,12 @@
-
-// src/app/dashboard/tools/[toolId]/page.tsx
+// This file is now obsolete.
 "use client";
-
 import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-
-// This component acts as a redirect to the new, correct location within the admin dashboard.
-export default function ToolRedirectPage() {
+import { useRouter } from 'next/navigation';
+export default function ObsoleteRedirectPage() {
   const router = useRouter();
-  const params = useParams();
-  const toolId = params.toolId as string;
-
   useEffect(() => {
-    if (toolId) {
-      router.replace(`/dashboard/admin/tools/${toolId}`);
-    }
-  }, [router, toolId]);
-
-  return (
-    <div className="flex h-full w-full items-center justify-center p-8">
-      <p>Tool pagina wordt verplaatst...</p>
-    </div>
-  );
+    // Redirect to the main tool management page as this URL is no longer in use.
+    router.replace('/dashboard/admin/tool-management');
+  }, [router]);
+  return <p>U wordt doorgestuurd naar de tool beheerpagina...</p>;
 }

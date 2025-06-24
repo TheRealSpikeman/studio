@@ -4,7 +4,7 @@
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import { FocusTimer } from '@/components/tools/FocusTimer';
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -100,6 +101,21 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     }
   };
 
+  const renderToolPreview = () => {
+    if (isNewTool) {
+      return <p className="text-sm text-muted-foreground p-4 text-center">Sla de tool eigenschappen eerst op om de live preview te zien en te bewerken.</p>;
+    }
+    if (!initialData) return null;
+
+    switch (initialData.id) {
+        case 'focus-timer-pro':
+            return <FocusTimer />;
+        // Add other tools here in the future
+        default:
+            return <p className="text-sm text-muted-foreground p-4 text-center">Geen live preview beschikbaar voor deze tool-ID ({initialData?.id}).</p>;
+    }
+  };
+
   return (
     <>
       <Form {...form}>
@@ -160,6 +176,21 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                     </div>
                 </CardContent>
             </Card>
+            
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Wrench className="h-5 w-5 text-primary" />
+                        Live Tool Preview & Edit
+                    </CardTitle>
+                    <CardDescription>
+                        Dit is een live weergave van de tool. U kunt de functionaliteit hier direct bewerken met conversationele commando's.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {renderToolPreview()}
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>
@@ -193,32 +224,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                     )}/>
                 </CardContent>
             </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Tool Functionaliteit</CardTitle>
-                    <CardDescription>
-                        {isNewTool 
-                            ? "Sla eerst de tool eigenschappen op. Daarna kunt u hier de daadwerkelijke tool functionaliteit bouwen op de tool-pagina." 
-                            : "Ga naar de tool-pagina om de functionaliteit live te bewerken met conversationele commando's."}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {isNewTool ? (
-                        <Button type="button" disabled>
-                            <Wrench className="mr-2 h-4 w-4" /> Eerst Eigenschappen Opslaan
-                        </Button>
-                    ) : (
-                        <Button type="button" asChild>
-                            <Link href={`/dashboard/admin/tools/${initialData?.id}`} target="_blank">
-                                <Wrench className="mr-2 h-4 w-4" /> Bewerk Functionaliteit
-                                <ExternalLink className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
-                    )}
-                </CardContent>
-            </Card>
-
         </form>
       </Form>
       
