@@ -151,11 +151,11 @@ export default function ToolManagementPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/dashboard/admin/tool-management/edit/${tool.id}`)}>
+                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/admin/tool-management/edit/${tool.id}`)}>
                               <Edit className="mr-2 h-4 w-4" /> Bewerken
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => setToolToDelete(tool)}
+                              onSelect={() => setToolToDelete(tool)}
                               className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
