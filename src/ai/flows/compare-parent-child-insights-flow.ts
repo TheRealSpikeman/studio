@@ -12,11 +12,16 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const QuizAnswerSchema = z.object({
+  question: z.string().describe("The text of the question that was answered."),
+  answer: z.string().describe("The answer given by the user."),
+});
+
 const CompareParentChildInputSchema = z.object({
   childName: z.string().describe("The name of the child for personalization in the advice."),
   childAgeGroup: z.string().describe("The age group of the child (e.g., '12-14 jaar', '15-18 jaar') to contextualize the advice."),
-  parentObservations: z.string().describe("A summary of the parent's observations from the 'Ken je Kind' quiz, focusing on perceived strengths and challenges. Dit representeert de 'OUDER PERSPECTIEF' input."),
-  childSelfReflection: z.string().describe("A summary of the child's self-reflection from their 'Zelfreflectie Tool', highlighting recognized traits and experiences. Dit representeert de 'KIND PERSPECTIEF' input."),
+  parentObservations: z.array(QuizAnswerSchema).describe("An array of questions and answers from the parent's 'Ken je Kind' quiz, focusing on perceived strengths and challenges. Dit representeert de 'OUDER PERSPECTIEF' input."),
+  childSelfReflection: z.array(QuizAnswerSchema).describe("An array of questions and answers from the child's 'Zelfreflectie Tool', highlighting recognized traits and experiences. Dit representeert de 'KIND PERSPECTIEF' input."),
 });
 export type CompareParentChildInput = z.infer<typeof CompareParentChildInputSchema>;
 
@@ -40,11 +45,16 @@ CONTEXT: Je bent een ervaren kinderpsycholoog en gezinscoach, gespecialiseerd in
 Een ouder heeft observaties over hun kind, {{{childName}}}, gedeeld. Het kind, {{{childName}}}, heeft ook een zelfreflectie gedaan.
 Jouw taak is om deze twee perspectieven te vergelijken en de ouder constructief, praktisch en begripvol advies te geven voor betere communicatie en ondersteuning, resulterend in een rapport zoals het voorbeeld dat de gebruiker heeft gezien. Beide perspectieven zijn waardevol.
 
-OUDER PERSPECTIEF (samenvatting van ouder-input):
-{{{parentObservations}}}
+OUDER PERSPECTIEF (antwoorden uit "Ken je Kind" quiz):
+{{#each parentObservations}}
+- Vraag: "{{this.question}}" | Antwoord: "{{this.answer}}"
+{{/each}}
 
-KIND PERSPECTIEF (samenvatting van kind-input):
-{{{childSelfReflection}}}
+KIND PERSPECTIEF (antwoorden uit "Zelfreflectie" tool):
+{{#each childSelfReflection}}
+- Vraag: "{{this.question}}" | Antwoord: "{{this.answer}}"
+{{/each}}
+
 
 ANALYSE FRAMEWORK (structureer je output als volgt, gebruik Markdown voor opmaak: ## voor kopjes, * voor lijstjes):
 
@@ -95,4 +105,3 @@ const compareParentChildInsightsFlow = ai.defineFlow(
     return output;
   }
 );
-
