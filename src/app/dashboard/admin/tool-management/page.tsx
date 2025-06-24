@@ -26,9 +26,17 @@ export default function ToolManagementPage() {
     try {
       const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
       if (storedToolsRaw) {
-        setTools(JSON.parse(storedToolsRaw));
+        const parsedTools: Tool[] = JSON.parse(storedToolsRaw);
+        // Migration step: ensure all tools have a status
+        const migratedTools = parsedTools.map(tool => ({
+            ...tool,
+            status: tool.status || 'online' // Default to 'online' if status is missing
+        }));
+        setTools(migratedTools);
       } else {
-        setTools([]);
+        // If there's nothing in storage, initialize with defaults
+        setTools(DEFAULT_TOOLS);
+        localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(DEFAULT_TOOLS));
       }
     } catch (error) {
       console.error("Error loading tools from localStorage.", error);
