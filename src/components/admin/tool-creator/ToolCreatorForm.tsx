@@ -1,4 +1,3 @@
-
 // src/components/admin/tool-creator/ToolCreatorForm.tsx
 "use client";
 
@@ -21,7 +20,6 @@ import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
-import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 
@@ -105,7 +103,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+        <form id="tool-creator-form" onSubmit={form.handleSubmit(onSave)} className="space-y-6">
             
             {isNewTool && (
                 <Card>
@@ -221,21 +219,32 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                 </CardContent>
             </Card>
 
-            <div className="flex justify-end pt-4 border-t">
-                <Button type="submit"><Save className="mr-2 h-4 w-4"/> {isNewTool ? 'Tool Eigenschappen Creëren' : 'Eigenschappen Opslaan'}</Button>
-            </div>
         </form>
       </Form>
       
-      {!isNewTool && onDelete && (
-        <div className="mt-8 pt-6 border-t border-destructive/30">
-          <h3 className="text-destructive font-semibold text-lg flex items-center gap-2"><AlertTriangle className="h-5 w-5"/>Gevaarlijke Zone</h3>
-          <p className="text-muted-foreground text-sm mt-1 mb-3">Deze actie kan niet ongedaan worden gemaakt.</p>
-          <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
-            <Trash2 className="mr-2 h-4 w-4"/> Verwijder deze tool
-          </Button>
+      <div className="mt-8 pt-6 border-t flex justify-between items-start">
+        {/* Left side: Destructive actions */}
+        <div>
+          {!isNewTool && onDelete && (
+            <div>
+              <h3 className="text-destructive font-semibold text-lg flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5"/>
+                Gevaarlijke Zone
+              </h3>
+              <p className="text-muted-foreground text-sm mt-1 mb-3">Deze actie kan niet ongedaan worden gemaakt.</p>
+              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+                <Trash2 className="mr-2 h-4 w-4"/> Verwijder deze tool
+              </Button>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right side: Primary action */}
+        <Button type="submit" form="tool-creator-form">
+          <Save className="mr-2 h-4 w-4"/>
+          {isNewTool ? 'Tool Eigenschappen Creëren' : 'Eigenschappen Opslaan'}
+        </Button>
+      </div>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
