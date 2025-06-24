@@ -75,7 +75,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
         status: initialData.status || 'online',
       });
     }
-  }, [initialData, form.reset]);
+  }, [initialData]);
 
   const handleGenerateWithAI = async () => {
     if (!toolIdea.trim()) {
