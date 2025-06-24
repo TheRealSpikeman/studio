@@ -16,7 +16,6 @@ import React, { useState, useEffect, Fragment, useMemo } from 'react';
 import {
   LayoutDashboard, 
   ClipboardList, 
-  BarChart as FileBarChart,
   MessageSquare, 
   User, 
   Settings, 
@@ -46,9 +45,10 @@ import {
   Wrench, 
   CalendarPlus, 
   Calendar as CalendarDays,
-  BarChart as BarChartHorizontal,
   BookHeart,
-  GraduationCap
+  GraduationCap,
+  BarChart as BarChartHorizontal,
+  BarChart as FileBarChart
 } from '@/components/icons';
 
 
@@ -183,15 +183,6 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    href: '#tools-parent',
-    label: 'Tools',
-    icon: Wrench,
-    adminOnly: true,
-    children: [
-        { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, parent: '#tools-parent' },
-    ]
-  },
-  {
     href: '#documentation-parent',
     label: 'Documentatie',
     icon: BookHeart,
@@ -202,6 +193,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbeveling Logica', icon: GitBranch, parent: '#documentation-parent' },
     ]
   },
   
