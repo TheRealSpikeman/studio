@@ -23,6 +23,7 @@ import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { FocusTimer } from '@/components/tools/FocusTimer';
+import { ConcentrationGames } from '@/components/tools/ConcentrationGames';
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -118,6 +119,8 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     switch (initialData.id) {
         case 'focus-timer-pro':
             return <FocusTimer />;
+        case 'concentratie-games':
+            return <ConcentrationGames />;
         // Add other tools here in the future
         default:
             return (
