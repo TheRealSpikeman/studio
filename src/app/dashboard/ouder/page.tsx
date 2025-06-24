@@ -1,7 +1,8 @@
+
 // src/app/dashboard/ouder/page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, Euro, BarChart3, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare, Link2, UserCheck } from 'lucide-react';
+import { Users, Settings, BookOpenCheck, Euro, FileBarChart, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare, Link2, UserCheck } from '@/lib/icons';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -113,7 +114,7 @@ const ouderDashboardItems: DashboardItem[] = [
     id: 'resultaten',
     title: 'Resultaten & Voortgang',
     description: 'Bekijk de voortgang en algemene ontwikkeling van uw tiener (gedeeld met hun toestemming en respect voor hun privacy).',
-    icon: BarChart3,
+    icon: FileBarChart,
     link: '/dashboard/ouder/lessen/overzicht', 
     buttonText: 'Bekijk Resultaten & Verslagen',
     buttonVariant: 'outline',

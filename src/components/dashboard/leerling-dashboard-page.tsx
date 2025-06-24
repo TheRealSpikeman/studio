@@ -5,7 +5,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, ClipboardList, BarChart3, BookOpenCheck } from '@/lib/icons';
+import { MessageSquare, TrendingUp, ClipboardList, FileBarChart, BookOpenCheck } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -63,7 +63,7 @@ export function LeerlingDashboardPage() {
         id: 'results',
         title: 'Jouw Inzichten',
         description: 'Bekijk je voltooide quizrapporten, ontdek je profiel en download je resultaten.',
-        icon: BarChart3,
+        icon: FileBarChart,
         link: '/dashboard/results',
         buttonText: 'Bekijk Mijn Resultaten',
         buttonVariant: 'outline', // Secondary button
