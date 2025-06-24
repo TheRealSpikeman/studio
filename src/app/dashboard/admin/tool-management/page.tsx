@@ -1,12 +1,13 @@
+
 // src/app/dashboard/admin/tool-management/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Wrench, Search, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { PlusCircle, Wrench, Search, Edit, Trash2, MoreVertical, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { allTools, type Tool, getToolIconComponent } from '@/lib/quiz-data/tools-data';
+import { DEFAULT_TOOLS, type Tool, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -29,13 +30,12 @@ export default function ToolManagementPage() {
       if (storedToolsRaw) {
         setTools(JSON.parse(storedToolsRaw));
       } else {
-        // If nothing in storage, initialize with default tools from the central file
-        setTools(allTools);
-        localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(allTools));
+        // Start with an empty list if nothing is in storage.
+        setTools([]);
       }
     } catch (error) {
-      console.error("Error loading tools from localStorage, using defaults.", error);
-      setTools(allTools);
+      console.error("Error loading tools from localStorage.", error);
+      setTools([]);
     }
     setIsLoading(false);
   }, []);
@@ -50,6 +50,26 @@ export default function ToolManagementPage() {
     });
     setToolToDelete(null);
   };
+
+  const handleRestoreDefaults = () => {
+    // This will overwrite any custom tools. We should probably ask for confirmation.
+    // For now, let's just merge them.
+    const currentTools = [...tools];
+    const defaultToolsToAdd = DEFAULT_TOOLS.filter(
+        defaultTool => !currentTools.some(currentTool => currentTool.id === defaultTool.id)
+    );
+
+    if (defaultToolsToAdd.length === 0) {
+        toast({ title: "Geen actie nodig", description: "Alle standaard tools zijn al aanwezig in uw lijst." });
+        return;
+    }
+
+    const mergedTools = [...currentTools, ...defaultToolsToAdd].sort((a,b) => a.title.localeCompare(b.title));
+    setTools(mergedTools);
+    localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(mergedTools));
+    toast({ title: "Standaard Tools Hersteld", description: `${defaultToolsToAdd.length} standaard tool(s) zijn toegevoegd aan de lijst.` });
+  };
+
 
   const filteredTools = tools.filter(tool =>
     tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,11 +96,16 @@ export default function ToolManagementPage() {
                   Beheer hier de tools die aanbevolen worden aan gebruikers.
                 </CardDescription>
               </div>
-              <Button asChild>
-                <Link href="/dashboard/admin/tool-management/new">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Tool Toevoegen
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                 <Button onClick={handleRestoreDefaults} variant="outline">
+                    <RefreshCw className="mr-2 h-4 w-4" /> Herstel Standaard Tools
+                </Button>
+                <Button asChild>
+                    <Link href="/dashboard/admin/tool-management/new">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Tool Toevoegen
+                    </Link>
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -141,11 +166,15 @@ export default function ToolManagementPage() {
                     </TableRow>
                   )
                 })}
+                 {filteredTools.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center">
+                            Geen tools gevonden. Voeg een nieuwe tool toe of herstel de standaard tools.
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
-            <p className="mt-6 text-sm text-muted-foreground italic">
-              Tools worden nu beheerd via `localStorage` van uw browser. De standaardlijst komt uit de codebase.
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -176,3 +205,4 @@ export default function ToolManagementPage() {
     </>
   );
 }
+

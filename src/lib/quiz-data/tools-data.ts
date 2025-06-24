@@ -1,3 +1,4 @@
+
 // src/lib/quiz-data/tools-data.ts
 import { Timer, Gamepad2, ShieldBan, NotebookText, BarChart, Bell, PauseCircle, Fingerprint, Waves, Sun, Gauge, GitBranch, Share2, Lightbulb, Users, Compass, BookOpenCheck, Brain, Zap, Sparkles, MessageCircle, ClipboardList } from 'lucide-react';
 import type { ElementType } from 'react';
@@ -45,7 +46,7 @@ export const getToolIconComponent = (iconName: string): ElementType | undefined 
     return allToolIcons.find(icon => icon.name === iconName)?.component;
 };
 
-export const allTools: Tool[] = [
+export const DEFAULT_TOOLS: Tool[] = [
   // Focus & Concentratie Tools
   {
     id: 'focus-timer-pro',
@@ -261,7 +262,7 @@ export const calculateToolRecommendations = (scores: ToolScores): { high: Tool[]
     });
   }
 
-  const findToolById = (id: string): Tool | undefined => allTools.find(tool => tool.id === id);
+  const findToolById = (id: string): Tool | undefined => DEFAULT_TOOLS.find(tool => tool.id === id);
   return {
     high: Array.from(recommendations.high).map(findToolById).filter((t): t is Tool => !!t),
     medium: Array.from(recommendations.medium).map(findToolById).filter((t): t is Tool => !!t),

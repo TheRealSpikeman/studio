@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/tool-recommendation-logic/page.tsx
 "use client";
 
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, GitBranch, Lightbulb, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
-import { allTools, getToolIconComponent } from '@/lib/quiz-data/tools-data';
+import { DEFAULT_TOOLS, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
 
@@ -80,7 +81,7 @@ const ToolCard = ({ tool }: { tool: Tool }) => {
 
 const ScoreLevelCard = ({ title, icon, toolIds, scoreRange }: { title: string, icon: ElementType, toolIds: string[], scoreRange: string }) => {
     const Icon = icon;
-    const tools = toolIds.map(id => allTools.find(t => t.id === id)).filter((t): t is Tool => !!t);
+    const tools = toolIds.map(id => DEFAULT_TOOLS.find(t => t.id === id)).filter((t): t is Tool => !!t);
 
     return (
         <Card className="flex-1 min-w-[280px]">
