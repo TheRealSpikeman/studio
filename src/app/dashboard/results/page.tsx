@@ -1,11 +1,10 @@
-
 // src/app/dashboard/results/page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Eye, BarChart3, Info, AlertTriangle, Brain, ThumbsUp, Edit2Icon, Lightbulb, HelpCircle, Sparkles, MessageSquareHeart, Zap, Compass, ShieldAlert, Users as UsersIcon, ExternalLink } from 'lucide-react';
+import { Download, Eye, BarChart3, Info, AlertTriangle, Brain, ThumbsUp, Edit2Icon, Lightbulb, HelpCircle, Sparkles, MessageSquareHeart, Compass, ShieldAlert, Zap, Users, ExternalLink, Rocket, ArrowRight } from '@/lib/icons';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { jsPDF, TextOptionsLight } from 'jspdf';
@@ -315,7 +314,7 @@ export default function ResultsHistoryPage() {
                     profileName: "Score Inzichten per Thema",
                     score: "",
                     comment: "",
-                    icon: UsersIcon,
+                    icon: Users,
                     subScores: groupedScores
                 });
             }
@@ -628,13 +627,9 @@ export default function ResultsHistoryPage() {
           )}
         </CardContent>
       </Card>
-       <Alert variant="destructive">
-          <AlertTriangle className="h-5 w-5" />
-          <AlertTitleUi className="font-semibold">Belangrijk: Geen Diagnose</AlertTitleUi>
-          <AlertDescUi>
-              De inzichten uit deze instrumenten zijn bedoeld voor zelfreflectie en educatie. Ze vervangen <strong className="font-bold">geen</strong> professioneel medisch of psychologisch advies, diagnose of behandeling.
-              Raadpleeg altijd een gekwalificeerde zorgverlener voor persoonlijke begeleiding. Bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4"/> </Link> voor meer informatie en bronnen.
-          </AlertDescUi>
+       <Alert variant="destructive" className="mt-10 text-base rounded-lg shadow-sm">
+          <AlertTriangle className="h-5 w-5" /><AlertTitleUi className="font-semibold text-[1.125rem]">Belangrijk: Dit is Geen Diagnose</AlertTitleUi>
+          <AlertDescUi className="leading-relaxed text-base">Dit overzicht is bedoeld voor zelfreflectie en is nadrukkelijk <strong>geen</strong> formele (medische) diagnose. Heb je vragen of zorgen over je welzijn? Bespreek dit dan met je ouders, een vertrouwenspersoon of je huisarts. MindNavigator is niet aansprakelijk voor beslissingen die op basis van dit overzicht worden genomen. Voor meer info, bezoek onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-semibold">informatiepagina <ExternalLink className="inline h-4 w-4"/> </Link>.</AlertDescUi>
       </Alert>
     </div>
   );

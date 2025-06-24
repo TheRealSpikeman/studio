@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import { 
     Users, Settings, Euro, CalendarClock, CalendarPlus, 
-    ShieldCheck, MessagesSquare, Link2, UserCheck 
+    ShieldCheck, MessagesSquare, Link2, UserCheck, FileBarChart
 } from '@/lib/icons';
 
 interface DashboardItem {
