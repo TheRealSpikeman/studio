@@ -15,7 +15,7 @@ import React, { useState, useEffect, Fragment, useMemo } from 'react';
 import {
   LayoutDashboard, ClipboardList, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
-  FileEdit, MessagesSquare, Shuffle, Clock, 
+  FileEdit, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
   HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 
   CalendarPlus, CalendarDays, BookOpen, BarChartHorizontal
@@ -57,7 +57,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   { href: '/dashboard/leerling/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, leerlingOnly: true },
-  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, leerlingOnly: true },
+  { href: '/dashboard/community', label: 'Community Forum', icon: MessageSquare, leerlingOnly: true },
   
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
@@ -78,7 +78,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/gekoppelde-professionals', label: 'Mijn Begeleiders', icon: UserCheck, ouderOnly: true },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
-  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquare, ouderOnly: true },
+  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessageSquare, ouderOnly: true },
   { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy &amp; Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
@@ -230,7 +230,7 @@ export function SidebarNavContent() {
     router.push(`/dashboard/${role}`);
   };
 
-  const baseLinkClasses = "flex items-center gap-3 rounded-md w-full px-3 py-2 text-sm font-medium transition-colors";
+  const baseLinkClasses = "flex items-center gap-3 rounded-md w-full px-3 py-1.5 text-sm font-medium transition-colors";
   const hoverClasses = "hover:bg-[#f8f9fa] dark:hover:bg-muted";
   const activeLinkClasses = "bg-primary/10 text-primary font-semibold";
   const inactiveLinkClasses = "text-foreground";
@@ -260,8 +260,8 @@ export function SidebarNavContent() {
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-2 space-y-1">
-          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-1">
+        <nav className="p-2 space-y-0.5">
+          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-0.5">
             {filteredNavItems.map((item) => {
               let renderSectionHeader = false;
               if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
@@ -294,7 +294,7 @@ export function SidebarNavContent() {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="pt-1 pl-6 pb-1">
-                        <div className="flex flex-col space-y-1 border-l border-muted-foreground/30 ml-[9px] pl-4">
+                        <div className="flex flex-col space-y-0.5 border-l-2 border-muted-foreground/30 ml-[9px] pl-4">
                           {item.children.map(child => {
                             const isChildActive = pathname.startsWith(child.href);
                             return (
