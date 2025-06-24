@@ -10,12 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DEFAULT_QUIZZES } from '@/lib/quiz-data/default-quizzes';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -50,66 +51,69 @@ export default function QuizManagementPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const allQuizzes: QuizAdmin[] = [];
+    let loadedQuizzes: QuizAdmin[] = [];
     if (typeof window !== 'undefined') {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key) {
-                try {
-                    const storedData = localStorage.getItem(key);
-                    if (storedData) {
-                        const quiz = JSON.parse(storedData);
-                        // Basic validation to ensure it's a quiz object
-                        if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category) {
-                            allQuizzes.push(quiz);
-                        }
+        const allKeys = Object.keys(localStorage);
+        for (const key of allKeys) {
+            try {
+                const item = localStorage.getItem(key);
+                if (item) {
+                    const quiz = JSON.parse(item);
+                    if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category) {
+                        loadedQuizzes.push(quiz);
                     }
-                } catch (e) {
-                    // Not a JSON object or not a quiz object, ignore.
                 }
+            } catch (e) {
+                // Ignore items that are not valid JSON or quizzes
             }
+        }
+
+        if (loadedQuizzes.length === 0) {
+            // No quizzes found, load defaults
+            loadedQuizzes = [...DEFAULT_QUIZZES];
+            DEFAULT_QUIZZES.forEach(quiz => localStorage.setItem(quiz.id, JSON.stringify(quiz)));
+            toast({
+                title: "Standaard Quizzen Geladen",
+                description: "Je quizlijst was leeg, dus hebben we enkele voorbeelden voor je geladen.",
+            });
         }
     }
     
-    setQuizzes(allQuizzes.map(q => ({
+    // Apply migration/defaults to all loaded quizzes
+    const processedQuizzes = loadedQuizzes.map(q => ({
         ...q, 
         questions: q.questions.map(ques => ({...ques, weight: ques.weight ?? 1})),
         thumbnailUrl: q.thumbnailUrl || `https://placehold.co/400x200.png?text=${q.title.replace(/\s/g, '+')}`,
         analysisDetailLevel: q.analysisDetailLevel || 'standaard',
         analysisInstructions: q.analysisInstructions || '',
-    })));
-  }, []);
+    }));
+    
+    setQuizzes(processedQuizzes);
+  }, [toast]);
 
-  const handleDeleteAllQuizzes = () => {
+  const handleRestoreDefaultQuizzes = () => {
     if (typeof window === 'undefined') return;
 
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key) {
-            try {
-                const item = localStorage.getItem(key);
-                if (item) {
-                    const quiz = JSON.parse(item);
-                    // This duck-typing check identifies quiz objects
-                    if (quiz.id && quiz.title && Array.isArray(quiz.questions) && quiz.category) {
-                        keysToRemove.push(key);
-                    }
-                }
-            } catch (e) {
-                // Not a JSON object, so definitely not a quiz object we want to delete.
-                // Continue to the next item.
-            }
-        }
+    const currentQuizIds = new Set(quizzes.map(q => q.id));
+    const quizzesToAdd = DEFAULT_QUIZZES.filter(dq => !currentQuizIds.has(dq.id));
+
+    if (quizzesToAdd.length === 0) {
+        toast({
+            title: "Geen actie nodig",
+            description: "Alle standaard quizzen zijn al aanwezig in uw lijst."
+        });
+        return;
     }
+
+    quizzesToAdd.forEach(quiz => {
+        localStorage.setItem(quiz.id, JSON.stringify(quiz));
+    });
     
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    setQuizzes([]); // Clear state immediately
+    setQuizzes(prev => [...prev, ...quizzesToAdd]);
     
     toast({
-        title: "Alle quizzen verwijderd",
-        description: "De lokale opslag is opgeschoond. U kunt nu met een schone lei beginnen."
+        title: "Standaard Quizzen Hersteld",
+        description: `${quizzesToAdd.length} standaard quiz(zen) zijn toegevoegd aan de lijst.`
     });
   };
 
@@ -179,25 +183,9 @@ export default function QuizManagementPage() {
               </CardDescription>
             </div>
             <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="w-full sm:w-auto">
-                    <Trash2 className="mr-2 h-4 w-4" /> Alle Quizzen Verwijderen
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Weet u het zeker?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Deze actie zal ALLE quizzen (inclusief uw eigen concepten) permanent verwijderen uit de lokale opslag van uw browser. Dit kan niet ongedaan worden gemaakt. Dit is nuttig om oude, hardgecodeerde data op te ruimen.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteAllQuizzes} className="bg-destructive hover:bg-destructive/90">Ja, verwijder alles</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button onClick={handleRestoreDefaultQuizzes} variant="outline" className="w-full sm:w-auto">
+                <RefreshCw className="mr-2 h-4 w-4" /> Standaard Quizzen Herstellen
+              </Button>
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard/admin/quiz-management/create">
                   <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Quiz Toevoegen
@@ -329,4 +317,3 @@ export default function QuizManagementPage() {
     </div>
   );
 }
-
