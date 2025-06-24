@@ -1,3 +1,4 @@
+
 // src/components/admin/tool-management/ToolTable.tsx
 "use client";
 
@@ -10,6 +11,7 @@ import { Pencil, Trash2, MoreVertical, Eye } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface ToolTableProps {
   tools: Tool[];
@@ -17,6 +19,8 @@ interface ToolTableProps {
 }
 
 export function ToolTable({ tools, onDelete }: ToolTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <TableHeader>
@@ -49,7 +53,7 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <Link
-                        href={`/dashboard/tools/${tool.id}`}
+                        href={`/dashboard/admin/tools/${tool.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

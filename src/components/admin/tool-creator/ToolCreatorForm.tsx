@@ -1,3 +1,4 @@
+
 // src/components/admin/tool-creator/ToolCreatorForm.tsx
 "use client";
 
@@ -211,7 +212,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                         </Button>
                     ) : (
                         <Button type="button" asChild>
-                            <Link href={`/dashboard/tools/${initialData?.id}`} target="_blank">
+                            <Link href={`/dashboard/admin/tools/${initialData?.id}`} target="_blank">
                                 <Wrench className="mr-2 h-4 w-4" /> Bewerk Functionaliteit
                                 <ExternalLink className="ml-2 h-4 w-4" />
                             </Link>
