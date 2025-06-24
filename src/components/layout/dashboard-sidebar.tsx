@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -245,9 +246,9 @@ export function SidebarNavContent() {
       <div className="p-4 border-b">
         <SiteLogo />
         <div className="mt-4 space-y-1">
-          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-            <Shuffle className="h-3 w-3" />
-            Testrol Wisselaar
+          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1">
+            <Shuffle className="h-3.5 w-3.5" />
+            Wissel Rol (Demo)
           </Label>
           <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
             <SelectTrigger id="role-switcher" aria-label="Selecteer een rol">
@@ -264,7 +265,7 @@ export function SidebarNavContent() {
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-4 space-y-1">
+        <nav className="p-2 space-y-1">
           <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full">
             {filteredNavItems.map((item) => {
               let renderSectionHeader = false;
@@ -279,36 +280,45 @@ export function SidebarNavContent() {
               return (
                 <Fragment key={item.href}>
                   {renderSectionHeader && (
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider px-2 pt-4 pb-1">
+                    <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-4 pb-1">
                       {item.sectionTitle}
                     </h4>
                   )}
 
                   {item.children && item.children.length > 0 ? (
                     <AccordionItem value={item.href} className="border-none">
-                      <AccordionTrigger className={cn("rounded-md hover:bg-muted hover:no-underline p-2", isParentOfActivePage && "bg-muted text-primary")}>
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <item.icon className="h-4 w-4" />
-                          {item.label}
+                      <AccordionTrigger className={cn(
+                        "rounded-md hover:bg-muted hover:no-underline p-2 text-sm font-medium",
+                        isParentOfActivePage && "bg-muted text-primary"
+                      )}>
+                        <div className="flex items-center gap-3">
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.label}</span>
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="pl-6 pt-1 pb-0">
-                        <div className="flex flex-col space-y-1 border-l border-muted-foreground/20 ml-1">
-                          {item.children.map(child => (
-                            <Button key={child.href} asChild variant="ghost" size="sm" className={cn("justify-start ml-2", pathname.startsWith(child.href) && "bg-accent text-accent-foreground")}>
-                              <Link href={child.href}>
-                                <child.icon className="mr-2 h-4 w-4" />
-                                {child.label}
-                              </Link>
-                            </Button>
-                          ))}
+                      <AccordionContent className="pt-1 pl-5 pb-1">
+                        <div className="flex flex-col space-y-1 border-l-2 border-primary/10 ml-2.5">
+                          {item.children.map(child => {
+                            const isChildActive = pathname.startsWith(child.href);
+                            return (
+                               <Button key={child.href} asChild variant="ghost" size="sm" className={cn(
+                                  "justify-start text-muted-foreground w-full",
+                                  isChildActive && "bg-primary/10 text-primary font-semibold"
+                                )}>
+                                <Link href={child.href} className="flex items-center gap-3 pl-3">
+                                  <child.icon className="h-4 w-4" />
+                                  <span>{child.label}</span>
+                                </Link>
+                              </Button>
+                            );
+                          })}
                         </div>
                       </AccordionContent>
                     </AccordionItem>
                   ) : (
-                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start">
-                      <Link href={item.href}>
-                        <item.icon className="mr-2 h-4 w-4" />
+                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start text-sm font-medium">
+                      <Link href={item.href} className="flex items-center gap-3 p-2">
+                        <item.icon className="h-5 w-5" />
                         {item.label}
                       </Link>
                     </Button>
