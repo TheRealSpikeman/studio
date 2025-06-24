@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -178,6 +177,7 @@ const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, parent: '#platform-parent' },
+      { href: '/dashboard/admin/tool-management', label: 'Toolbeheer', icon: Wrench, parent: '#platform-parent' },
       { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, parent: '#platform-parent' },
       { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, parent: '#platform-parent' },
     ]
