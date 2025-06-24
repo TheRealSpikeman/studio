@@ -5,33 +5,28 @@
 // to ensure the app compiles correctly and icons are consistent.
 
 export {
-  // A
   Activity,
   AlertCircle,
   AlertTriangle,
   Archive,
   ArrowLeft,
   ArrowRight,
-  
-  // B
   BarChart,
-  BarChart as BarChartHorizontal, // Alias for charts
-  Bot,
-  Brain,
+  BarChart as BarChartHorizontal,
+  BookHeart,
   BookOpen,
-  BookOpen as BookHeart,
   BookOpen as BookOpenCheck,
   BookOpen as BookUser,
+  Bot,
+  Brain,
   Briefcase,
-  
-  // C
   Calendar,
-  Calendar as CalendarClock, // Alias for calendar variants
-  Calendar as CalendarDays, // Alias for calendar variants
-  Calendar as CalendarPlus, // Alias for calendar variants
+  Calendar as CalendarClock,
+  Calendar as CalendarDays,
+  Calendar as CalendarPlus,
   Check,
   CheckCircle,
-  CheckCircle as CheckCircle2, // Alias for check variants
+  CheckCircle as CheckCircle2,
   CheckSquare,
   ChevronDown,
   ChevronUp,
@@ -43,61 +38,46 @@ export {
   Compass,
   Contact,
   Copyright,
+  Cookie,
   Cpu,
   CreditCard,
-  Cookie,
-
-  // D
   Database,
   Download,
-
-  // E
   Edit,
   Edit2Icon,
   Edit3,
   Euro,
   ExternalLink,
-  ExternalLink as Link2, // Alias for link variants
+  ExternalLink as Link2,
   Eye,
   EyeOff,
-
-  // F
   Facebook,
   FileEdit,
   FilePlus,
   FileText,
-  FileText as FileBarChart, // Alias for charts
+  FileText as FileBarChart,
   FileClock,
   Filter,
   Fingerprint,
   FlaskConical,
   Folder,
   FolderOpen,
-  
-  // G
   Gamepad2,
   Gavel,
   GitBranch,
   Globe,
   GraduationCap,
-  
-  // H
+  Gauge,
   Handshake,
-  Handshake as HeartHandshake, // Alias for handshake variants
+  Handshake as HeartHandshake,
   Heart,
   HelpCircle,
   Home,
   Hourglass,
-  
-  // I
   ImageUp,
   Info,
   Instagram,
-  
-  // J, K
   KeyRound,
-
-  // L
   Languages,
   LayoutDashboard,
   Lightbulb,
@@ -108,32 +88,23 @@ export {
   ListChecks,
   Loader2,
   Lock,
-  Power as LogOut, // Alias for logout
-
-  // M
   Mail,
   MapPin,
   Menu,
-  Menu as PanelLeft, // Alias for panel toggle
+  Menu as PanelLeft,
   MessageCircle,
-  MessageCircle as MessageCircleQuestion, // Alias for message variants
+  MessageCircle as MessageCircleQuestion,
   MessageSquare,
-  MessageSquare as MessagesSquare, // Alias for message variants
-  MessageSquare as MessageSquarePlus, // Alias for message variants
-  MessageSquare as MessageSquareText, // Alias for message variants
+  MessageSquare as MessagesSquare,
+  MessageSquare as MessageSquarePlus,
+  MessageSquare as MessageSquareText,
   MessageSquareWarning,
   Mic,
   Moon,
   MoreVertical,
   MousePointerClick,
-
-  // N
   Navigation,
   NotebookPen,
-  
-  // O
-  
-  // P
   Package,
   PauseCircle,
   Pencil,
@@ -142,16 +113,11 @@ export {
   PieChart,
   PlayCircle,
   Power,
+  Power as LogOut,
   Puzzle,
-
-  // Q
-  
-  // R
   RefreshCw,
   Repeat,
   Rocket,
-
-  // S
   Save,
   Save as SaveIcon,
   School,
@@ -163,7 +129,7 @@ export {
   Settings2,
   Share2,
   Shield,
-  Shield as ShieldCheck, // Alias for shield variants
+  Shield as ShieldCheck,
   ShieldAlert,
   ShieldBan,
   ShoppingBag,
@@ -176,9 +142,7 @@ export {
   Stethoscope,
   Sun,
   SunMedium,
-
-  // T
-  Circle as Target, // Alias for Target
+  Circle as Target,
   Telescope,
   ThumbsUp,
   Timer,
@@ -188,33 +152,21 @@ export {
   TrendingUp,
   Trophy,
   Twitter,
-
-  // U
   Upload,
   User,
-  User as UserCheck, // Alias for user variants
+  User as UserCheck,
   UserCircle,
   UserPlus,
   UserX,
   Users,
-  Users as UsersIcon, // Alias for users variants
-  Users as UsersIconLucide, // Alias for users variants
-
-  // V
+  Users as UsersIcon,
+  Users as UsersIconLucide,
   Video,
-
-  // W
   Wallet,
   Wand2,
   Waves,
   Wrench,
-
-  // X
   X,
   XCircle,
-
-  // Y
-  
-  // Z
   Zap,
 } from 'lucide-react';

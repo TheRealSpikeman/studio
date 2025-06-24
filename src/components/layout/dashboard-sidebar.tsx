@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import React, { useState, useEffect, Fragment, useMemo } from 'react';
+import { BarChart as BarChartHorizontal } from 'lucide-react'; // Direct import fix
 import { 
   LayoutDashboard, ClipboardList, FileBarChart, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
