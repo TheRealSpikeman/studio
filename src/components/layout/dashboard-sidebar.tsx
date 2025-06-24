@@ -145,9 +145,17 @@ const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, parent: '#platform-parent' },
-      { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, parent: '#platform-parent' },
       { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, parent: '#platform-parent' },
       { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, parent: '#platform-parent' },
+    ]
+  },
+  {
+    href: '#tools-parent',
+    label: 'Tools',
+    icon: Wrench,
+    adminOnly: true,
+    children: [
+        { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbevelingen', icon: GitBranch, parent: '#tools-parent' },
     ]
   },
   {
