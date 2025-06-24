@@ -11,14 +11,24 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
-import { useState, useEffect, Fragment, useMemo } from 'react';
+import React, { useState, useEffect, Fragment, useMemo } from 'react';
 import { 
   LayoutDashboard, ClipboardList, FileBarChart, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
-  BarChartHorizontal, FileText, FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
+  FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
   HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 
-  CalendarPlus, CalendarDays, CalendarClock, GraduationCap, BookHeart
+  CalendarPlus, CalendarDays, CalendarClock, GraduationCap, BookHeart, Activity,
+  AlertCircle, ArrowLeft, ArrowRight, BarChart, CheckCircle, Circle, Compass,
+  Download, Eye, EyeOff, FileText, Filter, Folder, FolderOpen, Gavel, Handshake,
+  Heart, Home, Hourglass, ImageUp, Info, KeyRound, Languages, Lightbulb, Link2Off,
+  LogOut, Mail, MapPin, Menu, Mic, Moon, MoreVertical, MousePointerClick,
+  Navigation, NotebookPen, PanelLeft, PauseCircle, Percent, Phone, PieChart,
+  Power, Puzzle, RefreshCw, Repeat, Rocket, Save, SaveIcon, School,
+  ScrollText, Search, Send, Separator, Shield, ShieldAlert, ShieldBan,
+  ShoppingBag, ShoppingCart, Siren, Smile, Star, Stethoscope, Sun, SunMedium,
+  Target, Telescope, ThumbsUp, Timer, Trash, Trash2, Trophy, Upload, Video,
+  Wallet, Waves, X, XCircle
 } from '@/lib/icons'; 
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
@@ -93,6 +103,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/coach/availability', label: 'Mijn Beschikbaarheid (Coach)', icon: Clock, coachOnly: true },
   { href: '/dashboard/coach/lessons', label: 'Mijn Sessies', icon: BookOpenCheck, coachOnly: true },
   { href: '/dashboard/coach/students', label: 'Mijn Cliënten', icon: HeartHandshake, coachOnly: true },
+  { href: '/dashboard/coach/tools', label: 'Coach Tools', icon: Wrench, coachOnly: true },
 
   // Admin specific section
   { href: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard, adminOnly: true, sectionTitle: "ADMIN DASHBOARD" },

@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock, HeartHandshake } from 'lucide-react';
+import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock, HeartHandshake, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,17 @@ const coachDashboardItems: DashboardItem[] = [
     buttonVariant: 'outline',
     isLink: true,
     colorClass: 'bg-purple-50 border-purple-200 hover:shadow-purple-100',
+  },
+   {
+    id: 'tools',
+    title: 'Mijn Coach Tools',
+    description: 'Overzicht van tools voor cliëntanalyse, sessieplanning en communicatie.',
+    icon: Wrench,
+    link: '/dashboard/coach/tools',
+    buttonText: 'Open Tools',
+    buttonVariant: 'outline',
+    isLink: true,
+    colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
   },
   {
     id: 'earnings',
