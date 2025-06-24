@@ -35,7 +35,7 @@ const StepCard = ({ number, title, description, children, className }: { number:
       {number}
     </div>
     <div className={cn("step-content flex-1", {"md:mr-8 text-center md:text-left": number % 2 !== 0, "md:ml-8 text-center md:text-left": number % 2 === 0 })}>
-      <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{title}</h2>
+      <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{number}. {title}</h2>
       <p className="step-description text-xl text-muted-foreground mb-6 leading-relaxed">
         {description}
       </p>
@@ -90,9 +90,9 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
 
 const ActionItemCard = ({ title, description }: { title: string, description: string }): JSX.Element => (
   <div className={cn(
-    "action-item bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg p-5 h-full text-accent-foreground transition-all duration-200 ease-in-out hover:bg-white/30 hover:border-white/50 hover:shadow-md"
+    "action-item bg-white/70 backdrop-blur-sm border border-blue-200 rounded-lg p-5 h-full text-blue-900 transition-all duration-200 ease-in-out hover:bg-white hover:shadow-md"
     )}>
-    <h4 className="action-title font-semibold text-lg mb-1.5">{title}</h4>
+    <h4 className="action-title font-semibold text-lg mb-1.5 text-blue-800">{title}</h4>
     <p className="action-description text-sm opacity-90 leading-normal">{description}</p>
   </div>
 );
@@ -259,8 +259,8 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                   title="Concreet Familie Actieplan"
                   description="Op basis van de analyse krijgt het gezin concrete, haalbare acties om de relatie en communicatie te verbeteren."
                 >
-                  <div className="action-plan bg-accent text-accent-foreground rounded-xl p-6 md:p-8 mt-6 shadow-xl">
-                    <h3 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2">
+                  <div className="action-plan bg-blue-50 text-blue-900 rounded-xl p-6 md:p-8 mt-6 shadow-xl border border-blue-200">
+                    <h3 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700">
                       <ClipboardList className="h-7 w-7"/> Jouw Familie Actieplan
                     </h3>
                     <div className="action-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
