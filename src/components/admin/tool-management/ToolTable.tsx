@@ -6,8 +6,7 @@ import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { getToolIconComponent } from '@/lib/quiz-data/tools-data';
 
@@ -39,27 +38,20 @@ export function ToolTable({ tools, onDelete }: ToolTableProps) {
               <TableCell><Badge variant="outline">{tool.category}</Badge></TableCell>
               <TableCell className="text-sm text-muted-foreground max-w-sm truncate">{tool.description}</TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Acties voor {tool.title}</span>
+                <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={`/dashboard/admin/tool-management/edit/${tool.id}`}>
+                            <Edit className="mr-2 h-4 w-4" /> Bewerken
+                        </Link>
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/admin/tool-management/edit/${tool.id}`}>
-                        <Edit className="mr-2 h-4 w-4" /> Bewerken
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => onDelete(tool)}
-                      className="text-destructive focus:text-destructive"
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onDelete(tool)}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
+                    </Button>
+                </div>
               </TableCell>
             </TableRow>
           )
