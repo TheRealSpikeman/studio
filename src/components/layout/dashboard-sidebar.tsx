@@ -251,7 +251,7 @@ export function SidebarNavContent() {
             Wissel Rol (Demo)
           </Label>
           <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
-            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol">
+            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className="h-9">
               <SelectValue placeholder="Selecteer een rol" />
             </SelectTrigger>
             <SelectContent>
@@ -265,8 +265,8 @@ export function SidebarNavContent() {
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-2 space-y-1">
-          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full">
+        <nav className="p-2 space-y-2">
+          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-2">
             {filteredNavItems.map((item) => {
               let renderSectionHeader = false;
               if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
@@ -288,21 +288,21 @@ export function SidebarNavContent() {
                   {item.children && item.children.length > 0 ? (
                     <AccordionItem value={item.href} className="border-none">
                       <AccordionTrigger className={cn(
-                        "rounded-md hover:bg-muted hover:no-underline p-2 text-sm font-medium",
-                        isParentOfActivePage && "bg-muted text-primary"
+                        "rounded-md hover:bg-primary/5 hover:no-underline p-3 text-sm font-medium",
+                        isParentOfActivePage && "bg-primary/10 text-primary"
                       )}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5" />
                           <span>{item.label}</span>
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="pt-1 pl-5 pb-1">
-                        <div className="flex flex-col space-y-1 border-l-2 border-primary/10 ml-2.5">
+                      <AccordionContent className="pt-1 pl-6 pb-1">
+                        <div className="flex flex-col space-y-1 border-l-2 border-muted-foreground/30 ml-[5px]">
                           {item.children.map(child => {
                             const isChildActive = pathname.startsWith(child.href);
                             return (
                                <Button key={child.href} asChild variant="ghost" size="sm" className={cn(
-                                  "justify-start text-muted-foreground w-full",
+                                  "justify-start text-muted-foreground w-full h-auto py-2",
                                   isChildActive && "bg-primary/10 text-primary font-semibold"
                                 )}>
                                 <Link href={child.href} className="flex items-center gap-3 pl-3">
@@ -316,8 +316,8 @@ export function SidebarNavContent() {
                       </AccordionContent>
                     </AccordionItem>
                   ) : (
-                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start text-sm font-medium">
-                      <Link href={item.href} className="flex items-center gap-3 p-2">
+                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start text-sm font-medium h-auto p-3">
+                      <Link href={item.href} className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
                         {item.label}
                       </Link>
