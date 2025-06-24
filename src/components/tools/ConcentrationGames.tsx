@@ -64,12 +64,13 @@ export function ConcentrationGames() {
   }, [score, highScore]);
 
   const startNextLevel = useCallback(() => {
-    setLevel(prev => prev + 1);
-    const newLevelData = generateLevel(level + 1);
-    setCurrentLevelData(newLevelData);
-    setTimeLeft(Math.max(3, 10 - Math.floor((level + 1) / 2))); // Time decreases as level increases
-    setGameState('playing');
-  }, [level]);
+    setLevel(prevLevel => {
+      const nextLevel = prevLevel + 1;
+      setCurrentLevelData(generateLevel(nextLevel));
+      setTimeLeft(Math.max(3, 10 - Math.floor(nextLevel / 2)));
+      return nextLevel;
+    });
+  }, []);
 
   useEffect(() => {
     if (gameState === 'playing' && timeLeft > 0) {
@@ -98,6 +99,7 @@ export function ConcentrationGames() {
   };
 
   const handleStartGame = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
     setLevel(1);
     setScore(0);
     const firstLevelData = generateLevel(1);
@@ -138,7 +140,7 @@ export function ConcentrationGames() {
             >
               {currentLevelData.items.map((emoji, index) => (
                 <button
-                  type="button" // This is the crucial fix
+                  type="button"
                   key={index}
                   onClick={() => handleItemClick(index)}
                   className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-lg sm:text-2xl rounded-md bg-muted hover:bg-primary/20 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
