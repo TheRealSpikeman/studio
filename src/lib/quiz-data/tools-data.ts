@@ -19,6 +19,32 @@ export interface Tool {
   }
 }
 
+// Export categories for use in forms
+export const allToolCategories: Tool['category'][] = [
+  'Focus & Concentratie',
+  'Energie & Beweging',
+  'Rust & Regulatie',
+  'Stemming & Emotie',
+  'Sociaal & Communicatie',
+  'Interesses & Hobby'
+];
+
+// Export icons and a lookup function for use in forms
+export const allToolIcons: { name: string, component: ElementType }[] = [
+  { name: 'Timer', component: Timer }, { name: 'Gamepad2', component: Gamepad2 }, { name: 'ShieldBan', component: ShieldBan },
+  { name: 'NotebookText', component: NotebookText }, { name: 'BarChart', component: BarChart }, { name: 'Bell', component: Bell },
+  { name: 'PauseCircle', component: PauseCircle }, { name: 'Fingerprint', component: Fingerprint }, { name: 'Waves', component: Waves },
+  { name: 'Sun', component: Sun }, { name: 'Gauge', component: Gauge }, { name: 'GitBranch', component: GitBranch },
+  { name: 'Share2', component: Share2 }, { name: 'Lightbulb', component: Lightbulb }, { name: 'Users', component: Users },
+  { name: 'Compass', component: Compass }, { name: 'BookOpenCheck', component: BookOpenCheck }, { name: 'Brain', component: Brain },
+  { name: 'Zap', component: Zap }, { name: 'Sparkles', component: Sparkles }, { name: 'MessageCircle', component: MessageCircle },
+  { name: 'ClipboardList', component: ClipboardList },
+];
+
+export const getToolIconComponent = (iconName: string): ElementType | undefined => {
+    return allToolIcons.find(icon => icon.name === iconName)?.component;
+};
+
 export const allTools: Tool[] = [
   // Focus & Concentratie Tools
   {

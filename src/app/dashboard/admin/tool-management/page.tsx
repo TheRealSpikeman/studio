@@ -10,16 +10,41 @@ import { allTools, type Tool } from '@/lib/quiz-data/tools-data';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+
+const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
 export default function ToolManagementPage() {
-  const [tools, setTools] = useState<Tool[]>(allTools);
+  const [tools, setTools] = useState<Tool[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
+      if (storedToolsRaw) {
+        setTools(JSON.parse(storedToolsRaw));
+      } else {
+        // If nothing in storage, initialize with default tools
+        setTools(allTools);
+        localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(allTools));
+      }
+    } catch (error) {
+      console.error("Error loading tools from localStorage, using defaults.", error);
+      setTools(allTools);
+    }
+    setIsLoading(false);
+  }, []);
 
   const filteredTools = tools.filter(tool =>
     tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tool.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tool.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Tools laden...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -35,8 +60,10 @@ export default function ToolManagementPage() {
                 Beheer hier de tools die aanbevolen worden aan gebruikers.
               </CardDescription>
             </div>
-            <Button disabled>
-              <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Tool Toevoegen (Binnenkort)
+            <Button asChild>
+              <Link href="/dashboard/admin/tool-management/new">
+                <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Tool Toevoegen
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -58,6 +85,7 @@ export default function ToolManagementPage() {
                 <TableHead>Tool</TableHead>
                 <TableHead>Categorie</TableHead>
                 <TableHead>Beschrijving</TableHead>
+                <TableHead className="text-right">Acties</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -70,14 +98,19 @@ export default function ToolManagementPage() {
                       {tool.title}
                     </TableCell>
                     <TableCell><Badge variant="outline">{tool.category}</Badge></TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{tool.description}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground max-w-sm truncate">{tool.description}</TableCell>
+                    <TableCell className="text-right">
+                        <Button variant="outline" size="sm" disabled>
+                            Bewerken (binnenkort)
+                        </Button>
+                    </TableCell>
                   </TableRow>
                 )
               })}
             </TableBody>
           </Table>
            <p className="mt-6 text-sm text-muted-foreground italic">
-            Bewerk- en voegfunctionaliteit voor tools is in ontwikkeling.
+            Tools worden nu beheerd via `localStorage` van uw browser. Bewerkfunctionaliteit is in ontwikkeling.
           </p>
         </CardContent>
       </Card>
