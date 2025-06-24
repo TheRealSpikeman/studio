@@ -14,13 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Save, Bot, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Save, Bot, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
-import { allToolCategories, allToolIcons, getToolIconComponent } from '@/lib/quiz-data/tools-data';
+import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { Separator } from "@/components/ui/separator";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -44,15 +45,17 @@ export type ToolFormData = z.infer<typeof toolFormSchema>;
 interface ToolCreatorFormProps {
   onSave: (data: ToolFormData) => void;
   initialData?: Tool;
+  isNewTool: boolean;
+  onDelete?: () => void;
 }
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
-export function ToolCreatorForm({ onSave, initialData }: ToolCreatorFormProps) {
+export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: ToolCreatorFormProps) {
   const { toast } = useToast();
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const isEditMode = !!initialData;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -98,102 +101,133 @@ export function ToolCreatorForm({ onSave, initialData }: ToolCreatorFormProps) {
   };
 
   return (
-    <Card>
-        <CardContent className="pt-6">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
-                    
-                    {!isEditMode && (
-                        <>
-                            <Card className="p-4 bg-primary/5 border-primary/20">
-                                <CardHeader className="p-0 pb-3">
-                                    <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Genereer met AI</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0 space-y-2">
-                                    <Label htmlFor="tool-idea">Beschrijf je tool idee in het kort</Label>
-                                    <div className="flex gap-2">
-                                        <Input 
-                                            id="tool-idea"
-                                            placeholder="Bijv. een tool die helpt met ademhalingsoefeningen" 
-                                            value={toolIdea}
-                                            onChange={(e) => setToolIdea(e.target.value)}
-                                        />
-                                        <Button type="button" onClick={handleGenerateWithAI} disabled={isGenerating}>
-                                            {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                            Genereer
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                            <Separator />
-                        </>
-                    )}
-                    
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Tool Eigenschappen</CardTitle>
-                            <CardDescription>
-                                Beheer hier de metadata van de tool, zoals de titel, het icoon en de beschrijving die gebruikers zien.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-6 space-y-6">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField control={form.control} name="id" render={({ field }) => (
-                                    <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={isEditMode} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="title" render={({ field }) => (
-                                    <FormItem><FormLabel>Titel</FormLabel><FormControl><Input placeholder="Titel van de tool" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                            </div>
+    <>
+      <Card>
+          <CardContent className="pt-6">
+              <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
+                      
+                      {isNewTool && (
+                          <>
+                              <Card className="p-4 bg-primary/5 border-primary/20">
+                                  <CardHeader className="p-0 pb-3">
+                                      <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Genereer met AI</CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="p-0 space-y-2">
+                                      <Label htmlFor="tool-idea">Beschrijf je tool idee in het kort</Label>
+                                      <div className="flex gap-2">
+                                          <Input 
+                                              id="tool-idea"
+                                              placeholder="Bijv. een tool die helpt met ademhalingsoefeningen" 
+                                              value={toolIdea}
+                                              onChange={(e) => setToolIdea(e.target.value)}
+                                          />
+                                          <Button type="button" onClick={handleGenerateWithAI} disabled={isGenerating}>
+                                              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                              Genereer
+                                          </Button>
+                                      </div>
+                                  </CardContent>
+                              </Card>
+                              <Separator />
+                          </>
+                      )}
+                      
+                      <Card>
+                          <CardHeader>
+                              <CardTitle>Tool Eigenschappen</CardTitle>
+                              <CardDescription>
+                                  Beheer hier de metadata van de tool, zoals de titel, het icoon en de beschrijving die gebruikers zien.
+                              </CardDescription>
+                          </CardHeader>
+                          <CardContent className="pt-6 space-y-6">
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <FormField control={form.control} name="id" render={({ field }) => (
+                                      <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={!isNewTool} /></FormControl><FormMessage /></FormItem>
+                                  )}/>
+                                  <FormField control={form.control} name="title" render={({ field }) => (
+                                      <FormItem><FormLabel>Titel</FormLabel><FormControl><Input placeholder="Titel van de tool" {...field} /></FormControl><FormMessage /></FormItem>
+                                  )}/>
+                              </div>
 
-                            <FormField control={form.control} name="description" render={({ field }) => (
-                                <FormItem><FormLabel>Korte Omschrijving</FormLabel><FormControl><Textarea placeholder="Wat doet deze tool?" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField control={form.control} name="icon" render={({ field }) => (
-                                    <FormItem><FormLabel>Icoon</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een icoon"/></SelectTrigger></FormControl><SelectContent>{allToolIcons.map(icon => <SelectItem key={icon.name} value={icon.name}><div className="flex items-center gap-2"><icon.component className="h-4 w-4"/>{icon.name}</div></SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="category" render={({ field }) => (
-                                    <FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een categorie"/></SelectTrigger></FormControl><SelectContent>{allToolCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                            </div>
-                        </CardContent>
-                    </Card>
+                              <FormField control={form.control} name="description" render={({ field }) => (
+                                  <FormItem><FormLabel>Korte Omschrijving</FormLabel><FormControl><Textarea placeholder="Wat doet deze tool?" {...field} /></FormControl><FormMessage /></FormItem>
+                              )}/>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <FormField control={form.control} name="icon" render={({ field }) => (
+                                      <FormItem><FormLabel>Icoon</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een icoon"/></SelectTrigger></FormControl><SelectContent>{allToolIcons.map(icon => <SelectItem key={icon.name} value={icon.name}><div className="flex items-center gap-2"><icon.component className="h-4 w-4"/>{icon.name}</div></SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                  )}/>
+                                  <FormField control={form.control} name="category" render={({ field }) => (
+                                      <FormItem><FormLabel>Categorie</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Kies een categorie"/></SelectTrigger></FormControl><SelectContent>{allToolCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                  )}/>
+                              </div>
+                          </CardContent>
+                      </Card>
 
-                    <Card className="p-4 bg-muted/50">
-                        <CardTitle className="text-lg mb-2">Aanbevelingslogica</CardTitle>
-                        <div className="space-y-4">
-                           <FormField control={form.control} name="reasoning.high" render={({ field }) => (
-                               <FormItem><FormLabel>Reden bij Hoge Score</FormLabel><FormControl><Textarea placeholder="Waarom is dit een goede tool bij een hoge score op een profiel?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-                           )}/>
-                            <FormField control={form.control} name="reasoning.medium" render={({ field }) => (
-                               <FormItem><FormLabel>Reden bij Gemiddelde Score</FormLabel><FormControl><Textarea placeholder="Waarom is dit een goede tool bij een gemiddelde score?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-                           )}/>
-                            <FormField control={form.control} name="reasoning.low" render={({ field }) => (
-                               <FormItem><FormLabel>Reden bij Lage Score</FormLabel><FormControl><Textarea placeholder="Waarom kan dit nuttig zijn bij een lage score?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-                           )}/>
-                        </div>
-                    </Card>
+                      <Card className="p-4 bg-muted/50">
+                          <CardTitle className="text-lg mb-2">Aanbevelingslogica</CardTitle>
+                          <div className="space-y-4">
+                             <FormField control={form.control} name="reasoning.high" render={({ field }) => (
+                                 <FormItem><FormLabel>Reden bij Hoge Score</FormLabel><FormControl><Textarea placeholder="Waarom is dit een goede tool bij een hoge score op een profiel?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                             )}/>
+                              <FormField control={form.control} name="reasoning.medium" render={({ field }) => (
+                                 <FormItem><FormLabel>Reden bij Gemiddelde Score</FormLabel><FormControl><Textarea placeholder="Waarom is dit een goede tool bij een gemiddelde score?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                             )}/>
+                              <FormField control={form.control} name="reasoning.low" render={({ field }) => (
+                                 <FormItem><FormLabel>Reden bij Lage Score</FormLabel><FormControl><Textarea placeholder="Waarom kan dit nuttig zijn bij een lage score?" {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                             )}/>
+                          </div>
+                      </Card>
 
-                     <Card className="p-4 bg-muted/50">
-                        <CardTitle className="text-lg mb-2">Gebruikersuitleg</CardTitle>
-                        <div className="space-y-4">
-                           <FormField control={form.control} name="usage.when" render={({ field }) => (
-                               <FormItem><FormLabel>Wanneer te gebruiken?</FormLabel><FormControl><Textarea placeholder="Beschrijf de ideale situatie om deze tool te gebruiken." {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-                           )}/>
-                            <FormField control={form.control} name="usage.benefit" render={({ field }) => (
-                               <FormItem><FormLabel>Wat is het voordeel?</FormLabel><FormControl><Textarea placeholder="Beschrijf het concrete voordeel voor de gebruiker." {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-                           )}/>
-                        </div>
-                    </Card>
+                       <Card className="p-4 bg-muted/50">
+                          <CardTitle className="text-lg mb-2">Gebruikersuitleg</CardTitle>
+                          <div className="space-y-4">
+                             <FormField control={form.control} name="usage.when" render={({ field }) => (
+                                 <FormItem><FormLabel>Wanneer te gebruiken?</FormLabel><FormControl><Textarea placeholder="Beschrijf de ideale situatie om deze tool te gebruiken." {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                             )}/>
+                              <FormField control={form.control} name="usage.benefit" render={({ field }) => (
+                                 <FormItem><FormLabel>Wat is het voordeel?</FormLabel><FormControl><Textarea placeholder="Beschrijf het concrete voordeel voor de gebruiker." {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                             )}/>
+                          </div>
+                      </Card>
 
-                    <div className="flex justify-end">
-                        <Button type="submit"><Save className="mr-2 h-4 w-4"/> {isEditMode ? 'Wijzigingen Opslaan' : 'Tool Opslaan'}</Button>
-                    </div>
-                </form>
-            </Form>
-        </CardContent>
-    </Card>
+                      <div className="flex justify-end">
+                          <Button type="submit"><Save className="mr-2 h-4 w-4"/> {isNewTool ? 'Tool Creëren & Opslaan' : 'Wijzigingen Opslaan'}</Button>
+                      </div>
+                  </form>
+              </Form>
+          </CardContent>
+      </Card>
+      
+      {!isNewTool && onDelete && (
+        <Card className="mt-8 border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive flex items-center gap-2"><AlertTriangle className="h-5 w-5"/>Gevaarlijke Zone</CardTitle>
+            <CardDescription>Deze acties kunnen niet ongedaan worden gemaakt.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+              <Trash2 className="mr-2 h-4 w-4"/> Verwijder deze tool
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Weet je het zeker?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deze actie kan niet ongedaan worden gemaakt. Dit zal de tool "{initialData?.title}" permanent verwijderen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+            <AlertDialogAction onClick={onDelete} className="bg-destructive hover:bg-destructive/90">Ja, verwijder</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

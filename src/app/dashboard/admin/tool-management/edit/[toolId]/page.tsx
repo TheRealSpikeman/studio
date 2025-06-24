@@ -57,6 +57,21 @@ export default function EditToolPage() {
     }
   };
 
+  const handleDelete = () => {
+    try {
+        const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
+        const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
+        const updatedTools = existingTools.filter(t => t.id !== toolId);
+        localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
+
+        toast({ title: "Tool Verwijderd", description: `De tool "${toolToEdit?.title}" is permanent verwijderd.`});
+        router.push('/dashboard/admin/tool-management');
+    } catch (error) {
+         console.error("Error deleting tool from localStorage", error);
+         toast({ title: "Fout", description: "Kon de tool niet verwijderen.", variant: "destructive" });
+    }
+  }
+
   if (toolToEdit === undefined) {
     return <div className="p-8 text-center">Tool-gegevens laden...</div>;
   }
@@ -87,7 +102,12 @@ export default function EditToolPage() {
           </Link>
         </Button>
       </div>
-      <ToolCreatorForm onSave={handleSave} initialData={toolToEdit} />
+      <ToolCreatorForm 
+        onSave={handleSave} 
+        initialData={toolToEdit}
+        isNewTool={false}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

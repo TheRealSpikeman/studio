@@ -51,7 +51,7 @@ export default function NewToolPage() {
           </Link>
         </Button>
       </div>
-      <ToolCreatorForm onSave={handleSave} />
+      <ToolCreatorForm onSave={handleSave} isNewTool={true} />
     </div>
   );
 }

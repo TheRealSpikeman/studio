@@ -2,7 +2,7 @@
 "use client";
 
 import { FocusTimer } from '@/components/tools/FocusTimer';
-import { allTools } from '@/lib/quiz-data/tools-data';
+import { DEFAULT_TOOLS } from '@/lib/quiz-data/tools-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wrench } from 'lucide-react';
 import { useParams } from 'next/navigation';
@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation';
 export default function ToolDetailPage() {
   const params = useParams();
   const toolId = params.toolId as string;
-  const tool = allTools.find(t => t.id === toolId);
+  const tool = DEFAULT_TOOLS.find(t => t.id === toolId);
 
   // Router to render the correct tool component based on the toolId
   const renderTool = () => {
