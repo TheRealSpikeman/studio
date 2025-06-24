@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useRouter } from 'next/navigation';
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
@@ -23,6 +24,7 @@ export default function ToolManagementPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const [toolToDelete, setToolToDelete] = useState<Tool | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -149,10 +151,8 @@ export default function ToolManagementPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/admin/tool-management/edit/${tool.id}`}>
-                                <Edit className="mr-2 h-4 w-4" /> Bewerken
-                              </Link>
+                            <DropdownMenuItem onClick={() => router.push(`/dashboard/admin/tool-management/edit/${tool.id}`)}>
+                              <Edit className="mr-2 h-4 w-4" /> Bewerken
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setToolToDelete(tool)}
