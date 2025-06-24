@@ -1,10 +1,9 @@
-
 // src/components/landing/platform-features-section.tsx
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageSquare, BookOpenCheck, FileBarChart, ShieldCheck, Zap, Brain, GraduationCap, ArrowRight, Search } from '@/lib/icons';
+import { MessageSquare, BookOpen as BookOpenCheck, BarChart as FileBarChart, Shield as ShieldCheck, Zap, Brain, GraduationCap, ArrowRight, Search } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 interface Feature {

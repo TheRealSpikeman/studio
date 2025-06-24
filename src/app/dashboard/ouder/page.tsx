@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 import { useEffect } from 'react'; 
 import { useRouter } from 'next/navigation'; 
 import { 
-    Users, Settings, Euro, CalendarClock, CalendarPlus, 
-    ShieldCheck, MessagesSquare, Link2, UserCheck, FileBarChart
+    Users, Settings, Euro, Calendar as CalendarClock, CalendarPlus, 
+    Shield as ShieldCheck, MessageSquare, ExternalLink as Link2, User as UserCheck, BarChart as FileBarChart
 } from '@/lib/icons';
 
 interface DashboardItem {
@@ -128,7 +128,7 @@ const ouderDashboardItems: DashboardItem[] = [
     id: 'gezinsgesprekken',
     title: 'Gezinsgesprekken',
     description: 'Tips en handvatten om open en constructieve gesprekken te voeren over neurodiversiteit en welzijn binnen het gezin.',
-    icon: MessagesSquare,
+    icon: MessageSquare,
     link: '#',
     buttonText: 'Tips voor Gesprekken (binnenkort)',
     buttonVariant: 'outline',

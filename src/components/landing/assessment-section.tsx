@@ -1,9 +1,19 @@
-
 "use client";
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, FileBarChart, Target, TrendingUp, Brain, Compass, Clock, ShieldCheck, CheckCircle2, ArrowRight } from '@/lib/icons';
+import { 
+  FileText, 
+  BarChart as FileBarChart, 
+  Target, 
+  ArrowUp as TrendingUp, 
+  Brain, 
+  Compass, 
+  Clock, 
+  Shield as ShieldCheck, 
+  CheckCircle as CheckCircle2, 
+  ArrowRight 
+} from '@/lib/icons';
 
 export function AssessmentSection() {
   return (

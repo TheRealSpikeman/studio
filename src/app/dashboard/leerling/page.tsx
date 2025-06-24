@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, ClipboardList, FileBarChart, BookOpenCheck, Wrench } from '@/lib/icons';
+import { MessageSquare, ArrowUp as TrendingUp, ClipboardList, BarChart as FileBarChart, BookOpen as BookOpenCheck, Wrench } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
