@@ -4,13 +4,15 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Wrench, Search } from 'lucide-react';
+import { PlusCircle, Wrench, Search, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { allTools, type Tool, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
@@ -18,6 +20,7 @@ export default function ToolManagementPage() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     try {
@@ -35,6 +38,16 @@ export default function ToolManagementPage() {
     }
     setIsLoading(false);
   }, []);
+  
+  const handleDeleteTool = (toolId: string) => {
+    const updatedTools = tools.filter(tool => tool.id !== toolId);
+    setTools(updatedTools);
+    localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
+    toast({
+      title: "Tool verwijderd",
+      description: `De tool is succesvol verwijderd.`,
+    });
+  };
 
   const filteredTools = tools.filter(tool =>
     tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,10 +112,34 @@ export default function ToolManagementPage() {
                     </TableCell>
                     <TableCell><Badge variant="outline">{tool.category}</Badge></TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-sm truncate">{tool.description}</TableCell>
-                    <TableCell className="text-right">
-                        <Button variant="outline" size="sm" disabled>
-                            Bewerken (binnenkort)
+                    <TableCell className="text-right flex items-center justify-end gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                           <Link href={`/dashboard/admin/tool-management/edit/${tool.id}`}>
+                             <Edit className="mr-2 h-4 w-4" /> Bewerken
+                           </Link>
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                             <Button variant="destructive" size="icon" className="h-9 w-9">
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Verwijder</span>
+                             </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Weet je het zeker?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Deze actie kan niet ongedaan worden gemaakt. Dit zal de tool permanent verwijderen.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteTool(tool.id)} className="bg-destructive hover:bg-destructive/90">
+                                Ja, verwijder
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </TableCell>
                   </TableRow>
                 )

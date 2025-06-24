@@ -4,18 +4,17 @@
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
   Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save, Bot, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
@@ -42,20 +41,31 @@ const toolFormSchema = z.object({
 
 export type ToolFormData = z.infer<typeof toolFormSchema>;
 
+interface ToolCreatorFormProps {
+  onSave: (data: ToolFormData) => void;
+  initialData?: Tool;
+}
+
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
-export function ToolCreatorForm() {
-  const router = useRouter();
+export function ToolCreatorForm({ onSave, initialData }: ToolCreatorFormProps) {
   const { toast } = useToast();
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const isEditMode = !!initialData;
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       id: "", title: "", description: "", reasoning: { high: "", medium: "", low: "" }, usage: { when: "", benefit: "" },
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset(initialData);
+    }
+  }, [initialData, form]);
 
   const handleGenerateWithAI = async () => {
     if (!toolIdea.trim()) {
@@ -87,71 +97,41 @@ export function ToolCreatorForm() {
     }
   };
 
-
-  const onSubmit = (data: ToolFormData) => {
-    const IconComponent = getToolIconComponent(data.icon);
-    if (!IconComponent) {
-        toast({ title: "Fout", description: "Ongeldig icoon geselecteerd.", variant: "destructive" });
-        return;
-    }
-    
-    const toolForStorage: Tool = {
-        ...data,
-        icon: data.icon, // Store the string name for consistency
-    };
-
-    try {
-        const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
-        const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
-        
-        if (existingTools.some((t: any) => t.id === toolForStorage.id)) {
-             toast({ title: "Fout", description: `Een tool met ID "${toolForStorage.id}" bestaat al.`, variant: "destructive" });
-             return;
-        }
-
-        const updatedTools = [...existingTools, toolForStorage];
-        localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
-
-        toast({ title: "Tool opgeslagen!", description: `De tool "${data.title}" is succesvol opgeslagen.` });
-        router.push('/dashboard/admin/tool-management');
-    } catch (error) {
-        console.error("Error saving tool to localStorage", error);
-        toast({ title: "Fout", description: "Kon de tool niet opslaan.", variant: "destructive" });
-    }
-  };
-
   return (
     <Card>
         <CardContent className="pt-6">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
                     
-                    <Card className="p-4 bg-primary/5 border-primary/20">
-                        <CardHeader className="p-0 pb-3">
-                            <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Genereer met AI</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0 space-y-2">
-                             <Label htmlFor="tool-idea">Beschrijf je tool idee in het kort</Label>
-                            <div className="flex gap-2">
-                                <Input 
-                                    id="tool-idea"
-                                    placeholder="Bijv. een tool die helpt met ademhalingsoefeningen" 
-                                    value={toolIdea}
-                                    onChange={(e) => setToolIdea(e.target.value)}
-                                />
-                                <Button type="button" onClick={handleGenerateWithAI} disabled={isGenerating}>
-                                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Genereer
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Separator />
+                    {!isEditMode && (
+                        <>
+                            <Card className="p-4 bg-primary/5 border-primary/20">
+                                <CardHeader className="p-0 pb-3">
+                                    <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Genereer met AI</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0 space-y-2">
+                                    <Label htmlFor="tool-idea">Beschrijf je tool idee in het kort</Label>
+                                    <div className="flex gap-2">
+                                        <Input 
+                                            id="tool-idea"
+                                            placeholder="Bijv. een tool die helpt met ademhalingsoefeningen" 
+                                            value={toolIdea}
+                                            onChange={(e) => setToolIdea(e.target.value)}
+                                        />
+                                        <Button type="button" onClick={handleGenerateWithAI} disabled={isGenerating}>
+                                            {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            Genereer
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Separator />
+                        </>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField control={form.control} name="id" render={({ field }) => (
-                            <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} disabled={isEditMode} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="title" render={({ field }) => (
                              <FormItem><FormLabel>Titel</FormLabel><FormControl><Input placeholder="Titel van de tool" {...field} /></FormControl><FormMessage /></FormItem>
@@ -199,7 +179,7 @@ export function ToolCreatorForm() {
                     </Card>
 
                     <div className="flex justify-end">
-                        <Button type="submit"><Save className="mr-2 h-4 w-4"/> Tool Opslaan</Button>
+                        <Button type="submit"><Save className="mr-2 h-4 w-4"/> {isEditMode ? 'Wijzigingen Opslaan' : 'Tool Opslaan'}</Button>
                     </div>
                 </form>
             </Form>
