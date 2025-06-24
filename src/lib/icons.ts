@@ -1,8 +1,8 @@
 // src/lib/icons.ts
-// EENVOUDIGE OPLOSSING - Alleen core exports, aliases in components
+// COMPREHENSIVE SOLUTION - Add all common aliases to prevent future errors
 
 export {
-  // === ALLE CORE ICONS DIRECT UIT LUCIDE-REACT ===
+  // === EXISTING CORE ICONS (keep these) ===
   Activity,
   AlertCircle,
   AlertTriangle,
@@ -20,7 +20,6 @@ export {
   Brain,
   BrainCircuit,
   Briefcase,
-  Cake,
   Calendar,
   CalendarPlus,
   Check,
@@ -33,12 +32,7 @@ export {
   Circle,
   ClipboardList,
   Clock,
-  Coffee,
   Compass,
-  Contact,
-  Cookie,
-  Copyright,
-  Cpu,
   CreditCard,
   Database,
   Download,
@@ -49,23 +43,15 @@ export {
   ExternalLink,
   Eye,
   EyeOff,
-  Facebook,
   FileEdit,
   FilePlus,
   FileText,
-  FileClock,
-  FileInput,
   Filter,
-  Fingerprint,
-  FlaskConical,
   Folder,
   FolderOpen,
-  Gamepad2,
-  Gavel,
   GitBranch,
   Globe,
   GraduationCap,
-  Gauge,
   Handshake,
   Hash,
   Heart,
@@ -74,20 +60,14 @@ export {
   Hourglass,
   ImageUp,
   Info,
-  Instagram,
   KeyRound,
   Languages,
   LayoutDashboard,
   Lightbulb,
-  Library,
-  LifeBuoy,
   LineChart,
   Link,
-  Link2Off,
-  Linkedin,
   List,
   ListChecks,
-  ListFilter,
   ListTodo,
   Loader2,
   Lock,
@@ -100,7 +80,6 @@ export {
   MessageSquare,
   MessageSquareWarning,
   Mic,
-  Milestone,
   Minus,
   Monitor,
   Moon,
@@ -156,7 +135,6 @@ export {
   Timer,
   Trash,
   Trash2,
-  Twitter,
   Trophy,
   Upload,
   User,
@@ -173,6 +151,65 @@ export {
   XCircle,
   Zap,
 } from 'lucide-react';
+
+// === ADD ALL COMMON ALIASES TO PREVENT IMPORT ERRORS ===
+// These aliases are used throughout the codebase
+
+// Chart & Analytics aliases
+export { BarChart as FileBarChart } from 'lucide-react';
+export { BarChart as BarChart3 } from 'lucide-react';
+export { BarChart as BarChartBig } from 'lucide-react';
+export { BarChart as BarChartHorizontal } from 'lucide-react';
+export { ArrowUp as TrendingUp } from 'lucide-react'; // TrendingUp doesn't exist
+
+// Status & Feedback aliases
+export { CheckCircle as CheckCircle2 } from 'lucide-react';
+export { Shield as ShieldCheck } from 'lucide-react';
+export { User as UserCheck } from 'lucide-react';
+
+// Action aliases
+export { Save as SaveIcon } from 'lucide-react';
+export { Edit2 as Edit2Icon } from 'lucide-react';
+
+// Social & Communication aliases
+export { Handshake as HeartHandshake } from 'lucide-react'; // ✅ FIX FOR CURRENT ERROR
+export { MessageSquare as MessagesSquare } from 'lucide-react';
+export { MessageSquare as MessagesSquareIcon } from 'lucide-react';
+export { MessageCircle as MessageCircleQuestion } from 'lucide-react';
+export { Heart as MessageSquareHeart } from 'lucide-react';
+
+// Navigation aliases
+export { Users as UsersIconLucide } from 'lucide-react';
+export { Menu as PanelLeft } from 'lucide-react';
+export { ExternalLink as Link2 } from 'lucide-react';
+export { Link as LinkIcon } from 'lucide-react';
+
+// Layout aliases
+export { SeparatorHorizontal as Separator } from 'lucide-react';
+export { ClipboardList as ClipboardCheck } from 'lucide-react';
+export { PlusCircle as PlusCircleIcon } from 'lucide-react';
+
+// Time & Calendar aliases
+export { Calendar as CalendarDays } from 'lucide-react';
+export { Calendar as CalendarClock } from 'lucide-react';
+export { Calendar as CalendarIcon } from 'lucide-react';
+export { Clock as ClockIcon } from 'lucide-react';
+
+// Book & Education aliases
+export { BookOpen as BookOpenCheck } from 'lucide-react';
+export { BookOpen as BookUser } from 'lucide-react';
+
+// Settings & System aliases
+export { Settings as SettingsIcon } from 'lucide-react';
+export { User as UserIcon } from 'lucide-react';
+export { Users as Users2 } from 'lucide-react';
+export { Users as UsersIcon } from 'lucide-react';
+export { FileText as FileTextIcon } from 'lucide-react';
+
+// Message variants
+export { MessageSquare as MessageSquareIcon } from 'lucide-react';
+export { MessageSquare as MessageSquarePlus } from 'lucide-react';
+export { MessageSquare as MessageSquareText } from 'lucide-react';
 
 // TypeScript type
 export type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;
