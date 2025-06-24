@@ -1,11 +1,10 @@
-
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, BookHeart, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpen, CreditCard, BarChart as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
+import { ArrowLeft, BookHeart, Users, Brain, LayoutDashboard, Shield, Handshake, BookOpen, CreditCard, BarChart as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function PlatformGuidePage() {
@@ -62,7 +61,7 @@ export default function PlatformGuidePage() {
               <p className="text-sm text-muted-foreground pl-7">De eindgebruiker. Doet zelfreflectie-instrumenten, ontvangt gepersonaliseerde coaching en kan gebruik maken van huiswerk-tools. Kan toestemming geven om resultaten te delen met ouders en/of gekoppelde begeleiders.</p>
             </div>
              <div>
-              <h4 className="font-semibold text-lg flex items-center gap-2"><HeartHandshake className="h-5 w-5 text-muted-foreground"/>Coach</h4>
+              <h4 className="font-semibold text-lg flex items-center gap-2"><Handshake className="h-5 w-5 text-muted-foreground"/>Coach</h4>
               <p className="text-sm text-muted-foreground pl-7">Een gekwalificeerde professional (psycholoog/orthopedagoog) die 1-op-1 begeleiding biedt voor persoonlijke ontwikkeling en welzijn. Beheert eigen beschikbaarheid, sessies en cliënten. Krijgt alleen toegang tot cliëntgegevens na expliciete koppeling en toestemming.</p>
             </div>
              <div>
@@ -151,13 +150,13 @@ export default function PlatformGuidePage() {
              </ol>
               <Button variant="link" asChild className="p-0 h-auto mt-2">
                 <Link href="/dashboard/admin/documentation/data-flow">Bekijk de gedetailleerde Data Flow <ExternalLink className="ml-1 h-4 w-4"/></Link>
-             </Button>
+              </Button>
           </AccordionContent>
         </AccordionItem>
         
         <AccordionItem value="item-4">
           <AccordionTrigger className="text-xl font-semibold p-4 bg-muted/50 rounded-t-lg">
-            <div className="flex items-center gap-2"><ShieldCheck className="h-6 w-6 text-primary" />Technologie & Architectuur</div>
+            <div className="flex items-center gap-2"><Shield className="h-6 w-6 text-primary" />Technologie & Architectuur</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
             <p>MindNavigator is gebouwd op een moderne en schaalbare tech stack:</p>
