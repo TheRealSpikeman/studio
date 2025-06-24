@@ -15,7 +15,6 @@ export {
   
   // B
   BarChart,
-  BarChart as BarChart3, // Alias for charts
   BarChart as BarChartHorizontal, // Alias for charts
   Bot,
   Brain,
@@ -37,7 +36,6 @@ export {
   ChevronDown,
   ChevronUp,
   Circle,
-  Circle as Target, // Alias for Target
   ClipboardList,
   Clock,
   Clock as ClockIcon,
@@ -69,7 +67,6 @@ export {
   FilePlus,
   FileText,
   FileText as FileBarChart, // Alias for charts
-  FileText as FileTextIcon,
   FileClock,
   Filter,
   Fingerprint,
@@ -133,8 +130,7 @@ export {
   // N
   Navigation,
   NotebookPen,
-  NotebookText,
-
+  
   // O
   
   // P
@@ -182,6 +178,7 @@ export {
   SunMedium,
 
   // T
+  Circle as Target, // Alias for Target
   Telescope,
   ThumbsUp,
   Timer,
