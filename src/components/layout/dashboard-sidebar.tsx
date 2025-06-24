@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -14,23 +13,13 @@ import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import React, { useState, useEffect, Fragment, useMemo } from 'react';
 import {
-  LayoutDashboard, ClipboardList, FileBarChart, MessageSquare, User, Settings, 
+  LayoutDashboard, ClipboardList, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
-  FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
+  FileEdit, MessagesSquare, Shuffle, Clock, 
   HelpCircle, CreditCard, TrendingUp, Link2, UserCheck, ShieldCheck, Package, 
   HeartHandshake, PlayCircle, MessageCircleQuestion, BookUser, GitBranch, Bot, Zap, Wrench, 
-  CalendarPlus, CalendarDays, CalendarClock, GraduationCap, BookHeart, Activity,
-  AlertCircle, ArrowLeft, ArrowRight, BarChart, CheckCircle, Circle, Compass,
-  Download, Eye, EyeOff, FileText, Filter, Folder, FolderOpen, Gavel, Handshake,
-  Heart, Home, Hourglass, ImageUp, Info, KeyRound, Languages, Lightbulb, Link2Off,
-  LogOut, Mail, MapPin, Menu, Mic, Moon, MoreVertical, MousePointerClick,
-  Navigation, NotebookPen, PanelLeft, PauseCircle, Percent, Phone, PieChart,
-  Power, Puzzle, RefreshCw, Repeat, Rocket, Save, SaveIcon, School,
-  ScrollText, Search, Send, Separator, Shield, ShieldAlert, ShieldBan,
-  ShoppingBag, ShoppingCart, Siren, Smile, Star, Stethoscope, Sun, SunMedium,
-  Target, Telescope, ThumbsUp, Timer, Trash, Trash2, Trophy, Upload, Video,
-  Wallet, Waves, X, XCircle, BarChartHorizontal
-} from '@/lib/icons'; 
+  CalendarPlus, CalendarDays, BookOpen, BarChartHorizontal
+} from '@/lib/icons';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -68,7 +57,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   { href: '/dashboard/leerling/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, leerlingOnly: true },
-  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
+  { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquare, leerlingOnly: true },
   
   // Ouder Items
   { href: '/dashboard/ouder/welcome', label: 'Start Ouder Onboarding', icon: PlayCircle, ouderOnly: true, isOuderOnboardingLink: true, sectionTitle: "OUDER PORTAAL" }, 
@@ -81,7 +70,7 @@ const navItems: NavItem[] = [
     ouderOnly: true, 
     children: [
         { href: '/dashboard/ouder/lessen/plannen', label: 'Les Plannen', icon: CalendarPlus, parent: '#ouder-lessen-parent' },
-        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarClock, parent: '#ouder-lessen-parent' },
+        { href: '/dashboard/ouder/lessen/aankomend', label: 'Aankomende Lessen', icon: CalendarDays, parent: '#ouder-lessen-parent' },
         { href: '/dashboard/ouder/lessen/overzicht', label: 'Lessen Overzicht', icon: CalendarDays, parent: '#ouder-lessen-parent' },
     ]
   },
@@ -89,7 +78,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/gekoppelde-professionals', label: 'Mijn Begeleiders', icon: UserCheck, ouderOnly: true },
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
-  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true },
+  { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquare, ouderOnly: true },
   { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy &amp; Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
@@ -199,7 +188,7 @@ export function SidebarNavContent() {
       setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
       setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
     }
-  }, [currentDashboardRole]); // Rerun when role changes to get correct onboarding status
+  }, [currentDashboardRole]);
 
   const filteredNavItems = useMemo(() => {
     return navItems.filter(item => {
@@ -241,6 +230,12 @@ export function SidebarNavContent() {
     router.push(`/dashboard/${role}`);
   };
 
+  const baseLinkClasses = "flex items-center gap-3 rounded-md w-full px-3 py-2 text-sm font-medium transition-colors";
+  const hoverClasses = "hover:bg-[#f8f9fa] dark:hover:bg-muted";
+  const activeLinkClasses = "bg-primary/10 text-primary font-semibold";
+  const inactiveLinkClasses = "text-foreground";
+  const sublinkInactiveClasses = "text-muted-foreground hover:text-primary";
+
   return (
     <>
       <div className="p-4 border-b">
@@ -265,8 +260,8 @@ export function SidebarNavContent() {
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <nav className="p-2 space-y-2">
-          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-2">
+        <nav className="p-2 space-y-1">
+          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-1">
             {filteredNavItems.map((item) => {
               let renderSectionHeader = false;
               if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
@@ -280,7 +275,7 @@ export function SidebarNavContent() {
               return (
                 <Fragment key={item.href}>
                   {renderSectionHeader && (
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-4 pb-1">
+                    <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-3 pb-1">
                       {item.sectionTitle}
                     </h4>
                   )}
@@ -288,8 +283,10 @@ export function SidebarNavContent() {
                   {item.children && item.children.length > 0 ? (
                     <AccordionItem value={item.href} className="border-none">
                       <AccordionTrigger className={cn(
-                        "rounded-md hover:bg-primary/5 hover:no-underline p-3 text-sm font-medium",
-                        isParentOfActivePage && "bg-primary/10 text-primary"
+                        baseLinkClasses,
+                        "hover:no-underline justify-between",
+                        isParentOfActivePage ? 'text-primary' : 'text-foreground hover:text-primary',
+                        hoverClasses
                       )}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5" />
@@ -297,31 +294,37 @@ export function SidebarNavContent() {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="pt-1 pl-6 pb-1">
-                        <div className="flex flex-col space-y-1 border-l-2 border-muted-foreground/30 ml-[5px]">
+                        <div className="flex flex-col space-y-1 border-l border-muted-foreground/30 ml-[9px] pl-4">
                           {item.children.map(child => {
                             const isChildActive = pathname.startsWith(child.href);
                             return (
-                               <Button key={child.href} asChild variant="ghost" size="sm" className={cn(
-                                  "justify-start text-muted-foreground w-full h-auto py-2",
-                                  isChildActive && "bg-primary/10 text-primary font-semibold"
+                               <Link
+                                key={child.href}
+                                href={child.href}
+                                className={cn(
+                                    baseLinkClasses,
+                                    'py-1.5',
+                                    isChildActive ? activeLinkClasses : cn(sublinkInactiveClasses, 'hover:bg-[#f8f9fa] dark:hover:bg-muted')
                                 )}>
-                                <Link href={child.href} className="flex items-center gap-3 pl-3">
-                                  <child.icon className="h-4 w-4" />
-                                  <span>{child.label}</span>
-                                </Link>
-                              </Button>
+                                <child.icon className="h-4 w-4" />
+                                <span>{child.label}</span>
+                              </Link>
                             );
                           })}
                         </div>
                       </AccordionContent>
                     </AccordionItem>
                   ) : (
-                    <Button asChild variant={isDirectlyActive ? "secondary" : "ghost"} className="w-full justify-start text-sm font-medium h-auto p-3">
-                      <Link href={item.href} className="flex items-center gap-3">
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                      </Link>
-                    </Button>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                          baseLinkClasses,
+                          isDirectlyActive ? activeLinkClasses : cn(inactiveLinkClasses, hoverClasses)
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
                   )}
                 </Fragment>
               );
