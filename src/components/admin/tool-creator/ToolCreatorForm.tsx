@@ -1,3 +1,4 @@
+
 // src/components/admin/tool-creator/ToolCreatorForm.tsx
 "use client";
 
@@ -5,6 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Save } from 'lucide-react';
+import { Save, Bot, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allToolCategories, allToolIcons, getToolIconComponent } from '@/lib/quiz-data/tools-data';
+import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
+import { Separator } from "@/components/ui/separator";
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -43,6 +47,8 @@ const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 export function ToolCreatorForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const [toolIdea, setToolIdea] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -51,17 +57,43 @@ export function ToolCreatorForm() {
     },
   });
 
+  const handleGenerateWithAI = async () => {
+    if (!toolIdea.trim()) {
+      toast({ title: "Oeps!", description: "Voer eerst een idee in voor de tool.", variant: "destructive" });
+      return;
+    }
+    setIsGenerating(true);
+    toast({ title: "AI is aan het werk...", description: "De details voor je tool worden nu gegenereerd." });
+    
+    try {
+      const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
+      const existingTools: {id: string}[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
+      const existingIds = existingTools.map(t => t.id);
+
+      const result = await generateToolDetails({ toolIdea, existingIds });
+      
+      form.reset({
+        ...result,
+        reasoning: { ...result.reasoning },
+        usage: { ...result.usage }
+      });
+
+      toast({ title: "Details Gegenereerd!", description: `De AI heeft alle velden voor "${result.title}" ingevuld.` });
+    } catch (error) {
+      console.error("AI tool generation failed:", error);
+      toast({ title: "Genereren Mislukt", description: "De AI kon de details niet genereren. Probeer een andere omschrijving.", variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+
   const onSubmit = (data: ToolFormData) => {
     const IconComponent = getToolIconComponent(data.icon);
     if (!IconComponent) {
         toast({ title: "Fout", description: "Ongeldig icoon geselecteerd.", variant: "destructive" });
         return;
     }
-
-    const newTool: Tool = {
-        ...data,
-        icon: IconComponent, // Store the component, not the string
-    };
     
     // We can't actually store a React component in JSON. So for localStorage, we'll store the icon name.
     const toolForStorage = {
@@ -94,6 +126,30 @@ export function ToolCreatorForm() {
         <CardContent className="pt-6">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    
+                    <Card className="p-4 bg-primary/5 border-primary/20">
+                        <CardHeader className="p-0 pb-3">
+                            <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Genereer met AI</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 space-y-2">
+                             <Label htmlFor="tool-idea">Beschrijf je tool idee in het kort</Label>
+                            <div className="flex gap-2">
+                                <Input 
+                                    id="tool-idea"
+                                    placeholder="Bijv. een tool die helpt met ademhalingsoefeningen" 
+                                    value={toolIdea}
+                                    onChange={(e) => setToolIdea(e.target.value)}
+                                />
+                                <Button type="button" onClick={handleGenerateWithAI} disabled={isGenerating}>
+                                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Genereer
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Separator />
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField control={form.control} name="id" render={({ field }) => (
                             <FormItem><FormLabel>Uniek ID</FormLabel><FormControl><Input placeholder="bijv. focus-timer-pro" {...field} /></FormControl><FormMessage /></FormItem>
