@@ -6,7 +6,7 @@ export interface Tool {
   id: string;
   title: string;
   description: string;
-  icon: ElementType;
+  icon: string; // Changed to string to store the icon name
   category: 'Focus & Concentratie' | 'Energie & Beweging' | 'Rust & Regulatie' | 'Stemming & Emotie' | 'Sociaal & Communicatie' | 'Interesses & Hobby';
   reasoning: {
     high: string;
@@ -51,7 +51,7 @@ export const allTools: Tool[] = [
     id: 'focus-timer-pro',
     title: 'Focus Timer Pro',
     description: 'Een Pomodoro timer met optionele achtergrondgeluiden om je te helpen in de zone te komen.',
-    icon: Timer,
+    icon: 'Timer',
     category: 'Focus & Concentratie',
     reasoning: {
       high: "Je focus kan soms alle kanten op gaan. Deze tool helpt je om werk in behapbare blokken op te delen, wat het starten en volhouden makkelijker maakt.",
@@ -67,7 +67,7 @@ export const allTools: Tool[] = [
     id: 'concentratie-games',
     title: 'Concentratie Games',
     description: 'Gamified trainingsoefeningen ontworpen om je aandachtsspanne op een leuke manier te vergroten.',
-    icon: Gamepad2,
+    icon: 'Gamepad2',
     category: 'Focus & Concentratie',
     reasoning: {
       high: "Je vindt het moeilijk om je lang te concentreren. Deze games trainen je 'focus-spier' op een leuke, laagdrempelige manier.",
@@ -83,7 +83,7 @@ export const allTools: Tool[] = [
     id: 'distraction-blocker',
     title: 'Distraction Blocker',
     description: 'Blokkeer tijdelijk afleidende websites en apps tijdens je studiesessies.',
-    icon: ShieldBan,
+    icon: 'ShieldBan',
     category: 'Focus & Concentratie',
     reasoning: {
       high: "Je bent snel afgeleid. Deze tool creëert een 'digitale stiltecoupé' zodat je brein niet constant wordt weggetrokken.",
@@ -99,7 +99,7 @@ export const allTools: Tool[] = [
     id: 'study-planner',
     title: 'Study Planner',
     description: 'Een intelligente planner die je helpt taken op te delen en in te plannen op basis van je focuspatronen.',
-    icon: NotebookText,
+    icon: 'NotebookText',
     category: 'Focus & Concentratie',
     reasoning: {
       high: "Je bent snel afgeleid en vindt plannen lastig. Deze tool geeft je de structuur die je nodig hebt.",
@@ -117,7 +117,7 @@ export const allTools: Tool[] = [
     id: 'energie-monitor',
     title: 'Energie Monitor',
     description: 'Houd dagelijks je energieniveau bij om patronen te ontdekken in wat je energie geeft of kost.',
-    icon: BarChart,
+    icon: 'BarChart',
     category: 'Energie & Beweging',
     reasoning: {
       high: "Jouw energieniveau wisselt sterk. Deze tool helpt je te begrijpen waar dat door komt, zodat je er beter op kunt inspelen.",
@@ -133,7 +133,7 @@ export const allTools: Tool[] = [
     id: 'bewegings-breaks',
     title: 'Bewegings Breaks',
     description: 'Korte, geleide video-oefeningen (2-5 min) om overtollige energie kwijt te raken en je daarna weer te kunnen focussen.',
-    icon: Bell,
+    icon: 'Bell',
     category: 'Energie & Beweging',
     reasoning: {
       high: "Je hebt vaak veel energie en moeite met stilzitten. Deze korte breaks zijn een perfecte uitlaatklep.",
@@ -149,7 +149,7 @@ export const allTools: Tool[] = [
     id: 'impulse-pause',
     title: 'Impulse Pause',
     description: 'Een simpele tool die je helpt een korte pauze in te lassen voordat je reageert of handelt.',
-    icon: PauseCircle,
+    icon: 'PauseCircle',
     category: 'Energie & Beweging',
     reasoning: {
       high: "Je handelt vaak impulsief. Deze tool traint je om een moment van reflectie in te bouwen, wat leidt tot betere beslissingen.",
@@ -165,7 +165,7 @@ export const allTools: Tool[] = [
     id: 'fidget-simulator',
     title: 'Fidget Simulator',
     description: 'Een verzameling digitale fidgets (knoppen, schakelaars, etc.) om je handen bezig te houden tijdens het luisteren.',
-    icon: Fingerprint,
+    icon: 'Fingerprint',
     category: 'Energie & Beweging',
     reasoning: {
       high: "Je bent vaak onrustig en hebt iets nodig om mee te 'friemelen'. Dit is een stille, digitale oplossing.",
@@ -183,7 +183,7 @@ export const allTools: Tool[] = [
     id: 'sensory-calm-space',
     title: 'Sensory Calm Space',
     description: 'Een aanpasbare digitale ruimte met kalmerende beelden (lava lamp, regen) en geluiden (ruis, natuur).',
-    icon: Waves,
+    icon: 'Waves',
     category: 'Rust & Regulatie',
     reasoning: {
       high: "Je bent snel overweldigd door prikkels. Deze tool is je persoonlijke 'chill-zone' om je zenuwstelsel tot rust te brengen.",
@@ -199,7 +199,7 @@ export const allTools: Tool[] = [
     id: 'ademhalings-gids',
     title: 'Ademhalings Gids',
     description: "Visuele gidsen voor verschillende ademhalingstechnieken zoals de 'box breathing' en 4-7-8 methode.",
-    icon: Sun,
+    icon: 'Sun',
     category: 'Rust & Regulatie',
     reasoning: {
       high: "Je ervaart regelmatig stress of onrust. Ademhaling is de snelste manier om je zenuwstelsel te kalmeren. Dit is een essentiële tool voor jou.",
@@ -215,7 +215,7 @@ export const allTools: Tool[] = [
     id: 'progressive-relaxatie',
     title: 'Progressive Relaxatie',
     description: 'Geleide audio-oefeningen om je spieren systematisch aan te spannen en te ontspannen.',
-    icon: Gauge,
+    icon: 'Gauge',
     category: 'Rust & Regulatie',
     reasoning: {
       high: "Je hebt vaak last van fysieke spanning door stress of overprikkeling. Deze tool helpt je om die spanning bewust los te laten.",
@@ -231,7 +231,7 @@ export const allTools: Tool[] = [
     id: 'overprikkel-alarm',
     title: 'Overprikkel Alarm',
     description: "Leer je eigen signalen van overprikkeling herkennen en stel een 'alarm' in om op tijd een pauze te nemen.",
-    icon: BarChart,
+    icon: 'BarChart',
     category: 'Rust & Regulatie',
     reasoning: {
       high: "Je raakt snel overweldigd. Deze tool maakt je bewust van je vroege waarschuwingssignalen, zodat je kunt ingrijpen voordat het te veel wordt.",
@@ -249,7 +249,7 @@ export const allTools: Tool[] = [
     id: 'mood-tracker',
     title: 'Mood Tracker',
     description: 'Een simpele, visuele manier om dagelijks je stemming en de mogelijke oorzaken bij te houden.',
-    icon: GitBranch,
+    icon: 'GitBranch',
     category: 'Stemming & Emotie',
     reasoning: {
       high: "Je stemming wisselt regelmatig. Deze tracker helpt jou en ons om patronen te zien en te begrijpen wat je stemming beïnvloedt.",
@@ -265,7 +265,7 @@ export const allTools: Tool[] = [
     id: 'emotie-gids',
     title: 'Emotie Gids',
     description: 'Een bibliotheek van emoties met uitleg, herkenningstips en gezonde manieren om ermee om te gaan.',
-    icon: Lightbulb,
+    icon: 'Lightbulb',
     category: 'Stemming & Emotie',
     reasoning: {
       high: "Je vindt het soms moeilijk om je emoties te begrijpen of te uiten. Deze gids is je persoonlijke 'woordenboek' voor gevoelens.",
@@ -281,7 +281,7 @@ export const allTools: Tool[] = [
     id: 'zorgen-dagboek',
     title: 'Zorgen Dagboek',
     description: "Een gestructureerde methode om piekergedachten op te schrijven en een vast 'piekerkwartier' in te plannen.",
-    icon: NotebookText,
+    icon: 'NotebookText',
     category: 'Stemming & Emotie',
     reasoning: {
       high: "Je maakt je vaak zorgen. Deze tool helpt om het piekeren te beperken tot een vast moment, zodat het niet je hele dag overneemt.",
@@ -297,7 +297,7 @@ export const allTools: Tool[] = [
     id: 'gratitude-journal',
     title: 'Gratitude Journal',
     description: 'Een eenvoudige tool om elke dag drie dingen op te schrijven waar je dankbaar voor bent.',
-    icon: Sparkles,
+    icon: 'Sparkles',
     category: 'Stemming & Emotie',
     reasoning: {
       high: "Je focus ligt vaak op wat er niet goed gaat. Dit dagboek traint je brein om actief op zoek te gaan naar het positieve.",
@@ -315,7 +315,7 @@ export const allTools: Tool[] = [
     id: 'sociale-scripts',
     title: 'Sociale Scripts',
     description: 'Een bibliotheek met voorbeelden en stappenplannen voor veelvoorkomende sociale situaties (bv. een praatje maken, iets vragen).',
-    icon: Users,
+    icon: 'Users',
     category: 'Sociaal & Communicatie',
     reasoning: {
       high: "Je vindt sociale situaties soms onvoorspelbaar en moeilijk. Deze scripts geven je concrete handvatten en zelfvertrouwen.",
@@ -331,7 +331,7 @@ export const allTools: Tool[] = [
     id: 'empathie-balancer',
     title: 'Empathie Balancer',
     description: 'Oefeningen om je inlevingsvermogen te gebruiken zonder de emoties van anderen volledig over te nemen.',
-    icon: Compass,
+    icon: 'Compass',
     category: 'Sociaal & Communicatie',
     reasoning: {
       high: "Jouw empathie is een superkracht, maar soms ook vermoeiend. Deze tool helpt je om grenzen te stellen en voor jezelf te zorgen.",
@@ -347,7 +347,7 @@ export const allTools: Tool[] = [
     id: 'conflict-navigator',
     title: 'Conflict Navigator',
     description: 'Een stappenplan en voorbeelden om op een constructieve manier meningsverschillen of conflicten te bespreken.',
-    icon: MessageCircle,
+    icon: 'MessageCircle',
     category: 'Sociaal & Communicatie',
     reasoning: {
       high: "Je vermijdt conflicten of vindt het moeilijk om voor jezelf op te komen. Deze tool geeft je een veilige structuur.",
@@ -363,7 +363,7 @@ export const allTools: Tool[] = [
     id: 'vriendschap-tracker',
     title: 'Vriendschap Tracker',
     description: 'Een simpele tool om bij te houden met welke vrienden je contact hebt gehad en wie je weer eens zou willen zien.',
-    icon: BookOpenCheck,
+    icon: 'BookOpenCheck',
     category: 'Sociaal & Communicatie',
     reasoning: {
       high: "Je vindt het onderhouden van vriendschappen soms lastig. Deze tracker is een simpel geheugensteuntje.",
@@ -381,7 +381,7 @@ export const allTools: Tool[] = [
     id: 'hobby-organizer',
     title: 'Hobby Organizer',
     description: 'Een visuele tool om je vele interesses en hobby-projecten te beheren en prioriteren.',
-    icon: Brain,
+    icon: 'Brain',
     category: 'Interesses & Hobby',
     reasoning: {
       high: "Je hebt ontzettend veel interesses en begint overal aan. Deze tool helpt je het overzicht te bewaren en projecten af te maken.",
@@ -397,7 +397,7 @@ export const allTools: Tool[] = [
     id: 'deep-dive-planner',
     title: 'Deep Dive Planner',
     description: 'Gestructureerde planning om een onderwerp waar je gepassioneerd over bent volledig uit te diepen.',
-    icon: ClipboardList,
+    icon: 'ClipboardList',
     category: 'Interesses & Hobby',
     reasoning: {
       high: "Je kunt je helemaal verliezen in een interesse. Deze planner helpt je om die passie om te zetten in een gestructureerd leerproject.",
@@ -413,7 +413,7 @@ export const allTools: Tool[] = [
     id: 'creative-outlet',
     title: 'Creative Outlet',
     description: 'Een verzameling laagdrempelige creatieve opdrachten (schrijven, tekenen, muziek maken) om je ideeën te uiten.',
-    icon: Sparkles,
+    icon: 'Sparkles',
     category: 'Interesses & Hobby',
     reasoning: {
       high: "Je hebt een rijk innerlijk leven en veel creatieve ideeën. Dit is een perfecte uitlaatklep.",
@@ -429,7 +429,7 @@ export const allTools: Tool[] = [
     id: 'interest-sharing',
     title: 'Interest Sharing',
     description: 'Een (afgeschermd) platform om je passies en projecten te delen met gelijkgestemden.',
-    icon: Share2,
+    icon: 'Share2',
     category: 'Interesses & Hobby',
     reasoning: {
       high: "Je vindt het soms moeilijk om mensen te vinden die jouw specifieke interesses delen. Hier vind je ze wel.",

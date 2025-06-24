@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, GitBranch, Lightbulb, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
-import { allTools } from '@/lib/quiz-data/tools-data';
+import { allTools, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Badge } from '@/components/ui/badge';
 import type { ElementType } from 'react';
 
@@ -64,15 +64,19 @@ const recommendationMatrix: RecommendationLogic[] = [
   }
 ];
 
-const ToolCard = ({ tool }: { tool: Tool }) => (
-  <div className="p-3 border rounded-md bg-background shadow-sm flex items-start gap-3">
-    <tool.icon className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-    <div>
-        <p className="font-semibold text-sm">{tool.title}</p>
-        <p className="text-xs text-muted-foreground">{tool.description}</p>
-    </div>
-  </div>
-);
+const ToolCard = ({ tool }: { tool: Tool }) => {
+    const Icon = getToolIconComponent(tool.icon);
+    if (!Icon) return null;
+    return (
+        <div className="p-3 border rounded-md bg-background shadow-sm flex items-start gap-3">
+            <Icon className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+                <p className="font-semibold text-sm">{tool.title}</p>
+                <p className="text-xs text-muted-foreground">{tool.description}</p>
+            </div>
+        </div>
+    );
+}
 
 const ScoreLevelCard = ({ title, icon, toolIds, scoreRange }: { title: string, icon: ElementType, toolIds: string[], scoreRange: string }) => {
     const Icon = icon;
@@ -109,8 +113,8 @@ export default function ToolRecommendationLogicPage() {
           Logica voor Tool Aanbevelingen
         </h1>
         <Button variant="outline" asChild>
-          <Link href="/dashboard/admin">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Admin Dashboard
+          <Link href="/dashboard/admin/documentation">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Documentatie
           </Link>
         </Button>
       </div>

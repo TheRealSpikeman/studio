@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Wrench, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { allTools, type Tool } from '@/lib/quiz-data/tools-data';
+import { allTools, type Tool, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -90,7 +90,11 @@ export default function ToolManagementPage() {
             </TableHeader>
             <TableBody>
               {filteredTools.map(tool => {
-                const Icon = tool.icon;
+                const Icon = getToolIconComponent(tool.icon);
+                if (!Icon) {
+                  console.warn(`Icon component for "${tool.icon}" not found.`);
+                  return null; 
+                }
                 return (
                   <TableRow key={tool.id}>
                     <TableCell className="font-medium flex items-center gap-2">
