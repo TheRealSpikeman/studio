@@ -64,8 +64,8 @@ Fill out the following fields based on this idea:
 1.  **id**: Create a short, unique, slug-like ID in kebab-case (e.g., 'breathing-exercise-visualizer', 'daily-gratitude-log'). It must NOT be one of these existing IDs: {{#if existingIds}}{{#each existingIds}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}{{else}}none{{/if}}.
 2.  **title**: A catchy, clear, and encouraging title for the tool (e.g., "Adem-Anker", "Dank-Dagboek").
 3.  **description**: A one-sentence description explaining what the tool does.
-4.  **icon**: Choose the MOST appropriate icon from this list of valid names: {{#each (json-parse (get-env "VALID_ICON_NAMES_JSON"))}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
-5.  **category**: Choose the MOST appropriate category from this list: {{#each (json-parse (get-env "VALID_CATEGORY_NAMES_JSON"))}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
+4.  **icon**: Choose the MOST appropriate icon from this list of valid names: {{#each (json-parse VALID_ICON_NAMES_JSON)}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
+5.  **category**: Choose the MOST appropriate category from this list: {{#each (json-parse VALID_CATEGORY_NAMES_JSON)}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
 6.  **reasoning**: Explain WHY this tool is recommended based on a user's quiz score (high, medium, low) for a relevant neurodiversity profile.
     *   **high**: Why is this tool essential for someone scoring high on a related trait (e.g., high anxiety, low focus)?
     *   **medium**: Why is it helpful for someone with average scores?
