@@ -1,10 +1,11 @@
+
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, BookUser, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpenCheck, CreditCard, BarChart3 as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
+import { ArrowLeft, BookHeart, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpen, CreditCard, BarChart as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function PlatformGuidePage() {
@@ -12,7 +13,7 @@ export default function PlatformGuidePage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <BookUser className="h-8 w-8 text-primary" />
+          <BookHeart className="h-8 w-8 text-primary" />
           Platform Handleiding
         </h1>
         <Button variant="outline" asChild>
@@ -65,7 +66,7 @@ export default function PlatformGuidePage() {
               <p className="text-sm text-muted-foreground pl-7">Een gekwalificeerde professional (psycholoog/orthopedagoog) die 1-op-1 begeleiding biedt voor persoonlijke ontwikkeling en welzijn. Beheert eigen beschikbaarheid, sessies en cliënten. Krijgt alleen toegang tot cliëntgegevens na expliciete koppeling en toestemming.</p>
             </div>
              <div>
-              <h4 className="font-semibold text-lg flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-muted-foreground"/>Tutor</h4>
+              <h4 className="font-semibold text-lg flex items-center gap-2"><BookOpen className="h-5 w-5 text-muted-foreground"/>Tutor</h4>
               <p className="text-sm text-muted-foreground pl-7">Biedt 1-op-1 huiswerkbegeleiding en ondersteuning voor specifieke schoolvakken. Beheert eigen beschikbaarheid, lessen en leerlingen. Ziet alleen relevante informatie na koppeling en toestemming.</p>
             </div>
           </AccordionContent>
