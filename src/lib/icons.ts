@@ -1,9 +1,10 @@
-
 // src/lib/icons.ts
-// This central icon registry resolves all import problems.
+// This is the single source of truth for all icons used in the application.
+// It uses aliases for icons that might not have direct names in lucide-react
+// to ensure the app compiles correctly and icons are consistent.
 
 export {
-  // === ACTIONS & UI ===
+  // === COMMON ACTIONS & UI ===
   Activity,
   AlertCircle,
   AlertTriangle,
@@ -12,6 +13,7 @@ export {
   Bot,
   Check,
   CheckCircle,
+  CheckSquare,
   ChevronDown,
   ChevronUp,
   ClipboardList,
@@ -94,7 +96,7 @@ export {
   PieChart,
   TrendingDown,
   TrendingUp,
-  
+
   // === SOCIAL & BRANDS ===
   Facebook,
   Instagram,
@@ -147,10 +149,11 @@ export {
   Waves,
 
   // === ALIASES FOR CONSISTENCY & FALLBACKS ===
-  ArrowLeft as LogOut,
-  BarChart as BarChart2,
+  Power as LogOut,
+  Menu as PanelLeft,
+  Circle as Target,
+  FileText as FileBarChart,
   BarChart as BarChart3,
-  BarChart as BarChart4,
   BarChart as BarChartHorizontal,
   BookOpen as BookHeart,
   BookOpen as BookUser,
@@ -159,13 +162,9 @@ export {
   Calendar as CalendarDays,
   Calendar as CalendarPlus,
   CheckCircle as CheckCircle2,
-  Circle as Target,
-  FileText as FileBarChart,
-  Heart as HeartHandshake,
   ExternalLink as Link2,
   Link as LinkIcon,
   Link2Off,
-  Menu as PanelLeft,
   MessageCircle as MessageCircleQuestion,
   MessageSquare as MessagesSquare,
   Navigation as NavigationIcon,
