@@ -25,7 +25,11 @@ function OuderSymptomenCheckResultsContent() {
     const summary = "Ouder observeert dat het kind soms moeite heeft met starten aan taken, maar zeer creatief en rechtvaardig is. Gevoeligheid voor drukte is ook een aandachtspunt.";
     try {
         localStorage.setItem(`parentObservation_${kindId}`, summary);
-        toast({ title: "Resultaten Opgeslagen", description: "De observaties zijn opgeslagen. U wordt teruggestuurd." });
+        toast({ 
+          title: "Observaties Opgeslagen!", 
+          description: "U kunt nu de vergelijkende analyse genereren op de voortgangspagina.",
+          duration: 6000,
+        });
         router.push(`/dashboard/ouder/kinderen/${kindId}/voortgang`);
     } catch (e) {
         toast({ title: "Opslagfout", description: "Kon de resultaten niet in uw browser opslaan.", variant: "destructive" });
