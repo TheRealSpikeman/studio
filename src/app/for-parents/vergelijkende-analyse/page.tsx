@@ -27,16 +27,15 @@ import {
 
 // Helper components gedefinieerd inline
 const StepCard = ({ number, title, description, children, className }: { number: number, title: string, description: string, children: ReactNode, className?: string }): JSX.Element => (
-  <div className={cn("step flex flex-col md:flex-row items-start md:items-center relative", {"md:flex-row-reverse ": number % 2 === 0}, className)}>
+  <div className={cn("step flex flex-col items-center relative text-center", className)}>
     <div className={cn(
-        "step-number bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6 md:mb-0",
-        {"md:mr-8": number % 2 !== 0, "md:ml-8": number % 2 === 0}
+        "step-number bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0 mb-6"
     )}>
       {number}
     </div>
-    <div className={cn("step-content flex-1", {"md:mr-8 text-center md:text-left": number % 2 !== 0, "md:ml-8 text-center md:text-left": number % 2 === 0 })}>
-      <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{number}. {title}</h2>
-      <p className="step-description text-xl text-muted-foreground mb-6 leading-relaxed">
+    <div className="step-content flex-1 w-full">
+      <h2 className="step-title text-2xl md:text-3xl font-bold text-foreground mb-3">{title}</h2>
+      <p className="step-description text-xl text-muted-foreground mb-6 leading-relaxed max-w-3xl mx-auto">
         {description}
       </p>
       {children}
@@ -90,7 +89,7 @@ const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: El
 
 const ActionItemCard = ({ title, description }: { title: string, description: string }): JSX.Element => (
   <div className={cn(
-    "action-item bg-white/70 backdrop-blur-sm border border-blue-200 rounded-lg p-5 h-full text-blue-900 transition-all duration-200 ease-in-out hover:bg-white hover:shadow-md"
+    "action-item bg-blue-50/70 backdrop-blur-sm border border-blue-200 rounded-lg p-5 h-full text-blue-900 transition-all duration-200 ease-in-out hover:bg-white hover:shadow-md"
     )}>
     <h4 className="action-title font-semibold text-lg mb-1.5 text-blue-800">{title}</h4>
     <p className="action-description text-sm opacity-90 leading-normal">{description}</p>
