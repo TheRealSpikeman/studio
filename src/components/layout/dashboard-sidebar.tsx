@@ -52,20 +52,20 @@ interface NavItem {
 const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard/leerling/welcome', label: 'Welkom!', icon: PlayCircle, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
-  { href: '/dashboard/leerling', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
-  { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
-  { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   {
-    href: '#coaching-tools-parent',
-    label: 'Coaching & Tools',
-    icon: Zap,
+    href: '#dashboard-parent',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
     leerlingOnly: true,
     children: [
-      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, parent: '#coaching-tools-parent' },
-      { href: '/dashboard/tools', label: 'Aanbevolen Tools', icon: Wrench, parent: '#coaching-tools-parent' },
-      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/leerling', label: 'Overzicht', icon: LayoutDashboard, parent: '#dashboard-parent' },
+      { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, parent: '#dashboard-parent' },
+      { href: '/dashboard/tools', label: 'Aanbevolen Tools', icon: Wrench, parent: '#dashboard-parent' },
+      { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, parent: '#dashboard-parent' },
     ]
   },
+  { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
+  { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   { href: '/dashboard/leerling/lessons', label: 'Mijn Lessen', icon: BookOpenCheck, leerlingOnly: true },
   { href: '/dashboard/community', label: 'Community Forum', icon: MessagesSquareIcon, leerlingOnly: true },
   
@@ -89,7 +89,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessagesSquareIcon, ouderOnly: true },
-  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy &amp; Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
   // Tutor specific section
@@ -177,7 +177,7 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data &amp; Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIconLucide, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
     ]
@@ -330,3 +330,5 @@ export function DashboardSidebar() {
     </div>
   );
 }
+
+    
