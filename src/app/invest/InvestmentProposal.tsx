@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
   Brain, Users, ShieldCheck, CreditCard, ExternalLink, Search, CheckCircle2, ArrowRight,
-  TrendingUp, BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
-} from 'lucide-react';
+  TrendingUp, FileBarChart as BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
+} from '@/lib/icons';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

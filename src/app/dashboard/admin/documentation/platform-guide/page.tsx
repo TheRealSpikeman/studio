@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, BookUser, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpenCheck, CreditCard, BarChart3, GitBranch, MessageSquareText, ExternalLink } from 'lucide-react';
+import { ArrowLeft, BookUser, Users, Brain, LayoutDashboard, ShieldCheck, HeartHandshake, BookOpenCheck, CreditCard, BarChart3 as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function PlatformGuidePage() {
@@ -126,7 +126,7 @@ export default function PlatformGuidePage() {
         
         <AccordionItem value="item-coaching-hub">
           <AccordionTrigger className="text-xl font-semibold p-4 bg-muted/50 rounded-t-lg">
-             <div className="flex items-center gap-2"><MessageSquareText className="h-6 w-6 text-primary" />Coaching Hub & Leerling Tools</div>
+             <div className="flex items-center gap-2"><MessageSquare className="h-6 w-6 text-primary" />Coaching Hub & Leerling Tools</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
             <p>De kern van de waarde voor de leerling, na de initiële assessment.</p>
@@ -140,7 +140,7 @@ export default function PlatformGuidePage() {
         
         <AccordionItem value="item-data-flow">
           <AccordionTrigger className="text-xl font-semibold p-4 bg-muted/50 rounded-t-lg">
-             <div className="flex items-center gap-2"><BarChart3 className="h-6 w-6 text-primary" />Data & Inzichten Flow</div>
+             <div className="flex items-center gap-2"><FileBarChart className="h-6 w-6 text-primary" />Data & Inzichten Flow</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
             <p>Het proces van data naar waardevol inzicht is een cruciale, tweeledige AI-operatie:</p>

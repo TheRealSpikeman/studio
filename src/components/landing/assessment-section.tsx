@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, BarChart3, Target, TrendingUp, Brain, Compass, Clock, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react'; 
+import { FileText, FileBarChart, Target, TrendingUp, Brain, Compass, Clock, ShieldCheck, CheckCircle2, ArrowRight } from '@/lib/icons';
 
 export function AssessmentSection() {
   return (
@@ -30,7 +30,7 @@ export function AssessmentSection() {
             
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <BarChart3 className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
+                <FileBarChart className="h-7 w-7 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <strong className="text-foreground">Persoonlijk Profiel</strong>
                   <p className="text-muted-foreground">Duidelijkheid over leerstijl, unieke sterktes, en typische voorkeuren.</p>
@@ -89,7 +89,7 @@ export function AssessmentSection() {
                 
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <BarChart3 className="h-6 w-6 text-primary" />
+                    <FileBarChart className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <strong className="text-foreground">Direct Inzicht</strong>

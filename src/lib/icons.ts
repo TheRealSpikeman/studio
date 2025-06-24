@@ -4,7 +4,6 @@
 export {
   // === LAYOUT & NAVIGATION ===
   LayoutDashboard,
-  Home,
   Menu,
   ChevronDown,
   ChevronLeft,
@@ -18,6 +17,7 @@ export {
   X,
   
   // === MAIN CATEGORIES & ICONS ===
+  Home,
   BookOpen,
   BookOpenCheck,
   BookUser,
@@ -77,5 +77,44 @@ export {
   
   // === BUSINESS/PAYMENT ===
   CreditCard,
+
+  // === OTHER ICONS USED ===
+  Activity,
+  Check,
+  Cpu,
+  Globe,
+  Handshake,
+  Mail,
+  Phone,
+  Target,
+  AlertTriangle,
+  Lightbulb,
+  Search,
+  CheckCircle2,
+  Lock,
+  PauseCircle,
+  Fingerprint,
+  Waves,
+  Sun,
+  Gauge,
+  BarChart,
+  NotebookText,
+  Gamepad2,
+  ShieldBan,
+  Star,
+  Eye,
+  EyeOff,
+  Wand2,
+  KeyRound,
+  MapPin,
+  ImageUp,
+  Trash2,
+  Save,
+  Info,
+  Hourglass,
+  Edit3,
+  Repeat,
+  Compass,
+  PieChart
   
 } from 'lucide-react';

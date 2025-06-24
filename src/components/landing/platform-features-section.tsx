@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, ShieldCheck, Zap, Brain, GraduationCap, ExternalLink, ArrowRight, Search } from 'lucide-react';
+import { MessageSquare, BookOpenCheck, FileBarChart, ShieldCheck, Zap, Brain, GraduationCap, ArrowRight, Search } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 interface Feature {
@@ -49,7 +49,7 @@ const platformFeatures: Feature[] = [
     colorClass: 'bg-teal-50 border-teal-200 hover:shadow-teal-100',
   },
   {
-    icon: <MessageSquareText className="h-10 w-10 text-primary" />,
+    icon: <MessageSquare className="h-10 w-10 text-primary" />,
     title: 'Ouder Dashboard & Communicatie',
     descriptionFull: 'Krijg via uw eigen portaal (met toestemming) inzicht in de voortgang, beheer abonnementen en communiceer met begeleiders.',
     link: '/dashboard/ouder',
@@ -109,7 +109,7 @@ export function PlatformFeaturesSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <div className="p-8 md:p-10 lg:p-12">
               <div className="flex items-center gap-3 mb-3">
-                <BarChart3 className="h-10 w-10 text-primary" />
+                <FileBarChart className="h-10 w-10 text-primary" />
                 <h3 className="text-2xl font-bold text-foreground">Uw Ouder Dashboard: Inzicht &amp; Controle</h3>
               </div>
               <p className="text-muted-foreground mb-4 text-base leading-relaxed">

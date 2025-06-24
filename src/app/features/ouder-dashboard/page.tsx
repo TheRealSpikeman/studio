@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MessageSquareText, Brain, Zap, BookOpenCheck, GraduationCap, ShieldCheck, ExternalLink, ArrowRight, Users, BarChart3, CreditCard, CheckCircle2, Lightbulb, Sparkles } from 'lucide-react';
+import { MessageSquare, Brain, Zap, BookOpenCheck, GraduationCap, ShieldCheck, ExternalLink, ArrowRight, Users, BarChart3, CreditCard, CheckCircle2, Lightbulb, Sparkles } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 const allFeatures = [
@@ -15,7 +15,7 @@ const allFeatures = [
   { title: 'Coaching & Tools voor Groei', link: '/features/coaching-en-tools', icon: Zap },
   { title: 'Huiswerkondersteuning', link: '/features/huiswerkondersteuning', icon: BookOpenCheck },
   { title: '1-op-1 Begeleiding (Optioneel)', link: '/features/een-op-een-begeleiding', icon: GraduationCap },
-  { title: 'Ouder Dashboard & Communicatie', link: '/features/ouder-dashboard', icon: MessageSquareText },
+  { title: 'Ouder Dashboard & Communicatie', link: '/features/ouder-dashboard', icon: MessageSquare },
   { title: 'Veilig & Deskundig Platform', link: '/features/veilig-platform', icon: ShieldCheck },
 ];
 
@@ -49,7 +49,7 @@ const ouderDashboardFeatures = [
 
 export default function OuderDashboardPage() {
   const featureTitle = "Ouder Dashboard & Communicatie";
-  const FeatureIcon = MessageSquareText;
+  const FeatureIcon = MessageSquare;
   const currentLink = "/features/ouder-dashboard";
 
   const otherFeatures = allFeatures.filter(feature => feature.link !== currentLink);
