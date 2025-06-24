@@ -135,10 +135,10 @@ export default function KindVoortgangPage() {
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   const handleGenereerVergelijkendAdvies = async () => {
-    if (!childData || !childData.parentObservationsSummary || childData.recentQuizzes.length === 0 || !childData.recentQuizzes[0].isShared) {
+    if (!childData || !childData.parentObservationsSummary || childData.recentQuizzes.length === 0 || !childData.recentQuizzes.some(q => q.isShared)) {
       toast({
         title: "Onvoldoende gegevens",
-        description: "Zorg ervoor dat de 'Ken je Kind' quiz is voltooid en de resultaten van de kind-zelfreflectie gedeeld zijn.",
+        description: "Zorg ervoor dat de 'Ken je Kind' quiz is voltooid en de resultaten van minimaal één kind-zelfreflectie gedeeld zijn.",
         variant: "destructive"
       });
       return;
@@ -150,7 +150,7 @@ export default function KindVoortgangPage() {
         childName: childData.name,
         childAgeGroup: childData.ageGroup || "onbekend",
         parentObservations: childData.parentObservationsSummary,
-        childSelfReflection: childData.recentQuizzes[0].summary, // Neem de meest recente gedeelde quiz
+        childSelfReflection: childData.recentQuizzes.find(q => q.isShared)!.summary,
       };
       const result = await compareParentChildInsights(input);
       setVergelijkendAdvies(result.parentingAdvice);
@@ -227,7 +227,7 @@ export default function KindVoortgangPage() {
                       <br />
                       <Button asChild variant="link" className="p-0 h-auto mt-1 text-blue-700 hover:text-blue-800">
                           <Link href={`/quiz/ouder-symptomen-check?kindId=${childData.id}`}>
-                              Start "Ken je Kind" test
+                              Start de vragenlijst (voor u als ouder)
                           </Link>
                       </Button>
                     </AlertDescUi>
