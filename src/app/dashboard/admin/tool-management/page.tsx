@@ -25,7 +25,7 @@ export default function ToolManagementPage() {
       if (storedToolsRaw) {
         setTools(JSON.parse(storedToolsRaw));
       } else {
-        // If nothing in storage, initialize with default tools
+        // If nothing in storage, initialize with default tools from the central file
         setTools(allTools);
         localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(allTools));
       }
@@ -91,14 +91,10 @@ export default function ToolManagementPage() {
             <TableBody>
               {filteredTools.map(tool => {
                 const Icon = getToolIconComponent(tool.icon);
-                if (!Icon) {
-                  console.warn(`Icon component for "${tool.icon}" not found.`);
-                  return null; 
-                }
                 return (
                   <TableRow key={tool.id}>
                     <TableCell className="font-medium flex items-center gap-2">
-                      <Icon className="h-5 w-5 text-primary" />
+                      {Icon && <Icon className="h-5 w-5 text-primary" />}
                       {tool.title}
                     </TableCell>
                     <TableCell><Badge variant="outline">{tool.category}</Badge></TableCell>
@@ -114,7 +110,7 @@ export default function ToolManagementPage() {
             </TableBody>
           </Table>
            <p className="mt-6 text-sm text-muted-foreground italic">
-            Tools worden nu beheerd via `localStorage` van uw browser. Bewerkfunctionaliteit is in ontwikkeling.
+            Tools worden nu beheerd via `localStorage` van uw browser. De standaardlijst komt uit de codebase.
           </p>
         </CardContent>
       </Card>

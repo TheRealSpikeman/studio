@@ -40,7 +40,7 @@ const toolFormSchema = z.object({
   }),
 });
 
-type ToolFormData = z.infer<typeof toolFormSchema>;
+export type ToolFormData = z.infer<typeof toolFormSchema>;
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
@@ -95,15 +95,14 @@ export function ToolCreatorForm() {
         return;
     }
     
-    // We can't actually store a React component in JSON. So for localStorage, we'll store the icon name.
-    const toolForStorage = {
+    const toolForStorage: Tool = {
         ...data,
-        icon: data.icon, // Keep the string name for storage
+        icon: data.icon, // Store the string name for consistency
     };
 
     try {
         const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
-        const existingTools = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
+        const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
         
         if (existingTools.some((t: any) => t.id === toolForStorage.id)) {
              toast({ title: "Fout", description: `Een tool met ID "${toolForStorage.id}" bestaat al.`, variant: "destructive" });

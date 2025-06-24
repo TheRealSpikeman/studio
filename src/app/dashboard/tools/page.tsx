@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { allTools, calculateToolRecommendations, type ToolScores } from '@/lib/quiz-data/tools-data';
+import { allTools, calculateToolRecommendations, type ToolScores, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { ArrowRight, Wrench, Lightbulb } from 'lucide-react';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 
@@ -36,7 +36,9 @@ export default function RecommendedToolsPage() {
       {recommendedTools.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recommendedTools.map((tool) => {
-            const Icon = tool.icon;
+            const Icon = getToolIconComponent(tool.icon);
+            if (!Icon) return null; // Skip rendering if icon component is not found
+
             return (
               <Card key={tool.id} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
                 <CardHeader>
