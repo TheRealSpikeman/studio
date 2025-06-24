@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, ClipboardList, FileBarChart, BookOpenCheck } from '@/lib/icons';
+import { MessageSquare, TrendingUp, ClipboardList, FileBarChart, BookOpenCheck, Wrench } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -75,11 +75,11 @@ export default function LeerlingDashboardPage() {
       },
       {
         id: 'tools',
-        title: 'Tools & Oefeningen',
-        description: 'Ontdek planners, timers en andere handige tools die je helpen met focus en organisatie.',
-        icon: BookOpenCheck,
-        link: '/dashboard/coaching',
-        buttonText: 'Bekijk alle Tools',
+        title: 'Jouw Aanbevolen Tools',
+        description: 'Ontdek planners, timers en andere handige tools die passen bij jouw profiel en je helpen met focus en organisatie.',
+        icon: Wrench,
+        link: '/dashboard/tools',
+        buttonText: 'Bekijk aanbevolen Tools',
         buttonVariant: 'outline',
         colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
       }

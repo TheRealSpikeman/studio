@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -13,8 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import React, { useState, useEffect, Fragment, useMemo } from 'react';
-import { BarChart as BarChartHorizontal } from 'lucide-react'; // Direct import fix
-import { 
+import {
   LayoutDashboard, ClipboardList, FileBarChart, MessageSquare, User, Settings, 
   Users as UsersIconLucide, BookOpenCheck, Briefcase, Euro, ListChecks, FilePlus, 
   FileEdit, MessagesSquare as MessagesSquareIcon, Shuffle, Clock, 
@@ -30,7 +28,7 @@ import {
   ScrollText, Search, Send, Separator, Shield, ShieldAlert, ShieldBan,
   ShoppingBag, ShoppingCart, Siren, Smile, Star, Stethoscope, Sun, SunMedium,
   Target, Telescope, ThumbsUp, Timer, Trash, Trash2, Trophy, Upload, Video,
-  Wallet, Waves, X, XCircle
+  Wallet, Waves, X, XCircle, BarChartHorizontal
 } from '@/lib/icons'; 
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
@@ -64,7 +62,7 @@ const navItems: NavItem[] = [
     leerlingOnly: true,
     children: [
       { href: '/dashboard/coaching', label: 'Dagelijkse Coaching', icon: MessageSquare, parent: '#coaching-tools-parent' },
-      { href: '/dashboard/tools', label: 'Alle Tools', icon: Wrench, parent: '#coaching-tools-parent' },
+      { href: '/dashboard/tools', label: 'Aanbevolen Tools', icon: Wrench, parent: '#coaching-tools-parent' },
       { href: '/dashboard/coaching/settings', label: 'Instellingen', icon: Settings, parent: '#coaching-tools-parent' },
     ]
   },
