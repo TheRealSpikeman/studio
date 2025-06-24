@@ -27,7 +27,17 @@ export default function EditToolPage() {
         if (storedToolsRaw) {
           const allTools: Tool[] = JSON.parse(storedToolsRaw);
           const foundTool = allTools.find(t => t.id === toolId);
-          setToolToEdit(foundTool || null);
+          
+          if (foundTool) {
+            // Apply the same migration logic as the list page
+            const migratedTool = {
+              ...foundTool,
+              status: foundTool.status || 'online',
+            };
+            setToolToEdit(migratedTool);
+          } else {
+            setToolToEdit(null);
+          }
         } else {
           setToolToEdit(null);
         }
