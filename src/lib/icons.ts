@@ -1,230 +1,84 @@
 // src/lib/icons.ts
-/**
- * Definitieve icon exports voor MindNavigator
- * 
- * ALLE icons in dit bestand zijn gevalideerd en bestaan in lucide-react
- * Inclusief ALLE icons gebruikt in dashboard-sidebar.tsx
- */
+// DEFINITIEVE FIX - Alle icons die de app gebruikt, met robuuste aliassen.
+
+import {
+  Activity, AlertCircle, AlertTriangle, Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Award, BarChart, Bell, BookHeart, BookOpen, Bookmark, Bot, Brain, BrainCircuit, Briefcase,
+  Cake, Calendar, CalendarDays, CalendarPlus, Camera, Check, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, ClipboardList, Clock, Coffee, Compass,
+  Contact, Cookie, Copy, Copyright, Cpu, CreditCard, Database, Download, Edit, Edit2, Edit3, Euro, ExternalLink, Eye, EyeOff, Facebook, File, FileEdit, FilePlus,
+  FileText, Filter, Fingerprint, Flag, Folder, FolderOpen, Gamepad2, Gauge, Gavel, GitBranch, Globe, GraduationCap, Handshake, Hash, Heart, HelpCircle, Home,
+  Hourglass, Image, ImageUp, Info, Instagram, KeyRound, Languages, LayoutDashboard, LifeBuoy, Lightbulb, LineChart, Link, Link2Off, Linkedin, List, ListChecks,
+  ListTodo, Loader2, Lock, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, MessageCircleQuestion, MessageSquare, Mic, MicOff, Milestone, Minus, Monitor, Moon,
+  MoreVertical, MousePointerClick, Navigation, NotebookPen, Package, Pause, PauseCircle, Pencil, Percent, Phone, PieChart, Play, PlayCircle, Plus, PlusCircle, Power,
+  Puzzle, RefreshCw, Repeat, Rocket, RotateCcw, Save, Scale, School, ScrollText, Search, Send, SeparatorHorizontal, SeparatorVertical, Settings, Settings2, Share2,
+  Shield, ShieldAlert, ShieldBan, ShoppingBag, ShoppingCart, Shuffle, Siren, SlidersHorizontal, Smile, Sparkles, Star, Stethoscope, Stop, Sun, SunMedium, Target, Telescope,
+  ThumbsUp, Timer, Trash, Trash2, TrendingDown, Trophy, Twitter, Upload, User, UserCircle, UserPlus, UserX, Users, Video, Volume2, VolumeOff, Wallet, Wand2, Waves,
+  Wrench, X, XCircle,
+} from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
+
+// =======================================================
+// === HANDMATIGE ALIASES VOOR RUNTIME COMPATIBILITEIT ===
+// =======================================================
+// Dit lost "ReferenceError: ... is not defined" op.
+
+// Dashboard-sidebar.tsx aliases:
+export const FileBarChart = BarChart;
+export const UsersIconLucide = Users;
+export const BookOpenCheck = BookOpen;
+export const MessagesSquareIcon = MessageSquare;
+export const HeartHandshake = Handshake;
+export const CalendarClock = Calendar;
+export const BookUser = BookOpen;
+export const PanelLeft = Menu;
+export const SaveIcon = Save;
+export const BarChartHorizontal = BarChart;
+
+// Andere veelgebruikte aliases:
+export const UserCheck = User;
+export const ShieldCheck = Shield;
+export const Link2 = ExternalLink;
+export const BarChart3 = BarChart;
+export const BarChartBig = BarChart;
+export const CalendarIcon = Calendar;
+export const CheckCircle2 = CheckCircle;
+export const ClipboardCheck = ClipboardList;
+export const ClockIcon = Clock;
+export const SettingsIcon = Settings;
+export const UserIcon = User;
+export const Users2 = Users;
+export const UsersIcon = Users;
+export const Edit2Icon = Edit2;
+export const FileTextIcon = FileText;
+export const PlusCircleIcon = PlusCircle;
+export const LinkIcon = Link;
+export const MessageSquareHeart = Heart;
+export const MessageSquarePlus = MessageSquare;
+export const MessageSquareText = MessageSquare;
+export const Separator = SeparatorHorizontal;
+
+// Fallback voor ontbrekend icon
+export const TrendingUp = ArrowUp;
+
+// Type export voor TypeScript
+export type IconType = ComponentType<SVGProps<SVGSVGElement>>;
+
+
+// ===========================================
+// === HOOFD EXPORT BLOK VOOR TREE-SHAKING ===
+// ===========================================
+// Exporteert alle geldige icons uit lucide-react plus de Separator alias.
 
 export {
-  // ===== ALLE CORE ICONS GEBRUIKT IN DASHBOARD-SIDEBAR =====
-  LayoutDashboard,
-  ClipboardList, 
-  MessageSquare,
-  MessagesSquare, // Added for MessagesSquareIcon alias
-  User,
-  Settings,
-  Users,
-  Briefcase,
-  Euro,
-  ListChecks,
-  FilePlus,
-  FileEdit,
-  Shuffle,
-  Clock,
-  HelpCircle,
-  CreditCard,
-  ArrowUp as TrendingUp,  // <-- FIX: Using ArrowUp as a replacement for the non-existent TrendingUp
-  Package,
-  PlayCircle,
-  GitBranch,
-  Bot,
-  Zap,
-  Wrench,
-  CalendarPlus,
-  CalendarDays,
-  Calendar,
-  GraduationCap,
-  BookHeart,
-  Activity,
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  BarChart,
-  CheckCircle,
-  Circle,
-  Compass,
-  Download,
-  Eye,
-  EyeOff,
-  FileText,
-  Filter,
-  Folder,
-  FolderOpen,
-  Gavel,
-  Handshake,
-  Heart,
-  Home,
-  Hourglass,
-  ImageUp,
-  Info,
-  KeyRound,
-  Languages,
-  Lightbulb,
-  Link,
-  Link2Off,
-  LogOut,
-  Mail,
-  MapPin,
-  Menu,
-  Mic,
-  Moon,
-  MoreVertical,
-  MousePointerClick,
-  Navigation,
-  NotebookPen,
-  PauseCircle,
-  Percent,
-  Phone,
-  PieChart,
-  Power,
-  Puzzle,
-  RefreshCw,
-  Repeat,
-  Rocket,
-  Save,
-  School,
-  ScrollText,
-  Search,
-  Send,
-  SeparatorHorizontal,
-  SeparatorVertical,
-  Shield,
-  ShieldAlert,
-  ShieldBan,
-  ShoppingBag,
-  ShoppingCart,
-  Siren,
-  Smile,
-  Star,
-  Stethoscope,
-  Sun,
-  SunMedium,
-  Target,
-  Telescope,
-  ThumbsUp,
-  Timer,
-  Trash,
-  Trash2,
-  Trophy,
-  Upload,
-  Video,
-  Wallet,
-  Waves,
-  X,
-  XCircle,
-
-  // ===== EXTRA BELANGRIJKE ICONS =====
-  ArrowDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  ChevronDown,
-  ExternalLink,
-  Plus,
-  Minus,
-  Edit,
-  Edit2,
-  Edit3,
-  Check,
-  Bell,
-  Globe,
-  Copy,
-  Share2,
-  Loader2,
-  TrendingDown,
-  LineChart,
-  Database,
-  Lock,
-  Brain,
-  BrainCircuit,
-  Sparkles,
-  Award,
-  BookOpen,
-  File,
-  Image,
-  Camera,
-  MicOff,
-  Volume2,
-  VolumeOff,
-  Play,
-  Bookmark,
-  Flag,
-  Gauge,
-  Fingerprint,
-  UserCircle,
-  UserPlus,
-  UserX,
-  MessageCircle,
-  MailCheck,
-  PlusCircle,
-  List,
-  ListTodo,
-  Pencil,
-  Hash,
-  Scale,
-  Monitor,
-  Cpu,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Twitter,
-  LifeBuoy,
-  Cookie,
-  Copyright,
-  Contact,
-  Archive,
-  Library,
-  Milestone,
-  Wand2,
-  Coffee,
-  Cake,
-  Gamepad2,
-  SlidersHorizontal,
-  Settings2,
-  RotateCcw,
-
-  // ===== LAYOUT & STRUCTURE =====
-  // LayoutGrid as Grid3X3, // Use LayoutGrid if needed
-  SeparatorHorizontal as Separator,
-
-  // ===== ALLE ALIASES VOOR BACKWARDS COMPATIBILITY =====
-  // Dashboard-sidebar.tsx gebruikt deze specifieke aliases:
-  BarChart as FileBarChart,
-  Users as UsersIconLucide,
-  BookOpen as BookOpenCheck,
-  MessagesSquare as MessagesSquareIcon,
-  Handshake as HeartHandshake,
-  Calendar as CalendarClock,
-  MessageCircle as MessageCircleQuestion,
-  BookOpen as BookUser,
-  Menu as PanelLeft,
-  Save as SaveIcon,
-  BarChart as BarChartHorizontal,
-  
-  // Extra aliases voor backwards compatibility
-  User as UserCheck,
-  Shield as ShieldCheck,
-  ExternalLink as Link2,
-  BarChart as BarChart3,
-  BarChart as BarChartBig,
-  Calendar as CalendarIcon,
-  CheckCircle as CheckCircle2,
-  ClipboardList as ClipboardCheck,
-  Clock as ClockIcon,
-  Settings as SettingsIcon,
-  User as UserIcon,
-  Users as Users2,
-  Users as UsersIcon,
-  Edit2 as Edit2Icon,
-  FileText as FileTextIcon,
-  PlusCircle as PlusCircleIcon,
-  Link as LinkIcon,
-  Heart as MessageSquareHeart,
-  MessageSquare as MessageSquarePlus,
-  MessageSquare as MessageSquareText,
-
-} from 'lucide-react';
-
-// Type export for TypeScript
-export type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  // Directe exports uit lucide-react
+  Activity, AlertCircle, AlertTriangle, Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Award, BarChart, Bell, BookHeart, BookOpen, Bookmark, Bot, Brain, BrainCircuit, Briefcase,
+  Cake, Calendar, CalendarDays, CalendarPlus, Camera, Check, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, ClipboardList, Clock, Coffee, Compass,
+  Contact, Cookie, Copy, Copyright, Cpu, CreditCard, Database, Download, Edit, Edit2, Edit3, Euro, ExternalLink, Eye, EyeOff, Facebook, File, FileEdit, FilePlus,
+  FileText, Filter, Fingerprint, Flag, Folder, FolderOpen, Gamepad2, Gauge, Gavel, GitBranch, Globe, GraduationCap, Handshake, Hash, Heart, HelpCircle, Home,
+  Hourglass, Image, ImageUp, Info, Instagram, KeyRound, Languages, LayoutDashboard, LifeBuoy, Lightbulb, LineChart, Link, Link2Off, Linkedin, List, ListChecks,
+  ListTodo, Loader2, Lock, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, MessageCircleQuestion, MessageSquare, Mic, MicOff, Milestone, Minus, Monitor, Moon,
+  MoreVertical, MousePointerClick, Navigation, NotebookPen, Package, Pause, PauseCircle, Pencil, Percent, Phone, PieChart, Play, PlayCircle, Plus, PlusCircle, Power,
+  Puzzle, RefreshCw, Repeat, Rocket, RotateCcw, Save, Scale, School, ScrollText, Search, Send, SeparatorHorizontal, SeparatorVertical, Settings, Settings2, Share2,
+  Shield, ShieldAlert, ShieldBan, ShoppingBag, ShoppingCart, Shuffle, Siren, SlidersHorizontal, Smile, Sparkles, Star, Stethoscope, Stop, Sun, SunMedium, Target, Telescope,
+  ThumbsUp, Timer, Trash, Trash2, TrendingDown, Trophy, Twitter, Upload, User, UserCircle, UserPlus, UserX, Users, Video, Volume2, VolumeOff, Wallet, Wand2, Waves,
+  Wrench, X, XCircle
+};
