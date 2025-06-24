@@ -1,17 +1,15 @@
-
+// src/app/dashboard/layout.tsx
 "use client";
 
 import { DashboardSidebar, SidebarNavContent } from '@/components/layout/dashboard-sidebar';
-import React, { ReactNode, useEffect, useState } from 'react'; 
+import type { ReactNode } from 'react'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LogOut, UserCircle, PanelLeft } from 'lucide-react'; 
 import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
-import { usePathname, useRouter } from 'next/navigation'; 
-import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation'; 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 // The role-specific data can remain here as it's for the header display
@@ -65,7 +63,7 @@ function DashboardHeader() {
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-end">
             <p className="text-sm font-medium">Welkom, {userName}!</p>
-            <p className="text-xs text-muted-foreground">{userEmail} (Actieve rol: {currentDashboardRole})</p>
+            <p className="text-xs text-muted-foreground">Actieve rol: {currentDashboardRole}</p>
         </div>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -104,9 +102,8 @@ function DashboardHeader() {
   );
 }
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-  return (
-    <DashboardRoleProvider>
+function InnerLayout({ children }: { children: ReactNode }) {
+    return (
         <div className="flex min-h-screen w-full bg-muted/40">
           <DashboardSidebar />
           <div className="flex flex-1 flex-col md:ml-72">
@@ -116,6 +113,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </main>
           </div>
         </div>
+    )
+}
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <DashboardRoleProvider>
+        <InnerLayout>{children}</InnerLayout>
     </DashboardRoleProvider>
   );
 }

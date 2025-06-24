@@ -1,13 +1,16 @@
-
 // src/app/dashboard/ouder/page.tsx
 "use client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Users, Settings, BookOpenCheck, Euro, FileBarChart, CalendarClock, CalendarPlus, ShieldCheck, MessagesSquare, Link2, UserCheck } from '@/lib/icons';
-import Link from 'next/link';
+
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react'; 
+import { useEffect } from 'react'; 
 import { useRouter } from 'next/navigation'; 
+import { 
+    Users, Settings, Euro, CalendarClock, CalendarPlus, 
+    ShieldCheck, MessagesSquare, Link2, UserCheck 
+} from '@/lib/icons';
 
 interface DashboardItem {
   id: string;
@@ -23,7 +26,6 @@ interface DashboardItem {
   colorClass?: string;
 }
 
-// Dummy data for statistics - replace with actual data fetching later
 const dummyFamilyLessonStats = {
   geplandeLessenDezeWeek: 5,
   voltooideLessenTotaal: 23,
@@ -151,22 +153,15 @@ const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 
 export default function OuderDashboardPage() {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-
+  
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient && typeof window !== 'undefined') {
-      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_OUDER);
-      if (!onboardingCompleted) {
-        router.replace('/dashboard/ouder/welcome');
-      }
+    const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_OUDER);
+    if (!onboardingCompleted) {
+      router.replace('/dashboard/ouder/welcome');
     }
-  }, [isClient, router]);
-
-  if (isClient && typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_OUDER)) {
+  }, [router]);
+  
+  if (typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY_OUDER)) {
     return <div className="flex h-full w-full items-center justify-center p-8">Welkomstpagina laden...</div>;
   }
   

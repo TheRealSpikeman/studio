@@ -1,8 +1,8 @@
-
+// src/components/layout/dashboard-sidebar.tsx
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { SiteLogo } from '@/components/common/site-logo';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -42,7 +42,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard/leerling/welcome', label: 'Welkom!', icon: PlayCircle, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
+  { href: '/dashboard/leerling', label: 'Dashboard', icon: LayoutDashboard, leerlingOnly: true },
   { href: '/dashboard/leerling/quizzes', label: 'Zelfreflectie Tools', icon: ClipboardList, leerlingOnly: true },
   { href: '/dashboard/results', label: 'Mijn Resultaten', icon: FileBarChart, leerlingOnly: true },
   {
@@ -177,6 +177,7 @@ const navItems: NavItem[] = [
 
 export function SidebarNavContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole();
   const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true);
   const [isLeerlingOnboardingPending, setIsLeerlingOnboardingPending] = useState(true);
@@ -186,7 +187,7 @@ export function SidebarNavContent() {
       setIsOuderOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_OUDER) === 'true'));
       setIsLeerlingOnboardingPending(!(localStorage.getItem(ONBOARDING_KEY_LEERLING) === 'true'));
     }
-  }, []);
+  }, [currentDashboardRole]); // Rerun when role changes to get correct onboarding status
 
   const filteredNavItems = useMemo(() => {
     return navItems.filter(item => {
@@ -203,12 +204,12 @@ export function SidebarNavContent() {
       if (!isForCurrentRole) return false;
 
       if (currentDashboardRole === 'ouder') {
-        if (item.isOuderOnboardingLink !== isOuderOnboardingPending) return false;
-        if (!item.isOuderOnboardingLink && isOuderOnboardingPending) return false;
+        if (item.isOuderOnboardingLink) return isOuderOnboardingPending;
+        if (!item.isOuderOnboardingLink && item.ouderOnly) return !isOuderOnboardingPending;
       }
       if (currentDashboardRole === 'leerling') {
-        if (item.href === '/dashboard/leerling/welcome' && !isLeerlingOnboardingPending) return false;
-        if (!['/dashboard/leerling/welcome', '/dashboard/profile'].includes(item.href) && isLeerlingOnboardingPending) return false;
+        if (item.href === '/dashboard/leerling/welcome') return isLeerlingOnboardingPending;
+        if (item.href !== '/dashboard/leerling/welcome' && item.leerlingOnly) return !isLeerlingOnboardingPending;
       }
       return true;
     });
@@ -222,6 +223,11 @@ export function SidebarNavContent() {
   }, [pathname, filteredNavItems]);
 
   let currentSectionTitleDisplayed: string | null = null;
+  
+  const handleRoleChange = (role: UserRoleType) => {
+    setCurrentDashboardRole(role);
+    router.push(`/dashboard/${role}`);
+  };
 
   return (
     <>
@@ -232,7 +238,7 @@ export function SidebarNavContent() {
             <Shuffle className="h-3 w-3" />
             Testrol Wisselaar
           </Label>
-          <Select value={currentDashboardRole} onValueChange={(value: UserRoleType) => setCurrentDashboardRole(value)}>
+          <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
             <SelectTrigger id="role-switcher" aria-label="Selecteer een rol">
               <SelectValue placeholder="Selecteer een rol" />
             </SelectTrigger>

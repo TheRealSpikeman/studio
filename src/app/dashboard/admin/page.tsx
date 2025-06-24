@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from 'lucide-react'; // Changed DollarSign to Euro
+import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from 'lucide-react';
 
 // Dummy data for KPIs - replace with actual data fetching
 const kpiData = {
@@ -12,7 +12,7 @@ const kpiData = {
   sessionsToday: 32,
 };
 
-export default function AdminDashboardOverviewPage() {
+export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <section>
