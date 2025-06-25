@@ -24,8 +24,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Link from "next/link";
 import { FocusTimer } from '@/components/tools/FocusTimer';
 import { ConcentrationGames } from '@/components/tools/ConcentrationGames';
-import { DistractionBlocker } from '@/components/tools/DistractionBlocker'; // Nieuwe import
+import { DistractionBlocker } from '@/components/tools/DistractionBlocker';
 import { Switch } from '@/components/ui/switch';
+// NEW IMPORTS
+import { generateReactComponent } from '@/ai/flows/generate-react-component-flow';
+import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -61,6 +66,9 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  // NEW STATE
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -106,12 +114,40 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     }
   };
 
-  const handleGenerateToolComponent = () => {
+  // UPDATED FUNCTION
+  const handleGenerateToolComponent = async () => {
+    if (!initialData) {
+      toast({ title: "Fout", description: "Sla de tool eerst op voordat je een component genereert.", variant: "destructive"});
+      return;
+    };
+    
+    setIsGenerating(true); // Reuse isGenerating state for loading
     toast({
-        title: "Tool generatie gestart (simulatie)",
-        description: `De AI begint nu met het bouwen van de component voor: ${initialData?.title}. Dit is een placeholder actie.`
+        title: "Tool generatie gestart...",
+        description: `De AI begint nu met het bouwen van de component voor: ${initialData.title}.`
     });
-    // In a real app, this would trigger a complex AI flow to generate and write a new file.
+    
+    try {
+        const result = await generateReactComponent({
+            title: initialData.title,
+            description: initialData.description,
+        });
+        setGeneratedCode(result.componentCode);
+        setIsCodeModalOpen(true);
+        toast({
+            title: "Component gegenereerd!",
+            description: "De code voor je component is klaar. Je kunt het nu kopiëren.",
+        });
+    } catch (error) {
+        console.error("AI component generation failed", error);
+        toast({
+            title: "Fout bij genereren",
+            description: "Kon de component code niet genereren.",
+            variant: "destructive",
+        });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const renderToolPreview = () => {
@@ -150,8 +186,8 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       <div className="space-y-4">
         {previewComponent}
         <div className="border-t pt-4 text-center">
-          <Button type="button" onClick={handleGenerateToolComponent}>
-            <Bot className="mr-2 h-4 w-4" /> 
+          <Button type="button" onClick={handleGenerateToolComponent} disabled={isGenerating}>
+            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Bot className="mr-2 h-4 w-4" />}
             {componentExists ? 'Hergenereer' : 'Genereer'} Tool Component met AI
           </Button>
            <p className="text-xs text-muted-foreground mt-2">
@@ -331,6 +367,28 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* NEW DIALOG */}
+      <Dialog open={isCodeModalOpen} onOpenChange={setIsCodeModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogHeader>
+                <DialogTitle>Gegenereerde Component Code</DialogTitle>
+                <DialogDesc>
+                    Hier is de code voor je nieuwe React component. Kopieer en plak dit in een nieuw .tsx-bestand (bv. in 'src/components/tools/').
+                </DialogDesc>
+            </DialogHeader>
+            <ScrollArea className="flex-grow rounded-md border bg-slate-900 text-white font-mono text-sm p-4">
+                <pre><code>{generatedCode}</code></pre>
+            </ScrollArea>
+             <DialogFooter>
+                <Button onClick={() => {
+                  navigator.clipboard.writeText(generatedCode || "");
+                  toast({ title: "Gekopieerd!", description: "De componentcode is naar je klembord gekopieerd." });
+                }}>Kopieer Code</Button>
+                <Button variant="secondary" onClick={() => setIsCodeModalOpen(false)}>Sluiten</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
     </>
   );
 }
