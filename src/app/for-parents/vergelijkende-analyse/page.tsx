@@ -1,3 +1,4 @@
+
 // src/app/for-parents/vergelijkende-analyse/page.tsx
 "use client";
 

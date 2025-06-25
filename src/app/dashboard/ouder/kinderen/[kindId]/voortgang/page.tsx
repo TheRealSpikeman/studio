@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx
 "use client";
 

@@ -1,3 +1,4 @@
+
 // src/app/quiz/ouder-symptomen-check/results/page.tsx
 "use client";
 

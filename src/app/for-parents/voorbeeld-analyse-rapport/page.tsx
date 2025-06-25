@@ -1,3 +1,4 @@
+
 // src/app/for-parents/voorbeeld-analyse-rapport/page.tsx
 "use client";
 
