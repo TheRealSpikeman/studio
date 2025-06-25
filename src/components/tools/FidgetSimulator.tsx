@@ -1,82 +1,111 @@
-// src/components/tools/FidgetSimulator.tsx
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Puzzle, RefreshCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Plus, RefreshCw, X } from 'lucide-react';
 
-export function FidgetSimulator() {
-  const [switch1, setSwitch1] = useState(false);
-  const [switch2, setSwitch2] = useState(true);
-  const [sliderValue, setSliderValue] = useState([50]);
-  const [clickCount, setClickCount] = useState(0);
+interface FidgetItem {
+  id: string;
+  type: 'button' | 'switch';
+  state: boolean;
+}
+
+const FidgetSimulator = () => {
+  const [fidgetItems, setFidgetItems] = useState<FidgetItem[]>([
+    { id: 'button1', type: 'button', state: false },
+    { id: 'switch1', type: 'switch', state: false },
+  ]);
+  const [newItemType, setNewItemType] = useState<'button' | 'switch'>('button');
+  const [newItemId, setNewItemId] = useState<string>('');
+
+  const handleItemClick = (id: string) => {
+    setFidgetItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id && item.type === 'button' ? { ...item, state: !item.state } : item
+      )
+    );
+  };
+
+  const handleSwitchToggle = (id: string) => {
+    setFidgetItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id && item.type === 'switch' ? { ...item, state: !item.state } : item
+      )
+    );
+  };
+
+  const handleAddItem = () => {
+    if (newItemId) {
+      const newItem: FidgetItem = { id: newItemId, type: newItemType, state: false };
+      setFidgetItems([...fidgetItems, newItem]);
+      setNewItemId('');
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setFidgetItems(fidgetItems.filter((item) => item.id !== id));
+  };
 
   const handleReset = () => {
-    setSwitch1(false);
-    setSwitch2(true);
-    setSliderValue([50]);
-    setClickCount(0);
+    setFidgetItems([
+        { id: 'button1', type: 'button', state: false },
+        { id: 'switch1', type: 'switch', state: false },
+      ]);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Puzzle className="h-6 w-6 text-primary" />
-          Fidget Simulator
-        </CardTitle>
-        <CardDescription>
-          Een digitale toolkit om je handen bezig te houden en je geest te focussen.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <div className="grid grid-cols-2 gap-6 items-center">
-          <div className="flex items-center space-x-2">
-            <Switch id="fidget-switch-1" checked={switch1} onCheckedChange={setSwitch1} />
-            <Label htmlFor="fidget-switch-1">Schakelaar 1</Label>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md space-y-4 p-4">
+        <CardHeader>
+          <CardTitle>Fidget Simulator</CardTitle>
+          <CardDescription>Een verzameling digitale fidgets om je handen bezig te houden.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4">
+            {fidgetItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                {item.type === 'button' ? (
+                  <Button variant="outline" onClick={() => handleItemClick(item.id)} className={item.state ? 'bg-blue-500 text-white' : ''}>
+                    {item.id}
+                  </Button>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor={`switch-${item.id}`}>{item.id}</Label>
+                    <Switch id={`switch-${item.id}`} checked={item.state} onCheckedChange={() => handleSwitchToggle(item.id)} />
+                  </div>
+                )}
+                <Button variant="destructive" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="fidget-switch-2" checked={switch2} onCheckedChange={setSwitch2} />
-            <Label htmlFor="fidget-switch-2">Schakelaar 2</Label>
+            <Label htmlFor="new-item-id">Nieuwe Fidget ID:</Label>
+            <Input id="new-item-id" value={newItemId} onChange={(e) => setNewItemId(e.target.value)} />
+            <select value={newItemType} onChange={(e) => setNewItemType(e.target.value as 'button' | 'switch')}>
+                <option value="button">Button</option>
+                <option value="switch">Switch</option>
+            </select>
+            <Button variant="secondary" onClick={handleAddItem}>
+              <Plus className="h-4 w-4 mr-2" />
+              Toevoegen
+            </Button>
           </div>
-        </div>
-
-        <div>
-          <Label>Schuifregelaar</Label>
-          <Slider
-            value={sliderValue}
-            onValueChange={setSliderValue}
-            max={100}
-            step={1}
-            className="mt-2"
-          />
-        </div>
-
-        <div className="text-center">
-            <Button
-                onClick={() => setClickCount(prev => prev + 1)}
-                className="relative w-24 h-24 rounded-full text-lg font-bold transition-transform duration-75 active:scale-95"
-            >
-                Klik
-                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-6 w-6 flex items-center justify-center">
-                    {clickCount}
-                </span>
-            </Button>
-        </div>
-        
-        <div className="text-center border-t pt-4">
-            <Button variant="outline" onClick={handleReset}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Reset
-            </Button>
-        </div>
-
-      </CardContent>
-    </Card>
+        </CardContent>
+        <CardFooter>
+          <Button variant="ghost" onClick={handleReset}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
-}
+};
+
+export default FidgetSimulator;
