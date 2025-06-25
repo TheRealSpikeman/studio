@@ -6,7 +6,7 @@ import React, { type ReactNode, type ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
 import {
-    Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, CheckSquare, Calendar, User, Clock, MapPin, Download,
+    Target, ThumbsUp, EyeOff, MessageCircle, ClipboardList, Calendar, User, Clock, MapPin, Download,
     Lightbulb, Sparkles, Info, ArrowRight, UserCheck, Gavel, ShieldCheck, Bot, Video, BookHeart, MessageCircleQuestion, Users as UsersIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
