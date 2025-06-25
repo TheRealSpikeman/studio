@@ -2,16 +2,24 @@
 "use client"; // Make it a client component
 
 import type { ReactNode } from 'react';
-import { useDashboardRole } from '@/contexts/DashboardRoleContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function AdminDashboardLayout({ children }: { children: ReactNode }) {
-  const { currentDashboardRole } = useDashboardRole();
+  const { user, isLoading } = useAuth();
 
-  if (currentDashboardRole !== 'admin') {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (user?.role !== 'admin') {
     return (
       <div className="flex items-center justify-center p-8">
         <Card className="w-full max-w-md text-center">

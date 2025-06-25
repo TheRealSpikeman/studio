@@ -7,21 +7,13 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, Menu } from 'lucide-react'; 
+import { LogOut, UserCircle, Menu, Loader2 } from 'lucide-react'; 
 import Link from 'next/link';
-import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation'; 
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-
-// The role-specific data can remain here as it's for the header display
-const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
-  leerling: { name: "Alex Leerling", email: "alex.leerling@example.com", avatarSeed: "alex-leerling" },
-  ouder: { name: "Olivia Ouder", email: "olivia.ouder@example.com", avatarSeed: "olivia-ouder" },
-  tutor: { name: "Thomas Tutor", email: "thomas.tutor@example.com", avatarSeed: "thomas-tutor" },
-  coach: { name: "Carla Coach", email: "carla.coach@example.com", avatarSeed: "carla-coach" },
-  admin: { name: "Adam Admin", email: "adam.admin@example.com", avatarSeed: "adam-admin" },
-};
+import { Skeleton } from '@/components/ui/skeleton';
 
 function MobileSidebar() {
   const [open, setOpen] = useState(false);
@@ -48,12 +40,26 @@ function MobileSidebar() {
 }
 
 function DashboardHeader() {
-  const { currentDashboardRole } = useDashboardRole(); 
-  const currentUser = roleSpecificUserData[currentDashboardRole] || roleSpecificUserData.leerling; 
+  const { user, logout, isLoading } = useAuth(); 
 
-  const userName = currentUser.name;
-  const userEmail = currentUser.email;
-  const userAvatarUrl = `https://picsum.photos/seed/${currentUser.avatarSeed}/40/40`;
+  if (isLoading) {
+    return (
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">
+        <div className="flex-1"></div>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end">
+            <Skeleton className="h-4 w-24 mb-1" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="h-9 w-9 rounded-full" />
+        </div>
+      </header>
+    );
+  }
+
+  const userName = user?.name || 'Gast';
+  const userEmail = user?.email || '';
+  const userAvatarUrl = user?.avatarUrl;
   const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
   return (
@@ -66,7 +72,7 @@ function DashboardHeader() {
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-end">
             <p className="text-sm font-medium">Welkom, {userName}!</p>
-            <p className="text-xs text-muted-foreground">Actieve rol: {currentDashboardRole}</p>
+            <p className="text-xs text-muted-foreground">Actieve rol: {user?.role}</p>
         </div>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -94,7 +100,7 @@ function DashboardHeader() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                   <LogOut className="mr-2 h-4 w-4" />
                   Uitloggen
                 </DropdownMenuItem>
@@ -107,6 +113,22 @@ function DashboardHeader() {
 
 function InnerLayout({ children }: { children: ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+            router.replace('/login');
+        }
+    }, [isLoading, isAuthenticated, router]);
+
+    if (isLoading || !isAuthenticated) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
 
     return (
         <div className="flex min-h-screen w-full bg-muted/40">
@@ -126,8 +148,8 @@ function InnerLayout({ children }: { children: ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <DashboardRoleProvider>
+    <AuthProvider>
         <InnerLayout>{children}</InnerLayout>
-    </DashboardRoleProvider>
+    </AuthProvider>
   );
 }

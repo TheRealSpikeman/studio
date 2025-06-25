@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { useDashboardRole, type UserRoleType } from '@/contexts/DashboardRoleContext'; 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/contexts/AuthContext';
 import React, { useState, useEffect, Fragment, useMemo } from 'react';
 import {
   LayoutDashboard, 
@@ -25,7 +24,6 @@ import {
   ListChecks, 
   FilePlus, 
   FileEdit, 
-  Shuffle, 
   Clock, 
   HelpCircle, 
   CreditCard, 
@@ -40,7 +38,6 @@ import {
   BookOpen as BookUser,
   GitBranch, 
   Bot, 
-  Zap, 
   Wrench, 
   CalendarPlus, 
   Calendar as CalendarDays,
@@ -201,10 +198,12 @@ const navItems: NavItem[] = [
   { href: '/dashboard/profile', label: 'Profiel', icon: User }, 
 ];
 
+const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
+
 export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean; setIsCollapsed: (isCollapsed: boolean) => void; }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole();
+  const { user } = useAuth();
+  const currentDashboardRole = user?.role || 'leerling';
   const [isOuderOnboardingPending, setIsOuderOnboardingPending] = useState(true);
   const [isLeerlingOnboardingPending, setIsLeerlingOnboardingPending] = useState(true);
 
@@ -250,12 +249,6 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
 
   let currentSectionTitleDisplayed: string | null = null;
   
-  const handleRoleChange = (role: UserRoleType) => {
-    if (isCollapsed) setIsCollapsed(false); // Expand on role change
-    setCurrentDashboardRole(role);
-    router.push(`/dashboard/${role}`);
-  };
-
   const baseLinkClasses = "flex items-center gap-3 rounded-md w-full px-3 py-1.5 text-sm font-medium transition-colors";
   const hoverClasses = "hover:bg-[#f8f9fa] dark:hover:bg-muted";
   const activeLinkClasses = "bg-primary/10 text-primary font-semibold";
@@ -269,21 +262,19 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
             <SiteLogo isCollapsed={isCollapsed} />
         </div>
         <div className={cn("p-4 border-b shrink-0", isCollapsed && "flex justify-center")}>
-            <div className="space-y-1">
-            {!isCollapsed && <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1"><Shuffle className="h-3.5 w-3.5" />Wissel Rol (Demo)</Label>}
-            <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
-                <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className={cn("h-9", isCollapsed && "w-12 justify-center [&>span]:hidden")}>
-                <SelectValue placeholder="Selecteer een rol" />
-                </SelectTrigger>
-                <SelectContent>
-                <SelectItem value="leerling">Leerling</SelectItem>
-                <SelectItem value="ouder">Ouder</SelectItem>
-                <SelectItem value="tutor">Tutor</SelectItem>
-                <SelectItem value="coach">Coach</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-            </Select>
-            </div>
+             <div className="space-y-1 text-center">
+                {!isCollapsed && user ? (
+                    <>
+                        <p className="text-sm font-semibold truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </>
+                ) : user ? (
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatarUrl || undefined} alt={user.name} />
+                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                    </Avatar>
+                ) : null }
+             </div>
         </div>
         <ScrollArea className="flex-1">
             <nav className="p-2 space-y-0.5">
