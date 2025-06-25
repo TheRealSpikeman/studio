@@ -1,25 +1,30 @@
-import type { Metadata } from 'next';
+// src/app/layout.tsx
+"use client"; // Required for AuthProvider context to work at the root
+
+import type { ReactNode } from 'react';
 import { GeistSans } from 'geist/font/sans';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthProvider } from '@/contexts/AuthContext';
 
-export const metadata: Metadata = {
-  title: 'MindNavigator – Ontdek je unieke sterktes en uitdagingen',
-  description: 'MindNavigator helpt jou via korte quizzes, verdiepende subtests en dagelijkse coaching om je neurodiversiteitsprofiel te ontdekken en te benutten.',
-};
+// Metadata can still be defined in a Client Component Root Layout
+// export const metadata: Metadata = { ... }; 
+// To avoid build errors in this context, we will omit it for now.
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="nl">
       <body className={`${GeistSans.variable} font-sans antialiased`}>
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
