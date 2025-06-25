@@ -3,11 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { TrendingUp, Euro, Settings2, Star, Users, HeartHandshake, Brain } from 'lucide-react';
+import { TrendingUp, Euro, Settings2, Star, Users, Handshake, Brain } from 'lucide-react';
 
 const benefits = [
   {
-    icon: <HeartHandshake className="h-10 w-10 text-primary" />,
+    icon: <Handshake className="h-10 w-10 text-primary" />,
     title: 'Betekenisvol Werk',
     description: 'Begeleid jongeren in hun persoonlijke ontwikkeling en help hen hun potentieel te benutten.',
     borderColorClass: 'border-green-500',

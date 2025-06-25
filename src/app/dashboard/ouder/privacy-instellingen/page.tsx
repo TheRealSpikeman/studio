@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/privacy-instellingen/page.tsx
 "use client";
 
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2, GraduationCap, HeartHandshake, ImageUp } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, User, Eye, Users as UsersIcon, Bell, Save, Info, CalendarPlus, Share2, GraduationCap, Handshake, ImageUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 
@@ -176,7 +177,7 @@ export default function PrivacyInstellingenPage() {
               <div className="p-3 rounded-md border">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="shareResultsWithActualCoaches" className="text-base flex items-center gap-2">
-                        <HeartHandshake className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde coaches (persoonlijke begeleiding)?
+                        <Handshake className="h-4 w-4 text-muted-foreground" /> Resultaten delen met gekoppelde coaches (persoonlijke begeleiding)?
                     </Label>
                     <Switch
                     id="shareResultsWithActualCoaches"
@@ -381,4 +382,3 @@ export default function PrivacyInstellingenPage() {
     </div>
   );
 }
-

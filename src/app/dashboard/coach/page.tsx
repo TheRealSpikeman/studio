@@ -1,3 +1,4 @@
+
 // src/app/dashboard/coach/page.tsx
 "use client";
 
@@ -5,7 +6,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock, HeartHandshake, Wrench } from 'lucide-react';
+import { CalendarDays, BookOpen, Users, Settings, Euro, FileText, AlertTriangle, Briefcase, Clock, Handshake, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -117,7 +118,7 @@ export default function CoachDashboardPage() {
     <div className="space-y-8">
       <section>
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-          <HeartHandshake className="h-8 w-8 text-primary"/> Coach Dashboard
+          <Handshake className="h-8 w-8 text-primary"/> Coach Dashboard
         </h1>
         <p className="text-muted-foreground">
           Beheer hier je beschikbaarheid, geplande sessies, cliënten en profiel.

@@ -1,9 +1,10 @@
+
 // src/app/dashboard/community/page.tsx
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessagesSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles, PlusCircleIcon } from 'lucide-react';
+import { MessageSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles, PlusCircleIcon } from 'lucide-react';
 import Link from 'next/link';
 
 const placeholderCategories = [
@@ -57,7 +58,7 @@ export default function CommunityPage() {
   return (
     <div className="space-y-8">
       <section className="text-center">
-        <MessagesSquare className="mx-auto h-16 w-16 text-primary mb-4" />
+        <MessageSquare className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-3xl font-bold text-foreground">MindNavigator Community Forum</h1>
         <p className="text-lg text-muted-foreground mt-2">
           Maak contact, deel ervaringen en leer van anderen.

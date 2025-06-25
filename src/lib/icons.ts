@@ -1,8 +1,10 @@
+
 // src/lib/icons.ts
-// COMPREHENSIVE SOLUTION - Add all common aliases to prevent future errors
+// COMPREHENSIVE SOLUTION - Keep this file clean and simple.
+// It re-exports icons from lucide-react. 
+// Aliases are removed to prevent confusion and build errors.
 
 export {
-  // === EXISTING CORE ICONS (keep these) ===
   Activity,
   AlertCircle,
   AlertTriangle,
@@ -10,7 +12,6 @@ export {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  ArrowDown,
   Award,
   BarChart,
   Bell,
@@ -21,37 +22,57 @@ export {
   BrainCircuit,
   Briefcase,
   Calendar,
+  CalendarCheck,
+  CalendarClock,
   CalendarPlus,
   Check,
   CheckCircle,
+  CheckCircle2,
   CheckSquare,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   Circle,
+  ClipboardCheck,
   ClipboardList,
   Clock,
+  Coffee,
   Compass,
+  Contact,
+  Cookie,
+  Copyright,
+  Cpu,
   CreditCard,
   Database,
   Download,
   Edit,
   Edit2,
+  Edit2Icon,
   Edit3,
   Euro,
   ExternalLink,
   Eye,
   EyeOff,
+  Facebook,
+  FileBarChart,
+  FileClock,
   FileEdit,
+  FileInput,
   FilePlus,
   FileText,
   Filter,
+  Fingerprint,
+  FlaskConical,
   Folder,
   FolderOpen,
+  Gamepad2,
+  Gauge,
+  Gavel,
   GitBranch,
   Globe,
   GraduationCap,
+  GripVertical,
   Handshake,
   Hash,
   Heart,
@@ -60,14 +81,22 @@ export {
   Hourglass,
   ImageUp,
   Info,
+  Instagram,
   KeyRound,
   Languages,
+  Landmark,
   LayoutDashboard,
   Lightbulb,
+  Library,
+  LifeBuoy,
   LineChart,
   Link,
+  Link2,
+  Link2Off,
+  Linkedin,
   List,
   ListChecks,
+  ListFilter,
   ListTodo,
   Loader2,
   Lock,
@@ -78,8 +107,11 @@ export {
   Menu,
   MessageCircle,
   MessageSquare,
+  MessageSquarePlus,
+  MessageSquareText,
   MessageSquareWarning,
   Mic,
+  Milestone,
   Minus,
   Monitor,
   Moon,
@@ -98,6 +130,7 @@ export {
   PlaySquare,
   Plus,
   PlusCircle,
+  PlusCircleIcon,
   Power,
   Puzzle,
   RefreshCw,
@@ -105,6 +138,7 @@ export {
   Rocket,
   RotateCcw,
   Save,
+  SaveIcon,
   Scale,
   School,
   ScrollText,
@@ -118,6 +152,7 @@ export {
   Shield,
   ShieldAlert,
   ShieldBan,
+  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Shuffle,
@@ -127,21 +162,31 @@ export {
   Sparkles,
   Star,
   Stethoscope,
+  Store,
   Sun,
   SunMedium,
   Target,
   Telescope,
+  Terminal,
+  ThumbsDown,
   ThumbsUp,
   Timer,
   Trash,
   Trash2,
+  TrendingDown,
+  TrendingUp,
   Trophy,
+  Twitter,
   Upload,
   User,
+  User2,
+  UserCheck,
   UserCircle,
+  UserIcon,
   UserPlus,
   UserX,
   Users,
+  Users2,
   Video,
   Wallet,
   Wand2,
@@ -149,67 +194,11 @@ export {
   Wrench,
   X,
   XCircle,
+  Youtube,
   Zap,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
-
-// === ADD ALL COMMON ALIASES TO PREVENT IMPORT ERRORS ===
-// These aliases are used throughout the codebase
-
-// Chart & Analytics aliases
-export { BarChart as FileBarChart } from 'lucide-react';
-export { BarChart as BarChart3 } from 'lucide-react';
-export { BarChart as BarChartBig } from 'lucide-react';
-export { BarChart as BarChartHorizontal } from 'lucide-react';
-export { ArrowUp as TrendingUp } from 'lucide-react'; // TrendingUp doesn't exist
-
-// Status & Feedback aliases
-export { CheckCircle as CheckCircle2 } from 'lucide-react';
-export { Shield as ShieldCheck } from 'lucide-react';
-export { User as UserCheck } from 'lucide-react';
-
-// Action aliases
-export { Save as SaveIcon } from 'lucide-react';
-export { Edit2 as Edit2Icon } from 'lucide-react';
-
-// Social & Communication aliases
-export { Handshake as HeartHandshake } from 'lucide-react'; // ✅ FIX FOR CURRENT ERROR
-export { MessageSquare as MessagesSquare } from 'lucide-react';
-export { MessageSquare as MessagesSquareIcon } from 'lucide-react';
-export { MessageCircle as MessageCircleQuestion } from 'lucide-react';
-export { Heart as MessageSquareHeart } from 'lucide-react';
-
-// Navigation aliases
-export { Users as UsersIconLucide } from 'lucide-react';
-export { Menu as PanelLeft } from 'lucide-react';
-export { ExternalLink as Link2 } from 'lucide-react';
-export { Link as LinkIcon } from 'lucide-react';
-
-// Layout aliases
-export { SeparatorHorizontal as Separator } from 'lucide-react';
-export { ClipboardList as ClipboardCheck } from 'lucide-react';
-export { PlusCircle as PlusCircleIcon } from 'lucide-react';
-
-// Time & Calendar aliases
-export { Calendar as CalendarDays } from 'lucide-react';
-export { Calendar as CalendarClock } from 'lucide-react';
-export { Calendar as CalendarIcon } from 'lucide-react';
-export { Clock as ClockIcon } from 'lucide-react';
-
-// Book & Education aliases
-export { BookOpen as BookOpenCheck } from 'lucide-react';
-export { BookOpen as BookUser } from 'lucide-react';
-
-// Settings & System aliases
-export { Settings as SettingsIcon } from 'lucide-react';
-export { User as UserIcon } from 'lucide-react';
-export { Users as Users2 } from 'lucide-react';
-export { Users as UsersIcon } from 'lucide-react';
-export { FileText as FileTextIcon } from 'lucide-react';
-
-// Message variants
-export { MessageSquare as MessageSquareIcon } from 'lucide-react';
-export { MessageSquare as MessageSquarePlus } from 'lucide-react';
-export { MessageSquare as MessageSquareText } from 'lucide-react';
 
 // TypeScript type
 export type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;

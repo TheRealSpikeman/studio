@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/zoek-professional/page.tsx
 "use client";
 
@@ -9,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, User, Link2, Search, Filter, Star, Info, UserCheck, MessageSquare, FileText, GraduationCap, Users as UsersIcon, HelpCircle } from 'lucide-react';
+import { ArrowLeft, User, Link as LinkIcon, Search, Filter, Star, Info, UserCheck, MessageSquare, FileText, GraduationCap, Users as UsersIcon, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
@@ -235,7 +236,7 @@ function ZoekProfessionalContent() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div><h1 className="text-3xl font-bold text-foreground flex items-center gap-2"><Link2 className="h-8 w-8 text-primary" />Zoek Begeleiding</h1><p className="text-muted-foreground">Selecteer een kind en vind een geschikte tutor of coach.</p></div>
+        <div><h1 className="text-3xl font-bold text-foreground flex items-center gap-2"><LinkIcon className="h-8 w-8 text-primary" />Zoek Begeleiding</h1><p className="text-muted-foreground">Selecteer een kind en vind een geschikte tutor of coach.</p></div>
         <Button variant="outline" asChild><Link href="/dashboard/ouder"><ArrowLeft className="mr-2 h-4 w-4" /> Terug</Link></Button>
       </div>
       <Card className="shadow-lg"><CardHeader><CardTitle>1. Selecteer Kind</CardTitle></CardHeader>

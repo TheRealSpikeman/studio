@@ -1,3 +1,4 @@
+
 // src/app/invest/InvestmentProposal.tsx
 "use client";
 
@@ -11,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
   Brain, Users, ShieldCheck, CreditCard, ExternalLink, Search, CheckCircle2, ArrowRight,
-  TrendingUp, FileBarChart as BarChart3, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
-} from '@/lib/icons';
+  TrendingUp, BarChart, Target, AlertTriangle, Package, Check, Lightbulb, UserCheck, MessageCircle, FileText, Briefcase, Phone, Mail, Handshake, Globe, Activity, Clock, Bot, Cpu, GitBranch
+} from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -127,7 +128,7 @@ export function InvestmentProposal() {
                  </Card>
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="text-xl flex items-center gap-2"><BarChart3 className="h-6 w-6 text-primary"/>Omzetprognose</CardTitle>
+                        <CardTitle className="text-xl flex items-center gap-2"><BarChart className="h-6 w-6 text-primary"/>Omzetprognose</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <CustomBarChart data={revenueData} layout="badge" />

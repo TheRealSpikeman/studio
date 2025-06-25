@@ -1,3 +1,4 @@
+
 // src/app/dashboard/coach/students/page.tsx
 // Initial content copied from tutor/students, then adjusted for coach
 "use client";
@@ -10,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle, History, HeartHandshake } from 'lucide-react';
+import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle, History, Handshake } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
 interface ClientEntry { // Renamed from StudentEntry
@@ -106,7 +107,7 @@ export default function CoachClientsPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-          <HeartHandshake className="h-8 w-8 text-primary" />
+          <Handshake className="h-8 w-8 text-primary" />
           Mijn Cliënten
         </h1>
         <Button variant="outline" asChild>
