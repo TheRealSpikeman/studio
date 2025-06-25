@@ -18,7 +18,7 @@ interface ToolTableProps {
 }
 
 // Define which tool components are implemented.
-const existingToolComponentIds = ['focus-timer-pro', 'concentratie-games', 'distraction-blocker'];
+const existingToolComponentIds = ['focus-timer-pro', 'concentratie-games', 'distraction-blocker', 'fidget-simulator'];
 
 export function ToolTable({ tools, onDelete }: ToolTableProps) {
   const router = useRouter();
