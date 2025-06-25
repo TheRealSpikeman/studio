@@ -263,100 +263,128 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
   const sublinkInactiveClasses = "text-muted-foreground hover:text-primary";
 
   return (
-    <div className="flex h-full max-h-screen flex-col">
-      <div className={cn("flex h-16 items-center border-b shrink-0", isCollapsed ? "justify-center px-2" : "px-4")}>
-        <SiteLogo isCollapsed={isCollapsed} />
-      </div>
-      <div className="p-4 border-b shrink-0">
-        <div className="space-y-1">
-          {!isCollapsed && <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1"><Shuffle className="h-3.5 w-3.5" />Wissel Rol (Demo)</Label>}
-          <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
-            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className={cn("h-9", isCollapsed && "w-12 justify-center [&>span]:hidden")}>
-              <SelectValue placeholder="Selecteer een rol" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="leerling">Leerling</SelectItem>
-              <SelectItem value="ouder">Ouder</SelectItem>
-              <SelectItem value="tutor">Tutor</SelectItem>
-              <SelectItem value="coach">Coach</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
+    <TooltipProvider>
+        <div className="flex h-full max-h-screen flex-col">
+        <div className={cn("flex h-16 items-center border-b shrink-0", isCollapsed ? "justify-center px-2" : "px-4")}>
+            <SiteLogo isCollapsed={isCollapsed} />
         </div>
-      </div>
-      <ScrollArea className="flex-1">
-        <nav className="p-2 space-y-0.5">
-          <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-0.5">
-            {filteredNavItems.map((item) => {
-              let renderSectionHeader = false;
-              if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
-                renderSectionHeader = true;
-                currentSectionTitleDisplayed = item.sectionTitle;
-              }
+        <div className={cn("p-4 border-b shrink-0", isCollapsed && "flex justify-center")}>
+            <div className="space-y-1">
+            {!isCollapsed && <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1"><Shuffle className="h-3.5 w-3.5" />Wissel Rol (Demo)</Label>}
+            <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
+                <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className={cn("h-9", isCollapsed && "w-12 justify-center [&>span]:hidden")}>
+                <SelectValue placeholder="Selecteer een rol" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="leerling">Leerling</SelectItem>
+                <SelectItem value="ouder">Ouder</SelectItem>
+                <SelectItem value="tutor">Tutor</SelectItem>
+                <SelectItem value="coach">Coach</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+            </Select>
+            </div>
+        </div>
+        <ScrollArea className="flex-1">
+            <nav className="p-2 space-y-0.5">
+            <Accordion type="multiple" defaultValue={defaultOpenAccordionItems} className="w-full space-y-0.5">
+                {filteredNavItems.map((item) => {
+                let renderSectionHeader = false;
+                if (item.sectionTitle && item.sectionTitle !== currentSectionTitleDisplayed) {
+                    renderSectionHeader = true;
+                    currentSectionTitleDisplayed = item.sectionTitle;
+                }
 
-              const isDirectlyActive = !item.children && pathname === item.href;
-              const isParentOfActivePage = item.children?.some(child => pathname.startsWith(child.href));
+                const isDirectlyActive = !item.children && pathname === item.href;
+                const isParentOfActivePage = item.children?.some(child => pathname.startsWith(child.href));
 
-              return (
-                <Fragment key={item.href}>
-                  {renderSectionHeader && !isCollapsed && (
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-3 pb-1">
-                      {item.sectionTitle}
-                    </h4>
-                  )}
-                  {item.children && item.children.length > 0 ? (
-                    <AccordionItem value={item.href} className="border-none">
-                      <AccordionTrigger className={cn(
-                        baseLinkClasses, "hover:no-underline",
-                        isCollapsed ? "justify-center" : "justify-between",
-                        isParentOfActivePage && !isCollapsed ? 'text-primary' : 'text-foreground hover:text-primary',
-                        hoverClasses
-                      )}>
-                        <div className="flex items-center gap-3">
-                          <item.icon className="h-5 w-5 shrink-0" />
-                          {!isCollapsed && <span className="truncate">{item.label}</span>}
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pt-1 pl-6 pb-1">
-                        <div className={cn("flex flex-col space-y-0.5", !isCollapsed && "border-l-2 border-muted-foreground/30 ml-[9px] pl-4")}>
-                          {item.children.map(child => {
-                            const isChildActive = pathname.startsWith(child.href);
-                            return (
-                               <Link key={child.href} href={child.href} className={cn(
-                                    baseLinkClasses, 'py-1.5',
-                                    isChildActive ? activeLinkClasses : cn(sublinkInactiveClasses, 'hover:bg-[#f8f9fa] dark:hover:bg-muted')
+                const NavItemWrapper = ({ children }: { children: React.ReactNode }) =>
+                    isCollapsed ? (
+                    <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>{children}</TooltipTrigger>
+                        <TooltipContent side="right" className="flex items-center gap-4">
+                        {item.label}
+                        </TooltipContent>
+                    </Tooltip>
+                    ) : (
+                    <>{children}</>
+                    );
+
+                return (
+                    <Fragment key={item.href}>
+                    {renderSectionHeader && !isCollapsed && (
+                        <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-3 pb-1">
+                        {item.sectionTitle}
+                        </h4>
+                    )}
+                    {item.children && item.children.length > 0 ? (
+                        <AccordionItem value={item.href} className="border-none">
+                            <NavItemWrapper>
+                                <AccordionTrigger className={cn(
+                                    baseLinkClasses, "hover:no-underline",
+                                    isCollapsed ? "justify-center" : "justify-between",
+                                    isParentOfActivePage && !isCollapsed ? 'text-primary' : 'text-foreground hover:text-primary',
+                                    hoverClasses
                                 )}>
-                                <child.icon className="h-4 w-4 shrink-0" />
-                                {!isCollapsed && <span className="truncate">{child.label}</span>}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ) : (
-                    <Link href={item.href} className={cn(
-                        baseLinkClasses,
-                        isDirectlyActive ? activeLinkClasses : cn(inactiveLinkClasses, hoverClasses),
-                        isCollapsed && "justify-center"
-                    )}>
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {!isCollapsed && <span className="truncate">{item.label}</span>}
-                    </Link>
-                  )}
-                </Fragment>
-              );
-            })}
-          </Accordion>
-        </nav>
-      </ScrollArea>
-      <div className="mt-auto p-4 border-t shrink-0">
-        <Button variant="ghost" className="w-full justify-center" onClick={() => setIsCollapsed(!isCollapsed)}>
-          {isCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelLeft className="h-5 w-5" />}
-          <span className="sr-only">{isCollapsed ? 'Menu uitklappen' : 'Menu inklappen'}</span>
-        </Button>
-      </div>
-    </div>
+                                    <div className="flex items-center gap-3">
+                                    <item.icon className="h-5 w-5 shrink-0" />
+                                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                                    </div>
+                                </AccordionTrigger>
+                            </NavItemWrapper>
+                            <AccordionContent className="pt-1 pl-6 pb-1">
+                                <div className={cn("flex flex-col space-y-0.5", !isCollapsed && "border-l-2 border-muted-foreground/30 ml-[9px] pl-4")}>
+                                {item.children.map(child => {
+                                    const isChildActive = pathname.startsWith(child.href);
+                                    return (
+                                    <Link key={child.href} href={child.href} className={cn(
+                                        baseLinkClasses, 'py-1.5',
+                                        isChildActive ? activeLinkClasses : cn(sublinkInactiveClasses, 'hover:bg-[#f8f9fa] dark:hover:bg-muted'),
+                                        isCollapsed && "justify-center"
+                                    )}>
+                                        <child.icon className="h-4 w-4 shrink-0" />
+                                        {!isCollapsed && <span className="truncate">{child.label}</span>}
+                                    </Link>
+                                    );
+                                })}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ) : (
+                        <NavItemWrapper>
+                            <Link href={item.href} className={cn(
+                                baseLinkClasses,
+                                isDirectlyActive ? activeLinkClasses : cn(inactiveLinkClasses, hoverClasses),
+                                isCollapsed && "justify-center"
+                            )}>
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            {!isCollapsed && <span className="truncate">{item.label}</span>}
+                            </Link>
+                        </NavItemWrapper>
+                    )}
+                    </Fragment>
+                );
+                })}
+            </Accordion>
+            </nav>
+        </ScrollArea>
+        <div className={cn("mt-auto p-4 border-t shrink-0", isCollapsed && "flex justify-center")}>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" className={cn("w-full justify-center", isCollapsed && "w-auto")} onClick={() => setIsCollapsed(!isCollapsed)}>
+                        {isCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelLeft className="h-5 w-5" />}
+                        <span className="sr-only">{isCollapsed ? 'Menu uitklappen' : 'Menu inklappen'}</span>
+                    </Button>
+                </TooltipTrigger>
+                {isCollapsed && (
+                    <TooltipContent side="right">
+                        <p>{isCollapsed ? 'Menu uitklappen' : 'Menu inklappen'}</p>
+                    </TooltipContent>
+                )}
+            </Tooltip>
+        </div>
+        </div>
+    </TooltipProvider>
   );
 }
 
