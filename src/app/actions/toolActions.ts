@@ -9,7 +9,6 @@ import { toPascalCase } from '@/lib/string-utils';
 interface CreateToolComponentFileResult {
   success: boolean;
   filePath?: string;
-  componentCode?: string; // Added to return the code to the client
   error?: string;
 }
 
@@ -40,12 +39,27 @@ export async function createToolComponentFile(toolId: string, title: string, des
     await fs.writeFile(filePath, componentCode, 'utf8');
 
     console.log(`Successfully created tool component at: ${filePath}`);
-    // Return the generated code along with the success message
-    return { success: true, filePath: `/dashboard/tools/${toolId}`, componentCode: componentCode };
+    // Return the path but not the code, as the client will now render it dynamically.
+    return { success: true, filePath: `/dashboard/tools/${toolId}` };
 
   } catch (error) {
     console.error("Failed to create tool component file:", error);
     const errorMessage = error instanceof Error ? error.message : "Een onbekende fout is opgetreden.";
     return { success: false, error: `Kon het componentbestand niet aanmaken: ${errorMessage}` };
+  }
+}
+
+export async function checkToolComponentExists(toolId: string): Promise<boolean> {
+  if (!toolId) return false;
+
+  const componentName = toPascalCase(toolId);
+  const fileName = `${componentName}.tsx`;
+  const filePath = path.join(process.cwd(), 'src', 'components', 'tools', fileName);
+
+  try {
+    await fs.access(filePath);
+    return true; // File exists
+  } catch {
+    return false; // File does not exist
   }
 }

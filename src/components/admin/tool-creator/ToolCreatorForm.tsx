@@ -15,16 +15,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Save, Bot, Loader2, Trash2, AlertTriangle, Wrench, ExternalLink, ArrowRight, Copy } from 'lucide-react';
+import { Save, Bot, Loader2, Trash2, AlertTriangle, Wrench, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Switch } from '@/components/ui/switch';
-import { createToolComponentFile } from '@/app/actions/toolActions';
+import { createToolComponentFile, checkToolComponentExists } from '@/app/actions/toolActions';
 import Link from 'next/link';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ToolPreviewer } from "./ToolPreviewer";
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -60,7 +60,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeletingDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [componentPreviewCode, setComponentPreviewCode] = useState<string | null>(null);
+  const [livePreviewToolId, setLivePreviewToolId] = useState<string | null>(null);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -72,6 +72,11 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   useEffect(() => {
     if (initialData) {
       form.reset(initialData);
+      checkToolComponentExists(initialData.id).then(exists => {
+          if (exists) {
+              setLivePreviewToolId(initialData.id);
+          }
+      });
     }
   }, [initialData, form]);
 
@@ -81,7 +86,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       return;
     }
     setIsGenerating(true);
-    setComponentPreviewCode(null);
+    setLivePreviewToolId(null);
     toast({ title: "AI is aan het werk...", description: "De details voor je tool worden nu gegenereerd." });
     
     try {
@@ -115,7 +120,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     };
     
     setIsGenerating(true);
-    setComponentPreviewCode(null);
+    setLivePreviewToolId(null); // Reset preview to show loading state
     toast({
         title: "Tool generatie gestart...",
         description: `De AI begint nu met het bouwen van de component voor: ${currentToolData.title}. Dit kan even duren.`
@@ -127,11 +132,12 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       currentToolData.description
     );
 
-    if (result.success && result.filePath && result.componentCode) {
-      setComponentPreviewCode(result.componentCode);
+    if (result.success && result.filePath) {
+      // Set the tool ID to trigger the previewer component
+      setLivePreviewToolId(currentToolData.id);
       toast({
         title: "Component Bestand Aangemaakt!",
-        description: `Het bestand is succesvol aangemaakt op de server. U kunt het nu live bekijken en de code hieronder inspecteren.`,
+        description: `Het bestand is succesvol aangemaakt. De live preview wordt hieronder geladen.`,
         action: (
           <Button variant="outline" size="sm" asChild>
             <Link href={result.filePath} target="_blank">Bekijk Tool <ExternalLink className="ml-2 h-4 w-4"/></Link>
@@ -149,17 +155,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     setIsGenerating(false);
   };
   
-  const copyCodeToClipboard = () => {
-    if (componentPreviewCode) {
-      navigator.clipboard.writeText(componentPreviewCode).then(() => {
-        toast({ title: "Code Gekopieerd!", description: "De componentcode is naar je klembord gekopieerd." });
-      }, (err) => {
-        toast({ title: "Kopiëren Mislukt", description: "Kon de code niet naar je klembord kopiëren.", variant: "destructive" });
-        console.error('Failed to copy text: ', err);
-      });
-    }
-  };
-
   return (
     <>
       <Form {...form}>
@@ -254,7 +249,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                 <CardContent>
                     <Button type="button" onClick={handleGenerateToolComponent} disabled={isGenerating}>
                         {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Bot className="mr-2 h-4 w-4" />}
-                        {isNewTool ? 'Genereer Tool Component' : 'Hergenereer Tool Component'}
+                        {livePreviewToolId ? 'Hergenereer Tool Component' : 'Genereer Tool Component'}
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
                         Klik hier om automatisch een <code>.tsx</code> bestand te laten aanmaken/overschrijven in <code>src/components/tools/</code>.
@@ -262,24 +257,19 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                 </CardContent>
             </Card>
 
-            {componentPreviewCode && (
+            {livePreviewToolId && (
               <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
-                    <div>
-                      <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Gegenereerde Component Code</CardTitle>
-                      <CardDescription>Dit is de code die automatisch is aangemaakt en opgeslagen.</CardDescription>
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={copyCodeToClipboard}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Kopieer Code
-                    </Button>
+                <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2 text-primary">
+                        <Wrench className="h-5 w-5" /> Live Component Preview
+                    </CardTitle>
+                    <CardDescription>
+                        Dit is een live weergave van het gegenereerde component. Open in een nieuw tabblad:
+                         <Button variant="link" asChild className="p-0 pl-1 h-auto -mb-1"><Link href={`/dashboard/tools/${livePreviewToolId}`} target="_blank">{`/tools/${livePreviewToolId}`}<ExternalLink className="h-3 w-3 ml-1"/></Link></Button>.
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-64 w-full rounded-md border bg-muted">
-                        <pre className="p-4 text-xs">
-                          <code>{componentPreviewCode}</code>
-                        </pre>
-                    </ScrollArea>
+                   <ToolPreviewer toolId={livePreviewToolId} />
                 </CardContent>
               </Card>
             )}
