@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles, Rocket } from '@/lib/icons';
+import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles, Rocket, Package } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
@@ -19,34 +19,41 @@ interface ChangeLogEntry {
 const changelogData: ChangeLogEntry[] = [
     {
         date: new Date().toISOString(),
+        title: "Architectuur: Feature & Abonnementenbeheer",
+        description: "Implementatie van een flexibel systeem voor het beheren van platform-features en abonnementen. Admins kunnen nu dynamisch functionaliteiten definiëren en deze koppelen aan verschillende abonnementen (bijv. 'Gratis Start', 'Gezins Gids'). Dit is een cruciale stap richting een schaalbaar B2B2C-model.",
+        icon: Package,
+        tags: [{ text: "Architectuur", variant: "default" }, { text: "Admin Dashboard", variant: "secondary" }, { text: "Nieuwe Feature", variant: "outline" }]
+    },
+    {
+        date: new Date(Date.now() - 1 * 3600000).toISOString(),
         title: "Prestatie Optimalisatie: Dynamisch Dashboard Laden",
         description: "Het leerling-dashboard laadt nu dynamisch met `next/dynamic` en toont een 'skeleton' UI tijdens het laden. Dit verbetert de initiële laadtijd en gebruikerservaring, conform de technische roadmap.",
         icon: Rocket,
         tags: [{ text: "Prestatie", variant: "default" }, { text: "UX/UI", variant: "secondary" }, { text: "Refactor", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 1 * 3600000).toISOString(),
+        date: new Date(Date.now() - 2 * 3600000).toISOString(),
         title: "Architectuur & Authenticatie Refactor",
         description: "Een fundamentele verbetering van de app-architectuur. De demo-rolwisselaar is vervangen door een robuuste (gesimuleerde) login flow via een centrale AuthContext. Alle localStorage-logica is verplaatst naar een StorageService, wat de overstap naar een echte database in de toekomst vereenvoudigt.",
         icon: GitBranch,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Refactor", variant: "secondary" }, { text: "Auth", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 2 * 3600000).toISOString(),
+        date: new Date(Date.now() - 3 * 3600000).toISOString(),
         title: "Feature: Ouder-Kind Vergelijkende Analyse",
         description: "Implementatie van de volledige 'slice' voor de vergelijkende analyse, inclusief een nieuwe quiz voor ouders, een intelligente voortgangspagina die de AI-flow aanroept, en de weergave van het gegenereerde adviesrapport.",
         icon: Users,
         tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Ouder Dashboard", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 3 * 3600000).toISOString(),
+        date: new Date(Date.now() - 4 * 3600000).toISOString(),
         title: "Verbetering: Responsive & Inklapbare Dashboard Sidebar",
         description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. De UX is verbeterd met gecentraliseerde iconen en tooltips voor een strakke, intuïtieve interface.",
         icon: Wrench,
         tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
     },
     {
-        date: new Date(Date.now() - 4 * 3600000).toISOString(),
+        date: new Date(Date.now() - 5 * 3600000).toISOString(),
         title: "Stabiliteitsfixes: Opstartproblemen Opgelost",
         description: "Meerdere servercrashes tijdens het opstarten zijn opgespoord en verholpen. De oorzaak was het importeren van niet-bestaande iconen (ChevronsRightLeft, CheckSquare, ShieldCheck) uit 'lucide-react'. Alle ongeldige icon imports zijn gecorrigeerd.",
         icon: Wrench,
