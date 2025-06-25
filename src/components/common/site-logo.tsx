@@ -5,14 +5,15 @@ import { cn } from '@/lib/utils';
 type SiteLogoProps = {
   className?: string;
   iconClassName?: string; 
-  textClassName?: string;  
+  textClassName?: string;
+  isCollapsed?: boolean;
 };
 
-export function SiteLogo({ className, iconClassName, textClassName }: SiteLogoProps) {
+export function SiteLogo({ className, iconClassName, textClassName, isCollapsed }: SiteLogoProps) {
   return (
     <Link href="/" className={cn('flex items-center gap-2 text-xl font-bold text-primary', className)}>
-      <Brain className={cn("h-7 w-7", iconClassName)} /> {/* Default h-7 w-7 */}
-      <span className={textClassName}>MindNavigator</span>
+      <Brain className={cn("h-7 w-7", iconClassName)} />
+      {!isCollapsed && <span className={textClassName}>MindNavigator</span>}
     </Link>
   );
 }

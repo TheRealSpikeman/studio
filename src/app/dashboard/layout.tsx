@@ -1,4 +1,3 @@
-
 // src/app/dashboard/layout.tsx
 "use client";
 
@@ -13,6 +12,7 @@ import Link from 'next/link';
 import { DashboardRoleProvider, useDashboardRole, UserRoleType } from '@/contexts/DashboardRoleContext'; 
 import { usePathname } from 'next/navigation'; 
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 
 // The role-specific data can remain here as it's for the header display
 const roleSpecificUserData: Record<UserRoleType, { name: string; email: string; avatarSeed: string }> = {
@@ -41,7 +41,7 @@ function MobileSidebar() {
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-72 bg-card flex flex-col">
         <SheetTitle className="sr-only">Sidebar Menu</SheetTitle>
-        <SidebarNavContent />
+        <SidebarNavContent isCollapsed={false} setIsCollapsed={() => {}} />
       </SheetContent>
     </Sheet>
   )
@@ -106,10 +106,15 @@ function DashboardHeader() {
 }
 
 function InnerLayout({ children }: { children: ReactNode }) {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
     return (
         <div className="flex min-h-screen w-full bg-muted/40">
-          <DashboardSidebar />
-          <div className="flex flex-1 flex-col md:ml-72">
+          <DashboardSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <div className={cn(
+            "flex flex-1 flex-col transition-all duration-300 ease-in-out",
+            isCollapsed ? "md:ml-20" : "md:ml-72"
+          )}>
             <DashboardHeader />
             <main className="flex-1 p-6 md:p-8 lg:p-10">
               {children}

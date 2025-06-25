@@ -47,9 +47,11 @@ import {
   BookHeart,
   GraduationCap,
   BarChart as BarChartHorizontal,
-  BarChart as FileBarChart
+  BarChart as FileBarChart,
+  PanelLeft,
+  PanelRight,
 } from '@/components/icons';
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -65,11 +67,10 @@ interface NavItem {
   ouderOnly?: boolean;
   sectionTitle?: string;
   children?: NavItem[];
-  parent?: string; // Used to identify parent for active state
+  parent?: string;
   isOuderOnboardingLink?: boolean; 
 }
 
-// Configuration remains the same, but imports are cleaner
 const navItems: NavItem[] = [
   // Leerling Items
   { href: '/dashboard/leerling/welcome', label: 'Welkom!', icon: PlayCircle, leerlingOnly: true, sectionTitle: "Leerling Portaal" },
@@ -200,7 +201,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/profile', label: 'Profiel', icon: User }, 
 ];
 
-export function SidebarNavContent() {
+export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean; setIsCollapsed: (isCollapsed: boolean) => void; }) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentDashboardRole, setCurrentDashboardRole } = useDashboardRole();
@@ -250,6 +251,7 @@ export function SidebarNavContent() {
   let currentSectionTitleDisplayed: string | null = null;
   
   const handleRoleChange = (role: UserRoleType) => {
+    if (isCollapsed) setIsCollapsed(false); // Expand on role change
     setCurrentDashboardRole(role);
     router.push(`/dashboard/${role}`);
   };
@@ -261,16 +263,15 @@ export function SidebarNavContent() {
   const sublinkInactiveClasses = "text-muted-foreground hover:text-primary";
 
   return (
-    <>
-      <div className="p-4 border-b">
-        <SiteLogo />
-        <div className="mt-4 space-y-1">
-          <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1">
-            <Shuffle className="h-3.5 w-3.5" />
-            Wissel Rol (Demo)
-          </Label>
+    <div className="flex h-full max-h-screen flex-col">
+      <div className={cn("flex h-16 items-center border-b shrink-0", isCollapsed ? "justify-center px-2" : "px-4")}>
+        <SiteLogo isCollapsed={isCollapsed} />
+      </div>
+      <div className="p-4 border-b shrink-0">
+        <div className="space-y-1">
+          {!isCollapsed && <Label htmlFor="role-switcher" className="text-xs font-medium text-muted-foreground/80 flex items-center gap-1"><Shuffle className="h-3.5 w-3.5" />Wissel Rol (Demo)</Label>}
           <Select value={currentDashboardRole} onValueChange={handleRoleChange}>
-            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className="h-9">
+            <SelectTrigger id="role-switcher" aria-label="Selecteer een rol" className={cn("h-9", isCollapsed && "w-12 justify-center [&>span]:hidden")}>
               <SelectValue placeholder="Selecteer een rol" />
             </SelectTrigger>
             <SelectContent>
@@ -298,40 +299,35 @@ export function SidebarNavContent() {
 
               return (
                 <Fragment key={item.href}>
-                  {renderSectionHeader && (
+                  {renderSectionHeader && !isCollapsed && (
                     <h4 className="text-xs font-semibold uppercase text-muted-foreground/70 tracking-wider px-3 pt-3 pb-1">
                       {item.sectionTitle}
                     </h4>
                   )}
-
                   {item.children && item.children.length > 0 ? (
                     <AccordionItem value={item.href} className="border-none">
                       <AccordionTrigger className={cn(
-                        baseLinkClasses,
-                        "hover:no-underline justify-between",
-                        isParentOfActivePage ? 'text-primary' : 'text-foreground hover:text-primary',
+                        baseLinkClasses, "hover:no-underline",
+                        isCollapsed ? "justify-center" : "justify-between",
+                        isParentOfActivePage && !isCollapsed ? 'text-primary' : 'text-foreground hover:text-primary',
                         hoverClasses
                       )}>
                         <div className="flex items-center gap-3">
-                          <item.icon className="h-5 w-5" />
-                          <span>{item.label}</span>
+                          <item.icon className="h-5 w-5 shrink-0" />
+                          {!isCollapsed && <span className="truncate">{item.label}</span>}
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="pt-1 pl-6 pb-1">
-                        <div className="flex flex-col space-y-0.5 border-l-2 border-muted-foreground/30 ml-[9px] pl-4">
+                        <div className={cn("flex flex-col space-y-0.5", !isCollapsed && "border-l-2 border-muted-foreground/30 ml-[9px] pl-4")}>
                           {item.children.map(child => {
                             const isChildActive = pathname.startsWith(child.href);
                             return (
-                               <Link
-                                key={child.href}
-                                href={child.href}
-                                className={cn(
-                                    baseLinkClasses,
-                                    'py-1.5',
+                               <Link key={child.href} href={child.href} className={cn(
+                                    baseLinkClasses, 'py-1.5',
                                     isChildActive ? activeLinkClasses : cn(sublinkInactiveClasses, 'hover:bg-[#f8f9fa] dark:hover:bg-muted')
                                 )}>
-                                <child.icon className="h-4 w-4" />
-                                <span>{child.label}</span>
+                                <child.icon className="h-4 w-4 shrink-0" />
+                                {!isCollapsed && <span className="truncate">{child.label}</span>}
                               </Link>
                             );
                           })}
@@ -339,15 +335,13 @@ export function SidebarNavContent() {
                       </AccordionContent>
                     </AccordionItem>
                   ) : (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                          baseLinkClasses,
-                          isDirectlyActive ? activeLinkClasses : cn(inactiveLinkClasses, hoverClasses)
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.label}
+                    <Link href={item.href} className={cn(
+                        baseLinkClasses,
+                        isDirectlyActive ? activeLinkClasses : cn(inactiveLinkClasses, hoverClasses),
+                        isCollapsed && "justify-center"
+                    )}>
+                      <item.icon className="h-5 w-5 shrink-0" />
+                      {!isCollapsed && <span className="truncate">{item.label}</span>}
                     </Link>
                   )}
                 </Fragment>
@@ -356,14 +350,23 @@ export function SidebarNavContent() {
           </Accordion>
         </nav>
       </ScrollArea>
-    </>
+      <div className="mt-auto p-4 border-t shrink-0">
+        <Button variant="ghost" className="w-full justify-center" onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelLeft className="h-5 w-5" />}
+          <span className="sr-only">{isCollapsed ? 'Menu uitklappen' : 'Menu inklappen'}</span>
+        </Button>
+      </div>
+    </div>
   );
 }
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean; setIsCollapsed: (isCollapsed: boolean) => void; }) {
   return (
-    <div className="hidden md:flex h-screen w-72 flex-col fixed inset-y-0 z-40 border-r bg-card">
-      <SidebarNavContent />
-    </div>
+    <aside className={cn(
+        "hidden md:flex h-screen flex-col fixed inset-y-0 z-40 border-r bg-card transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-20" : "w-72"
+    )}>
+      <SidebarNavContent isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+    </aside>
   );
 }
