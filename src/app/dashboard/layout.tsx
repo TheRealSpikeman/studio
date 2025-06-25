@@ -1,155 +1,171 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import { DashboardSidebar, SidebarNavContent } from '@/components/layout/dashboard-sidebar';
-import type { ReactNode } from 'react'; 
-import { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, UserCircle, Menu, Loader2 } from 'lucide-react'; 
-import Link from 'next/link';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { usePathname } from 'next/navigation'; 
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { SiteLogo } from '@/components/common/site-logo';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { 
+  User, 
+  Settings, 
+  LogOut, 
+  BarChart3, 
+  Calendar,
+  MessageCircle,
+  Users as UsersIcon, // Renamed to avoid conflict with User from lucide-react
+  Menu,
+  Loader2
+} from 'lucide-react';
 
-function MobileSidebar() {
-  const [open, setOpen] = useState(false);
+function DashboardLayoutUI({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const { user, logout, isLoading } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Navigation items for MindNavigator
+  const navigationItems = [
+    {
+      name: 'Overzicht',
+      href: '/dashboard',
+      icon: BarChart3,
+    },
+    {
+      name: 'Sessies',
+      href: '/dashboard/sessions',
+      icon: Calendar,
+    },
+    {
+      name: 'Coaches',
+      href: '/dashboard/coaches',
+      icon: UsersIcon,
+    },
+    {
+      name: 'Berichten',
+      href: '/dashboard/messages',
+      icon: MessageCircle,
+    },
+    {
+      name: 'Profiel',
+      href: '/dashboard/profile',
+      icon: User,
+    }
+  ];
 
   useEffect(() => {
-    setOpen(false); // Close sidebar on navigation change
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-72 bg-card flex flex-col">
-        <SheetTitle className="sr-only">Sidebar Menu</SheetTitle>
-        <SidebarNavContent isCollapsed={false} setIsCollapsed={() => {}} />
-      </SheetContent>
-    </Sheet>
-  )
-}
-
-function DashboardHeader() {
-  const { user, logout, isLoading } = useAuth(); 
-
+  const handleNavigation = (href: string) => {
+    router.push(href);
+  };
+  
   if (isLoading) {
     return (
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">
-        <div className="flex-1"></div>
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end">
-            <Skeleton className="h-4 w-24 mb-1" />
-            <Skeleton className="h-3 w-16" />
-          </div>
-          <Skeleton className="h-9 w-9 rounded-full" />
-        </div>
-      </header>
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
-  const userName = user?.name || 'Gast';
-  const userEmail = user?.email || '';
-  const userAvatarUrl = user?.avatarUrl;
-  const userInitials = userName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
-
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">
-      <MobileSidebar />
-      <div className="flex-1">
-        {/* Potential place for breadcrumbs or page title if needed */}
-      </div>
-      
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-end">
-            <p className="text-sm font-medium">Welkom, {userName}!</p>
-            <p className="text-xs text-muted-foreground">Actieve rol: {user?.role}</p>
+    <div className="min-h-screen bg-gray-50 lg:flex">
+      {/* Mobile sidebar backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col",
+        "lg:relative lg:translate-x-0",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex items-center justify-center h-16 px-4 border-b shrink-0">
+          <SiteLogo />
         </div>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-9 w-9">
-                    <AvatarImage src={userAvatarUrl || undefined} alt={userName || "User Avatar"} data-ai-hint="person avatar" />
-                    <AvatarFallback>{userInitials}</AvatarFallback>
-                    </Avatar>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                    {userEmail}
-                    </p>
-                </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    Profiel
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Uitloggen
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+          {navigationItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <button
+                key={item.name}
+                onClick={() => handleNavigation(item.href)}
+                className={cn(
+                  "w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-gray-700 hover:bg-gray-100"
+                )}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.name}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t space-y-2 shrink-0">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start"
+            onClick={() => handleNavigation('/dashboard/settings')}
+          >
+            <Settings className="w-5 h-5 mr-3" />
+            Instellingen
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={logout}
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Uitloggen
+          </Button>
+        </div>
       </div>
-    </header>
+
+      {/* Main content wrapper */}
+      <div className="flex-1 flex flex-col h-screen">
+        <header className="bg-white shadow-sm border-b sticky top-0 z-30">
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+            <button
+              className="lg:hidden text-gray-500 hover:text-gray-600 p-2 -ml-2"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            
+            <div className="flex items-center space-x-4 ml-auto">
+              <span className="text-sm text-gray-600 hidden sm:block">Welkom terug, {user?.name || 'gast'}!</span>
+              {/* Other header items like notifications can go here */}
+            </div>
+          </div>
+        </header>
+
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
+    </div>
   );
 }
 
-function InnerLayout({ children }: { children: ReactNode }) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const { isAuthenticated, isLoading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.replace('/login');
-        }
-    }, [isLoading, isAuthenticated, router]);
-
-    if (isLoading || !isAuthenticated) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex min-h-screen w-full bg-muted/40">
-          <DashboardSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-          <div className={cn(
-            "flex flex-1 flex-col transition-all duration-300 ease-in-out",
-            isCollapsed ? "md:ml-20" : "md:ml-72"
-          )}>
-            <DashboardHeader />
-            <main className="flex-1 p-6 md:p-8 lg:p-10">
-              {children}
-            </main>
-          </div>
-        </div>
-    )
-}
-
+// The main export wraps the UI in the AuthProvider
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-        <InnerLayout>{children}</InnerLayout>
+      <DashboardLayoutUI>{children}</DashboardLayoutUI>
     </AuthProvider>
   );
 }
