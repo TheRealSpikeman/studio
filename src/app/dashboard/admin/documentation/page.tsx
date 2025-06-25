@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit } from 'lucide-react';
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit, ScrollText } from 'lucide-react';
 
 const documentationLinks = [
   {
@@ -54,6 +54,14 @@ const documentationLinks = [
     href: "/faq",
     linkText: "Bekijk FAQ",
     isExternal: true,
+  },
+  {
+    title: "Changelog & Updates",
+    description: "Een overzicht van alle recente wijzigingen, fixes en updates aan het platform, inclusief demo login info.",
+    icon: ScrollText,
+    href: "/dashboard/admin/documentation/changelog",
+    linkText: "Bekijk Changelog",
+    isExternal: false,
   },
 ];
 
