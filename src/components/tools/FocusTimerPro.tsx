@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Timer } from 'lucide-react';
-import { List, Plus, Volume2, VolumeX } from 'lucide-react';
+import { List, Timer, Volume2 } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
 interface Sound {
   name: string;
@@ -20,71 +20,39 @@ const sounds: Sound[] = [
   { name: 'Waves', url: '/sounds/waves.mp3' },
 ];
 
-const FocusTimerPro = () => {
+const FocusTimer = () => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(25 * 60); // 25 minutes
-  const [breakTime, setBreakTime] = useState(5 * 60);
-  const [isBreak, setIsBreak] = useState(false);
-  const [soundPlaying, setSoundPlaying] = useState<string | null>(null);
+  const [breakTime, setBreakTime] = useState(5 * 60); // 5 minutes
+  const [onBreak, setOnBreak] = useState(false);
+  const [distractionSites, setDistractionSites] = useState<string[]>([]);
+  const [newSite, setNewSite] = useState('');
+  const [distractionBlockEnabled, setDistractionBlockEnabled] = useState(false);
+  const [selectedSound, setSelectedSound] = useState<Sound | null>(null);
   const [volume, setVolume] = useState(0.5);
-  const [distractions, setDistractions] = useState<string[]>([]);
-  const [newDistraction, setNewDistraction] = useState('');
-  const [distractionBlockerEnabled, setDistractionBlockerEnabled] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    if (timerRunning) {
+    if (timerRunning && timeRemaining > 0) {
       interval = setInterval(() => {
-        setTimeRemaining((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(interval);
-            if (!isBreak) {
-              setIsBreak(true);
-              setTimeRemaining(breakTime);
-            } else {
-              setIsBreak(false);
-              setTimeRemaining(25 * 60); //reset to work timer
-            }
-            setTimerRunning(false);
-            return 0;
-          } else {
-            return prevTime - 1;
-          }
-        });
+        setTimeRemaining((prevTime) => prevTime - 1);
       }, 1000);
+    } else if (timerRunning && timeRemaining === 0) {
+      clearInterval(interval);
+      // Timer has ended. Switch to break or stop timer
+      if (!onBreak) {
+        setOnBreak(true);
+        setTimeRemaining(breakTime);
+      } else {
+        setTimerRunning(false);
+        setOnBreak(false);
+        setTimeRemaining(25 * 60);
+      }
     }
 
     return () => clearInterval(interval);
-  }, [timerRunning, isBreak, breakTime]);
-
-  useEffect(() => {
-    if (soundPlaying) {
-      const selectedSound = sounds.find((sound) => sound.name === soundPlaying);
-      if (selectedSound) {
-        const newAudio = new Audio(selectedSound.url);
-        newAudio.loop = true;
-        newAudio.volume = volume;
-        newAudio.play();
-        setAudio(newAudio);
-      }
-    } else if (audio) {
-      audio.pause();
-      setAudio(null);
-    }
-  }, [soundPlaying, volume]);
-
-  const handleStartStop = () => {
-    setTimerRunning(!timerRunning);
-  };
-
-  const handleAddDistraction = () => {
-    if (newDistraction.trim() !== '') {
-      setDistractions([...distractions, newDistraction.trim()]);
-      setNewDistraction('');
-    }
-  };
+  }, [timerRunning, timeRemaining, onBreak, breakTime]);
 
   const formatTime = (timeInSeconds: number): string => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -92,96 +60,136 @@ const FocusTimerPro = () => {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const toggleSound = (soundName: string) => {
-    setSoundPlaying((prevSound) => (prevSound === soundName ? null : soundName));
+  const handleAddSite = () => {
+    if (newSite.trim() !== '') {
+      setDistractionSites([...distractionSites, newSite.trim()]);
+      setNewSite('');
+    }
   };
 
+  const handleRemoveSite = (siteToRemove: string) => {
+    setDistractionSites(distractionSites.filter((site) => site !== siteToRemove));
+  };
+
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (selectedSound) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      audioRef.current = new Audio(selectedSound.url);
+      audioRef.current.loop = true;
+      audioRef.current.volume = volume;
+      audioRef.current.play();
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [selectedSound, volume]);
+
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md space-y-4">
+    <div className="container mx-auto p-4">
+      <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center justify-center">
-            <Timer className="mr-2" /> Focus Timer Pro
-          </CardTitle>
+          <CardTitle className="flex items-center"><Timer className="mr-2"/> Focus Timer Pro</CardTitle>
+          <CardDescription>Een Pomodoro timer met optionele achtergrondgeluiden om je te helpen in de zone te komen.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-center">
-            <div className="text-4xl font-bold">{formatTime(timeRemaining)}</div>
+        <CardContent className="grid gap-4">
+          <div className="flex justify-center text-5xl font-bold">
+            {formatTime(timeRemaining)}
           </div>
-          <div className="flex justify-center">
-            <Button variant="outline" onClick={handleStartStop}>
-              {timerRunning ? 'Pause' : 'Start'}
-            </Button>
-          </div>
-          <div>
-            <Label htmlFor="distraction-blocker">Distraction Blocker</Label>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="distraction-blocker"
-                checked={distractionBlockerEnabled}
-                onCheckedChange={setDistractionBlockerEnabled}
-              />
-              <span>{distractionBlockerEnabled ? 'Enabled' : 'Disabled'}</span>
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="new-distraction">Add Distraction:</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="new-distraction"
-                type="text"
-                value={newDistraction}
-                onChange={(e) => setNewDistraction(e.target.value)}
-              />
-              <Button type="button" onClick={handleAddDistraction}>
-                <Plus className="h-4 w-4 mr-2"/>
-                 Add
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>Blocked Sites:</Label>
-            <ul className="list-disc list-inside">
-              {distractions.map((distraction, index) => (
-                <li key={index}>{distraction}</li>
-              ))}
-            </ul>
+          <div className="flex justify-center gap-4">
+            <Button variant="outline" onClick={() => setTimerRunning(!timerRunning)}>{timerRunning ? 'Pause' : 'Start'}</Button>
+            <Button variant="destructive" onClick={() => { setTimerRunning(false); setOnBreak(false); setTimeRemaining(25 * 60); }}>Reset</Button>
           </div>
 
           <div>
-            <Label>Background Sounds:</Label>
+            <Label htmlFor="break-length">Break Length (minutes)</Label>
+            <Input
+              type="number"
+              id="break-length"
+              value={breakTime / 60}
+              onChange={(e) => setBreakTime(parseInt(e.target.value) * 60)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="distraction-block">Distraction Blocker <List className="inline-block"/></Label>
+            <div className="flex items-center space-x-2">
+              <Switch id="distraction-block" checked={distractionBlockEnabled} onCheckedChange={setDistractionBlockEnabled} />
+            </div>
+          </div>
+
+          {distractionBlockEnabled && (
+            <div>
+              <div className="flex space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Add website to block"
+                  value={newSite}
+                  onChange={(e) => setNewSite(e.target.value)}
+                />
+                <Button onClick={handleAddSite}>Add</Button>
+              </div>
+              <ul>
+                {distractionSites.map((site) => (
+                  <li key={site} className="flex justify-between items-center py-1">
+                    {site}
+                    <Button variant="ghost" size="sm" onClick={() => handleRemoveSite(site)}>Remove</Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div>
+            <Label>Background Sound <Volume2 className="inline-block"/></Label>
             <div className="flex space-x-2">
               {sounds.map((sound) => (
                 <Button
                   key={sound.name}
-                  variant="outline"
-                  onClick={() => toggleSound(sound.name)}
-                  className={soundPlaying === sound.name ? 'bg-muted hover:bg-muted text-muted-foreground' : ''}
+                  variant={selectedSound?.name === sound.name ? 'default' : 'outline'}
+                  onClick={() => setSelectedSound(sound)}
                 >
-                 {sound.name}
+                  {sound.name}
                 </Button>
               ))}
+              <Button variant={selectedSound === null ? 'default' : 'outline'} onClick={() => setSelectedSound(null)}>None</Button>
             </div>
-            {soundPlaying && (
-              <div className="flex items-center space-x-2 mt-2">
-                <Label htmlFor="volume">Volume:</Label>
-                <input
-                  type="range"
-                  id="volume"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={volume}
-                  onChange={(e) => setVolume(parseFloat(e.target.value))}
-                />
-                {volume > 0 ? <Volume2 className="w-4 h-4"/> : <VolumeX className="w-4 h-4"/>}
-              </div>
-            )}
+            <div>
+              <Label>Volume</Label>
+              <Slider
+                defaultValue={[50]}
+                max={100}
+                step={1}
+                onChange={(values) => {
+                  setVolume(values[0] ? values[0] / 100 : 0)
+                }}
+              />
+            </div>
+
+
           </div>
         </CardContent>
+        <CardFooter>
+          {/* Footer content here */}
+        </CardFooter>
       </Card>
+      <audio ref={audioRef} />
     </div>
   );
 };
 
-export default FocusTimerPro;
+export default FocusTimer;
