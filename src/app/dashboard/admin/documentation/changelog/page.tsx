@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, Shield, Users, Bot, Sparkles } from 'lucide-react';
+import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 
