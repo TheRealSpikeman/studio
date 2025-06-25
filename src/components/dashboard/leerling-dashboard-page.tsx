@@ -1,22 +1,28 @@
-
 // src/components/dashboard/leerling-dashboard-page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MessageSquare, TrendingUp, ClipboardList, FileBarChart, BookOpenCheck } from '@/lib/icons';
+import { MessageSquare, ArrowUp as TrendingUp, ClipboardList, BarChart as FileBarChart, BookOpen as BookOpenCheck, Wrench } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-// This is a new component, extracted from dashboard/page.tsx
-// to better encapsulate the student-specific dashboard view.
+const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
 
-export function LeerlingDashboardPage() {
-    // Note: The redirection logic for onboarding is now handled in the main /dashboard/page.tsx
-    // to prevent it from firing when switching roles.
+// This is now a default export for easier dynamic import.
+export default function LeerlingDashboardPageComponent() {
+    const router = useRouter();
 
+    // This effect handles the redirection logic if the user hasn't completed onboarding.
+    useEffect(() => {
+        const onboardingCompleted = localStorage.getItem(ONBOARDING_KEY_LEERLING);
+        if (!onboardingCompleted) {
+            router.replace('/dashboard/leerling/welcome');
+        }
+    }, [router]);
+    
     const currentUserData = { 
       name: "Alex", 
       ageGroup: '15-18' as '12-14' | '15-18' | 'adult'
@@ -71,16 +77,16 @@ export function LeerlingDashboardPage() {
       },
       {
         id: 'tools',
-        title: 'Tools & Oefeningen',
-        description: 'Ontdek planners, timers en andere handige tools die je helpen met focus en organisatie.',
-        icon: BookOpenCheck,
-        link: '/dashboard/coaching',
-        buttonText: 'Bekijk alle Tools',
+        title: 'Jouw Aanbevolen Tools',
+        description: 'Ontdek planners, timers en andere handige tools die passen bij jouw profiel en je helpen met focus en organisatie.',
+        icon: Wrench,
+        link: '/dashboard/tools',
+        buttonText: 'Bekijk aanbevolen Tools',
         buttonVariant: 'outline',
         colorClass: 'bg-blue-50 border-blue-200 hover:shadow-blue-100',
       }
     ];
-
+    
     return (
         <div className="space-y-8">
           <section>
