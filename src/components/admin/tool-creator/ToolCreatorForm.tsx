@@ -120,27 +120,48 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     }
     if (!initialData) return null;
 
+    let previewComponent: React.ReactNode = null;
+    let componentExists = false;
+
     switch (initialData.id) {
         case 'focus-timer-pro':
-            return <FocusTimer />;
+            previewComponent = <FocusTimer />;
+            componentExists = true;
+            break;
         case 'concentratie-games':
-            return <ConcentrationGames />;
-        case 'distraction-blocker': // Nieuwe case
-            return <DistractionBlocker />;
+            previewComponent = <ConcentrationGames />;
+            componentExists = true;
+            break;
+        case 'distraction-blocker':
+            previewComponent = <DistractionBlocker />;
+            componentExists = true;
+            break;
         default:
-            return (
-              <div className="text-center p-4 space-y-4">
+            previewComponent = (
+              <div className="text-center p-4">
                 <p className="text-sm text-muted-foreground">
-                  Geen live preview beschikbaar voor deze tool-ID ({initialData?.id}).
+                  Geen live preview beschikbaar. Genereer de component hieronder.
                 </p>
-                <Button type="button" onClick={handleGenerateToolComponent}>
-                  <Bot className="mr-2 h-4 w-4" /> Genereer Tool Component met AI
-                </Button>
               </div>
             );
     }
-  };
 
+    return (
+      <div className="space-y-4">
+        {previewComponent}
+        <div className="border-t pt-4 text-center">
+          <Button type="button" onClick={handleGenerateToolComponent}>
+            <Bot className="mr-2 h-4 w-4" /> 
+            {componentExists ? 'Hergenereer' : 'Genereer'} Tool Component met AI
+          </Button>
+           <p className="text-xs text-muted-foreground mt-2">
+             {componentExists ? 'Overschrijf de bestaande component met een nieuwe, door AI gegenereerde versie.' : 'Creëer een nieuwe, interactieve React component voor deze tool.'}
+           </p>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <>
       <Form {...form}>
