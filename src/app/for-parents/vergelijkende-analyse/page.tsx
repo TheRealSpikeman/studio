@@ -20,7 +20,7 @@ import {
     Lightbulb,
     MessageCircle,
     ClipboardList,
-    ChevronsRightLeft,
+    ChevronsLeftRight,
     ThumbsUp,
     EyeOff,
     ArrowRight
@@ -173,7 +173,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                               <Button variant="outline" className="h-auto p-4 text-left flex flex-col items-start w-full bg-card hover:bg-accent/10 hover:border-accent/30 transition-colors">
                                   <div className="flex items-center gap-2 mb-1">
-                                      <ChevronsRightLeft className="h-5 w-5 text-primary" />
+                                      <ChevronsLeftRight className="h-5 w-5 text-primary" />
                                       <strong className="text-foreground">Perceptie Gaps</strong>
                                   </div>
                                   <span className="text-xs text-muted-foreground">Waar zien ouder en kind dingen anders?</span>
