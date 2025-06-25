@@ -1,10 +1,11 @@
+
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, BookHeart, Users, Brain, LayoutDashboard, Shield, Handshake, BookOpen, CreditCard, BarChart as FileBarChart, GitBranch, MessageSquare, ExternalLink } from '@/lib/icons'; // Adjusted imports
+import { ArrowLeft, BookHeart, Users, Brain, LayoutDashboard, Shield, Handshake, BookOpen, CreditCard, BarChart as FileBarChart, GitBranch, MessageSquare, ExternalLink, Bot } from '@/lib/icons'; // Adjusted imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function PlatformGuidePage() {
@@ -168,8 +169,16 @@ export default function PlatformGuidePage() {
             </ul>
           </AccordionContent>
         </AccordionItem>
-
-      </Accordion>
-    </div>
-  );
-}
+        
+        <AccordionItem value="item-ai-workflow">
+          <AccordionTrigger className="text-xl font-semibold p-4 bg-muted/50 rounded-t-lg">
+             <div className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />AI Prototyper Werkwijze (XML)</div>
+          </AccordionTrigger>
+          <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
+             <p>Alle wijzigingen die de AI Prototyper doorvoert, worden gestructureerd via een specifiek XML-formaat. Dit zorgt voor voorspelbare en betrouwbare codewijzigingen. Hieronder staat de structuur die wordt gebruikt:</p>
+             <pre className="bg-gray-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code>
+{`<changes>
+  <description>[Provide a concise summary of the overall changes being made]</description>
+  <change>
+    <file>[Provide the ABSOLUTE, FULL path to the file being modified]</file>
+    <content><![CDATA[Provide the ENTIRE, FINAL, intended content of the file here. Do NOT provide diffs or partial snippets. Ensure all code is properly escaped within the CDATA section.
