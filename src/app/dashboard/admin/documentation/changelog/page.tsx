@@ -19,17 +19,31 @@ interface ChangeLogEntry {
 const changelogData: ChangeLogEntry[] = [
     {
         date: new Date().toISOString(),
-        title: "Architecturale Refactoring: Context & Services",
-        description: "Alle directe localStorage aanroepen zijn gecentraliseerd in een StorageService. De AuthContext is geïntroduceerd om de gebruikersauthenticatie te beheren, wat een cruciale stap is richting een robuuste backend. De demo-rolwisselaar is vervangen door een functionele (gesimuleerde) login.",
+        title: "Architectuur & Authenticatie Refactor",
+        description: "Een fundamentele verbetering van de app-architectuur. De demo-rolwisselaar is vervangen door een robuuste (gesimuleerde) login flow via een centrale AuthContext. Alle localStorage-logica is verplaatst naar een StorageService, wat de overstap naar een echte database in de toekomst vereenvoudigt.",
         icon: GitBranch,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Refactor", variant: "secondary" }, { text: "Auth", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 86400000).toISOString(),
+        date: new Date(Date.now() - 1 * 3600000).toISOString(),
         title: "Feature: Ouder-Kind Vergelijkende Analyse",
         description: "Implementatie van de volledige 'slice' voor de vergelijkende analyse, inclusief een nieuwe quiz voor ouders, een intelligente voortgangspagina die de AI-flow aanroept, en de weergave van het gegenereerde adviesrapport.",
         icon: Users,
         tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Ouder Dashboard", variant: "outline" }]
+    },
+    {
+        date: new Date(Date.now() - 2 * 3600000).toISOString(),
+        title: "Verbetering: Responsive & Inklapbare Dashboard Sidebar",
+        description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. De UX is verbeterd met gecentraliseerde iconen en tooltips voor een strakke, intuïtieve interface.",
+        icon: Wrench,
+        tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
+    },
+    {
+        date: new Date(Date.now() - 3 * 3600000).toISOString(),
+        title: "Stabiliteitsfixes: Opstartproblemen Opgelost",
+        description: "Meerdere servercrashes tijdens het opstarten zijn opgespoord en verholpen. De oorzaak was het importeren van niet-bestaande iconen (ChevronsRightLeft, CheckSquare, ShieldCheck) uit 'lucide-react'. Alle ongeldige icon imports zijn gecorrigeerd.",
+        icon: Wrench,
+        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }]
     },
     {
         date: new Date(Date.now() - 2 * 86400000).toISOString(),
@@ -37,20 +51,6 @@ const changelogData: ChangeLogEntry[] = [
         description: "Het proces voor het aanmaken van tool-componenten is volledig geautomatiseerd. Een server-actie genereert de code en schrijft deze direct naar het bestandssysteem, waarna een live preview wordt getoond. Kopiëren en plakken is niet meer nodig.",
         icon: Bot,
         tags: [{ text: "Automatisering", variant: "default" }, { text: "Workflow", variant: "secondary" }, { text: "AI", variant: "outline" }]
-    },
-    {
-        date: new Date(Date.now() - 3 * 86400000).toISOString(),
-        title: "Verbetering: Responsive & Inklapbare Sidebar",
-        description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. Inclusief tooltips voor een betere UX in ingeklapte modus.",
-        icon: Wrench,
-        tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
-    },
-     {
-        date: new Date(Date.now() - 4 * 86400000).toISOString(),
-        title: "Fix: Opstartproblemen Server",
-        description: "Meerdere servercrashes tijdens het opstarten zijn verholpen. De oorzaak was het importeren van niet-bestaande iconen uit 'lucide-react'. De ongeldige imports zijn gecorrigeerd en verwijderd.",
-        icon: Wrench,
-        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }]
     },
 ];
 
