@@ -28,8 +28,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { AppFeature, TargetAudience, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, TargetAudience, SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/types';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch'; // Import Switch
 
@@ -289,8 +289,9 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
                                   {plan.name} <span className="text-xs text-muted-foreground">({plan.shortName || plan.id})</span>
                                 </FormLabel>
                               </FormItem>
-                            )}
-                          />
+                            );
+                          }}
+                        />
                         )) : (
                           <p className="text-xs text-muted-foreground text-center py-4">Geen actieve abonnementen gevonden om aan te koppelen.</p>
                         )}

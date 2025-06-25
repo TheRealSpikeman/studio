@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -108,7 +109,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessageSquare, ouderOnly: true },
-  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy &amp; Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
   // Tutor specific section
@@ -188,7 +189,7 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data &amp; Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
       { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbeveling Logica', icon: GitBranch, parent: '#documentation-parent' },

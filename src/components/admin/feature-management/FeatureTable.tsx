@@ -2,7 +2,7 @@
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
-import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

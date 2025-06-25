@@ -221,7 +221,7 @@ export default function NewSubscriptionPlanPage({ planData }: NewSubscriptionPla
                 </FormItem>
               )} 
             />
-            <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching &amp; Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="tagline" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Marketing Tagline (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. Slechts €0,13 per dag voor uitgebreide tools!" {...field} /></FormControl><FormDescription className="text-xs">Korte, pakkende zin die onder de prijs getoond wordt.</FormDescription><FormMessage /></FormItem>)} />
             <FormField 
