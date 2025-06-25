@@ -9,6 +9,7 @@ import { toPascalCase } from '@/lib/string-utils';
 interface CreateToolComponentFileResult {
   success: boolean;
   filePath?: string;
+  componentCode?: string; // Added to return the code to the client
   error?: string;
 }
 
@@ -39,7 +40,8 @@ export async function createToolComponentFile(toolId: string, title: string, des
     await fs.writeFile(filePath, componentCode, 'utf8');
 
     console.log(`Successfully created tool component at: ${filePath}`);
-    return { success: true, filePath: `/dashboard/tools/${toolId}` };
+    // Return the generated code along with the success message
+    return { success: true, filePath: `/dashboard/tools/${toolId}`, componentCode: componentCode };
 
   } catch (error) {
     console.error("Failed to create tool component file:", error);

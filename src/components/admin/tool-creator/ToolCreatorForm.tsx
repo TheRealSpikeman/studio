@@ -15,15 +15,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Save, Bot, Loader2, Trash2, AlertTriangle, Wrench, ExternalLink, ArrowRight } from 'lucide-react';
+import { Save, Bot, Loader2, Trash2, AlertTriangle, Wrench, ExternalLink, ArrowRight, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Switch } from '@/components/ui/switch';
-import { createToolComponentFile } from '@/app/actions/toolActions'; // NEW: Import server action
+import { createToolComponentFile } from '@/app/actions/toolActions';
 import Link from 'next/link';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -58,7 +59,8 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   const { toast } = useToast();
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeletingDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [componentPreviewCode, setComponentPreviewCode] = useState<string | null>(null);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -79,6 +81,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       return;
     }
     setIsGenerating(true);
+    setComponentPreviewCode(null);
     toast({ title: "AI is aan het werk...", description: "De details voor je tool worden nu gegenereerd." });
     
     try {
@@ -90,7 +93,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       
       form.reset({
         ...result,
-        status: 'online', // Default to online when generating
+        status: 'online', 
         reasoning: { ...result.reasoning },
         usage: { ...result.usage }
       });
@@ -112,6 +115,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     };
     
     setIsGenerating(true);
+    setComponentPreviewCode(null);
     toast({
         title: "Tool generatie gestart...",
         description: `De AI begint nu met het bouwen van de component voor: ${currentToolData.title}. Dit kan even duren.`
@@ -123,10 +127,11 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       currentToolData.description
     );
 
-    if (result.success && result.filePath) {
+    if (result.success && result.filePath && result.componentCode) {
+      setComponentPreviewCode(result.componentCode);
       toast({
         title: "Component Bestand Aangemaakt!",
-        description: `Het bestand is succesvol aangemaakt op de server. U kunt het nu live bekijken.`,
+        description: `Het bestand is succesvol aangemaakt op de server. U kunt het nu live bekijken en de code hieronder inspecteren.`,
         action: (
           <Button variant="outline" size="sm" asChild>
             <Link href={result.filePath} target="_blank">Bekijk Tool <ExternalLink className="ml-2 h-4 w-4"/></Link>
@@ -144,6 +149,17 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     setIsGenerating(false);
   };
   
+  const copyCodeToClipboard = () => {
+    if (componentPreviewCode) {
+      navigator.clipboard.writeText(componentPreviewCode).then(() => {
+        toast({ title: "Code Gekopieerd!", description: "De componentcode is naar je klembord gekopieerd." });
+      }, (err) => {
+        toast({ title: "Kopiëren Mislukt", description: "Kon de code niet naar je klembord kopiëren.", variant: "destructive" });
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  };
+
   return (
     <>
       <Form {...form}>
@@ -238,13 +254,35 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                 <CardContent>
                     <Button type="button" onClick={handleGenerateToolComponent} disabled={isGenerating}>
                         {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Bot className="mr-2 h-4 w-4" />}
-                        Genereer Tool Component
+                        {isNewTool ? 'Genereer Tool Component' : 'Hergenereer Tool Component'}
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
-                        Klik hier om automatisch een <code>.tsx</code> bestand te laten aanmaken in <code>src/components/tools/</code> met AI-gegenereerde code op basis van de titel en beschrijving.
+                        Klik hier om automatisch een <code>.tsx</code> bestand te laten aanmaken/overschrijven in <code>src/components/tools/</code>.
                     </p>
                 </CardContent>
             </Card>
+
+            {componentPreviewCode && (
+              <Card>
+                <CardHeader className="flex flex-row justify-between items-center">
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2 text-primary"><Bot className="h-5 w-5"/>Gegenereerde Component Code</CardTitle>
+                      <CardDescription>Dit is de code die automatisch is aangemaakt en opgeslagen.</CardDescription>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={copyCodeToClipboard}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      Kopieer Code
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <ScrollArea className="h-64 w-full rounded-md border bg-muted">
+                        <pre className="p-4 text-xs">
+                          <code>{componentPreviewCode}</code>
+                        </pre>
+                    </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
                 <CardHeader>
@@ -282,7 +320,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       </Form>
       
       <div className="mt-8 pt-6 border-t flex justify-between items-start">
-        {/* Left side: Destructive actions */}
         <div>
           {!isNewTool && onDelete && (
             <div>
@@ -298,14 +335,13 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
           )}
         </div>
 
-        {/* Right side: Primary action */}
         <Button type="submit" form="tool-creator-form">
           <Save className="mr-2 h-4 w-4"/>
           {isNewTool ? 'Tool Eigenschappen Creëren' : 'Eigenschappen Opslaan'}
         </Button>
       </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeletingDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Weet je het zeker?</AlertDialogTitle>
