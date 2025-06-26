@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
-      return { success: false, error: "Firebase is not configured." };
+      return { success: false, error: "Firebase is niet geconfigureerd." };
     }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
@@ -142,64 +142,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await setDoc(userDocRef, newUserProfile);
       return { success: true };
     } catch (error: any) {
-      console.error("Signup Error:", error.code);
-      return { success: false, error: error.code };
+      console.error("Signup Error:", error.code, error.message);
+      let friendlyError = "Er is een onbekende fout opgetreden.";
+      if (error.code === 'auth/email-already-in-use') {
+        friendlyError = "Dit e-mailadres is al in gebruik.";
+      }
+      return { success: false, error: friendlyError };
     }
   }, []);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
     if (!isFirebaseConfigured || !auth) {
-        return false;
+      toast({ title: "Configuratie Fout", description: "Kan niet inloggen, Firebase is niet geconfigureerd.", variant: "destructive" });
+      return false;
     }
     setIsLoading(true);
-
+    
     try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        return true; // Success, onAuthStateChanged will handle the rest
+      await signInWithEmailAndPassword(auth, email, pass);
+      // Success is handled by onAuthStateChanged, which will set loading to false.
+      return true;
     } catch (error: any) {
-        const demoUserConfig = DEMO_USERS.find(u => u.email === email);
+      const demoUserConfig = DEMO_USERS.find(u => u.email === email);
 
-        // Self-healing logic for demo users that have been deleted
-        if (demoUserConfig && error.code === 'auth/user-not-found') {
-            console.log(`Demo user ${email} not found. Attempting to create...`);
-            const signupResult = await signup({
-                email: demoUserConfig.email,
-                pass: 'password', // Always create with the default password
-                name: demoUserConfig.name,
-                role: demoUserConfig.role,
-                ageGroup: demoUserConfig.ageGroup,
-                status: 'actief'
-            });
+      // Self-healing for demo users that don't exist
+      if (demoUserConfig && error.code === 'auth/user-not-found') {
+        console.log(`Demo user ${email} not found. Attempting to create...`);
+        const signupResult = await signup({
+          email: demoUserConfig.email,
+          pass: pass, // Attempt to create with the password they just used
+          name: demoUserConfig.name,
+          role: demoUserConfig.role,
+          ageGroup: demoUserConfig.ageGroup,
+          status: 'actief'
+        });
 
-            if (signupResult.success) {
-                console.log(`Demo user ${email} created. Now logging in with the password you provided...`);
-                // Attempt to login again with the password the user actually typed.
-                // This allows them to use 'password' and have it work seamlessly.
-                try {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                    return true;
-                } catch (secondError: any) {
-                    console.error("Second login attempt failed after auto-creation:", secondError.code);
-                    setIsLoading(false);
-                    return false;
-                }
-            } else {
-                console.error(`Failed to auto-create demo user ${email}. Error: ${signupResult.error}`);
-            }
+        if (signupResult.success) {
+          // Signup automatically logs the user in, so onAuthStateChanged will handle the rest.
+          console.log(`Demo user ${email} created successfully.`);
+          // No need to setIsLoading(false) here, as onAuthStateChanged will do it.
+          return true;
+        } else {
+          // If signup fails (e.g., password was too weak for Firebase rules)
+          toast({
+            title: "Automatisch aanmaken mislukt",
+            description: signupResult.error || "Kon het demo-account niet aanmaken.",
+            variant: "destructive"
+          });
         }
-        
-        if (error.code === 'auth/invalid-credential') {
-             toast({
-                title: "Wachtwoord Onjuist",
-                description: `Het account ${email} bestaat, maar het wachtwoord is incorrect. Gebruik de 'Invalid Credential' Fix Guide hieronder of reset uw wachtwoord.`,
-                variant: "destructive",
-                duration: 8000,
-            });
-        }
-        
-        console.error("Firebase Login Error:", error.code);
-        setIsLoading(false);
-        return false;
+      } else if (error.code === 'auth/invalid-credential') {
+        toast({
+            title: "Inloggen Mislukt",
+            description: "De combinatie van e-mail en wachtwoord is onjuist.",
+            variant: "destructive",
+            duration: 7000,
+        });
+      } else {
+         toast({
+            title: "Inloggen Mislukt",
+            description: "Er is een onbekende fout opgetreden.",
+            variant: "destructive",
+        });
+      }
+
+      console.error("Firebase Login Error:", { code: error.code, message: error.message });
+      setIsLoading(false); // Only set loading to false on a definitive error.
+      return false;
     }
   }, [signup, toast]);
 
