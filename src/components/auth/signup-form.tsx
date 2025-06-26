@@ -17,13 +17,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, CalendarIcon } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, subYears, isValid, differenceInYears } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import type { UserRoleType } from '@/types/user';
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;
@@ -84,6 +88,9 @@ const formSchema = z.object({
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { signup } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const plan = searchParams.get('plan');
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -101,32 +108,55 @@ export function SignupForm() {
   
   const watchIsParent = form.watch("isParent");
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     const age = calculateAge(values.birthdate);
-    let redirectUrl = '';
 
-    if (values.isParent) {
-      console.log("Parent Signup values (simulation):", values);
-      console.log("Calculated age of parent:", age);
-      redirectUrl = '/verify-email?userType=parent&newRegistration=true';
-      if (plan) redirectUrl += `&plan=${plan}`;
-    } else { 
-      console.log("Teen/Young Adult Signup values (simulation):", values);
-      console.log("Calculated age of teen/young adult:", age);
-      
-      if (age !== null && age < 16) {
-        console.log(`Simulating email to parent for approval for ${values.email}`);
-        redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
-      } else {
-        const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
-        redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
-        if (plan) redirectUrl += `&plan=${plan}`;
-      }
+    let role: UserRoleType = values.isParent ? 'ouder' : 'leerling';
+    let ageGroup: '12-14' | '15-18' | 'adult' | undefined = undefined;
+
+    if (!values.isParent && age !== null) {
+        if (age >= 12 && age <= 14) ageGroup = '12-14';
+        else if (age >= 15 && age <= 18) ageGroup = '15-18';
+        else if (age > 18) ageGroup = 'adult';
     }
     
-    console.log("Account registration submitted for:", values.email, "Role intent:", values.isParent ? "Parent" : "Teen/Young Adult");
-    console.log("Redirecting to:", redirectUrl);
-    router.push(redirectUrl);
+    const signupData = {
+        email: values.email,
+        pass: values.password,
+        name: values.name,
+        role: role,
+        ageGroup: ageGroup,
+    };
+    
+    const result = await signup(signupData);
+
+    if (result.success) {
+      // The onAuthStateChanged listener in AuthContext will now handle redirects.
+      // We can just show a success message or let the context handle it.
+      // For now, we'll keep the redirect logic here to guide the user to the correct verification page.
+      let redirectUrl = '';
+      if (role === 'ouder') {
+          redirectUrl = `/verify-email?userType=parent&newRegistration=true`;
+          if (plan) redirectUrl += `&plan=${plan}`;
+      } else { // leerling
+          if (age !== null && age < 16) {
+              redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
+          } else {
+              const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
+              redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
+              if (plan) redirectUrl += `&plan=${plan}`;
+          }
+      }
+       router.push(redirectUrl);
+    } else {
+      toast({
+        title: "Registratie Mislukt",
+        description: result.error || "Er is een onbekende fout opgetreden. Probeer het opnieuw.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   }
 
   const currentYear = new Date().getFullYear();
@@ -280,7 +310,8 @@ export function SignupForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !form.formState.isValid}>
+              <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Account Aanmaken
               </Button>
               <p className="pt-1 text-xs text-muted-foreground text-center">
