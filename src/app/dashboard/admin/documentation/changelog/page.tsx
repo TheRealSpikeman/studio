@@ -120,7 +120,7 @@ export default function ChangelogPage() {
                 <div className="p-4 md:border-r flex flex-row md:flex-col items-center justify-center gap-2 md:w-48 text-center bg-muted/50 rounded-t-lg md:rounded-l-lg md:rounded-r-none">
                     <entry.icon className="h-8 w-8 text-primary"/>
                     <div className="font-semibold text-sm">
-                        <FormattedDateCell isoDateString={entry.date} dateFormatPattern="PPP" />
+                        <FormattedDateCell isoDateString={entry.date} dateFormatPattern="PPPp" />
                     </div>
                 </div>
                 <div className="p-4 flex-1">
