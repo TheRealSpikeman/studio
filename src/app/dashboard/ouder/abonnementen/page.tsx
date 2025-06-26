@@ -10,8 +10,8 @@ import { ArrowLeft, Euro, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCa
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/types';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/types';
+import type { SubscriptionPlan } from '@/types/subscription';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/types/subscription';
 
 interface ChildSubscription {
   id: string; // Unique ID for the child's subscription entry

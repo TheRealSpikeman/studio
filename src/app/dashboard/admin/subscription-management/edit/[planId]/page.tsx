@@ -3,17 +3,16 @@
 "use client";
 
 import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
+import type { SubscriptionPlan } from '@/types/subscription';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, DEFAULT_APP_FEATURES } from '@/types/subscription';
 
 export default function EditSubscriptionPlanPage() {
   const params = useParams();
-  const router = useRouter();
   const planId = params.planId as string;
   const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined);
 

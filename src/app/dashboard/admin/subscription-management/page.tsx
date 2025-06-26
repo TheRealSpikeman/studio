@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import type { AppFeature, SubscriptionPlan } from './types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, initialDefaultPlans } from './types';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, initialDefaultPlans, type SubscriptionPlan } from '@/types/subscription';
 
 // Helper function to format price
 const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
