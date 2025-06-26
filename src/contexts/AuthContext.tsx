@@ -13,7 +13,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
-import type { User, UserRoleType } from '@/types/user';
+import type { User, UserRoleType, UserStatus } from '@/types/user';
 
 export interface SignupData {
   email: string;
@@ -21,6 +21,7 @@ export interface SignupData {
   name: string;
   role: UserRoleType;
   ageGroup?: '12-14' | '15-18' | 'adult';
+  status?: UserStatus;
 }
 
 interface AuthContextType {
@@ -31,6 +32,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  switchUserRole: (role: UserRoleType) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,42 +71,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...userData,
             email: firebaseUser.email || userData.email,
           };
+          setUser(appUser);
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+          const targetPath = `/dashboard/${appUser.role}`;
+           if (window.location.pathname !== targetPath && !window.location.pathname.startsWith('/dashboard/')) {
+             router.push(targetPath);
+           }
         } else {
-          // User exists in Auth, but not in Firestore. Let's fix this for demo users.
-          console.warn("User in Auth, but not in Firestore. Attempting to create Firestore document...");
+          // This case handles a new user signup where the Firestore doc might not be created yet.
+          // For demo purposes, we will create a doc for known demo users.
+          console.warn("User in Auth, but not yet in Firestore. This is likely a new signup.");
           const userEmail = firebaseUser.email;
           const roleForDemoUser = userEmail ? demoUsers[userEmail] : undefined;
-
           if (roleForDemoUser) {
             const name = `${roleForDemoUser.charAt(0).toUpperCase() + roleForDemoUser.slice(1)} User`;
             const newUserProfile: Omit<User, 'id'> = {
               name: name,
-              email: userEmail || 'unknown@example.com',
+              email: userEmail!,
               role: roleForDemoUser,
               status: 'actief',
               createdAt: new Date().toISOString(),
               lastLogin: new Date().toISOString(),
               ...(roleForDemoUser === 'leerling' && { ageGroup: '15-18' }),
             };
-            
             await setDoc(userDocRef, newUserProfile);
             appUser = { id: firebaseUser.uid, ...newUserProfile };
-            console.log("Firestore document created for demo user:", userEmail);
+            setUser(appUser);
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+             const targetPath = `/dashboard/${appUser.role}`;
+             if (window.location.pathname !== targetPath && !window.location.pathname.startsWith('/dashboard/')) {
+               router.push(targetPath);
+             }
           } else {
-            console.error("Unknown user in Auth without Firestore document. Logging out for safety.");
-            await signOut(auth);
+            console.log("Regular user signed up, waiting for Firestore doc to be created by signup function.");
+            // We give it a moment for the signup function's setDoc to complete.
+            setTimeout(async () => {
+              const refreshedSnap = await getDoc(userDocRef);
+              if (refreshedSnap.exists()) {
+                const appUser = { id: firebaseUser.uid, ...(refreshedSnap.data() as Omit<User, 'id'>) };
+                setUser(appUser);
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+              } else {
+                console.error("Firestore document still not found for new user after signup. Logging out for safety.");
+                await signOut(auth);
+              }
+            }, 1000);
           }
         }
-        
-        setUser(appUser);
-        if (appUser) {
-          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
-          const targetPath = `/dashboard/${appUser.role}`;
-          if (window.location.pathname !== targetPath) {
-            router.push(targetPath);
-          }
-        }
-
       } else {
         setUser(null);
         localStorage.removeItem(USER_STORAGE_KEY);
@@ -113,23 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => unsubscribe();
   }, [router]);
-
-  const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth) {
-      console.error("Firebase not configured, login aborted.");
-      return false;
-    }
-    setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting the user and redirecting.
-      return true;
-    } catch (error: any) {
-      console.error("Firebase Login Error:", error);
-      setIsLoading(false);
-      return false;
-    }
-  }, []);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -142,7 +138,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const firebaseUser = userCredential.user;
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const newUserProfile: Omit<User, 'id'> = {
-        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup, status: 'niet geverifieerd',
+        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup, 
+        status: data.status || 'niet geverifieerd',
         createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(),
       };
       await setDoc(userDocRef, newUserProfile);
@@ -158,6 +155,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
+    if (!isFirebaseConfigured || !auth) {
+      console.error("Firebase not configured, login aborted.");
+      return false;
+    }
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting the user and redirecting.
+      return true;
+    } catch (error: any) {
+      // Firebase returns 'auth/invalid-credential' for both wrong password and user not found.
+      if (error.code === 'auth/invalid-credential' && email in demoUsers) {
+        console.log(`Demo user ${email} not found or invalid credentials, attempting to create...`);
+        try {
+          const role = demoUsers[email];
+          const signupResult = await signup({
+            email,
+            pass,
+            name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
+            role: role,
+            ageGroup: role === 'leerling' ? '15-18' : undefined,
+            status: 'actief', // Create demo users as active
+          });
+
+          if (signupResult.success) {
+            console.log(`Demo user ${email} created successfully. Firebase will now sign them in.`);
+            // After signup, user is automatically logged in. onAuthStateChanged will handle the rest.
+            return true;
+          } else {
+             // This might happen if the user exists but the password was wrong. The signup call would fail.
+            console.error("Failed to auto-create demo user, likely due to incorrect password:", signupResult.error);
+            setIsLoading(false);
+            return false;
+          }
+        } catch (creationError) {
+          console.error("Error during demo user auto-creation:", creationError);
+          setIsLoading(false);
+          return false;
+        }
+      }
+
+      console.error("Firebase Login Error:", error);
+      setIsLoading(false);
+      return false;
+    }
+  }, [signup]);
+
   const logout = useCallback(async () => {
     if (auth) {
       await signOut(auth);
@@ -166,6 +211,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(USER_STORAGE_KEY);
     router.push('/login');
   }, [router]);
+  
+  const switchUserRole = useCallback((role: UserRoleType) => {
+    if (user) {
+        const updatedUser = { ...user, role: role };
+        setUser(updatedUser);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+        router.push(`/dashboard/${role}`);
+    }
+  }, [user, router]);
 
   const value: AuthContextType = {
     user,
@@ -175,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     signup,
     logout,
+    switchUserRole
   };
 
   return (
