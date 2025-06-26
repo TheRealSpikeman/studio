@@ -11,7 +11,7 @@ import {
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import type { User, UserRoleType, UserStatus } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
@@ -47,13 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !auth) {
+    if (!isFirebaseConfigured || !auth || !db) {
       setIsLoading(false);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && db) {
-        try { // Wrap in try-catch to handle offline errors
+      if (firebaseUser) {
+        try {
           const userDocRef = doc(db, "users", firebaseUser.uid);
           const userDocSnap = await getDoc(userDocRef);
 
@@ -65,13 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             };
             setUser(appUser);
             localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+            await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+            router.push(`/dashboard/${appUser.role}`);
           } else {
-            console.warn(`User ${firebaseUser.uid} authenticated, but no Firestore document found. Logging out.`);
+            console.warn(`User ${firebaseUser.uid} authenticated, but no Firestore doc found. Logging out.`);
             await signOut(auth);
           }
         } catch (error: any) {
           console.error("Firebase Auth Error (onAuthStateChanged):", error);
-          if (error.code === 'unavailable') { // Handle offline error gracefully
+          if (error.code === 'unavailable') {
             toast({
               title: "Offline",
               description: "Kon profiel niet laden. Controleer uw internetverbinding.",
@@ -94,26 +96,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, [toast]);
+  }, [toast, router]);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
       return { success: false, error: "Firebase is not configured." };
     }
-    setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
       const firebaseUser = userCredential.user;
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const newUserProfile: Omit<User, 'id'> = {
-        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup, 
+        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup,
         status: data.status || 'niet geverifieerd',
         createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(),
       };
       await setDoc(userDocRef, newUserProfile);
       return { success: true };
     } catch (error: any) {
-      setIsLoading(false);
       let errorMessage = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = "Dit e-mailadres is al in gebruik.";
@@ -123,19 +123,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth) {
+    if (!isFirebaseConfigured || !auth || !db) {
       return false;
     }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle the rest.
       return true;
     } catch (error: any) {
-      console.error("Firebase Login Error:", error);
-      setIsLoading(false);
-      return false;
+      const demoEmails = [
+        'admin@example.com',
+        'leerling@example.com',
+        'ouder@example.com',
+        'tutor@example.com',
+        'coach@example.com',
+      ];
+      
+      // If it's a known demo user and the error is invalid credentials, try to create them.
+      if (error.code === 'auth/invalid-credential' && demoEmails.includes(email.toLowerCase())) {
+        console.log(`Login failed for demo user ${email}. Attempting to create account...`);
+        try {
+          const role = email.split('@')[0] as UserRoleType;
+          const signupResult = await signup({
+            email,
+            pass,
+            name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
+            role,
+            ageGroup: '15-18', // A sensible default
+            status: 'actief',
+          });
+
+          if (signupResult.success) {
+            // Success! The onAuthStateChanged listener will now log the user in.
+            return true;
+          } else {
+            // The user exists, but the password was wrong. The signup call failed.
+            console.error("Failed to auto-create demo user, likely due to incorrect password:", signupResult.error);
+            toast({
+              title: "Inloggen Mislukt",
+              description: "Dit demo-account bestaat al, maar het wachtwoord is onjuist. Probeer 'password'.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return false;
+          }
+        } catch (signupError) {
+           console.error("An unexpected error occurred during the signup attempt for a demo user:", signupError);
+           setIsLoading(false);
+           return false;
+        }
+      } else {
+         // For non-demo users or other errors, fail normally.
+         console.error("Firebase Login Error:", error);
+         setIsLoading(false);
+         return false;
+      }
     }
-  }, []);
+  }, [signup, toast]);
 
   const logout = useCallback(async () => {
     if (auth) {
