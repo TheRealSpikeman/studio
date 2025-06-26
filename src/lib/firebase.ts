@@ -15,6 +15,11 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+// Check for missing or placeholder Firebase config variables
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("...")) {
+  throw new Error('Firebase API Key is missing or invalid. Please check your .env file and ensure it contains the correct configuration from your Firebase project console.');
+}
+
 // Initialize Firebase
 let app: FirebaseApp;
 if (!getApps().length) {
