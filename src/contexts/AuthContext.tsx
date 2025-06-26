@@ -143,45 +143,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
     setIsLoading(true);
+    
+    // DEBUG LOGGING ADDED
+    console.log('🔥 LOGIN ATTEMPT in AuthContext:')
+    console.log('Email:', `"${email}"`)
+    console.log('Password length:', pass.length)
+    if(pass.length > 0) console.log('Password first char:', pass[0]);
+    const cleanEmail = email.trim();
+    console.log('Trimmed Email:', `"${cleanEmail}"`)
+
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, pass);
+      console.log('✅ AuthContext LOGIN SUCCESS:', userCredential.user.email);
+      // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
-      console.error("Firebase Login Error:", error);
-
-      // Automatic demo user creation logic
-      const demoEmails = ['admin@example.com', 'leerling@example.com', 'ouder@example.com', 'tutor@example.com', 'coach@example.com'];
-      if (error.code === 'auth/invalid-credential' && demoEmails.includes(email.toLowerCase())) {
-        console.log(`Login failed for demo user ${email}. Attempting to create account...`);
-        try {
-          const role = email.split('@')[0] as UserRoleType;
-          const signupResult = await signup({
-            email, pass, name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`, role, ageGroup: '15-18', status: 'actief',
-          });
-
-          if (signupResult.success) {
-            return true;
-          } else {
-            console.error("Failed to auto-create demo user, likely due to incorrect password:", signupResult.error);
-             toast({
-              title: "Inloggen Mislukt",
-              description: "Dit demo-account bestaat al, maar het wachtwoord is onjuist. Probeer 'password'.",
-              variant: "destructive",
-            });
-            setIsLoading(false);
-            return false;
-          }
-        } catch (signupError) {
-           console.error("An unexpected error occurred during the signup attempt for a demo user:", signupError);
-           setIsLoading(false);
-           return false;
-        }
-      }
-      // For non-demo users or other errors, fail normally
-      setIsLoading(false);
+      console.error('❌ AuthContext LOGIN FAILED:', error.code, error.message);
+      setIsLoading(false); // Only set loading to false on failure.
       return false;
     }
-  }, [signup, toast]);
+  }, []);
 
   const logout = useCallback(async () => {
     if (auth) {
