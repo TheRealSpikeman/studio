@@ -37,6 +37,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'mindnavigator_session_user';
 
+const demoUsers: Record<string, UserRoleType> = {
+  'admin@example.com': 'admin',
+  'ouder@example.com': 'ouder',
+  'leerling@example.com': 'leerling',
+  'tutor@example.com': 'tutor',
+  'coach@example.com': 'coach',
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,21 +84,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth) {
+    if (!isFirebaseConfigured || !auth || !db) {
       console.error("Firebase not configured, login aborted.");
       return false;
     }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      router.push('/dashboard');
+      // onAuthStateChanged will handle setting user and redirecting
       return true;
-    } catch (error) {
-      console.error("Firebase Login Error:", error);
-      setIsLoading(false);
-      return false;
+    } catch (error: any) {
+      const roleForDemoUser = demoUsers[email];
+      // If it's a known demo user and the error is user-not-found or invalid-credential, try to create it.
+      if (roleForDemoUser && (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential')) {
+        console.log(`Demo user ${email} not found. Attempting to create...`);
+        try {
+          // Attempt to sign up the demo user
+          const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+          const firebaseUser = userCredential.user;
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          
+          const name = `${roleForDemoUser.charAt(0).toUpperCase() + roleForDemoUser.slice(1)} User`;
+          
+          const newUserProfile: Omit<User, 'id'> = {
+            name: name,
+            email: email,
+            role: roleForDemoUser,
+            status: 'actief', // Demo users are active by default
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            // Add default ageGroup for leerling demo user
+            ...(roleForDemoUser === 'leerling' && { ageGroup: '15-18' }),
+          };
+          
+          await setDoc(userDocRef, newUserProfile);
+          // onAuthStateChanged will handle the rest.
+          return true;
+        } catch (signupError) {
+          console.error(`Failed to create demo user ${email}:`, signupError);
+          setIsLoading(false);
+          return false;
+        }
+      } else {
+        // It's a regular login error (e.g. wrong password for an existing user)
+        console.error("Firebase Login Error:", error);
+        setIsLoading(false);
+        return false;
+      }
     }
-  }, [router]);
+  }, []);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
