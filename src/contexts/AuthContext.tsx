@@ -73,34 +73,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (error: any) {
           console.error("Error fetching user document from Firestore:", error);
-          const cachedUserStr = localStorage.getItem(USER_STORAGE_KEY);
-          if (cachedUserStr) {
-            try {
-              const cachedUser = JSON.parse(cachedUserStr);
-              // Ensure cached user UID matches Firebase Auth UID
-              if (cachedUser.id === firebaseUser.uid) {
-                setUser(cachedUser);
+          if (error.code === 'unavailable' || (error.message && error.message.toLowerCase().includes('offline'))) {
+            const cachedUserStr = localStorage.getItem(USER_STORAGE_KEY);
+            if (cachedUserStr) {
+                try {
+                  const cachedUser = JSON.parse(cachedUserStr);
+                  if (cachedUser.id === firebaseUser.uid) {
+                    setUser(cachedUser);
+                    toast({
+                      title: "Offline modus (beperkt)",
+                      description: "Kon profiel niet vernieuwen. Weergegeven data is mogelijk niet up-to-date.",
+                      variant: "default",
+                    });
+                    // FIX: Add redirect here to navigate to dashboard with cached user data
+                    router.push(`/dashboard/${cachedUser.role}`);
+                  } else {
+                    await signOut(auth);
+                  }
+                } catch (e) {
+                    await signOut(auth);
+                }
+            } else {
                 toast({
-                  title: "Offline modus (beperkt)",
-                  description: "Kon profiel niet vernieuwen. Weergegeven data is mogelijk niet up-to-date.",
-                  variant: "default",
+                  title: "Authenticatie Fout",
+                  description: "Kon uw profiel niet laden. Log opnieuw in.",
+                  variant: "destructive",
                 });
-              } else {
-                // Mismatch, something is wrong, force logout
-                await signOut(auth);
-              }
-            } catch (e) {
-                // Parsing error, corrupted cache, force logout
                 await signOut(auth);
             }
           } else {
-            // No user in cache, cannot proceed safely
-            toast({
-              title: "Authenticatie Fout",
-              description: "Kon uw profiel niet laden. Log opnieuw in.",
-              variant: "destructive",
-            });
-            await signOut(auth);
+             await signOut(auth);
           }
         }
       } else {
@@ -143,38 +145,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
-      const demoEmails = [
-        'admin@example.com',
-        'leerling@example.com',
-        'ouder@example.com',
-        'tutor@example.com',
-        'coach@example.com',
-      ];
-      
-      // If it's a known demo user and the error is invalid credentials, try to create them.
+      console.error("Firebase Login Error:", error);
+
+      // Automatic demo user creation logic
+      const demoEmails = ['admin@example.com', 'leerling@example.com', 'ouder@example.com', 'tutor@example.com', 'coach@example.com'];
       if (error.code === 'auth/invalid-credential' && demoEmails.includes(email.toLowerCase())) {
         console.log(`Login failed for demo user ${email}. Attempting to create account...`);
         try {
           const role = email.split('@')[0] as UserRoleType;
           const signupResult = await signup({
-            email,
-            pass,
-            name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
-            role,
-            ageGroup: '15-18', // A sensible default
-            status: 'actief',
+            email, pass, name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`, role, ageGroup: '15-18', status: 'actief',
           });
 
           if (signupResult.success) {
-            // Success! The onAuthStateChanged listener will now log the user in.
             return true;
           } else {
-            // The user exists, but the password was wrong. The signup call failed.
             console.error("Failed to auto-create demo user, likely due to incorrect password:", signupResult.error);
-            toast({
+             toast({
               title: "Inloggen Mislukt",
               description: "Dit demo-account bestaat al, maar het wachtwoord is onjuist. Probeer 'password'.",
               variant: "destructive",
@@ -187,12 +176,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
            setIsLoading(false);
            return false;
         }
-      } else {
-         // For non-demo users or other errors, fail normally.
-         console.error("Firebase Login Error:", error);
-         setIsLoading(false);
-         return false;
       }
+      // For non-demo users or other errors, fail normally
+      setIsLoading(false);
+      return false;
     }
   }, [signup, toast]);
 
