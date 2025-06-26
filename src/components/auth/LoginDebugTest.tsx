@@ -3,11 +3,11 @@
 
 import { useState } from 'react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { auth, isFirebaseConfigured } from '@/lib/firebase'
 
 export function LoginDebugTest() {
   const [email, setEmail] = useState('admin@example.com')
-  const [password, setPassword] = useState('test123')
+  const [password, setPassword] = useState('password')
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +26,6 @@ export function LoginDebugTest() {
       console.log('Email length:', email.length)
       console.log('Password length:', password.length)
       
-      // Trim any whitespace
       const cleanEmail = email.trim()
       const cleanPassword = password.trim()
       
@@ -54,7 +53,14 @@ Debug Info:
 - Email tried: "${email}"
 - Password length: ${password.length}
 - Auth instance: ${auth ? 'OK' : 'MISSING'}
-- Project ID: ${auth.app.options.projectId || 'MISSING'}`
+- Project ID: ${auth?.app?.options?.projectId || 'MISSING'}`
+
+      if (!isFirebaseConfigured) {
+        errorDetails += `\n- Config Status: ⚠️ Firebase seems NOT configured. Check your .env file.`
+      } else {
+        errorDetails += `\n- Config Status: ✅ Firebase seems configured.`
+      }
+
 
       if (error.code === 'auth/invalid-credential') {
         errorDetails += `
@@ -63,7 +69,7 @@ SOLUTIONS TO TRY:
 1. Check Firebase Console → Authentication → Users
 2. Verify exact email address (no typos)
 3. Reset password in Firebase Console
-4. Use exactly: admin@example.com / test123
+4. Use exactly: admin@example.com / password
 5. Check for extra spaces in email/password fields`
       }
 
@@ -80,7 +86,7 @@ SOLUTIONS TO TRY:
 2. Authentication → Users
 3. Find user: ${email}
 4. Click 3-dots menu → "Reset password"
-5. Set new password: test123
+5. Set new password: password
 6. Save
 7. Test login here with new password`)
   }
@@ -111,7 +117,7 @@ SOLUTIONS TO TRY:
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
-            placeholder="test123"
+            placeholder="password"
           />
           <p className="text-xs text-gray-600 mt-1">
             Length: {password.length}
@@ -121,7 +127,7 @@ SOLUTIONS TO TRY:
         <div className="flex space-x-2">
           <button
             onClick={testLogin}
-            disabled={loading}
+            disabled={loading || !isFirebaseConfigured}
             className="flex-1 bg-red-500 text-white p-2 rounded hover:bg-red-600 disabled:opacity-50"
           >
             {loading ? 'Testing...' : 'Test Direct Login'}
@@ -135,6 +141,12 @@ SOLUTIONS TO TRY:
           </button>
         </div>
       </div>
+      
+      {!isFirebaseConfigured && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded text-red-800 text-sm">
+            <strong>Warning:</strong> Firebase is not configured in your <strong>.env</strong> file. The login test will not work.
+          </div>
+      )}
 
       {result && (
         <div className="mt-4 p-3 bg-white rounded border">
