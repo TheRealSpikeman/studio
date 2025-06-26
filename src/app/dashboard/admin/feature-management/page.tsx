@@ -9,8 +9,8 @@ import { PlusCircle, Package, Search } from 'lucide-react';
 import { FeatureTable } from '@/components/admin/feature-management/FeatureTable';
 import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feature-management/FeatureFormDialog';
 import { useToast } from '@/hooks/use-toast';
-import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/page';
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page';
+import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/dashboard/admin/subscription-management/types';
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/types';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import type { AppFeature as ImportedAppFeature, TargetAudience, SubscriptionPlan as ImportedSubscriptionPlan } from './types';
+import type { AppFeature, SubscriptionPlan } from './types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,11 +12,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
-export type AppFeature = ImportedAppFeature;
-export type SubscriptionPlan = ImportedSubscriptionPlan;
-
-export { LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, DEFAULT_APP_FEATURES } from './types';
 import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, initialDefaultPlans } from './types';
 
 // Helper function to format price

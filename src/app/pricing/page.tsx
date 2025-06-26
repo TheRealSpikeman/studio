@@ -12,68 +12,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/page'; 
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/page'; 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-
-const initialSubscriptionPlansForPricing: SubscriptionPlan[] = [ 
-  {
-    id: 'free_start', name: 'Gratis Start', shortName: 'Gratis', description: 'Basis zelfreflectie tool & PDF overzicht.', price: 0, currency: 'EUR', billingInterval: 'once',
-    tagline: 'Proef de kracht van zelfinzicht.',
-    featureAccess: { 
-      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])), 
-      startAssessment: true, basicReflectionToolLimited: true, basicPdfOverview: true, accountManagement: true,
-    },
-    active: true, trialPeriodDays: 0, maxChildren: 1, isPopular: false,
-  },
-  {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezin M', description: 'Complete digitale ondersteuning voor het gezin.', price: 19.99, currency: 'EUR', billingInterval: 'month',
-    tagline: 'Slechts €0,13 per dag voor uitgebreide tools!',
-    featureAccess: {
-      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
-      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
-      aiPoweredInsights: true, exclusiveCoachingModules: true, 
-    },
-    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: true,
-  },
-   {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', shortName: 'Gezin J', description: 'Complete digitale ondersteuning met jaarkorting.', price: 191.88, currency: 'EUR', billingInterval: 'year',
-    tagline: 'Jaarlijks voordeel voor het hele gezin!',
-    featureAccess: {
-       ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, false])),
-      startAssessment: true, weeklyMotivationEmail: true, allReflectionToolsUnlimited: true, interactiveJournal: true, 
-      homeworkPlannerFocusTools: true, motivationTracking: true, extensivePdfReports: true,
-      childProgressTracking: true, familyInsights: true, communicationWithLinkedProfessionals: true, accountManagement: true,
-      max3ChildrenIncluded: true, browseProfessionals: true, professionalRates: true, bookPaySessions: true, sessionPlanningReminders: true,
-      yearlyDiscount15: true,
-      aiPoweredInsights: true, exclusiveCoachingModules: true,
-    },
-    active: true, trialPeriodDays: 14, maxChildren: 3, isPopular: false,
-  },
-    {
-    id: 'premium_family_monthly', name: 'Premium Plan - Maandelijks', shortName: 'Prem M', description: 'Alles van Gezins Gids, plus premium features en meer kinderen.', price: 39.99, currency: 'EUR', billingInterval: 'month',
-    tagline: '€0,67 per dag - minder dan een kopje koffie!',
-    featureAccess: {
-      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])), 
-      noProgressAnalytics: false, 
-    },
-    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
-  },
-  {
-    id: 'premium_family_yearly', name: 'Premium Plan - Jaarlijks', shortName: 'Prem J', description: 'Alles van Premium Plan met jaarkorting.', price: 360.00, currency: 'EUR', billingInterval: 'year',
-    tagline: 'Het meest complete pakket met maximale korting!',
-    featureAccess: {
-      ...Object.fromEntries(DEFAULT_APP_FEATURES.map(f => [f.id, true])),
-      noProgressAnalytics: false, 
-      yearlyDiscount15: true, 
-    },
-    active: true, trialPeriodDays: 14, maxChildren: 4, isPopular: false,
-  },
-];
+import type { SubscriptionPlan, AppFeature } from '@/app/dashboard/admin/subscription-management/types'; 
+import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, initialDefaultPlans } from '@/app/dashboard/admin/subscription-management/types'; 
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 const faqItems = [
@@ -172,24 +113,24 @@ export default function PricingPage() {
         });
       } catch (e) {
         console.error("Error parsing plans from localStorage on pricing page, using defaults", e);
-        activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
+        activePlans = initialDefaultPlans.filter(p => p.active).map(plan => ({
             ...plan,
             shortName: plan.shortName ?? '',
             featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess?.[f.id] || false])), 
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
-        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlansForPricing));
+        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
       }
     } else {
-      activePlans = initialSubscriptionPlansForPricing.filter(p => p.active).map(plan => ({
+      activePlans = initialDefaultPlans.filter(p => p.active).map(plan => ({
             ...plan,
             shortName: plan.shortName ?? '',
             featureAccess: Object.fromEntries(loadedFeatures.map(f => [f.id, plan.featureAccess?.[f.id] || false])),
              isPopular: plan.isPopular ?? false,
              tagline: plan.tagline ?? '',
         }));
-      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialSubscriptionPlansForPricing));
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
     }
     setPlans(activePlans);
     setIsLoading(false);
@@ -478,4 +419,3 @@ export default function PricingPage() {
     </div>
   );
 }
-

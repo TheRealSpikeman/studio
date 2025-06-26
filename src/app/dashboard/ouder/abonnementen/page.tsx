@@ -10,7 +10,8 @@ import { ArrowLeft, Euro, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCa
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page'; // Import type from admin
+import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/types';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/app/dashboard/admin/subscription-management/types';
 
 interface ChildSubscription {
   id: string; // Unique ID for the child's subscription entry
@@ -70,7 +71,7 @@ export default function AbonnementenPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedPlansRaw = localStorage.getItem('subscriptionPlans');
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     if (storedPlansRaw) {
       try {
         const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
@@ -197,4 +198,3 @@ export default function AbonnementenPage() {
     </div>
   );
 }
-    
