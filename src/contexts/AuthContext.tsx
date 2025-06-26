@@ -40,15 +40,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'mindnavigator_session_user';
 
-// A list of known demo users.
-const DEMO_USERS: Omit<User, 'id' | 'lastLogin' | 'createdAt'>[] = [
-  { email: 'admin@example.com', name: 'Admin User', role: 'admin', status: 'actief' },
-  { email: 'leerling@example.com', name: 'Leerling User', role: 'leerling', status: 'actief', ageGroup: '15-18' },
-  { email: 'ouder@example.com', name: 'Ouder User', role: 'ouder', status: 'actief' },
-  { email: 'tutor@example.com', name: 'Tutor User', role: 'tutor', status: 'actief' },
-  { email: 'coach@example.com', name: 'Coach User', role: 'coach', status: 'actief' },
-];
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -163,53 +154,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Success is handled by onAuthStateChanged, which will set loading to false.
       return true;
     } catch (error: any) {
-      const demoUserConfig = DEMO_USERS.find(u => u.email === email);
-
-      // Self-healing for demo users that don't exist
-      if (demoUserConfig && error.code === 'auth/user-not-found') {
-        console.log(`Demo user ${email} not found. Attempting to create...`);
-        const signupResult = await signup({
-          email: demoUserConfig.email,
-          pass: pass, // Attempt to create with the password they just used
-          name: demoUserConfig.name,
-          role: demoUserConfig.role,
-          ageGroup: demoUserConfig.ageGroup,
-          status: 'actief'
-        });
-
-        if (signupResult.success) {
-          // Signup automatically logs the user in, so onAuthStateChanged will handle the rest.
-          console.log(`Demo user ${email} created successfully.`);
-          // No need to setIsLoading(false) here, as onAuthStateChanged will do it.
-          return true;
-        } else {
-          // If signup fails (e.g., password was too weak for Firebase rules)
-          toast({
-            title: "Automatisch aanmaken mislukt",
-            description: signupResult.error || "Kon het demo-account niet aanmaken.",
-            variant: "destructive"
-          });
-        }
-      } else if (error.code === 'auth/invalid-credential') {
-        toast({
-            title: "Inloggen Mislukt",
-            description: "De combinatie van e-mail en wachtwoord is onjuist.",
-            variant: "destructive",
-            duration: 7000,
-        });
-      } else {
-         toast({
-            title: "Inloggen Mislukt",
-            description: "Er is een onbekende fout opgetreden.",
-            variant: "destructive",
-        });
+      let errorMessage = "Controleer uw e-mailadres en wachtwoord.";
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+        errorMessage = "De combinatie van e-mail en wachtwoord is onjuist.";
+      } else if (error.code) {
+        errorMessage = `Fout: ${error.code}`;
       }
 
+      toast({
+        title: "Inloggen Mislukt",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       console.error("Firebase Login Error:", { code: error.code, message: error.message });
       setIsLoading(false); // Only set loading to false on a definitive error.
       return false;
     }
-  }, [signup, toast]);
+  }, [toast]);
 
   const logout = useCallback(async () => {
     if (auth) {
