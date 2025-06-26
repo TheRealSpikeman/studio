@@ -144,31 +144,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
     if (!isFirebaseConfigured || !auth) {
-      toast({ title: "Configuratie Fout", description: "Kan niet inloggen, Firebase is niet geconfigureerd.", variant: "destructive" });
+      toast({
+        title: "Configuratie Fout",
+        description: "Firebase is niet geconfigureerd. Controleer .env-variabelen.",
+        variant: "destructive"
+      });
       return false;
     }
-    setIsLoading(true);
     
+    setIsLoading(true);
+
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // Success is handled by onAuthStateChanged, which will set loading to false.
+      // onAuthStateChanged handles success (setting user, redirecting, etc.)
       return true;
-    } catch (error: any) {
-      let errorMessage = "Controleer uw e-mailadres en wachtwoord.";
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
-        errorMessage = "De combinatie van e-mail en wachtwoord is onjuist.";
-      } else if (error.code) {
-        errorMessage = `Fout: ${error.code}`;
+    } catch (error) {
+      let friendlyMessage = "Er is een onbekende fout opgetreden.";
+
+      // Check if it's a Firebase error with a code property
+      if (error && typeof error === 'object' && 'code' in error) {
+        const firebaseError = error as { code: string; message: string };
+        console.error("Firebase Login Error:", firebaseError.code, firebaseError.message);
+        switch (firebaseError.code) {
+          case 'auth/user-not-found':
+          case 'auth/invalid-credential':
+          case 'auth/wrong-password':
+            friendlyMessage = "De combinatie van e-mail en wachtwoord is onjuist.";
+            break;
+          case 'auth/invalid-email':
+            friendlyMessage = "Het ingevoerde e-mailadres is ongeldig.";
+            break;
+          case 'auth/too-many-requests':
+            friendlyMessage = "Te veel inlogpogingen. Probeer het later opnieuw.";
+            break;
+          default:
+            friendlyMessage = `Er is een fout opgetreden: ${firebaseError.code}`;
+            break;
+        }
+      } else {
+        // Log the entire unknown error for better debugging
+        console.error("An unknown login error occurred:", error);
       }
 
       toast({
         title: "Inloggen Mislukt",
-        description: errorMessage,
+        description: friendlyMessage,
         variant: "destructive",
       });
-      
-      console.error("Firebase Login Error:", { code: error.code, message: error.message });
-      setIsLoading(false); // Only set loading to false on a definitive error.
+
+      setIsLoading(false);
       return false;
     }
   }, [toast]);
