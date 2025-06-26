@@ -66,11 +66,10 @@ Debug Info:
         errorDetails += `
 
 SOLUTIONS TO TRY:
-1. Check Firebase Console → Authentication → Users
+1. Use the 'Invalid Credential Fix Guide' button below.
 2. Verify exact email address (no typos)
-3. Reset password in Firebase Console
-4. Use exactly: admin@example.com / password
-5. Check for extra spaces in email/password fields`
+3. Use exactly: admin@example.com / password
+4. Check for extra spaces in email/password fields`
       }
 
       setResult(errorDetails)
@@ -79,16 +78,18 @@ SOLUTIONS TO TRY:
     }
   }
 
-  const resetPasswordInConsole = () => {
-    setResult(`📋 RESET PASSWORD STEPS:
+  const deleteAccountGuide = () => {
+    setResult(`📋 DELETE ACCOUNT STEPS (Fixes 'invalid-credential'):
 
-1. Go to Firebase Console
-2. Authentication → Users
-3. Find user: ${email}
-4. Click 3-dots menu → "Reset password"
-5. Set new password: password
-6. Save
-7. Test login here with new password`)
+1. Go to Firebase Console → Authentication → Users
+2. Find the user: ${email}
+3. Click the 3-dots menu → "Delete account"
+4. Confirm deletion
+5. Come back here and try logging in with:
+   - Email: ${email}
+   - Password: password
+   
+The app will now automatically re-create the account for you.`)
   }
 
   return (
@@ -134,10 +135,10 @@ SOLUTIONS TO TRY:
           </button>
           
           <button
-            onClick={resetPasswordInConsole}
+            onClick={deleteAccountGuide}
             className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           >
-            Reset Password Guide
+            "Invalid Credential" Fix Guide
           </button>
         </div>
       </div>
@@ -157,10 +158,9 @@ SOLUTIONS TO TRY:
       <div className="mt-6 p-3 bg-yellow-100 border border-yellow-300 rounded">
         <h4 className="font-semibold">📋 Quick Checklist:</h4>
         <ul className="text-sm mt-1 space-y-1">
-          <li>□ Firebase Console → Authentication → Users shows: admin@example.com?</li>
-          <li>□ Password reset done in Firebase Console?</li>
+          <li>□ Firebase Console → Authentication → Users shows: admin@example.com? (If so, delete it)</li>
           <li>□ Using EXACT email: admin@example.com (no typos)?</li>
-          <li>□ Using correct password (that you just set)?</li>
+          <li>□ Using correct password ('password')?</li>
           <li>□ No extra spaces in email/password fields?</li>
         </ul>
       </div>

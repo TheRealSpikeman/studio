@@ -40,6 +40,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'mindnavigator_session_user';
 
+// A list of known demo users.
+const DEMO_USERS: Omit<User, 'id' | 'lastLogin' | 'createdAt'>[] = [
+  { email: 'admin@example.com', name: 'Admin User', role: 'admin', status: 'actief' },
+  { email: 'leerling@example.com', name: 'Leerling User', role: 'leerling', status: 'actief', ageGroup: '15-18' },
+  { email: 'ouder@example.com', name: 'Ouder User', role: 'ouder', status: 'actief' },
+  { email: 'tutor@example.com', name: 'Tutor User', role: 'tutor', status: 'actief' },
+  { email: 'coach@example.com', name: 'Coach User', role: 'coach', status: 'actief' },
+];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                       description: "Kon profiel niet vernieuwen. Weergegeven data is mogelijk niet up-to-date.",
                       variant: "default",
                     });
-                    // FIX: Add redirect here to navigate to dashboard with cached user data
                     router.push(`/dashboard/${cachedUser.role}`);
                   } else {
                     await signOut(auth);
@@ -123,46 +131,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const firebaseUser = userCredential.user;
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const newUserProfile: Omit<User, 'id'> = {
-        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        ageGroup: data.ageGroup,
         status: data.status || 'niet geverifieerd',
-        createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
       };
       await setDoc(userDocRef, newUserProfile);
       return { success: true };
     } catch (error: any) {
-      let errorMessage = "Er is een onbekende fout opgetreden.";
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = "Dit e-mailadres is al in gebruik.";
-      }
-      return { success: false, error: errorMessage };
+      console.error("Signup Error:", error.code);
+      return { success: false, error: error.code };
     }
   }, []);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth || !db) {
-      return false;
+    if (!isFirebaseConfigured || !auth) {
+        return false;
     }
     setIsLoading(true);
-    
-    // DEBUG LOGGING ADDED
-    console.log('🔥 LOGIN ATTEMPT in AuthContext:')
-    console.log('Email:', `"${email}"`)
-    console.log('Password length:', pass.length)
-    if(pass.length > 0) console.log('Password first char:', pass[0]);
-    const cleanEmail = email.trim();
-    console.log('Trimmed Email:', `"${cleanEmail}"`)
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, pass);
-      console.log('✅ AuthContext LOGIN SUCCESS:', userCredential.user.email);
-      // onAuthStateChanged will handle setting the user and redirecting.
-      return true;
+        await signInWithEmailAndPassword(auth, email, pass);
+        return true; // Success, onAuthStateChanged will handle the rest
     } catch (error: any) {
-      console.error('❌ AuthContext LOGIN FAILED:', error.code, error.message);
-      setIsLoading(false); // Only set loading to false on failure.
-      return false;
+        const demoUserConfig = DEMO_USERS.find(u => u.email === email);
+
+        // Self-healing logic for demo users that have been deleted
+        if (demoUserConfig && error.code === 'auth/user-not-found') {
+            console.log(`Demo user ${email} not found. Attempting to create...`);
+            const signupResult = await signup({
+                email: demoUserConfig.email,
+                pass: 'password', // Always create with the default password
+                name: demoUserConfig.name,
+                role: demoUserConfig.role,
+                ageGroup: demoUserConfig.ageGroup,
+                status: 'actief'
+            });
+
+            if (signupResult.success) {
+                console.log(`Demo user ${email} created. Now logging in with the password you provided...`);
+                // Attempt to login again with the password the user actually typed.
+                // This allows them to use 'password' and have it work seamlessly.
+                try {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                    return true;
+                } catch (secondError: any) {
+                    console.error("Second login attempt failed after auto-creation:", secondError.code);
+                    setIsLoading(false);
+                    return false;
+                }
+            } else {
+                console.error(`Failed to auto-create demo user ${email}. Error: ${signupResult.error}`);
+            }
+        }
+        
+        if (error.code === 'auth/invalid-credential') {
+             toast({
+                title: "Wachtwoord Onjuist",
+                description: `Het account ${email} bestaat, maar het wachtwoord is incorrect. Gebruik de 'Invalid Credential' Fix Guide hieronder of reset uw wachtwoord.`,
+                variant: "destructive",
+                duration: 8000,
+            });
+        }
+        
+        console.error("Firebase Login Error:", error.code);
+        setIsLoading(false);
+        return false;
     }
-  }, []);
+  }, [signup, toast]);
 
   const logout = useCallback(async () => {
     if (auth) {
