@@ -48,6 +48,9 @@ import {
   BarChart as FileBarChart,
   PanelLeft,
   PanelRight,
+  BrainCircuit,
+  Rocket,
+  ScrollText,
 } from '@/components/icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -189,10 +192,12 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/data-flow', label: 'Data &amp; Inzichten Flow', icon: GitBranch, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: BrainCircuit, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
       { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbeveling Logica', icon: GitBranch, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/roadmap', label: 'Roadmap', icon: Rocket, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/changelog', label: 'Changelog', icon: ScrollText, parent: '#documentation-parent' },
     ]
   },
   
