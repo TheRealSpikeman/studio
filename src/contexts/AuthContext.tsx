@@ -6,17 +6,15 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import { useRouter } from 'next/navigation';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { 
-  getAuth, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import type { User, UserRoleType } from '@/types/user';
 
-// This is the new data needed for signup
 export interface SignupData {
   email: string;
   pass: string;
@@ -29,6 +27,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isFirebaseConfigured: boolean;
   login: (email: string, pass: string) => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -43,11 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Effect to handle auth state changes from Firebase
   useEffect(() => {
+    if (!isFirebaseConfigured || !auth) {
+      setIsLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // User is signed in, get their profile from Firestore
+      if (firebaseUser && db) {
         const userDocRef = doc(db, "users", firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
@@ -55,36 +56,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const appUser: User = {
             id: firebaseUser.uid,
             ...userData,
-            // Ensure email from auth is used if not in doc
-            email: firebaseUser.email || userData.email, 
+            email: firebaseUser.email || userData.email,
           };
           setUser(appUser);
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
         } else {
-          // This case might happen if a user exists in Auth but not Firestore.
-          // For now, we log them out to force a clean state.
           console.warn("User exists in Auth but not in Firestore. Logging out.");
           await signOut(auth);
           setUser(null);
           localStorage.removeItem(USER_STORAGE_KEY);
         }
       } else {
-        // User is signed out
         setUser(null);
         localStorage.removeItem(USER_STORAGE_KEY);
       }
       setIsLoading(false);
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
+    if (!isFirebaseConfigured || !auth) {
+      console.error("Firebase not configured, login aborted.");
+      return false;
+    }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and redirecting
       router.push('/dashboard');
       return true;
     } catch (error) {
@@ -95,26 +93,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
+    if (!isFirebaseConfigured || !auth || !db) {
+      console.error("Firebase not configured, signup aborted.");
+      return { success: false, error: "Firebase is not configured." };
+    }
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
       const firebaseUser = userCredential.user;
-
-      // Now, create a user document in Firestore
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const newUserProfile: Omit<User, 'id'> = {
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        ageGroup: data.ageGroup,
-        status: 'niet geverifieerd', // Or 'actief' if email verification is not required step
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
+        name: data.name, email: data.email, role: data.role, ageGroup: data.ageGroup, status: 'niet geverifieerd',
+        createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(),
       };
-      
       await setDoc(userDocRef, newUserProfile);
-      
-      // onAuthStateChanged will handle setting the user state.
       return { success: true };
     } catch (error: any) {
       console.error("Firebase Signup Error:", error);
@@ -124,7 +116,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
+    setUser(null);
+    localStorage.removeItem(USER_STORAGE_KEY);
     router.push('/login');
   }, [router]);
 
@@ -132,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isAuthenticated: !!user,
     isLoading,
+    isFirebaseConfigured,
     login,
     signup,
     logout,

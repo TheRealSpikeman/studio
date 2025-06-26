@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -17,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2 } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -28,6 +27,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRoleType } from '@/types/user';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;
@@ -88,7 +88,7 @@ const formSchema = z.object({
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signup } = useAuth();
+  const { signup, isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const plan = searchParams.get('plan');
@@ -109,6 +109,10 @@ export function SignupForm() {
   const watchIsParent = form.watch("isParent");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isFirebaseConfigured) {
+        toast({ title: "Configuratie Fout", description: "Kan geen account aanmaken, Firebase is niet geconfigureerd.", variant: "destructive" });
+        return;
+    }
     setIsLoading(true);
     const age = calculateAge(values.birthdate);
 
@@ -132,9 +136,6 @@ export function SignupForm() {
     const result = await signup(signupData);
 
     if (result.success) {
-      // The onAuthStateChanged listener in AuthContext will now handle redirects.
-      // We can just show a success message or let the context handle it.
-      // For now, we'll keep the redirect logic here to guide the user to the correct verification page.
       let redirectUrl = '';
       if (role === 'ouder') {
           redirectUrl = `/verify-email?userType=parent&newRegistration=true`;
@@ -173,6 +174,15 @@ export function SignupForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {!isFirebaseConfigured && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Firebase is niet geconfigureerd!</AlertTitle>
+              <AlertDescription>
+                Vul de `NEXT_PUBLIC_FIREBASE_*` variabelen in het `.env` bestand in om een account aan te maken.
+              </AlertDescription>
+            </Alert>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -310,7 +320,7 @@ export function SignupForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
+              <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured || !form.formState.isValid}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Account Aanmaken
               </Button>

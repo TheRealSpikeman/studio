@@ -15,21 +15,30 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Check for missing or placeholder Firebase config variables
-if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("...")) {
-  throw new Error('Firebase API Key is missing or invalid. Please check your .env file and ensure it contains the correct configuration from your Firebase project console.');
-}
+// A function to check if the config is valid
+export const isFirebaseConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("...");
 
-// Initialize Firebase
-let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
-}
+// Initialize Firebase services and export them.
+// They will be null if the config is not provided.
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
 
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
-const storage: FirebaseStorage = getStorage(app);
+if (isFirebaseConfigured) {
+  try {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+    // If initialization fails, reset all to null to prevent app crashes
+    app = null;
+    auth = null;
+    db = null;
+    storage = null;
+  }
+}
 
 export { app, auth, db, storage };
