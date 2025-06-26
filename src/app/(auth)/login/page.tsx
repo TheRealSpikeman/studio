@@ -1,7 +1,5 @@
 import { LoginForm } from '@/components/auth/login-form';
 import { SiteLogo } from '@/components/common/site-logo';
-import Link from 'next/link';
-import { LoginDebugTest } from '@/components/auth/LoginDebugTest';
 
 export default function LoginPage() {
   return (
@@ -10,9 +8,6 @@ export default function LoginPage() {
         <SiteLogo />
       </div>
       <LoginForm />
-      <div className="mt-8 w-full max-w-2xl">
-        <LoginDebugTest />
-      </div>
     </div>
   );
 }
