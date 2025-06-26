@@ -14,6 +14,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import type { User, UserRoleType, UserStatus } from '@/types/user';
+import { useToast } from '@/hooks/use-toast';
 
 export interface SignupData {
   email: string;
@@ -39,18 +40,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'mindnavigator_session_user';
 
-const demoUsers: Record<string, UserRoleType> = {
-  'admin@example.com': 'admin',
-  'ouder@example.com': 'ouder',
-  'leerling@example.com': 'leerling',
-  'tutor@example.com': 'tutor',
-  'coach@example.com': 'coach',
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
@@ -59,63 +53,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser && db) {
-        const userDocRef = doc(db, "users", firebaseUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        
-        let appUser: User | null = null;
+        try { // Wrap in try-catch to handle offline errors
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data() as Omit<User, 'id'>;
-          appUser = {
-            id: firebaseUser.uid,
-            ...userData,
-            email: firebaseUser.email || userData.email,
-          };
-          setUser(appUser);
-          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
-          const targetPath = `/dashboard/${appUser.role}`;
-           if (window.location.pathname !== targetPath && !window.location.pathname.startsWith('/dashboard/')) {
-             router.push(targetPath);
-           }
-        } else {
-          // This case handles a new user signup where the Firestore doc might not be created yet.
-          // For demo purposes, we will create a doc for known demo users.
-          console.warn("User in Auth, but not yet in Firestore. This is likely a new signup.");
-          const userEmail = firebaseUser.email;
-          const roleForDemoUser = userEmail ? demoUsers[userEmail] : undefined;
-          if (roleForDemoUser) {
-            const name = `${roleForDemoUser.charAt(0).toUpperCase() + roleForDemoUser.slice(1)} User`;
-            const newUserProfile: Omit<User, 'id'> = {
-              name: name,
-              email: userEmail!,
-              role: roleForDemoUser,
-              status: 'actief',
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              ...(roleForDemoUser === 'leerling' && { ageGroup: '15-18' }),
+          if (userDocSnap.exists()) {
+            const appUser: User = {
+              id: firebaseUser.uid,
+              ...(userDocSnap.data() as Omit<User, 'id'>),
+              email: firebaseUser.email || userDocSnap.data().email,
             };
-            await setDoc(userDocRef, newUserProfile);
-            appUser = { id: firebaseUser.uid, ...newUserProfile };
             setUser(appUser);
             localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
-             const targetPath = `/dashboard/${appUser.role}`;
-             if (window.location.pathname !== targetPath && !window.location.pathname.startsWith('/dashboard/')) {
-               router.push(targetPath);
-             }
           } else {
-            console.log("Regular user signed up, waiting for Firestore doc to be created by signup function.");
-            // We give it a moment for the signup function's setDoc to complete.
-            setTimeout(async () => {
-              const refreshedSnap = await getDoc(userDocRef);
-              if (refreshedSnap.exists()) {
-                const appUser = { id: firebaseUser.uid, ...(refreshedSnap.data() as Omit<User, 'id'>) };
-                setUser(appUser);
-                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
-              } else {
-                console.error("Firestore document still not found for new user after signup. Logging out for safety.");
-                await signOut(auth);
-              }
-            }, 1000);
+            console.warn(`User ${firebaseUser.uid} authenticated, but no Firestore document found. Logging out.`);
+            await signOut(auth);
+          }
+        } catch (error: any) {
+          console.error("Firebase Auth Error (onAuthStateChanged):", error);
+          if (error.code === 'unavailable') { // Handle offline error gracefully
+            toast({
+              title: "Offline",
+              description: "Kon profiel niet laden. Controleer uw internetverbinding.",
+              variant: "destructive",
+            });
+            const cachedUser = localStorage.getItem(USER_STORAGE_KEY);
+            if (cachedUser) {
+              setUser(JSON.parse(cachedUser));
+            } else {
+              setUser(null);
+            }
+          } else {
+            await signOut(auth);
           }
         }
       } else {
@@ -125,11 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, [router]);
+  }, [toast]);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
-      console.error("Firebase not configured, signup aborted.");
       return { success: false, error: "Firebase is not configured." };
     }
     setIsLoading(true);
@@ -145,11 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await setDoc(userDocRef, newUserProfile);
       return { success: true };
     } catch (error: any) {
-      console.error("Firebase Signup Error:", error);
       setIsLoading(false);
       let errorMessage = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
-        errorMessage = "Dit e-mailadres is al in gebruik. Probeer in te loggen of gebruik een ander e-mailadres.";
+        errorMessage = "Dit e-mailadres is al in gebruik.";
       }
       return { success: false, error: errorMessage };
     }
@@ -157,13 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
     if (!isFirebaseConfigured || !auth) {
-      console.error("Firebase not configured, login aborted.");
       return false;
     }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
       console.error("Firebase Login Error:", error);
@@ -180,13 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(USER_STORAGE_KEY);
     router.push('/login');
   }, [router]);
-  
+
   const switchUserRole = useCallback((role: UserRoleType) => {
     if (user) {
-        const updatedUser = { ...user, role: role };
-        setUser(updatedUser);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
-        router.push(`/dashboard/${role}`);
+      const updatedUser = { ...user, role: role };
+      setUser(updatedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      router.push(`/dashboard/${role}`);
     }
   }, [user, router]);
 
@@ -201,11 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     switchUserRole
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
