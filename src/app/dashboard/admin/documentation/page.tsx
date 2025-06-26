@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/documentation/page.tsx
 "use client";
 
@@ -9,7 +10,7 @@ import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bo
 const documentationLinks = [
   {
     title: "Development Roadmap",
-    description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform.",
+    description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform, gebaseerd op een Firebase-First strategie.",
     icon: Rocket,
     href: "/dashboard/admin/documentation/roadmap",
     linkText: "Bekijk Roadmap",
