@@ -166,42 +166,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
-      // Firebase returns 'auth/invalid-credential' for both wrong password and user not found.
-      if (error.code === 'auth/invalid-credential' && email in demoUsers) {
-        console.log(`Demo user ${email} not found or invalid credentials, attempting to create...`);
-        try {
-          const role = demoUsers[email];
-          const signupResult = await signup({
-            email,
-            pass,
-            name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
-            role: role,
-            ageGroup: role === 'leerling' ? '15-18' : undefined,
-            status: 'actief', // Create demo users as active
-          });
-
-          if (signupResult.success) {
-            console.log(`Demo user ${email} created successfully. Firebase will now sign them in.`);
-            // After signup, user is automatically logged in. onAuthStateChanged will handle the rest.
-            return true;
-          } else {
-             // This might happen if the user exists but the password was wrong. The signup call would fail.
-            console.error("Failed to auto-create demo user, likely due to incorrect password:", signupResult.error);
-            setIsLoading(false);
-            return false;
-          }
-        } catch (creationError) {
-          console.error("Error during demo user auto-creation:", creationError);
-          setIsLoading(false);
-          return false;
-        }
-      }
-
       console.error("Firebase Login Error:", error);
       setIsLoading(false);
       return false;
     }
-  }, [signup]);
+  }, []);
 
   const logout = useCallback(async () => {
     if (auth) {
