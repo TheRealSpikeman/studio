@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -142,6 +142,7 @@ export function SignupForm() {
           if (plan) redirectUrl += `&plan=${plan}`;
       } else { // leerling
           if (age !== null && age < 16) {
+              // Redirect to parental approval pending page. This will be a new page.
               redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
           } else {
               const userType = (age !== null && age >= 18) ? 'adult' : 'teen';

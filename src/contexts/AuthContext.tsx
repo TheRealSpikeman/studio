@@ -59,21 +59,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (firebaseUser && db) {
         const userDocRef = doc(db, "users", firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
+        
+        let appUser: User | null = null;
+
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data() as Omit<User, 'id'>;
-          const appUser: User = {
+          appUser = {
             id: firebaseUser.uid,
             ...userData,
             email: firebaseUser.email || userData.email,
           };
-          setUser(appUser);
-          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
         } else {
-          console.warn("User exists in Auth but not in Firestore. Logging out.");
-          await signOut(auth);
-          setUser(null);
-          localStorage.removeItem(USER_STORAGE_KEY);
+          // User exists in Auth, but not in Firestore. Let's fix this for demo users.
+          console.warn("User in Auth, but not in Firestore. Attempting to create Firestore document...");
+          const userEmail = firebaseUser.email;
+          const roleForDemoUser = userEmail ? demoUsers[userEmail] : undefined;
+
+          if (roleForDemoUser) {
+            const name = `${roleForDemoUser.charAt(0).toUpperCase() + roleForDemoUser.slice(1)} User`;
+            const newUserProfile: Omit<User, 'id'> = {
+              name: name,
+              email: userEmail || 'unknown@example.com',
+              role: roleForDemoUser,
+              status: 'actief',
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+              ...(roleForDemoUser === 'leerling' && { ageGroup: '15-18' }),
+            };
+            
+            await setDoc(userDocRef, newUserProfile);
+            appUser = { id: firebaseUser.uid, ...newUserProfile };
+            console.log("Firestore document created for demo user:", userEmail);
+          } else {
+            console.error("Unknown user in Auth without Firestore document. Logging out for safety.");
+            await signOut(auth);
+          }
         }
+        
+        setUser(appUser);
+        if (appUser) {
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+          const targetPath = `/dashboard/${appUser.role}`;
+          if (window.location.pathname !== targetPath) {
+            router.push(targetPath);
+          }
+        }
+
       } else {
         setUser(null);
         localStorage.removeItem(USER_STORAGE_KEY);
@@ -81,56 +112,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const login = useCallback(async (email: string, pass: string): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth || !db) {
+    if (!isFirebaseConfigured || !auth) {
       console.error("Firebase not configured, login aborted.");
       return false;
     }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and redirecting
+      // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
-      const roleForDemoUser = demoUsers[email];
-      // If it's a known demo user and the error is user-not-found or invalid-credential, try to create it.
-      if (roleForDemoUser && (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential')) {
-        console.log(`Demo user ${email} not found. Attempting to create...`);
-        try {
-          // Attempt to sign up the demo user
-          const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-          const firebaseUser = userCredential.user;
-          const userDocRef = doc(db, "users", firebaseUser.uid);
-          
-          const name = `${roleForDemoUser.charAt(0).toUpperCase() + roleForDemoUser.slice(1)} User`;
-          
-          const newUserProfile: Omit<User, 'id'> = {
-            name: name,
-            email: email,
-            role: roleForDemoUser,
-            status: 'actief', // Demo users are active by default
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            // Add default ageGroup for leerling demo user
-            ...(roleForDemoUser === 'leerling' && { ageGroup: '15-18' }),
-          };
-          
-          await setDoc(userDocRef, newUserProfile);
-          // onAuthStateChanged will handle the rest.
-          return true;
-        } catch (signupError) {
-          console.error(`Failed to create demo user ${email}:`, signupError);
-          setIsLoading(false);
-          return false;
-        }
-      } else {
-        // It's a regular login error (e.g. wrong password for an existing user)
-        console.error("Firebase Login Error:", error);
-        setIsLoading(false);
-        return false;
-      }
+      console.error("Firebase Login Error:", error);
+      setIsLoading(false);
+      return false;
     }
   }, []);
 
@@ -153,7 +150,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error("Firebase Signup Error:", error);
       setIsLoading(false);
-      return { success: false, error: error.message };
+      let errorMessage = "Er is een onbekende fout opgetreden.";
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "Dit e-mailadres is al in gebruik. Probeer in te loggen of gebruik een ander e-mailadres.";
+      }
+      return { success: false, error: errorMessage };
     }
   }, []);
 

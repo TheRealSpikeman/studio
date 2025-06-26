@@ -27,9 +27,9 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-  const { login, isFirebaseConfigured } = useAuth();
+  const { login, isLoading: isAuthLoading, isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,17 +45,17 @@ export function LoginForm() {
         toast({ title: "Configuratie Fout", description: "Kan niet inloggen, Firebase is niet geconfigureerd.", variant: "destructive" });
         return;
     }
-    setIsLoading(true);
+    setIsSubmitting(true);
     const success = await login(values.email, values.password);
     if (!success) {
       toast({
         title: "Inloggen Mislukt",
-        description: "Controleer uw e-mailadres en wachtwoord. Hint: gebruik 'password' als wachtwoord en een van de demo-e-mails (bijv. leerling@example.com).",
+        description: "Controleer uw e-mailadres en wachtwoord. Hint: gebruik 'password' en een demo-e-mail (bv. admin@example.com).",
         variant: "destructive",
       });
+      setIsSubmitting(false); // Only set to false on failure.
     }
-    // No need to set loading to false on success, as the page will redirect.
-    setIsLoading(false);
+    // On success, the AuthContext will handle the redirect, so we don't need to setIsSubmitting(false).
   }
 
   return (
@@ -123,8 +123,8 @@ export function LoginForm() {
                 <Link href="/forgot-password">Wachtwoord vergeten?</Link>
               </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" className="w-full" disabled={isSubmitting || !isFirebaseConfigured}>
+              {(isSubmitting || isAuthLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Inloggen
             </Button>
           </form>
