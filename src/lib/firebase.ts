@@ -1,14 +1,15 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
+import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
 import { 
   getFirestore, 
   initializeFirestore, 
+  connectFirestoreEmulator,
   type Firestore, 
   persistentLocalCache,
   persistentMultipleTabManager 
 } from "firebase/firestore";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
+import { getStorage, connectStorageEmulator, type FirebaseStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration from .env.local
 const firebaseConfig = {
@@ -53,6 +54,19 @@ if (isFirebaseConfigured) {
         db = getFirestore(app); // Fallback in any case
     }
   }
+
+  // Connect to emulators in development
+  if (process.env.NODE_ENV === 'development') {
+    try {
+        console.log("Connecting to Firebase emulators...");
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        connectFirestoreEmulator(db, '127.0.0.1', 8080);
+        connectStorageEmulator(storage, '127.0.0.1', 9199);
+    } catch(e) {
+        console.warn('Error connecting to Firebase emulators. This is expected if emulators are not running.');
+    }
+  }
+
 }
 
 export { app, auth, db, storage };
