@@ -2,7 +2,7 @@
 // src/app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
 "use client";
 
-import NewSubscriptionPlanPage from '@/app/dashboard/admin/subscription-management/new/page';
+import { SubscriptionPlanForm } from '@/components/admin/subscription-management/SubscriptionPlanForm';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -67,6 +67,6 @@ export default function EditSubscriptionPlanPage() {
     );
   }
   
-  return <NewSubscriptionPlanPage planData={planData} />;
+  return <SubscriptionPlanForm initialData={planData} isNew={false} />;
 }
     
