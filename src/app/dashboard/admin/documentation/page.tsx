@@ -4,9 +4,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit, ScrollText } from 'lucide-react';
+import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit, ScrollText, Rocket } from 'lucide-react';
 
 const documentationLinks = [
+  {
+    title: "Development Roadmap",
+    description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform.",
+    icon: Rocket,
+    href: "/dashboard/admin/documentation/roadmap",
+    linkText: "Bekijk Roadmap",
+    isExternal: false,
+  },
   {
     title: "Volledige Platform Handleiding",
     description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform.",
