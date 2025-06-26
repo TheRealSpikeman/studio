@@ -53,6 +53,7 @@ import {
   ScrollText,
 } from '@/components/icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';
@@ -69,7 +70,8 @@ interface NavItem {
   sectionTitle?: string;
   children?: NavItem[];
   parent?: string;
-  isOuderOnboardingLink?: boolean; 
+  isOuderOnboardingLink?: boolean;
+  isNew?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -196,7 +198,7 @@ const navItems: NavItem[] = [
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona', icon: Bot, parent: '#documentation-parent' },
       { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbeveling Logica', icon: GitBranch, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/roadmap', label: 'Roadmap', icon: Rocket, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/roadmap', label: 'Roadmap', icon: Rocket, parent: '#documentation-parent', isNew: true },
       { href: '/dashboard/admin/documentation/changelog', label: 'Changelog', icon: ScrollText, parent: '#documentation-parent' },
     ]
   },
@@ -301,6 +303,7 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
                         <TooltipTrigger asChild>{children}</TooltipTrigger>
                         <TooltipContent side="right" className="flex items-center gap-4">
                         {item.label}
+                        {item.isNew && <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300">Nieuw</Badge>}
                         </TooltipContent>
                     </Tooltip>
                     ) : (
@@ -327,6 +330,7 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
                                     <item.icon className="h-5 w-5 shrink-0" />
                                     {!isCollapsed && <span className="truncate">{item.label}</span>}
                                     </div>
+                                    {!isCollapsed && item.isNew && <Badge variant="secondary" className="ml-auto text-xs bg-green-100 text-green-700 border-green-300">Nieuw</Badge>}
                                 </AccordionTrigger>
                             </NavItemWrapper>
                             <AccordionContent className="pt-1 pl-6 pb-1">
@@ -341,6 +345,7 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
                                     )}>
                                         <child.icon className="h-4 w-4 shrink-0" />
                                         {!isCollapsed && <span className="truncate">{child.label}</span>}
+                                        {!isCollapsed && child.isNew && <Badge variant="secondary" className="ml-auto text-xs bg-green-100 text-green-700 border-green-300">Nieuw</Badge>}
                                     </Link>
                                     );
                                 })}
@@ -356,6 +361,7 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
                             )}>
                             <item.icon className="h-5 w-5 shrink-0" />
                             {!isCollapsed && <span className="truncate">{item.label}</span>}
+                            {!isCollapsed && item.isNew && <Badge variant="secondary" className="ml-auto text-xs bg-green-100 text-green-700 border-green-300">Nieuw</Badge>}
                             </Link>
                         </NavItemWrapper>
                     )}
