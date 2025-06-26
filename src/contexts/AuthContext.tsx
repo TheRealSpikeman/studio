@@ -72,20 +72,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await signOut(auth);
           }
         } catch (error: any) {
-          console.error("Firebase Auth Error (onAuthStateChanged):", error);
-          if (error.code === 'unavailable') {
-            toast({
-              title: "Offline",
-              description: "Kon profiel niet laden. Controleer uw internetverbinding.",
-              variant: "destructive",
-            });
-            const cachedUser = localStorage.getItem(USER_STORAGE_KEY);
-            if (cachedUser) {
-              setUser(JSON.parse(cachedUser));
-            } else {
-              setUser(null);
+          console.error("Error fetching user document from Firestore:", error);
+          const cachedUserStr = localStorage.getItem(USER_STORAGE_KEY);
+          if (cachedUserStr) {
+            try {
+              const cachedUser = JSON.parse(cachedUserStr);
+              // Ensure cached user UID matches Firebase Auth UID
+              if (cachedUser.id === firebaseUser.uid) {
+                setUser(cachedUser);
+                toast({
+                  title: "Offline modus (beperkt)",
+                  description: "Kon profiel niet vernieuwen. Weergegeven data is mogelijk niet up-to-date.",
+                  variant: "default",
+                });
+              } else {
+                // Mismatch, something is wrong, force logout
+                await signOut(auth);
+              }
+            } catch (e) {
+                // Parsing error, corrupted cache, force logout
+                await signOut(auth);
             }
           } else {
+            // No user in cache, cannot proceed safely
+            toast({
+              title: "Authenticatie Fout",
+              description: "Kon uw profiel niet laden. Log opnieuw in.",
+              variant: "destructive",
+            });
             await signOut(auth);
           }
         }
@@ -129,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle the rest.
+      // onAuthStateChanged will handle setting the user and redirecting.
       return true;
     } catch (error: any) {
       const demoEmails = [
