@@ -1,3 +1,4 @@
+
 // src/app/layout.tsx
 "use client"; // Required for AuthProvider context to work at the root
 

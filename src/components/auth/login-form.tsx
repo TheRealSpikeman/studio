@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -48,11 +49,7 @@ export function LoginForm() {
     setIsSubmitting(true);
     const success = await login(values.email, values.password);
     if (!success) {
-      toast({
-        title: "Inloggen Mislukt",
-        description: "Controleer uw e-mailadres en wachtwoord. Hint: gebruik 'password' en een demo-e-mail (bv. admin@example.com).",
-        variant: "destructive",
-      });
+      // De toast wordt nu in de login functie zelf afgehandeld.
       setIsSubmitting(false); // Only set to false on failure.
     }
     // On success, the AuthContext will handle the redirect, so we don't need to setIsSubmitting(false).
@@ -123,7 +120,7 @@ export function LoginForm() {
                 <Link href="/forgot-password">Wachtwoord vergeten?</Link>
               </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting || !isFirebaseConfigured}>
+            <Button type="submit" className="w-full" disabled={isSubmitting || isAuthLoading || !isFirebaseConfigured}>
               {(isSubmitting || isAuthLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Inloggen
             </Button>
