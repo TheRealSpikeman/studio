@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/roadmap/page.tsx
 "use client";
 
@@ -358,11 +357,3 @@ export default function RoadmapPage() {
     </div>
   );
 }
-
-// Dummy CodeBlock component for styling
-const CodeBlock = ({ code, language }: { code: string, language: string }) => (
-    <pre className="bg-muted p-3 rounded-md text-sm overflow-x-auto">
-        <code className={`language-${language}`}>{code}</code>
-    </pre>
-);
-
