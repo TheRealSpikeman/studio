@@ -1,4 +1,3 @@
-
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -7,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale, Clock } from 'lucide-react';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale, Clock, UserCheck, MessageCircleQuestion, Users2, BookOpenCheck } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -46,7 +45,6 @@ const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClass
         </CardFooter>
     </Card>
 );
-
 
 const AgeCard = ({ range, role, description }: { range: string, role: string, description:string }) => (
     <Card className="bg-card text-center flex flex-col h-full shadow-md">
@@ -191,38 +189,23 @@ export default function OuderRichtlijnenPage() {
             </div>
         </section>
 
-        {/* Age-Specific Guide Preview */}
-        <section id="age-guide-section" className="py-16 md:py-24 bg-background">
+        {/* Content Preview Section */}
+        <section className="py-16 md:py-24 bg-background">
             <div className="container">
-                 <h2 className="text-3xl font-bold text-center mb-4">Leeftijdsspecifieke Begeleiding</h2>
+                <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Ouderrichtlijnen?</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-                    Elke ontwikkelingsfase vraagt om een andere aanpak. Onze richtlijnen respecteren de groeiende autonomie van uw tiener.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <AgeCard range="12-15 Jaar" role="Actieve Ouderlijke Begeleiding" description="U heeft volledig inzicht in voortgang, helpt bij coach selectie, en beheert alle betalingen. Focus op vertrouwen opbouwen." />
-                    <AgeCard range="16-17 Jaar" role="Ondersteunend Partnerschap" description="Meer autonomie voor uw tiener, u wordt adviseur. Toegang tot voortgang alleen met toestemming van uw kind." />
-                    <AgeCard range="18+ Jaar" role="Respectvolle Afstand" description="Volledige controle bij uw volwassen kind. U heeft alleen toegang op uitnodiging." />
-                </div>
-            </div>
-        </section>
-
-         {/* Content Preview */}
-        <section className="py-16 md:py-24 bg-muted/40">
-            <div className="container">
-                <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Volledige Richtlijnen?</h2>
-                <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten voor uw gezin.
+                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten. Ontdek precies wat u krijgt als u onze gratis richtlijnen downloadt.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <PreviewCard icon={Lock} title="Privacy & Autonomie" subtitle="Wat u ziet per leeftijdsfase" />
-                    <PreviewCard icon={Users} title="Coaching & Begeleiding" subtitle="Uw rol bij coach selectie" />
-                    <PreviewCard icon={Gavel} title="Professionele Hulp" subtitle="Wanneer doorverwijzen" />
+                    <PreviewCard icon={Users} title="Leeftijdsspecifieke Richtlijnen" subtitle="Van actieve begeleiding tot partnerschap" />
+                    <PreviewCard icon={BookOpenCheck} title="Coaching & Platform Begeleiding" subtitle="Handleidingen voor coachselectie en platformgebruik" />
+                    <PreviewCard icon={MessageCircleQuestion} title="Crisis Management & Praktische Tips" subtitle="Actieplannen en antwoorden op 150+ veelgestelde vragen" />
                 </div>
             </div>
         </section>
 
         {/* Statistics */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <Card className="shadow-xl bg-card border">
                     <CardHeader>
