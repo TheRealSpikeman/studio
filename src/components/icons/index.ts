@@ -1,2 +1,2 @@
-// This file is now obsolete. Icons are exported from /src/lib/icons.ts
+// This file is obsolete and can be removed. Icons are now exported from /src/lib/icons.ts
 export {};

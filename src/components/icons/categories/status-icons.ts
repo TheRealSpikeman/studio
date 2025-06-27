@@ -1,1 +1,2 @@
-// This file is now obsolete.
+// This file is obsolete and can be removed.
+export {};

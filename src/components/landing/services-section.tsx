@@ -1,3 +1,2 @@
-// This file is obsolete. The functionality has been merged into PlatformFeaturesSection.
-// This file can be safely removed.
+// This file is obsolete and can be removed.
 export {};

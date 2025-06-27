@@ -1,3 +1,2 @@
-// This file is now obsolete as its logic has been integrated into /app/dashboard/layout.tsx
-// It can be safely removed.
+// This file is obsolete and can be removed. The logic has moved to /src/app/dashboard/layout.tsx
 export {};

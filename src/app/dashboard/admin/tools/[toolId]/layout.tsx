@@ -1,6 +1,5 @@
-// This file is now obsolete.
+// This file is obsolete and can be removed.
 import type { ReactNode } from 'react';
-
-export default function ObsoleteToolLayout({ children }: { children: ReactNode }) {
+export default function ObsoleteLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }

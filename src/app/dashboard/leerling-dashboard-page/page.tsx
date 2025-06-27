@@ -1,6 +1,4 @@
-// This file is obsolete. The logic has been moved to /src/components/dashboard/leerling-dashboard-page.tsx
-// and is dynamically imported by /src/app/dashboard/leerling/page.tsx.
-// This file can be safely removed.
+// This file is obsolete and can be removed. The logic is now in /src/components/dashboard/leerling-dashboard-page.tsx
 export default function ObsoletePage() {
   return null;
 }
