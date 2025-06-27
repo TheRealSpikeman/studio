@@ -1,3 +1,4 @@
+
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -5,8 +6,8 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale, Clock } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -17,21 +18,30 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-accent">{value}</div>
-        <div className="text-sm text-muted-foreground mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
+        <div className="text-sm text-white/80 mt-1">{label}</div>
     </div>
 );
 
-const ValuePropCard = ({ icon: Icon, title, children }: { icon: ElementType, title: string, children: React.ReactNode }) => (
-    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-accent/10 transition-all duration-300">
-        <div className="flex items-center gap-4 mb-3">
-            <div className="bg-accent/10 text-accent p-3 rounded-full">
-                <Icon className="h-7 w-7" />
+const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, borderColorClass }: { icon: ElementType, title: string, children: React.ReactNode, ctaText: string, ctaLink: string, borderColorClass: string }) => (
+    <Card className={cn("flex flex-col h-full shadow-lg border-t-4", borderColorClass)}>
+        <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <Icon className="h-7 w-7 text-primary" />
+                </div>
+                <CardTitle>{title}</CardTitle>
             </div>
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-        </div>
-        <p className="text-muted-foreground text-sm leading-relaxed">{children}</p>
-    </div>
+        </CardHeader>
+        <CardContent className="flex-grow">
+            <p className="text-sm text-muted-foreground">{children}</p>
+        </CardContent>
+        <CardFooter>
+            <Button asChild className="w-full" variant="outline">
+                <Link href={ctaLink}>{ctaText}</Link>
+            </Button>
+        </CardFooter>
+    </Card>
 );
 
 const AgeCard = ({ range, role, description }: { range: string, role: string, description:string }) => (
@@ -142,33 +152,52 @@ export default function OuderRichtlijnenPage() {
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-4">Waarom MindNavigator Anders Is</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-                    We respecteren de grenzen tussen coaching en medische zorg, 
-                    en focussen op wat echt werkt voor neurodivergente gezinnen.
+                    We respecteren de grenzen tussen coaching en medische zorg, en focussen op wat echt werkt voor neurodivergente gezinnen.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ValuePropCard icon={Target} title="Ethische Benadering">
-                        Geen medische claims of diagnoses. We focussen op empowerment, 
-                        zelfinzicht en praktische ondersteuning - precies zoals het hoort.
-                    </ValuePropCard>
-                    <ValuePropCard icon={Brain} title="Wetenschappelijk Fundament">
-                         Tools en content gebaseerd op erkende psychologische modellen 
-                        en neurodiversiteit-onderzoek. Evidence-based, geen quick fixes.
-                    </ValuePropCard>
-                    <ValuePropCard icon={Users} title="Gezinsgerichte Aanpak">
-                        We betrekken zowel jongeren als ouders, met respect voor 
-                        tiener autonomie en begrip voor ouderlijke zorgen.
-                    </ValuePropCard>
-                    <ValuePropCard icon={Handshake} title="Professionele Integriteit">
-                        Duidelijke disclaimers, transparante doorverwijzingen naar 
-                        professionals, en eerlijkheid over wat we wel en niet doen.
-                    </ValuePropCard>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                     <BenefitCard 
+                        icon={AlertTriangle} 
+                        title="Geen 6 Maanden Wachten" 
+                        ctaText="Direct Starten - Gratis Download" 
+                        ctaLink="#"
+                        borderColorClass="border-red-500"
+                    >
+                        Krijg direct toegang tot praktische technieken en ondersteuning zonder de lange GGZ-wachttijden.
+                    </BenefitCard>
+                    <BenefitCard 
+                        icon={ShieldCheck} 
+                        title="Eindelijk Eerlijke Ondersteuning" 
+                        ctaText="Ontdek Onze Ethische Aanpak" 
+                        ctaLink="/about"
+                        borderColorClass="border-green-500"
+                    >
+                        Wij maken geen valse beloftes over 'genezing'. Onze ethische, transparante aanpak is gericht op empowerment.
+                    </BenefitCard>
+                    <BenefitCard 
+                        icon={TrendingUp} 
+                        title="Begeleiding Die Mee Groeit" 
+                        ctaText="Ontdek Uw Rol Per Leeftijd" 
+                        ctaLink="#age-guide-section"
+                        borderColorClass="border-blue-500"
+                    >
+                        Onze richtlijnen zijn afgestemd op de verschillende ontwikkelingsfases van uw tiener, van 12 tot 18+ jaar.
+                    </BenefitCard>
+                    <BenefitCard 
+                        icon={BarChart} 
+                        title="Resultaten Die U Kunt Zien" 
+                        ctaText="Lees Succesverhalen & Tips" 
+                        ctaLink="#"
+                        borderColorClass="border-orange-500"
+                    >
+                        Gebaseerd op de ervaringen van meer dan 1000+ gezinnen. Ontdek strategieën die bewezen hebben te werken.
+                    </BenefitCard>
                 </div>
             </div>
         </section>
 
-        {/* Age-Specific Guide */}
-        <section className="py-16 md:py-24 bg-background">
+        {/* Age-Specific Guide Preview */}
+        <section id="age-guide-section" className="py-16 md:py-24 bg-background">
             <div className="container">
                  <h2 className="text-3xl font-bold text-center mb-4">Leeftijdsspecifieke Begeleiding</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
