@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-accent">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
         <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
@@ -155,42 +155,33 @@ export default function OuderRichtlijnenPage() {
                     Duizenden ouders gingen u voor. Download onze gratis richtlijnen en start vandaag nog met effectieve begeleiding voor uw neurodivergente tiener.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                      <BenefitCard
                         icon={AlertTriangle}
-                        title={<>Geen 6<br />Maanden Wachten</>}
+                        title={"Geen 6 Maanden Meer Wachten"}
                         ctaText="Direct Starten - Gratis Download"
-                        ctaLink="#"
+                        ctaLink="#download-form"
                         colorClasses={{ border: "border-red-500", bg: "bg-red-100", icon: "text-red-600" }}
                     >
-                        Krijg direct toegang tot praktische technieken en ondersteuning zonder de lange GGZ-wachttijden.
+                        Krijg direct toegang tot praktische technieken en ondersteuning en overbrug de gemiddelde GGZ-wachttijd van 6-12 maanden.
                     </BenefitCard>
                     <BenefitCard
                         icon={ShieldCheck}
-                        title={<>Eindelijk<br />Eerlijke Ondersteuning</>}
+                        title={"Eindelijk Eerlijke Ondersteuning"}
                         ctaText="Ontdek Onze Ethische Aanpak"
                         ctaLink="/about"
                         colorClasses={{ border: "border-green-500", bg: "bg-green-100", icon: "text-green-600" }}
                     >
-                        Wij maken geen valse beloftes over 'genezing'. Onze ethische, transparante aanpak is gericht op empowerment.
+                        Wij maken geen valse beloftes over 'genezing'. Onze ethische, transparante aanpak wordt gewaardeerd door 95% van de ouders.
                     </BenefitCard>
                     <BenefitCard
                         icon={TrendingUp}
-                        title={<>Begeleiding<br />Die Mee Groeit</>}
-                        ctaText="Ontdek Uw Rol Per Leeftijd"
-                        ctaLink="#age-guide-section"
-                        colorClasses={{ border: "border-blue-500", bg: "bg-blue-100", icon: "text-blue-600" }}
-                    >
-                        Onze richtlijnen zijn afgestemd op de verschillende ontwikkelingsfases van uw tiener, van 12 tot 18+ jaar.
-                    </BenefitCard>
-                    <BenefitCard
-                        icon={BarChart}
-                        title={<>Resultaten<br />Die U Kunt Zien</>}
+                        title={"Resultaten Die U Kunt Zien"}
                         ctaText="Lees Succesverhalen & Tips"
                         ctaLink="#"
                         colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600" }}
                     >
-                        Gebaseerd op de ervaringen van meer dan 1000+ gezinnen. Ontdek strategieën die bewezen hebben te werken.
+                        Ontdek bewezen strategieën. 89% van de gezinnen ziet een merkbare verbetering binnen de eerste 8 weken.
                     </BenefitCard>
                 </div>
             </div>
