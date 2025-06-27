@@ -15,9 +15,8 @@ export function LoginDebugTest() {
   const [password, setPassword] = useState('password')
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
-  const { isFirebaseConfigured: isConfiguredFromHook } = useAuth(); // Use the reliable check from the context
+  const { isFirebaseConfigured: isConfiguredFromHook } = useAuth();
 
-  // Directly check the environment variables as seen by the client
   const envVars = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -41,52 +40,40 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${envVars.projectId ? 'Loaded' : 'MISSING'}`);
 
     try {
       console.log('🔥 DIRECT FIREBASE TEST:')
-      console.log('Email:', `"${email}"`)
-      console.log('Password:', `"${password}"`)
+      // Adding requested debug logs
+      console.log('Firebase Auth instance:', auth);
+      console.log('Auth config:', auth.app.options);
+      console.log('Current URL:', window.location.href);
+
+      // Test direct network connectivity
+      try {
+        console.log('🌐 Testing Firebase Network Connectivity to http://127.0.0.1:9099/');
+        const response = await fetch('http://127.0.0.1:9099/');
+        console.log('Direct emulator fetch response status:', response.status);
+        if(!response.ok) {
+            console.error('Direct emulator fetch response not OK:', await response.text());
+        }
+      } catch (fetchError) {
+        console.error('🌐 Direct emulator fetch FAILED:', fetchError);
+      }
       
-      const cleanEmail = email.trim()
-      const cleanPassword = password.trim()
-      
-      const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword)
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim())
       
       setResult(`✅ SUCCESS!
 User ID: ${userCredential.user.uid}
-Email: ${userCredential.user.email}
-Creation Time: ${userCredential.user.metadata.creationTime}
-Last Sign In: ${userCredential.user.metadata.lastSignInTime}`)
+Email: ${userCredential.user.email}`)
 
       console.log('✅ Login successful:', userCredential.user)
 
     } catch (error: any) {
-      console.error('❌ Login failed:', error)
+      // Adding more detailed error logging
+      console.error('❌ Login failed. Full error object:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       
       let errorDetails = `❌ FAILED: ${error.code}
 Message: ${error.message}
-
-Debug Info:
-- Email tried: "${email}"
-- Password length: ${password.length}
-- Auth instance: ${auth ? 'OK' : 'MISSING'}
-- Project ID: ${auth.app.options.projectId || 'MISSING'}`
-
-      if (error.code === 'auth/invalid-credential') {
-        errorDetails += `
-
-SOLUTIONS TO TRY:
-1. Check Firebase Console → Authentication → Users
-2. Verify exact email address (no typos)
-3. Reset password in Firebase Console
-4. Use exactly: admin@example.com / password
-5. Check for extra spaces in email/password fields`
-      } else if (error.code === 'auth/network-request-failed') {
-         errorDetails += `
-
-NETWORK ERROR SOLUTIONS:
-1. Check your internet connection.
-2. Verify .env.local variables are correct.
-3. Restart the development server.
-4. Check your browser's ad-blockers or firewalls.`
-      }
+Stack: ${error.stack}`
 
       setResult(errorDetails)
     } finally {
