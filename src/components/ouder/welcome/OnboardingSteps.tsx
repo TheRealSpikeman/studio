@@ -29,6 +29,7 @@ interface OnboardingStepsProps {
 const termsFormSchema = z.object({
   medicalDisclaimer: z.literal(true, { errorMap: () => ({ message: "U moet akkoord gaan met de medische disclaimer." }) }),
   privacyTerms: z.literal(true, { errorMap: () => ({ message: "U moet akkoord gaan met het privacybeleid." }) }),
+  generalTerms: z.literal(true, { errorMap: () => ({ message: "U moet akkoord gaan met de algemene voorwaarden." }) }),
   ageConsent: z.literal(true, { errorMap: () => ({ message: "U moet de voorwaarden voor leeftijd en toestemming accepteren." }) }),
   coachingLimits: z.literal(true, { errorMap: () => ({ message: "U moet de grenzen van coaching begrijpen." }) }),
 });
@@ -39,6 +40,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
     defaultValues: {
       medicalDisclaimer: false,
       privacyTerms: false,
+      generalTerms: false,
       ageConsent: false,
       coachingLimits: false,
     },
@@ -87,6 +89,28 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
                         <PrivacyPolicyContent />
                     </LegalDocumentDialog>
                     {' '}en begrijp hoe data wordt verwerkt en beschermd.
+                  </Label>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="generalTerms"
+            render={({ field }) => (
+              <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
+                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
+                <div className="space-y-1 leading-none">
+                  <Label className="cursor-pointer">
+                    <strong>Algemene Voorwaarden:</strong> Ik ga akkoord met de {' '}
+                     <LegalDocumentDialog
+                        title="Algemene Voorwaarden"
+                        triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">algemene voorwaarden</span></Button>}
+                    >
+                        <TermsContent />
+                    </LegalDocumentDialog>
+                    .
                   </Label>
                   <FormMessage />
                 </div>
