@@ -1,3 +1,4 @@
+
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -24,12 +25,12 @@ const StatIndicator = ({ value, label }: { value: string, label: string }) => (
 
 const BenefitCard = ({ icon: Icon, title, ctaText, ctaLink, colorClasses }: { icon: ElementType, title: React.ReactNode, ctaText: string, ctaLink: string, colorClasses: { border: string, bg: string, icon: string, text: string } }) => (
     <Card className={cn(
-        "shadow-lg hover:shadow-xl transition-shadow flex flex-col text-center p-6 border-t-4",
+        "shadow-lg hover:shadow-xl transition-shadow flex flex-col text-center p-6 border",
         colorClasses.border
     )}>
         <CardHeader className="items-center p-0 mb-4">
             <div className={cn("flex-shrink-0 h-16 w-16 rounded-full flex items-center justify-center", colorClasses.bg)}>
-                <Icon className={cn("h-8 w-8", colorClasses.text)} />
+                <Icon className={cn("h-8 w-8", colorClasses.icon)} />
             </div>
         </CardHeader>
         <CardContent className="p-0 flex-grow">
@@ -202,7 +203,23 @@ export default function OuderRichtlijnenPage() {
             </div>
         </section>
 
-        {/* Why Different Section */}
+        {/* Content Preview Section */}
+        <section className="py-16 md:py-24 bg-background">
+            <div className="container">
+                <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Ouderrichtlijnen?</h2>
+                <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
+                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten. 
+                     Ontdek precies wat u krijgt als u onze gratis richtlijnen downloadt.
+                </p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                   {guideCardData.map(card => (
+                        <GuideCard key={card.title} {...card} />
+                   ))}
+                </div>
+            </div>
+        </section>
+
+        {/* Benefit Section */}
         <section className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-4">Krijg De Ondersteuning Die Uw Gezin Verdient</h2>
@@ -211,7 +228,7 @@ export default function OuderRichtlijnenPage() {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <BenefitCard
+                     <BenefitCard
                         icon={AlertTriangle}
                         title={"Geen 6 Maanden Meer Wachten"}
                         ctaText="Direct Starten - Gratis Download"
@@ -236,21 +253,6 @@ export default function OuderRichtlijnenPage() {
             </div>
         </section>
 
-        {/* Content Preview Section */}
-        <section className="py-16 md:py-24 bg-background">
-            <div className="container">
-                <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Ouderrichtlijnen?</h2>
-                <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
-                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten. 
-                     Ontdek precies wat u krijgt als u onze gratis richtlijnen downloadt.
-                </p>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                   {guideCardData.map(card => (
-                        <GuideCard key={card.title} {...card} />
-                   ))}
-                </div>
-            </div>
-        </section>
       </main>
       <Footer />
     </div>
