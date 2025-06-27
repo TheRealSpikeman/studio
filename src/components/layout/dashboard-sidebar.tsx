@@ -50,6 +50,8 @@ import {
   BrainCircuit,
   Rocket,
   ScrollText,
+  Cpu,
+  Bell,
 } from '@/lib/icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
@@ -178,13 +180,24 @@ const navItems: NavItem[] = [
   {
     href: '#platform-parent',
     label: 'Platformbeheer',
-    icon: Settings,
+    icon: Cpu,
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, parent: '#platform-parent' },
       { href: '/dashboard/admin/tool-management', label: 'Toolbeheer', icon: Wrench, parent: '#platform-parent' },
       { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, parent: '#platform-parent' },
-      { href: '/dashboard/admin/settings', label: 'Instellingen', icon: Settings, parent: '#platform-parent' },
+    ]
+  },
+  {
+    href: '#settings-parent',
+    label: 'Instellingen',
+    icon: Settings,
+    adminOnly: true,
+    children: [
+      { href: '/dashboard/admin/settings', label: 'Algemeen', icon: Settings, parent: '#settings-parent' },
+      { href: '/dashboard/admin/settings/roles', label: 'Rollen & Permissies', icon: UsersIcon, parent: '#settings-parent' },
+      { href: '/dashboard/admin/settings/notifications', label: 'Notificaties', icon: Bell, parent: '#settings-parent' },
+      { href: '/dashboard/admin/settings/security', label: 'Beveiliging', icon: ShieldCheck, parent: '#settings-parent' },
     ]
   },
   {
