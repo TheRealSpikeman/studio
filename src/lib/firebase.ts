@@ -1,3 +1,4 @@
+
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
@@ -54,17 +55,17 @@ if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
         console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
         
-        // Standardize all connections to 'localhost'
-        console.log('Connecting to Auth emulator at http://localhost:9099');
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+        // Use 127.0.0.1 to avoid potential DNS issues within containerized environments
+        console.log('Connecting to Auth emulator at http://127.0.0.1:9099');
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
         console.log('✅ Auth emulator connected.');
         
-        console.log('Connecting to Firestore emulator at localhost:8080');
-        connectFirestoreEmulator(db, 'localhost', 8080);
+        console.log('Connecting to Firestore emulator at 127.0.0.1:8080');
+        connectFirestoreEmulator(db, '127.0.0.1', 8080);
         console.log('✅ Firestore emulator connected.');
         
-        console.log('Connecting to Storage emulator at localhost:9199');
-        connectStorageEmulator(storage, 'localhost', 9199);
+        console.log('Connecting to Storage emulator at 127.0.0.1:9199');
+        connectStorageEmulator(storage, '127.0.0.1', 9199);
         console.log('✅ Storage emulator connected.');
 
     } catch(e) {
