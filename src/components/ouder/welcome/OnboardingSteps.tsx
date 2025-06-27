@@ -18,7 +18,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { type SubscriptionPlan, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/types/subscription';
-
+import { LegalDocumentDialog } from '@/components/common/LegalDocumentDialog';
+import { PrivacyPolicyContent, TermsContent, DisclaimerContent } from '@/components/legal/LegalContent';
 
 interface OnboardingStepsProps {
     planParam: string | null;
@@ -76,7 +77,19 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
             render={({ field }) => (
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
-                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Privacy & Gegevens:</strong> Ik ga akkoord met het <Button variant="link" asChild className="p-0 h-auto -my-1"><Link href="/privacy" target="_blank">privacybeleid</Link></Button> en begrijp hoe data wordt verwerkt en beschermd.</FormLabel><FormMessage /></div>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="cursor-pointer">
+                    <strong>Privacy & Gegevensverwerking:</strong> Ik ga akkoord met het {' '}
+                     <LegalDocumentDialog
+                        title="Privacybeleid"
+                        triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">privacybeleid</span></Button>}
+                    >
+                        <PrivacyPolicyContent />
+                    </LegalDocumentDialog>
+                    {' '}en begrijp hoe data wordt verwerkt en beschermd.
+                  </FormLabel>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
@@ -96,7 +109,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
             render={({ field }) => (
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
-                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Grenzen van Coaching:</strong> Ik begrijp dat coaching op dit platform ondersteuning biedt en geen vervanging is voor therapie of medische behandeling.</FormLabel><FormMessage /></div>
+                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Coaching Grenzen:</strong> Ik begrijp dat coaching ondersteuning biedt maar geen vervanging is voor therapie of medische behandeling.</FormLabel><FormMessage /></div>
               </FormItem>
             )}
           />
@@ -104,8 +117,8 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
         
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-4 border-t">
           <div className="flex gap-4">
-             <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-             <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+            <LegalDocumentDialog title="Algemene Voorwaarden" triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto text-primary text-xs"><span className="flex items-center gap-1 cursor-pointer">Algemene Voorwaarden <ExternalLink className="h-3 w-3"/></span></Button>}><TermsContent /></LegalDocumentDialog>
+            <LegalDocumentDialog title="Disclaimer" triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto text-primary text-xs"><span className="flex items-center gap-1 cursor-pointer">Disclaimer <ExternalLink className="h-3 w-3"/></span></Button>}><DisclaimerContent /></LegalDocumentDialog>
           </div>
           <Button type="submit" disabled={!form.formState.isValid}>
             Volgende Stap <ArrowRight className="ml-2 h-4 w-4"/>

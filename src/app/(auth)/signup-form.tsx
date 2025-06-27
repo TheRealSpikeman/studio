@@ -1,0 +1,390 @@
+
+"use client";
+
+import Link from 'next/link';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, subYears, isValid, differenceInYears } from 'date-fns';
+import { nl } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import type { UserRoleType } from '@/types/user';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { LegalDocumentDialog } from '@/components/common/LegalDocumentDialog';
+import { PrivacyPolicyContent, TermsContent } from '@/components/legal/LegalContent';
+
+
+const calculateAge = (birthdate: Date | undefined): number | null => {
+  if (!birthdate || !isValid(birthdate)) return null;
+  return differenceInYears(new Date(), birthdate);
+};
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: "Naam moet minimaal 2 tekens lang zijn."}),
+  email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
+  isParent: z.boolean().default(false),
+  birthdate: z.date().optional(), // Geboortedatum is nu optioneel
+  parentEmail: z.string().email({ message: "Voer een geldig e-mailadres van een ouder in." }).optional(),
+  password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
+  confirmPassword: z.string(),
+  agreeToTerms: z.boolean().refine(value => value === true, {
+    message: "Je moet akkoord gaan met de voorwaarden.",
+  }),
+}).superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Wachtwoorden komen niet overeen.",
+            path: ["confirmPassword"],
+        });
+    }
+    
+    // Alleen valideren als het geen ouder is
+    if (!data.isParent) {
+        if (!data.birthdate) {
+             ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Geboortedatum is vereist voor een tiener/jongere.",
+                path: ["birthdate"],
+            });
+            return;
+        }
+
+        const age = calculateAge(data.birthdate);
+        if (age === null && data.birthdate) { 
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Selecteer een geldige geboortedatum.",
+                path: ["birthdate"],
+            });
+            return;
+        }
+
+        if (age !== null) {
+            if (age < 12) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Je moet minimaal 12 jaar oud zijn om je te registreren.",
+                    path: ["birthdate"],
+                });
+            } else if (age < 16) {
+                if (!data.parentEmail) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "E-mailadres van een ouder/verzorger is vereist voor gebruikers onder de 16.",
+                        path: ["parentEmail"],
+                    });
+                }
+            }
+        }
+    }
+});
+
+export function SignupForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { signup, isFirebaseConfigured } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const plan = searchParams.get('plan');
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      isParent: false,
+      birthdate: undefined,
+      parentEmail: "",
+      password: "",
+      confirmPassword: "",
+      agreeToTerms: false,
+    },
+  });
+  
+  const watchIsParent = form.watch("isParent");
+  const watchBirthdate = form.watch("birthdate");
+  const age = calculateAge(watchBirthdate);
+  const requiresParentalConsent = !watchIsParent && age !== null && age < 16;
+
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isFirebaseConfigured) {
+        toast({ title: "Configuratie Fout", description: "Kan geen account aanmaken, Firebase is niet geconfigureerd.", variant: "destructive" });
+        return;
+    }
+    setIsLoading(true);
+    
+    let role: UserRoleType = values.isParent ? 'ouder' : 'leerling';
+    let ageGroup: '12-14' | '15-18' | 'adult' | undefined = undefined;
+
+    if (!values.isParent && age !== null) {
+        if (age >= 12 && age <= 14) ageGroup = '12-14';
+        else if (age >= 15 && age <= 18) ageGroup = '15-18';
+        else if (age > 18) ageGroup = 'adult';
+    }
+    
+    const signupData = {
+        email: values.email,
+        pass: values.password,
+        name: values.name,
+        role: role,
+        ageGroup: ageGroup,
+        parentEmail: requiresParentalConsent ? values.parentEmail : undefined
+    };
+    
+    const result = await signup(signupData);
+
+    if (result.success) {
+      let redirectUrl = '';
+      if (role === 'ouder') {
+          redirectUrl = `/verify-email?userType=parent&newRegistration=true`;
+          if (plan) redirectUrl += `&plan=${plan}`;
+      } else { // leerling
+          if (requiresParentalConsent) {
+              // Redirect to parental approval pending page
+              redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
+          } else {
+              const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
+              redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
+              if (plan) redirectUrl += `&plan=${plan}`;
+          }
+      }
+       router.push(redirectUrl);
+    } else {
+      toast({
+        title: "Registratie Mislukt",
+        description: result.error || "Er is een onbekende fout opgetreden. Probeer het opnieuw.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  }
+
+  const currentYear = new Date().getFullYear();
+  const defaultParentBirthDate = subYears(new Date(), 30);
+  const defaultTeenBirthDate = subYears(new Date(), 15);
+
+  return (
+      <Card className="w-full max-w-lg shadow-xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Account Aanmaken</CardTitle>
+          <CardDescription>
+            Maak je MindNavigator account.
+            {plan && <span className="block mt-1 text-sm font-medium text-primary">Geselecteerd plan: {plan}</span>}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!isFirebaseConfigured && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Firebase is niet geconfigureerd!</AlertTitle>
+              <AlertDescription>
+                Vul de `NEXT_PUBLIC_FIREBASE_*` variabelen in het `.env` bestand in om een account aan te maken.
+              </AlertDescription>
+            </Alert>
+          )}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                control={form.control}
+                name="isParent"
+                render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 py-2">
+                        <FormControl>
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} id="isParentCheckbox" />
+                        </FormControl>
+                        <FormLabel htmlFor="isParentCheckbox" className="font-normal cursor-pointer">Ik registreer als ouder/verzorger</FormLabel>
+                        <FormMessage />
+                    </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Volledige naam</FormLabel>
+                    <div className="relative">
+                      <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <FormControl><Input placeholder="Je naam" {...field} className="pl-10" /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-mailadres</FormLabel>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <FormControl><Input type="email" placeholder="jouw@email.com" {...field} className="pl-10" /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {!watchIsParent && (
+                <FormField
+                    control={form.control}
+                    name="birthdate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Geboortedatum</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP", { locale: nl })
+                                ) : (
+                                  <span>Kies een datum</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              key={'teen-calendar'}
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              defaultMonth={defaultTeenBirthDate}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date("1980-01-01")
+                              }
+                              captionLayout="dropdown-buttons"
+                              fromYear={currentYear - 25}
+                              toYear={currentYear - 12}
+                              initialFocus
+                              locale={nl}
+                              className="rounded-md border"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
+             
+              {requiresParentalConsent && (
+                 <FormField
+                    control={form.control}
+                    name="parentEmail"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>E-mailadres Ouder/Verzorger</FormLabel>
+                        <div className="relative">
+                            <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <FormControl><Input type="email" placeholder="ouder@email.com" {...field} className="pl-10" /></FormControl>
+                        </div>
+                        <FormDescription className="text-xs">
+                            We sturen een e-mail naar dit adres om toestemming te vragen voor je account.
+                        </FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wachtwoord</FormLabel>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <FormControl><Input type="password" placeholder="Minimaal 8 tekens" {...field} className="pl-10" /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bevestig wachtwoord</FormLabel>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <FormControl><Input type="password" placeholder="Herhaal wachtwoord" {...field} className="pl-10" /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="agreeToTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} id="agreeToTerms"/></FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel htmlFor="agreeToTerms" className="cursor-pointer">
+                        Ik ga akkoord met de{' '}
+                        <LegalDocumentDialog
+                            title="Algemene Voorwaarden"
+                            triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">algemene voorwaarden</span></Button>}
+                        >
+                            <TermsContent />
+                        </LegalDocumentDialog>
+                        {' '}en het{' '}
+                        <LegalDocumentDialog
+                            title="Privacybeleid"
+                            triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">privacybeleid</span></Button>}
+                        >
+                            <PrivacyPolicyContent />
+                        </LegalDocumentDialog>.
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured || !form.formState.isValid}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Account Aanmaken
+              </Button>
+            </form>
+          </Form>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Al een account?{' '}
+            <Button variant="link" asChild className="px-0"><Link href="/login">Inloggen</Link></Button>
+          </p>
+        </CardContent>
+      </Card>
+  );
+}
