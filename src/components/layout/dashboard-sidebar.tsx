@@ -1,4 +1,3 @@
-
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -29,7 +28,7 @@ import {
   HelpCircle, 
   CreditCard, 
   ArrowUp as TrendingUp,
-  ExternalLink as Link2,
+  Link as Link2,
   User as UserCheck,
   Shield as ShieldCheck,
   Package, 
@@ -51,7 +50,7 @@ import {
   BrainCircuit,
   Rocket,
   ScrollText,
-} from '@/components/icons';
+} from '@/lib/icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 
