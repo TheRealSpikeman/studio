@@ -12,6 +12,7 @@ import {
     Download, List, Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, CheckCircle2, XCircle
 } from '@/lib/icons';
 import type { ElementType, ReactNode } from 'react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Helper Components
 const GuidelineSection = ({ id, title, icon: Icon, children }: { id: string, title: string, icon: ElementType, children: ReactNode }) => (
@@ -63,7 +64,7 @@ const PrivacyBar = ({ label, percentage }: { label: string, percentage: number }
 const tocItems = [
     { id: 'wat-is-mindnavigator', title: 'Wat is MindNavigator?' },
     { id: 'leeftijdsspecifieke-richtlijnen', title: 'Leeftijdsspecifieke Richtlijnen' },
-    { id: 'uw-rol-per-ontwikkelingsfase', title: 'Uw Rol per Fase' },
+    { id: 'uw-rol-per-ontwikkelingsfase', title: 'Uw Rol per Ontwikkelingsfase' },
     { id: 'privacy-autonomie-balans', title: 'Privacy & Autonomie' },
     { id: 'ouder-dashboard', title: 'Het Ouder-Dashboard' },
     { id: 'coaching-begeleiding', title: 'Coaching & Begeleiding' },
@@ -152,6 +153,12 @@ export default function OuderRichtlijnenPage() {
                                 <li><strong>Samen Ontdekken:</strong> Bekijk assessment resultaten samen</li>
                                 <li><strong>Grenzen Respecteren:</strong> Geef ruimte voor persoonlijke reflectie</li>
                              </ul>
+                             <h4 className="font-semibold text-foreground mt-3">⚠️ Let Op:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Niet Overnemen:</strong> Laat uw tiener zelf de tools gebruiken</li>
+                                <li><strong>Privacy Respecteren:</strong> Niet alles hoeft gedeeld te worden</li>
+                                <li><strong>Geduld Hebben:</strong> Zelfinzicht ontwikkelt zich geleidelijk</li>
+                             </ul>
                         </SubSectionCard>
                         <SubSectionCard title="16-17 Jaar: Ondersteunende Partnerschap" icon={Handshake}>
                              <p><strong>Uw Rol:</strong> Advisor & Safety Net</p>
@@ -160,12 +167,20 @@ export default function OuderRichtlijnenPage() {
                                 <li><strong>Gezinslink Accepteren:</strong> Toegang tot voortgangsoverzicht (met tiener toestemming)</li>
                                 <li><strong>Financiële Ondersteuning:</strong> Betalen voor premium features indien gewenst</li>
                                 <li><strong>Coach Gesprekken:</strong> Betrokken zijn bij selectie maar tiener beslist</li>
+                                 <li><strong>Noodcontact:</strong> Beschikbaar zijn voor escalatie situaties</li>
                              </ul>
                              <h4 className="font-semibold text-foreground mt-3">🎯 Focus Punten:</h4>
                              <ul className="list-disc pl-5">
                                 <li><strong>Vertrouwen Geven:</strong> Uw tiener heeft meer autonomie verdiend</li>
                                 <li><strong>Beschikbaar Blijven:</strong> Open deur beleid voor vragen en ondersteuning</li>
                                 <li><strong>Professionele Hulp:</strong> Alert zijn op signalen dat extra hulp nodig is</li>
+                                <li><strong>Overgang Voorbereiden:</strong> Richting volledige zelfstandigheid op 18e verjaardag</li>
+                             </ul>
+                             <h4 className="font-semibold text-foreground mt-3">⚠️ Let Op:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Niet Pushen:</strong> Respecteer als uw tiener privacy wil</li>
+                                <li><strong>Balans Zoeken:</strong> Tussen betrokkenheid en ruimte geven</li>
+                                <li><strong>Eigen Grenzen:</strong> U bent niet verantwoordelijk voor alle keuzes</li>
                              </ul>
                         </SubSectionCard>
                          <SubSectionCard title="18+ Jaar: Respectvolle Afstand" icon={Handshake}>
@@ -175,6 +190,57 @@ export default function OuderRichtlijnenPage() {
                                 <li><strong>Op Uitnodiging:</strong> Alleen toegang als uw volwassen kind dit expliciet wil</li>
                                 <li><strong>Familie Coaching:</strong> Gezamenlijke sessies indien gewenst door beide partijen</li>
                                 <li><strong>Financiële Afspraken:</strong> Duidelijke overeenkomsten over wie wat betaalt</li>
+                                <li><strong>Crisis Ondersteuning:</strong> Beschikbaar zijn als backup plan</li>
+                             </ul>
+                              <h4 className="font-semibold text-foreground mt-3">🎯 Focus Punten:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Respect Autonomie:</strong> Volledige eigenaarschap bij uw volwassen kind</li>
+                                <li><strong>Beschikbaarheid:</strong> Tonen dat u er bent zonder op te dringen</li>
+                                <li><strong>Eigen Ontwikkeling:</strong> Misschien ook eigen ondersteuning zoeken als ouder</li>
+                             </ul>
+                        </SubSectionCard>
+                    </GuidelineSection>
+
+                    <GuidelineSection id="uw-rol-per-ontwikkelingsfase" title="Uw Rol per Ontwikkelingsfase" icon={Handshake}>
+                        <SubSectionCard title="Startfase (Eerste 2 Maanden)">
+                            <h4 className="font-semibold text-foreground mt-3">Samen Exploreren:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Onboarding Samen Doen:</strong> Eerste assessment en profiel setup ondersteunen</li>
+                                <li><strong>Platform Verkenning:</strong> Samen kijken naar beschikbare tools en functies</li>
+                                <li><strong>Verwachtingen Afstemmen:</strong> Bespreken wat iedereen hoopt te bereiken</li>
+                                <li><strong>Coach Matching:</strong> Helpen bij het vinden van een geschikte begeleider</li>
+                             </ul>
+                             <h4 className="font-semibold text-foreground mt-3">Uw Taken:</h4>
+                             <ul className="list-disc pl-5">
+                                <li>Account verificatie en betalingsgegevens instellen</li>
+                                <li>Privacy instellingen bespreken en configureren</li>
+                                <li>Eerste coaching sessie mogelijk bijwonen (met toestemming)</li>
+                                <li>Familieregels opstellen over platform gebruik</li>
+                             </ul>
+                        </SubSectionCard>
+                        <SubSectionCard title="Ontwikkelingsfase (Maand 3-12)">
+                             <h4 className="font-semibold text-foreground mt-3">Ondersteunend Begeleiden:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Voortgang Monitoren:</strong> Regelmatig (maar niet dagelijks) dashboard bekijken</li>
+                                <li><strong>Gesprekken Aangaan:</strong> Platform inzichten gebruiken voor diepere gesprekken</li>
+                                <li><strong>Obstakels Helpen:</strong> Ondersteuning bieden bij technische of motivationele uitdagingen</li>
+                                <li><strong>Successen Celebreren:</strong> Vooruitgang erkennen en waarderen</li>
+                             </ul>
+                             <h4 className="font-semibold text-foreground mt-3">Praktische Ondersteuning:</h4>
+                             <ul className="list-disc pl-5">
+                                <li>Herinneren aan coaching afspraken (zonder te controleren)</li>
+                                <li>Huiswerktips implementeren die via platform geleerd worden</li>
+                                <li>Communicatie met school over inzichten (met toestemming tiener)</li>
+                                <li>Eigen leerproces als ouder: hoe om te gaan met neurodiversiteit</li>
+                             </ul>
+                        </SubSectionCard>
+                        <SubSectionCard title="Zelfstandigheidsfase (Jaar 2+)">
+                            <h4 className="font-semibold text-foreground mt-3">Loslaten met Liefde:</h4>
+                             <ul className="list-disc pl-5">
+                                <li><strong>Vertrouwen Tonen:</strong> Minder frequent checken, meer ruimte geven</li>
+                                <li><strong>Op Afstand Ondersteunen:</strong> Beschikbaar zijn zonder op te dringen</li>
+                                <li><strong>Crisismanagement:</strong> Weten wanneer wel in te grijpen</li>
+                                <li><strong>Toekomst Voorbereiden:</strong> Overgang naar volwassenheid faciliteren</li>
                              </ul>
                         </SubSectionCard>
                     </GuidelineSection>
@@ -188,19 +254,20 @@ export default function OuderRichtlijnenPage() {
                                     <li>Coaching Statistieken (aantal, aanwezigheid)</li>
                                     <li>Gedeelde Doelen & Assessment Samenvattingen</li>
                                 </ul>
-                                <h4 className="font-semibold text-foreground mt-3">Communicatie:</h4>
+                                <h4 className="font-semibold text-foreground mt-3">Communicatie Logs:</h4>
                                 <ul className="list-disc pl-5">
                                     <li>Professionele coach feedback (met toestemming)</li>
-                                    <li>Systeem & Crisis Notificaties</li>
+                                    <li>Systeem Notificaties</li>
+                                    <li>Crisis Alerts</li>
                                 </ul>
                             </SubSectionCard>
                             <SubSectionCard title="Wat Ziet U NIET?" icon={XCircle}>
                                 <h4 className="font-semibold text-foreground mt-3">Privé Reflecties:</h4>
                                 <ul className="list-disc pl-5">
                                     <li>Dagboek Inhoud</li>
-                                    <li>Gesprekken met andere gebruikers</li>
-                                    <li>Specifieke antwoorden op vragen</li>
-                                    <li>Inhoud van 1-op-1 coachgesprekken</li>
+                                    <li>Peer Interactions</li>
+                                    <li>Specifieke Assessment Antwoorden</li>
+                                    <li>Coach Conversaties</li>
                                 </ul>
                             </SubSectionCard>
                         </div>
@@ -210,6 +277,44 @@ export default function OuderRichtlijnenPage() {
                                 <PrivacyBar label="16-17 Jaar (Gebalanceerde Autonomie)" percentage={40} />
                                 <PrivacyBar label="18+ Jaar (Volledige Controle)" percentage={20} />
                             </div>
+                        </SubSectionCard>
+                    </GuidelineSection>
+
+                    <GuidelineSection id="ouder-dashboard" title="Het Ouder-Dashboard: Wat Ziet U?" icon={BarChart}>
+                       <SubSectionCard title="Hoofdoverzicht">
+                            <h4 className="font-semibold text-foreground mt-3">Weekly Summary:</h4>
+                             <ul className="list-disc pl-5">
+                                <li>Platform Activiteit: "Emma heeft deze week 4 van de 7 dagen ingelogd"</li>
+                                <li>Goal Progress: "2 van 3 doelen deze week behaald"</li>
+                                <li>Coaching Update: "Volgende sessie: Donderdag 14:00 met Sarah"</li>
+                             </ul>
+                             <h4 className="font-semibold text-foreground mt-3">Maandelijkse Trends:</h4>
+                             <ul className="list-disc pl-5">
+                                <li>Engagement Grafiek: Hoe actief was uw tiener deze maand?</li>
+                                <li>Achievement Tracker: Welke mijlpalen zijn bereikt?</li>
+                             </ul>
+                        </SubSectionCard>
+                    </GuidelineSection>
+
+                    <GuidelineSection id="coaching-begeleiding" title="Coaching & Begeleiding: Uw Betrokkenheid" icon={Users}>
+                        <SubSectionCard title="Coach Selectie Process">
+                            <h4 className="font-semibold text-foreground mt-3">12-15 Jaar - Actieve Betrokkenheid:</h4>
+                            <ul className="list-disc pl-5">
+                                <li>Profiel Review: Samen bekijken van coach achtergronden</li>
+                                <li>Kennismaking: Bijwonen van eerste kennismakingsgesprek</li>
+                            </ul>
+                            <h4 className="font-semibold text-foreground mt-3">16-17 Jaar - Adviserende Rol:</h4>
+                            <ul className="list-disc pl-5">
+                                <li>Gezamenlijk Bekijken: Coach profielen samen doorlopen</li>
+                                <li>Mening Geven: Uw perspectief delen zonder te beslissen</li>
+                            </ul>
+                        </SubSectionCard>
+                        <SubSectionCard title="Kwaliteitsborging: Uw Rol">
+                             <h4 className="font-semibold text-foreground mt-3">Waarschuwingssignalen:</h4>
+                             <ul className="list-disc pl-5">
+                                <li>Ongeschikt Gedrag: Ongepaste opmerkingen of grenzen overschrijden</li>
+                                <li>Geen Vooruitgang: Na 2 maanden geen merkbare verbetering</li>
+                             </ul>
                         </SubSectionCard>
                     </GuidelineSection>
                     
@@ -226,6 +331,40 @@ export default function OuderRichtlijnenPage() {
                         </div>
                          <p className="text-muted-foreground">MindNavigator is een hulpmiddel, geen vervanging voor professionele zorg. Overweeg een doorverwijzing via uw huisarts als uw kind langdurig school weigert, zich sociaal isoleert, of als de tools van MindNavigator niet meer voldoende lijken te helpen.</p>
                     </GuidelineSection>
+
+                    <GuidelineSection id="praktische-tips" title="Praktische Tips voor Thuis" icon={HomeIcon}>
+                        <SubSectionCard title="Platform Inzichten Implementeren">
+                            <h4 className="font-semibold text-foreground mt-3">Ochtend Routine:</h4>
+                            <ul className="list-disc pl-5">
+                                <li>Assessment Inzichten: "Emma is een ochtendmens" → Huiswerk voor school</li>
+                                <li>Energy Management: "Sociale activiteiten putten uit" → Rust na school</li>
+                            </ul>
+                        </SubSectionCard>
+                        <SubSectionCard title="Communicatie Verbeteren">
+                            <h4 className="font-semibold text-foreground mt-3">Effectieve Vragen:</h4>
+                            <ul className="list-disc pl-5">
+                               <li>"Wat heb je vandaag ontdekt over jezelf?"</li>
+                               <li>"Welke strategie van je coach ga je proberen?"</li>
+                            </ul>
+                        </SubSectionCard>
+                    </GuidelineSection>
+
+                     <GuidelineSection id="veelgestelde-vragen" title="Veelgestelde Vragen" icon={HelpCircle}>
+                        <Accordion type="single" collapsible className="w-full space-y-2">
+                           <AccordionItem value="item-1">
+                               <AccordionTrigger>Kan ik altijd zien wat mijn tiener doet op het platform?</AccordionTrigger>
+                               <AccordionContent>Dit hangt af van de leeftijd. Voor 12-15 jarigen heeft u meer inzage, voor 16-17 jarigen beperktere toegang op basis van hun toestemming, en voor 18+ alleen op uitnodiging.</AccordionContent>
+                           </AccordionItem>
+                           <AccordionItem value="item-2">
+                               <AccordionTrigger>Hoe weet ik of de coach geschikt is?</AccordionTrigger>
+                               <AccordionContent>Let op: communicatie verbetert, uw tiener kijkt uit naar sessies, praktische tips werken thuis, en u ziet meetbare vooruitgang na 1-2 maanden.</AccordionContent>
+                           </AccordionItem>
+                            <AccordionItem value="item-3">
+                               <AccordionTrigger>Zijn de gegevens van mijn kind veilig?</AccordionTrigger>
+                               <AccordionContent>Ja, alle data wordt veilig opgeslagen conform AVG/GDPR richtlijnen op Nederlandse servers. Geen informatie wordt gedeeld zonder expliciete toestemming.</AccordionContent>
+                           </AccordionItem>
+                        </Accordion>
+                     </GuidelineSection>
 
                     <GuidelineSection id="crisis-contact" title="Crisis & Noodcontact" icon={AlertTriangle}>
                         <SubSectionCard title="MindNavigator Crisis Ondersteuning" icon={AlertTriangle}>
@@ -244,4 +383,5 @@ export default function OuderRichtlijnenPage() {
             <Footer />
         </div>
     );
-}
+
+    
