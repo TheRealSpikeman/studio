@@ -26,16 +26,16 @@ export function LegalDocumentDialog({ triggerNode, title, children }: LegalDocum
         {triggerNode}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl">{title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="flex-grow">
-          {/* Added padding to the inner div to prevent text from touching the scrollbar */}
+        {/* The key is min-h-0 which allows the flex item to shrink below its content size */}
+        <ScrollArea className="flex-grow min-h-0">
           <div className="pr-4">
             {children}
           </div>
         </ScrollArea>
-        <DialogFooter className="mt-4 pt-4 border-t">
+        <DialogFooter className="pt-4 border-t flex-shrink-0">
           <DialogClose asChild>
             <Button type="button">Sluiten</Button>
           </DialogClose>
