@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText } from 'lucide-react';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-400">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-accent">{value}</div>
         <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
@@ -93,7 +93,6 @@ export default function OuderRichtlijnenPage() {
                         Download onze uitgebreide gids met concrete tools, zonder medische claims of valse beloftes.
                     </p>
                     
-                    {/* --- MOVED FORM --- */}
                     <div className="w-full max-w-lg">
                       {isSubmitted ? (
                         <div className="p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg text-left">
@@ -118,9 +117,8 @@ export default function OuderRichtlijnenPage() {
                       )}
                       <p className="mt-3 text-xs text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Uitschrijven kan altijd</p>
                     </div>
-                    {/* --- END MOVED FORM --- */}
 
-                    <div className="flex justify-center md:justify-start gap-8 sm:gap-12 flex-wrap mt-8">
+                    <div className="flex flex-col sm:flex-row items-baseline justify-center gap-8 sm:gap-12 mt-8">
                         <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
                         <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
                         <StatIndicator value="150K" label="Gezinnen zoeken ondersteuning" />
@@ -194,7 +192,7 @@ export default function OuderRichtlijnenPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <PreviewCard icon={Lock} title="Privacy & Autonomie" subtitle="Wat u ziet per leeftijdsfase" />
                     <PreviewCard icon={Users} title="Coaching & Begeleiding" subtitle="Uw rol bij coach selectie" />
-                    <PreviewCard icon={FileText} title="Professionele Hulp" subtitle="Wanneer doorverwijzen" />
+                    <PreviewCard icon={Gavel} title="Professionele Hulp" subtitle="Wanneer doorverwijzen" />
                 </div>
             </div>
         </section>
