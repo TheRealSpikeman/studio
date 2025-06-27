@@ -9,10 +9,13 @@ import Link from 'next/link';
 export default function ContentManagementPage() {
   // In a real CMS, you would fetch and display a list of pages here.
   const dummyPages = [
-    { id: '1', title: 'Over Ons (voorbeeld)', slug: 'about', lastModified: '2024-05-10' },
-    { id: '2', title: 'Contactpagina (voorbeeld)', slug: 'contact', lastModified: '2024-05-09' },
-    { id: '3', title: 'Onze Missie (voorbeeld dynamisch)', slug: 'onze-missie', lastModified: '2024-05-15' },
-  ];
+    { id: '1', title: 'Over Ons (voorbeeld)', slug: 'about', lastModified: '2024-05-10', isDynamic: false },
+    { id: '2', title: 'Contactpagina (voorbeeld)', slug: 'contact', lastModified: '2024-05-09', isDynamic: false },
+    { id: '3', title: 'Onze Missie (voorbeeld dynamisch)', slug: 'onze-missie', lastModified: '2024-05-15', isDynamic: true },
+    { id: '4', title: 'Privacybeleid', slug: 'privacy', lastModified: '2024-05-20', isDynamic: false },
+    { id: '5', title: 'Algemene Voorwaarden', slug: 'terms', lastModified: '2024-05-20', isDynamic: false },
+    { id: '6', title: 'Disclaimer', slug: 'disclaimer', lastModified: '2024-05-20', isDynamic: false },
+  ].sort((a,b) => a.title.localeCompare(b.title)); // Sort alphabetically for consistency
 
   return (
     <div className="space-y-8">
@@ -45,10 +48,10 @@ export default function ContentManagementPage() {
               {dummyPages.map((page) => (
                 <li key={page.id} className="p-3 border rounded-md flex justify-between items-center hover:bg-muted/50">
                   <div>
-                    <Link href={`/p/${page.slug}`} className="font-medium text-primary hover:underline" target="_blank">
+                    <Link href={page.isDynamic ? `/p/${page.slug}` : `/${page.slug}`} className="font-medium text-primary hover:underline" target="_blank">
                       {page.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground">Slug: /p/{page.slug} | Laatst gewijzigd: {page.lastModified}</p>
+                    <p className="text-xs text-muted-foreground">URL: {page.isDynamic ? `/p/` : `/`}{page.slug} | Laatst gewijzigd: {page.lastModified}</p>
                   </div>
                   <Button variant="outline" size="sm" disabled>
                     Bewerken (binnenkort)
