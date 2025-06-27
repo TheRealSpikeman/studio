@@ -18,29 +18,29 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
-        <div className="text-sm text-white/80 mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-accent">{value}</div>
+        <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
 
-const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, borderColorClass }: { icon: ElementType, title: string, children: React.ReactNode, ctaText: string, ctaLink: string, borderColorClass: string }) => (
-    <Card className={cn("flex flex-col h-full shadow-lg border-t-4", borderColorClass)}>
-        <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-                <div className="p-3 bg-primary/10 rounded-full">
-                  <Icon className="h-7 w-7 text-primary" />
+const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClasses }: { icon: ElementType, title: React.ReactNode, children: React.ReactNode, ctaText: string, ctaLink: string, colorClasses: { border: string, bg: string, icon: string } }) => (
+    <Card className={cn("shadow-lg hover:shadow-xl transition-shadow border-l-4", colorClasses.border)}>
+        <CardContent className="p-6 flex flex-col h-full">
+            <div className="flex items-start gap-4 mb-4">
+                <div className={cn("flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center", colorClasses.bg)}>
+                    <Icon className={cn("h-6 w-6", colorClasses.icon)} />
                 </div>
-                <CardTitle>{title}</CardTitle>
+                <h3 className="text-lg font-bold text-foreground leading-tight">{title}</h3>
             </div>
-        </CardHeader>
-        <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground">{children}</p>
+            <p className="text-muted-foreground text-sm flex-grow mb-6">
+                {children}
+            </p>
+            <div className="mt-auto">
+                <Button variant="ghost" asChild className="p-2 h-auto text-sm text-foreground hover:bg-gray-100 border border-gray-200 w-full justify-center rounded-lg">
+                    <Link href={ctaLink}>{ctaText}</Link>
+                </Button>
+            </div>
         </CardContent>
-        <CardFooter>
-            <Button asChild className="w-full" variant="outline">
-                <Link href={ctaLink}>{ctaText}</Link>
-            </Button>
-        </CardFooter>
     </Card>
 );
 
@@ -72,7 +72,7 @@ export default function OuderRichtlijnenPage() {
 
   const handleDownloadRequest = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({ title: "Fout", description: "Voer alstublieft een geldig e-mailadres in.", variant: "destructive" });
       return;
     }
@@ -81,7 +81,7 @@ export default function OuderRichtlijnenPage() {
     setIsSubmitted(true);
     toast({
       title: "Verzoek ontvangen!",
-      description: `We hebben een e-mail met een persoonlijke downloadlink naar ${email} gestuurd.`
+      description: `We hebben een e-mail met een persoonlijke, 1 uur geldige downloadlink naar ${email} gestuurd.`
     });
   };
 
@@ -90,7 +90,7 @@ export default function OuderRichtlijnenPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-white text-foreground py-16 md:py-20 lg:py-24">
+        <section className="bg-background text-foreground py-16 md:py-20 lg:py-24">
             <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
                 {/* Left Column: Text */}
                 <div className="flex flex-col items-center text-center md:items-start md:text-left">
@@ -107,7 +107,7 @@ export default function OuderRichtlijnenPage() {
                       {isSubmitted ? (
                         <div className="p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg text-left">
                           <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle2/> Controleer uw inbox!</h3>
-                          <p className="mt-2 text-sm">We hebben een e-mail met een persoonlijke downloadlink gestuurd naar <strong>{submittedEmail}</strong>. Deze link is 1 uur geldig.</p>
+                          <p className="mt-2 text-sm">We hebben een e-mail met een persoonlijke, 1 uur geldige downloadlink gestuurd naar <strong>{submittedEmail}</strong>.</p>
                         </div>
                       ) : (
                         <form onSubmit={handleDownloadRequest} className="flex flex-col sm:flex-row gap-4 w-full">
@@ -150,45 +150,45 @@ export default function OuderRichtlijnenPage() {
         {/* Why Different Section */}
         <section className="py-16 md:py-24 bg-muted/40">
             <div className="container">
-                <h2 className="text-3xl font-bold text-center mb-4">Waarom MindNavigator Anders Is</h2>
-                <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-                    We respecteren de grenzen tussen coaching en medische zorg, en focussen op wat echt werkt voor neurodivergente gezinnen.
+                <h2 className="text-3xl font-bold text-center mb-4">Krijg De Ondersteuning Die Uw Gezin Verdient</h2>
+                <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
+                    Duizenden ouders gingen u voor. Download onze gratis richtlijnen en start vandaag nog met effectieve begeleiding voor uw neurodivergente tiener.
                 </p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                     <BenefitCard 
-                        icon={AlertTriangle} 
-                        title="Geen 6 Maanden Wachten" 
-                        ctaText="Direct Starten - Gratis Download" 
+                     <BenefitCard
+                        icon={AlertTriangle}
+                        title={<>Geen 6<br />Maanden Wachten</>}
+                        ctaText="Direct Starten - Gratis Download"
                         ctaLink="#"
-                        borderColorClass="border-red-500"
+                        colorClasses={{ border: "border-red-500", bg: "bg-red-100", icon: "text-red-600" }}
                     >
                         Krijg direct toegang tot praktische technieken en ondersteuning zonder de lange GGZ-wachttijden.
                     </BenefitCard>
-                    <BenefitCard 
-                        icon={ShieldCheck} 
-                        title="Eindelijk Eerlijke Ondersteuning" 
-                        ctaText="Ontdek Onze Ethische Aanpak" 
+                    <BenefitCard
+                        icon={ShieldCheck}
+                        title={<>Eindelijk<br />Eerlijke Ondersteuning</>}
+                        ctaText="Ontdek Onze Ethische Aanpak"
                         ctaLink="/about"
-                        borderColorClass="border-green-500"
+                        colorClasses={{ border: "border-green-500", bg: "bg-green-100", icon: "text-green-600" }}
                     >
                         Wij maken geen valse beloftes over 'genezing'. Onze ethische, transparante aanpak is gericht op empowerment.
                     </BenefitCard>
-                    <BenefitCard 
-                        icon={TrendingUp} 
-                        title="Begeleiding Die Mee Groeit" 
-                        ctaText="Ontdek Uw Rol Per Leeftijd" 
+                    <BenefitCard
+                        icon={TrendingUp}
+                        title={<>Begeleiding<br />Die Mee Groeit</>}
+                        ctaText="Ontdek Uw Rol Per Leeftijd"
                         ctaLink="#age-guide-section"
-                        borderColorClass="border-blue-500"
+                        colorClasses={{ border: "border-blue-500", bg: "bg-blue-100", icon: "text-blue-600" }}
                     >
                         Onze richtlijnen zijn afgestemd op de verschillende ontwikkelingsfases van uw tiener, van 12 tot 18+ jaar.
                     </BenefitCard>
-                    <BenefitCard 
-                        icon={BarChart} 
-                        title="Resultaten Die U Kunt Zien" 
-                        ctaText="Lees Succesverhalen & Tips" 
+                    <BenefitCard
+                        icon={BarChart}
+                        title={<>Resultaten<br />Die U Kunt Zien</>}
+                        ctaText="Lees Succesverhalen & Tips"
                         ctaLink="#"
-                        borderColorClass="border-orange-500"
+                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600" }}
                     >
                         Gebaseerd op de ervaringen van meer dan 1000+ gezinnen. Ontdek strategieën die bewezen hebben te werken.
                     </BenefitCard>
