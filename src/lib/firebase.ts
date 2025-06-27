@@ -7,44 +7,46 @@ import {
 } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
-// --- DIAGNOSTIC STEP ---
-// This config is temporarily hardcoded with placeholders.
-// You MUST replace the placeholder values with your actual Firebase project
-// configuration from the Firebase Console to test the connection.
 const firebaseConfig = {
-  apiKey: "PLACEHOLDER_REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "PLACEHOLDER_REPLACE_WITH_YOUR_AUTH_DOMAIN",
-  projectId: "PLACEHOLDER_REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "PLACEHOLDER_REPLACE_WITH_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PLACEHOLDER_REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
-  appId: "PLACEHOLDER_REPLACE_WITH_YOUR_APP_ID",
-  measurementId: "PLACEHOLDER_REPLACE_WITH_YOUR_MEASUREMENT_ID",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// This check is now based on the hardcoded placeholders.
-// Once you fill them in, isConfigured will become true.
-const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("PLACEHOLDER");
-
-if (!isConfigured) {
-  console.error("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
-  console.error("🔥 Firebase config in /src/lib/firebase.ts is NOT SET!");
-  console.error("🔥 Please replace the placeholder values with your actual project config.");
-  console.error("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
-}
+// This check is now the definitive way to see if the environment is set up.
+const isConfigured = !!firebaseConfig.apiKey && !!firebaseConfig.projectId && !firebaseConfig.apiKey.includes("REPLACE_WITH");
 
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 
-if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
+// Initialize Firebase only if it's configured
+if (isConfigured) {
+  if (getApps().length === 0) {
+      app = initializeApp(firebaseConfig);
+  } else {
+    app = getApp();
+  }
+
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
 } else {
-  app = getApp();
+   console.warn("Firebase config is NOT SET in .env file. Firebase services will be unavailable.");
+   // @ts-ignore - Intentionally leaving these undefined when not configured
+   app = undefined;
+   // @ts-ignore
+   auth = undefined;
+   // @ts-ignore
+   db = undefined;
+   // @ts-ignore
+   storage = undefined;
 }
 
-auth = getAuth(app);
-db = getFirestore(app);
-storage = getStorage(app);
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
