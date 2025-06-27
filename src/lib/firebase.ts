@@ -17,13 +17,14 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// This check is now the definitive way to see if the environment is set up.
+// This check is the definitive way to see if the environment is set up.
 const isConfigured = !!firebaseConfig.apiKey && !!firebaseConfig.projectId && !firebaseConfig.apiKey.includes("REPLACE_WITH");
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
+// Explicitly type the variables to allow for null.
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
 
 // Initialize Firebase only if it's configured
 if (isConfigured) {
@@ -37,15 +38,8 @@ if (isConfigured) {
   db = getFirestore(app);
   storage = getStorage(app);
 } else {
-   console.warn("Firebase config is NOT SET in .env file. Firebase services will be unavailable.");
-   // @ts-ignore - Intentionally leaving these undefined when not configured
-   app = undefined;
-   // @ts-ignore
-   auth = undefined;
-   // @ts-ignore
-   db = undefined;
-   // @ts-ignore
-   storage = undefined;
+   // Use console.warn instead of console.error to avoid a browser crash overlay.
+   console.warn("Firebase config is NOT SET correctly in .env file. Firebase services will be unavailable. Please check your NEXT_PUBLIC_FIREBASE_* variables.");
 }
 
 
