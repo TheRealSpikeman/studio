@@ -29,6 +29,7 @@ export interface SignupData {
   role: UserRoleType;
   ageGroup?: '12-14' | '15-18' | 'adult';
   status?: UserStatus;
+  parentEmail?: string;
 }
 
 interface AuthContextType {
@@ -139,27 +140,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, error: "Firebase is niet geconfigureerd." };
     }
     
-    console.log("[AuthContext] Starting signup process for:", data.email);
+    const needsParentalApproval = data.role === 'leerling' && data.parentEmail;
+    
     const profileData = {
       name: data.name,
       role: data.role,
       ageGroup: data.ageGroup,
-      status: data.status || 'niet geverifieerd',
+      status: needsParentalApproval ? 'wacht_op_ouder_goedkeuring' as UserStatus : 'niet geverifieerd' as UserStatus,
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
     };
+    
+    // For email/pass, we save temp data to localStorage to be picked up by onAuthStateChanged
     localStorage.setItem(TEMP_PROFILE_KEY, JSON.stringify(profileData));
-    console.log("[AuthContext] Temp profile data saved to localStorage.");
     
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
-      console.log("[AuthContext] createUserWithEmailAndPassword success for:", userCredential.user.uid);
-      await sendEmailVerification(userCredential.user);
-      console.log(`[AuthContext] Verification email sent to ${userCredential.user.email}. Signup complete.`);
+      
+      if (needsParentalApproval && data.parentEmail) {
+        // Send approval request email (simulated)
+        console.log(`SIMULATING: Sending approval request to ${data.parentEmail} for teen ${data.email}`);
+        // In a real app, you would call a backend function here to send a templated email.
+        // The email would contain a link like: `/parental-approval?token=...&teenEmail=...`
+      } else {
+        // Standard verification for users who don't need parental approval
+        await sendEmailVerification(userCredential.user);
+      }
+      
       return { success: true };
     } catch (error: any) {
       localStorage.removeItem(TEMP_PROFILE_KEY);
-      console.error("[AuthContext] Signup Error during createUserWithEmailAndPassword:", error);
       let friendlyError = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         friendlyError = "Dit e-mailadres is al in gebruik.";
