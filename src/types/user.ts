@@ -13,7 +13,7 @@ export interface User {
   ageGroup?: AgeGroup; 
   geboortedatum?: string; // ISO date string, new for age calculation
   requires_parent_approval?: boolean; 
-  parent_user_id?: string; // ID of the approving parent
+  parentId?: string; // ID of the approving parent
   lastLogin: string; // ISO date string
   createdAt: string; // ISO date string
   coaching?: {

@@ -36,8 +36,8 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "admin@example.com",
-      password: "password", // Pre-fill with demo password
+      email: "",
+      password: "", 
     },
   });
 
@@ -82,7 +82,7 @@ export function LoginForm() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <FormControl>
-                      <Input placeholder="bijv. leerling@example.com" {...field} className="pl-10" />
+                      <Input placeholder="jouw@email.com" {...field} className="pl-10" />
                     </FormControl>
                   </div>
                   <FormMessage />
@@ -98,7 +98,7 @@ export function LoginForm() {
                    <div className="relative">
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <FormControl>
-                      <Input type={showPassword ? "text" : "password"} placeholder="Hint: 'password'" {...field} className="pl-10 pr-10" />
+                      <Input type={showPassword ? "text" : "password"} placeholder="Wachtwoord" {...field} className="pl-10 pr-10" />
                     </FormControl>
                      <Button
                       type="button"

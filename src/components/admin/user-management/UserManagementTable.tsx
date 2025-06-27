@@ -168,4 +168,3 @@ export function UserManagementTable({ users, onEditUser, onDeleteUser, showAgeGr
     </div>
   );
 }
-
