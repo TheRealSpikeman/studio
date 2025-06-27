@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   typescript: {
     // !! WARN !!
@@ -33,6 +35,15 @@ const nextConfig = {
         pathname: '/**',
       }
     ],
+  },
+  webpack: (config) => {
+    // Tell webpack to ignore watching the 'tools' directory
+    // This prevents the dev server from restarting in a loop when we generate tool components
+    config.watchOptions.ignored = [
+        ...(config.watchOptions.ignored || []),
+        path.resolve(__dirname, 'src/components/tools'),
+    ];
+    return config;
   },
 };
 
