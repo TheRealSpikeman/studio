@@ -2,14 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Alleen ingelogde gebruikers kunnen hun eigen profiel lezen, bijwerken of verwijderen.
-    // De document ID ({userId}) moet exact overeenkomen met de UID van de ingelogde gebruiker.
+    // Matches any document in the 'users' collection.
     match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      // Allow read access for any authenticated user.
+      // This is useful for features where users might need to see others' basic profiles.
+      // This can be locked down further if needed (e.g., user can only read their own doc).
+      allow read: if request.auth != null;
 
-      // Een nieuwe gebruiker kan alleen een document aanmaken als de document ID
-      // exact overeenkomt met zijn/haar eigen UID.
-      allow create: if request.auth != null && request.resource.id == request.auth.uid;
+      // Allow a user to create their own document, but not someone else's.
+      // The `userId` in the path must match the UID of the user making the request.
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Allow a user to update their own document, but not someone else's.
+      allow update: if request.auth != null && request.auth.uid == userId;
+
+      // Disallow client-side deletion of user documents for safety.
+      // Deletions should be handled by a trusted backend or Cloud Function.
+      allow delete: if false;
     }
+    // You can add more rules for other collections here.
+    // For example:
+    // match /quizzes/{quizId} {
+    //   allow read: if request.auth != null;
+    //   // Add write rules for admins
+    // }
   }
 }

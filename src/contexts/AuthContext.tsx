@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // If firebase is not configured, don't attempt to set up listeners.
     if (!isFirebaseConfigured || !auth || !db) {
       setIsLoading(false);
       return;
@@ -55,11 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        console.log(`[AuthContext] onAuthStateChanged: User is authenticated with UID: ${firebaseUser.uid}. Fetching Firestore document...`);
         try {
           const userDocRef = doc(db, "users", firebaseUser.uid);
+          
+          console.log(`[AuthContext] Step 1: Attempting to read user document at path: users/${firebaseUser.uid}`);
           const userDocSnap = await getDoc(userDocRef);
+          console.log(`[AuthContext] Step 1 SUCCESS: User document read.`);
 
           if (userDocSnap.exists()) {
+            console.log(`[AuthContext] User document exists. Preparing user object.`);
             const appUser: User = {
               id: firebaseUser.uid,
               ...(userDocSnap.data() as Omit<User, 'id'>),
@@ -67,46 +71,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             };
             setUser(appUser);
             localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(appUser));
+
+            console.log(`[AuthContext] Step 2: Attempting to update lastLogin for user: ${firebaseUser.uid}`);
             await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+            console.log(`[AuthContext] Step 2 SUCCESS: lastLogin updated.`);
+            
+            console.log(`[AuthContext] All steps successful. Redirecting to /dashboard/${appUser.role}`);
             router.push(`/dashboard/${appUser.role}`);
           } else {
-            console.warn(`User ${firebaseUser.uid} authenticated, but no Firestore doc found. Logging out.`);
+            console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no Firestore doc found. Logging out.`);
             await signOut(auth);
           }
         } catch (error: any) {
-          console.error("Error fetching user document from Firestore:", error);
-          if (error.code === 'unavailable' || (error.message && error.message.toLowerCase().includes('offline'))) {
-            const cachedUserStr = localStorage.getItem(USER_STORAGE_KEY);
-            if (cachedUserStr) {
-                try {
-                  const cachedUser = JSON.parse(cachedUserStr);
-                  if (cachedUser.id === firebaseUser.uid) {
-                    setUser(cachedUser);
-                    toast({
-                      title: "Offline modus (beperkt)",
-                      description: "Kon profiel niet vernieuwen. Weergegeven data is mogelijk niet up-to-date.",
-                      variant: "default",
-                    });
-                    router.push(`/dashboard/${cachedUser.role}`);
-                  } else {
-                    await signOut(auth);
-                  }
-                } catch (e) {
-                    await signOut(auth);
-                }
-            } else {
-                toast({
-                  title: "Authenticatie Fout",
-                  description: "Kon uw profiel niet laden. Log opnieuw in.",
-                  variant: "destructive",
-                });
-                await signOut(auth);
-            }
-          } else {
-             await signOut(auth);
+          console.error("[AuthContext] Firestore Error during auth state change:", error);
+          if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
+             console.error("🔥🔥🔥 PERMISSION DENIED! Check your firestore.rules. The failing operation is logged above (read or update).");
+             toast({
+                title: "Permissie Fout",
+                description: "U heeft geen permissie om uw profiel te laden. Neem contact op met de beheerder.",
+                variant: "destructive"
+             });
           }
+          await signOut(auth); // Log out user on any error to prevent inconsistent state
         }
       } else {
+        console.log(`[AuthContext] onAuthStateChanged: No user is authenticated.`);
         setUser(null);
         localStorage.removeItem(USER_STORAGE_KEY);
       }
@@ -119,9 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured || !auth || !db) {
       return { success: false, error: "Firebase is niet geconfigureerd." };
     }
+    console.log(`[AuthContext] Starting signup for email: ${data.email}`);
     try {
+      console.log(`[AuthContext] Step 1 (Signup): Attempting createUserWithEmailAndPassword.`);
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
       const firebaseUser = userCredential.user;
+      console.log(`[AuthContext] Step 1 SUCCESS. New Firebase user created with UID: ${firebaseUser.uid}`);
+
       const userDocRef = doc(db, "users", firebaseUser.uid);
       const newUserProfile: Omit<User, 'id'> = {
         name: data.name,
@@ -132,13 +125,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       };
+
+      console.log(`[AuthContext] Step 2 (Signup): Attempting to create user document at path: users/${firebaseUser.uid}`);
       await setDoc(userDocRef, newUserProfile);
+      console.log(`[AuthContext] Step 2 SUCCESS. Firestore document created.`);
       return { success: true };
     } catch (error: any) {
-      console.error("Signup Error:", error.code, error.message);
+      console.error("[AuthContext] Signup Error:", error);
       let friendlyError = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         friendlyError = "Dit e-mailadres is al in gebruik.";
+      }
+      if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
+          console.error("🔥🔥🔥 PERMISSION DENIED! The signup process failed to create a user document. Check the 'create' rule in firestore.rules.");
+          friendlyError = "Kon gebruikersprofiel niet aanmaken. Permissies incorrect."
       }
       return { success: false, error: friendlyError };
     }
@@ -161,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // onAuthStateChanged handles success (setting user, redirecting, etc.)
       return true;
     } catch (error) {
-      let friendlyMessage = "Er is een onbekende fout opgetreden.";
+      let friendlyMessage = "De combinatie van e-mail en wachtwoord is onjuist.";
 
       // Check if it's a Firebase error with a code property
       if (error && typeof error === 'object' && 'code' in error) {
