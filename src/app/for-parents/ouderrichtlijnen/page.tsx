@@ -20,7 +20,7 @@ const StatIndicator = ({ value, label }: { value: string, label: string }) => (
 );
 
 const ValuePropCard = ({ icon: Icon, title, children }: { icon: ElementType, title: string, children: React.ReactNode }) => (
-    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-muted/50 transition-all duration-300">
+    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-primary/10 transition-all duration-300">
         <div className="flex items-center gap-4 mb-3">
             <div className="bg-primary/10 text-primary p-3 rounded-full">
                 <Icon className="h-7 w-7" />
@@ -199,8 +199,16 @@ export default function OuderRichtlijnenPage() {
                     met praktische tips, checklists en professionele inzichten.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button size="lg" asChild className="text-base"><Link href="#">📧 Download Gratis Richtlijnen</Link></Button>
-                    <Button size="lg" variant="outline" asChild className="text-base"><Link href="#">🎥 Bekijk Demo (3 min)</Link></Button>
+                    <Button size="lg" asChild className="text-base">
+                        <Link href="#">
+                            📧 Download Gratis Richtlijnen
+                        </Link>
+                    </Button>
+                    <Button size="lg" variant="outline" asChild className="text-base">
+                        <Link href="#">
+                            🎥 Bekijk Demo (3 min)
+                        </Link>
+                    </Button>
                 </div>
                 <p className="mt-6 text-sm text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Email ondersteuning inbegrepen</p>
             </div>
