@@ -1,4 +1,3 @@
-
 // src/contexts/AuthContext.tsx
 "use client";
 
@@ -84,38 +83,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for signup method...`);
             const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
-            let profileDataToSet;
-
+            
             if (tempProfileRaw) {
-              // User signed up with email/password
+              // User signed up with email/password, create their doc
               console.log(`[AuthContext] Temp profile data FOUND. Creating Firestore document for email signup...`);
-              profileDataToSet = JSON.parse(tempProfileRaw);
+              const profileDataToSet = JSON.parse(tempProfileRaw);
               localStorage.removeItem(TEMP_PROFILE_KEY);
-            } else if (firebaseUser.providerData.some(p => p.providerId === 'google.com' || p.providerId === 'apple.com')) {
-              // User signed up with a social provider
-              console.log(`[AuthContext] New user via Social Sign-In: ${firebaseUser.uid}. Creating Firestore document...`);
-              profileDataToSet = {
-                name: firebaseUser.displayName || "Nieuwe Gebruiker",
-                email: firebaseUser.email,
-                role: 'leerling' as UserRoleType, // Default role for social sign-ins
-                status: 'actief' as UserStatus,    // Social sign-ins are instantly active
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                avatarUrl: firebaseUser.photoURL || undefined,
-              };
-            }
 
-            if (profileDataToSet) {
-                const finalProfileData = {
-                  ...profileDataToSet,
-                  email: firebaseUser.email, // Always use the email from the authenticated user
-                };
-                await setDoc(userDocRef, finalProfileData);
-                console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}.`);
-                const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
-                setUser(appUser);
+              const finalProfileData = {
+                ...profileDataToSet,
+                email: firebaseUser.email, // Always use the email from the authenticated user
+              };
+              await setDoc(userDocRef, finalProfileData);
+              console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}.`);
+              const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
+              setUser(appUser);
             } else {
-              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no known signup method. Logging out.`);
+              // This is an unprovisioned user (e.g., social login without a profile, or some other edge case).
+              // We sign them out to force them through a proper signup or login flow.
+              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no signup data found. Logging out.`);
               await signOut(auth);
             }
           }
@@ -194,49 +180,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [toast, router]);
 
-  const loginWithGoogle = useCallback(async (): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth) {
-      toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
-      return false;
+  const socialLoginHandler = useCallback(async (provider: GoogleAuthProvider | OAuthProvider): Promise<boolean> => {
+    if (!isFirebaseConfigured || !auth || !db) {
+        toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
+        return false;
     }
-    const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      // The onAuthStateChanged listener will handle the redirect.
-      // But we can push to make it faster.
-      router.push('/dashboard');
-      return true;
+        const result = await signInWithPopup(auth, provider);
+        const firebaseUser = result.user;
+        
+        // Check if user document exists
+        const userDocRef = doc(db, "users", firebaseUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (!userDocSnap.exists()) {
+            // User does not have a profile in our database. This is an invalid login attempt.
+            await signOut(auth); // Sign them out immediately.
+            toast({
+                title: "Account niet gevonden",
+                description: "Gebruik alstublieft de aanmeldpagina om een nieuw account aan te maken. U kunt daarna inloggen met deze methode.",
+                variant: "destructive",
+                duration: 8000
+            });
+            router.push('/signup'); // Guide them to the correct flow.
+            return false;
+        }
+        
+        // If we are here, the user exists. The onAuthStateChanged listener will handle the rest.
+        router.push('/dashboard');
+        return true;
+
     } catch (error: any) {
-      console.error("Firebase Google Login Error:", error);
-      toast({ title: "Google Inloggen Mislukt", description: "Kon niet inloggen met Google. Probeer het opnieuw.", variant: "destructive" });
-      return false;
+        console.error("Firebase Social Login Error:", error);
+        let description = "Kon niet inloggen. Probeer het opnieuw.";
+         if (error.code === 'auth/account-exists-with-different-credential') {
+            description = "Er bestaat al een account met dit e-mailadres via een andere methode (bijv. e-mail/wachtwoord). Probeer op die manier in te loggen.";
+        } else if (error.code === 'auth/popup-blocked') {
+            description = "De pop-up werd geblokkeerd door de browser. Sta pop-ups voor deze site toe en probeer het opnieuw.";
+        }
+        toast({ title: "Social Login Mislukt", description, variant: "destructive", duration: 7000 });
+        return false;
     }
   }, [toast, router]);
   
-  const loginWithApple = useCallback(async (): Promise<boolean> => {
-    if (!isFirebaseConfigured || !auth) {
-      toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
-      return false;
-    }
+  const loginWithGoogle = useCallback(() => socialLoginHandler(new GoogleAuthProvider()), [socialLoginHandler]);
+  const loginWithApple = useCallback(() => {
     const provider = new OAuthProvider('apple.com');
     provider.addScope('email');
     provider.addScope('name');
-    try {
-      await signInWithPopup(auth, provider);
-      router.push('/dashboard');
-      return true;
-    } catch (error: any) {
-      console.error("Firebase Apple Login Error:", error);
-      let description = "Kon niet inloggen met Apple. Probeer het opnieuw.";
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        description = "Er bestaat al een account met dit e-mailadres via een andere methode (bijv. Google). Probeer op die manier in te loggen.";
-      } else if (error.code === 'auth/popup-blocked') {
-        description = "De pop-up werd geblokkeerd door de browser. Sta pop-ups voor deze site toe en probeer het opnieuw.";
-      }
-      toast({ title: "Apple Inloggen Mislukt", description, variant: "destructive" });
-      return false;
-    }
-  }, [toast, router]);
+    return socialLoginHandler(provider);
+  }, [socialLoginHandler]);
 
 
   const logout = useCallback(async () => {
