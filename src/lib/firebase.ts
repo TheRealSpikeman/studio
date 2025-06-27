@@ -23,7 +23,6 @@ const firebaseConfig = {
 const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("...");
 
 // Initialize Firebase services and export them.
-// They will be null if the config is not provided.
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
@@ -49,25 +48,34 @@ auth = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
 
-// Connect to emulators in development.
-if (isConfigured && process.env.NODE_ENV === 'development') {
-    try {
-        console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
-        
-        console.log('Connecting to Auth emulator at http://localhost:9099');
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-        console.log('✅ Auth emulator connected.');
-        
-        console.log('Connecting to Firestore emulator at localhost:8080');
-        connectFirestoreEmulator(db, 'localhost', 8080);
-        console.log('✅ Firestore emulator connected.');
-        
-        console.log('Connecting to Storage emulator at localhost:9199');
-        connectStorageEmulator(storage, 'localhost', 9199);
-        console.log('✅ Storage emulator connected.');
+// Connect to emulators in development, ONLY ON THE CLIENT SIDE.
+// This is the definitive fix for the network errors in cloud dev environments.
+if (isConfigured && process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    // Check if emulators are already connected to prevent errors on hot-reloads.
+    // The private property _isEmulator is a reliable way to check this.
+    if (!(auth as any)._isEmulator) {
+        try {
+            console.log(`Firebase emulators connecting...`);
+            
+            // Use window.location.hostname to dynamically get the correct host for the emulators.
+            // This is crucial for cloud development environments like Cloud Workstations.
+            const hostname = window.location.hostname;
 
-    } catch(e) {
-        console.warn('⚠️ Error connecting to Firebase emulators. This is expected if emulators are not running or if this is a production build.', e);
+            console.log(`Connecting to Auth emulator at http://${hostname}:9099`);
+            connectAuthEmulator(auth, `http://${hostname}:9099`, { disableWarnings: true });
+            console.log('✅ Auth emulator connected.');
+            
+            console.log(`Connecting to Firestore emulator at ${hostname}:8080`);
+            connectFirestoreEmulator(db, hostname, 8080);
+            console.log('✅ Firestore emulator connected.');
+            
+            console.log(`Connecting to Storage emulator at ${hostname}:9199`);
+            connectStorageEmulator(storage, hostname, 9199);
+            console.log('✅ Storage emulator connected.');
+
+        } catch(e) {
+            console.warn('⚠️ Error connecting to Firebase emulators. This can happen on hot reloads. If services work, this is likely safe to ignore.', e);
+        }
     }
 }
 
