@@ -17,13 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Loader2, AlertTriangle, Eye, EyeOff, ExternalLink } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format, subYears, isValid, differenceInYears } from 'date-fns';
-import { nl } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -32,18 +28,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LegalDocumentDialog } from '@/components/common/LegalDocumentDialog';
 import { PrivacyPolicyContent, TermsContent } from '@/components/legal/LegalContent';
 
-
-const calculateAge = (birthdate: Date | undefined): number | null => {
-  if (!birthdate || !isValid(birthdate)) return null;
-  return differenceInYears(new Date(), birthdate);
-};
-
 const formSchema = z.object({
+  userType: z.enum(['ouder', 'leerling_12_15', 'leerling_16_18'], {
+    required_error: "Selecteer een accounttype.",
+  }),
   name: z.string().min(2, { message: "Naam moet minimaal 2 tekens lang zijn."}),
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
-  isParent: z.boolean().default(false),
-  birthdate: z.date().optional(), // Geboortedatum is nu optioneel
-  parentEmail: z.string().email({ message: "Voer een geldig e-mailadres van een ouder in." }).optional(),
+  parentEmail: z.string().email({ message: "Voer een geldig e-mailadres van een ouder in." }).optional().or(z.literal('')),
   password: z.string().min(8, { message: "Wachtwoord moet minimaal 8 tekens lang zijn." }),
   confirmPassword: z.string(),
   agreeToTerms: z.boolean().refine(value => value === true, {
@@ -57,47 +48,17 @@ const formSchema = z.object({
             path: ["confirmPassword"],
         });
     }
-    
-    // Alleen valideren als het geen ouder is
-    if (!data.isParent) {
-        if (!data.birthdate) {
-             ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Geboortedatum is vereist voor een tiener/jongere.",
-                path: ["birthdate"],
-            });
-            return;
-        }
-
-        const age = calculateAge(data.birthdate);
-        if (age === null && data.birthdate) { 
+    if (data.userType === 'leerling_12_15') {
+        if (!data.parentEmail || data.parentEmail.trim() === '') {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: "Selecteer een geldige geboortedatum.",
-                path: ["birthdate"],
+                message: "E-mailadres van een ouder/verzorger is vereist voor gebruikers onder de 16.",
+                path: ["parentEmail"],
             });
-            return;
-        }
-
-        if (age !== null) {
-            if (age < 12) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Je moet minimaal 12 jaar oud zijn om je te registreren.",
-                    path: ["birthdate"],
-                });
-            } else if (age < 16) {
-                if (!data.parentEmail) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        message: "E-mailadres van een ouder/verzorger is vereist voor gebruikers onder de 16.",
-                        path: ["parentEmail"],
-                    });
-                }
-            }
         }
     }
 });
+
 
 export function SignupForm() {
   const router = useRouter();
@@ -110,10 +71,9 @@ export function SignupForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      userType: undefined,
       name: "",
       email: "",
-      isParent: false,
-      birthdate: undefined,
       parentEmail: "",
       password: "",
       confirmPassword: "",
@@ -121,11 +81,8 @@ export function SignupForm() {
     },
   });
   
-  const watchIsParent = form.watch("isParent");
-  const watchBirthdate = form.watch("birthdate");
-  const age = calculateAge(watchBirthdate);
-  const requiresParentalConsent = !watchIsParent && age !== null && age < 16;
-
+  const watchUserType = form.watch("userType");
+  const requiresParentalConsent = watchUserType === 'leerling_12_15';
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!isFirebaseConfigured) {
@@ -134,14 +91,11 @@ export function SignupForm() {
     }
     setIsLoading(true);
     
-    let role: UserRoleType = values.isParent ? 'ouder' : 'leerling';
+    let role: UserRoleType = values.userType === 'ouder' ? 'ouder' : 'leerling';
     let ageGroup: '12-14' | '15-18' | 'adult' | undefined = undefined;
 
-    if (!values.isParent && age !== null) {
-        if (age >= 12 && age <= 14) ageGroup = '12-14';
-        else if (age >= 15 && age <= 18) ageGroup = '15-18';
-        else if (age > 18) ageGroup = 'adult';
-    }
+    if (values.userType === 'leerling_12_15') ageGroup = '12-14';
+    if (values.userType === 'leerling_16_18') ageGroup = '15-18';
     
     const signupData = {
         email: values.email,
@@ -164,7 +118,7 @@ export function SignupForm() {
               // Redirect to parental approval pending page
               redirectUrl = `/verify-email?userType=teen&flow=parent_approval_pending&teenEmail=${encodeURIComponent(values.email)}`;
           } else {
-              const userType = (age !== null && age >= 18) ? 'adult' : 'teen';
+              const userType = ageGroup === '15-18' ? 'teen' : 'adult';
               redirectUrl = `/verify-email?userType=${userType}&newRegistration=true`;
               if (plan) redirectUrl += `&plan=${plan}`;
           }
@@ -179,10 +133,6 @@ export function SignupForm() {
       setIsLoading(false);
     }
   }
-
-  const currentYear = new Date().getFullYear();
-  const defaultParentBirthDate = subYears(new Date(), 30);
-  const defaultTeenBirthDate = subYears(new Date(), 15);
 
   return (
       <Card className="w-full max-w-lg shadow-xl">
@@ -205,17 +155,26 @@ export function SignupForm() {
           )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
+              <FormField
                 control={form.control}
-                name="isParent"
+                name="userType"
                 render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 py-2">
-                        <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} id="isParentCheckbox" />
-                        </FormControl>
-                        <FormLabel htmlFor="isParentCheckbox" className="font-normal cursor-pointer">Ik registreer als ouder/verzorger</FormLabel>
-                        <FormMessage />
-                    </FormItem>
+                  <FormItem>
+                    <FormLabel>Ik ben een...</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecteer een accounttype" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="leerling_12_15">Leerling (12-15 jaar)</SelectItem>
+                        <SelectItem value="leerling_16_18">Leerling (16-18 jaar)</SelectItem>
+                        <SelectItem value="ouder">Ouder / Verzorger</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
               <FormField
@@ -246,57 +205,6 @@ export function SignupForm() {
                   </FormItem>
                 )}
               />
-              
-              {!watchIsParent && (
-                <FormField
-                    control={form.control}
-                    name="birthdate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Geboortedatum</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP", { locale: nl })
-                                ) : (
-                                  <span>Kies een datum</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              key={'teen-calendar'}
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              defaultMonth={defaultTeenBirthDate}
-                              disabled={(date) =>
-                                date > new Date() || date < new Date("1980-01-01")
-                              }
-                              captionLayout="dropdown-buttons"
-                              fromYear={currentYear - 25}
-                              toYear={currentYear - 12}
-                              initialFocus
-                              locale={nl}
-                              className="rounded-md border"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-              )}
              
               {requiresParentalConsent && (
                  <FormField
