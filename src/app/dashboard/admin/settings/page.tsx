@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/settings/page.tsx
 "use client";
 
@@ -146,7 +145,7 @@ export default function AdminSettingsPage() {
         </p>
       </section>
 
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs defaultValue="roles" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 mb-6">
           <TabsTrigger value="general"><Settings className="mr-2 h-4 w-4" />Algemeen</TabsTrigger>
           <TabsTrigger value="roles"><Users className="mr-2 h-4 w-4" />Rollen &amp; Permissies</TabsTrigger>
@@ -204,13 +203,14 @@ export default function AdminSettingsPage() {
                   <Button type="button" onClick={handleAddRole}><PlusCircle className="mr-2 h-4 w-4" /> Toevoegen</Button>
                 </div>
               </div>
-              <div className="overflow-auto relative max-h-[600px]">
-                <Table>
+              
+              <div className="relative max-h-[600px] overflow-auto border rounded-lg">
+                <table className="w-full caption-bottom text-sm">
                   <TableHeader className="sticky top-0 z-10 bg-card shadow-sm">
                     <TableRow>
-                      <TableHead className="w-[300px] bg-card">Permissie / Feature</TableHead>
+                      <TableHead className="w-[300px]">Permissie / Feature</TableHead>
                       {roles.map(role => (
-                        <TableHead key={role} className="text-center bg-card">
+                        <TableHead key={role} className="text-center">
                           <div className="flex items-center justify-center gap-1">
                             {role}
                             {!CORE_ROLES.includes(role) && (
@@ -258,7 +258,7 @@ export default function AdminSettingsPage() {
                       );
                     })}
                   </TableBody>
-                </Table>
+                </table>
               </div>
             </CardContent>
              <CardFooter className="border-t pt-6 flex justify-between">
