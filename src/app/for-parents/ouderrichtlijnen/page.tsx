@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale, Clock, UserCheck, MessageCircleQuestion, Users2, BookOpenCheck } from 'lucide-react';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText, Gavel, Scale, Clock, UserCheck, MessageCircleQuestion, Users2, BookOpenCheck, ClipboardList, Zap } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -22,21 +22,18 @@ const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     </div>
 );
 
-const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClasses }: { icon: ElementType, title: React.ReactNode, children: React.ReactNode, ctaText: string, ctaLink: string, colorClasses: { border: string, bg: string, icon: string } }) => (
+const BenefitCard = ({ icon: Icon, title, ctaText, ctaLink, colorClasses }: { icon: ElementType, title: React.ReactNode, ctaText: string, ctaLink: string, colorClasses: { border: string, bg: string, icon: string, text: string } }) => (
     <Card className={cn(
-        "shadow-lg hover:shadow-xl transition-shadow flex flex-col text-center p-6 border-2",
+        "shadow-lg hover:shadow-xl transition-shadow flex flex-col text-center p-6 border-t-4",
         colorClasses.border
     )}>
         <CardHeader className="items-center p-0 mb-4">
             <div className={cn("flex-shrink-0 h-16 w-16 rounded-full flex items-center justify-center", colorClasses.bg)}>
-                <Icon className={cn("h-8 w-8", colorClasses.icon)} />
+                <Icon className={cn("h-8 w-8", colorClasses.text)} />
             </div>
         </CardHeader>
-        <CardContent className="p-0 flex-grow space-y-2">
+        <CardContent className="p-0 flex-grow">
             <h3 className="text-xl font-bold text-foreground leading-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-                {children}
-            </p>
         </CardContent>
         <CardFooter className="p-0 mt-6 w-full">
             <Button variant="outline" asChild className="w-full">
@@ -46,25 +43,81 @@ const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClass
     </Card>
 );
 
-const AgeCard = ({ range, role, description }: { range: string, role: string, description:string }) => (
-    <Card className="bg-card text-center flex flex-col h-full shadow-md">
-        <CardHeader>
-            <CardTitle className="text-2xl font-bold text-primary">{range}</CardTitle>
-            <CardDescription className="font-semibold">{role}</CardDescription>
+const GuideCard = ({
+    badgeText, badgeClass, icon: Icon, title, problemIcon: ProblemIcon, problemText, description, statNumber, statLabel, statColor, benefits, ctaText, borderColor
+}: {
+    badgeText: string; badgeClass: string; icon: ElementType; title: string; problemIcon: ElementType; problemText: string;
+    description: string; statNumber: string; statLabel: string; statColor: string; benefits: string[]; ctaText: string; borderColor: string;
+}) => (
+    <Card className={cn("shadow-lg hover:shadow-xl transition-shadow flex flex-col border-t-4", borderColor)}>
+        <CardHeader className="relative">
+            <Badge className={cn("absolute top-4 right-4 text-xs", badgeClass)}>{badgeText}</Badge>
+            <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 h-14 w-14 rounded-full flex items-center justify-center bg-muted">
+                    <Icon className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl font-bold leading-tight">{title}</CardTitle>
+            </div>
         </CardHeader>
-        <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground">{description}</p>
+        <CardContent className="flex-grow flex flex-col">
+            <div className="mb-4">
+                <p className="font-semibold text-sm flex items-center gap-2 text-muted-foreground">
+                    <ProblemIcon className="h-4 w-4" />
+                    Inhoud: "{problemText}"
+                </p>
+                <p className="text-sm mt-2">{description}</p>
+            </div>
+            
+            <div className={cn("text-center p-4 rounded-lg my-4", statColor.replace('text-', 'bg-').replace('600', '100'))}>
+                <div className={cn("text-3xl font-bold", statColor)}>{statNumber}</div>
+                <div className="text-xs font-medium text-muted-foreground mt-1">{statLabel}</div>
+            </div>
+
+            <ul className="space-y-2 text-sm text-muted-foreground list-none pl-0 flex-grow">
+                {benefits.map((benefit, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>{benefit}</span>
+                    </li>
+                ))}
+            </ul>
         </CardContent>
+        <CardFooter>
+            <Button asChild className="w-full">
+                <Link href="#download-form">{ctaText}</Link>
+            </Button>
+        </CardFooter>
     </Card>
 );
 
-const PreviewCard = ({ icon: Icon, title, subtitle }: { icon: ElementType, title: string, subtitle: string }) => (
-    <Card className="bg-card shadow-md p-6 text-center hover:bg-muted/50 transition-colors h-full flex flex-col justify-center items-center">
-        <Icon className="h-10 w-10 text-primary mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-primary">{title}</h3>
-        <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-    </Card>
-);
+
+const guideCardData = [
+  {
+    badgeText: "40+ PAGINA'S", badgeClass: "bg-blue-100 text-blue-800", icon: Users2,
+    title: "Leeftijdsspecifieke Ouder Richtlijnen", problemIcon: ClipboardList, problemText: "Uw rol per ontwikkelingsfase",
+    description: "Uitgebreide gids die precies uitlegt wat u wel en niet kunt zien van uw tiener, hoe privacy instellingen werken, en welke rol u heeft per leeftijdsgroep.",
+    statNumber: "3 Fasen", statLabel: "12-15, 16-17, 18+ jaar richtlijnen", statColor: "text-blue-600",
+    benefits: ["Dashboard toegang per leeftijd", "Privacy & autonomie balans uitgelegd", "Communicatie tips per ontwikkelingsfase", "Ouderrol evolutie stap-voor-stap"],
+    ctaText: "📖 Bekijk Leeftijd Richtlijnen", borderColor: "border-blue-500",
+  },
+  {
+    badgeText: "PRAKTISCH", badgeClass: "bg-green-100 text-green-800", icon: Target,
+    title: "Coaching & Platform Begeleiding", problemIcon: Lightbulb, problemText: "Hoe het platform optimaal gebruiken",
+    description: "Complete handleiding voor coach selectie, kwaliteitscontrole, wat coaches wel/niet vertellen, en hoe u platform inzichten thuis kunt implementeren.",
+    statNumber: "25+ Tips", statLabel: "Voor coach matching & begeleiding", statColor: "text-green-600",
+    benefits: ["Coach selectie proces stap-voor-stap", "Kwaliteitsborging en rode vlaggen", "Platform inzichten naar thuis vertalen", "Huiswerk strategieën die écht werken"],
+    ctaText: "🔧 Leer Platform Gebruiken", borderColor: "border-green-500",
+  },
+  {
+    badgeText: "ESSENTIEEL", badgeClass: "bg-red-100 text-red-800", icon: AlertTriangle,
+    title: "Crisis Management & Praktische Tips", problemIcon: Zap, problemText: "Wanneer professionele hulp + 150+ FAQ",
+    description: "Uitgebreide crisis herkenning checklist, actieplannen, noodcontacten, plus praktische tips voor dagelijkse uitdagingen en veelgestelde vragen.",
+    statNumber: "150+ FAQ", statLabel: "Veelgestelde vragen beantwoord", statColor: "text-red-600",
+    benefits: ["Crisis signalen herkenning checklist", "24/7 noodcontacten en actieplan", "Dagelijkse routine optimalisatie tips", "School samenwerking strategieën"],
+    ctaText: "📋 Krijg Crisis & FAQ Gids", borderColor: "border-red-500",
+  },
+];
+
 
 export default function OuderRichtlijnenPage() {
   const [email, setEmail] = useState('');
@@ -105,7 +158,7 @@ export default function OuderRichtlijnenPage() {
                         Download onze uitgebreide gids met concrete tools, zonder medische claims of valse beloftes.
                     </p>
                     
-                    <div className="w-full max-w-lg">
+                     <div id="download-form" className="w-full max-w-lg">
                       {isSubmitted ? (
                         <div className="p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg text-left">
                           <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle2/> Controleer uw inbox!</h3>
@@ -158,33 +211,27 @@ export default function OuderRichtlijnenPage() {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <BenefitCard
+                    <BenefitCard
                         icon={AlertTriangle}
                         title={"Geen 6 Maanden Meer Wachten"}
                         ctaText="Direct Starten - Gratis Download"
                         ctaLink="#download-form"
-                        colorClasses={{ border: "border-red-500", bg: "bg-red-100", icon: "text-red-600" }}
-                    >
-                        Krijg direct toegang tot praktische technieken en ondersteuning en overbrug de gemiddelde GGZ-wachttijd van 6-12 maanden.
-                    </BenefitCard>
+                        colorClasses={{ border: "border-red-500", bg: "bg-red-100", icon: "text-red-600", text: 'text-red-700' }}
+                    />
                     <BenefitCard
                         icon={ShieldCheck}
                         title={"Eindelijk Eerlijke Ondersteuning"}
                         ctaText="Ontdek Onze Ethische Aanpak"
                         ctaLink="/about"
-                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600" }}
-                    >
-                        Geloofwaardigheid is essentieel. Wij maken geen valse beloftes over 'genezing', maar bieden een transparante, ethische aanpak die wordt gewaardeerd door 95% van de ouders.
-                    </BenefitCard>
+                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600", text: 'text-orange-700' }}
+                    />
                     <BenefitCard
                         icon={TrendingUp}
                         title={"Resultaten Die U Kunt Zien"}
                         ctaText="Lees Succesverhalen & Tips"
                         ctaLink="#"
-                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600" }}
-                    >
-                        Ontdek bewezen strategieën. 89% van de gezinnen ziet een merkbare verbetering binnen de eerste 8 weken.
-                    </BenefitCard>
+                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600", text: 'text-orange-700' }}
+                    />
                 </div>
             </div>
         </section>
@@ -193,13 +240,14 @@ export default function OuderRichtlijnenPage() {
         <section className="py-16 md:py-24 bg-background">
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Ouderrichtlijnen?</h2>
-                <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten. Ontdek precies wat u krijgt als u onze gratis richtlijnen downloadt.
+                <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
+                     Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten. 
+                     Ontdek precies wat u krijgt als u onze gratis richtlijnen downloadt.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <PreviewCard icon={Users} title="Leeftijdsspecifieke Richtlijnen" subtitle="Van actieve begeleiding tot partnerschap" />
-                    <PreviewCard icon={BookOpenCheck} title="Coaching & Platform Begeleiding" subtitle="Handleidingen voor coachselectie en platformgebruik" />
-                    <PreviewCard icon={MessageCircleQuestion} title="Crisis Management & Praktische Tips" subtitle="Actieplannen en antwoorden op 150+ veelgestelde vragen" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                   {guideCardData.map(card => (
+                        <GuideCard key={card.title} {...card} />
+                   ))}
                 </div>
             </div>
         </section>
