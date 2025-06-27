@@ -1,54 +1,92 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function to check if a user is an admin
-    function isAdmin() {
-      // Assumes there's a 'users' collection where admin role is stored
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
 
-    // Helper function to check if user is authenticated
-    function isAuthenticated() {
+    // --- Helper Functions for Reusable Logic ---
+
+    // Checks if a user is authenticated.
+    function isLoggedIn() {
       return request.auth != null;
     }
 
-    // Users can read/update their own profile. Admins can read/write any profile.
-    match /users/{userId} {
-      allow read, update: if request.auth.uid == userId || isAdmin();
-      allow create: if request.auth.uid == userId; // New users can create their own doc
-      allow write: if isAdmin(); // Admins have full write access (create, update, delete)
+    // Gets the role of the currently authenticated user from their document.
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
     }
 
-    // Quizzes can be read by any authenticated user, but only written by admins.
+    // Checks if the current user has one of the specified roles.
+    // Pass roles as a list of strings, e.g., ['admin', 'content-manager']
+    function hasOneOfRoles(roles) {
+      return isLoggedIn() && getUserRole(request.auth.uid) in roles;
+    }
+
+    // Checks if the current user is the owner of the document.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // --- Role-based Access Definitions ---
+    // Central place to define permissions. Makes adding new roles easier.
+    
+    function canManagePlatformContent() {
+      // To add a 'content-manager' role in the future, just add it to this list:
+      // return hasOneOfRoles(['admin', 'content-manager']);
+      return hasOneOfRoles(['admin']);
+    }
+
+    // --- Rules for Top-Level Collections ---
+
+    // Public content like quizzes, tools, etc.
+    // Readable by any logged-in user, writable only by content managers.
     match /quizzes/{quizId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    // Tools can be read by any authenticated user, but only written by admins.
-    match /tools/{toolId} {
-       allow read: if isAuthenticated();
-       allow write: if isAdmin();
+      allow read: if isLoggedIn();
+      allow write: if canManagePlatformContent();
     }
 
-    // Subscription plans can be read by any authenticated user, but only written by admins.
-    match /subscriptionPlans/{planId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+    match /tools/{toolId} {
+      allow read: if isLoggedIn();
+      allow write: if canManagePlatformContent();
     }
     
-    // User-specific data (like quiz results, journal entries)
-    // A user can only access their own data.
-    match /user_data/{userId}/{collection}/{docId} {
-        allow read, write: if request.auth.uid == userId || isAdmin();
+    match /features/{featureId} {
+        allow read: if isLoggedIn();
+        allow write: if canManagePlatformContent();
     }
-    
-    // Feedback can be created by any authenticated user. Only admins can read/update.
-    match /feedback/{feedbackId} {
-        allow create: if isAuthenticated();
-        allow read, update, delete: if isAdmin();
+
+    match /subscriptions/{planId} {
+        allow read: if isLoggedIn();
+        allow write: if canManagePlatformContent();
+    }
+
+    // User collection rules
+    match /users/{userId} {
+      // Anyone logged in can see basic public profiles (e.g., of tutors).
+      // Sensitive data should be in subcollections.
+      allow get: if isLoggedIn();
+
+      // Users can update their own data. Only admins can create/delete users.
+      allow update: if isOwner(userId);
+      allow create, delete, list: if hasOneOfRoles(['admin']);
+
+      // --- Rules for User Subcollections ---
+      
+      // Journal entries are completely private. Only the owner can ever access them.
+      match /journalEntries/{entryId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Quiz results are private to the user, but can be read by linked parents/coaches.
+      // (Simplified for now: only owner can access).
+      match /quizResults/{resultId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // A user (parent) can manage their own list of linked children.
+      match /children/{childId} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }
