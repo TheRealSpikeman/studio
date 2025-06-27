@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/abonnementen/page.tsx
 "use client";
 
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/types/subscription';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, formatPrice as formatPlanPrice } from '@/types/subscription';
 
 interface ChildSubscription {
   id: string; // Unique ID for the child's subscription entry
@@ -56,13 +55,6 @@ const getStatusBadgeClasses = (status: ChildSubscription['status']): string => {
   if (status === 'actief') return 'bg-green-100 text-green-700 border-green-300';
   if (status === 'geen') return 'bg-gray-100 text-gray-700 border-gray-300';
   return 'bg-red-100 text-red-700 border-red-300'; // verlopen
-};
-
-// Helper function to format price, similar to admin page
-const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2)}${intervalText}`;
 };
 
 export default function AbonnementenPage() {

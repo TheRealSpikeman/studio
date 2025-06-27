@@ -123,3 +123,18 @@ export function getPlanById(planId: string): SubscriptionPlan | undefined {
 export function getTierById(tierId: string): SubscriptionTier | undefined {
   return SUBSCRIPTION_PLANS.find(tier => tier.id === tierId);
 }
+
+export const formatPrice = (price: number, currency: string = 'EUR', interval?: 'month' | 'year' | 'once'): string => {
+    if (price === 0 && (!interval || interval === 'once')) return 'Gratis';
+    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
+    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
+};
+
+export const getYearlyDiscount = (monthlyPrice: number, yearlyPrice: number): string | null => {
+    if (monthlyPrice > 0 && yearlyPrice > 0) {
+        const totalMonthlyCost = monthlyPrice * 12;
+        const savings = totalMonthlyCost - yearlyPrice;
+        if (savings > 0) { return savings.toFixed(2).replace('.',','); }
+    }
+    return null;
+}

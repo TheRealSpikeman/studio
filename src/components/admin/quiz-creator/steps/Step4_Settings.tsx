@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   Lightbulb, Rocket, BarChart3, Users, User, Briefcase, GraduationCap, HeartHandshake, Cloud, Zap
 } from 'lucide-react';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, type SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, type SubscriptionPlan } from '@/types/subscription';
 
 // Re-defining allCategories here to avoid circular dependencies if moved to context
 const allCategories = [

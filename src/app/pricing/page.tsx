@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -14,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SUBSCRIPTION_PLANS, getPlanById, getTierById, getYearlyDiscount, formatPrice, type SubscriptionTier, type AppFeature, DEFAULT_APP_FEATURES } from '@/types/subscription';
+import { Switch } from '@/components/ui/switch';
 
 const faqItems = [
   {
@@ -142,11 +142,10 @@ export default function PricingPage() {
                       <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
                       <CardTitle className="text-2xl font-semibold mb-1">{tier.name}</CardTitle>
                       <p className="text-4xl font-bold text-primary">
-                        {plan.price === 0 ? 'Gratis' : formatPrice(plan.price)}
+                        {formatPrice(plan.price, 'EUR', plan.billingInterval)}
                       </p>
                       <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
-                         {plan.billingInterval === 'month' ? '/maand' : plan.billingInterval === 'year' ? '/jaar' : ''}
-                         {monthlyEq && <span className="block text-xs">(~{formatPrice(parseFloat(monthlyEq))}/maand)</span>}
+                         {monthlyEq && <span className="block text-xs">(~{formatPrice(parseFloat(monthlyEq), 'EUR', 'month')}/maand)</span>}
                       </p>
                       {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
                           <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
@@ -175,8 +174,8 @@ export default function PricingPage() {
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent className="w-64 bg-popover p-3 rounded-md shadow-lg border text-popover-foreground">
-                                  <p className="font-semibold mb-2">Extra features:</p>
-                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                  <p className="font-semibold mb-2 text-sm">Extra features:</p>
+                                  <ul className="list-disc list-inside space-y-1 text-xs">
                                     {activeFeaturesForPlan.slice(MAX_FEATURES_TO_DISPLAY_ON_CARD).map(hf => <li key={hf.id}>{hf.label}</li>)}
                                   </ul>
                                 </TooltipContent>

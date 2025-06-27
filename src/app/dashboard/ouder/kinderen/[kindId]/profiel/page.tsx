@@ -68,7 +68,6 @@ const editableChildFormSchema = z.object({
     otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
     selectedTutorPreferences: z.array(z.string()).optional(),
     otherTutorPreference: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
-    deelResultatenMetTutor: z.boolean().optional(),
     avatarUrl: z.string().url({ message: "Ongeldige URL." }).nullable().optional(),
 }).refine(data => {
   if (data.schoolType === "Anders" && (!data.otherSchoolType || data.otherSchoolType.trim() === "")) {
@@ -295,7 +294,7 @@ const KindProfielEditForm = ({ initialData, onSave, onCancel }: { initialData: C
       className: initialData.className || '', helpSubjects: initialData.helpSubjects || [], hulpvraagType: initialData.hulpvraagType || [],
       selectedLeerdoelen: parsedLeerdoelen.selected, otherLeerdoelen: parsedLeerdoelen.other,
       selectedTutorPreferences: parsedVoorkeuren.selected, otherTutorPreference: parsedVoorkeuren.other,
-      deelResultatenMetTutor: initialData.deelResultatenMetTutor || false, avatarUrl: initialData.avatarUrl || null,
+      avatarUrl: initialData.avatarUrl || null,
     });
   }, [initialData, reset]);
 
@@ -343,7 +342,7 @@ const KindProfielEditForm = ({ initialData, onSave, onCancel }: { initialData: C
               </CardContent>
             </Card>
             <Card className="shadow-lg"><CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Share2 className="h-6 w-6 text-primary"/>Privacy &amp; Delen</CardTitle></CardHeader>
-              <CardContent className="text-sm"><FormField control={control} name="deelResultatenMetTutor" render={({ field }) => (<FormItem className="flex items-center space-x-2"><Switch id="deelResultatenEdit" checked={field.value} onCheckedChange={field.onChange} /><FormLabel htmlFor="deelResultatenEdit">Quizresultaten delen met begeleiders</FormLabel><FormMessage/></FormItem>)} /><p className="text-xs text-muted-foreground mt-2">Hiermee kunnen begeleiders de ondersteuning beter afstemmen. U en uw kind behouden controle.</p></CardContent>
+              <CardContent className="text-sm"><p className="text-sm text-muted-foreground mt-2">Het delen van quizresultaten wordt nu beheerd op de <Link href="/dashboard/ouder/privacy-instellingen" className="text-primary hover:underline">Privacy & Delen</Link> pagina voor gedetailleerder beheer per kind en per begeleider.</p></CardContent>
             </Card>
           </div>
           <div className="lg:col-span-1 space-y-6">
@@ -404,19 +403,42 @@ export default function KindProfielPage() {
     let tutorPreferencesString = "";
     if (data.selectedTutorPreferences && data.selectedTutorPreferences.length > 0) tutorPreferencesString += `Geselecteerde voorkeuren: ${data.selectedTutorPreferences.join(', ')}. `;
     if (data.otherTutorPreference) tutorPreferencesString += `Overig: ${data.otherTutorPreference}`;
-    const updatedChildData: Child = {
-      ...childData, firstName: data.firstName, lastName: data.lastName, name: `${data.firstName} ${data.lastName}`,
-      ageGroup: data.ageGroup, childEmail: data.childEmail, schoolType: data.schoolType,
-      otherSchoolType: data.schoolType === "Anders" ? data.otherSchoolType : undefined, className: data.className,
-      helpSubjects: data.helpSubjects, hulpvraagType: data.hulpvraagType, leerdoelen: leerdoelenString.trim() || undefined,
-      voorkeurTutor: tutorPreferencesString.trim() || undefined, deelResultatenMetTutor: data.deelResultatenMetTutor,
-      avatarUrl: data.avatarUrl || childData.avatarUrl, age: childData.age,
+    
+    // Create the updated child data without the 'deelResultatenMetTutor' property
+    const updatedChildData: Omit<Child, 'deelResultatenMetTutor'> & { deelResultatenMetTutor?: boolean } = {
+        ...childData,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.firstName} ${data.lastName}`,
+        ageGroup: data.ageGroup,
+        childEmail: data.childEmail,
+        schoolType: data.schoolType,
+        otherSchoolType: data.schoolType === "Anders" ? data.otherSchoolType : undefined,
+        className: data.className,
+        helpSubjects: data.helpSubjects,
+        hulpvraagType: data.hulpvraagType,
+        leerdoelen: leerdoelenString.trim() || undefined,
+        voorkeurTutor: tutorPreferencesString.trim() || undefined,
+        avatarUrl: data.avatarUrl || childData.avatarUrl,
+        age: childData.age,
     };
-    setChildData(updatedChildData);
+    
+    // Remove the property before setting state and saving
+    delete updatedChildData.deelResultatenMetTutor;
+
+    setChildData(updatedChildData as Child);
+
     try {
       const storedChildrenRaw = localStorage.getItem('ouderDashboard_kinderen');
       let allChildrenStored: Child[] = storedChildrenRaw ? JSON.parse(storedChildrenRaw) : dummyChildren;
-      const updatedAllChildren = allChildrenStored.map(c => c.id === kindId ? updatedChildData : c);
+      const updatedAllChildren = allChildrenStored.map(c => {
+        if (c.id === kindId) {
+          const finalDataForStorage = { ...updatedChildData };
+          delete finalDataForStorage.deelResultatenMetTutor; // Ensure it's not saved
+          return finalDataForStorage as Child;
+        }
+        return c;
+      });
       localStorage.setItem('ouderDashboard_kinderen', JSON.stringify(updatedAllChildren));
     } catch (e) { console.error("Error updating localStorage", e); }
     toast({ title: "Profiel Opgeslagen", description: `Gegevens voor ${updatedChildData.name} zijn bijgewerkt.` });
