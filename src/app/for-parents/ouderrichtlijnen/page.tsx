@@ -264,7 +264,7 @@ export default function OuderRichtlijnenPage() {
                             <SubSectionCard title="Wat Ziet U NIET?" icon={XCircle}>
                                 <h4 className="font-semibold text-foreground mt-3">Privé Reflecties:</h4>
                                 <ul className="list-disc pl-5">
-                                    <li>Dagboek Inhoud</li>
+                                    <li>Dagboek Entries</li>
                                     <li>Peer Interactions</li>
                                     <li>Specifieke Assessment Antwoorden</li>
                                     <li>Coach Conversaties</li>
@@ -279,7 +279,7 @@ export default function OuderRichtlijnenPage() {
                             </div>
                         </SubSectionCard>
                     </GuidelineSection>
-
+                    
                     <GuidelineSection id="ouder-dashboard" title="Het Ouder-Dashboard: Wat Ziet U?" icon={BarChart}>
                        <SubSectionCard title="Hoofdoverzicht">
                             <h4 className="font-semibold text-foreground mt-3">Weekly Summary:</h4>
@@ -377,11 +377,9 @@ export default function OuderRichtlijnenPage() {
                             <p className="font-semibold mt-3">Onze 24/7 Crisis Lijn: +31 (0)20 123 4567 (fictief)</p>
                         </SubSectionCard>
                     </GuidelineSection>
-
                 </div>
             </main>
             <Footer />
         </div>
     );
-
-    
+}
