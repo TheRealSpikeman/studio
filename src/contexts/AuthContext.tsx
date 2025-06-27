@@ -12,6 +12,7 @@ import {
   onAuthStateChanged,
   sendEmailVerification,
   GoogleAuthProvider,
+  OAuthProvider, // Import OAuthProvider for Apple
   signInWithPopup,
   type Auth,
   type User as FirebaseUser 
@@ -38,6 +39,7 @@ interface AuthContextType {
   auth: Auth | null;
   login: (email: string, pass: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
+  loginWithApple: () => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -88,9 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               console.log(`[AuthContext] Temp profile data FOUND. Creating Firestore document for email signup...`);
               profileDataToSet = JSON.parse(tempProfileRaw);
               localStorage.removeItem(TEMP_PROFILE_KEY);
-            } else if (firebaseUser.providerData.some(p => p.providerId === 'google.com')) {
-              // User signed up with Google
-              console.log(`[AuthContext] New user via Google Sign-In: ${firebaseUser.uid}. Creating Firestore document...`);
+            } else if (firebaseUser.providerData.some(p => p.providerId === 'google.com' || p.providerId === 'apple.com')) {
+              // User signed up with a social provider
+              console.log(`[AuthContext] New user via Social Sign-In: ${firebaseUser.uid}. Creating Firestore document...`);
               profileDataToSet = {
                 name: firebaseUser.displayName || "Nieuwe Gebruiker",
                 email: firebaseUser.email,
@@ -200,6 +202,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
   }, [toast, router]);
+  
+  const loginWithApple = useCallback(async (): Promise<boolean> => {
+    if (!isFirebaseConfigured || !auth) {
+      toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
+      return false;
+    }
+    const provider = new OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/dashboard');
+      return true;
+    } catch (error: any) {
+      console.error("Firebase Apple Login Error:", error);
+      let description = "Kon niet inloggen met Apple. Probeer het opnieuw.";
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        description = "Er bestaat al een account met dit e-mailadres via een andere methode (bijv. Google). Probeer op die manier in te loggen.";
+      } else if (error.code === 'auth/popup-blocked') {
+        description = "De pop-up werd geblokkeerd door de browser. Sta pop-ups voor deze site toe en probeer het opnieuw.";
+      }
+      toast({ title: "Apple Inloggen Mislukt", description, variant: "destructive" });
+      return false;
+    }
+  }, [toast, router]);
 
 
   const logout = useCallback(async () => {
@@ -218,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     auth,
     login,
     loginWithGoogle,
+    loginWithApple,
     signup,
     logout,
   };

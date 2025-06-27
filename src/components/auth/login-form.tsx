@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -34,8 +35,16 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M12.15,2.56a5.2,5.2,0,0,0-4.33,2.65,5.43,5.43,0,0,0-1.6,4.25,3.64,3.64,0,0,0,.68,2.37,8.3,8.3,0,0,0,2,2.44A10.8,10.8,0,0,0,12,16.35a11.14,11.14,0,0,0,3-1.63,8.59,8.59,0,0,0,2.1-2.61,4.2,4.2,0,0,0-1.46-5.4,5.1,5.1,0,0,0-3.82-1.85A1.36,1.36,0,0,0,12.15,2.56Zm1.48-1.56a4.5,4.5,0,0,1,3.31,1.56,1.4,1.4,0,0,1,.4,1,1.35,1.35,0,0,1-.53.94,4.55,4.55,0,0,1-3.18,1.42A4.4,4.4,0,0,1,9.81,4.6a1.36,1.36,0,0,1-.4-1A1.4,1.4,0,0,1,9.94,2,4.5,4.5,0,0,1,13.63,1Z" />
+        </svg>
+    );
+}
+
 export function LoginForm() {
-  const { login, loginWithGoogle, isLoading: isAuthLoading, isFirebaseConfigured } = useAuth();
+  const { login, loginWithGoogle, loginWithApple, isLoading: isAuthLoading, isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -67,6 +76,18 @@ export function LoginForm() {
     }
     setIsSubmitting(true);
     const success = await loginWithGoogle();
+    if (!success) {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    if (!isFirebaseConfigured) {
+      toast({ title: "Configuratie Fout", description: "Kan niet inloggen, Firebase is niet geconfigureerd.", variant: "destructive" });
+      return;
+    }
+    setIsSubmitting(true);
+    const success = await loginWithApple();
     if (!success) {
       setIsSubmitting(false);
     }
@@ -155,10 +176,16 @@ export function LoginForm() {
                 </span>
             </div>
         </div>
-        <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isSubmitting || isAuthLoading || !isFirebaseConfigured}>
-            <GoogleIcon className="mr-2 h-4 w-4" />
-            Google
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isSubmitting || isAuthLoading || !isFirebaseConfigured}>
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                Google
+            </Button>
+            <Button variant="outline" className="w-full" onClick={handleAppleLogin} disabled={isSubmitting || isAuthLoading || !isFirebaseConfigured}>
+                <AppleIcon className="mr-2 h-4 w-4" />
+                Apple
+            </Button>
+        </div>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Nog geen account?{' '}
           <Button variant="link" asChild className="px-0">
