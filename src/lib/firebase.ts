@@ -54,16 +54,16 @@ if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
         console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
         
-        console.log('Connecting to Auth emulator at http://0.0.0.0:9099');
-        connectAuthEmulator(auth, 'http://0.0.0.0:9099', { disableWarnings: true });
+        console.log('Connecting to Auth emulator at http://localhost:9099');
+        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
         console.log('✅ Auth emulator connected.');
         
-        console.log('Connecting to Firestore emulator at 0.0.0.0:8080');
-        connectFirestoreEmulator(db, '0.0.0.0', 8080);
+        console.log('Connecting to Firestore emulator at localhost:8080');
+        connectFirestoreEmulator(db, 'localhost', 8080);
         console.log('✅ Firestore emulator connected.');
         
-        console.log('Connecting to Storage emulator at 0.0.0.0:9199');
-        connectStorageEmulator(storage, '0.0.0.0', 9199);
+        console.log('Connecting to Storage emulator at localhost:9199');
+        connectStorageEmulator(storage, 'localhost', 9199);
         console.log('✅ Storage emulator connected.');
 
     } catch(e) {
