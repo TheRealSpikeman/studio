@@ -155,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      router.push('/dashboard');
       return true;
     } catch (error: any) {
       console.error("Firebase Login Error:", error);
@@ -162,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return false;
     }
-  }, [toast]);
+  }, [toast, router]);
 
   const logout = useCallback(async () => {
     if (auth) {
