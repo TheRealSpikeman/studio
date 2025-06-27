@@ -144,8 +144,8 @@
     print-color-adjust: exact !important;
     background: #fff !important;
     color: #000 !important;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 11px;
+    line-height: 1.5;
   }
 
   .print-hide {
@@ -156,8 +156,13 @@
     page-break-inside: avoid;
   }
   .print-main {
-    padding: 50px 15mm 50px 15mm !important;
+    padding: 20mm 15mm !important;
   }
+  
+  h1 { font-size: 24pt !important; }
+  h2 { font-size: 18pt !important; }
+  h3 { font-size: 14pt !important; }
+  h4 { font-size: 12pt !important; }
 
   img {
     -webkit-print-color-adjust: exact !important;
@@ -197,7 +202,7 @@
      display: flex !important;
      justify-content: space-between;
      align-items: center;
-     font-size: 10px;
+     font-size: 9pt;
      color: #555;
   }
 }

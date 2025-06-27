@@ -5,7 +5,7 @@ import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldC
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/50">
+    <footer className="border-t bg-muted/50 print-hide">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 py-10 md:py-8">
           

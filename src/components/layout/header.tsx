@@ -12,7 +12,6 @@ import { Menu } from 'lucide-react';
 
 export function Header() {
   const navLinks = [
-    { href: "/features/coaching-aanbod", label: "Coaching & Tools" },
     { href: "/pricing", label: "Prijzen" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
     { href: "/for-parents", label: "Voor ouders" },
@@ -21,7 +20,7 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 print-hide">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <SiteLogo />
         {/* Desktop Navigation */}
