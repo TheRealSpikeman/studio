@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/settings/page.tsx
 "use client";
 
@@ -203,7 +204,7 @@ export default function AdminSettingsPage() {
                   <Button type="button" onClick={handleAddRole}><PlusCircle className="mr-2 h-4 w-4" /> Toevoegen</Button>
                 </div>
               </div>
-              <div className="overflow-x-auto relative max-h-[600px]">
+              <div className="overflow-auto relative max-h-[600px]">
                 <Table>
                   <TableHeader className="sticky top-0 z-10 bg-card shadow-sm">
                     <TableRow>
