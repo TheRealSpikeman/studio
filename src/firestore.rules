@@ -2,23 +2,62 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default deny all access
-    match /{document=**} {
-      allow read, write: if false;
+
+    // Helper function to check for admin role
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Allow users to create their own user document, but only if the document ID
-    // matches their own authentication UID. This is crucial for security on signup.
-    // They cannot create documents for other users.
+    // Users can read/update their own profile.
+    // Admins can read/update any profile.
     match /users/{userId} {
+      allow read: if request.auth.uid == userId || isAdmin();
       allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId || isAdmin();
+      allow delete: if false; // Deletions should be handled by a backend function
+    }
 
-      // Once a user document is created, only the owner of that document can
-      // read, update, or delete it. No other user can access their data.
-      allow read, update, delete: if request.auth.uid == userId;
+    // Quizzes, tools, features, and subscriptions are public content for logged-in users,
+    // but only manageable by admins.
+    match /quizzes/{quizId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    match /tools/{toolId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    match /features/{featureId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    match /subscriptions/{subscriptionId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Anyone logged in can submit feedback. Only admins can manage it.
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
     
-    // Add other rules for different collections below
-    // e.g., match /quizzes/{quizId} { ... }
+    // Parent observations are private to the parent who created them.
+    match /parentObservations/{observationId} {
+      allow read, update, delete: if request.auth.uid == resource.data.parentId || isAdmin();
+      allow create: if request.auth.uid == request.resource.data.parentId;
+    }
+
+    // Users can manage their own quiz attempts. Admins can view them.
+    match /userQuizAttempts/{attemptId} {
+      allow read, update: if request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow delete: if false; // Prevent accidental deletion of history
+    }
+
+    // Journal entries are completely private to the user. Not even admins can read.
+    match /userJournalEntries/{entryId} {
+      allow read, write: if request.auth.uid == resource.data.userId;
+    }
   }
 }
