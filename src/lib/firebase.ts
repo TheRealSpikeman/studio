@@ -1,4 +1,3 @@
-
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
@@ -25,36 +24,45 @@ const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes(
 
 // Initialize Firebase services and export them.
 // They will be null if the config is not provided.
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let storage: FirebaseStorage | null = null;
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
 
-if (isConfigured) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  storage = getStorage(app);
-  db = getFirestore(app);
 
-  // Connect to emulators in development
-  if (process.env.NODE_ENV === 'development') {
-    try {
-        console.log("Connecting to Firebase emulators on 127.0.0.1...");
-        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-        if (db) {
-          connectFirestoreEmulator(db, '127.0.0.1', 8080);
-        }
-        if (storage) {
-          connectStorageEmulator(storage, '127.0.0.1', 9199);
-        }
-    } catch(e) {
-        console.warn('Error connecting to Firebase emulators. This is expected if emulators are not running.');
-    }
-  }
-
-} else {
+// This pattern prevents re-initializing the app on hot reloads
+if (getApps().length === 0) {
+  if (isConfigured) {
+    app = initializeApp(firebaseConfig);
+  } else {
     console.error("🔥 FIREBASE CONFIGURATION MISSING OR INCOMPLETE! 🔥");
     console.error("Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set correctly.");
+    // Create a dummy app to prevent the app from crashing.
+    // The UI will show a warning because isConfigured is false.
+    app = initializeApp({ apiKey: "placeholder-to-prevent-crash", projectId: "placeholder" });
+  }
+} else {
+  app = getApp();
 }
+
+auth = getAuth(app);
+db = getFirestore(app);
+storage = getStorage(app);
+
+// Connect to emulators in development.
+// This check must be outside of the initialization block to work with hot-reloading.
+if (isConfigured && process.env.NODE_ENV === 'development') {
+    try {
+        console.log("Connecting to Firebase emulators on localhost...");
+        // Use localhost as it's the most common alias for the host machine in dev containers.
+        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+        connectFirestoreEmulator(db, 'localhost', 8080);
+        connectStorageEmulator(storage, 'localhost', 9199);
+        console.log("✅ Successfully configured emulators.");
+    } catch(e) {
+        console.warn('⚠️ Error connecting to Firebase emulators. This is expected if emulators are not running or if this is a production build.');
+    }
+}
+
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
