@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/documentation/changelog/page.tsx
 "use client";
 
@@ -26,8 +27,8 @@ const changelogData: ChangeLogEntry[] = [
         description: "Een reeks diepgewortelde problemen opgelost die de Firebase-verbinding en het inloggen verstoorden. De applicatie is nu stabiel, robuust en correct geconfigureerd.",
         details: [
             "**Probleem:** Gebruikers konden niet inloggen door aanhoudende `Missing or insufficient permissions` fouten en de server crashte periodiek.",
-            "**Analyse:** Na een uitgebreide analyse bleek de kernoorzaak een combinatie van factoren: incorrecte environment variable handling (.env werd niet geladen), syntaxisfouten in `next.config.ts`, en logische fouten in de `AuthContext` (zoals een oneindige laad-spinner).",
-            "**Oplossing:** Het `.env` bestand is correct gevuld, `firebase.ts` is robuust gemaakt, `next.config.ts` is gecorrigeerd en de `AuthContext` is opgeschoond. De app kan nu correct opstarten en verbinden met Firebase.",
+            "**Analyse:** Na een uitgebreide analyse bleek de kernoorzaak een dieper configuratieprobleem. Zelfs met open Firestore-regels faalde de connectie, wat wees op incorrecte environment variable handling (.env werd niet geladen), syntaxisfouten in `next.config.ts`, en logische fouten in de `AuthContext` (zoals een oneindige laad-spinner).",
+            "**Oplossing:** De Firestore-regels zijn tijdelijk volledig opengezet om connectiviteit te valideren en daarna correct geconfigureerd. Het `.env` bestand is correct gevuld, `firebase.ts` is robuust gemaakt, `next.config.ts` is gecorrigeerd en de `AuthContext` is opgeschoond.",
             "**Resultaat:** De applicatie is nu stabiel en de authenticatie-flow werkt zoals verwacht, wat de weg vrijmaakt voor verdere ontwikkeling."
         ],
         tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Authenticatie", variant: "secondary" }, { text: "Core", variant: "default" }]
