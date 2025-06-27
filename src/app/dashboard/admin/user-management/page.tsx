@@ -2,22 +2,25 @@
 "use client";
 
 import type { User, UserRole, UserStatus } from '@/types';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, PlusCircle, Users } from 'lucide-react';
+import { Search, PlusCircle, Users, Loader2 } from 'lucide-react';
 import { UserManagementTable } from '@/components/admin/user-management/UserManagementTable';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';
 import { useToast } from '@/hooks/use-toast';
-import { DUMMY_USERS } from '@/lib/data/dummy-data';
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>(DUMMY_USERS);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
@@ -29,6 +32,33 @@ export default function UserManagementPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      if (!db) {
+        throw new Error("Firestore is not initialized.");
+      }
+      const usersCol = collection(db, "users");
+      const userSnapshot = await getDocs(usersCol);
+      const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+      setUsers(userList);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast({
+        title: "Fout bij laden",
+        description: "Kon de gebruikers niet ophalen uit de database.",
+        variant: "destructive",
+      });
+      setUsers([]); // Fallback to empty list on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [toast]); // Dependency on toast is fine.
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -64,45 +94,60 @@ export default function UserManagementPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteUser = () => {
-    if (selectedUser) {
-      setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser.id));
-      toast({ title: "Gebruiker verwijderd", description: `Gebruiker ${selectedUser.name} is verwijderd.` });
+  const confirmDeleteUser = async () => {
+    if (selectedUser && db) {
+      try {
+        await deleteDoc(doc(db, "users", selectedUser.id));
+        toast({ title: "Gebruiker verwijderd", description: `Gebruiker ${selectedUser.name} is verwijderd.` });
+        fetchUsers(); // Refresh the list
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast({ title: "Fout", description: "Kon gebruiker niet verwijderen.", variant: "destructive" });
+      }
     }
     setIsDeleteModalOpen(false);
     setSelectedUser(null);
   };
 
-  const handleSaveUser = (userData: User) => {
-    const originalUser = users.find(u => u.id === selectedUser?.id);
-    if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'actief') {
-      console.log(`Tutor ${userData.email} approved. Sending approval email.`);
-      toast({ title: "Tutor Goedgekeurd", description: `Tutor ${userData.name} is goedgekeurd en geactiveerd.`, className: "bg-green-100 text-green-700 border-green-300"});
-    }
-     if (originalUser?.role === 'tutor' && originalUser?.status === 'pending_approval' && userData.status === 'rejected') {
-      console.log(`Tutor ${userData.email} rejected. Sending rejection email.`);
-      toast({ title: "Tutor Afgewezen", description: `Tutor ${userData.name} is afgewezen.`, variant: "destructive"});
+  const handleSaveUser = async (userData: User) => {
+    if (!db) {
+      toast({ title: "Fout", description: "Database niet beschikbaar.", variant: "destructive" });
+      return;
     }
 
+    setIsEditModalOpen(false);
+
     if (isAddingNewUser) {
-      const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      // Note: This only creates the Firestore document.
+      // Creating the actual Auth user would require a backend function or different flow.
+      // For this prototype, we'll assume an ID can be created this way for management.
+      const newId = `managed-${Date.now()}`;
       const newUserWithId: User = { 
         ...userData, 
         id: newId, 
         createdAt: new Date().toISOString(), 
         lastLogin: new Date().toISOString() 
       };
-      // If the new user is a 'leerling' and a parentId was somehow set (not typical for direct admin creation), clear it or handle.
-      // For now, new users created by admin don't automatically get a parentId.
-      if(newUserWithId.role === 'leerling') newUserWithId.parentId = undefined; 
-
-      setUsers(prevUsers => [newUserWithId, ...prevUsers]);
-      toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
+      
+      try {
+        await setDoc(doc(db, "users", newUserWithId.id), newUserWithId);
+        toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
+        fetchUsers();
+      } catch (error) {
+        console.error("Error adding user:", error);
+        toast({ title: "Fout", description: "Kon gebruiker niet toevoegen.", variant: "destructive" });
+      }
     } else if (selectedUser) {
-      setUsers(prevUsers => prevUsers.map(user => user.id === selectedUser.id ? { ...user, ...userData } : user));
-      toast({ title: "Gebruiker bijgewerkt", description: `Gebruiker ${userData.name} is succesvol bijgewerkt.` });
+      try {
+        const userDocRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userDocRef, { ...userData });
+        toast({ title: "Gebruiker bijgewerkt", description: `Gebruiker ${userData.name} is succesvol bijgewerkt.` });
+        fetchUsers();
+      } catch (error) {
+        console.error("Error updating user:", error);
+        toast({ title: "Fout", description: "Kon gebruiker niet bijwerken.", variant: "destructive" });
+      }
     }
-    setIsEditModalOpen(false);
     setSelectedUser(null);
     setIsAddingNewUser(false);
   };
@@ -118,7 +163,7 @@ export default function UserManagementPage() {
                 Gebruikersbeheer
               </CardTitle>
               <CardDescription>
-                Totaal {filteredUsers.length} gebruikers gevonden.
+                {isLoading ? "Gebruikers laden..." : `Totaal ${filteredUsers.length} gebruikers gevonden.`}
               </CardDescription>
             </div>
             <Button onClick={handleAddUser} className="w-full sm:w-auto">
@@ -165,14 +210,20 @@ export default function UserManagementPage() {
               </SelectContent>
             </Select>
           </div>
+          
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <UserManagementTable
+              users={paginatedUsers}
+              onEditUser={handleEditUser}
+              onDeleteUser={handleDeleteUser}
+            />
+          )}
 
-          <UserManagementTable
-            users={paginatedUsers}
-            onEditUser={handleEditUser}
-            onDeleteUser={handleDeleteUser}
-          />
-
-          {totalPages > 1 && (
+          {totalPages > 1 && !isLoading && (
             <div className="mt-6 flex justify-center items-center gap-2">
               <Button 
                 variant="outline" 

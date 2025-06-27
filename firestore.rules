@@ -1,92 +1,72 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions for Reusable Logic ---
-
-    // Checks if a user is authenticated.
-    function isLoggedIn() {
+    // Helper functions
+    function isSignedIn() {
       return request.auth != null;
     }
-
-    // Gets the role of the currently authenticated user from their document.
-    function getUserRole(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
-
-    // Checks if the current user has one of the specified roles.
-    // Pass roles as a list of strings, e.g., ['admin', 'content-manager']
-    function hasOneOfRoles(roles) {
-      return isLoggedIn() && getUserRole(request.auth.uid) in roles;
+    
+    function canManageContent() {
+      let userRole = getRole();
+      return userRole == 'admin'; // Can add || userRole == 'content-manager' later
     }
-
-    // Checks if the current user is the owner of the document.
+    
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
-    // --- Role-based Access Definitions ---
-    // Central place to define permissions. Makes adding new roles easier.
-    
-    function canManagePlatformContent() {
-      // To add a 'content-manager' role in the future, just add it to this list:
-      // return hasOneOfRoles(['admin', 'content-manager']);
-      return hasOneOfRoles(['admin']);
-    }
 
-    // --- Rules for Top-Level Collections ---
-
-    // Public content like quizzes, tools, etc.
-    // Readable by any logged-in user, writable only by content managers.
-    match /quizzes/{quizId} {
-      allow read: if isLoggedIn();
-      allow write: if canManagePlatformContent();
-    }
-
-    match /tools/{toolId} {
-      allow read: if isLoggedIn();
-      allow write: if canManagePlatformContent();
-    }
-    
-    match /features/{featureId} {
-        allow read: if isLoggedIn();
-        allow write: if canManagePlatformContent();
-    }
-
-    match /subscriptions/{planId} {
-        allow read: if isLoggedIn();
-        allow write: if canManagePlatformContent();
-    }
-
-    // User collection rules
+    // --- USERS Collection ---
+    // User data, roles, and profiles.
     match /users/{userId} {
-      // Anyone logged in can see basic public profiles (e.g., of tutors).
-      // Sensitive data should be in subcollections.
-      allow get: if isLoggedIn();
-
-      // Users can update their own data. Only admins can create/delete users.
-      allow update: if isOwner(userId);
-      allow create, delete, list: if hasOneOfRoles(['admin']);
-
-      // --- Rules for User Subcollections ---
-      
-      // Journal entries are completely private. Only the owner can ever access them.
-      match /journalEntries/{entryId} {
-        allow read, write: if isOwner(userId);
-      }
-      
-      // Quiz results are private to the user, but can be read by linked parents/coaches.
-      // (Simplified for now: only owner can access).
-      match /quizResults/{resultId} {
-        allow read, write: if isOwner(userId);
-      }
-      
-      // A user (parent) can manage their own list of linked children.
-      match /children/{childId} {
-        allow read, write: if isOwner(userId);
-      }
+      // Admins can read/write/list any user profile
+      allow list, write: if getRole() == 'admin';
+      // Users can read/update their own profile
+      allow get, update: if isOwner(userId);
+    }
+    
+    // --- QUIZZES Collection ---
+    // Contains all quiz definitions and questions.
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn(); // Any signed-in user can read quiz definitions
+      allow create, update, delete: if canManageContent();
+    }
+    
+    // --- QUIZ RESULTS Subcollection ---
+    // Stores the results for each user who takes a quiz.
+    match /users/{userId}/quizResults/{resultId} {
+       allow read, write, create: if isOwner(userId); // Users can manage their own results
+       allow read, list: if getRole() == 'admin'; // Admins can view results for support/analysis
+       // Note: Sharing with parents/coaches will require more complex rules here.
+    }
+    
+    // --- DIARY ENTRIES Subcollection ---
+    // Ultra-private journal entries.
+    match /users/{userId}/diary/{entryId} {
+       allow read, write, create, delete: if isOwner(userId); // Only the user can access their diary. Not even admins.
+    }
+    
+    // --- TOOLS Collection ---
+    // Definitions for tools like Focus Timer, etc.
+    match /tools/{toolId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if canManageContent();
+    }
+    
+    // --- FEATURES & SUBSCRIPTIONS Collections ---
+    // Managed by admins only.
+    match /features/{featureId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if getRole() == 'admin';
+    }
+    
+    match /subscriptionPlans/{planId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if getRole() == 'admin';
     }
   }
 }
