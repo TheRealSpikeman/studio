@@ -1,20 +1,19 @@
 // src/ai/flows/generate-blog-post-flow.ts
 'use server';
 /**
- * @fileOverview A Genkit flow for generating blog post content.
+ * @fileOverview A Genkit flow for generating blog post content from a single topic idea.
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
+// Simplified input: just the core idea and the persona to use.
 export const GenerateBlogPostInputSchema = z.object({
-  topic: z.string().describe('The main topic or subject of the blog post.'),
-  keywords: z.string().optional().describe('Comma-separated keywords to include for SEO purposes.'),
-  targetAudience: z.enum(['parents', 'teens', 'professionals']).describe('The primary audience for the blog post.'),
-  tone: z.enum(['informatief', 'inspirerend', 'praktisch', 'empathisch']).describe('The desired tone of voice.'),
+  topic: z.string().describe('The main topic, idea, or subject for the blog post.'),
   personaDescription: z.string().describe('A description of the AI persona to use for writing the blog post.'),
 });
 export type GenerateBlogPostInput = z.infer<typeof GenerateBlogPostInputSchema>;
 
+// Output remains the same, as the AI still needs to generate all these fields.
 export const GenerateBlogPostOutputSchema = z.object({
   title: z.string().describe('A catchy and SEO-friendly title for the blog post.'),
   slug: z.string().describe('A URL-friendly slug for the blog post, using kebab-case.'),
@@ -34,23 +33,27 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateBlogPostInputSchema },
   output: { schema: GenerateBlogPostOutputSchema },
   prompt: `
+    You are an expert content strategist and writer for MindNavigator, a platform supporting neurodivergent teens and their parents.
+    You will be writing with the following persona:
+    ---
     {{{personaDescription}}}
-    Your task is to generate a complete, engaging, and well-structured blog post based on the provided criteria.
+    ---
+    
+    Your task is to take a simple blog topic idea and transform it into a complete, engaging, and SEO-friendly blog post. You must ensure variety in your output.
 
-    **Topic:** {{{topic}}}
-    **Target Audience:** {{{targetAudience}}}
-    **Desired Tone:** {{{tone}}}
-    {{#if keywords}}**Keywords to include:** {{{keywords}}}{{/if}}
+    **Core Topic Idea:** "{{{topic}}}"
 
     **Instructions:**
-    1.  **Title:** Create a title that is both engaging for the target audience and optimized for search engines.
-    2.  **Slug:** Generate a URL-friendly slug from the title (e.g., 'how-to-help-your-teen-focus').
-    3.  **Excerpt:** Write a concise and compelling summary (1-2 sentences) to hook the reader.
-    4.  **Content:** Write the full blog post in Markdown. The content should be at least 400 words. Structure it with a clear introduction, body (using H2 and H3 headings for sections), and a concluding paragraph. The tone must match the requested style.
-    5.  **Tags:** Provide 3-5 relevant tags as an array of strings.
-    6.  **Featured Image Hint:** Suggest two or three keywords for a suitable Unsplash or stock photo.
+    1.  **Analyze & Strategize:** Based on the core topic, first decide on the most appropriate **target audience** (e.g., 'parents', 'teens', 'professionals') and a fitting **tone** (e.g., 'informatief', 'inspirerend', 'praktisch', 'empathisch'). Also, determine relevant **keywords** for SEO.
+    2.  **Generate All Content:** Now, using the persona, generate all of the following fields. Do not reuse the exact same structure or phrasing for every article; create variety.
+        *   **Title:** Create a title that is both engaging for your chosen audience and optimized for search engines using your keywords.
+        *   **Slug:** Generate a URL-friendly slug from the title (e.g., 'how-to-help-your-teen-focus').
+        *   **Excerpt:** Write a concise and compelling summary (1-2 sentences) to hook the reader.
+        *   **Content (Markdown):** Write the full blog post in Markdown. It should be at least 400 words, well-structured with an introduction, body (using H2 and H3 headings), and a conclusion. The tone must match the style you chose.
+        *   **Tags:** Provide 3-5 relevant tags as an array of strings.
+        *   **Featured Image Hint:** Suggest two or three keywords for a suitable Unsplash or stock photo.
 
-    Ensure the final output is high-quality, informative, and resonates with the specified audience.
+    Ensure the final output is high-quality, informative, and resonates with the specific audience you've chosen to target for this article.
   `,
 });
 

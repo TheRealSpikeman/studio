@@ -40,10 +40,7 @@ export default function NewBlogPostPage() {
   const { toast } = useToast();
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [aiTopic, setAiTopic] = useState('');
-  const [aiKeywords, setAiKeywords] = useState('');
-  const [aiAudience, setAiAudience] = useState<'parents' | 'teens' | 'professionals'>('parents');
-  const [aiTone, setAiTone] = useState<'informatief' | 'inspirerend' | 'praktisch' | 'empathisch'>('empathisch');
+  const [aiTopic, setAiTopic] = useState(''); // Simplified state
   const [aiPersona, setAiPersona] = useState<string>(aiPersonas[0].id);
 
   const form = useForm<BlogPostFormData>({
@@ -56,7 +53,7 @@ export default function NewBlogPostPage() {
 
   const handleGenerateContent = async () => {
     if (!aiTopic) {
-      toast({ title: "Onderwerp vereist", description: "Voer een onderwerp in om content te genereren.", variant: "destructive" });
+      toast({ title: "Onderwerp vereist", description: "Voer een onderwerp of idee in om content te genereren.", variant: "destructive" });
       return;
     }
 
@@ -69,11 +66,9 @@ export default function NewBlogPostPage() {
     setIsAiGenerating(true);
     toast({ title: "AI is aan het werk...", description: "Blogpost content wordt gegenereerd." });
     try {
+      // Updated call to the flow
       const result = await generateBlogPost({
         topic: aiTopic,
-        keywords: aiKeywords,
-        targetAudience: aiAudience,
-        tone: aiTone,
         personaDescription: selectedPersona.description,
       });
       form.setValue('title', result.title);
@@ -131,43 +126,16 @@ export default function NewBlogPostPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> Genereer met AI</CardTitle>
-          <CardDescription>Start met een idee en laat de AI een conceptartikel voor je schrijven.</CardDescription>
+          <CardDescription>Start met een idee en laat de AI een compleet, gevarieerd conceptartikel voor je schrijven, inclusief doelgroep, toon en keywords.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="ai-topic">Onderwerp*</label>
-            <Input id="ai-topic" placeholder="bv. 5 manieren om je tiener te helpen focussen" value={aiTopic} onChange={e => setAiTopic(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="ai-audience">Doelgroep</label>
-              <Select value={aiAudience} onValueChange={(v) => setAiAudience(v as any)}>
-                <SelectTrigger id="ai-audience"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="parents">Ouders</SelectItem>
-                  <SelectItem value="teens">Tieners</SelectItem>
-                  <SelectItem value="professionals">Professionals</SelectItem>
-                </SelectContent>
-              </Select>
+              <label htmlFor="ai-topic">Onderwerp / Idee*</label>
+              <Input id="ai-topic" placeholder="bv. Help, mijn tiener is altijd moe!" value={aiTopic} onChange={e => setAiTopic(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label htmlFor="ai-tone">Toon</label>
-              <Select value={aiTone} onValueChange={(v) => setAiTone(v as any)}>
-                <SelectTrigger id="ai-tone"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="informatief">Informatief</SelectItem>
-                  <SelectItem value="inspirerend">Inspirerend</SelectItem>
-                  <SelectItem value="praktisch">Praktisch</SelectItem>
-                  <SelectItem value="empathisch">Empathisch</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="ai-keywords">Keywords (optioneel)</label>
-              <Input id="ai-keywords" placeholder="focus, huiswerk, adhd" value={aiKeywords} onChange={e => setAiKeywords(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="ai-persona">AI Persona</label>
+              <label htmlFor="ai-persona">AI Schrijfstijl (Persona)</label>
               <Select value={aiPersona} onValueChange={setAiPersona}>
                 <SelectTrigger id="ai-persona"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -182,7 +150,7 @@ export default function NewBlogPostPage() {
         <CardFooter>
           <Button onClick={handleGenerateContent} disabled={isAiGenerating}>
             {isAiGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-            Genereer Content
+            Genereer Artikel
           </Button>
         </CardFooter>
       </Card>
@@ -225,7 +193,7 @@ export default function NewBlogPostPage() {
             <CardHeader><CardTitle>Uitgelichte Afbeelding</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                 <FormField control={form.control} name="featuredImageUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Afbeelding URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Afbeelding URL</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                 )} />
                  <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
                   <FormItem><FormLabel>AI Afbeelding Hint</FormLabel><FormControl><Input {...field} disabled /></FormControl><FormDescription>Dit wordt door de AI ingevuld en kan gebruikt worden om een passende afbeelding te vinden.</FormDescription><FormMessage /></FormItem>
