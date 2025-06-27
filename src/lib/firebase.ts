@@ -49,14 +49,14 @@ auth = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
 
-// Connect to emulators in development.
-// This check must be outside of the initialization block to work with hot-reloading.
+// Temporarily disabling emulators to connect to the actual Firebase backend
+/*
 if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
         console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
         
-        console.log('Connecting to Auth emulator at http://localhost:9099');
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+        console.log('Connecting to Auth emulator at http://127.0.0.1:9099');
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
         console.log('✅ Auth emulator connected.');
         
         console.log('Connecting to Firestore emulator at localhost:8080');
@@ -71,6 +71,7 @@ if (isConfigured && process.env.NODE_ENV === 'development') {
         console.warn('⚠️ Error connecting to Firebase emulators. This is expected if emulators are not running or if this is a production build.', e);
     }
 }
+*/
 
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
