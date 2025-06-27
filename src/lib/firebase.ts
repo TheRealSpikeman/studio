@@ -20,8 +20,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// A function to check if the config is valid
-export const isFirebaseConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("...");
+// Check if the essential config values are present and not placeholders
+const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("...");
 
 // Initialize Firebase services and export them.
 // They will be null if the config is not provided.
@@ -30,11 +30,10 @@ let auth: Auth | null = null;
 let db: Firestore | null = null;
 let storage: FirebaseStorage | null = null;
 
-if (isFirebaseConfigured) {
+if (isConfigured) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
   storage = getStorage(app);
-  // Simplified Firestore initialization for better server/client compatibility
   db = getFirestore(app);
 
   // Connect to emulators in development
@@ -53,6 +52,9 @@ if (isFirebaseConfigured) {
     }
   }
 
+} else {
+    console.error("🔥 FIREBASE CONFIGURATION MISSING OR INCOMPLETE! 🔥");
+    console.error("Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set correctly.");
 }
 
-export { app, auth, db, storage };
+export { app, auth, db, storage, isConfigured as isFirebaseConfigured };

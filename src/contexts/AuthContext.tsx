@@ -48,10 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // If firebase is not configured, don't attempt to set up listeners.
     if (!isFirebaseConfigured || !auth || !db) {
       setIsLoading(false);
       return;
     }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
@@ -178,6 +180,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           case 'auth/too-many-requests':
             friendlyMessage = "Te veel inlogpogingen. Probeer het later opnieuw.";
             break;
+          case 'auth/network-request-failed':
+             friendlyMessage = "Netwerkfout. Controleer uw internetverbinding en probeer het opnieuw.";
+             break;
           default:
             friendlyMessage = `Er is een fout opgetreden: ${firebaseError.code}`;
             break;
@@ -220,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isAuthenticated: !!user,
     isLoading,
-    isFirebaseConfigured,
+    isFirebaseConfigured, // Pass the boolean from firebase.ts
     login,
     signup,
     logout,

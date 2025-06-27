@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from 'react'
@@ -7,12 +8,14 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { ShieldAlert } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function LoginDebugTest() {
   const [email, setEmail] = useState('admin@example.com')
   const [password, setPassword] = useState('password')
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
+  const { isFirebaseConfigured: isConfiguredFromHook } = useAuth(); // Use the reliable check from the context
 
   // Directly check the environment variables as seen by the client
   const envVars = {
@@ -25,9 +28,9 @@ export function LoginDebugTest() {
     setLoading(true)
     setResult('')
 
-    if (!auth || !isFirebaseConfigured) {
+    if (!isConfiguredFromHook || !auth) {
         setResult(`❌ FAILED: Firebase is not configured.
-Check your .env.local file and ensure the server is restarted.
+Check your .env file and ensure the server is restarted.
 
 NEXT_PUBLIC_FIREBASE_API_KEY: ${envVars.apiKey ? 'Loaded' : 'MISSING'}
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${envVars.authDomain ? 'Loaded' : 'MISSING'}
@@ -110,7 +113,7 @@ NETWORK ERROR SOLUTIONS:
           <p>API Key: <strong>{envVars.apiKey ? 'Loaded' : 'MISSING!'}</strong></p>
           <p>Auth Domain: <strong>{envVars.authDomain ? 'Loaded' : 'MISSING!'}</strong></p>
           <p>Project ID: <strong>{envVars.projectId ? 'Loaded' : 'MISSING!'}</strong></p>
-          {(!envVars.apiKey || !envVars.authDomain || !envVars.projectId) && <p className="text-red-600 font-bold mt-1">One or more variables are missing. Check your `.env` file and restart the server.</p>}
+          {(!isConfiguredFromHook) && <p className="text-red-600 font-bold mt-1">One or more variables are missing or invalid. Check your `.env` file and restart the server.</p>}
       </div>
       
       <div className="space-y-4">
