@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Users, Shield, Bell, Mail, KeyRound, PlusCircle, Trash2 } from 'lucide-react';
+import { Settings, Users, Shield, Bell, Mail, KeyRound, PlusCircle, Trash2, RotateCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,38 +16,71 @@ import { useToast } from '@/hooks/use-toast';
 
 const CORE_ROLES = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder'];
 
+// New, more comprehensive permissions list
 const platformPermissions = [
-  { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het algemene gebruikersdashboard.' },
-  { id: 'take_quizzes', label: 'Quizzen maken', description: 'Mogelijkheid om quizzen te starten en te voltooien.' },
-  { id: 'view_results', label: 'Eigen resultaten bekijken', description: 'Toegang tot persoonlijke quizresultaten en rapporten.' },
-  { id: 'access_coaching', label: 'Toegang tot Coaching Hub', description: 'Gebruik van dagelijkse coaching, dagboek, etc.' },
-  { id: 'manage_users', label: 'Gebruikers beheren (Admin)', description: 'Aanmaken, bewerken, verwijderen van alle gebruikers.' },
-  { id: 'manage_quizzes_admin', label: 'Quiz content beheren (Admin)', description: 'Maken en aanpassen van alle quizzen.' },
-  { id: 'manage_site_content', label: 'Website content beheren (Admin)', description: 'Aanpassen van statische pagina\'s via CMS.' },
-  { id: 'view_platform_analytics', label: 'Platform analytics bekijken (Admin)', description: 'Toegang tot algemene site statistieken.' },
-  { id: 'manage_tutor_profile', label: 'Eigen tutorprofiel beheren (Tutor)', description: 'Bijwerken van vakken, tarief, beschikbaarheid.' },
-  { id: 'manage_coach_profile', label: 'Eigen coachprofiel beheren (Coach)', description: 'Bijwerken van specialisaties, tarief, beschikbaarheid.' }, 
-  { id: 'view_student_progress', label: 'Voortgang leerlingen/cliënten bekijken (Tutor/Coach/Ouder)', description: 'Inzicht in de resultaten van gekoppelde leerlingen/cliënten.' },
-  { id: 'manage_children_profiles', label: 'Kinderprofielen beheren (Ouder)', description: 'Aanmaken, bewerken van gekoppelde kinderaccounts.' },
-  { id: 'manage_children_lessons', label: 'Lessen kinderen beheren (Ouder)', description: 'Plannen en goedkeuren van lessen voor kinderen.' },
-  { id: 'manage_family_subscription', label: 'Familie abonnement beheren (Ouder)', description: 'Beheren van betalingen voor gekoppelde kinderen.' },
+  // Algemeen
+  { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het eigen rol-specifieke dashboard.', section: 'Algemeen' },
+  { id: 'manage_own_profile', label: 'Eigen profiel beheren', description: 'Persoonlijke gegevens en wachtwoord aanpassen.' },
+
+  // Leerling
+  { id: 'take_quizzes', label: 'Zelfreflectie tools gebruiken', description: 'Quizzen en assessments starten en voltooien.', section: 'Leerling' },
+  { id: 'view_own_results', label: 'Eigen resultaten & voortgang inzien', description: 'Toegang tot persoonlijke rapporten en analyses.' },
+  { id: 'access_coaching_hub', label: 'Toegang tot Coaching Hub', description: 'Gebruik van dagboek, dagelijkse tips en aanbevolen tools.' },
+  { id: 'use_community_forum', label: 'Community Forum gebruiken', description: 'Berichten lezen en plaatsen in de community.' },
+
+  // Ouder
+  { id: 'manage_children', label: 'Kinderen beheren', description: 'Kinderprofielen aanmaken, bewerken en uitnodigen.', section: 'Ouder' },
+  { id: 'view_child_progress', label: 'Voortgang kinderen inzien', description: 'Inzichten en rapporten van gekoppelde kinderen bekijken (met toestemming).' },
+  { id: 'manage_subscriptions', label: 'Abonnementen & facturatie beheren', description: 'Familieabonnement en betalingen beheren.' },
+  { id: 'manage_lessons_for_child', label: 'Lessen voor kind plannen/beheren', description: 'Sessies met tutors/coaches plannen, verzetten en annuleren.' },
+  { id: 'find_professionals', label: 'Professionals zoeken & koppelen', description: 'Tutors en coaches zoeken en aan kinderen koppelen.' },
+  { id: 'communicate_with_professionals', label: 'Communiceren met professionals', description: 'Berichten sturen naar gekoppelde tutors en coaches.' },
+
+  // Professionals (Tutor/Coach)
+  { id: 'manage_professional_profile', label: 'Eigen professioneel profiel beheren', description: 'Beschikbaarheid, tarieven en specialisaties aanpassen.', section: 'Professionals' },
+  { id: 'view_client_data', label: 'Data van gekoppelde cliënten inzien', description: 'Toegang tot de gegevens van leerlingen/cliënten die toestemming hebben gegeven.' },
+  { id: 'manage_own_sessions', label: 'Eigen sessies/lessen beheren', description: 'Sessies accepteren, afronden en verslagen schrijven.' },
+
+  // Admin
+  { id: 'manage_all_users', label: '[A] Alle gebruikers beheren', description: 'Alle gebruikersaccounts inzien, bewerken en verwijderen.', section: 'Admin' },
+  { id: 'manage_all_quizzes', label: '[A] Alle quizzen beheren', description: 'Quizzen aanmaken, aanpassen, en de vragenbank beheren.' },
+  { id: 'manage_all_content', label: '[A] Alle website content beheren', description: 'Statische pagina\'s en algemene teksten aanpassen.' },
+  { id: 'manage_platform_features', label: '[A] Platform features beheren', description: 'Features en functionaliteiten aan/uit zetten.' },
+  { id: 'manage_platform_tools', label: '[A] Platform tools beheren', description: 'Aanmaken en beheren van tools zoals de Focus Timer.' },
+  { id: 'manage_platform_subscriptions', label: '[A] Platform abonnementen beheren', description: 'Abonnementen, prijzen en features configureren.' },
+  { id: 'view_all_analytics', label: '[A] Alle platform analytics bekijken', description: 'Toegang tot alle statistieken en rapportages.' },
+  { id: 'view_platform_finances', label: '[A] Financiën platform bekijken', description: 'Inzicht in omzet, betalingen en uitbetalingen.' },
 ];
 
 const initialPermissionsState: Record<string, Record<string, boolean>> = {
+  // General
   'view_dashboard': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': true },
-  'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, 
-  'view_results': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, 
-  'access_coaching': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': false }, 
-  'manage_users': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
-  'manage_quizzes_admin': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
-  'manage_site_content': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
-  'view_platform_analytics': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
-  'manage_tutor_profile': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': true, 'Ouder': false },
-  'manage_coach_profile': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': false, 'Ouder': false }, 
-  'view_student_progress': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': true }, 
-  'manage_children_profiles': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
-  'manage_children_lessons': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
-  'manage_family_subscription': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'manage_own_profile': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': true },
+  // Leerling
+  'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false },
+  'view_own_results': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false },
+  'access_coaching_hub': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false },
+  'use_community_forum': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false },
+  // Ouder
+  'manage_children': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'view_child_progress': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'manage_subscriptions': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'manage_lessons_for_child': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'find_professionals': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  'communicate_with_professionals': { 'Admin': false, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
+  // Professionals
+  'manage_professional_profile': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': false },
+  'view_client_data': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': false },
+  'manage_own_sessions': { 'Admin': true, 'Coach': true, 'Leerling': false, 'Tutor': true, 'Ouder': false },
+  // Admin
+  'manage_all_users': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'manage_all_quizzes': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'manage_all_content': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'manage_platform_features': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'manage_platform_tools': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'manage_platform_subscriptions': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'view_all_analytics': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
+  'view_platform_finances': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': false },
 };
 
 export default function AdminSettingsPage() {
@@ -92,6 +125,16 @@ export default function AdminSettingsPage() {
       }
     }));
   };
+
+  const handleRestoreDefaults = () => {
+    setPermissions(initialPermissionsState);
+    toast({
+      title: "Standaard Permissies Hersteld",
+      description: "De permissies zijn teruggezet naar de aanbevolen standaardinstellingen."
+    });
+  };
+
+  let lastSection: string | undefined = undefined;
 
   return (
     <div className="space-y-8">
@@ -181,28 +224,46 @@ export default function AdminSettingsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {platformPermissions.map(permission => (
-                      <TableRow key={permission.id}>
-                        <TableCell>
-                          <p className="font-medium">{permission.label}</p>
-                          <p className="text-xs text-muted-foreground">{permission.description}</p>
-                        </TableCell>
-                        {roles.map(role => (
-                          <TableCell key={`${permission.id}-${role}`} className="text-center">
-                            <Checkbox 
-                              checked={permissions[permission.id]?.[role] || false}
-                              onCheckedChange={(checked) => handlePermissionChange(permission.id, role, !!checked)}
-                              aria-label={`Permissie ${permission.label} voor rol ${role}`}
-                            />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    {platformPermissions.map((permission) => {
+                      const showSectionHeader = permission.section && permission.section !== lastSection;
+                      if(showSectionHeader) {
+                        lastSection = permission.section;
+                      }
+                      return (
+                        <>
+                          {showSectionHeader && (
+                            <TableRow className="bg-muted/50 hover:bg-muted/50">
+                              <TableCell colSpan={roles.length + 1} className="py-2 px-4">
+                                <h4 className="font-semibold text-foreground">{permission.section}</h4>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          <TableRow key={permission.id}>
+                            <TableCell>
+                              <p className="font-medium">{permission.label}</p>
+                              <p className="text-xs text-muted-foreground">{permission.description}</p>
+                            </TableCell>
+                            {roles.map(role => (
+                              <TableCell key={`${permission.id}-${role}`} className="text-center">
+                                <Checkbox 
+                                  checked={permissions[permission.id]?.[role] || false}
+                                  onCheckedChange={(checked) => handlePermissionChange(permission.id, role, !!checked)}
+                                  aria-label={`Permissie ${permission.label} voor rol ${role}`}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        </>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
             </CardContent>
-             <CardFooter className="border-t pt-6">
+             <CardFooter className="border-t pt-6 flex justify-between">
+              <Button type="button" variant="outline" onClick={handleRestoreDefaults}>
+                <RotateCcw className="mr-2 h-4 w-4" /> Herstel Standaard
+              </Button>
               <Button disabled>Permissies Opslaan (binnenkort)</Button>
             </CardFooter>
           </Card>
