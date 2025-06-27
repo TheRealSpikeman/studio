@@ -1,3 +1,4 @@
+
 // src/components/layout/dashboard-sidebar.tsx
 "use client";
 
@@ -116,6 +117,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessageSquare, ouderOnly: true },
   { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, alwaysShowWhenOnboarding: true },
+  { href: '/for-parents/ouderrichtlijnen', label: 'Ouderrichtlijnen', icon: BookHeart, ouderOnly: true, alwaysShowWhenOnboarding: true },
 
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },

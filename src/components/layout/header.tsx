@@ -15,7 +15,6 @@ export function Header() {
     { href: "/pricing", label: "Prijzen" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
     { href: "/for-parents", label: "Voor ouders" },
-    { href: "/for-parents/ouderrichtlijnen", label: "Ouderrichtlijnen" },
     { href: "/about", label: "Over ons" },
   ];
 
