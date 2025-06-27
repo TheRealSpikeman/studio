@@ -1,4 +1,3 @@
-
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -12,11 +11,12 @@ import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle,
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-primary">{value}</div>
-        <div className="text-sm text-muted-foreground mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
+        <div className="text-sm text-white/80 mt-1">{label}</div>
     </div>
 );
 
@@ -70,15 +70,15 @@ export default function OuderRichtlijnenPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-background py-16 md:py-20 lg:py-24">
+        <section className="bg-gradient-to-br from-amber-400 to-orange-500 text-white py-16 md:py-20 lg:py-24">
             <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
                 {/* Left Column: Text */}
                 <div className="flex flex-col items-center text-center md:items-start md:text-left">
-                    <Badge variant="secondary" className="bg-primary/10 border-primary/20 text-primary mb-4">
+                    <Badge variant="secondary" className="bg-white/20 border-white/30 text-white backdrop-blur-sm mb-6">
                      ✨ Gratis Ouder Ondersteuning
                     </Badge>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-foreground">Ouderrichtlijnen voor Neurodivergente Jongeren</h1>
-                    <p className="text-lg text-muted-foreground max-w-xl">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white/95">Ouderrichtlijnen voor Neurodivergente Jongeren</h1>
+                    <p className="text-lg text-white/80 max-w-xl">
                         Als ouder van een neurodivergente tiener navigeert u dagelijks door unieke uitdagingen. 
                         Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
                     </p>
@@ -128,14 +128,6 @@ export default function OuderRichtlijnenPage() {
                     </ValuePropCard>
                 </div>
 
-                <Alert variant="destructive" className="mt-12 max-w-3xl mx-auto">
-                    <AlertTriangle className="h-5 w-5" />
-                    <AlertTitle className="font-bold">Belangrijke Medische Disclaimer</AlertTitle>
-                    <AlertDescription>
-                        <strong>MindNavigator is GEEN medische dienst</strong> en vervangt nooit professionele zorg. Voor diagnoses (ADHD, autisme, etc.), raadpleeg altijd uw huisarts.
-                        Bij acute problemen, bel 112 (spoed) of 113 (suïcidepreventie).
-                    </AlertDescription>
-                </Alert>
             </div>
         </section>
 
