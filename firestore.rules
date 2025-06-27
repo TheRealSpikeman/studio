@@ -1,81 +1,80 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Helper Functions ---
+    // ================== HELPER FUNCTIONS ==================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      // Check if the requesting user is the owner of the document.
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getRole(userId) {
+      // Safely get the role of a user. Returns an empty string if not found.
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
     }
     
     function hasRole(role) {
-      // It's safer to check if the user document exists before accessing .data
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+        // Check if the signed-in user has a specific role.
+        // Uses exists() to prevent errors on non-existent user documents (e.g., during signup).
+        return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getRole(request.auth.uid) == role;
     }
 
-    function canManageContent() {
-        // Example: allow admin or a future 'content-manager' role
-        let userRole = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-        return userRole == 'admin' || userRole == 'content-manager';
-    }
-
-    // --- User Profiles ---
-    // Admins can list all users for the management dashboard
-    match /users {
-      allow list: if hasRole('admin');
-    }
-
-    match /users/{userId} {
-      // Admins can read any user profile. Users can read their own.
-      allow get: if hasRole('admin') || isOwner(userId);
-      // Anyone can create their own user document when signing up.
-      allow create: if request.auth.uid == userId;
-      // Admins can update any profile. Users can only update their own.
-      allow update: if hasRole('admin') || isOwner(userId);
-      // Only admins can delete users.
-      allow delete: if hasRole('admin');
-    }
-
-    // --- Public Content (Quizzes, Tools) ---
-    // Anyone can read public content
-    match /quizzes/{quizId} {
-      allow read: if true;
-      allow write: if canManageContent();
-    }
-    
-    match /tools/{toolId} {
-      allow read: if true;
-      allow write: if canManageContent();
-    }
-    
-    match /features/{featureId} {
-        allow read: if true;
-        allow write: if hasRole('admin');
-    }
-    
-     match /subscriptions/{subscriptionId} {
-        allow read: if true;
-        allow write: if hasRole('admin');
-    }
-
-    // --- Private User Data ---
-    match /users/{userId}/{collection}/{documentId} {
-      // Default deny for all subcollections
+    // Secure by default: deny all reads and writes unless explicitly allowed.
+    match /{document=**} {
       allow read, write: if false;
     }
-    
-    match /users/{userId}/quizResults/{resultId} {
-        allow read, write: if isOwner(userId) || hasRole('admin');
+
+    // =====================================================================
+    //  USERS Collection
+    // =====================================================================
+    match /users/{userId} {
+      // ANY signed-in user can CREATE their own user document.
+      allow create: if isSignedIn();
+
+      // A user can GET their own document. An ADMIN can GET any user's document.
+      allow get: if isOwner(userId) || hasRole('admin');
+      
+      // An ADMIN can LIST all users. Regular users cannot.
+      allow list: if hasRole('admin');
+
+      // A user can UPDATE their own document. An ADMIN can update ANY user's document.
+      allow update: if isOwner(userId) || hasRole('admin');
+
+      // An ADMIN can DELETE any user document. A user cannot delete their own account this way.
+      allow delete: if hasRole('admin');
     }
     
-    match /users/{userId}/journalEntries/{entryId} {
-        // Strictest rule: only the user can access their journal
-        allow read, write: if isOwner(userId);
+    // =====================================================================
+    //  QUIZZES Collection
+    // =====================================================================
+    match /quizzes/{quizId} {
+      // Anyone can read a quiz.
+      allow get: if true;
+      // Admins can create, update, delete, and list quizzes.
+      allow write, list: if hasRole('admin');
     }
     
-    match /users/{userId}/linkedProfessionals/{linkId} {
-        allow read, write: if isOwner(userId) || hasRole('admin');
+    // =====================================================================
+    //  TOOLS Collection
+    // =====================================================================
+    match /tools/{toolId} {
+      // Anyone can read a tool's definition.
+      allow get: if true;
+      // Admins can create, update, delete, and list tools.
+      allow write, list: if hasRole('admin');
+    }
+    
+    // =====================================================================
+    //  USER SUB-COLLECTIONS
+    // =====================================================================
+    match /users/{userId}/{collection}/{docId} {
+      // Users can manage their own sub-collection documents. Admins can manage any.
+      allow read, write, delete: if isOwner(userId) || hasRole('admin');
     }
   }
 }
