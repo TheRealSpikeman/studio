@@ -40,13 +40,13 @@ if (isFirebaseConfigured) {
   // Connect to emulators in development
   if (process.env.NODE_ENV === 'development') {
     try {
-        console.log("Connecting to Firebase emulators on localhost...");
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+        console.log("Connecting to Firebase emulators on 127.0.0.1...");
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
         if (db) {
-          connectFirestoreEmulator(db, 'localhost', 8080);
+          connectFirestoreEmulator(db, '127.0.0.1', 8080);
         }
         if (storage) {
-          connectStorageEmulator(storage, 'localhost', 9199);
+          connectStorageEmulator(storage, '127.0.0.1', 9199);
         }
     } catch(e) {
         console.warn('Error connecting to Firebase emulators. This is expected if emulators are not running.');
