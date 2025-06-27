@@ -1,4 +1,3 @@
-
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
@@ -50,8 +49,8 @@ auth = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
 
-// Temporarily disabling emulators to connect to the actual Firebase backend
-/*
+// Connect to emulators in development.
+// This block is being re-enabled to fix the permission issue.
 if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
         console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
@@ -72,7 +71,6 @@ if (isConfigured && process.env.NODE_ENV === 'development') {
         console.warn('⚠️ Error connecting to Firebase emulators. This is expected if emulators are not running or if this is a production build.', e);
     }
 }
-*/
 
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
