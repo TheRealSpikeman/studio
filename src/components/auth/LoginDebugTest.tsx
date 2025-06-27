@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -44,18 +43,6 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${envVars.projectId ? 'Loaded' : 'MISSING'}`);
       console.log('Firebase Auth instance:', auth);
       console.log('Auth config:', auth.app.options);
       console.log('Current URL:', window.location.href);
-
-      // Test direct network connectivity
-      try {
-        console.log('🌐 Testing Firebase Network Connectivity to http://127.0.0.1:9099/');
-        const response = await fetch('http://127.0.0.1:9099/');
-        console.log('Direct emulator fetch response status:', response.status);
-        if(!response.ok) {
-            console.error('Direct emulator fetch response not OK:', await response.text());
-        }
-      } catch (fetchError) {
-        console.error('🌐 Direct emulator fetch FAILED:', fetchError);
-      }
       
       const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim())
       
