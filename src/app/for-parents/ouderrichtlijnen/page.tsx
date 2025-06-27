@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-accent">{value}</div>
         <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
@@ -36,7 +36,7 @@ const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClass
                 {children}
             </p>
             <div className="mt-auto">
-                <Button variant="ghost" asChild className="p-2 h-auto text-sm text-foreground hover:bg-gray-100 border border-gray-200 w-full justify-center rounded-lg">
+                <Button variant="ghost" asChild className="p-2 h-auto text-sm text-foreground hover:bg-primary/10 border border-gray-200 w-full justify-center rounded-lg">
                     <Link href={ctaLink}>{ctaText}</Link>
                 </Button>
             </div>
@@ -170,9 +170,9 @@ export default function OuderRichtlijnenPage() {
                         title={"Eindelijk Eerlijke Ondersteuning"}
                         ctaText="Ontdek Onze Ethische Aanpak"
                         ctaLink="/about"
-                        colorClasses={{ border: "border-green-500", bg: "bg-green-100", icon: "text-green-600" }}
+                        colorClasses={{ border: "border-orange-500", bg: "bg-orange-100", icon: "text-orange-600" }}
                     >
-                        Wij maken geen valse beloftes over 'genezing'. Onze ethische, transparante aanpak wordt gewaardeerd door 95% van de ouders.
+                        Geloofwaardigheid is essentieel. Wij maken geen valse beloftes over 'genezing', maar bieden een transparante, ethische aanpak die wordt gewaardeerd door 95% van de ouders.
                     </BenefitCard>
                     <BenefitCard
                         icon={TrendingUp}
