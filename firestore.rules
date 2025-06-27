@@ -1,13 +1,12 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // WAARSCHUWING: Dit is een tijdelijke, onveilige regel voor debug-doeleinden.
-    // Hiermee kan IEDEREEN data lezen en schrijven, zelfs zonder ingelogd te zijn.
-    // Dit moet onmiddellijk worden teruggedraaid na het debuggen.
-    match /{document=**} {
-      allow read, write: if true;
+    // Users can only read and write to their own user document.
+    // The document ID must be the same as the user's UID.
+    match /users/{userId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
