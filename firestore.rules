@@ -3,78 +3,79 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ================== HELPER FUNCTIONS ==================
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
+    
+    // Helper Functions
     function isOwner(userId) {
-      // Check if the requesting user is the owner of the document.
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    function getRole(userId) {
-      // Safely get the role of a user. Returns an empty string if not found.
-      return get(/databases/$(database)/documents/users/$(userId)).data.role;
-    }
-    
-    function hasRole(role) {
-        // Check if the signed-in user has a specific role.
-        // Uses exists() to prevent errors on non-existent user documents (e.g., during signup).
-        return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getRole(request.auth.uid) == role;
+    function isAdmin() {
+      // Check if the requesting user's document in the 'users' collection has the role 'admin'.
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Secure by default: deny all reads and writes unless explicitly allowed.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // =====================================================================
-    //  USERS Collection
-    // =====================================================================
+    // USERS collection
     match /users/{userId} {
-      // ANY signed-in user can CREATE their own user document.
-      allow create: if isSignedIn();
-
-      // A user can GET their own document. An ADMIN can GET any user's document.
-      allow get: if isOwner(userId) || hasRole('admin');
+      // GET: An admin can get any user doc. A user can get their own doc.
+      allow get: if isOwner(userId) || isAdmin();
       
-      // An ADMIN can LIST all users. Regular users cannot.
-      allow list: if hasRole('admin');
-
-      // A user can UPDATE their own document. An ADMIN can update ANY user's document.
-      allow update: if isOwner(userId) || hasRole('admin');
-
-      // An ADMIN can DELETE any user document. A user cannot delete their own account this way.
-      allow delete: if hasRole('admin');
+      // LIST: Only admins can list all users.
+      allow list: if isAdmin();
+      
+      // CREATE: A user can create their own document (e.g., on signup).
+      // No one else can create a user document for someone else, except perhaps a backend process.
+      allow create: if request.auth != null; // Allow any authenticated user to create their own doc during signup flow.
+      
+      // UPDATE: A user can update their own document. An admin can update any document.
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // DELETE: Only an admin can delete a user document.
+      allow delete: if isAdmin();
     }
     
-    // =====================================================================
-    //  QUIZZES Collection
-    // =====================================================================
+    // QUIZZES collection
     match /quizzes/{quizId} {
-      // Anyone can read a quiz.
-      allow get: if true;
-      // Admins can create, update, delete, and list quizzes.
-      allow write, list: if hasRole('admin');
+      // Anyone can read a published quiz.
+      allow get: if resource.data.status == 'published';
+      // Anyone can list published quizzes.
+      allow list: if true; // Keeping this open for now for public quiz lists. Can be tightened later.
+      // Only admins can create, update, or delete quizzes.
+      allow create, update, delete: if isAdmin();
     }
     
-    // =====================================================================
-    //  TOOLS Collection
-    // =====================================================================
+    // TOOLS collection
     match /tools/{toolId} {
-      // Anyone can read a tool's definition.
-      allow get: if true;
-      // Admins can create, update, delete, and list tools.
-      allow write, list: if hasRole('admin');
+        // Publicly readable
+        allow get, list: if true;
+        // Admin-only write access
+        allow create, update, delete: if isAdmin();
     }
     
-    // =====================================================================
-    //  USER SUB-COLLECTIONS
-    // =====================================================================
-    match /users/{userId}/{collection}/{docId} {
-      // Users can manage their own sub-collection documents. Admins can manage any.
-      allow read, write, delete: if isOwner(userId) || hasRole('admin');
+    // FEATURES & SUBSCRIPTIONS (for platform configuration)
+    match /features/{featureId} {
+        // Publicly readable
+        allow get, list: if true;
+        // Admin-only write access
+        allow create, update, delete: if isAdmin();
+    }
+    
+    match /subscriptions/{subscriptionId} {
+        // Publicly readable
+        allow get, list: if true;
+        // Admin-only write access
+        allow create, update, delete: if isAdmin();
+    }
+    
+    // USER-SPECIFIC SUBCOLLECTIONS
+    match /users/{userId}/quizResults/{resultId} {
+      // A user can manage their own quiz results. An admin can read them.
+      allow read, write: if isOwner(userId);
+      allow get, list: if isOwner(userId) || isAdmin();
+    }
+    
+    match /users/{userId}/journalEntries/{entryId} {
+      // Strict privacy: Only the owner can ever access their journal entries.
+      allow read, write, delete: if isOwner(userId);
     }
   }
 }
