@@ -1,13 +1,18 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Users can be created by anyone (needed for signup)
-    // but can only be read, updated, or deleted by the user themselves.
+    // Matches any document in the 'users' collection.
     match /users/{userId} {
-      allow create;
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      // Allow a user to create their own document, but not anyone else's.
+      // The `request.auth.uid` is the UID of the user making the request.
+      // The `userId` is the ID of the document being written to.
+      // They must match for a create operation to be allowed.
+      allow create: if request.auth.uid == userId;
+
+      // Allow a user to read, update, or delete their own document.
+      allow read, update, delete: if request.auth.uid == userId;
     }
   }
 }
