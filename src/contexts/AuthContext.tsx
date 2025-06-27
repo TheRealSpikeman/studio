@@ -85,7 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: any) {
           console.error("[AuthContext] Firestore Error during auth state change:", error);
           if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
-             console.error("🔥🔥🔥 PERMISSION DENIED! Check your firestore.rules. The failing operation is logged above (read or update).");
              toast({
                 title: "Permissie Fout",
                 description: "U heeft geen permissie om uw profiel te laden. Neem contact op met de beheerder.",
