@@ -29,7 +29,7 @@ export function LegalDocumentDialog({ triggerNode, title, children }: LegalDocum
         <DialogHeader>
           <DialogTitle className="text-2xl">{title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="flex-grow pr-6 -mr-6 text-sm">
+        <ScrollArea className="flex-grow pr-6 -mr-6">
           <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
             {children}
           </div>
