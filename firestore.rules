@@ -1,12 +1,32 @@
+
 rules_version = '2';
 
+// Beveiligde regels voor Firestore
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read and write to their own user document.
-    // The document ID must be the same as the user's UID.
+    
+    // De 'users' collectie
     match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Iedereen mag een nieuw gebruikersprofiel aanmaken (bijv. tijdens registratie),
+      // maar ALLEEN als de document ID exact overeenkomt met de eigen unieke gebruikers-ID.
+      // Dit voorkomt dat gebruikers profielen voor anderen kunnen aanmaken.
+      allow create: if request.auth.uid == userId;
+      
+      // Gebruikers mogen ALLEEN hun EIGEN profiel lezen, bijwerken of verwijderen.
+      // Ze kunnen niet de profielen van andere gebruikers inzien.
+      allow read, update, delete: if request.auth.uid == userId;
     }
+
+    // VOORBEELD: Collectie voor quiz resultaten
+    // Een gebruiker mag zijn eigen resultaten aanmaken, lezen en bijwerken, maar niet die van anderen.
+    // match /quizResults/{resultId} {
+    //   allow create: if request.auth.uid == request.resource.data.userId;
+    //   allow read, update: if request.auth.uid == resource.data.userId;
+    // }
+
+    // Andere collecties...
+    // Voeg hier regels toe voor andere data in je app.
+    // Standaard is alles geblokkeerd.
   }
 }
