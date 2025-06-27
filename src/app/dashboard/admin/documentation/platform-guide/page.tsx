@@ -176,7 +176,8 @@ export default function PlatformGuidePage() {
           </AccordionTrigger>
           <AccordionContent className="p-4 border border-t-0 rounded-b-lg space-y-3">
              <p>Alle wijzigingen die de AI Prototyper doorvoert, worden gestructureerd via een specifiek XML-formaat. Dit zorgt voor voorspelbare en betrouwbare codewijzigingen. Hieronder staat de structuur die wordt gebruikt:</p>
-             <pre className="bg-gray-800 text-white p-4 rounded-md text-sm overflow-x-auto"><code>
+             <pre className="bg-gray-800 text-white p-4 rounded-md text-sm overflow-x-auto">
+                <code>
 {`<changes>
   <description>[Provide a concise summary of the overall changes being made]</description>
   <change>
