@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-green-300">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
         <div className="text-sm opacity-80 mt-1">{label}</div>
     </div>
 );
@@ -68,7 +68,7 @@ export default function OuderRichtlijnenPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/80 to-accent/70 text-white py-20 text-center">
+        <section className="bg-gradient-to-br from-amber-400 to-orange-500 text-white py-20 text-center">
             <div className="container">
                 <Badge variant="secondary" className="bg-white/20 border-white/30 text-white backdrop-blur-sm mb-6">
                  ✨ Gratis Ouder Ondersteuning
