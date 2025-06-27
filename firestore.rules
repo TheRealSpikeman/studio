@@ -1,12 +1,13 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // A simplified but still secure rule for debugging.
-    // Any authenticated user can read or write to any document in the users collection.
-    // This helps isolate if the issue is with the ownership check (request.auth.uid == userId).
-    match /users/{userId} {
-      allow read, write: if request.auth != null;
+    // WAARSCHUWING: Dit is een tijdelijke, onveilige regel voor debug-doeleinden.
+    // Hiermee kan IEDEREEN data lezen en schrijven, zelfs zonder ingelogd te zijn.
+    // Dit moet onmiddellijk worden teruggedraaid na het debuggen.
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
