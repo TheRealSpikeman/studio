@@ -15,10 +15,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { ArrowLeft, Bot, Save, Loader2, Rss } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { generateBlogPost, GenerateBlogPostInputSchema, GenerateBlogPostOutputSchema } from '@/ai/flows/generate-blog-post-flow';
+import { generateBlogPost } from '@/ai/flows/generate-blog-post-flow';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
+import { aiPersonas } from '@/ai/personas';
 
 const blogPostFormSchema = z.object({
   title: z.string().min(10, 'Titel moet minimaal 10 tekens zijn.'),
@@ -43,6 +44,7 @@ export default function NewBlogPostPage() {
   const [aiKeywords, setAiKeywords] = useState('');
   const [aiAudience, setAiAudience] = useState<'parents' | 'teens' | 'professionals'>('parents');
   const [aiTone, setAiTone] = useState<'informatief' | 'inspirerend' | 'praktisch' | 'empathisch'>('empathisch');
+  const [aiPersona, setAiPersona] = useState<string>(aiPersonas[0].id);
 
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
@@ -57,10 +59,23 @@ export default function NewBlogPostPage() {
       toast({ title: "Onderwerp vereist", description: "Voer een onderwerp in om content te genereren.", variant: "destructive" });
       return;
     }
+
+    const selectedPersona = aiPersonas.find(p => p.id === aiPersona);
+    if (!selectedPersona) {
+      toast({ title: "Persona niet gevonden", description: "Selecteer een geldige AI persona.", variant: "destructive" });
+      return;
+    }
+
     setIsAiGenerating(true);
     toast({ title: "AI is aan het werk...", description: "Blogpost content wordt gegenereerd." });
     try {
-      const result = await generateBlogPost({ topic: aiTopic, keywords: aiKeywords, targetAudience: aiAudience, tone: aiTone });
+      const result = await generateBlogPost({
+        topic: aiTopic,
+        keywords: aiKeywords,
+        targetAudience: aiAudience,
+        tone: aiTone,
+        personaDescription: selectedPersona.description,
+      });
       form.setValue('title', result.title);
       form.setValue('slug', result.slug);
       form.setValue('excerpt', result.excerpt);
@@ -123,7 +138,7 @@ export default function NewBlogPostPage() {
             <label htmlFor="ai-topic">Onderwerp*</label>
             <Input id="ai-topic" placeholder="bv. 5 manieren om je tiener te helpen focussen" value={aiTopic} onChange={e => setAiTopic(e.target.value)} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label htmlFor="ai-audience">Doelgroep</label>
               <Select value={aiAudience} onValueChange={(v) => setAiAudience(v as any)}>
@@ -150,6 +165,17 @@ export default function NewBlogPostPage() {
             <div className="space-y-2">
               <label htmlFor="ai-keywords">Keywords (optioneel)</label>
               <Input id="ai-keywords" placeholder="focus, huiswerk, adhd" value={aiKeywords} onChange={e => setAiKeywords(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="ai-persona">AI Persona</label>
+              <Select value={aiPersona} onValueChange={setAiPersona}>
+                <SelectTrigger id="ai-persona"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {aiPersonas.map(persona => (
+                    <SelectItem key={persona.id} value={persona.id}>{persona.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -208,7 +234,7 @@ export default function NewBlogPostPage() {
                     <div>
                         <Label>Preview</Label>
                         <div className="mt-2 w-full aspect-[16/9] relative rounded-md overflow-hidden border">
-                            <Image src={generatedImageUrl} alt="Preview" fill style={{objectFit: 'cover'}} data-ai-hint={generatedImageHint}/>
+                            <Image src={generatedImageUrl} alt="Preview" fill style={{objectFit: 'cover'}} data-ai-hint={generatedImageHint || ''}/>
                         </div>
                     </div>
                 )}

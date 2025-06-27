@@ -11,6 +11,7 @@ export const GenerateBlogPostInputSchema = z.object({
   keywords: z.string().optional().describe('Comma-separated keywords to include for SEO purposes.'),
   targetAudience: z.enum(['parents', 'teens', 'professionals']).describe('The primary audience for the blog post.'),
   tone: z.enum(['informatief', 'inspirerend', 'praktisch', 'empathisch']).describe('The desired tone of voice.'),
+  personaDescription: z.string().describe('A description of the AI persona to use for writing the blog post.'),
 });
 export type GenerateBlogPostInput = z.infer<typeof GenerateBlogPostInputSchema>;
 
@@ -33,7 +34,7 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateBlogPostInputSchema },
   output: { schema: GenerateBlogPostOutputSchema },
   prompt: `
-    You are an expert content creator and SEO specialist for MindNavigator, a platform supporting neurodivergent teens and their parents.
+    {{{personaDescription}}}
     Your task is to generate a complete, engaging, and well-structured blog post based on the provided criteria.
 
     **Topic:** {{{topic}}}
