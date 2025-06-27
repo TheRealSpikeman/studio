@@ -1,8 +1,7 @@
-
 // src/components/ouder/welcome/OnboardingSteps.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
@@ -18,6 +17,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { type SubscriptionPlan, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/types/subscription';
+
 
 interface OnboardingStepsProps {
     planParam: string | null;
@@ -132,6 +133,18 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     const { toast } = useToast();
     const [addChildFormKey, setAddChildFormKey] = useState(0);
     const [openAccordionItem, setOpenAccordionItem] = useState(!planParam ? "bekijk-abonnementen" : "");
+    const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
+
+    useEffect(() => {
+        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+        if (storedPlansRaw) {
+            try {
+                setAvailablePlans(JSON.parse(storedPlansRaw));
+            } catch (e) {
+                console.error("Failed to parse plans from localStorage", e);
+            }
+        }
+    }, []);
 
     const handleSaveChildOnWelcome = (data: AddChildFormData) => {
         console.log("Kind toegevoegd via welkomstpagina (simulatie):", data);
@@ -153,11 +166,14 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     }
 
     const getActiepuntenConfig = (): Actiepunt[] => {
+        const selectedPlan = availablePlans.find(p => p.id === planParam);
+        const planDisplayName = selectedPlan ? selectedPlan.name : planParam;
+
         return [
             {
                 id: "bekijk-abonnementen",
                 stepNumber: 1,
-                title: planParam ? `Plan Geselecteerd: ${planParam}` : "Kies een Abonnement",
+                title: planParam ? `Plan Geselecteerd: ${planDisplayName}` : "Kies een Abonnement",
                 description: "Kies een abonnement om te starten. Met 'Gratis Start' kan uw kind de basisassessment doen. Voor volledige coaching en tools is een betaald plan nodig.",
                 contentHeader: planParam ? "U kunt uw keuze hieronder nog wijzigen, of doorgaan met de volgende stap." : "Selecteer hieronder een plan. Na uw keuze worden de andere instelopties actief.",
                 customContent: 'planSelection',
