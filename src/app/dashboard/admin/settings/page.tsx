@@ -6,14 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Users, Shield, Bell, Mail, KeyRound } from 'lucide-react';
+import { Settings, Users, Shield, Bell, Mail, KeyRound, PlusCircle, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
-const platformRoles = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder'];
+const CORE_ROLES = ['Admin', 'Coach', 'Leerling', 'Tutor', 'Ouder'];
+
 const platformPermissions = [
   { id: 'view_dashboard', label: 'Dashboard bekijken', description: 'Toegang tot het algemene gebruikersdashboard.' },
   { id: 'take_quizzes', label: 'Quizzen maken', description: 'Mogelijkheid om quizzen te starten en te voltooien.' },
@@ -31,7 +33,6 @@ const platformPermissions = [
   { id: 'manage_family_subscription', label: 'Familie abonnement beheren (Ouder)', description: 'Beheren van betalingen voor gekoppelde kinderen.' },
 ];
 
-// Dummy initial permissions state - in a real app, this comes from a DB
 const initialPermissionsState: Record<string, Record<string, boolean>> = {
   'view_dashboard': { 'Admin': true, 'Coach': true, 'Leerling': true, 'Tutor': true, 'Ouder': true },
   'take_quizzes': { 'Admin': false, 'Coach': false, 'Leerling': true, 'Tutor': false, 'Ouder': false }, 
@@ -49,11 +50,48 @@ const initialPermissionsState: Record<string, Record<string, boolean>> = {
   'manage_family_subscription': { 'Admin': true, 'Coach': false, 'Leerling': false, 'Tutor': false, 'Ouder': true },
 };
 
-
 export default function AdminSettingsPage() {
+  const { toast } = useToast();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [platformName, setPlatformName] = useState("MindNavigator");
+
+  const [roles, setRoles] = useState<string[]>(CORE_ROLES);
   const [permissions, setPermissions] = useState(initialPermissionsState);
+  const [newRoleName, setNewRoleName] = useState('');
+
+  const handleAddRole = () => {
+    const trimmedName = newRoleName.trim();
+    if (!trimmedName) {
+      toast({ title: "Fout", description: "Rolnaam mag niet leeg zijn.", variant: "destructive" });
+      return;
+    }
+    if (roles.some(role => role.toLowerCase() === trimmedName.toLowerCase())) {
+      toast({ title: "Fout", description: "Deze rol bestaat al.", variant: "destructive" });
+      return;
+    }
+    setRoles(prev => [...prev, trimmedName]);
+    setNewRoleName('');
+    toast({ title: "Rol Toegevoegd", description: `De rol "${trimmedName}" is toegevoegd.` });
+  };
+
+  const handleRemoveRole = (roleToRemove: string) => {
+    if (CORE_ROLES.includes(roleToRemove)) {
+      toast({ title: "Actie niet toegestaan", description: `De kernrol "${roleToRemove}" kan niet worden verwijderd.`, variant: "destructive" });
+      return;
+    }
+    setRoles(prev => prev.filter(role => role !== roleToRemove));
+    toast({ title: "Rol Verwijderd", description: `De rol "${roleToRemove}" is verwijderd.` });
+  };
+  
+  const handlePermissionChange = (permissionId: string, role: string, isChecked: boolean) => {
+    setPermissions(prev => ({
+      ...prev,
+      [permissionId]: {
+        ...prev[permissionId],
+        [role]: isChecked
+      }
+    }));
+  };
 
   return (
     <div className="space-y-8">
@@ -105,17 +143,40 @@ export default function AdminSettingsPage() {
         <TabsContent value="roles">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">Rollen &amp; Permissies Beheer <Badge variant="outline" className="text-amber-600 border-amber-400">In Ontwikkeling</Badge></CardTitle>
-              <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen. (Momenteel alleen weergave)</CardDescription>
+              <CardTitle>Rollen &amp; Permissies Beheer</CardTitle>
+              <CardDescription>Definieer wat verschillende gebruikersrollen kunnen zien en doen.</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+                <Label htmlFor="new-role-name">Nieuwe Rol Toevoegen</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input 
+                    id="new-role-name"
+                    placeholder="Bijv. Content Manager"
+                    value={newRoleName}
+                    onChange={(e) => setNewRoleName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddRole(); }}}
+                  />
+                  <Button type="button" onClick={handleAddRole}><PlusCircle className="mr-2 h-4 w-4" /> Toevoegen</Button>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[300px]">Permissie / Feature</TableHead>
-                      {platformRoles.map(role => (
-                        <TableHead key={role} className="text-center">{role}</TableHead>
+                      {roles.map(role => (
+                        <TableHead key={role} className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            {role}
+                            {!CORE_ROLES.includes(role) && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveRole(role)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                                <span className="sr-only">Verwijder rol {role}</span>
+                              </Button>
+                            )}
+                          </div>
+                        </TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -126,11 +187,11 @@ export default function AdminSettingsPage() {
                           <p className="font-medium">{permission.label}</p>
                           <p className="text-xs text-muted-foreground">{permission.description}</p>
                         </TableCell>
-                        {platformRoles.map(role => (
+                        {roles.map(role => (
                           <TableCell key={`${permission.id}-${role}`} className="text-center">
                             <Checkbox 
                               checked={permissions[permission.id]?.[role] || false}
-                              disabled 
+                              onCheckedChange={(checked) => handlePermissionChange(permission.id, role, !!checked)}
                               aria-label={`Permissie ${permission.label} voor rol ${role}`}
                             />
                           </TableCell>
@@ -194,4 +255,3 @@ export default function AdminSettingsPage() {
       </Tabs>
     </div>
   );
-}
