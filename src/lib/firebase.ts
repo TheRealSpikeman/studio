@@ -53,11 +53,11 @@ storage = getStorage(app);
 // This check must be outside of the initialization block to work with hot-reloading.
 if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
-        console.log("Connecting to Firebase emulators on localhost...");
-        // Use localhost as it's the most common alias for the host machine in dev containers.
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-        connectFirestoreEmulator(db, 'localhost', 8080);
-        connectStorageEmulator(storage, 'localhost', 9199);
+        console.log("Connecting to Firebase emulators on 127.0.0.1...");
+        // Use 127.0.0.1 as a direct IP address to avoid potential resolution issues with 'localhost'.
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        connectFirestoreEmulator(db, '127.0.0.1', 8080);
+        connectStorageEmulator(storage, '127.0.0.1', 9199);
         console.log("✅ Successfully configured emulators.");
     } catch(e) {
         console.warn('⚠️ Error connecting to Firebase emulators. This is expected if emulators are not running or if this is a production build.');
