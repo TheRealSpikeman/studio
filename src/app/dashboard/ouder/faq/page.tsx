@@ -1,11 +1,16 @@
 // src/app/dashboard/ouder/faq/page.tsx
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HelpCircle, MessageCircleQuestion } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const parentDashboardFaqs = [
   {
@@ -39,6 +44,46 @@ const parentDashboardFaqs = [
     answer: "De premium coaching-hub ('Gezins Gids' of hoger) biedt dagelijkse, gepersonaliseerde tips, reflectie-oefeningen, een digitaal dagboek, en andere tools die uw kind helpen bij zelfinzicht, het ontwikkelen van routines, en het omgaan met uitdagingen gerelateerd aan hun neurodiversiteit."
   }
 ];
+
+function ContactForm() {
+    const { toast } = useToast();
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Parent FAQ Contact Form Submission (simulated):", { name, email, message });
+        toast({
+            title: "Bericht verzonden!",
+            description: "Bedankt voor uw vraag. We nemen zo snel mogelijk contact met u op.",
+        });
+        setName('');
+        setEmail('');
+        setMessage('');
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="contact-name">Naam</Label>
+                    <Input id="contact-name" value={name} onChange={e => setName(e.target.value)} placeholder="Uw naam" />
+                </div>
+                 <div>
+                    <Label htmlFor="contact-email">E-mailadres</Label>
+                    <Input id="contact-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Uw e-mailadres" required />
+                </div>
+            </div>
+            <div>
+                <Label htmlFor="contact-message">Uw vraag</Label>
+                <Textarea id="contact-message" value={message} onChange={e => setMessage(e.target.value)} placeholder="Typ hier uw vraag..." required rows={4}/>
+            </div>
+            <Button type="submit" className="w-full">Verstuur Vraag</Button>
+        </form>
+    );
+}
+
 
 export default function OuderFaqPage() {
   return (
@@ -83,6 +128,21 @@ export default function OuderFaqPage() {
           </Accordion>
         </CardContent>
       </Card>
+      
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageCircleQuestion className="h-6 w-6 text-primary"/> Staat uw vraag er niet tussen?
+          </CardTitle>
+          <CardDescription>
+            Ons support team helpt u graag verder. Vul het onderstaande formulier in.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ContactForm />
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
