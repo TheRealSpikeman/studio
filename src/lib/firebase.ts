@@ -50,13 +50,13 @@ db = getFirestore(app);
 storage = getStorage(app);
 
 // Connect to emulators in development.
-// This block is being re-enabled to fix the permission issue.
 if (isConfigured && process.env.NODE_ENV === 'development') {
     try {
         console.log(`Firebase emulators connecting... NODE_ENV: ${process.env.NODE_ENV}`);
         
-        console.log('Connecting to Auth emulator at http://127.0.0.1:9099');
-        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        // Standardize all connections to 'localhost'
+        console.log('Connecting to Auth emulator at http://localhost:9099');
+        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
         console.log('✅ Auth emulator connected.');
         
         console.log('Connecting to Firestore emulator at localhost:8080');
