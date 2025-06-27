@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight } from 'lucide-react';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight, Lock, FileText } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-400">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
         <div className="text-sm text-white/80 mt-1">{label}</div>
     </div>
 );
@@ -43,22 +43,12 @@ const AgeCard = ({ range, role, description }: { range: string, role: string, de
     </Card>
 );
 
-const PreviewCard = ({ title, subtitle, items }: { title: string, subtitle:string, items: string[] }) => (
-    <Card className="bg-card shadow-md flex flex-col h-full">
-        <CardHeader className="bg-primary/10">
-            <CardTitle className="text-lg font-semibold text-primary">{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-4 flex-grow">
-            <ul className="space-y-2">
-                {items.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{item}</span>
-                    </li>
-                ))}
-            </ul>
-        </CardContent>
+
+const PreviewCard = ({ icon: Icon, title, subtitle }: { icon: ElementType, title: string, subtitle: string }) => (
+    <Card className="bg-card shadow-md p-6 text-center hover:bg-primary/10 transition-colors h-full flex flex-col justify-center items-center">
+        <Icon className="h-10 w-10 text-primary mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-primary">{title}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
     </Card>
 );
 
@@ -163,9 +153,9 @@ export default function OuderRichtlijnenPage() {
                      Een complete gids van 40+ pagina's met praktische tips, checklists en professionele inzichten voor uw gezin.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <PreviewCard title="🔒 Privacy & Autonomie" subtitle="Wat u ziet per leeftijdsfase" items={["Dashboard inzichten", "Privacy instellingen configureren", "Communicatie grenzen", "Vertrouwen opbouwen"]} />
-                    <PreviewCard title="👥 Coaching & Begeleiding" subtitle="Uw rol bij coach selectie" items={["Coach matching proces", "Kwaliteitsborging", "Wat coaches wel/niet delen", "Effectiviteit meten"]} />
-                    <PreviewCard title="🏥 Professionele Hulp" subtitle="Wanneer doorverwijzen" items={["Crisis signalen herkennen", "Noodcontacten & actieplannen", "Samenwerking met GGZ", "Platform grenzen"]} />
+                    <PreviewCard icon={Lock} title="Privacy & Autonomie" subtitle="Wat u ziet per leeftijdsfase" />
+                    <PreviewCard icon={Users} title="Coaching & Begeleiding" subtitle="Uw rol bij coach selectie" />
+                    <PreviewCard icon={FileText} title="Professionele Hulp" subtitle="Wanneer doorverwijzen" />
                 </div>
             </div>
         </section>
@@ -188,11 +178,11 @@ export default function OuderRichtlijnenPage() {
                         </div>
                         <div className="p-4">
                             <div className="text-4xl font-bold text-primary mb-2">24/7</div>
-                            <div className="text-muted-foreground">Toegang tot crisis ondersteuningsinfo</div>
+                            <div className="text-muted-foreground">Crisis ondersteuning beschikbaar</div>
                         </div>
                          <div className="p-4">
                             <div className="text-4xl font-bold text-primary mb-2">95%</div>
-                            <div className="text-muted-foreground">Ouders waarderen onze ethische transparantie</div>
+                            <div className="text-muted-foreground">Ouders waarderen ethische transparantie</div>
                         </div>
                     </CardContent>
                 </Card>
