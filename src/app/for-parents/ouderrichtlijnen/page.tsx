@@ -1,3 +1,4 @@
+
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -8,8 +9,8 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     ClipboardList, Target, Users, ShieldCheck, Handshake, BarChart, Stethoscope, Home as HomeIcon, HelpCircle, AlertTriangle, Star,
-    Download, List, Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText
-} from 'lucide-react';
+    Download, List, Brain, Zap, BookOpenCheck, GraduationCap, MessageSquareText, CheckCircle2, XCircle
+} from '@/lib/icons';
 import type { ElementType, ReactNode } from 'react';
 
 // Helper Components
