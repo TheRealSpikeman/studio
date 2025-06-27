@@ -1,6 +1,6 @@
 // src/components/legal/LegalContent.tsx
 import Link from 'next/link';
-import { ExternalLink, ShieldCheck, AlertTriangle, Gavel, Stethoscope, Bot, Scale } from '@/lib/icons';
+import { ExternalLink, ShieldCheck, AlertTriangle, Gavel, Stethoscope, Bot, Scale, Edit2 } from '@/lib/icons';
 import type { ElementType } from 'react';
 
 // Helper component for consistent section styling
@@ -75,19 +75,19 @@ export const PrivacyPolicyContent = () => (
 
 export const TermsContent = () => (
     <div className="text-sm">
-        <Section title="1. Toepasselijkheid" icon={Gavel}>
+        <Section title="1. Toepasselijkheid" icon={Edit2}>
             <p>Deze Algemene Voorwaarden zijn van toepassing op elk gebruik van de diensten en website van MindNavigator. Door gebruik te maken van de Dienst, aanvaardt u deze voorwaarden volledig.</p>
         </Section>
-        <Section title="2. Gebruik van de Dienst" icon={Gavel}>
+        <Section title="2. Gebruik van de Dienst" icon={Edit2}>
             <p>U stemt ermee in de Dienst alleen te gebruiken voor wettige doeleinden en op een manier die geen inbreuk maakt op de rechten van, of het gebruik en genot van de Dienst door, een derde beperkt of belemmert. U bent verantwoordelijk voor het geheimhouden van uw accountgegevens en alle activiteiten die onder uw account plaatsvinden.</p>
         </Section>
-        <Section title="3. Intellectueel Eigendom" icon={Gavel}>
+        <Section title="3. Intellectueel Eigendom" icon={Edit2}>
             <p>Alle inhoud op de Dienst, inclusief teksten, afbeeldingen, logo's, tools en software, is eigendom van MindNavigator of haar licentiegevers en wordt beschermd door auteursrecht en andere intellectuele eigendomsrechten. U mag de inhoud niet kopiëren, reproduceren of distribueren zonder onze voorafgaande schriftelijke toestemming.</p>
         </Section>
-        <Section title="4. Abonnementen en Betalingen" icon={Gavel}>
+        <Section title="4. Abonnementen en Betalingen" icon={Edit2}>
             <p>Voor toegang tot premium features is een betaald abonnement vereist. Betalingen worden verwerkt via een beveiligde externe payment provider. Abonnementen worden automatisch verlengd, tenzij opgezegd voor de verlengingsdatum. Voor gebruikers onder de 18 jaar is toestemming van een ouder of wettelijke voogd vereist voor het aangaan van een betaald abonnement.</p>
         </Section>
-         <Section title="5. Beëindiging" icon={Gavel}>
+         <Section title="5. Beëindiging" icon={Edit2}>
             <p>MindNavigator behoudt zich het recht voor om uw toegang tot de Dienst op elk moment op te schorten of te beëindigen, zonder voorafgaande kennisgeving, indien u deze voorwaarden schendt.</p>
         </Section>
         <Section title="6. Disclaimer & Aansprakelijkheid" icon={AlertTriangle}>
