@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-primary">{value}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-400">{value}</div>
         <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
@@ -84,14 +84,42 @@ export default function OuderRichtlijnenPage() {
             <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
                 {/* Left Column: Text */}
                 <div className="flex flex-col items-center text-center md:items-start md:text-left">
-                    <Badge variant="secondary" className="bg-primary/10 border-primary/20 text-primary backdrop-blur-sm mb-6">
+                    <Badge variant="secondary" className="bg-accent/10 border-accent/20 text-accent backdrop-blur-sm mb-6">
                      ✨ Gratis Ouder Ondersteuning
                     </Badge>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">Ouderrichtlijnen voor Neurodivergente <span className="text-primary">Jongeren</span></h1>
-                    <p className="text-lg text-muted-foreground max-w-xl">
+                    <p className="text-lg text-muted-foreground max-w-xl mb-8">
                         Als ouder van een neurodivergente tiener navigeert u dagelijks door unieke uitdagingen. 
-                        Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
+                        Download onze uitgebreide gids met concrete tools, zonder medische claims of valse beloftes.
                     </p>
+                    
+                    {/* --- MOVED FORM --- */}
+                    <div className="w-full max-w-lg">
+                      {isSubmitted ? (
+                        <div className="p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg text-left">
+                          <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle2/> Controleer uw inbox!</h3>
+                          <p className="mt-2 text-sm">We hebben een e-mail met een persoonlijke downloadlink gestuurd naar <strong>{submittedEmail}</strong>. Deze link is 1 uur geldig.</p>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleDownloadRequest} className="flex flex-col sm:flex-row gap-4 w-full">
+                          <Input
+                            type="email"
+                            placeholder="Voer uw e-mailadres in"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="h-12 text-base flex-grow"
+                          />
+                          <Button type="submit" size="lg" className="text-base sm:text-lg flex-shrink-0 h-12">
+                              <Mail className="mr-2 h-5 w-5" />
+                              Stuur mij de gids
+                          </Button>
+                        </form>
+                      )}
+                      <p className="mt-3 text-xs text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Uitschrijven kan altijd</p>
+                    </div>
+                    {/* --- END MOVED FORM --- */}
+
                     <div className="flex justify-center md:justify-start gap-8 sm:gap-12 flex-wrap mt-8">
                         <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
                         <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
@@ -200,38 +228,6 @@ export default function OuderRichtlijnenPage() {
             </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-muted/30">
-             <div className="container text-center max-w-3xl">
-                <h2 className="text-3xl font-bold mb-4">Start Uw Reis Naar Beter Begrip</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-                     Download de volledige ouderrichtlijnen gratis en krijg toegang tot 40+ pagina's 
-                    met praktische tips, checklists en professionele inzichten.
-                </p>
-                {isSubmitted ? (
-                  <div className="p-6 bg-green-100 border border-green-300 text-green-800 rounded-lg max-w-lg mx-auto">
-                    <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><CheckCircle2/> Controleer uw inbox!</h3>
-                    <p className="mt-2 text-sm">We hebben een e-mail met een persoonlijke downloadlink gestuurd naar <strong>{submittedEmail}</strong>. Deze link is 1 uur geldig.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleDownloadRequest} className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-                    <Input
-                      type="email"
-                      placeholder="Voer uw e-mailadres in"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12 text-base text-center sm:text-left"
-                    />
-                    <Button type="submit" size="lg" className="text-base sm:text-lg flex-shrink-0">
-                        <Mail className="mr-2 h-5 w-5" />
-                        Stuur mij de link
-                    </Button>
-                  </form>
-                )}
-                <p className="mt-6 text-sm text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Email ondersteuning inbegrepen</p>
-            </div>
-        </section>
       </main>
       <Footer />
     </div>
