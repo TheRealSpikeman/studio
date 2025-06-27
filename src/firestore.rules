@@ -1,0 +1,24 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow users to create their own user document, but only if the document ID
+    // matches their own authentication UID. This is crucial for security on signup.
+    // They cannot create documents for other users.
+    match /users/{userId} {
+      allow create: if request.auth.uid == userId;
+
+      // Once a user document is created, only the owner of that document can
+      // read, update, or delete it. No other user can access their data.
+      allow read, update, delete: if request.auth.uid == userId;
+    }
+    
+    // Add other rules for different collections below
+    // e.g., match /quizzes/{quizId} { ... }
+  }
+}

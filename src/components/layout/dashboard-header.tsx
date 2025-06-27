@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 
 export function DashboardHeader({ children }: { children?: React.ReactNode }) {
-  const { user, logout, switchUserRole } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
   const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
@@ -37,13 +37,6 @@ export function DashboardHeader({ children }: { children?: React.ReactNode }) {
              <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                 <UserIcon className="mr-2 h-4 w-4" /> Profiel
             </DropdownMenuItem>
-             <DropdownMenuSeparator />
-             <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Wissel Rol (Demo)</DropdownMenuLabel>
-             <DropdownMenuItem onSelect={() => switchUserRole('leerling')}>Leerling Dashboard</DropdownMenuItem>
-             <DropdownMenuItem onSelect={() => switchUserRole('ouder')}>Ouder Dashboard</DropdownMenuItem>
-             <DropdownMenuItem onSelect={() => switchUserRole('tutor')}>Tutor Dashboard</DropdownMenuItem>
-             <DropdownMenuItem onSelect={() => switchUserRole('coach')}>Coach Dashboard</DropdownMenuItem>
-             <DropdownMenuItem onSelect={() => switchUserRole('admin')}>Admin Dashboard</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={logout} className="text-destructive">
               <LogOut className="mr-2 h-4 w-4" /> Uitloggen
