@@ -1,7 +1,7 @@
 // src/app/dashboard/admin/feedback-overview/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -11,62 +11,7 @@ import { MoreVertical, MessageSquareText, CheckCircle, Settings, AlertTriangle, 
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import type { FeedbackEntry, FeedbackType, FeedbackPriority, FeedbackStatus } from '@/types/feedback';
 import { cn } from '@/lib/utils';
-
-// Dummy data - in a real app, this would come from a database or localStorage
-const dummyFeedbackEntries: FeedbackEntry[] = [
-  {
-    id: 'fb1',
-    timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    name: 'Alice Tester',
-    email: 'alice@example.com',
-    feedbackType: 'bug',
-    pageOrFeature: 'dashboard_leerling',
-    description: 'De knop om resultaten te bekijken werkt niet op mobiel. Ik klik erop maar er gebeurt niets.',
-    priority: 'hoog',
-    status: 'nieuw',
-  },
-  {
-    id: 'fb2',
-    timestamp: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-    feedbackType: 'suggestie',
-    pageOrFeature: 'dashboard_coaching',
-    description: 'Het zou fijn zijn als ik de dagelijkse affirmatie ook als pushnotificatie kan ontvangen.',
-    priority: 'normaal',
-    status: 'in behandeling',
-  },
-  {
-    id: 'fb3',
-    timestamp: new Date(Date.now() - 26 * 3600 * 1000).toISOString(),
-    name: 'Bob Admin',
-    email: 'bob.admin@example.com',
-    feedbackType: 'algemeen',
-    pageOrFeature: 'algemeen_platform',
-    description: 'De website laadt over het algemeen snel, goed werk! De kleuren zijn ook prettig.',
-    priority: 'laag',
-    status: 'afgehandeld',
-  },
-  {
-    id: 'fb4',
-    timestamp: new Date(Date.now() - 50 * 3600 * 1000).toISOString(),
-    feedbackType: 'ui_ux',
-    pageOrFeature: 'registratie_login',
-    description: 'Het lettertype in het wachtwoordveld is erg klein op mijn Android telefoon.',
-    priority: 'normaal',
-    status: 'gesloten',
-  },
-    {
-    id: 'fb5',
-    timestamp: new Date().toISOString(),
-    name: 'Charlie Feedbackgever',
-    email: 'charlie.f@example.net',
-    feedbackType: 'suggestie',
-    pageOrFeature: 'anders',
-    otherPageOrFeature: 'De FAQ sectie voor ouders',
-    description: 'Ik mis een vraag over hoe je als ouder kunt zien welke specifieke coaching modules mijn kind heeft doorlopen.',
-    priority: 'normaal',
-    status: 'nieuw',
-  },
-];
+import { dummyFeedbackEntries as initialFeedbackData } from '@/lib/data/dummy-data';
 
 const getFeedbackTypeIcon = (type: FeedbackType) => {
   switch (type) {
@@ -99,7 +44,7 @@ const getStatusBadgeClasses = (status?: FeedbackStatus): string => {
 };
 
 export default function FeedbackOverviewPage() {
-  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>(dummyFeedbackEntries);
+  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>(initialFeedbackData);
   const [maxDescriptionLength, setMaxDescriptionLength] = useState(100); // Initial length
 
   // In a real app, you'd fetch this data, potentially from localStorage if feedback form saves there.

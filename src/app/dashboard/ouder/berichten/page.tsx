@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/berichten/page.tsx
 "use client";
 
@@ -13,100 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { MessagesSquare, Send, PlusCircle, Search, User, FileText, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
-
-interface Message {
-  id: string;
-  sender: 'ouder' | 'tutor';
-  text: string;
-  timestamp: string; // ISO string
-  isRead?: boolean;
-}
-
-interface Conversation {
-  id: string;
-  tutorId: string;
-  tutorName: string;
-  tutorAvatar?: string;
-  childName: string; // Associated child
-  lastMessage: string;
-  lastMessageTimestamp: string; // ISO string
-  unreadCount: number;
-  messages: Message[];
-}
-
-const dummyConversations: Conversation[] = [
-  {
-    id: 'conv1',
-    tutorId: 'tutor1',
-    tutorName: 'Mevr. Jansen',
-    tutorAvatar: 'https://picsum.photos/seed/jansen/40/40',
-    childName: 'Sofie de Tester',
-    lastMessage: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00. We gaan dan verder met de voorbereiding voor de toets.',
-    lastMessageTimestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    unreadCount: 0,
-    messages: [
-      { id: 'm1a', sender: 'ouder', text: 'Hoi Mevr. Jansen, zou de les van Sofie aanstaande dinsdag een half uurtje later kunnen?', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-      { id: 'm1b', sender: 'tutor', text: 'Hallo! Ja hoor, dat is geen probleem. Zullen we dan 15:00 uur afspreken?', timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString() },
-      { id: 'm1c', sender: 'ouder', text: 'Perfect, dank u wel!', timestamp: new Date(Date.now() - 1.2 * 60 * 60 * 1000).toISOString() },
-      { id: 'm1d', sender: 'tutor', text: 'Prima, dan zie ik Sofie volgende week dinsdag om 15:00. We gaan dan verder met de voorbereiding voor de toets.', timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
-    ],
-  },
-  {
-    id: 'conv2',
-    tutorId: 'tutor2',
-    tutorName: 'Dhr. Pietersen',
-    tutorAvatar: 'https://picsum.photos/seed/pietersen/40/40',
-    childName: 'Max de Tester',
-    lastMessage: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig en kijkt uit naar de volgende.',
-    lastMessageTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    unreadCount: 1,
-    messages: [
-      { id: 'm2a', sender: 'tutor', text: 'Max heeft vandaag goed gewerkt aan de onregelmatige werkwoorden. Zie lesverslag.', timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), isRead: false },
-      { id: 'm2b', sender: 'ouder', text: 'Dank voor het lesverslag, Dhr. Pietersen! Max vond de les erg nuttig en kijkt uit naar de volgende.', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), isRead: true },
-    ],
-  },
-  {
-    id: 'conv3',
-    tutorId: 'tutor3',
-    tutorName: 'Juf Anja',
-    tutorAvatar: `https://placehold.co/40x40.png?text=JA`,
-    childName: 'Lisa Voorbeeld',
-    lastMessage: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden? Dat zou enorm helpen.',
-    lastMessageTimestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    unreadCount: 0,
-    messages: [
-      { id: 'm3a', sender: 'tutor', text: 'Zou Lisa de volgende les de afronding van H3 willen voorbereiden? Dat zou enorm helpen.', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-    ],
-  },
-  {
-    id: 'conv4',
-    tutorId: 'tutor4',
-    tutorName: 'Meneer de Boer',
-    tutorAvatar: 'https://picsum.photos/seed/deboer/40/40',
-    childName: 'Sofie de Tester',
-    lastMessage: 'De betaling voor de extra les van vorige week is nog niet verwerkt, kunt u daar naar kijken?',
-    lastMessageTimestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    unreadCount: 2,
-    messages: [
-      { id: 'm4a', sender: 'tutor', text: 'Hallo, kleine herinnering over de openstaande betaling.', timestamp: new Date(Date.now() - 3.1 * 24 * 60 * 60 * 1000).toISOString(), isRead: false },
-      { id: 'm4b', sender: 'tutor', text: 'De betaling voor de extra les van vorige week is nog niet verwerkt, kunt u daar naar kijken?', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), isRead: false },
-    ],
-  },
-  {
-    id: 'conv5',
-    tutorId: 'tutor5',
-    tutorName: 'Dr. El Massih',
-    tutorAvatar: `https://placehold.co/40x40.png?text=EM`,
-    childName: 'Max de Tester',
-    lastMessage: 'Absoluut, we kunnen volgende week maandag om 16:00 beginnen met de extra sessie over React Hooks.',
-    lastMessageTimestamp: new Date(Date.now() - 0.5 * 60 * 60 * 1000).toISOString(),
-    unreadCount: 0,
-    messages: [
-      { id: 'm5a', sender: 'ouder', text: 'Zou Max een extra les kunnen krijgen over React Hooks?', timestamp: new Date(Date.now() - 0.8 * 60 * 60 * 1000).toISOString() },
-      { id: 'm5b', sender: 'tutor', text: 'Absoluut, we kunnen volgende week maandag om 16:00 beginnen met de extra sessie over React Hooks.', timestamp: new Date(Date.now() - 0.5 * 60 * 60 * 1000).toISOString() },
-    ],
-  },
-];
+import type { Conversation, Message } from '@/types';
+import { dummyConversations } from '@/lib/data/dummy-data';
 
 export default function BerichtencentrumPage() {
   const [conversations, setConversations] = useState<Conversation[]>(dummyConversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()));
@@ -324,4 +231,3 @@ export default function BerichtencentrumPage() {
     </div>
   );
 }
-

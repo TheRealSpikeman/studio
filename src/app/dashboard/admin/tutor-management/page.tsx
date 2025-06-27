@@ -1,47 +1,18 @@
 // src/app/dashboard/admin/tutor-management/page.tsx
 "use client";
 
-import type { User, UserRole, UserStatus } from '@/types/user';
-import { useState, useEffect, useMemo } from 'react';
+import type { User, UserRole, UserStatus } from '@/types';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, Briefcase, CheckCircle, XCircle, UserX, Settings } from 'lucide-react';
+import { Search, Briefcase } from 'lucide-react';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';
 import { TutorManagementTable } from '@/components/admin/tutor-management/TutorManagementTable';
 import { useToast } from '@/hooks/use-toast';
-
-const DUMMY_TUTORS: User[] = [
-  { 
-    id: 't1', name: 'Dr. Anna Visser', email: 'anna.visser@example.com', status: 'actief', role: 'tutor', 
-    lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 90).toISOString(), 
-    avatarUrl: 'https://picsum.photos/seed/annavisser/40/40', 
-    tutorDetails: { subjects: ['Wiskunde', 'Natuurkunde'], hourlyRate: 35, bio: "Ervaren docent met passie voor exacte vakken.", availability: "Ma, Wo, Vr avond", totalRevenue: 1250, averageRating: 4.8 }
-  },
-  { 
-    id: 't2', name: 'Mark de Wit', email: 'mark.dewit@example.com', status: 'pending_approval', role: 'tutor', 
-    lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), 
-    tutorDetails: { subjects: ['Engels'], hourlyRate: 25, bio: "Native speaker, focus op spreekvaardigheid.", availability: "Weekend" }
-  },
-  { 
-    id: 't3', name: 'Sofia El Amrani', email: 'sofia.elamrani@example.com', status: 'actief', role: 'tutor', 
-    lastLogin: new Date(Date.now() - 86400000 * 2).toISOString(), createdAt: new Date(Date.now() - 86400000 * 30).toISOString(), 
-    avatarUrl: 'https://picsum.photos/seed/sofiaelamrani/40/40',
-    tutorDetails: { subjects: ['Nederlands', 'Geschiedenis'], hourlyRate: 30, bio: "Geduldig en helpt met structuur.", availability: "Di, Do middag/avond", totalRevenue: 870, averageRating: 4.5 }
-  },
-   { 
-    id: 't4', name: 'Ben Scholten', email: 'ben.scholten@example.com', status: 'pending_onboarding', role: 'tutor', 
-    lastLogin: new Date().toISOString(), createdAt: new Date().toISOString(), 
-    tutorDetails: { bio: "Nieuwe aanmelding, wacht op afronden profiel."}
-  },
-  { 
-    id: 't5', name: 'Carla Dammers', email: 'carla.dammers@example.com', status: 'rejected', role: 'tutor', 
-    lastLogin: new Date(Date.now() - 86400000 * 10).toISOString(), createdAt: new Date(Date.now() - 86400000 * 12).toISOString(), 
-    tutorDetails: { bio: "Aanmelding afgewezen, VOG niet correct."}
-  },
-];
+import { DUMMY_TUTORS } from '@/lib/data/dummy-data';
 
 const ITEMS_PER_PAGE = 10;
 

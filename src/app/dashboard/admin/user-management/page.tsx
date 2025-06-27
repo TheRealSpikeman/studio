@@ -1,30 +1,18 @@
 // src/app/dashboard/admin/user-management/page.tsx
 "use client";
 
-import type { User, UserRole, UserStatus } from '@/types/user';
-import { useState, useEffect, useMemo } from 'react';
+import type { User, UserRole, UserStatus } from '@/types';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, PlusCircle, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Search, PlusCircle, Users } from 'lucide-react';
 import { UserManagementTable } from '@/components/admin/user-management/UserManagementTable';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';
 import { useToast } from '@/hooks/use-toast';
-
-const DUMMY_USERS: User[] = [
-  { id: '1', name: 'Alice Wonderland', email: 'alice@example.com', status: 'actief', role: 'admin', lastLogin: new Date(Date.now() - 86400000 * 2).toISOString(), createdAt: new Date(Date.now() - 86400000 * 30).toISOString(), avatarUrl: 'https://picsum.photos/seed/alice/40/40', coaching: { startDate: new Date(Date.now() - 86400000 * 10).toISOString(), interval: 7, currentDayInFlow: 3 } },
-  { id: 'parent1', name: 'Olivia Ouder', email: 'olivia.ouder@example.com', status: 'actief', role: 'ouder', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 50).toISOString(), avatarUrl: 'https://picsum.photos/seed/olivia/40/40', children: ['child1_of_olivia'] },
-  { id: 'child1_of_olivia', name: 'Sofie de Tester (Kind)', email: 'sofie.kind@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', parentId: 'parent1', lastLogin: new Date(Date.now() - 86400000 * 0.5).toISOString(), createdAt: new Date(Date.now() - 86400000 * 40).toISOString(), avatarUrl: 'https://picsum.photos/seed/sofiekind/40/40' },
-  { id: '2', name: 'Bob De Bouwer', email: 'bob@example.com', status: 'niet geverifieerd', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 5).toISOString(), createdAt: new Date(Date.now() - 86400000 * 20).toISOString(), avatarUrl: 'https://picsum.photos/seed/bob/40/40' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie@example.com', status: 'geblokkeerd', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString(), avatarUrl: 'https://picsum.photos/seed/charlie/40/40', coaching: { startDate: new Date(Date.now() - 86400000 * 5).toISOString(), interval: 1, currentDayInFlow: 5 } },
-  { id: '4', name: 'Diana Prince', email: 'diana@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 12).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString(), avatarUrl: 'https://picsum.photos/seed/diana/40/40' },
-  { id: '5', name: 'Edward Scissorhands', email: 'edward@example.com', status: 'actief', role: 'coach', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 15).toISOString() },
-  { id: '6', name: 'Fiona Tutor', email: 'fiona.tutor@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString(), avatarUrl: 'https://picsum.photos/seed/fiona/40/40' },
-  { id: '7', name: 'George TutorApp', email: 'george.app@example.com', status: 'pending_approval', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString() },
-  { id: '8', name: 'Hannah Onboarding', email: 'hannah.onboard@example.com', status: 'pending_onboarding', role: 'tutor', lastLogin: new Date().toISOString(), createdAt: new Date().toISOString() },
-];
+import { DUMMY_USERS } from '@/lib/data/dummy-data';
 
 const ITEMS_PER_PAGE = 10;
 

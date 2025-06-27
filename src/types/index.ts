@@ -5,3 +5,4 @@ export * from './subscription';
 export * from './user';
 export * from './feedback';
 export * from './quiz-admin';
+export * from './dashboard';

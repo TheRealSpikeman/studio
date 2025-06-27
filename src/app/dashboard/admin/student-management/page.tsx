@@ -1,30 +1,23 @@
 // src/app/dashboard/admin/student-management/page.tsx
 "use client";
 
-import type { User, AgeGroup } from '@/types/user';
-import { useState, useEffect, useMemo } from 'react';
+import type { User, AgeGroup } from '@/types';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { GraduationCap, Search, Eye } from 'lucide-react';
+import { GraduationCap, Search } from 'lucide-react';
 import { UserManagementTable } from '@/components/admin/user-management/UserManagementTable';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog'; // To edit/view details
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog'; // For delete action
 import { useToast } from '@/hooks/use-toast';
-
-// Dummy student data for now
-const DUMMY_STUDENTS: User[] = [
-  { id: 's1', name: 'Eva Deelnemer', email: 'eva@example.com', status: 'actief', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 3).toISOString(), createdAt: new Date(Date.now() - 86400000 * 40).toISOString(), avatarUrl: 'https://picsum.photos/seed/eva/40/40' },
-  { id: 's2', name: 'Frank Student', email: 'frank@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 1).toISOString(), createdAt: new Date(Date.now() - 86400000 * 10).toISOString() },
-  { id: 's3', name: 'Grace Leerling', email: 'grace@example.com', status: 'niet geverifieerd', role: 'leerling', ageGroup: '15-18', lastLogin: new Date(Date.now() - 86400000 * 15).toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), avatarUrl: 'https://picsum.photos/seed/grace/40/40' },
-  { id: 's4', name: 'Hugo Scholier', email: 'hugo@example.com', status: 'actief', role: 'leerling', ageGroup: '12-14', lastLogin: new Date(Date.now() - 86400000 * 7).toISOString(), createdAt: new Date(Date.now() - 86400000 * 60).toISOString() },
-];
+import { DUMMY_USERS } from '@/lib/data/dummy-data';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function StudentManagementPage() {
-  const [students, setStudents] = useState<User[]>(DUMMY_STUDENTS);
+  const [students, setStudents] = useState<User[]>(DUMMY_USERS.filter(u => u.role === 'leerling'));
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | User['status']>('all');
   const [ageGroupFilter, setAgeGroupFilter] = useState<'all' | AgeGroup>('all');
@@ -42,7 +35,7 @@ export default function StudentManagementPage() {
                             student.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
       const matchesAgeGroup = ageGroupFilter === 'all' || student.ageGroup === ageGroupFilter;
-      return matchesSearch && matchesStatus && matchesAgeGroup && student.role === 'leerling';
+      return matchesSearch && matchesStatus && matchesAgeGroup;
     });
   }, [students, searchTerm, statusFilter, ageGroupFilter]);
 
@@ -179,8 +172,14 @@ export default function StudentManagementPage() {
       <UserDeleteAlertDialog
         isOpen={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
-        user={selectedStudent}
-        onConfirmDelete={confirmDeleteStudent}
+        dialogTitle="Leerling Verwijderen?"
+        dialogDescription={
+          <>
+            Weet u zeker dat u leerling <strong>{selectedStudent?.name}</strong> ({selectedStudent?.email}) definitief wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.
+          </>
+        }
+        confirmButtonText="Ja, verwijder leerling"
+        onConfirm={confirmDeleteStudent}
       />
     </div>
   );
