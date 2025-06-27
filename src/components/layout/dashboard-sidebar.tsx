@@ -269,15 +269,15 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
             <SiteLogo isCollapsed={isCollapsed} />
         </div>
         <div className={cn("p-4 border-b shrink-0", isCollapsed && "flex justify-center")}>
-             <div className="space-y-1 text-center">
+             <div className="space-y-1">
                 {!isCollapsed && user ? (
                     <>
                         <p className="text-sm font-semibold truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        <p className="text-xs text-muted-foreground truncate capitalize">{user.role}</p>
                     </>
                 ) : user ? (
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatarUrl || undefined} alt={user.name} />
+                      <AvatarImage src={user.avatarUrl || undefined} alt={user.name} data-ai-hint="user avatar" />
                       <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                     </Avatar>
                 ) : null }
