@@ -34,6 +34,7 @@ if (getApps().length === 0) {
   } else {
     console.error("🔥 FIREBASE CONFIGURATION MISSING OR INCOMPLETE! 🔥");
     console.error("Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set correctly.");
+    // Initialize with a placeholder to prevent app crash, but functionality will be disabled.
     app = initializeApp({ apiKey: "placeholder-to-prevent-crash", projectId: "placeholder" });
   }
 } else {
@@ -46,26 +47,30 @@ storage = getStorage(app);
 
 // Connect to emulators in development, ONLY ON THE CLIENT SIDE.
 if (isConfigured && process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    // The private property _isEmulator is a reliable way to check this.
-    // We only connect if it hasn't been connected before to avoid errors on hot-reloads.
-    if (!(auth as any)._isEmulator) {
-        try {
-            console.log(`Firebase emulators connecting to localhost...`);
-            
-            // Standardize on 'localhost'. This is the most common and robust setup for local/containerized dev.
-            connectAuthEmulator(auth, `http://localhost:9099`, { disableWarnings: true });
-            console.log('✅ Auth emulator connected.');
-            
-            connectFirestoreEmulator(db, 'localhost', 8080);
-            console.log('✅ Firestore emulator connected.');
-            
-            connectStorageEmulator(storage, 'localhost', 9199);
-            console.log('✅ Storage emulator connected.');
+    // --- TEMPORARY DIAGNOSTIC STEP ---
+    // We are commenting out the emulator connection to see if the app can connect
+    // to the live Firebase backend. This helps isolate whether the problem is with
+    // local networking or the Firebase setup itself.
+    console.log("⚠️ CONNECTING TO LIVE FIREBASE BACKEND (EMULATORS DISABLED FOR DIAGNOSTICS) ⚠️");
 
-        } catch(e) {
-            console.warn('⚠️ Error connecting to Firebase emulators. This can happen on hot reloads. If services work, this is likely safe to ignore.', e);
-        }
-    }
+    // if (!(auth as any)._isEmulator) {
+    //     try {
+    //         const hostname = "127.0.0.1";
+    //         console.log(`Firebase emulators connecting to ${hostname}...`);
+            
+    //         connectAuthEmulator(auth, `http://${hostname}:9099`, { disableWarnings: true });
+    //         console.log('✅ Auth emulator connected.');
+            
+    //         connectFirestoreEmulator(db, hostname, 8080);
+    //         console.log('✅ Firestore emulator connected.');
+            
+    //         connectStorageEmulator(storage, hostname, 9199);
+    //         console.log('✅ Storage emulator connected.');
+
+    //     } catch(e) {
+    //         console.warn('⚠️ Error connecting to Firebase emulators. This can happen on hot reloads. If services work, this is likely safe to ignore.', e);
+    //     }
+    // }
 }
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
