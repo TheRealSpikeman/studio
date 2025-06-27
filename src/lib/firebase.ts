@@ -1,12 +1,11 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
+import { getAuth, type Auth } from "firebase/auth";
 import { 
   getFirestore, 
-  connectFirestoreEmulator,
   type Firestore, 
 } from "firebase/firestore";
-import { getStorage, connectStorageEmulator, type FirebaseStorage } from "firebase/storage";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration from .env.local
 const firebaseConfig = {
@@ -45,32 +44,7 @@ auth = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
 
-// Connect to emulators in development, ONLY ON THE CLIENT SIDE.
-if (isConfigured && process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    // --- TEMPORARY DIAGNOSTIC STEP ---
-    // We are commenting out the emulator connection to see if the app can connect
-    // to the live Firebase backend. This helps isolate whether the problem is with
-    // local networking or the Firebase setup itself.
-    console.log("⚠️ CONNECTING TO LIVE FIREBASE BACKEND (EMULATORS DISABLED FOR DIAGNOSTICS) ⚠️");
-
-    // if (!(auth as any)._isEmulator) {
-    //     try {
-    //         const hostname = "127.0.0.1";
-    //         console.log(`Firebase emulators connecting to ${hostname}...`);
-            
-    //         connectAuthEmulator(auth, `http://${hostname}:9099`, { disableWarnings: true });
-    //         console.log('✅ Auth emulator connected.');
-            
-    //         connectFirestoreEmulator(db, hostname, 8080);
-    //         console.log('✅ Firestore emulator connected.');
-            
-    //         connectStorageEmulator(storage, hostname, 9199);
-    //         console.log('✅ Storage emulator connected.');
-
-    //     } catch(e) {
-    //         console.warn('⚠️ Error connecting to Firebase emulators. This can happen on hot reloads. If services work, this is likely safe to ignore.', e);
-    //     }
-    // }
-}
+// Emulator connection logic has been REMOVED as per your instruction to solve network issues.
+// The app will now connect to the live Firebase backend defined in the .env file.
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
