@@ -251,35 +251,6 @@ export default function OuderRichtlijnenPage() {
                 </div>
             </div>
         </section>
-
-        {/* Statistics */}
-        <section className="py-16 md:py-24 bg-muted/40">
-            <div className="container">
-                <Card className="shadow-xl bg-card border">
-                    <CardHeader>
-                        <CardTitle className="text-center text-3xl font-bold">Waarom Ouders MindNavigator Kiezen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-                        <div className="p-4">
-                            <div className="text-4xl font-bold text-primary mb-2">89%</div>
-                            <div className="text-muted-foreground">Ouders zien verbetering binnen 2 maanden</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-4xl font-bold text-primary mb-2">€45</div>
-                            <div className="text-muted-foreground">Gemiddelde kosten p/mnd (vs €120 particulier)</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-4xl font-bold text-primary mb-2">24/7</div>
-                            <div className="text-muted-foreground">Crisis ondersteuning beschikbaar</div>
-                        </div>
-                         <div className="p-4">
-                            <div className="text-4xl font-bold text-primary mb-2">95%</div>
-                            <div className="text-muted-foreground">Ouders waarderen ethische transparantie</div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        </section>
       </main>
       <Footer />
     </div>
