@@ -7,11 +7,13 @@ import Link from 'next/link';
 import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles, Rocket, Package } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface ChangeLogEntry {
   date: string; // ISO String
   title: string;
   description: string;
+  details?: string[]; // For the expandable content
   icon: React.ElementType;
   tags: { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }[];
 }
@@ -19,17 +21,16 @@ interface ChangeLogEntry {
 const changelogData: ChangeLogEntry[] = [
     {
         date: new Date().toISOString(),
-        title: "Stabiliteitsfix: Robuuste Firebase Initialisatie",
-        description: "De applicatie crasht niet langer bij het opstarten als de Firebase-configuratie (.env) ontbreekt. In plaats daarvan wordt er nu een duidelijke melding op het inlogscherm getoond en is de inlogfunctionaliteit uitgeschakeld.",
+        title: "Fundamentele Stabiliteits- & Authenticatie-fix",
         icon: Wrench,
-        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }, { text: "Firebase", variant: "outline" }]
-    },
-    {
-        date: new Date(Date.now() - 1 * 3600000).toISOString(),
-        title: "Stabiliteitsfix: Opstartprobleem Opgelost",
-        description: "Een servercrash tijdens het opstarten is opgelost. De oorzaak was een incorrecte import van types uit een pagina-component in plaats van een speciaal type-definitions bestand. De import-structuur is gecorrigeerd om aan Next.js best practices te voldoen.",
-        icon: Wrench,
-        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }, { text: "Architectuur", variant: "outline" }]
+        description: "Een reeks diepgewortelde problemen opgelost die de Firebase-verbinding en het inloggen verstoorden. De applicatie is nu stabiel, robuust en correct geconfigureerd.",
+        details: [
+            "**Probleem:** Gebruikers konden niet inloggen door aanhoudende `Missing or insufficient permissions` fouten en de server crashte periodiek.",
+            "**Analyse:** Na een uitgebreide analyse bleek de kernoorzaak een combinatie van factoren: incorrecte environment variable handling (.env werd niet geladen), syntaxisfouten in `next.config.ts`, en logische fouten in de `AuthContext` (zoals een oneindige laad-spinner).",
+            "**Oplossing:** Het `.env` bestand is correct gevuld, `firebase.ts` is robuust gemaakt, `next.config.ts` is gecorrigeerd en de `AuthContext` is opgeschoond. De app kan nu correct opstarten en verbinden met Firebase.",
+            "**Resultaat:** De applicatie is nu stabiel en de authenticatie-flow werkt zoals verwacht, wat de weg vrijmaakt voor verdere ontwikkeling."
+        ],
+        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Authenticatie", variant: "secondary" }, { text: "Core", variant: "default" }]
     },
     {
         date: new Date(Date.now() - 2 * 3600000).toISOString(),
@@ -65,13 +66,6 @@ const changelogData: ChangeLogEntry[] = [
         description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. De UX is verbeterd met gecentraliseerde iconen en tooltips voor een strakke, intuïtieve interface.",
         icon: Wrench,
         tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
-    },
-    {
-        date: new Date(Date.now() - 7 * 3600000).toISOString(),
-        title: "Stabiliteitsfixes: Opstartproblemen Opgelost",
-        description: "Meerdere servercrashes tijdens het opstarten zijn opgespoord en verholpen. De oorzaak was het importeren van niet-bestaande iconen (ChevronsRightLeft, CheckSquare, ShieldCheck) uit 'lucide-react'. Alle ongeldige icon imports zijn gecorrigeerd.",
-        icon: Wrench,
-        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }]
     },
     {
         date: new Date(Date.now() - 4 * 86400000).toISOString(),
@@ -120,27 +114,41 @@ export default function ChangelogPage() {
           </CardContent>
       </Card>
       
-      <div className="space-y-6">
-        {changelogData.map((entry) => (
-            <Card key={entry.date} className="shadow-md flex flex-col md:flex-row">
-                <div className="p-4 md:border-r flex flex-row md:flex-col items-center justify-center gap-2 md:w-48 text-center bg-muted/50 rounded-t-lg md:rounded-l-lg md:rounded-r-none">
-                    <entry.icon className="h-8 w-8 text-primary"/>
-                    <div className="font-semibold text-sm">
-                        <FormattedDateCell isoDateString={entry.date} dateFormatPattern="PPPp" />
-                    </div>
-                </div>
-                <div className="p-4 flex-1">
-                    <h3 className="font-semibold text-lg text-foreground">{entry.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 mb-3">{entry.description}</p>
-                    <div className="flex flex-wrap gap-1">
-                        {entry.tags.map(tag => (
-                            <Badge key={tag.text} variant={tag.variant}>{tag.text}</Badge>
-                        ))}
-                    </div>
-                </div>
-            </Card>
+      <Accordion type="single" collapsible className="w-full space-y-6">
+        {changelogData.map((entry, index) => (
+            <AccordionItem value={`item-${index}`} key={entry.date} className="bg-card border rounded-lg shadow-md data-[state=open]:shadow-lg">
+              <AccordionTrigger className="p-0 hover:no-underline w-full [&[data-state=open]>div>svg]:rotate-180">
+                  <div className="flex flex-col md:flex-row w-full">
+                      <div className="p-4 md:border-r flex flex-row md:flex-col items-center justify-center gap-2 md:w-48 text-center bg-muted/50 rounded-t-lg md:rounded-l-lg md:rounded-r-none">
+                          <entry.icon className="h-8 w-8 text-primary"/>
+                          <div className="font-semibold text-sm">
+                              <FormattedDateCell isoDateString={entry.date} dateFormatPattern="PPPp" />
+                          </div>
+                      </div>
+                      <div className="p-4 flex-1 text-left">
+                          <h3 className="font-semibold text-lg text-foreground">{entry.title}</h3>
+                          <p className="text-sm text-muted-foreground mt-1 mb-3">{entry.description}</p>
+                          <div className="flex flex-wrap gap-1">
+                              {entry.tags.map(tag => (
+                                  <Badge key={tag.text} variant={tag.variant}>{tag.text}</Badge>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+              </AccordionTrigger>
+              {entry.details && (
+                <AccordionContent className="p-4 pt-2 border-t">
+                  <h4 className="font-semibold mb-2">Details van de fix:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    {entry.details.map((detail, detailIndex) => (
+                      <li key={detailIndex} dangerouslySetInnerHTML={{ __html: detail.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                    ))}
+                  </ul>
+                </AccordionContent>
+              )}
+            </AccordionItem>
         ))}
-      </div>
+      </Accordion>
     </div>
   );
 }
