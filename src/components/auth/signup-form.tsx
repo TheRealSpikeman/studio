@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, CalendarIcon, Loader2, AlertTriangle, Eye, EyeOff, ExternalLink } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -29,6 +29,9 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRoleType } from '@/types/user';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { LegalDocumentDialog } from '@/components/common/LegalDocumentDialog';
+import { PrivacyPolicyContent, TermsContent } from '@/components/legal/LegalContent';
+
 
 const calculateAge = (birthdate: Date | undefined): number | null => {
   if (!birthdate || !isValid(birthdate)) return null;
@@ -352,9 +355,19 @@ export function SignupForm() {
                     <div className="space-y-1 leading-none">
                       <FormLabel htmlFor="agreeToTerms" className="cursor-pointer">
                         Ik ga akkoord met de{' '}
-                        <Button variant="link" asChild className="p-0 h-auto"><Link href="/terms" target="_blank">algemene voorwaarden</Link></Button>
+                        <LegalDocumentDialog
+                            title="Algemene Voorwaarden"
+                            triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">algemene voorwaarden</span></Button>}
+                        >
+                            <TermsContent />
+                        </LegalDocumentDialog>
                         {' '}en het{' '}
-                        <Button variant="link" asChild className="p-0 h-auto"><Link href="/privacy" target="_blank">privacybeleid</Link></Button>.
+                        <LegalDocumentDialog
+                            title="Privacybeleid"
+                            triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">privacybeleid</span></Button>}
+                        >
+                            <PrivacyPolicyContent />
+                        </LegalDocumentDialog>.
                       </FormLabel>
                       <FormMessage />
                     </div>

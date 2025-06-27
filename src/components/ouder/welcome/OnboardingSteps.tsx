@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -67,7 +67,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
             render={({ field }) => (
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
-                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Medische Disclaimer:</strong> Ik begrijp dat MindNavigator een hulpmiddel is en geen medische dienst, en ik zoek professionele hulp bij medische zorgen.</FormLabel><FormMessage /></div>
+                <div className="space-y-1 leading-none"><Label className="cursor-pointer"><strong>Medische Disclaimer:</strong> Ik begrijp dat MindNavigator een hulpmiddel is en geen medische dienst, en ik zoek professionele hulp bij medische zorgen.</Label><FormMessage /></div>
               </FormItem>
             )}
           />
@@ -78,7 +78,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="cursor-pointer">
+                  <Label className="cursor-pointer">
                     <strong>Privacy & Gegevensverwerking:</strong> Ik ga akkoord met het {' '}
                      <LegalDocumentDialog
                         title="Privacybeleid"
@@ -87,7 +87,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
                         <PrivacyPolicyContent />
                     </LegalDocumentDialog>
                     {' '}en begrijp hoe data wordt verwerkt en beschermd.
-                  </FormLabel>
+                  </Label>
                   <FormMessage />
                 </div>
               </FormItem>
@@ -99,7 +99,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
             render={({ field }) => (
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
-                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Leeftijd & Toestemming:</strong> Ik bevestig dat ik als ouder/verzorger toestemming geef voor mijn minderjarige kind om dit platform te gebruiken.</FormLabel><FormMessage /></div>
+                <div className="space-y-1 leading-none"><Label className="cursor-pointer"><strong>Leeftijd & Toestemming:</strong> Ik bevestig dat ik als ouder/verzorger toestemming geef voor mijn minderjarige kind om dit platform te gebruiken.</Label><FormMessage /></div>
               </FormItem>
             )}
           />
@@ -109,7 +109,7 @@ function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
             render={({ field }) => (
               <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
-                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Coaching Grenzen:</strong> Ik begrijp dat coaching ondersteuning biedt maar geen vervanging is voor therapie of medische behandeling.</FormLabel><FormMessage /></div>
+                <div className="space-y-1 leading-none"><Label className="cursor-pointer"><strong>Coaching Grenzen:</strong> Ik begrijp dat coaching ondersteuning biedt maar geen vervanging is voor therapie of medische behandeling.</Label><FormMessage /></div>
               </FormItem>
             )}
           />

@@ -4,12 +4,11 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
-import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Compass } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { useToast } from '@/hooks/use-toast';
 import { PlanSelection } from '@/components/ouder/welcome/PlanSelection';
 import { OnboardingSteps } from '@/components/ouder/welcome/OnboardingSteps';
-import { Compass } from '@/lib/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
@@ -45,37 +44,20 @@ function OuderWelcomePageContent() {
   };
   
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center bg-background py-10 px-4">
       <div className="w-full max-w-4xl text-center">
-        <h1 className="text-3xl font-bold text-foreground mb-4">
-          Welkom bij MindNavigator!
-        </h1>
-        <p className="text-lg text-muted-foreground mt-2 mb-6">
-          Wij helpen u uw kind beter te begrijpen en te ondersteunen.
-        </p>
-
-         <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-left shadow-sm">
-          <h2 className="text-2xl font-semibold mb-3 flex items-center gap-2"><Compass className="h-7 w-7"/>Stel uw Ouder Dashboard in (~10-15 min)</h2>
-          <p className="text-sm mb-4 text-blue-800">Doorloop de onderstaande actiepunten om MindNavigator optimaal voor uw gezin in te richten:</p>
-          <ol className="list-decimal list-inside space-y-1.5 text-sm text-blue-800">
-            <li><strong>Kies een Abonnement:</strong> Selecteer een plan (gratis of betaald). Dit activeert de overige instellingen.</li>
-            <li><strong>Belangrijke Info:</strong> Neem kennis van onze voorwaarden en hoe wij met privacy omgaan.</li>
+        
+        <div className="mb-8 p-6 bg-primary/10 border border-primary/20 rounded-lg text-primary text-left shadow-sm">
+          <h1 className="text-2xl font-semibold mb-3 flex items-center gap-2"><Compass className="h-7 w-7"/>Stel uw Ouder Dashboard in (~5 min)</h1>
+          <p className="text-sm text-foreground/90 mb-4">Doorloop de onderstaande actiepunten om MindNavigator optimaal voor uw gezin in te richten:</p>
+          <ol className="list-decimal list-inside space-y-1.5 text-sm text-foreground/80">
+            <li><strong>Kies een Abonnement:</strong> Selecteer een plan. Dit activeert de overige instellingen.</li>
+            <li><strong>Lees & Accepteer Voorwaarden:</strong> Essentieel voor een veilig en transparant gebruik.</li>
             <li><strong>Kind(eren) Toevoegen:</strong> Maak profielen aan voor uw kinderen. Zij ontvangen een e-mail om hun account te activeren.</li>
             <li><strong>Privacy & Delen Instellen:</strong> Bepaal per kind wat er gedeeld mag worden.</li>
-            <li><strong>'Ken je Kind' Test (Optioneel):</strong> Krijg eerste inzichten die helpen bij het instellen en gesprekken (circa 5 min).</li>
+            <li><strong>'Ken je Kind' Test (Optioneel):</strong> Krijg eerste inzichten die helpen bij het instellen en gesprekken.</li>
           </ol>
-          <p className="mt-3 text-sm text-blue-800">Na deze stappen is uw Ouder Dashboard klaar voor gebruik en kunt u de voortgang van uw kinderen volgen en eventueel begeleiding koppelen.</p>
         </div>
-
-        {!hasChosenPlan && (
-           <Alert variant="default" className="mb-6 bg-orange-50 border-orange-300 text-orange-700 text-left">
-                <Info className="h-5 w-5 !text-orange-600" />
-                <AlertTitleUi className="text-orange-700 font-semibold">Actie Vereist: Kies een Plan</AlertTitleUi>
-                <AlertDescUi className="text-orange-600">
-                    Om verder te gaan en de andere functies te gebruiken, selecteer hieronder eerst een van onze plannen. U kunt gratis starten om de basis te ontdekken.
-                </AlertDescUi>
-            </Alert>
-        )}
 
         <OnboardingSteps
             planParam={planParam}

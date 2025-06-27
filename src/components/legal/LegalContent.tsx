@@ -3,12 +3,12 @@ import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 
 export const PrivacyPolicyContent = () => (
-    <>
+    <div className="space-y-4">
         <h4>1. Inleiding</h4>
         <p>Welkom bij MindNavigator. Wij hechten veel waarde aan uw privacy en de bescherming van uw persoonsgegevens. In dit privacybeleid leggen wij uit hoe wij uw gegevens verzamelen, gebruiken, delen en beschermen.</p>
 
         <h4>2. Welke gegevens verzamelen wij?</h4>
-        <ul className="list-disc pl-5">
+        <ul className="list-disc pl-5 space-y-1">
             <li><strong>Contactgegevens:</strong> zoals uw naam en e-mailadres wanneer u zich aanmeldt.</li>
             <li><strong>Accountgegevens:</strong> gebruikersnaam, wachtwoord (versleuteld), en andere informatie die u verstrekt bij het aanmaken van een account.</li>
             <li><strong>Antwoorden op zelfreflectie tools:</strong> de antwoorden die u geeft op onze tools en de daaruit voortvloeiende overzichten en inzichten.</li>
@@ -22,7 +22,7 @@ export const PrivacyPolicyContent = () => (
         
         <h4>4. Delen van uw gegevens</h4>
         <p>Wij delen uw persoonsgegevens niet met derden, tenzij:</p>
-         <ul className="list-disc pl-5">
+         <ul className="list-disc pl-5 space-y-1">
             <li>Dit noodzakelijk is voor het uitvoeren van onze diensten (bijvoorbeeld met onze hostingprovider of payment provider). Deze partijen zijn contractueel verplicht uw gegevens te beschermen.</li>
             <li>Wij hiertoe wettelijk verplicht zijn (bijvoorbeeld op last van een gerechtelijk bevel).</li>
             <li>U hiervoor expliciet toestemming heeft gegeven (bijvoorbeeld voor het delen van inzichten met een gekoppelde coach of tutor, na uw instemming).</li>
@@ -40,11 +40,11 @@ export const PrivacyPolicyContent = () => (
 
         <h4>8. Cookies</h4>
         <p>Wij gebruiken cookies om de functionaliteit van onze website te verbeteren. Zie ons <Link href="/cookies" className="text-primary hover:underline font-medium">Cookiebeleid</Link>.</p>
-    </>
+    </div>
 );
 
 export const TermsContent = () => (
-    <>
+    <div className="space-y-4">
         <h4>1. Toepasselijkheid</h4>
         <p>Deze voorwaarden zijn van toepassing op elk gebruik van de diensten van MindNavigator. Door gebruik te maken van de Dienst, aanvaardt u deze voorwaarden.</p>
 
@@ -65,11 +65,11 @@ export const TermsContent = () => (
 
         <h4>7. Beperking van Aansprakelijkheid</h4>
         <p>MindNavigator is niet aansprakelijk voor enige schade die voortvloeit uit het gebruik van de Dienst. Het gebruik is op eigen risico.</p>
-    </>
+    </div>
 );
 
 export const DisclaimerContent = () => (
-     <>
+    <div className="space-y-4">
         <h4>Geen Medische Diagnose of Advies</h4>
         <p>MindNavigator en de daarin aangeboden zelfreflectie-instrumenten zijn uitsluitend bedoeld voor educatieve doeleinden. Ze zijn <strong>nadrukkelijk geen vervanging</strong> voor professioneel medisch, psychologisch, of orthopedagogisch advies, diagnose, of behandeling.</p>
 
@@ -81,5 +81,5 @@ export const DisclaimerContent = () => (
 
         <h4>Gebruik van AI-gegenereerde Content</h4>
         <p>AI-gegenereerde content kan onnauwkeurigheden bevatten. Gebruik deze inzichten als een startpunt voor reflectie.</p>
-    </>
+    </div>
 );

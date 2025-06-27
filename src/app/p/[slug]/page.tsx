@@ -8,6 +8,8 @@ import { AlertTriangle, Info } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert"; // Renamed AlertTitle to AlertTitleUi
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 
 interface PageData {
