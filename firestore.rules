@@ -1,13 +1,13 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to all documents for any authenticated user.
-    // This is a secure starting point. We can refine these rules later
-    // to be more specific (e.g., users can only edit their own documents).
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // Users can be created by anyone (needed for signup)
+    // but can only be read, updated, or deleted by the user themselves.
+    match /users/{userId} {
+      allow create;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
