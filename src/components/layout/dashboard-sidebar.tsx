@@ -70,6 +70,7 @@ interface NavItem {
   children?: NavItem[];
   parent?: string;
   isOuderOnboardingLink?: boolean;
+  alwaysShowWhenOnboarding?: boolean; // New property
   isNew?: boolean;
 }
 
@@ -114,7 +115,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessageSquare, ouderOnly: true },
   { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
-  { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
+  { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true, alwaysShowWhenOnboarding: true },
 
   // Tutor specific section
   { href: '/dashboard/tutor', label: 'Tutor Dashboard', icon: LayoutDashboard, tutorOnly: true, sectionTitle: "TUTOR PORTAAL" },
@@ -236,6 +237,7 @@ export function SidebarNavContent({ isCollapsed, setIsCollapsed }: { isCollapsed
       if (!isForCurrentRole) return false;
 
       if (currentDashboardRole === 'ouder') {
+        if (item.alwaysShowWhenOnboarding) return true;
         if (item.isOuderOnboardingLink) return isOuderOnboardingPending;
         if (!item.isOuderOnboardingLink && item.ouderOnly) return !isOuderOnboardingPending;
       }
