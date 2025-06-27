@@ -21,15 +21,6 @@ export default function DisclaimerPage() {
           </div>
           <div className="space-y-10 text-base leading-relaxed text-foreground/90 prose prose-lg max-w-none dark:prose-invert">
             <DisclaimerContent />
-
-            <h4 className="!mt-8 !mb-4 text-2xl font-semibold text-primary flex items-center gap-3">
-                <Stethoscope className="h-7 w-7" />
-                Raadpleeg Altijd een Professional
-            </h4>
-            <p>
-                Als u of uw kind vragen of zorgen heeft over mentale gezondheid, gedrag, ontwikkeling, of als u een formele diagnose overweegt, dient u altijd contact op te nemen met een gekwalificeerde zorgverlener. 
-                Bezoek ook onze <Link href="/neurodiversiteit" className="text-primary hover:underline font-medium">Neurodiversiteit pagina <ExternalLink className="inline h-4 w-4 align-text-bottom"/></Link> voor meer context.
-            </p>
           </div>
         </div>
       </main>
