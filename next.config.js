@@ -39,10 +39,9 @@ const nextConfig = {
   webpack: (config) => {
     // Tell webpack to ignore watching the 'tools' directory
     // This prevents the dev server from restarting in a loop when we generate tool components
-    config.watchOptions.ignored = [
-        ...(config.watchOptions.ignored || []),
-        path.resolve(__dirname, 'src/components/tools'),
-    ];
+    const ignored = [].concat(config.watchOptions.ignored || []);
+    ignored.push(path.resolve(__dirname, 'src/components/tools'));
+    config.watchOptions.ignored = ignored;
     return config;
   },
 };
