@@ -9,7 +9,7 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  sendEmailVerification, // Geïmporteerd
+  sendEmailVerification,
   type Auth,
   type User as FirebaseUser 
 } from 'firebase/auth';
@@ -32,7 +32,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isFirebaseConfigured: boolean;
-  auth: Auth | null; // Auth object toegevoegd
+  auth: Auth | null;
   login: (email: string, pass: string) => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -55,26 +55,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    console.log("[AuthContext] Setting up onAuthStateChanged listener...");
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log(`[AuthContext] onAuthStateChanged triggered. User: ${firebaseUser?.uid || 'null'}`);
+      console.log(`[AuthContext] onAuthStateChanged triggered. Firebase User:`, firebaseUser);
       if (firebaseUser) {
         const userDocRef = doc(db, "users", firebaseUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
+        console.log(`[AuthContext] User is authenticated. Checking Firestore for doc:`, userDocRef.path);
+        
+        try {
+          const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-          console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}.`);
-          const appUser: User = {
-            id: firebaseUser.uid,
-            ...(userDocSnap.data() as Omit<User, 'id'>),
-          };
-          setUser(appUser);
-          await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
-        } else {
-          console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for temp signup data...`);
-          const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
-          if (tempProfileRaw) {
-            console.log(`[AuthContext] Temp profile data FOUND. Attempting to create Firestore document...`);
-            try {
+          if (userDocSnap.exists()) {
+            console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}.`);
+            const appUser: User = {
+              id: firebaseUser.uid,
+              ...(userDocSnap.data() as Omit<User, 'id'>),
+            };
+            setUser(appUser);
+            await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+          } else {
+            console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for temp signup data...`);
+            const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
+            if (tempProfileRaw) {
+              console.log(`[AuthContext] Temp profile data FOUND. Attempting to create Firestore document...`);
               const tempProfileData = JSON.parse(tempProfileRaw);
               const finalProfileData = {
                 ...tempProfileData,
@@ -88,16 +91,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
               const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
               setUser(appUser);
-              
-            } catch (error: any) {
-              console.error("[AuthContext] FAILED to create Firestore doc from temp data:", error);
-              toast({ title: "Profile Creation Failed", description: "Your account was created, but we couldn't save your profile. Please contact support.", variant: "destructive" });
+            } else {
+              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no temp data found. Logging out.`);
               await signOut(auth);
             }
-          } else {
-            console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no temp data found. Logging out to prevent inconsistent state.`);
-            await signOut(auth);
           }
+        } catch (error) {
+            console.error("[AuthContext] CRITICAL ERROR during user document fetch/create:", error);
+            // This log might reveal if it's a permissions error from Firestore itself
+            toast({ title: "Fout bij profiel laden", description: `Kon gebruikersprofiel niet ophalen of aanmaken. Fout: ${(error as Error).message}`, variant: "destructive", duration: 10000 });
+            await signOut(auth); // Log out to prevent inconsistent state
         }
       } else {
         console.log(`[AuthContext] No user authenticated.`);
@@ -111,9 +114,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
+      console.error("[AuthContext] Signup failed: Firebase not configured.");
       return { success: false, error: "Firebase is niet geconfigureerd." };
     }
     
+    console.log("[AuthContext] Starting signup process for:", data.email);
     const profileData = {
       name: data.name,
       role: data.role,
@@ -123,16 +128,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastLogin: new Date().toISOString(),
     };
     localStorage.setItem(TEMP_PROFILE_KEY, JSON.stringify(profileData));
+    console.log("[AuthContext] Temp profile data saved to localStorage.");
     
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
-      // **NIEUW**: Verstuur de verificatie e-mail direct na aanmaak.
+      console.log("[AuthContext] createUserWithEmailAndPassword success for:", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
-      console.log(`[AuthContext] Verification email sent to ${userCredential.user.email}.`);
+      console.log(`[AuthContext] Verification email sent to ${userCredential.user.email}. Signup complete.`);
       return { success: true };
     } catch (error: any) {
       localStorage.removeItem(TEMP_PROFILE_KEY);
-      console.error("[AuthContext] Signup Error:", error);
+      console.error("[AuthContext] Signup Error during createUserWithEmailAndPassword:", error);
       let friendlyError = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         friendlyError = "Dit e-mailadres is al in gebruik.";
@@ -171,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     isFirebaseConfigured,
-    auth, // Auth object nu beschikbaar
+    auth,
     login,
     signup,
     logout,

@@ -7,35 +7,38 @@ import {
 } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration from .env.local
+// --- DIAGNOSTIC STEP ---
+// This config is temporarily hardcoded with placeholders.
+// You MUST replace the placeholder values with your actual Firebase project
+// configuration from the Firebase Console to test the connection.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "PLACEHOLDER_REPLACE_WITH_YOUR_API_KEY",
+  authDomain: "PLACEHOLDER_REPLACE_WITH_YOUR_AUTH_DOMAIN",
+  projectId: "PLACEHOLDER_REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket: "PLACEHOLDER_REPLACE_WITH_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PLACEHOLDER_REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+  appId: "PLACEHOLDER_REPLACE_WITH_YOUR_APP_ID",
+  measurementId: "PLACEHOLDER_REPLACE_WITH_YOUR_MEASUREMENT_ID",
 };
 
-// Check if the essential config values are present and not placeholders
-const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("...");
+// This check is now based on the hardcoded placeholders.
+// Once you fill them in, isConfigured will become true.
+const isConfigured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("PLACEHOLDER");
 
-// Initialize Firebase services and export them.
+if (!isConfigured) {
+  console.error("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+  console.error("🔥 Firebase config in /src/lib/firebase.ts is NOT SET!");
+  console.error("🔥 Please replace the placeholder values with your actual project config.");
+  console.error("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+}
+
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 
 if (getApps().length === 0) {
-  if (isConfigured) {
     app = initializeApp(firebaseConfig);
-  } else {
-    console.error("🔥 FIREBASE CONFIGURATION MISSING OR INCOMPLETE! 🔥");
-    console.error("Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set correctly.");
-    // Initialize with a placeholder to prevent app crash, but functionality will be disabled.
-    app = initializeApp({ apiKey: "placeholder-to-prevent-crash", projectId: "placeholder" });
-  }
 } else {
   app = getApp();
 }
@@ -43,8 +46,5 @@ if (getApps().length === 0) {
 auth = getAuth(app);
 db = getFirestore(app);
 storage = getStorage(app);
-
-// Emulator connection logic has been REMOVED as per your instruction to solve network issues.
-// The app will now connect to the live Firebase backend defined in the .env file.
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
