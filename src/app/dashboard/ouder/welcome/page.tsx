@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/welcome/page.tsx
 "use client";
 
@@ -6,9 +5,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Compass } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { useToast } from '@/hooks/use-toast';
-import { PlanSelection } from '@/components/ouder/welcome/PlanSelection';
 import { OnboardingSteps } from '@/components/ouder/welcome/OnboardingSteps';
 import { useRouter, useSearchParams } from 'next/navigation';
 

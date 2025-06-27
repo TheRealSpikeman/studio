@@ -12,7 +12,6 @@ import { PlanSelection } from './PlanSelection';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -171,6 +170,9 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     const [addChildFormKey, setAddChildFormKey] = useState(0);
     const [openAccordionItem, setOpenAccordionItem] = useState(!planParam ? "bekijk-abonnementen" : "");
     const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
+    
+    // Track completion state
+    const [termsCompleted, setTermsCompleted] = useState(false);
 
     useEffect(() => {
         const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
@@ -199,6 +201,7 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     }
 
     const handleTermsNext = () => {
+        setTermsCompleted(true);
         setOpenAccordionItem("voeg-kind-toe");
     }
 
@@ -264,19 +267,20 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
             onValueChange={setOpenAccordionItem}
         >
             {sortedActiepunten.map((item) => {
-                const isDisabled = !planParam && !["bekijk-abonnementen"].includes(item.id);
-                const isStepTermsDisabled = !planParam;
-                const isAfterTermsDisabled = !planParam;
-
-                 let isStepDisabled = false;
-                 if (item.id === "belangrijke-voorwaarden" && isStepTermsDisabled) isStepDisabled = true;
-                 if (["voeg-kind-toe", "privacy-delen", "ken-je-kind"].includes(item.id) && isAfterTermsDisabled) isStepDisabled = true;
+                let isStepDisabled = false;
+                if (item.id === "belangrijke-voorwaarden" && !planParam) isStepDisabled = true;
+                if (["voeg-kind-toe", "privacy-delen", "ken-je-kind"].includes(item.id) && (!planParam || !termsCompleted)) isStepDisabled = true;
 
 
                 return (
                     <AccordionItem key={item.id} value={item.id} className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl" disabled={isStepDisabled}>
                         <AccordionTrigger className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
-                            <div className="flex items-center gap-3"><div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">{item.stepNumber}</div>{item.title}</div>
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
+                                    {(planParam && item.id !== "bekijk-abonnementen") || (termsCompleted && item.id !== "belangrijke-voorwaarden" && item.id !== "bekijk-abonnementen") ? <Check className="h-4 w-4"/> : item.stepNumber}
+                                </div>
+                                {item.title}
+                            </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6 pt-0">
                             <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
