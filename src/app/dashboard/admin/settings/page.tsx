@@ -10,7 +10,7 @@ import { Settings, Users, Shield, Bell, Mail, KeyRound, PlusCircle, Trash2, Rota
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -203,13 +203,13 @@ export default function AdminSettingsPage() {
                   <Button type="button" onClick={handleAddRole}><PlusCircle className="mr-2 h-4 w-4" /> Toevoegen</Button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto relative max-h-[600px]">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 z-10 bg-card shadow-sm">
                     <TableRow>
-                      <TableHead className="w-[300px]">Permissie / Feature</TableHead>
+                      <TableHead className="w-[300px] bg-card">Permissie / Feature</TableHead>
                       {roles.map(role => (
-                        <TableHead key={role} className="text-center">
+                        <TableHead key={role} className="text-center bg-card">
                           <div className="flex items-center justify-center gap-1">
                             {role}
                             {!CORE_ROLES.includes(role) && (
@@ -224,13 +224,13 @@ export default function AdminSettingsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {platformPermissions.map((permission) => {
+                    {platformPermissions.map((permission, pIndex) => {
                       const showSectionHeader = permission.section && permission.section !== lastSection;
                       if(showSectionHeader) {
                         lastSection = permission.section;
                       }
                       return (
-                        <>
+                        <Fragment key={pIndex}>
                           {showSectionHeader && (
                             <TableRow className="bg-muted/50 hover:bg-muted/50">
                               <TableCell colSpan={roles.length + 1} className="py-2 px-4">
@@ -253,7 +253,7 @@ export default function AdminSettingsPage() {
                               </TableCell>
                             ))}
                           </TableRow>
-                        </>
+                        </Fragment>
                       );
                     })}
                   </TableBody>
