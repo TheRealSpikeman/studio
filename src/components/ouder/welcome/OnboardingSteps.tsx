@@ -9,6 +9,9 @@ import { FileText, UserPlus, ShieldCheck, ArrowRight, ExternalLink } from 'lucid
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
 import { PlanSelection } from './PlanSelection';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface OnboardingStepsProps {
     planParam: string | null;
@@ -25,12 +28,15 @@ interface Actiepunt {
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
   contentHeader?: string;
   contentSteps?: string[];
-  customContent?: 'planSelection' | 'addChildForm';
+  customContent?: 'planSelection' | 'addChildForm' | 'termsAndConditions';
 }
 
 export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProps) {
     const { toast } = useToast();
     const [addChildFormKey, setAddChildFormKey] = useState(0);
+    const [openAccordionItem, setOpenAccordionItem] = useState(!planParam ? "bekijk-abonnementen" : "");
+    const [termsAccepted, setTermsAccepted] = useState(false);
+
 
     const handleSaveChildOnWelcome = (data: AddChildFormData) => {
         console.log("Kind toegevoegd via welkomstpagina (simulatie):", data);
@@ -41,6 +47,10 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
         });
         setAddChildFormKey(prevKey => prevKey + 1);
     };
+
+    const handleTermsNext = () => {
+        setOpenAccordionItem("voeg-kind-toe");
+    }
 
     const getActiepuntenConfig = (): Actiepunt[] => {
         return [
@@ -56,12 +66,8 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
                 id: "belangrijke-voorwaarden",
                 stepNumber: 2,
                 title: "Belangrijke Voorwaarden & Privacy",
-                description: "Een korte herinnering aan de belangrijkste punten en links naar de volledige documenten.",
-                contentHeader: "Door MindNavigator te gebruiken, bent u akkoord gegaan tijdens uw registratie.",
-                contentSteps: [
-                    `U bent akkoord gegaan met deze voorwaarden en ons privacybeleid tijdens uw registratie.`,
-                    "MindNavigator is een hulpmiddel voor zelfinzicht en ondersteuning. Het vervangt geen professionele diagnose of behandeling. Lees onze volledige documenten voor een compleet begrip van onze diensten en uw rechten."
-                ],
+                description: "Lees en accepteer de belangrijkste voorwaarden voordat u verdergaat.",
+                customContent: 'termsAndConditions',
             },
             {
                 id: "voeg-kind-toe",
@@ -95,10 +101,15 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     };
 
     const sortedActiepunten = getActiepuntenConfig();
-    const defaultOpenAccordionItem = !planParam ? "bekijk-abonnementen" : "";
-
+    
     return (
-         <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
+         <Accordion 
+            type="single" 
+            collapsible 
+            className="w-full space-y-4 text-left mb-10" 
+            value={openAccordionItem} 
+            onValueChange={setOpenAccordionItem}
+        >
             {sortedActiepunten.map((item) => {
                 const isDisabled = !planParam && !["bekijk-abonnementen", "belangrijke-voorwaarden"].includes(item.id);
                 return (
@@ -112,8 +123,35 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
                             
                             {item.customContent === 'planSelection' && <PlanSelection planParam={planParam} onPlanSelect={onPlanSelect} />}
                             {item.customContent === 'addChildForm' && <AddChildForm key={addChildFormKey} onSave={handleSaveChildOnWelcome} onCancel={() => {}} />}
+                            
+                            {item.customContent === 'termsAndConditions' && (
+                                <div className="space-y-4">
+                                    <ScrollArea className="h-40 w-full rounded-md border p-4 text-xs bg-muted/30">
+                                        <h4 className="font-bold mb-2">Samenvatting Voorwaarden & Privacy</h4>
+                                        <p className="mb-2"><strong>Geen Diagnose:</strong> MindNavigator is een hulpmiddel voor zelfinzicht en is geen vervanging voor professioneel medisch of psychologisch advies. Raadpleeg altijd een gekwalificeerde zorgverlener bij zorgen.</p>
+                                        <p className="mb-2"><strong>Data & Privacy:</strong> Uw gegevens worden vertrouwelijk behandeld conform AVG/GDPR. Resultaten worden niet zonder toestemming gedeeld.</p>
+                                        <p className="mb-2"><strong>Ouderlijke Toestemming:</strong> Voor minderjarigen is uw toestemming vereist voor het aanmaken van een account en het afsluiten van abonnementen.</p>
+                                        <p>Bekijk de volledige documenten voor alle details.</p>
+                                    </ScrollArea>
+                                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="terms-agree" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(!!checked)} />
+                                            <Label htmlFor="terms-agree" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                Ik heb de belangrijkste punten gelezen en ga akkoord.
+                                            </Label>
+                                        </div>
+                                        <Button onClick={handleTermsNext} disabled={!termsAccepted}>
+                                            Volgende Stap <ArrowRight className="ml-2 h-4 w-4"/>
+                                        </Button>
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+                                    </div>
+                                </div>
+                            )}
 
-                            {item.contentSteps && <div className="space-y-2 text-sm text-muted-foreground mb-4">{item.contentSteps.map((step, i) => <p key={i}>{step}</p>)}<div className="flex flex-col sm:flex-row gap-2 mt-3"><Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button><Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button><Button variant="link" asChild className="p-0 h-auto text-primary"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button></div></div>}
                             {item.link && item.linkText && <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}><Link href={isDisabled ? '#' : item.link}>{item.linkText} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>}
                         </AccordionContent>
                     </AccordionItem>
