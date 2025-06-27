@@ -4,11 +4,8 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
 import { 
   getFirestore, 
-  initializeFirestore, 
   connectFirestoreEmulator,
   type Firestore, 
-  persistentLocalCache,
-  persistentMultipleTabManager 
 } from "firebase/firestore";
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from "firebase/storage";
 
@@ -37,32 +34,20 @@ if (isFirebaseConfigured) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
   storage = getStorage(app);
-
-  try {
-    // This replaces the deprecated enableIndexedDbPersistence()
-    db = initializeFirestore(app, {
-      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-    });
-  } catch (error: any) {
-    if (error.code === 'failed-precondition') {
-        console.warn("Firebase persistence failed: Multiple tabs open. Falling back to default online mode.");
-        db = getFirestore(app);
-    } else if (error.code === 'unimplemented') {
-        console.warn("Firebase persistence is not supported in this browser. Falling back to default online mode.");
-        db = getFirestore(app);
-    } else {
-        console.error("An unexpected error occurred while enabling Firebase persistence:", error);
-        db = getFirestore(app); // Fallback in any case
-    }
-  }
+  // Simplified Firestore initialization for better server/client compatibility
+  db = getFirestore(app);
 
   // Connect to emulators in development
   if (process.env.NODE_ENV === 'development') {
     try {
         console.log("Connecting to Firebase emulators on localhost...");
         connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-        connectFirestoreEmulator(db, 'localhost', 8080);
-        connectStorageEmulator(storage, 'localhost', 9199);
+        if (db) {
+          connectFirestoreEmulator(db, 'localhost', 8080);
+        }
+        if (storage) {
+          connectStorageEmulator(storage, 'localhost', 9199);
+        }
     } catch(e) {
         console.warn('Error connecting to Firebase emulators. This is expected if emulators are not running.');
     }
