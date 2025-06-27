@@ -1,3 +1,4 @@
+
 // src/app/for-parents/ouderrichtlijnen/page.tsx
 "use client";
 
@@ -7,21 +8,22 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download } from 'lucide-react';
+import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download, ArrowRight } from 'lucide-react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
-        <div className="text-sm opacity-80 mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-primary">{value}</div>
+        <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
 
 const ValuePropCard = ({ icon: Icon, title, children }: { icon: ElementType, title: string, children: React.ReactNode }) => (
-    <div className="bg-white/5 border border-white/20 p-6 rounded-lg shadow-lg backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
+    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-muted/50 transition-all duration-300">
         <div className="flex items-center gap-4 mb-3">
-            <div className="bg-primary/20 text-primary p-3 rounded-full">
+            <div className="bg-primary/10 text-primary p-3 rounded-full">
                 <Icon className="h-7 w-7" />
             </div>
             <h3 className="text-xl font-semibold text-foreground">{title}</h3>
@@ -31,7 +33,7 @@ const ValuePropCard = ({ icon: Icon, title, children }: { icon: ElementType, tit
 );
 
 const AgeCard = ({ range, role, description }: { range: string, role: string, description:string }) => (
-    <Card className="bg-card text-center flex flex-col h-full">
+    <Card className="bg-card text-center flex flex-col h-full shadow-md">
         <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary">{range}</CardTitle>
             <CardDescription className="font-semibold">{role}</CardDescription>
@@ -64,31 +66,43 @@ const PreviewCard = ({ title, subtitle, items }: { title: string, subtitle:strin
 
 export default function OuderRichtlijnenPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-amber-400 to-orange-500 text-white py-20 text-center">
-            <div className="container">
-                <Badge variant="secondary" className="bg-white/20 border-white/30 text-white backdrop-blur-sm mb-6">
-                 ✨ Gratis Ouder Ondersteuning
-                </Badge>
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">Ouderrichtlijnen voor Neurodivergente Jongeren</h1>
-                <p className="text-xl md:text-2xl opacity-90 mb-6">Ethische, praktische ondersteuning voor uw gezin</p>
-                <p className="max-w-2xl mx-auto text-lg opacity-80 mb-10">
-                    Als ouder van een neurodivergente tiener navigeert u dagelijks door unieke uitdagingen. 
-                    Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
-                </p>
-                <div className="flex justify-center gap-8 sm:gap-16 flex-wrap">
-                    <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
-                    <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
-                    <StatIndicator value="150K" label="Gezinnen zoeken ondersteuning" />
+        <section className="bg-background py-16 md:py-20 lg:py-24">
+            <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
+                {/* Left Column: Text */}
+                <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                    <Badge variant="secondary" className="bg-primary/10 border-primary/20 text-primary mb-4">
+                     ✨ Gratis Ouder Ondersteuning
+                    </Badge>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-foreground">Ouderrichtlijnen voor Neurodivergente Jongeren</h1>
+                    <p className="text-lg text-muted-foreground max-w-xl">
+                        Als ouder van een neurodivergente tiener navigeert u dagelijks door unieke uitdagingen. 
+                        Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
+                    </p>
+                    <div className="flex justify-center md:justify-start gap-8 sm:gap-12 flex-wrap mt-8">
+                        <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
+                        <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
+                        <StatIndicator value="150K" label="Gezinnen zoeken ondersteuning" />
+                    </div>
+                </div>
+                {/* Right Column: Image */}
+                <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl w-full max-w-md mx-auto md:max-w-lg">
+                    <Image
+                        src="https://placehold.co/800x600.png"
+                        alt="Ouder die een kind ondersteunt en begeleidt"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        data-ai-hint="parent child support guidance"
+                    />
                 </div>
             </div>
         </section>
 
         {/* Why Different Section */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-4">Waarom MindNavigator Anders Is</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
@@ -126,7 +140,7 @@ export default function OuderRichtlijnenPage() {
         </section>
 
         {/* Age-Specific Guide */}
-        <section className="py-16 md:py-24 bg-muted/40">
+        <section className="py-16 md:py-24 bg-background">
             <div className="container">
                  <h2 className="text-3xl font-bold text-center mb-4">Leeftijdsspecifieke Begeleiding</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
@@ -141,7 +155,7 @@ export default function OuderRichtlijnenPage() {
         </section>
 
          {/* Content Preview */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-4">Wat Zit Er In De Volledige Richtlijnen?</h2>
                 <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
@@ -155,19 +169,48 @@ export default function OuderRichtlijnenPage() {
             </div>
         </section>
 
+        {/* Statistics */}
+        <section className="py-16 md:py-24 bg-background">
+            <div className="container">
+                <Card className="shadow-xl bg-card border">
+                    <CardHeader>
+                        <CardTitle className="text-center text-3xl font-bold">Waarom Ouders MindNavigator Kiezen</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-primary mb-2">89%</div>
+                            <div className="text-muted-foreground">Ouders zien verbetering binnen 2 maanden</div>
+                        </div>
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-primary mb-2">€45</div>
+                            <div className="text-muted-foreground">Gemiddelde kosten p/mnd (vs €120 particulier)</div>
+                        </div>
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-primary mb-2">24/7</div>
+                            <div className="text-muted-foreground">Toegang tot crisis ondersteuningsinfo</div>
+                        </div>
+                         <div className="p-4">
+                            <div className="text-4xl font-bold text-primary mb-2">95%</div>
+                            <div className="text-muted-foreground">Ouders waarderen onze ethische transparantie</div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </section>
+
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-primary/90 text-primary-foreground">
-             <div className="container text-center">
+        <section className="py-16 md:py-24 bg-muted/30">
+             <div className="container text-center max-w-3xl">
                 <h2 className="text-3xl font-bold mb-4">Start Uw Reis Naar Beter Begrip</h2>
-                <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8">
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
                      Download de volledige ouderrichtlijnen gratis en krijg toegang tot 40+ pagina's 
                     met praktische tips, checklists en professionele inzichten.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button size="lg" variant="secondary" asChild className="text-base"><Link href="#">📧 Download Gratis Richtlijnen</Link></Button>
-                    <Button size="lg" variant="outline" asChild className="bg-transparent border-white text-white hover:bg-white hover:text-primary text-base"><Link href="#">🎥 Bekijk Demo (3 min)</Link></Button>
+                    <Button size="lg" asChild className="text-base"><Link href="#">📧 Download Gratis Richtlijnen</Link></Button>
+                    <Button size="lg" variant="outline" asChild className="text-base"><Link href="#">🎥 Bekijk Demo (3 min)</Link></Button>
                 </div>
-                <p className="mt-6 text-sm opacity-80">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Email ondersteuning inbegrepen</p>
+                <p className="mt-6 text-sm text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Email ondersteuning inbegrepen</p>
             </div>
         </section>
 
