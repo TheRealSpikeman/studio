@@ -12,7 +12,7 @@ import { UserCircle, Cake, Save, KeyRound, Eye, EyeOff, Wand2, Settings, BookOpe
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
-import { useDashboardRole } from '@/contexts/DashboardRoleContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { allHomeworkSubjects } from '@/lib/quiz-data/subject-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
@@ -75,7 +75,8 @@ const countryOptionsList = [
 
 
 export default function ProfilePage() {
-  const { currentDashboardRole } = useDashboardRole();
+  const { user } = useAuth();
+  const currentDashboardRole = user?.role;
 
   const [userName, setUserName] = useState(initialUserData.name);
   const [userEmail, setUserEmail] = useState(initialUserData.email);
