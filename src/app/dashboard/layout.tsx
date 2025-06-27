@@ -10,7 +10,7 @@ import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { PanelLeft } from '@/components/icons';
+import { PanelLeft } from '@/lib/icons';
 import { SidebarNavContent } from '@/components/layout/dashboard-sidebar'; // Import the content part
 
 function DashboardLayoutUI({ children }: { children: ReactNode }) {
