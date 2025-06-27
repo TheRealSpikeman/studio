@@ -1,3 +1,4 @@
+
 // src/app/dashboard/ouder/welcome/page.tsx
 "use client";
 
