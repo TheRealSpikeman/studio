@@ -25,7 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod"; 
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
-import type { SubscriptionPlan } from '@/app/dashboard/admin/subscription-management/page';
+import type { SubscriptionPlan } from '@/types/subscription';
 
 // --- TYPE DEFINITIES & CONSTANTEN ---
 
@@ -159,10 +159,10 @@ const isTutorServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
 const isCoachServiceCoveredByPlan = (planId?: Child['planId']): boolean => {
   if (!planId) return false; return planId.includes('family_guide') || planId.includes('premium_family') || planId.includes('coaching_tools');
 };
+const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
 
 // --- WEERGAVE COMPONENT ---
 const KindProfielView = ({ childData, onStartEdit }: { childData: Child; onStartEdit: () => void }) => {
-  const getInitials = (name?: string) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';
   const getSubjectName = (subjectId: string) => allHomeworkSubjects.find(s => s.id === subjectId)?.name || subjectId;
   const leerdoelenParsed = parseMultiPartString(childData?.leerdoelen);
   const tutorVoorkeurenParsed = parseMultiPartString(childData?.voorkeurTutor);
@@ -261,7 +261,7 @@ const KindProfielView = ({ childData, onStartEdit }: { childData: Child; onStart
               <div className="flex items-center gap-2 mt-1"><p className="text-sm text-muted-foreground">Status:</p><Badge variant={coachServiceActiveForChild ? "default" : "secondary"} className={coachServiceActiveForChild ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300"}>{coachServiceActiveForChild ? 'Actief' : 'Niet Actief'}</Badge></div>
             </CardHeader>
             <CardContent className="text-sm space-y-3 flex-grow">
-              {coachServiceActiveForChild && !coachServiceCovered && (<Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3"><AlertTriangle className="h-5 w-5 !text-orange-600" /><AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi><AlertDescUi>Het huidige abonnement '{childData.planName || 'Nog geen abonnement'}' dekt geen 1-op-1 coaching. Om een coach te koppelen is een upgrade naar 'Gezins Gids' of 'Premium' nodig.<Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button></AlertDescUi></Alert>)}
+              {coachServiceActiveForChild && !coachServiceCovered && (<Alert variant="default" className="bg-orange-50 border-orange-300 text-orange-700 mb-3"><AlertTriangle className="h-5 w-5 !text-orange-600" /><AlertTitleUi className="text-orange-700 font-semibold">Abonnement Vereist</AlertTitleUi><AlertDescUi>Het huidige abonnement '{childData.planName || 'Gratis Start'}' dekt geen 1-op-1 coaching.<Button variant="link" asChild className="p-0 h-auto ml-1 text-orange-700 hover:text-orange-800"><Link href="/dashboard/ouder/abonnementen">Upgrade nu</Link></Button></AlertDescUi></Alert>)}
               {coachServiceActiveForChild ? (<div className="mt-2"><h4 className="font-semibold text-foreground/90 mb-1 flex items-center gap-1"><UsersIcon className="h-4 w-4"/>Voorkeuren Coach</h4>{tutorVoorkeurenParsed.selected.length > 0 && (<div><p className="font-medium text-foreground/80">Geselecteerd:</p><ul className="list-disc list-inside space-y-0.5 pl-2 text-muted-foreground">{tutorVoorkeurenParsed.selected.map((pref, index) => (<li key={index}>{pref}</li>))}</ul></div>)}{tutorVoorkeurenParsed.other && (<p className="mt-1"><strong className="font-medium text-foreground/80">Overig:</strong> <span className="text-muted-foreground whitespace-pre-line">{tutorVoorkeurenParsed.other}</span></p>)}{(tutorVoorkeurenParsed.selected.length === 0 && !tutorVoorkeurenParsed.other) && (<p className="text-muted-foreground">Geen specifieke voorkeuren opgegeven.</p>)}</div>
               ) : (<p className="text-muted-foreground text-sm">1-op-1 coaching is niet geactiveerd voor {childData.firstName}. U kunt dit aanzetten via "Profiel Bewerken".</p>)}
             </CardContent>
@@ -410,7 +410,7 @@ export default function KindProfielPage() {
       otherSchoolType: data.schoolType === "Anders" ? data.otherSchoolType : undefined, className: data.className,
       helpSubjects: data.helpSubjects, hulpvraagType: data.hulpvraagType, leerdoelen: leerdoelenString.trim() || undefined,
       voorkeurTutor: tutorPreferencesString.trim() || undefined, deelResultatenMetTutor: data.deelResultatenMetTutor,
-      avatarUrl: data.avatarUrl, age: childData.age,
+      avatarUrl: data.avatarUrl || childData.avatarUrl, age: childData.age,
     };
     setChildData(updatedChildData);
     try {
