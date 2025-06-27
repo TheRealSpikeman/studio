@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Brain, Users, ShieldCheck, TrendingUp, BarChart, Target, AlertTriangle, Package, CheckCircle2, Lightbulb, Handshake, Mail, Video, Download } from 'lucide-react';
 import type { ElementType } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
