@@ -76,7 +76,7 @@ export default function OuderRichtlijnenPage() {
                     <Badge variant="secondary" className="mb-6">
                      ✨ Gratis Ouder Ondersteuning
                     </Badge>
-                    <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">Ouderrichtlijnen voor Neurodivergente Jongeren</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">Ouderrichtlijnen voor Neurodivergente <span className="text-primary">Jongeren</span></h1>
                     <p className="text-lg text-muted-foreground max-w-xl">
                         Als ouder van een neurodivergente tiener navigeert u dagelijks door unieke uitdagingen. 
                         Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
@@ -108,6 +108,7 @@ export default function OuderRichtlijnenPage() {
                     We respecteren de grenzen tussen coaching en medische zorg, 
                     en focussen op wat echt werkt voor neurodivergente gezinnen.
                 </p>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ValuePropCard icon={Target} title="Ethische Benadering">
                         Geen medische claims of diagnoses. We focussen op empowerment, 
