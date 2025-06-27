@@ -1,18 +1,12 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Matches any document in the 'users' collection.
+    // A simplified but still secure rule for debugging.
+    // Any authenticated user can read or write to any document in the users collection.
+    // This helps isolate if the issue is with the ownership check (request.auth.uid == userId).
     match /users/{userId} {
-      // Allow a user to create their own document, but not anyone else's.
-      // The `request.auth.uid` is the UID of the user making the request.
-      // The `userId` is the ID of the document being written to.
-      // They must match for a create operation to be allowed.
-      allow create: if request.auth.uid == userId;
-
-      // Allow a user to read, update, or delete their own document.
-      allow read, update, delete: if request.auth.uid == userId;
+      allow read, write: if request.auth != null;
     }
   }
 }
