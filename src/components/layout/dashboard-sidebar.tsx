@@ -52,6 +52,7 @@ import {
   ScrollText,
   Cpu,
   Bell,
+  Rss,
 } from '@/lib/icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
@@ -185,7 +186,8 @@ const navItems: NavItem[] = [
     children: [
       { href: '/dashboard/admin/feature-management', label: 'Functionaliteiten', icon: Package, parent: '#platform-parent' },
       { href: '/dashboard/admin/tool-management', label: 'Toolbeheer', icon: Wrench, parent: '#platform-parent' },
-      { href: '/dashboard/admin/content-management', label: 'Content', icon: FileEdit, parent: '#platform-parent' },
+      { href: '/dashboard/admin/content-management', label: 'Content Pagina\'s', icon: FileEdit, parent: '#platform-parent' },
+      { href: '/dashboard/admin/blog', label: 'Blogbeheer', icon: Rss, parent: '#platform-parent', isNew: true },
     ]
   },
   {

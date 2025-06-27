@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
-import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake, Gavel, GitBranch } from 'lucide-react';
+import { Briefcase, Facebook, Instagram, Linkedin, Twitter, Info, Users, ShieldCheck, MessageSquareText, HelpCircle, HeartHandshake, Gavel, GitBranch, Rss } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -46,6 +46,9 @@ export function Footer() {
               </Link>
               <Link href="/pricing" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Prijzen
+              </Link>
+               <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                Blog
               </Link>
                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary hover:underline">
                 Contact

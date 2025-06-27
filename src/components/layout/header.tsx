@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/common/site-logo';
@@ -13,6 +12,7 @@ import { Menu } from 'lucide-react';
 export function Header() {
   const navLinks = [
     { href: "/pricing", label: "Prijzen" },
+    { href: "/blog", label: "Blog" },
     { href: "/neurodiversiteit", label: "Neurodiversiteit" },
     { href: "/for-parents", label: "Voor ouders" },
     { href: "/about", label: "Over ons" },

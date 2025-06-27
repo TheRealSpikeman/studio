@@ -1,81 +1,68 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
     // Helper Functions
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    function isAdmin() {
-      // Check if the requesting user's document in the 'users' collection has the role 'admin'.
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function hasRole(role) {
+      // Check for custom claims first, then fall back to document data
+      // Note: Setting custom claims requires a backend (e.g., Cloud Functions)
+      // For this prototype, we rely on the document data.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
 
-    // USERS collection
+    function canManageContent() {
+        // Future-proof: If you add a 'content-manager' role, just add it here.
+        // e.g., return hasRole('admin') || hasRole('content-manager');
+        return hasRole('admin');
+    }
+
+    // USER DATA
     match /users/{userId} {
-      // GET: An admin can get any user doc. A user can get their own doc.
-      allow get: if isOwner(userId) || isAdmin();
-      
-      // LIST: Only admins can list all users.
-      allow list: if isAdmin();
-      
-      // CREATE: A user can create their own document (e.g., on signup).
-      // No one else can create a user document for someone else, except perhaps a backend process.
-      allow create: if request.auth != null; // Allow any authenticated user to create their own doc during signup flow.
-      
-      // UPDATE: A user can update their own document. An admin can update any document.
-      allow update: if isOwner(userId) || isAdmin();
-      
-      // DELETE: Only an admin can delete a user document.
-      allow delete: if isAdmin();
+      // A user can always read and update their own document.
+      allow get, update: if isUser(userId);
+      // Only admins can create or delete users through the management panel.
+      allow create, delete, list: if hasRole('admin');
     }
-    
-    // QUIZZES collection
+
+    // QUIZ DATA
     match /quizzes/{quizId} {
-      // Anyone can read a published quiz.
+      // Anyone can read published quizzes.
       allow get: if resource.data.status == 'published';
-      // Anyone can list published quizzes.
-      allow list: if true; // Keeping this open for now for public quiz lists. Can be tightened later.
-      // Only admins can create, update, or delete quizzes.
-      allow create, update, delete: if isAdmin();
+      
+      // Only admins/content managers can manage quizzes.
+      allow list, create, update, delete: if canManageContent();
     }
     
-    // TOOLS collection
+    // TOOLS DATA
     match /tools/{toolId} {
-        // Publicly readable
-        allow get, list: if true;
-        // Admin-only write access
-        allow create, update, delete: if isAdmin();
+        // Anyone can read online tools.
+        allow get: if resource.data.status == 'online';
+        
+        // Admins can manage all tools.
+        allow list, create, update, delete: if hasRole('admin');
     }
     
-    // FEATURES & SUBSCRIPTIONS (for platform configuration)
-    match /features/{featureId} {
-        // Publicly readable
-        allow get, list: if true;
-        // Admin-only write access
-        allow create, update, delete: if isAdmin();
+    // BLOG POSTS
+    match /blogPosts/{postId} {
+      // Anyone can read published posts
+      allow get: if resource.data.status == 'published';
+      
+      // Admins can manage all posts
+      allow list, create, update, delete: if hasRole('admin');
     }
     
-    match /subscriptions/{subscriptionId} {
-        // Publicly readable
-        allow get, list: if true;
-        // Admin-only write access
-        allow create, update, delete: if isAdmin();
-    }
-    
-    // USER-SPECIFIC SUBCOLLECTIONS
-    match /users/{userId}/quizResults/{resultId} {
-      // A user can manage their own quiz results. An admin can read them.
-      allow read, write: if isOwner(userId);
-      allow get, list: if isOwner(userId) || isAdmin();
-    }
-    
-    match /users/{userId}/journalEntries/{entryId} {
-      // Strict privacy: Only the owner can ever access their journal entries.
-      allow read, write, delete: if isOwner(userId);
+    // Default deny all other reads/writes
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

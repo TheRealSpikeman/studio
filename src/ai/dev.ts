@@ -10,8 +10,4 @@ import '@/ai/flows/compare-parent-child-insights-flow.ts';
 import '@/ai/flows/verify-quiz-questions-flow.ts';
 import '@/ai/flows/generate-tool-details-flow.ts';
 import '@/ai/flows/generate-react-component-flow.ts';
-
-
-
-
-
+import '@/ai/flows/generate-blog-post-flow.ts';
