@@ -84,7 +84,6 @@ export {
   Languages,
   Landmark,
   LayoutDashboard,
-  Lightbulb,
   Library,
   LifeBuoy,
   LineChart,

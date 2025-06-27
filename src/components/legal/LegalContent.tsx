@@ -1,6 +1,6 @@
 // src/components/legal/LegalContent.tsx
 import Link from 'next/link';
-import { ExternalLink, ShieldCheck, FileText, AlertTriangle, Gavel, Stethoscope, Bot } from '@/lib/icons';
+import { ExternalLink, ShieldCheck, AlertTriangle, Gavel, Stethoscope, Bot, Scale } from '@/lib/icons';
 import type { ElementType } from 'react';
 
 // Helper component for consistent section styling
@@ -110,7 +110,7 @@ export const DisclaimerContent = () => (
             <p>Delen van de inzichten en aanbevelingen op dit platform worden gegenereerd met behulp van kunstmatige intelligentie (AI). Hoewel we streven naar hoge kwaliteit, kan AI-gegenereerde content onnauwkeurigheden bevatten of niet van toepassing zijn op uw specifieke situatie. Gebruik deze inzichten als een startpunt voor reflectie en gesprek, niet als een absolute waarheid.</p>
         </Section>
         
-        <Section title="Beperking van Aansprakelijkheid" icon={Gavel}>
+        <Section title="Beperking van Aansprakelijkheid" icon={Scale}>
             <p>Het gebruik van de informatie en tools op dit platform is geheel op eigen risico. MindNavigator, haar medewerkers en partners zijn niet aansprakelijk voor enige directe of indirecte schade die voortvloeit uit het gebruik van de Dienst of het vertrouwen op de verstrekte informatie.</p>
         </Section>
     </div>
