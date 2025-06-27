@@ -28,16 +28,12 @@ let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 
-
-// This pattern prevents re-initializing the app on hot reloads
 if (getApps().length === 0) {
   if (isConfigured) {
     app = initializeApp(firebaseConfig);
   } else {
     console.error("🔥 FIREBASE CONFIGURATION MISSING OR INCOMPLETE! 🔥");
     console.error("Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set correctly.");
-    // Create a dummy app to prevent the app from crashing.
-    // The UI will show a warning because isConfigured is false.
     app = initializeApp({ apiKey: "placeholder-to-prevent-crash", projectId: "placeholder" });
   }
 } else {
@@ -49,28 +45,21 @@ db = getFirestore(app);
 storage = getStorage(app);
 
 // Connect to emulators in development, ONLY ON THE CLIENT SIDE.
-// This is the definitive fix for the network errors in cloud dev environments.
 if (isConfigured && process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    // Check if emulators are already connected to prevent errors on hot-reloads.
     // The private property _isEmulator is a reliable way to check this.
+    // We only connect if it hasn't been connected before to avoid errors on hot-reloads.
     if (!(auth as any)._isEmulator) {
         try {
-            console.log(`Firebase emulators connecting...`);
+            console.log(`Firebase emulators connecting to localhost...`);
             
-            // Use window.location.hostname to dynamically get the correct host for the emulators.
-            // This is crucial for cloud development environments like Cloud Workstations.
-            const hostname = window.location.hostname;
-
-            console.log(`Connecting to Auth emulator at http://${hostname}:9099`);
-            connectAuthEmulator(auth, `http://${hostname}:9099`, { disableWarnings: true });
+            // Standardize on 'localhost'. This is the most common and robust setup for local/containerized dev.
+            connectAuthEmulator(auth, `http://localhost:9099`, { disableWarnings: true });
             console.log('✅ Auth emulator connected.');
             
-            console.log(`Connecting to Firestore emulator at ${hostname}:8080`);
-            connectFirestoreEmulator(db, hostname, 8080);
+            connectFirestoreEmulator(db, 'localhost', 8080);
             console.log('✅ Firestore emulator connected.');
             
-            console.log(`Connecting to Storage emulator at ${hostname}:9199`);
-            connectStorageEmulator(storage, hostname, 9199);
+            connectStorageEmulator(storage, 'localhost', 9199);
             console.log('✅ Storage emulator connected.');
 
         } catch(e) {
@@ -78,6 +67,5 @@ if (isConfigured && process.env.NODE_ENV === 'development' && typeof window !== 
         }
     }
 }
-
 
 export { app, auth, db, storage, isConfigured as isFirebaseConfigured };
