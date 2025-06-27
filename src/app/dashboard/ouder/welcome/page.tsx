@@ -1,8 +1,7 @@
 // src/app/dashboard/ouder/welcome/page.tsx
 "use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-react';
@@ -11,12 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { PlanSelection } from '@/components/ouder/welcome/PlanSelection';
 import { OnboardingSteps } from '@/components/ouder/welcome/OnboardingSteps';
 import { Compass } from '@/lib/icons';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const ONBOARDING_KEY_OUDER = 'onboardingCompleted_ouder_v1';
-
-const currentParent = {
-  name: "Ouder Tester",
-};
 
 function OuderWelcomePageContent() {
   const router = useRouter();
@@ -52,7 +48,7 @@ function OuderWelcomePageContent() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl text-center">
         <h1 className="text-3xl font-bold text-foreground mb-4">
-          Welkom bij MindNavigator, {currentParent.name}!
+          Welkom bij MindNavigator!
         </h1>
         <p className="text-lg text-muted-foreground mt-2 mb-6">
           Wij helpen u uw kind beter te begrijpen en te ondersteunen.

@@ -113,7 +113,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/ouder/abonnementen', label: 'Abonnementen', icon: Euro, ouderOnly: true },
   { href: '/dashboard/ouder/facturatie', label: 'Facturatie', icon: CreditCard, ouderOnly: true },
   { href: '/dashboard/ouder/berichten', label: 'Berichten', icon: MessageSquare, ouderOnly: true },
-  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy &amp; Delen', icon: ShieldCheck, ouderOnly: true },
+  { href: '/dashboard/ouder/privacy-instellingen', label: 'Privacy & Delen', icon: ShieldCheck, ouderOnly: true },
   { href: '/dashboard/ouder/faq', label: 'FAQ Ouders', icon: HelpCircle, ouderOnly: true },
 
   // Tutor specific section

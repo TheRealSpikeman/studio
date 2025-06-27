@@ -95,7 +95,7 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     };
 
     const sortedActiepunten = getActiepuntenConfig();
-    const defaultOpenAccordionItem = !planParam ? "bekijk-abonnementen" : (sortedActiepunten.find(ap => ap.id !== "bekijk-abonnementen" && ap.id !== "belangrijke-voorwaarden")?.id || "");
+    const defaultOpenAccordionItem = !planParam ? "bekijk-abonnementen" : "";
 
     return (
          <Accordion type="single" collapsible className="w-full space-y-4 text-left mb-10" defaultValue={defaultOpenAccordionItem}>
