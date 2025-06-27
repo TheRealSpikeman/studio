@@ -44,27 +44,40 @@ const StepCard = ({ number, title, description, children, className }: { number:
   </div>
 );
 
-const ParticipantCard = ({ title, Icon, content, isParent = false }: { title: string, Icon: ElementType, content: ReactNode, isParent?: boolean }): JSX.Element => (
-  <Card className={cn(
-    "participant-card rounded-xl border-2 h-full transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02]",
-    isParent ? "bg-primary/10 border-primary" : "bg-accent/10 border-accent"
-  )}>
-    <CardHeader className="pb-3">
-      <CardTitle className={cn(
-        "participant-title text-lg font-semibold flex items-center gap-2",
-        isParent ? "text-primary" : "text-accent"
-      )}>
-        <Icon className="h-6 w-6" />
-        {title}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className={cn(
-        "participant-content leading-normal", 
-        isParent ? "text-primary/90" : "text-accent/90"
+const ParticipantCard = ({ title, Icon, quote, items, isParent = false }: { 
+    title: string, 
+    Icon: ElementType, 
+    quote: string, 
+    items: string[],
+    isParent?: boolean 
+}): JSX.Element => (
+    <Card className={cn(
+        "h-full rounded-2xl p-6 sm:p-8 border",
+        isParent 
+        ? "bg-primary/5 border-primary/20"
+        : "bg-accent/5 border-accent/20"
     )}>
-      {content}
-    </CardContent>
-  </Card>
+        <div className="flex items-center gap-3 mb-3">
+            <Icon className={cn("h-6 w-6", isParent ? "text-primary" : "text-accent")} />
+            <h3 className={cn("text-lg font-semibold", isParent ? "text-primary" : "text-accent")}>
+                {title}
+            </h3>
+        </div>
+        <p className="mb-4 text-base italic text-muted-foreground">
+        "{quote}"
+        </p>
+        <ul className="space-y-2">
+            {items.map((item, index) => (
+                <li key={index} className="flex items-start gap-3">
+                    <span className={cn(
+                        "mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full", 
+                        isParent ? "bg-primary/70" : "bg-accent/70"
+                    )}></span>
+                    <span className="text-muted-foreground">{item}</span>
+                </li>
+            ))}
+        </ul>
+    </Card>
 );
 
 const ComparisonInsightCard = ({ title, Icon, items }: { title: string, Icon: ElementType, items: Array<{ type: string, description: string }> }): JSX.Element => (
@@ -104,7 +117,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
       <main className="flex-1 bg-gradient-to-b from-background via-secondary/5 to-background py-12 md:py-20 lg:py-28">
         <div className="container mx-auto max-w-5xl">
             {/* Header Section */}
-            <div className="text-center mb-12 md:mb-16"> {/* Standaard bottom margin */}
+            <div className="text-center mb-12 md:mb-16">
                 <Search className="h-16 w-16 mx-auto mb-6 text-primary" />
                 <h1 className="text-4xl font-bold text-foreground md:text-5xl">Ouder-Kind Vergelijkende Analyse</h1>
                 <p className="text-lg text-muted-foreground mt-2 max-w-3xl mx-auto leading-relaxed">
@@ -112,7 +125,7 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                 </p>
             </div>
             
-            <div className="flow-container space-y-12 md:space-y-16"> {/* space-y voor afstand tussen StepCards */}
+            <div className="flow-container space-y-12 md:space-y-16">
                 {/* Step 1 */}
                 <StepCard
                   number={1}
@@ -121,37 +134,29 @@ export default function VergelijkendeAnalysePage(): JSX.Element {
                 >
                   <div className="participants grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <ParticipantCard
-                      title="Kind - Zelfreflectie Tool"
-                      Icon={User}
-                      content={
-                        <>
-                          <p className="text-base italic mb-3 text-center md:text-left">"Hoe zie ik mezelf?"</p>
-                          <ul className="list-disc list-inside space-y-1.5 pl-1 text-base leading-relaxed">
-                            <li>Sterke punten en uitdagingen</li>
-                            <li>Sociale voorkeuren</li>
-                            <li>Leer- en communicatiestijl</li>
-                            <li>Emotionele patronen</li>
-                            <li>Toekomstdromen en zorgen</li>
-                          </ul>
-                        </>
-                      }
+                        title="Kind - Zelfreflectie Tool"
+                        Icon={User}
+                        quote="Hoe zie ik mezelf?"
+                        items={[
+                            "Sterke punten en uitdagingen",
+                            "Sociale voorkeuren",
+                            "Leer- en communicatiestijl",
+                            "Emotionele patronen",
+                            "Toekomstdromen en zorgen",
+                        ]}
                     />
                     <ParticipantCard
-                      title='Ouder - "Ken je Kind" Quiz'
-                      Icon={UsersIcon}
-                      isParent
-                      content={
-                        <>
-                          <p className="text-base italic mb-3 text-center md:text-left">"Hoe zie ik mijn kind?"</p>
-                          <ul className="list-disc list-inside space-y-1.5 pl-1 text-base leading-relaxed">
-                            <li>Observaties van gedrag</li>
-                            <li>Sociale interacties</li>
-                            <li>Leerpatronen thuis</li>
-                            <li>Emotionele uitingen</li>
-                            <li>Zorgen en trots momenten</li>
-                          </ul>
-                        </>
-                      }
+                        title='Ouder - "Ken je Kind" Quiz'
+                        Icon={UsersIcon}
+                        isParent
+                        quote="Hoe zie ik mijn kind?"
+                        items={[
+                            "Observaties van gedrag",
+                            "Sociale interacties",
+                            "Leerpatronen thuis",
+                            "Emotionele uitingen",
+                            "Zorgen en trots momenten",
+                        ]}
                     />
                   </div>
                 </StepCard>
