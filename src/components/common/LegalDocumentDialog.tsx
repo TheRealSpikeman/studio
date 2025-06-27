@@ -10,7 +10,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 
 interface LegalDocumentDialogProps {
@@ -29,12 +28,12 @@ export function LegalDocumentDialog({ triggerNode, title, children }: LegalDocum
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl">{title}</DialogTitle>
         </DialogHeader>
-        {/* The key is min-h-0 which allows the flex item to shrink below its content size */}
-        <ScrollArea className="flex-grow min-h-0">
-          <div className="pr-4">
-            {children}
+        {/* This div is now the scrollable container */}
+        <div className="flex-1 overflow-y-auto pr-6">
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+             {children}
           </div>
-        </ScrollArea>
+        </div>
         <DialogFooter className="pt-4 border-t flex-shrink-0">
           <DialogClose asChild>
             <Button type="button">Sluiten</Button>
