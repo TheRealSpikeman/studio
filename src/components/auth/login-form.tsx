@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -27,8 +26,16 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Wachtwoord is vereist." }),
 });
 
+function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+        <path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.3 512 0 398.5 0 256S111.3 0 244 0c71.2 0 130.9 29.1 176.3 75.3l-68.5 63.2C317.8 112.5 282.8 96 244 96c-89.8 0-163.4 73.6-163.4 164s73.6 164 163.4 164c98.2 0 135-70.4 140.8-106.9H244v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.8z"></path>
+    </svg>
+  );
+}
+
 export function LoginForm() {
-  const { login, isLoading: isAuthLoading, isFirebaseConfigured } = useAuth();
+  const { login, loginWithGoogle, isLoading: isAuthLoading, isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -49,11 +56,22 @@ export function LoginForm() {
     setIsSubmitting(true);
     const success = await login(values.email, values.password);
     if (!success) {
-      // De toast wordt nu in de login functie zelf afgehandeld.
-      setIsSubmitting(false); // Only set to false on failure.
+      setIsSubmitting(false);
     }
-    // On success, the AuthContext will handle the redirect, so we don't need to setIsSubmitting(false).
   }
+
+  const handleGoogleLogin = async () => {
+    if (!isFirebaseConfigured) {
+        toast({ title: "Configuratie Fout", description: "Kan niet inloggen, Firebase is niet geconfigureerd.", variant: "destructive" });
+        return;
+    }
+    setIsSubmitting(true);
+    const success = await loginWithGoogle();
+    if (!success) {
+      setIsSubmitting(false);
+    }
+  };
+
 
   return (
     <Card className="w-full max-w-md shadow-xl">
@@ -72,7 +90,7 @@ export function LoginForm() {
           </Alert>
         )}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
@@ -115,8 +133,9 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <div className="text-right">
-              <Button variant="link" asChild className="px-0 text-sm">
+            <div className="flex items-center justify-between">
+              <div/>
+              <Button variant="link" asChild className="px-0 text-sm h-auto py-0">
                 <Link href="/forgot-password">Wachtwoord vergeten?</Link>
               </Button>
             </div>
@@ -126,6 +145,20 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
+        <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                    Of ga verder met
+                </span>
+            </div>
+        </div>
+        <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isSubmitting || isAuthLoading || !isFirebaseConfigured}>
+            <GoogleIcon className="mr-2 h-4 w-4" />
+            Google
+        </Button>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Nog geen account?{' '}
           <Button variant="link" asChild className="px-0">

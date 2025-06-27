@@ -11,6 +11,8 @@ import {
   signOut, 
   onAuthStateChanged,
   sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
   type Auth,
   type User as FirebaseUser 
 } from 'firebase/auth';
@@ -35,6 +37,7 @@ interface AuthContextType {
   isFirebaseConfigured: boolean;
   auth: Auth | null;
   login: (email: string, pass: string) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -73,35 +76,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               ...(userDocSnap.data() as Omit<User, 'id'>),
             };
             setUser(appUser);
-            await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+            // Don't await this, let it run in the background
+            updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
           } else {
-            console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for temp signup data...`);
+            console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for signup method...`);
             const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
+            let profileDataToSet;
+
             if (tempProfileRaw) {
-              console.log(`[AuthContext] Temp profile data FOUND. Attempting to create Firestore document...`);
-              const tempProfileData = JSON.parse(tempProfileRaw);
-              const finalProfileData = {
-                ...tempProfileData,
-                email: firebaseUser.email,
-              };
-
-              await setDoc(userDocRef, finalProfileData);
-              console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}.`);
-              
+              // User signed up with email/password
+              console.log(`[AuthContext] Temp profile data FOUND. Creating Firestore document for email signup...`);
+              profileDataToSet = JSON.parse(tempProfileRaw);
               localStorage.removeItem(TEMP_PROFILE_KEY);
+            } else if (firebaseUser.providerData.some(p => p.providerId === 'google.com')) {
+              // User signed up with Google
+              console.log(`[AuthContext] New user via Google Sign-In: ${firebaseUser.uid}. Creating Firestore document...`);
+              profileDataToSet = {
+                name: firebaseUser.displayName || "Nieuwe Gebruiker",
+                email: firebaseUser.email,
+                role: 'leerling' as UserRoleType, // Default role for social sign-ins
+                status: 'actief' as UserStatus,    // Social sign-ins are instantly active
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                avatarUrl: firebaseUser.photoURL || undefined,
+              };
+            }
 
-              const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
-              setUser(appUser);
+            if (profileDataToSet) {
+                const finalProfileData = {
+                  ...profileDataToSet,
+                  email: firebaseUser.email, // Always use the email from the authenticated user
+                };
+                await setDoc(userDocRef, finalProfileData);
+                console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}.`);
+                const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
+                setUser(appUser);
             } else {
-              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no temp data found. Logging out.`);
+              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no known signup method. Logging out.`);
               await signOut(auth);
             }
           }
         } catch (error) {
             console.error("[AuthContext] CRITICAL ERROR during user document fetch/create:", error);
-            // This log might reveal if it's a permissions error from Firestore itself
             toast({ title: "Fout bij profiel laden", description: `Kon gebruikersprofiel niet ophalen of aanmaken. Fout: ${(error as Error).message}`, variant: "destructive", duration: 10000 });
-            await signOut(auth); // Log out to prevent inconsistent state
+            await signOut(auth);
         }
       } else {
         console.log(`[AuthContext] No user authenticated.`);
@@ -164,6 +182,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [toast, router]);
 
+  const loginWithGoogle = useCallback(async (): Promise<boolean> => {
+    if (!isFirebaseConfigured || !auth) {
+      toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
+      return false;
+    }
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // The onAuthStateChanged listener will handle the redirect.
+      // But we can push to make it faster.
+      router.push('/dashboard');
+      return true;
+    } catch (error: any) {
+      console.error("Firebase Google Login Error:", error);
+      toast({ title: "Google Inloggen Mislukt", description: "Kon niet inloggen met Google. Probeer het opnieuw.", variant: "destructive" });
+      return false;
+    }
+  }, [toast, router]);
+
+
   const logout = useCallback(async () => {
     if (auth) {
       await signOut(auth);
@@ -179,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isFirebaseConfigured,
     auth,
     login,
+    loginWithGoogle,
     signup,
     logout,
   };
