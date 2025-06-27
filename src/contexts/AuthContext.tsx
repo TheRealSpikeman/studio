@@ -1,3 +1,4 @@
+
 // src/contexts/AuthContext.tsx
 "use client";
 
@@ -152,7 +153,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast({ title: "Configuratie Fout", description: "Firebase is niet geconfigureerd.", variant: "destructive" });
       return false;
     }
-    setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       router.push('/dashboard');
@@ -160,7 +160,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error("Firebase Login Error:", error);
       toast({ title: "Inloggen Mislukt", description: "De combinatie van e-mail en wachtwoord is onjuist.", variant: "destructive" });
-      setIsLoading(false);
       return false;
     }
   }, [toast, router]);
