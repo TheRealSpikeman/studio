@@ -1,3 +1,4 @@
+
 // src/components/ouder/welcome/OnboardingSteps.tsx
 "use client";
 
@@ -5,18 +6,115 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
-import { FileText, UserPlus, ShieldCheck, ArrowRight, ExternalLink } from 'lucide-react';
+import { FileText, UserPlus, ShieldCheck, ArrowRight, ExternalLink, AlertTriangle, Check, BookUser, Gavel } from 'lucide-react';
 import { AddChildForm, type AddChildFormData } from '@/components/ouder/AddChildForm';
 import { useToast } from '@/hooks/use-toast';
 import { PlanSelection } from './PlanSelection';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 
 interface OnboardingStepsProps {
     planParam: string | null;
     onPlanSelect: (planId: string) => void;
 }
+
+const termsFormSchema = z.object({
+  medicalDisclaimer: z.literal(true, { errorMap: () => ({ message: "U moet akkoord gaan met de medische disclaimer." }) }),
+  privacyTerms: z.literal(true, { errorMap: () => ({ message: "U moet akkoord gaan met het privacybeleid." }) }),
+  ageConsent: z.literal(true, { errorMap: () => ({ message: "U moet de voorwaarden voor leeftijd en toestemming accepteren." }) }),
+  coachingLimits: z.literal(true, { errorMap: () => ({ message: "U moet de grenzen van coaching begrijpen." }) }),
+});
+
+function TermsAndConditionsStep({ onNext }: { onNext: () => void }) {
+  const form = useForm<z.infer<typeof termsFormSchema>>({
+    resolver: zodResolver(termsFormSchema),
+    defaultValues: {
+      medicalDisclaimer: false,
+      privacyTerms: false,
+      ageConsent: false,
+      coachingLimits: false,
+    },
+  });
+
+  const onSubmit = () => {
+    onNext();
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Alert variant="destructive" className="bg-red-50 border-red-200">
+            <AlertTriangle className="h-5 w-5 !text-red-600"/>
+            <AlertTitleUi className="font-semibold text-red-700">BELANGRIJKE MEDISCHE DISCLAIMER</AlertTitleUi>
+            <AlertDescription className="text-red-800/90 text-sm">
+                MindNavigator is <strong>GEEN</strong> medische dienst en vervangt nooit professionele zorg. Voor diagnoses (ADHD, autisme, etc.) of behandeling, raadpleeg altijd een huisarts of GGZ-instelling.
+                 <br /><strong>Bij acute problemen:</strong> Bel direct 112 (spoed) of 113 (suïcidepreventie).
+            </AlertDescription>
+        </Alert>
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="medicalDisclaimer"
+            render={({ field }) => (
+              <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
+                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
+                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Medische Disclaimer:</strong> Ik begrijp dat MindNavigator een hulpmiddel is en geen medische dienst, en ik zoek professionele hulp bij medische zorgen.</FormLabel><FormMessage /></div>
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="privacyTerms"
+            render={({ field }) => (
+              <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
+                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
+                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Privacy & Gegevens:</strong> Ik ga akkoord met het <Button variant="link" asChild className="p-0 h-auto -my-1"><Link href="/privacy" target="_blank">privacybeleid</Link></Button> en begrijp hoe data wordt verwerkt en beschermd.</FormLabel><FormMessage /></div>
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="ageConsent"
+            render={({ field }) => (
+              <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
+                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
+                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Leeftijd & Toestemming:</strong> Ik bevestig dat ik als ouder/verzorger toestemming geef voor mijn minderjarige kind om dit platform te gebruiken.</FormLabel><FormMessage /></div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="coachingLimits"
+            render={({ field }) => (
+              <FormItem className="flex items-start gap-3 rounded-md border bg-card p-4 hover:bg-muted/50 transition-colors">
+                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1 h-5 w-5" /></FormControl>
+                <div className="space-y-1 leading-none"><FormLabel className="cursor-pointer"><strong>Grenzen van Coaching:</strong> Ik begrijp dat coaching op dit platform ondersteuning biedt en geen vervanging is voor therapie of medische behandeling.</FormLabel><FormMessage /></div>
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-4 border-t">
+          <div className="flex gap-4">
+             <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+             <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
+          </div>
+          <Button type="submit" disabled={!form.formState.isValid}>
+            Volgende Stap <ArrowRight className="ml-2 h-4 w-4"/>
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
 
 interface Actiepunt {
   id: string;
@@ -27,7 +125,6 @@ interface Actiepunt {
   linkText?: string;
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
   contentHeader?: string;
-  contentSteps?: string[];
   customContent?: 'planSelection' | 'addChildForm' | 'termsAndConditions';
 }
 
@@ -35,8 +132,6 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
     const { toast } = useToast();
     const [addChildFormKey, setAddChildFormKey] = useState(0);
     const [openAccordionItem, setOpenAccordionItem] = useState(!planParam ? "bekijk-abonnementen" : "");
-    const [termsAccepted, setTermsAccepted] = useState(false);
-
 
     const handleSaveChildOnWelcome = (data: AddChildFormData) => {
         console.log("Kind toegevoegd via welkomstpagina (simulatie):", data);
@@ -47,6 +142,11 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
         });
         setAddChildFormKey(prevKey => prevKey + 1);
     };
+
+    const handlePlanSelected = (planId: string) => {
+        onPlanSelect(planId);
+        setOpenAccordionItem("belangrijke-voorwaarden");
+    }
 
     const handleTermsNext = () => {
         setOpenAccordionItem("voeg-kind-toe");
@@ -111,9 +211,17 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
             onValueChange={setOpenAccordionItem}
         >
             {sortedActiepunten.map((item) => {
-                const isDisabled = !planParam && !["bekijk-abonnementen", "belangrijke-voorwaarden"].includes(item.id);
+                const isDisabled = !planParam && !["bekijk-abonnementen"].includes(item.id);
+                const isStepTermsDisabled = !planParam;
+                const isAfterTermsDisabled = !planParam;
+
+                 let isStepDisabled = false;
+                 if (item.id === "belangrijke-voorwaarden" && isStepTermsDisabled) isStepDisabled = true;
+                 if (["voeg-kind-toe", "privacy-delen", "ken-je-kind"].includes(item.id) && isAfterTermsDisabled) isStepDisabled = true;
+
+
                 return (
-                    <AccordionItem key={item.id} value={item.id} className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl" disabled={isDisabled}>
+                    <AccordionItem key={item.id} value={item.id} className="bg-card border shadow-md rounded-lg data-[state=open]:shadow-xl" disabled={isStepDisabled}>
                         <AccordionTrigger className="p-6 text-lg font-semibold hover:no-underline data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
                             <div className="flex items-center gap-3"><div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">{item.stepNumber}</div>{item.title}</div>
                         </AccordionTrigger>
@@ -121,38 +229,12 @@ export function OnboardingSteps({ planParam, onPlanSelect }: OnboardingStepsProp
                             <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
                             {item.contentHeader && <p className="text-sm font-medium text-foreground mb-4">{item.contentHeader}</p>}
                             
-                            {item.customContent === 'planSelection' && <PlanSelection planParam={planParam} onPlanSelect={onPlanSelect} />}
+                            {item.customContent === 'planSelection' && <PlanSelection planParam={planParam} onPlanSelect={handlePlanSelected} />}
                             {item.customContent === 'addChildForm' && <AddChildForm key={addChildFormKey} onSave={handleSaveChildOnWelcome} onCancel={() => {}} />}
                             
-                            {item.customContent === 'termsAndConditions' && (
-                                <div className="space-y-4">
-                                    <ScrollArea className="h-40 w-full rounded-md border p-4 text-xs bg-muted/30">
-                                        <h4 className="font-bold mb-2">Samenvatting Voorwaarden & Privacy</h4>
-                                        <p className="mb-2"><strong>Geen Diagnose:</strong> MindNavigator is een hulpmiddel voor zelfinzicht en is geen vervanging voor professioneel medisch of psychologisch advies. Raadpleeg altijd een gekwalificeerde zorgverlener bij zorgen.</p>
-                                        <p className="mb-2"><strong>Data & Privacy:</strong> Uw gegevens worden vertrouwelijk behandeld conform AVG/GDPR. Resultaten worden niet zonder toestemming gedeeld.</p>
-                                        <p className="mb-2"><strong>Ouderlijke Toestemming:</strong> Voor minderjarigen is uw toestemming vereist voor het aanmaken van een account en het afsluiten van abonnementen.</p>
-                                        <p>Bekijk de volledige documenten voor alle details.</p>
-                                    </ScrollArea>
-                                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox id="terms-agree" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(!!checked)} />
-                                            <Label htmlFor="terms-agree" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                Ik heb de belangrijkste punten gelezen en ga akkoord.
-                                            </Label>
-                                        </div>
-                                        <Button onClick={handleTermsNext} disabled={!termsAccepted}>
-                                            Volgende Stap <ArrowRight className="ml-2 h-4 w-4"/>
-                                        </Button>
-                                    </div>
-                                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
-                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/terms" target="_blank">Algemene Voorwaarden <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/privacy" target="_blank">Privacybeleid <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                                        <Button variant="link" asChild className="p-0 h-auto text-primary text-xs"><Link href="/disclaimer" target="_blank">Disclaimer <ExternalLink className="ml-1 h-3 w-3"/></Link></Button>
-                                    </div>
-                                </div>
-                            )}
+                            {item.customContent === 'termsAndConditions' && <TermsAndConditionsStep onNext={handleTermsNext} />}
 
-                            {item.link && item.linkText && <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isDisabled}><Link href={isDisabled ? '#' : item.link}>{item.linkText} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>}
+                            {item.link && item.linkText && <Button asChild variant={item.buttonVariant || 'default'} className="w-full sm:w-auto" disabled={isStepDisabled}><Link href={isStepDisabled ? '#' : item.link}>{item.linkText} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>}
                         </AccordionContent>
                     </AccordionItem>
                 );
