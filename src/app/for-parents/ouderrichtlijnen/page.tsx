@@ -14,15 +14,15 @@ import { cn } from '@/lib/utils';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-primary">{value}</div>
-        <div className="text-sm text-muted-foreground mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-teal-400">{value}</div>
+        <div className="text-sm text-white/80 mt-1">{label}</div>
     </div>
 );
 
 const ValuePropCard = ({ icon: Icon, title, children }: { icon: ElementType, title: string, children: React.ReactNode }) => (
-    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-primary/10 transition-all duration-300">
+    <div className="bg-card border p-6 rounded-lg shadow-lg hover:bg-accent/10 transition-all duration-300">
         <div className="flex items-center gap-4 mb-3">
-            <div className="bg-primary/10 text-primary p-3 rounded-full">
+            <div className="bg-accent/10 text-accent p-3 rounded-full">
                 <Icon className="h-7 w-7" />
             </div>
             <h3 className="text-xl font-semibold text-foreground">{title}</h3>
@@ -69,11 +69,11 @@ export default function OuderRichtlijnenPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-background text-foreground py-16 md:py-20 lg:py-24">
+        <section className="bg-white text-foreground py-16 md:py-20 lg:py-24">
             <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
                 {/* Left Column: Text */}
                 <div className="flex flex-col items-center text-center md:items-start md:text-left">
-                    <Badge variant="secondary" className="mb-6">
+                    <Badge variant="secondary" className="bg-primary/10 border-primary/20 text-primary backdrop-blur-sm mb-6">
                      ✨ Gratis Ouder Ondersteuning
                     </Badge>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">Ouderrichtlijnen voor Neurodivergente <span className="text-primary">Jongeren</span></h1>
@@ -82,9 +82,18 @@ export default function OuderRichtlijnenPage() {
                         Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
                     </p>
                     <div className="flex justify-center md:justify-start gap-8 sm:gap-12 flex-wrap mt-8">
-                        <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
-                        <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
-                        <StatIndicator value="150K" label="Gezinnen zoeken ondersteuning" />
+                        <div className="text-center">
+                            <div className="text-3xl lg:text-4xl font-bold text-primary">200K+</div>
+                            <div className="text-sm text-muted-foreground mt-1">Neurodivergente jongeren in NL</div>
+                        </div>
+                         <div className="text-center">
+                            <div className="text-3xl lg:text-4xl font-bold text-primary">6-12</div>
+                            <div className="text-sm text-muted-foreground mt-1">Maanden GGZ wachttijd</div>
+                        </div>
+                         <div className="text-center">
+                            <div className="text-3xl lg:text-4xl font-bold text-primary">150K</div>
+                            <div className="text-sm text-muted-foreground mt-1">Gezinnen zoeken ondersteuning</div>
+                        </div>
                     </div>
                 </div>
                 {/* Right Column: Image */}
