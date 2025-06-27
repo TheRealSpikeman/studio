@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/changelog/page.tsx
 "use client";
 
@@ -117,8 +116,8 @@ export default function ChangelogPage() {
       
       <Accordion type="single" collapsible className="w-full space-y-6">
         {changelogData.map((entry, index) => (
-            <AccordionItem value={`item-${index}`} key={entry.date} className="bg-card border rounded-lg shadow-md data-[state=open]:shadow-lg">
-              <AccordionTrigger className="p-0 hover:no-underline w-full [&[data-state=open]>div>svg]:rotate-180">
+            <AccordionItem value={`item-${index}`} key={entry.date} disabled={!entry.details} className="bg-card border rounded-lg shadow-md data-[state=open]:shadow-lg">
+              <AccordionTrigger className="p-0 hover:no-underline w-full accordion-trigger-no-icon [&[data-state=open]>svg]:rotate-180">
                   <div className="flex flex-col md:flex-row w-full">
                       <div className="p-4 md:border-r flex flex-row md:flex-col items-center justify-center gap-2 md:w-48 text-center bg-muted/50 rounded-t-lg md:rounded-l-lg md:rounded-r-none">
                           <entry.icon className="h-8 w-8 text-primary"/>

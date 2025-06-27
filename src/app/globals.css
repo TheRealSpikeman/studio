@@ -128,6 +128,12 @@
   }
 }
 
+@layer utilities {
+  .accordion-trigger-no-icon[data-disabled] > svg {
+    visibility: hidden;
+  }
+}
+
 @media print {
   @page {
     margin: 0;
