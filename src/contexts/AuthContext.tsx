@@ -4,12 +4,14 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import type { User as FirebaseUser } from 'firebase/auth';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendEmailVerification, // Geïmporteerd
+  type Auth,
+  type User as FirebaseUser 
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
@@ -30,15 +32,15 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isFirebaseConfigured: boolean;
+  auth: Auth | null; // Auth object toegevoegd
   login: (email: string, pass: string) => Promise<boolean>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  // switchUserRole is removed to simplify logic
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TEMP_PROFILE_KEY = 'mindnavigator_temp_profile'; // Key for signup data
+const TEMP_PROFILE_KEY = 'mindnavigator_temp_profile';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -111,9 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured || !auth || !db) {
       return { success: false, error: "Firebase is niet geconfigureerd." };
     }
-    console.log(`[AuthContext] Step 1 (Signup): Storing temp profile for ${data.email}`);
     
-    // Step 1: Store profile data temporarily.
     const profileData = {
       name: data.name,
       role: data.role,
@@ -124,16 +124,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     localStorage.setItem(TEMP_PROFILE_KEY, JSON.stringify(profileData));
     
-    // Step 2: Create the user in Firebase Auth.
     try {
-      console.log(`[AuthContext] Step 2 (Signup): Calling createUserWithEmailAndPassword for ${data.email}`);
-      await createUserWithEmailAndPassword(auth, data.email, data.pass);
-      // Success! onAuthStateChanged will now pick up the user and create the doc.
-      console.log(`[AuthContext] Step 2 SUCCESS. Firebase user created. Auth state change will trigger doc creation.`);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
+      // **NIEUW**: Verstuur de verificatie e-mail direct na aanmaak.
+      await sendEmailVerification(userCredential.user);
+      console.log(`[AuthContext] Verification email sent to ${userCredential.user.email}.`);
       return { success: true };
     } catch (error: any) {
-      localStorage.removeItem(TEMP_PROFILE_KEY); // Clean up on failure
-      console.error("[AuthContext] Signup Error during createUserWithEmailAndPassword:", error);
+      localStorage.removeItem(TEMP_PROFILE_KEY);
+      console.error("[AuthContext] Signup Error:", error);
       let friendlyError = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         friendlyError = "Dit e-mailadres is al in gebruik.";
@@ -150,7 +149,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and redirecting.
       return true;
     } catch (error: any) {
       console.error("Firebase Login Error:", error);
@@ -173,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     isFirebaseConfigured,
+    auth, // Auth object nu beschikbaar
     login,
     signup,
     logout,

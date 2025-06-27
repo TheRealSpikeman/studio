@@ -9,10 +9,13 @@ import { SiteLogo } from '@/components/common/site-logo';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { sendEmailVerification } from 'firebase/auth';
 
 
 function VerifyEmailContent() {
   const { toast } = useToast();
+  const { auth, isFirebaseConfigured } = useAuth();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
   const isNewRegistration = searchParams.get("newRegistration") === "true";
@@ -73,14 +76,31 @@ function VerifyEmailContent() {
   }
 
 
-  const handleResendEmail = () => {
-    // TODO: Implement actual resend email logic based on context (teen, parent, etc.)
-    console.log("Resend verification email logic here for context:", { flow, userType, parentApproved });
-    toast({
-      title: "Verificatie-e-mail opnieuw verzonden",
-      description: "Een nieuwe verificatielink is naar uw e-mailadres gestuurd. Controleer uw inbox (en spamfolder).",
-      variant: "default",
-    });
+  const handleResendEmail = async () => {
+    if (!isFirebaseConfigured || !auth?.currentUser) {
+      toast({
+        title: "Fout",
+        description: "Kon de gebruiker niet vinden. Log opnieuw in om een nieuwe verificatie-e-mail te ontvangen.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await sendEmailVerification(auth.currentUser);
+      toast({
+        title: "Verificatie-e-mail opnieuw verzonden",
+        description: "Een nieuwe verificatielink is naar uw e-mailadres gestuurd. Controleer uw inbox (en spamfolder).",
+        variant: "default",
+      });
+    } catch (error: any) {
+      console.error("Error resending verification email:", error);
+      toast({
+        title: "Fout bij verzenden",
+        description: "Kon de e-mail niet versturen. Probeer het later opnieuw.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -104,7 +124,7 @@ function VerifyEmailContent() {
               <p className="text-sm text-muted-foreground">
                 Geen e-mail ontvangen? Controleer uw spamfolder of vraag hieronder een nieuwe verificatie-e-mail aan.
               </p>
-              <Button onClick={handleResendEmail} className="w-full">
+              <Button onClick={handleResendEmail} className="w-full" disabled={!isFirebaseConfigured}>
                 Verificatie-e-mail opnieuw verzenden
               </Button>
             </>
