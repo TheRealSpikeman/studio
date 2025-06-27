@@ -24,25 +24,29 @@ const StatIndicator = ({ value, label }: { value: string, label: string }) => (
 );
 
 const BenefitCard = ({ icon: Icon, title, children, ctaText, ctaLink, colorClasses }: { icon: ElementType, title: React.ReactNode, children: React.ReactNode, ctaText: string, ctaLink: string, colorClasses: { border: string, bg: string, icon: string } }) => (
-    <Card className={cn("shadow-lg hover:shadow-xl transition-shadow border-l-4", colorClasses.border)}>
-        <CardContent className="p-6 flex flex-col h-full">
-            <div className="flex items-start gap-4 mb-4">
-                <div className={cn("flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center", colorClasses.bg)}>
-                    <Icon className={cn("h-6 w-6", colorClasses.icon)} />
-                </div>
-                <h3 className="text-lg font-bold text-foreground leading-tight">{title}</h3>
+    <Card className={cn(
+        "shadow-lg hover:shadow-xl transition-shadow flex flex-col text-center p-6 border-2",
+        colorClasses.border
+    )}>
+        <CardHeader className="items-center p-0 mb-4">
+            <div className={cn("flex-shrink-0 h-16 w-16 rounded-full flex items-center justify-center", colorClasses.bg)}>
+                <Icon className={cn("h-8 w-8", colorClasses.icon)} />
             </div>
-            <p className="text-muted-foreground text-sm flex-grow mb-6">
+        </CardHeader>
+        <CardContent className="p-0 flex-grow space-y-2">
+            <h3 className="text-xl font-bold text-foreground leading-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
                 {children}
             </p>
-            <div className="mt-auto">
-                <Button variant="ghost" asChild className="p-2 h-auto text-sm text-foreground hover:bg-primary/10 border border-gray-200 w-full justify-center rounded-lg">
-                    <Link href={ctaLink}>{ctaText}</Link>
-                </Button>
-            </div>
         </CardContent>
+        <CardFooter className="p-0 mt-6 w-full">
+            <Button variant="outline" asChild className="w-full">
+                <Link href={ctaLink}>{ctaText}</Link>
+            </Button>
+        </CardFooter>
     </Card>
 );
+
 
 const AgeCard = ({ range, role, description }: { range: string, role: string, description:string }) => (
     <Card className="bg-card text-center flex flex-col h-full shadow-md">
@@ -57,7 +61,7 @@ const AgeCard = ({ range, role, description }: { range: string, role: string, de
 );
 
 const PreviewCard = ({ icon: Icon, title, subtitle }: { icon: ElementType, title: string, subtitle: string }) => (
-    <Card className="bg-card shadow-md p-6 text-center hover:bg-primary/10 transition-colors h-full flex flex-col justify-center items-center">
+    <Card className="bg-card shadow-md p-6 text-center hover:bg-muted/50 transition-colors h-full flex flex-col justify-center items-center">
         <Icon className="h-10 w-10 text-primary mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-primary">{title}</h3>
         <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
@@ -90,7 +94,7 @@ export default function OuderRichtlijnenPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-background text-foreground py-16 md:py-20 lg:py-24">
+        <section className="bg-white text-foreground py-16 md:py-20 lg:py-24">
             <div className="container mx-auto grid grid-cols-1 items-center gap-y-12 md:grid-cols-2 md:gap-x-16">
                 {/* Left Column: Text */}
                 <div className="flex flex-col items-center text-center md:items-start md:text-left">
@@ -245,7 +249,6 @@ export default function OuderRichtlijnenPage() {
                 </Card>
             </div>
         </section>
-
       </main>
       <Footer />
     </div>
