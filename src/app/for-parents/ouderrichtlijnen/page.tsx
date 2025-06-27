@@ -11,11 +11,14 @@ import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 const StatIndicator = ({ value, label }: { value: string, label: string }) => (
     <div className="text-center">
-        <div className="text-3xl lg:text-4xl font-bold text-teal-300">{value}</div>
-        <div className="text-sm text-white/80 mt-1">{label}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-primary">{value}</div>
+        <div className="text-sm text-muted-foreground mt-1">{label}</div>
     </div>
 );
 
@@ -43,7 +46,6 @@ const AgeCard = ({ range, role, description }: { range: string, role: string, de
     </Card>
 );
 
-
 const PreviewCard = ({ icon: Icon, title, subtitle }: { icon: ElementType, title: string, subtitle: string }) => (
     <Card className="bg-card shadow-md p-6 text-center hover:bg-primary/10 transition-colors h-full flex flex-col justify-center items-center">
         <Icon className="h-10 w-10 text-primary mx-auto mb-4" />
@@ -52,8 +54,27 @@ const PreviewCard = ({ icon: Icon, title, subtitle }: { icon: ElementType, title
     </Card>
 );
 
-
 export default function OuderRichtlijnenPage() {
+  const [email, setEmail] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
+  const { toast } = useToast();
+
+  const handleDownloadRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Fout", description: "Voer alstublieft een geldig e-mailadres in.", variant: "destructive" });
+      return;
+    }
+    console.log(`Email captured for guidelines: ${email}. Simulating sending a link.`);
+    setSubmittedEmail(email);
+    setIsSubmitted(true);
+    toast({
+      title: "Verzoek ontvangen!",
+      description: `We hebben een e-mail met een persoonlijke downloadlink naar ${email} gestuurd.`
+    });
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -72,18 +93,9 @@ export default function OuderRichtlijnenPage() {
                         Onze uitgebreide richtlijnen bieden concrete tools, zonder medische claims of valse beloftes.
                     </p>
                     <div className="flex justify-center md:justify-start gap-8 sm:gap-12 flex-wrap mt-8">
-                        <div className="text-center">
-                            <div className="text-3xl lg:text-4xl font-bold text-primary">200K+</div>
-                            <div className="text-sm text-muted-foreground mt-1">Neurodivergente jongeren in NL</div>
-                        </div>
-                         <div className="text-center">
-                            <div className="text-3xl lg:text-4xl font-bold text-primary">6-12</div>
-                            <div className="text-sm text-muted-foreground mt-1">Maanden GGZ wachttijd</div>
-                        </div>
-                         <div className="text-center">
-                            <div className="text-3xl lg:text-4xl font-bold text-primary">150K</div>
-                            <div className="text-sm text-muted-foreground mt-1">Gezinnen zoeken ondersteuning</div>
-                        </div>
+                        <StatIndicator value="200K+" label="Neurodivergente jongeren in NL" />
+                        <StatIndicator value="6-12" label="Maanden GGZ wachttijd" />
+                        <StatIndicator value="150K" label="Gezinnen zoeken ondersteuning" />
                     </div>
                 </div>
                 {/* Right Column: Image */}
@@ -126,7 +138,6 @@ export default function OuderRichtlijnenPage() {
                         professionals, en eerlijkheid over wat we wel en niet doen.
                     </ValuePropCard>
                 </div>
-
             </div>
         </section>
 
@@ -197,22 +208,30 @@ export default function OuderRichtlijnenPage() {
                      Download de volledige ouderrichtlijnen gratis en krijg toegang tot 40+ pagina's 
                     met praktische tips, checklists en professionele inzichten.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button size="lg" asChild className="text-base">
-                        <Link href="#">
-                            📧 Download Gratis Richtlijnen
-                        </Link>
+                {isSubmitted ? (
+                  <div className="p-6 bg-green-100 border border-green-300 text-green-800 rounded-lg max-w-lg mx-auto">
+                    <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><CheckCircle2/> Controleer uw inbox!</h3>
+                    <p className="mt-2 text-sm">We hebben een e-mail met een persoonlijke downloadlink gestuurd naar <strong>{submittedEmail}</strong>. Deze link is 1 uur geldig.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleDownloadRequest} className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+                    <Input
+                      type="email"
+                      placeholder="Voer uw e-mailadres in"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="h-12 text-base text-center sm:text-left"
+                    />
+                    <Button type="submit" size="lg" className="text-base sm:text-lg flex-shrink-0">
+                        <Mail className="mr-2 h-5 w-5" />
+                        Stuur mij de link
                     </Button>
-                    <Button size="lg" variant="outline" asChild className="text-base">
-                        <Link href="#">
-                            🎥 Bekijk Demo (3 min)
-                        </Link>
-                    </Button>
-                </div>
+                  </form>
+                )}
                 <p className="mt-6 text-sm text-muted-foreground">✓ Geen verplichtingen  ✓ Direct downloadbaar  ✓ Email ondersteuning inbegrepen</p>
             </div>
         </section>
-
       </main>
       <Footer />
     </div>
