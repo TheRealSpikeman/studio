@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles, Rocket, Package } from '@/lib/icons';
+import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Users, Bot, Sparkles, Rocket, Package, Rss } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -12,15 +12,42 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 interface ChangeLogEntry {
   date: string; // ISO String
   title: string;
+  icon: React.ElementType;
   description: string;
   details?: string[]; // For the expandable content
-  icon: React.ElementType;
   tags: { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }[];
 }
 
 const changelogData: ChangeLogEntry[] = [
     {
         date: new Date().toISOString(),
+        title: "Feature: AI-Gedreven Blog & Content Management",
+        icon: Rss,
+        description: "Een volledig functioneel blogsysteem is geïmplementeerd. Admins kunnen nu blogartikelen genereren met behulp van AI persona's, deze beheren in het dashboard, en publiceren. De publieke blog is live, inclusief een overzichtspagina en individuele artikelpagina's met social sharing.",
+        details: [
+            "**AI Content Creatie:** Een nieuwe Genkit-flow (`generate-blog-post-flow.ts`) kan volledige, gestructureerde blogposts schrijven.",
+            "**Persona Selectie:** Admins kunnen kiezen uit verschillende AI-persona's (psycholoog, SEO-expert, tiener) om de toon van de content te bepalen.",
+            "**Admin Dashboard:** Een nieuwe sectie onder 'Platformbeheer > Blogbeheer' voor het aanmaken, bewerken en verwijderen van posts.",
+            "**Publieke Routes:** De routes `/blog` en `/blog/[slug]` zijn aangemaakt en gestyled om de blogposts weer te geven.",
+            "**Navigatie:** Links zijn toegevoegd aan de header en footer voor makkelijke toegang."
+        ],
+        tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Content Management", variant: "outline" }]
+    },
+    {
+        date: new Date(Date.now() - 1 * 3600000).toISOString(),
+        title: "Bugfix: Hardnekkige Build Fout Opgelost",
+        icon: Wrench,
+        description: "Een aanhoudende en frustrerende build-fout (`Unexpected eof`) in de 'Platform Handleiding' documentatiepagina is definitief opgelost. De pagina compileert nu correct, waardoor de stabiliteit van de ontwikkelomgeving is hersteld.",
+        details: [
+            "**Probleem:** De applicatie kon niet compileren vanwege een syntaxisfout in `platform-guide/page.tsx`.",
+            "**Analyse:** De hoofdoorzaak was dat een XML-codevoorbeeld direct als JSX werd behandeld in plaats van als een string, wat de compiler in de war bracht.",
+            "**Oplossing:** De XML-code is correct ingesloten in een JavaScript template literal (backticks ``), waardoor het nu als tekst wordt gezien en de JSX-structuur van de component niet langer verstoort.",
+            "**Resultaat:** De build is weer stabiel en de documentatiepagina is correct beschikbaar in het admin dashboard."
+        ],
+        tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }, { text: "Admin Dashboard", variant: "outline" }]
+    },
+    {
+        date: new Date(Date.now() - 2 * 3600000).toISOString(), // Adjusted time to be before the fix
         title: "Fundamentele Stabiliteits- & Authenticatie-fix",
         icon: Wrench,
         description: "Een reeks diepgewortelde problemen opgelost die de Firebase-verbinding en het inloggen verstoorden. De applicatie is nu stabiel, robuust en correct geconfigureerd.",
@@ -33,42 +60,42 @@ const changelogData: ChangeLogEntry[] = [
         tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Authenticatie", variant: "secondary" }, { text: "Core", variant: "default" }]
     },
     {
-        date: new Date(Date.now() - 2 * 3600000).toISOString(),
+        date: new Date(Date.now() - 4 * 3600000).toISOString(),
         title: "Architectuur: Feature & Abonnementenbeheer",
         description: "Implementatie van een flexibel systeem voor het beheren van platform-features en abonnementen. Admins kunnen nu dynamisch functionaliteiten definiëren en deze koppelen aan verschillende abonnementen (bijv. 'Gratis Start', 'Gezins Gids'). Dit is een cruciale stap richting een schaalbaar B2B2C-model.",
         icon: Package,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Admin Dashboard", variant: "secondary" }, { text: "Nieuwe Feature", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 3 * 3600000).toISOString(),
+        date: new Date(Date.now() - 5 * 3600000).toISOString(),
         title: "Prestatie Optimalisatie: Dynamisch Dashboard Laden",
         description: "Het leerling-dashboard laadt nu dynamisch met `next/dynamic` en toont een 'skeleton' UI tijdens het laden. Dit verbetert de initiële laadtijd en gebruikerservaring, conform de technische roadmap.",
         icon: Rocket,
         tags: [{ text: "Prestatie", variant: "default" }, { text: "UX/UI", variant: "secondary" }, { text: "Refactor", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 4 * 3600000).toISOString(),
+        date: new Date(Date.now() - 6 * 3600000).toISOString(),
         title: "Architectuur & Authenticatie Refactor",
         description: "Een fundamentele verbetering van de app-architectuur. De demo-rolwisselaar is vervangen door een robuuste (gesimuleerde) login flow via een centrale AuthContext. Alle localStorage-logica is verplaatst naar een StorageService, wat de overstap naar een echte database in de toekomst vereenvoudigt.",
         icon: GitBranch,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Refactor", variant: "secondary" }, { text: "Auth", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 5 * 3600000).toISOString(),
+        date: new Date(Date.now() - 7 * 3600000).toISOString(),
         title: "Feature: Ouder-Kind Vergelijkende Analyse",
         description: "Implementatie van de volledige 'slice' voor de vergelijkende analyse, inclusief een nieuwe quiz voor ouders, een intelligente voortgangspagina die de AI-flow aanroept, en de weergave van het gegenereerde adviesrapport.",
         icon: Users,
         tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Ouder Dashboard", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 6 * 3600000).toISOString(),
+        date: new Date(Date.now() - 8 * 3600000).toISOString(),
         title: "Verbetering: Responsive & Inklapbare Dashboard Sidebar",
         description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. De UX is verbeterd met gecentraliseerde iconen en tooltips voor een strakke, intuïtieve interface.",
         icon: Wrench,
         tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
     },
     {
-        date: new Date(Date.now() - 4 * 86400000).toISOString(),
+        date: new Date(Date.now() - 5 * 86400000).toISOString(),
         title: "Workflow Automatisering: Tool Component Generatie",
         description: "Het proces voor het aanmaken van tool-componenten is volledig geautomatiseerd. Een server-actie genereert de code en schrijft deze direct naar het bestandssysteem, waarna een live preview wordt getoond. Kopiëren en plakken is niet meer nodig.",
         icon: Bot,
@@ -138,7 +165,7 @@ export default function ChangelogPage() {
               </AccordionTrigger>
               {entry.details && (
                 <AccordionContent className="p-4 pt-2 border-t">
-                  <h4 className="font-semibold mb-2">Details van de fix:</h4>
+                  <h4 className="font-semibold mb-2">Details van de wijziging:</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     {entry.details.map((detail, detailIndex) => (
                       <li key={detailIndex} dangerouslySetInnerHTML={{ __html: detail.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
