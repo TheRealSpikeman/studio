@@ -109,11 +109,11 @@ export default function AiPersonaManagementPage() {
                   <CardContent className="space-y-4 text-sm flex-grow">
                       <div>
                           <h4 className="font-semibold text-foreground mb-1">Biografie</h4>
-                          <p className="text-muted-foreground leading-relaxed">{persona.bio}</p>
+                          <p className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{persona.bio}</p>
                       </div>
                       <div>
                           <h4 className="font-semibold text-foreground mb-1">Bijdrage aan Platform</h4>
-                          <p className="text-muted-foreground leading-relaxed">{persona.contribution}</p>
+                          <p className="text-muted-foreground leading-relaxed text-sm">{persona.contribution}</p>
                       </div>
                       <div>
                           <h4 className="font-semibold text-foreground mb-1">AI Prompt Instructie</h4>
