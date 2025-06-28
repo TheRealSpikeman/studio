@@ -12,8 +12,7 @@ import { UserManagementTable } from '@/components/admin/user-management/UserMana
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';
 import { useToast } from '@/hooks/use-toast';
-import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { DUMMY_USERS } from '@/lib/data/dummy-data';
 
 
 const ITEMS_PER_PAGE = 10;
@@ -33,32 +32,11 @@ export default function UserManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    try {
-      if (!db) {
-        throw new Error("Firestore is not initialized.");
-      }
-      const usersCol = collection(db, "users");
-      const userSnapshot = await getDocs(usersCol);
-      const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-      setUsers(userList);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      toast({
-        title: "Fout bij laden",
-        description: "Kon de gebruikers niet ophalen uit de database.",
-        variant: "destructive",
-      });
-      setUsers([]); // Fallback to empty list on error
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchUsers();
-  }, [toast]); // Dependency on toast is fine.
+    // Load users from dummy data instead of Firestore
+    setUsers(DUMMY_USERS);
+    setIsLoading(false);
+  }, []);
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -94,59 +72,30 @@ export default function UserManagementPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteUser = async () => {
-    if (selectedUser && db) {
-      try {
-        await deleteDoc(doc(db, "users", selectedUser.id));
-        toast({ title: "Gebruiker verwijderd", description: `Gebruiker ${selectedUser.name} is verwijderd.` });
-        fetchUsers(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        toast({ title: "Fout", description: "Kon gebruiker niet verwijderen.", variant: "destructive" });
-      }
+  const confirmDeleteUser = () => {
+    if (selectedUser) {
+      setUsers(prev => prev.filter(u => u.id !== selectedUser.id));
+      toast({ title: "Gebruiker verwijderd", description: `Gebruiker ${selectedUser.name} is verwijderd.` });
+      setSelectedUser(null);
     }
     setIsDeleteModalOpen(false);
-    setSelectedUser(null);
   };
 
-  const handleSaveUser = async (userData: User) => {
-    if (!db) {
-      toast({ title: "Fout", description: "Database niet beschikbaar.", variant: "destructive" });
-      return;
-    }
-
+  const handleSaveUser = (userData: User) => {
     setIsEditModalOpen(false);
 
     if (isAddingNewUser) {
-      // Note: This only creates the Firestore document.
-      // Creating the actual Auth user would require a backend function or different flow.
-      // For this prototype, we'll assume an ID can be created this way for management.
-      const newId = `managed-${Date.now()}`;
       const newUserWithId: User = { 
         ...userData, 
-        id: newId, 
+        id: `new-${Date.now()}`, 
         createdAt: new Date().toISOString(), 
         lastLogin: new Date().toISOString() 
       };
-      
-      try {
-        await setDoc(doc(db, "users", newUserWithId.id), newUserWithId);
-        toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
-        fetchUsers();
-      } catch (error) {
-        console.error("Error adding user:", error);
-        toast({ title: "Fout", description: "Kon gebruiker niet toevoegen.", variant: "destructive" });
-      }
+      setUsers(prev => [newUserWithId, ...prev]);
+      toast({ title: "Gebruiker toegevoegd", description: `Gebruiker ${userData.name} is succesvol toegevoegd.` });
     } else if (selectedUser) {
-      try {
-        const userDocRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userDocRef, { ...userData });
-        toast({ title: "Gebruiker bijgewerkt", description: `Gebruiker ${userData.name} is succesvol bijgewerkt.` });
-        fetchUsers();
-      } catch (error) {
-        console.error("Error updating user:", error);
-        toast({ title: "Fout", description: "Kon gebruiker niet bijwerken.", variant: "destructive" });
-      }
+      setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...user, ...userData, id: selectedUser.id } : u));
+      toast({ title: "Gebruiker bijgewerkt", description: `Gebruiker ${userData.name} is succesvol bijgewerkt.` });
     }
     setSelectedUser(null);
     setIsAddingNewUser(false);
