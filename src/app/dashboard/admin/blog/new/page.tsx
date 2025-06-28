@@ -1,7 +1,7 @@
 // src/app/dashboard/admin/blog/new/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,8 +30,6 @@ const blogPostFormSchema = z.object({
   excerpt: z.string().min(20, 'Samenvatting moet minimaal 20 tekens zijn.'),
   content: z.string().min(100, 'Content moet minimaal 100 tekens zijn.'),
   tags: z.string().min(1, 'Voer minimaal één tag in (komma-gescheiden).'),
-  featuredImageUrl: z.string().url('Voer een geldige URL in.').optional().or(z.literal('')),
-  featuredImageHint: z.string().optional(),
   status: z.enum(['draft', 'published']),
 });
 
@@ -49,10 +47,24 @@ export default function NewBlogPostPage() {
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
-      title: '', slug: '', excerpt: '', content: '', tags: '',
-      featuredImageUrl: '', featuredImageHint: '', status: 'draft',
+      title: '', slug: '', excerpt: '', content: '', tags: '', status: 'draft',
     },
   });
+
+  const titleValue = form.watch('title');
+  useEffect(() => {
+    if (titleValue) {
+      const newSlug = titleValue
+        .toLowerCase()
+        .replace(/\s+/g, '-') // Replace spaces with -
+        .replace(/[^\w-]+/g, '') // Remove all non-word chars
+        .replace(/--+/g, '-') // Replace multiple - with single -
+        .replace(/^-+/, '') // Trim - from start of text
+        .replace(/-+$/, ''); // Trim - from end of text
+      form.setValue('slug', newSlug, { shouldValidate: true });
+    }
+  }, [titleValue, form]);
+
 
   const handleGenerateContent = async () => {
     if (!aiTopic) {
@@ -73,17 +85,16 @@ export default function NewBlogPostPage() {
         topic: aiTopic,
         personaDescription: selectedPersona.description,
       });
-      form.reset({
-        title: result.title,
-        slug: result.slug,
-        excerpt: result.excerpt,
-        content: result.content,
-        tags: result.tags.join(', '),
-        featuredImageUrl: `https://placehold.co/1200x630.png`,
-        featuredImageHint: result.featuredImageHint,
-        status: 'draft',
-      });
-      toast({ title: "Content gegenereerd!", description: "De velden zijn ingevuld met AI-content. U kunt deze nu bewerken." });
+
+      // Set only the fields the AI provides
+      form.setValue('title', result.title);
+      form.setValue('content', result.content);
+      
+      // Clear other fields for manual entry
+      form.setValue('excerpt', '');
+      form.setValue('tags', '');
+
+      toast({ title: "Content gegenereerd!", description: "Titel en content zijn ingevuld. Vul de samenvatting en tags handmatig aan." });
     } catch (error) {
       console.error("AI content generation failed:", error);
       toast({ title: "Genereren mislukt", description: "De AI kon de content niet genereren.", variant: "destructive" });
@@ -101,8 +112,8 @@ export default function NewBlogPostPage() {
       createdAt: new Date().toISOString(),
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
       tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      featuredImageUrl: data.featuredImageUrl || `https://placehold.co/1200x630.png`,
-      featuredImageHint: data.featuredImageHint || '',
+      featuredImageUrl: `https://placehold.co/1200x630.png`,
+      featuredImageHint: 'abstract digital art', // Generic hint
       ...data,
     };
     
@@ -122,8 +133,6 @@ export default function NewBlogPostPage() {
     }
   };
 
-  const generatedImageUrl = form.watch('featuredImageUrl');
-  const generatedImageHint = form.watch('featuredImageHint');
 
   return (
     <div className="space-y-6">
@@ -140,7 +149,7 @@ export default function NewBlogPostPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> Genereer met AI</CardTitle>
-          <CardDescription>Start met een idee en laat de AI een compleet, gevarieerd conceptartikel voor je schrijven, inclusief doelgroep, toon en keywords.</CardDescription>
+          <CardDescription>Start met een idee en laat de AI een conceptartikel voor je schrijven. Vul daarna de overige details zelf aan.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,7 +173,7 @@ export default function NewBlogPostPage() {
         <CardFooter>
           <Button onClick={handleGenerateContent} disabled={isAiGenerating}>
             {isAiGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-            Genereer Artikel
+            Genereer Titel & Content
           </Button>
         </CardFooter>
       </Card>
@@ -174,23 +183,23 @@ export default function NewBlogPostPage() {
           <Card>
             <CardHeader>
               <CardTitle>Artikel Details</CardTitle>
-              <CardDescription>Bewerk de gegenereerde content of vul de velden handmatig in.</CardDescription>
+              <CardDescription>Bewerk de gegenereerde content en vul de overige velden handmatig in.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField control={form.control} name="title" render={({ field }) => (
                 <FormItem><FormLabel>Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="slug" render={({ field }) => (
-                <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>Dit wordt automatisch gegenereerd op basis van de titel.</FormDescription><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="excerpt" render={({ field }) => (
-                <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} placeholder="Schrijf een korte, pakkende samenvatting voor de overzichtspagina." /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem><FormLabel>Content (Markdown)</FormLabel><FormControl><Textarea {...field} rows={15} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="tags" render={({ field }) => (
-                <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} placeholder="Focus, Ouders, Neurodiversiteit" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>Status</FormLabel>
@@ -203,26 +212,6 @@ export default function NewBlogPostPage() {
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader><CardTitle>Uitgelichte Afbeelding</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                <FormField control={form.control} name="featuredImageUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Afbeelding URL</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                )} />
-                 <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
-                  <FormItem><FormLabel>AI Afbeelding Hint</FormLabel><FormControl><Input {...field} disabled /></FormControl><FormDescription>Dit wordt door de AI ingevuld en kan gebruikt worden om een passende afbeelding te vinden.</FormDescription><FormMessage /></FormItem>
-                )} />
-                {generatedImageUrl && (
-                    <div>
-                        <Label>Preview</Label>
-                        <div className="mt-2 w-full aspect-[16/9] relative rounded-md overflow-hidden border">
-                            <Image src={generatedImageUrl} alt="Preview" fill style={{objectFit: 'cover'}} data-ai-hint={generatedImageHint || ''}/>
-                        </div>
-                    </div>
-                )}
-            </CardContent>
-          </Card>
-
           <div className="flex justify-end">
             <Button type="submit" disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
