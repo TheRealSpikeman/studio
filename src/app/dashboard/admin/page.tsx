@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from '@/lib/icons';
+import { Users, Briefcase, Euro, Clock, LineChart, PieChart, BarChart } from '@/lib/icons';
 
 // Dummy data for KPIs - replace with actual data fetching
 const kpiData = {
@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sessies Vandaag</CardTitle>
-            <CalendarClock className="h-5 w-5 text-primary" />
+            <Clock className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpiData.sessionsToday}</div>

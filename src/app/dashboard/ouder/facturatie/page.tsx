@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CreditCard, Euro, CheckCircle, Download, FileText, CalendarClock, AlertCircle, Info } from 'lucide-react';
+import { CreditCard, Euro, CheckCircle, Download, FileText, Clock, AlertCircle, Info } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import Link from 'next/link';
@@ -116,7 +116,7 @@ export default function FacturatiePage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CalendarClock className="h-5 w-5 text-primary"/>Openstaande Betalingen voor Voltooide Lessen
+            <Clock className="h-5 w-5 text-primary"/>Openstaande Betalingen voor Voltooide Lessen
           </CardTitle>
           <CardDescription>
             Hieronder vindt u de lessen die door de tutor als 'Voltooid' zijn gemarkeerd en nog betaald moeten worden.

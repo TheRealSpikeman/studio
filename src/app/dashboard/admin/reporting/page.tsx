@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileBarChart, Users, Briefcase, CalendarClock, Download, Filter } from '@/lib/icons';
+import { FileBarChart, Users, Briefcase, Clock, Download, Filter } from '@/lib/icons';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/common/date-picker-with-range'; // Assume this component exists or will be created
 import { Input } from '@/components/ui/input'; // Added Input import
@@ -82,7 +82,7 @@ export default function AdminReportingPage() {
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                <CalendarClock className="h-5 w-5 text-primary" />
+                <Clock className="h-5 w-5 text-primary" />
                 Geplande Rapporten
             </CardTitle>
           </CardHeader>
