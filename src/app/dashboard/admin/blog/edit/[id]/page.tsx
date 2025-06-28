@@ -1,7 +1,7 @@
 // src/app/dashboard/admin/blog/edit/[id]/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, Edit, AlertTriangle } from '@/lib/icons';
+import { ArrowLeft, Save, Loader2, Edit, AlertTriangle, Bold, Italic, Heading2, Heading3, List } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +45,7 @@ export default function EditBlogPostPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postData, setPostData] = useState<BlogPost | null>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
@@ -69,6 +70,46 @@ export default function EditBlogPostPage() {
     }
     setIsLoading(false);
   }, [postId, form]);
+
+  const insertMarkdown = (syntax: 'bold' | 'italic' | 'h2' | 'h3' | 'ul') => {
+    const textarea = contentRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = form.getValues('content');
+    const selectedText = value.substring(start, end);
+    let newText;
+    let cursorPosition;
+
+    switch (syntax) {
+      case 'bold': newText = `**${selectedText || 'tekst'}**`; cursorPosition = start + 2; break;
+      case 'italic': newText = `*${selectedText || 'tekst'}*`; cursorPosition = start + 1; break;
+      case 'h2': newText = `\n## ${selectedText || 'Kop'}\n`; cursorPosition = start + 4; break;
+      case 'h3': newText = `\n### ${selectedText || 'Subkop'}\n`; cursorPosition = start + 5; break;
+      case 'ul': newText = `\n* Item 1\n* Item 2`; cursorPosition = start + newText.length; break;
+      default: newText = ''; cursorPosition = start;
+    }
+
+    const updatedValue = value.substring(0, start) + newText + value.substring(end);
+    form.setValue('content', updatedValue, { shouldValidate: true });
+
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = selectedText ? (start + newText.length) : cursorPosition;
+      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+    }, 0);
+  };
+
+  const MarkdownToolbar = () => (
+    <div className="flex items-center gap-1 border border-b-0 border-input rounded-t-md p-2 bg-muted/50">
+      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('bold')} title="Vetgedrukt"><Bold className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('italic')} title="Cursief"><Italic className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h2')} title="Kop 2"><Heading2 className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h3')} title="Kop 3"><Heading3 className="h-4 w-4" /></Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('ul')} title="Lijst"><List className="h-4 w-4" /></Button>
+    </div>
+  );
 
   const onSubmit = (data: BlogPostFormData) => {
     if (!postData) return;
@@ -145,9 +186,28 @@ export default function EditBlogPostPage() {
               <FormField control={form.control} name="excerpt" render={({ field }) => (
                 <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField control={form.control} name="content" render={({ field }) => (
-                <FormItem><FormLabel>Content (Markdown)</FormLabel><FormControl><Textarea {...field} rows={15} /></FormControl><FormMessage /></FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content (Markdown)</FormLabel>
+                    <MarkdownToolbar />
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        ref={(e) => {
+                          field.ref(e);
+                          contentRef.current = e;
+                        }}
+                        rows={15}
+                        className="rounded-t-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField control={form.control} name="tags" render={({ field }) => (
                 <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
