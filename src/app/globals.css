@@ -1,3 +1,6 @@
+/* Import styles for react-quill at the global level */
+@import 'react-quill/dist/quill.snow.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
