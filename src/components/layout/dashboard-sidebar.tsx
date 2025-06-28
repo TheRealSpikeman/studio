@@ -143,6 +143,7 @@ const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/user-management', label: 'Alle Gebruikers', icon: UsersIcon, parent: '#user-management-parent' },
+      { href: '/dashboard/admin/ouder-management', label: 'Ouders', icon: UsersIcon, parent: '#user-management-parent' },
       { href: '/dashboard/admin/student-management', label: 'Leerlingen', icon: GraduationCap, parent: '#user-management-parent' },
       { href: '/dashboard/admin/tutor-management', label: 'Tutoren', icon: Briefcase, parent: '#user-management-parent' },
     ]
