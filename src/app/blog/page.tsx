@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Rss, Search, Calendar, User } from '@/lib/icons';
+import { Rss, Search, Calendar, User, BookOpenCheck } from '@/lib/icons';
 import type { BlogPost } from '@/types/blog';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -18,6 +18,15 @@ import { initialBlogPosts } from '@/lib/data/blog-data';
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 const BlogPostCard = ({ post }: { post: BlogPost }) => {
+  const calculateReadingTime = (content: string): string => {
+    // Strip HTML tags and count words
+    const text = content.replace(/<[^>]*>/g, '');
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const wpm = 225; // Average reading speed
+    const minutes = Math.ceil(words / wpm);
+    return `${minutes} min. leestijd`;
+  };
+
   return (
     <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
       <Link href={`/blog/${post.slug}`} className="block">
@@ -52,8 +61,8 @@ const BlogPostCard = ({ post }: { post: BlogPost }) => {
           <span>{post.authorName}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          {post.publishedAt && <span>{format(parseISO(post.publishedAt), 'd MMM yyyy', { locale: nl })}</span>}
+          <BookOpenCheck className="h-4 w-4" />
+          <span>{calculateReadingTime(post.content)}</span>
         </div>
       </CardFooter>
     </Card>

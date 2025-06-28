@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow for generating blog post content from a single topic idea.
- * This is the v12 fix: AI returns a raw string with Title, Excerpt, Tags, Image Hint, and Content to maximize stability.
+ * This is the v13 fix: AI returns a raw string with Title, Excerpt, Tags, Image Hint, and HTML Content to maximize stability.
  */
 import { ai } from '@/ai/genkit';
 import {
