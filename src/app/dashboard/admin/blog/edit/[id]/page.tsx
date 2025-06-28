@@ -77,7 +77,7 @@ export default function EditBlogPostPage() {
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const value = form.getValues('content');
+    const value = textarea.value; // Changed from form.getValues()
     const selectedText = value.substring(start, end);
     let newText;
     let cursorPosition;
