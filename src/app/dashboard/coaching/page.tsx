@@ -9,10 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from '@/components/ui/calendar';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import Link from 'next/link';
-import { CalendarDays, Eye, EyeOff, Sparkles, Info, Loader2 } from 'lucide-react';
+import { CalendarDays, Eye, EyeOff, Sparkles, Info } from 'lucide-react';
 import { COACHING_CONFIG } from '@/lib/constants/coaching';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 
 // Nieuwe, opgesplitste componenten
 import { DailyInsightsCard } from '@/components/dashboard/coaching/DailyInsightsCard';

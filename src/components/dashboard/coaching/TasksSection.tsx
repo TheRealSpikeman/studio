@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ListTodo, Zap } from 'lucide-react';
+import { ListTodo } from 'lucide-react';
 import { COACHING_CONFIG } from '@/lib/constants/coaching';
 import { format } from 'date-fns';
 
@@ -30,8 +30,7 @@ interface TasksSectionProps {
 
 export const TasksSection = ({ isLoading, content, selectedDate }: TasksSectionProps) => {
   const [tasks, setTasks] = useState<DailyTask[]>([]);
-  const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null;
-
+  
   useEffect(() => {
     if (selectedDate) {
       const staticTasks = COACHING_CONFIG.generateStaticDailyTasks(selectedDate);

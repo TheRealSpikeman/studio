@@ -31,7 +31,7 @@ export const JournalSection = ({ selectedDate, onSave }: JournalSectionProps) =>
       StorageService.setJournalEntry(formattedDate, journalText);
       onSave({ 
         title: "Dagboek opgeslagen", 
-        description: `Je reflectie voor ${format(new Date(formattedDate), 'PPP', { locale: nl })} is bewaard.` 
+        description: `Je reflectie voor ${format(new Date(formattedDate + 'T00:00:00'), 'PPP', { locale: nl })} is bewaard.` 
       });
     }
   }, [formattedDate, journalText, onSave]);

@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlaySquare, BarChartBig, Users, Rocket, Trophy, Library } from 'lucide-react';
+import { PlaySquare, BarChartBig, Users, Library, Trophy } from 'lucide-react';
 import { getVideoSeedForDate } from '@/lib/constants/coaching';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -30,7 +30,7 @@ export const MediaAndProgressSection = ({ selectedDate }: MediaAndProgressSectio
                     <CardContent className="text-center">
                         {selectedDate ? (
                         <Image 
-                            src={`https://placehold.co/400x225.png?seed=${videoSeedForSelectedDate}`} 
+                            src={`https://placehold.co/400x225.png`}
                             alt="Video tip thumbnail" 
                             width={400} 
                             height={225} 
@@ -48,6 +48,18 @@ export const MediaAndProgressSection = ({ selectedDate }: MediaAndProgressSectio
                     <CardFooter>
                         <Button variant="outline" className="w-full" disabled>Bekijk Video (binnenkort)</Button>
                     </CardFooter>
+                </Card>
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><BarChartBig className="h-6 w-6 text-primary" />Voortgangsrapporten</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <p className="text-muted-foreground">Gedetailleerde grafieken en analyses van je voortgang (binnenkort beschikbaar).</p>
+                    <div className="h-40 bg-muted rounded-md mt-4 flex items-center justify-center text-muted-foreground italic">
+                        Grafiek placeholder
+                    </div>
+                    </CardContent>
+                    <CardFooter><Button variant="outline" className="w-full" disabled>Bekijk Rapporten</Button></CardFooter>
                 </Card>
             </div>
             
@@ -74,19 +86,6 @@ export const MediaAndProgressSection = ({ selectedDate }: MediaAndProgressSectio
                     <CardFooter><Button variant="outline" className="w-full" disabled>Verken Bibliotheek</Button></CardFooter>
                 </Card>
             </div>
-
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><BarChartBig className="h-6 w-6 text-primary" />Voortgangsrapporten</CardTitle>
-                </CardHeader>
-                <CardContent>
-                <p className="text-muted-foreground">Gedetailleerde grafieken en analyses van je voortgang (binnenkort beschikbaar).</p>
-                <div className="h-40 bg-muted rounded-md mt-4 flex items-center justify-center text-muted-foreground italic">
-                    Grafiek placeholder
-                </div>
-                </CardContent>
-                <CardFooter><Button variant="outline" className="w-full" disabled>Bekijk Rapporten</Button></CardFooter>
-            </Card>
         </>
     );
 }

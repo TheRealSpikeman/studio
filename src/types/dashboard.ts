@@ -1,6 +1,7 @@
 // src/types/dashboard.ts
 import type { User, AgeGroup } from './user';
 import type { SubscriptionPlan } from './subscription';
+import { z } from "zod";
 
 // From ouder/berichten/page.tsx
 export interface Message {
@@ -54,8 +55,8 @@ export interface ProfessionalBase {
   specializations: string[];
 }
 
-// From ouder/kinderen/page.tsx and profiel page
-export interface ChildProfile extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { 
+// From ouder/kinderen/[kindId]/profiel/page.tsx
+export interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType'> {
   firstName: string;
   lastName: string;
   age?: number;
@@ -66,13 +67,41 @@ export interface ChildProfile extends Pick<User, 'id' | 'name' | 'ageGroup' | 'a
   helpSubjects?: string[];
   subscriptionStatus: 'actief' | 'geen' | 'verlopen' | 'uitgenodigd';
   planId?: SubscriptionPlan['id'];
-  planName?: string; 
+  planName?: string;
   lastActivity?: string;
-  leerdoelen?: string; 
-  voorkeurTutor?: string; 
-  deelResultatenMetTutor?: boolean; 
-  linkedTutorIds?: string[]; 
+  leerdoelen?: string;
+  voorkeurTutor?: string;
+  deelResultatenMetTutor?: boolean;
+  linkedTutorIds?: string[];
 }
+
+export const editableChildFormSchema = z.object({
+  firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 tekens bevatten." }),
+  lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 tekens bevatten." }),
+  ageGroup: z.enum(['12-14', '15-18', 'adult']),
+  childEmail: z.string().email({ message: "Voer een geldig e-mailadres in." }).optional().or(z.literal('')),
+  schoolType: z.string().optional(),
+  otherSchoolType: z.string().optional(),
+  className: z.string().optional(),
+  helpSubjects: z.array(z.string()).optional(),
+  hulpvraagType: z.array(z.enum(['tutor', 'coach'])).optional(),
+  selectedLeerdoelen: z.array(z.string()).optional(),
+  otherLeerdoelen: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
+  selectedTutorPreferences: z.array(z.string()).optional(),
+  otherTutorPreference: z.string().max(250, "Toelichting mag maximaal 250 tekens bevatten.").optional(),
+  avatarUrl: z.string().url({ message: "Ongeldige URL." }).nullable().optional(),
+}).refine(data => {
+  if (data.schoolType === "Anders" && (!data.otherSchoolType || data.otherSchoolType.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Specificatie voor 'Ander schooltype' is vereist.",
+  path: ["otherSchoolType"], 
+});
+
+export type EditableChildData = z.infer<typeof editableChildFormSchema>;
+
 
 // From ouder/kinderen/[kindId]/voortgang/page.tsx
 export interface QuizAnswer { question: string; answer: string; }
