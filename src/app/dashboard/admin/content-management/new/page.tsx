@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { WysiwygEditor } from '@/components/common/WysiwygEditor';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function NewContentPage() {
   const { toast } = useToast();
@@ -72,11 +72,13 @@ export default function NewContentPage() {
             />
           </div>
           <div>
-            <Label htmlFor="pageContent">Pagina Inhoud</Label>
-            <WysiwygEditor 
+            <Label htmlFor="pageContent">Pagina Inhoud (HTML)</Label>
+            <Textarea 
                 value={content}
-                onChange={setContent}
-                placeholder="Typ hier de inhoud van de pagina..."
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Typ hier de HTML-inhoud van de pagina..."
+                rows={15}
+                className="font-mono text-xs"
             />
           </div>
         </CardContent>

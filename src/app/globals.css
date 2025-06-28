@@ -1,5 +1,4 @@
-/* Add this line to app/globals.css */
-@import 'react-quill/dist/quill.snow.css';
+
 
 @tailwind base;
 @tailwind components;
