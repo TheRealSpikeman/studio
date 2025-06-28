@@ -100,7 +100,7 @@ export default function NewBlogPostPage() {
   };
 
   const MarkdownToolbar = () => (
-    <div className="flex items-center gap-1 border border-b-0 border-input rounded-t-md p-2 bg-muted/50">
+    <div className="flex items-center gap-1 border border-t-0 border-input rounded-b-md p-2 bg-muted/50">
       <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('bold')} title="Vetgedrukt"><Bold className="h-4 w-4" /></Button>
       <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('italic')} title="Cursief"><Italic className="h-4 w-4" /></Button>
       <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h2')} title="Kop 2"><Heading2 className="h-4 w-4" /></Button>
@@ -259,7 +259,6 @@ export default function NewBlogPostPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Content (Markdown)</FormLabel>
-                    <MarkdownToolbar />
                     <FormControl>
                       <Textarea
                         {...field}
@@ -268,9 +267,10 @@ export default function NewBlogPostPage() {
                           contentRef.current = e;
                         }}
                         rows={15}
-                        className="rounded-t-none"
+                        className="rounded-b-none"
                       />
                     </FormControl>
+                    <MarkdownToolbar />
                     <FormMessage />
                   </FormItem>
                 )}
