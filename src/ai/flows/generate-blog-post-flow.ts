@@ -34,7 +34,7 @@ Write a comprehensive, engaging, and well-structured blog post on the following 
 // INSTRUCTIONS & FORMATTING
 1.  The entire blog post must be in Dutch.
 2.  The content must be at least 400 words.
-3.  Use simple HTML tags for structure in the main content (e.g., <h2>, <h3>, <p>, <ul>, <li>, <strong>). Do NOT include <html>, <head>, or <body> tags.
+3.  Use simple HTML tags for structure in the main content (e.g., <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, <ol>). Do NOT include <html>, <head>, or <body> tags.
 4.  The tone and style must strictly adhere to the persona provided.
 5.  Your output MUST be ONLY the raw text response. DO NOT wrap it in JSON, markdown, or any other format.
 6.  The VERY FIRST line of the response MUST be the H1 title, starting with "# ". For example: "# De Toekomst van Leren".

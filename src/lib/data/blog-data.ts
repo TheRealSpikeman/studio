@@ -6,49 +6,37 @@ export const initialBlogPosts: BlogPost[] = [
   {
     id: '1', slug: 'hoe-help-ik-mijn-tiener-focussen', title: 'Hoe help ik mijn tiener focussen?',
     excerpt: 'Ontdek 5 concrete, direct toepasbare tips...',
-    content: `
-## De Uitdaging van Focus in de 21e Eeuw
-
-In een wereld vol constante notificaties, eindeloze social media feeds en de druk om altijd 'aan' te staan, is het voor tieners moeilijker dan ooit om zich te concentreren. Vooral voor neurodivergente jongeren, die prikkels vaak intenser ervaren, kan dit een dagelijkse strijd zijn. Het is echter geen verloren strijd. Met de juiste strategieën kunt u als ouder een omgeving creëren die focus bevordert.
-
-### Tip 1: Creëer een 'Focus Oase'
-
-De omgeving heeft een enorme impact op onze concentratie. Een 'focus oase' is een specifieke plek in huis die uitsluitend bedoeld is voor geconcentreerd werk.
-
-*   **Geen telefoons:** Maak de regel dat telefoons (en andere afleidende apparaten) buiten deze zone blijven.
-*   **Minimaliseer rommel:** Een opgeruimd bureau zorgt voor een opgeruimd hoofd.
-*   **Goede verlichting en ergonomie:** Zorg voor een comfortabele stoel en voldoende licht.
-
-### Tip 2: De Kracht van de Pomodoro Techniek
-
-De Pomodoro Techniek is simpel maar effectief:
-
-1.  Kies één taak.
-2.  Zet een timer op 25 minuten.
-3.  Werk onafgebroken aan die ene taak.
-4.  Neem na 25 minuten een korte pauze van 5 minuten.
-5.  Herhaal dit. Na 4 'pomodoros' neem je een langere pauze van 15-30 minuten.
-
-Deze techniek doorbreekt de overweldigende gedachte van "uren moeten studeren" en maakt het starten veel laagdrempeliger.
-
-### Tip 3: Samen Plannen, Niet Opleggen
-
-Betrek uw tiener bij het maken van een weekplanning. In plaats van te zeggen "je moet nu huiswerk maken", kunt u vragen: "Wanneer voel je je het meest energiek om aan wiskunde te beginnen?". Dit geeft hen een gevoel van autonomie en eigenaarschap, wat de motivatie aanzienlijk kan verhogen.
-
-### Tip 4: Digitale Hulpmiddelen Slim Inzetten
-
-Technologie hoeft niet altijd de vijand te zijn. Er zijn apps die kunnen helpen:
-
-*   **Site Blockers:** Apps zoals 'Focus' of 'Freedom' kunnen afleidende websites tijdelijk blokkeren.
-*   **Achtergrondgeluiden:** Apps met 'white noise' of natuurgeluiden kunnen helpen om omgevingsgeluiden te dempen.
-
-### Tip 5: Begrijp de 'Waarom'
-
-Praat met uw tiener over het *waarom* achter focus. Het gaat niet alleen om betere cijfers, maar ook om het creëren van meer vrije tijd, het verminderen van stress en het gevoel van voldoening na het afronden van een taak. Wanneer ze het grotere voordeel zien, wordt de interne motivatie om te focussen sterker.
-
-## Conclusie
-
-Focus is een vaardigheid die getraind kan worden. Door samen te werken, een ondersteunende omgeving te creëren en slimme technieken toe te passen, kunt u uw tiener helpen om deze cruciale superkracht voor de toekomst te ontwikkelen.`,
+    content: `<h2>De Uitdaging van Focus in de 21e Eeuw</h2>
+<p>In een wereld vol constante notificaties, eindeloze social media feeds en de druk om altijd 'aan' te staan, is het voor tieners moeilijker dan ooit om zich te concentreren. Vooral voor neurodivergente jongeren, die prikkels vaak intenser ervaren, kan dit een dagelijkse strijd zijn. Het is echter geen verloren strijd. Met de juiste strategieën kunt u als ouder een omgeving creëren die focus bevordert.</p>
+<h3>Tip 1: Creëer een 'Focus Oase'</h3>
+<p>De omgeving heeft een enorme impact op onze concentratie. Een 'focus oase' is een specifieke plek in huis die uitsluitend bedoeld is voor geconcentreerd werk.</p>
+<ul>
+    <li><strong>Geen telefoons:</strong> Maak de regel dat telefoons (en andere afleidende apparaten) buiten deze zone blijven.</li>
+    <li><strong>Minimaliseer rommel:</strong> Een opgeruimd bureau zorgt voor een opgeruimd hoofd.</li>
+    <li><strong>Goede verlichting en ergonomie:</strong> Zorg voor een comfortabele stoel en voldoende licht.</li>
+</ul>
+<h3>Tip 2: De Kracht van de Pomodoro Techniek</h3>
+<p>De Pomodoro Techniek is simpel maar effectief:</p>
+<ol>
+    <li>Kies één taak.</li>
+    <li>Zet een timer op 25 minuten.</li>
+    <li>Werk onafgebroken aan die ene taak.</li>
+    <li>Neem na 25 minuten een korte pauze van 5 minuten.</li>
+    <li>Herhaal dit. Na 4 'pomodoros' neem je een langere pauze van 15-30 minuten.</li>
+</ol>
+<p>Deze techniek doorbreekt de overweldigende gedachte van "uren moeten studeren" en maakt het starten veel laagdrempeliger.</p>
+<h3>Tip 3: Samen Plannen, Niet Opleggen</h3>
+<p>Betrek uw tiener bij het maken van een weekplanning. In plaats van te zeggen "je moet nu huiswerk maken", kunt u vragen: "Wanneer voel je je het meest energiek om aan wiskunde te beginnen?". Dit geeft hen een gevoel van autonomie en eigenaarschap, wat de motivatie aanzienlijk kan verhogen.</p>
+<h3>Tip 4: Digitale Hulpmiddelen Slim Inzetten</h3>
+<p>Technologie hoeft niet altijd de vijand te zijn. Er zijn apps die kunnen helpen:</p>
+<ul>
+    <li><strong>Site Blockers:</strong> Apps zoals 'Focus' of 'Freedom' kunnen afleidende websites tijdelijk blokkeren.</li>
+    <li><strong>Achtergrondgeluiden:</strong> Apps met 'white noise' of natuurgeluiden kunnen helpen om omgevingsgeluiden te dempen.</li>
+</ul>
+<h3>Tip 5: Begrijp de 'Waarom'</h3>
+<p>Praat met uw tiener over het <em>waarom</em> achter focus. Het gaat niet alleen om betere cijfers, maar ook om het creëren van meer vrije tijd, het verminderen van stress en het gevoel van voldoening na het afronden van een taak. Wanneer ze het grotere voordeel zien, wordt de interne motivatie om te focussen sterker.</p>
+<h2>Conclusie</h2>
+<p>Focus is een vaardigheid die getraind kan worden. Door samen te werken, een ondersteunende omgeving te creëren en slimme technieken toe te passen, kunt u uw tiener helpen om deze cruciale superkracht voor de toekomst te ontwikkelen.</p>`,
     authorId: 'admin1', authorName: 'Dr. Florentine Sage',
     featuredImageUrl: 'https://placehold.co/1200x630.png', featuredImageHint: 'teenager studying focused',
     status: 'published', tags: ['Focus', 'Ouders'],
