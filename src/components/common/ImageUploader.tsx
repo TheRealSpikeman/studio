@@ -1,7 +1,7 @@
 // src/components/common/ImageUploader.tsx
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -23,47 +23,34 @@ export function ImageUploader({ onUploadComplete, initialImageUrl }: ImageUpload
   const { isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialImageUrl || null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(initialImageUrl || null);
 
-  const handleFileSelect = () => {
-    if (!isFirebaseConfigured) {
-      toast({ title: 'Firebase niet geconfigureerd', description: 'Kan geen afbeelding uploaden.', variant: 'destructive' });
+  useEffect(() => {
+    setPreviewUrl(initialImageUrl || null);
+    setDownloadUrl(initialImageUrl || null);
+  }, [initialImageUrl]);
+
+  useEffect(() => {
+    if (!selectedFile) {
       return;
     }
-    fileInputRef.current?.click();
-  };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        setError('Selecteer alstublieft een afbeeldingsbestand.');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError('Bestand is te groot. Maximaal 5MB toegestaan.');
-        return;
-      }
-      setError(null);
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
-      handleUpload(file);
-      
-      // Clean up the object URL after the component unmounts or a new file is selected
-      return () => URL.revokeObjectURL(objectUrl);
-    }
-  };
-
-  const handleUpload = (file: File) => {
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreviewUrl(objectUrl);
+    
+    // Start the upload
     setIsUploading(true);
     setUploadProgress(0);
+    setError(null);
+    setDownloadUrl(null);
 
-    const storageRef = ref(storage, `blog-images/${Date.now()}-${file.name}`);
+    const storageRef = ref(storage, `blog-images/${Date.now()}-${selectedFile.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on('state_changed',
@@ -75,34 +62,57 @@ export function ImageUploader({ onUploadComplete, initialImageUrl }: ImageUpload
         console.error('Upload Error:', uploadError);
         setError('Upload mislukt. Probeer het opnieuw.');
         setIsUploading(false);
-        setPreviewUrl(initialImageUrl || null);
+        setPreviewUrl(initialImageUrl || null); // Revert preview on error
       },
       async () => {
         try {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
           setDownloadUrl(url);
           onUploadComplete(url);
-          setIsUploading(false);
           toast({ title: 'Upload Voltooid!', description: 'De afbeelding is succesvol geüpload.' });
         } catch (getUrlError) {
           console.error('Get URL Error:', getUrlError);
           setError('Kon de afbeeldings-URL niet ophalen.');
+        } finally {
           setIsUploading(false);
         }
       }
     );
+
+    // Cleanup function to revoke the object URL
+    return () => URL.revokeObjectURL(objectUrl);
+
+  }, [selectedFile, onUploadComplete, toast, initialImageUrl]);
+
+
+  const handleFileSelect = () => {
+    if (!isFirebaseConfigured) {
+      toast({ title: 'Firebase niet geconfigureerd', description: 'Kan geen afbeelding uploaden.', variant: 'destructive' });
+      return;
+    }
+    fileInputRef.current?.click();
   };
   
-  const handleCopyToClipboard = () => {
-    if (downloadUrl) {
-      navigator.clipboard.writeText(downloadUrl);
-      toast({ title: 'URL Gekopieerd!', description: 'De afbeeldingslink is naar het klembord gekopieerd.' });
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+       if (!file.type.startsWith('image/')) {
+        setError('Selecteer alstublieft een afbeeldingsbestand.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError('Bestand is te groot. Maximaal 5MB toegestaan.');
+        return;
+      }
+      setError(null);
+      setSelectedFile(file);
     }
   };
 
   const handleRemoveImage = () => {
     setPreviewUrl(null);
     setDownloadUrl(null);
+    setSelectedFile(null);
     onUploadComplete('');
     if(fileInputRef.current) {
         fileInputRef.current.value = '';
