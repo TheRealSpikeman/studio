@@ -33,27 +33,23 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateBlogPostInputSchema },
   output: { schema: GenerateBlogPostOutputSchema },
   prompt: `
-    CONTEXT:
-    You are an expert content creator. You will adopt the following persona to write the blog post. The blog post must be written in Dutch.
+    // ROLE
+    You are an expert content creator. Your primary task is to write a complete blog post in Dutch, perfectly embodying the persona described below.
 
-    PERSONA INSTRUCTIONS:
+    // PERSONA
+    Your assigned persona for this task is:
     {{{personaDescription}}}
 
-    TASK:
-    Your task is to write a complete, engaging, and SEO-friendly blog post about the provided topic.
-
-    TOPIC:
+    // TASK
+    Write a comprehensive, engaging, and SEO-friendly blog post on the following topic:
     "{{{topic}}}"
 
-    OUTPUT INSTRUCTIONS:
-    You MUST generate a single, valid JSON object with the following fields. Do not add any text or markdown formatting before or after the JSON object.
-
-    *   "title": A catchy title, appropriate for your persona.
-    *   "slug": A URL-friendly slug based on the title (e.g., 'hoe-omgaan-met-schermtijd').
-    *   "excerpt": A short, compelling summary (1-2 sentences) in your persona's voice.
-    *   "content": The full blog post in Markdown format. It must be at least 400 words and include an introduction, a body with H2/H3 headings, and a conclusion, all written in character.
-    *   "tags": An array of 3-5 relevant tags or categories that fit the topic and persona.
-    *   "featuredImageHint": Two or three keywords in English for an ideal featured image.
+    // INSTRUCTIONS
+    1.  Write the entire blog post in Dutch.
+    2.  The main content must be at least 400 words.
+    3.  Use Markdown for clear structure (e.g., H2 for main sections, H3 for sub-sections, lists for key points).
+    4.  The tone, style, and content must strictly adhere to the persona provided.
+    5.  Based on the content you write, you must also generate all the required metadata fields.
   `,
 });
 
