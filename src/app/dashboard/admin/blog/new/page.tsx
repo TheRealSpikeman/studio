@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/blog/new/page.tsx
 "use client";
 
@@ -12,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, Bot, Save, Loader2, Rss } from 'lucide-react';
+import { ArrowLeft, Bot, Save, Loader2, Rss, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateBlogPost } from '@/ai/flows/generate-blog-post-flow';
@@ -21,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import { aiPersonas } from '@/ai/personas';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -43,6 +45,7 @@ export default function NewBlogPostPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiPersona, setAiPersona] = useState<string>(aiPersonas[0].id);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
@@ -77,7 +80,8 @@ export default function NewBlogPostPage() {
       toast({ title: "Persona niet gevonden", description: "Selecteer een geldige AI persona.", variant: "destructive" });
       return;
     }
-
+    
+    setAiError(null); // Clear previous errors
     setIsAiGenerating(true);
     toast({ title: "AI is aan het werk...", description: "Blogpost content wordt gegenereerd." });
     try {
@@ -95,9 +99,11 @@ export default function NewBlogPostPage() {
       form.setValue('tags', '');
 
       toast({ title: "Content gegenereerd!", description: "Titel en content zijn ingevuld. Vul de samenvatting en tags handmatig aan." });
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI content generation failed:", error);
-      toast({ title: "Genereren mislukt", description: "De AI kon de content niet genereren.", variant: "destructive" });
+      const errorMessage = error.message || "De AI kon de content niet genereren.";
+      setAiError(errorMessage); // Set the error state
+      toast({ title: "Genereren mislukt", description: "Zie de foutmelding op de pagina voor details.", variant: "destructive" });
     } finally {
       setIsAiGenerating(false);
     }
@@ -170,6 +176,17 @@ export default function NewBlogPostPage() {
             </div>
           </div>
         </CardContent>
+        {aiError && (
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Fout bij Genereren</AlertTitle>
+              <AlertDescription>
+                <pre className="text-xs whitespace-pre-wrap font-mono">{aiError}</pre>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        )}
         <CardFooter>
           <Button onClick={handleGenerateContent} disabled={isAiGenerating}>
             {isAiGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
@@ -223,3 +240,4 @@ export default function NewBlogPostPage() {
     </div>
   );
 }
+    
