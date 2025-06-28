@@ -11,7 +11,9 @@ export interface AiPersona {
   linkedinUrl?: string;
 }
 
-export const aiPersonas: AiPersona[] = [
+// Renamed to 'initialAiPersonas' to clarify this is the default data,
+// which will be loaded into localStorage on first use.
+export const initialAiPersonas: AiPersona[] = [
   {
     id: 'dr-florentine-sage',
     name: 'Dr. Florentine Sage (Psycholoog)',
