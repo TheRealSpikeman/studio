@@ -4,9 +4,10 @@ export interface BlogPost {
   slug: string; // URL-friendly slug
   title: string;
   excerpt: string;
-  content: string; // Markdown content
+  content: string; // HTML content
   authorId: string;
   authorName: string; // Denormalized for easy display
+  personaId?: string; // ID of the AI persona used
   authorAvatarUrl?: string; // Optional
   featuredImageUrl: string;
   featuredImageHint: string; // Hint for AI image generation

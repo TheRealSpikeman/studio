@@ -38,6 +38,7 @@ export const initialBlogPosts: BlogPost[] = [
 <h2>Conclusie</h2>
 <p>Focus is een vaardigheid die getraind kan worden. Door samen te werken, een ondersteunende omgeving te creëren en slimme technieken toe te passen, kunt u uw tiener helpen om deze cruciale superkracht voor de toekomst te ontwikkelen.</p>`,
     authorId: 'admin1', authorName: 'Dr. Florentine Sage',
+    personaId: 'dr-florentine-sage',
     featuredImageUrl: 'https://placehold.co/1200x630.png', featuredImageHint: 'teenager studying focused',
     status: 'published', tags: ['Focus', 'Ouders'],
     createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
@@ -45,7 +46,7 @@ export const initialBlogPosts: BlogPost[] = [
   {
     id: '2', slug: 'de-kracht-van-neurodiversiteit', title: 'De Kracht van Anders Denken',
     excerpt: 'Waarom neurodiversiteit een voordeel is.',
-    content: 'Volledige markdown content hier...',
+    content: `<h2>Anders Denken is een Superkracht</h2><p>Lange tijd werd neurodiversiteit gezien als een 'probleem' dat opgelost moest worden. Gelukkig verandert dat perspectief. Steeds meer mensen en bedrijven zien de unieke voordelen van denkstijlen die buiten de 'norm' vallen.</p><h3>Wat zijn de voordelen?</h3><ul><li><strong>Creativiteit:</strong> Neurodivergente breinen leggen vaak onverwachte verbanden, wat leidt tot baanbrekende ideeën.</li><li><strong>Hyperfocus:</strong> De mogelijkheid om diep in een onderwerp te duiken en complexe problemen op te lossen.</li><li><strong>Patroonherkenning:</strong> Een scherp oog voor details en patronen die anderen missen.</li></ul>`,
     authorId: 'admin2', authorName: 'Team MindNavigator',
     featuredImageUrl: 'https://placehold.co/1200x630.png', featuredImageHint: 'diverse brains connection',
     status: 'published', tags: ['Neurodiversiteit', 'Inspiratie'],
@@ -54,8 +55,9 @@ export const initialBlogPosts: BlogPost[] = [
   {
     id: '3', slug: 'volgende-artikel', title: 'Volgende Artikel (Concept)',
     excerpt: 'Dit is een concept en nog niet zichtbaar voor publiek.',
-    content: 'Volledige markdown content hier...',
+    content: `<p>Hier komt de content voor een toekomstig artikel.</p>`,
     authorId: 'admin1', authorName: 'Dr. Florentine Sage',
+    personaId: 'dr-florentine-sage',
     featuredImageUrl: 'https://placehold.co/1200x630.png', featuredImageHint: 'writing desk notes',
     status: 'draft', tags: ['Concept'],
     createdAt: new Date().toISOString(),

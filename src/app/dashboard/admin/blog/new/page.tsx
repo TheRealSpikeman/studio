@@ -110,12 +110,14 @@ export default function NewBlogPostPage() {
     setIsSaving(true);
     
     const { tags: tagsString, ...restOfData } = data;
+    const selectedPersona = aiPersonas.find(p => p.id === aiPersona);
 
     const newPost: BlogPost = {
       ...restOfData,
       id: `blog-${Date.now()}`,
       authorId: user?.id || 'unknown',
-      authorName: user?.name || 'MindNavigator Team',
+      authorName: selectedPersona?.name || 'MindNavigator Team',
+      personaId: selectedPersona?.id,
       createdAt: new Date().toISOString(),
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
       tags: tagsString.split(',').map(tag => tag.trim()).filter(Boolean),

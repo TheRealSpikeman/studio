@@ -14,15 +14,32 @@ import type { BlogPost } from '@/types/blog';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { initialBlogPosts } from '@/lib/data/blog-data';
+import { cn } from '@/lib/utils';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
+const getTagClasses = (tag: string): string => {
+  const lowerTag = tag.toLowerCase();
+  switch (lowerTag) {
+    case 'focus':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'ouders':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'neurodiversiteit':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'inspiratie':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+
 const BlogPostCard = ({ post }: { post: BlogPost }) => {
   const calculateReadingTime = (content: string): string => {
-    // Strip HTML tags and count words
     const text = content.replace(/<[^>]*>/g, '');
     const words = text.split(/\s+/).filter(Boolean).length;
-    const wpm = 225; // Average reading speed
+    const wpm = 225;
     const minutes = Math.ceil(words / wpm);
     return `${minutes} min. leestijd`;
   };
@@ -43,7 +60,7 @@ const BlogPostCard = ({ post }: { post: BlogPost }) => {
       <CardHeader>
         <div className="flex flex-wrap gap-1 mb-2">
           {post.tags.map(tag => (
-            <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+            <Badge key={tag} variant="outline" className={cn("text-xs", getTagClasses(tag))}>{tag}</Badge>
           ))}
         </div>
         <CardTitle className="text-xl font-semibold">
