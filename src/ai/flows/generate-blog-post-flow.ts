@@ -30,7 +30,7 @@ export async function generateBlogPost(input: GenerateBlogPostInput): Promise<Ge
 // *** SIMPLIFIED PROMPT ***
 // The prompt now focuses on just getting the title and content right.
 const prompt = ai.definePrompt({
-  name: 'generateBlogPostPrompt_v3', // New name to avoid caching issues
+  name: 'generateBlogPostPrompt_v4_final_fix', // New name to avoid caching issues
   input: { schema: GenerateBlogPostInputSchema },
   output: { schema: GenerateBlogPostOutputSchema },
   prompt: `
@@ -50,13 +50,13 @@ Write a comprehensive, engaging, and well-structured blog post on the following 
 2.  The main content must be at least 400 words.
 3.  Use Markdown for clear structure (e.g., H2 for main sections, H3 for sub-sections, lists for key points).
 4.  The tone, style, and content must strictly adhere to the persona provided.
-5.  You MUST generate a 'title' and the 'content'. Do not generate any other fields.
+5.  You MUST generate a JSON object with only two keys: "title" and "content". Do not generate any other fields or text outside the JSON object.
   `,
 });
 
 const generateBlogPostFlow = ai.defineFlow(
   {
-    name: 'generateBlogPostFlow_v3',
+    name: 'generateBlogPostFlow_v4_final_fix',
     inputSchema: GenerateBlogPostInputSchema,
     outputSchema: GenerateBlogPostOutputSchema,
   },
