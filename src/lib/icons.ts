@@ -47,6 +47,7 @@ export {
   Compass,
   Contact,
   Cookie,
+  Copy,
   Copyright,
   Cpu,
   CreditCard,
