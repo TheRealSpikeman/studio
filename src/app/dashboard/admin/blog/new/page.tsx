@@ -101,8 +101,8 @@ export default function NewBlogPostPage() {
       toast({ title: "Content gegenereerd!", description: "Titel en content zijn ingevuld. Vul de samenvatting en tags handmatig aan." });
     } catch (error: any) {
       console.error("AI content generation failed:", error);
-      const errorMessage = error.message || "De AI kon de content niet genereren.";
-      setAiError(errorMessage); // Set the error state
+      const errorMessage = `Fout: ${error.message || "Onbekende fout."}\n\nDetails: ${error.stack || 'Geen stack trace beschikbaar.'}`;
+      setAiError(errorMessage);
       toast({ title: "Genereren mislukt", description: "Zie de foutmelding op de pagina voor details.", variant: "destructive" });
     } finally {
       setIsAiGenerating(false);
