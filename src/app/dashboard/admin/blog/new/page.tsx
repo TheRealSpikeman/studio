@@ -90,15 +90,15 @@ export default function NewBlogPostPage() {
         personaDescription: selectedPersona.description,
       });
 
-      // Set only the fields the AI provides
+      // Set the fields the AI provides, including the new excerpt
       form.setValue('title', result.title);
+      form.setValue('excerpt', result.excerpt);
       form.setValue('content', result.content);
       
       // Clear other fields for manual entry
-      form.setValue('excerpt', '');
       form.setValue('tags', '');
 
-      toast({ title: "Content gegenereerd!", description: "Titel en content zijn ingevuld. Vul de samenvatting en tags handmatig aan." });
+      toast({ title: "Content gegenereerd!", description: "Titel, samenvatting en content zijn ingevuld. Vul de tags handmatig aan." });
     } catch (error: any) {
       console.error("AI content generation failed:", error);
       const errorMessage = `Fout: ${error.message || "Onbekende fout."}\n\nDetails: ${error.stack || 'Geen stack trace beschikbaar.'}`;
@@ -190,7 +190,7 @@ export default function NewBlogPostPage() {
         <CardFooter>
           <Button onClick={handleGenerateContent} disabled={isAiGenerating}>
             {isAiGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-            Genereer Titel & Content
+            Genereer Content
           </Button>
         </CardFooter>
       </Card>
@@ -240,4 +240,3 @@ export default function NewBlogPostPage() {
     </div>
   );
 }
-    
