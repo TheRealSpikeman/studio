@@ -20,7 +20,17 @@ import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import { aiPersonas } from '@/ai/personas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ImageUploader } from '@/components/common/ImageUploader';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUploader = dynamic(
+  () => import('@/components/common/ImageUploader').then(mod => mod.ImageUploader),
+  { 
+    ssr: false,
+    loading: () => <div className="space-y-2 pt-4 border-t mt-4"><Skeleton className="h-4 w-1/4" /><Skeleton className="aspect-[16/9] w-full rounded-md" /></div>
+  }
+);
+
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
