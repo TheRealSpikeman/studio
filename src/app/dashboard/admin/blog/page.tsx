@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Edit, Trash2, PlusCircle, Rss } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, PlusCircle, Rss, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -16,6 +16,14 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { initialBlogPosts } from '@/lib/data/blog-data';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -103,14 +111,33 @@ export default function BlogManagementPage() {
                       {post.publishedAt ? format(parseISO(post.publishedAt), 'dd-MM-yyyy', { locale: nl }) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/admin/blog/edit/${post.id}`}>
-                           <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setPostToDelete(post)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Acties voor {post.title}</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/admin/blog/edit/${post.id}`}>
+                              <Edit className="mr-2 h-4 w-4" /> Bewerken
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
+                              <Eye className="mr-2 h-4 w-4" /> Bekijk op site
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setPostToDelete(post)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
