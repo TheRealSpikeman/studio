@@ -1,7 +1,7 @@
 // src/components/admin/user-management/UserManagementTable.tsx
 "use client";
 
-import type { User, UserStatus, UserRole } from '@/types/user';
+import type { User, UserStatus, UserRole } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
