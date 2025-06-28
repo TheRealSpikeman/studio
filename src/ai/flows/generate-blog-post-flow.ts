@@ -17,7 +17,7 @@ export async function generateBlogPost(input: GenerateBlogPostInput): Promise<Ge
 }
 
 const prompt = ai.definePrompt({
-  name: 'generateBlogPostPrompt_v12_with_image_hint',
+  name: 'generateBlogPostPrompt_v13_with_html_output',
   input: { schema: GenerateBlogPostInputSchema },
   prompt: `
 // ROLE
@@ -34,15 +34,15 @@ Write a comprehensive, engaging, and well-structured blog post on the following 
 // INSTRUCTIONS & FORMATTING
 1.  The entire blog post must be in Dutch.
 2.  The content must be at least 400 words.
-3.  Use Markdown for clear structure (H2 for main sections, H3 for sub-sections, lists for key points).
+3.  Use simple HTML tags for structure in the main content (e.g., <h2>, <h3>, <p>, <ul>, <li>, <strong>). Do NOT include <html>, <head>, or <body> tags.
 4.  The tone and style must strictly adhere to the persona provided.
-5.  Your output MUST be ONLY the raw markdown of the blog post. DO NOT wrap it in JSON or any other format.
-6.  The VERY FIRST line of the markdown MUST be the H1 title, starting with "# ". For example: "# De Toekomst van Leren".
-7.  The SECOND line of the markdown MUST be a short, catchy, one-sentence summary (excerpt) of the blog post. Do not add any special formatting to this line.
+5.  Your output MUST be ONLY the raw text response. DO NOT wrap it in JSON, markdown, or any other format.
+6.  The VERY FIRST line of the response MUST be the H1 title, starting with "# ". For example: "# De Toekomst van Leren".
+7.  The SECOND line of the response MUST be a short, catchy, one-sentence summary (excerpt) of the blog post. Do not add any special formatting to this line.
 8.  The THIRD line MUST be a comma-separated list of 3-5 relevant, single-word, lowercase keywords (tags). Start this line with "TAGS: ". For example: "TAGS: focus, ouders, neurodiversiteit".
 9.  The FOURTH line MUST be one or two simple, lowercase keywords for an image search, representing the article's theme. Start this line with "IMAGE_HINT: ". For example: "IMAGE_HINT: brain connection".
 10. The FIFTH line MUST be empty.
-11. The rest of the content should follow from the SIXTH line onwards.
+11. The rest of the content, starting from the SIXTH line, should be the HTML body of the blog post.
 
 EXAMPLE OUTPUT STRUCTURE:
 # Titel van de Blogpost
@@ -50,28 +50,28 @@ Dit is een pakkende samenvatting die uitnodigt om verder te lezen.
 TAGS: tag1, tag2, tag3
 IMAGE_HINT: hint1 hint2
 
-## Eerste Sectie
-Hier begint de daadwerkelijke content van het artikel...
+<h2>Eerste Sectie</h2>
+<p>Hier begint de daadwerkelijke <strong>HTML-content</strong> van het artikel...</p><ul><li>Een punt in een lijst</li></ul>
 
-Do not include any text, explanation, or conversational filler before or after the markdown content.
+Do not include any text, explanation, or conversational filler before or after the response content.
   `,
 });
 
 const generateBlogPostFlow = ai.defineFlow(
   {
-    name: 'generateBlogPostFlow_v12_with_image_hint',
+    name: 'generateBlogPostFlow_v13_with_html_output',
     inputSchema: GenerateBlogPostInputSchema,
     outputSchema: GenerateBlogPostOutputSchema,
   },
   async (input) => {
     const response = await prompt(input);
-    const rawMarkdownOutput = response.text;
+    const rawTextOutput = response.text;
 
-    if (!rawMarkdownOutput || rawMarkdownOutput.trim() === '') {
-      throw new Error('AI did not return any markdown content.');
+    if (!rawTextOutput || rawTextOutput.trim() === '') {
+      throw new Error('AI did not return any content.');
     }
     
-    const lines = rawMarkdownOutput.split('\n');
+    const lines = rawTextOutput.split('\n');
     
     let title = '';
     let excerpt = '';
@@ -102,12 +102,12 @@ const generateBlogPostFlow = ai.defineFlow(
         excerpt = "Samenvatting niet gevonden.";
         tags = [];
         featuredImageHint = 'abstract';
-        content = rawMarkdownOutput;
+        content = rawTextOutput;
     }
 
     if (!title || !content || !excerpt) {
-        console.error("Parsing failed. AI Output was:\n", rawMarkdownOutput);
-        throw new Error('Could not parse title, excerpt, and content from the markdown returned by the AI.');
+        console.error("Parsing failed. AI Output was:\n", rawTextOutput);
+        throw new Error('Could not parse title, excerpt, and content from the text returned by the AI.');
     }
 
     return { title, content, excerpt, tags, featuredImageHint };

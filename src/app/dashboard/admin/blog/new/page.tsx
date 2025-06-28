@@ -1,9 +1,9 @@
 // src/app/dashboard/admin/blog/new/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -12,16 +12,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, Bot, Save, Loader2, Rss, AlertTriangle, Bold, Italic, Heading2, Heading3, List } from '@/lib/icons';
+import { ArrowLeft, Bot, Save, Loader2, Rss, AlertTriangle } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateBlogPost } from '@/ai/flows/generate-blog-post-flow';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
-import Image from 'next/image';
 import { aiPersonas } from '@/ai/personas';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { WysiwygEditor } from '@/components/common/WysiwygEditor';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -46,7 +45,6 @@ export default function NewBlogPostPage() {
   const [aiTopic, setAiTopic] = useState('');
   const [aiPersona, setAiPersona] = useState<string>(aiPersonas[0].id);
   const [aiError, setAiError] = useState<string | null>(null);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
@@ -68,46 +66,6 @@ export default function NewBlogPostPage() {
       form.setValue('slug', newSlug, { shouldValidate: true });
     }
   }, [titleValue, form]);
-  
-  const insertMarkdown = (syntax: 'bold' | 'italic' | 'h2' | 'h3' | 'ul') => {
-    const textarea = contentRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const value = textarea.value; // Changed from form.getValues()
-    const selectedText = value.substring(start, end);
-    let newText;
-    let cursorPosition;
-
-    switch (syntax) {
-      case 'bold': newText = `**${selectedText || 'tekst'}**`; cursorPosition = start + 2; break;
-      case 'italic': newText = `*${selectedText || 'tekst'}*`; cursorPosition = start + 1; break;
-      case 'h2': newText = `\n## ${selectedText || 'Kop'}\n`; cursorPosition = start + 4; break;
-      case 'h3': newText = `\n### ${selectedText || 'Subkop'}\n`; cursorPosition = start + 5; break;
-      case 'ul': newText = `\n* Item 1\n* Item 2`; cursorPosition = start + newText.length; break;
-      default: newText = ''; cursorPosition = start;
-    }
-
-    const updatedValue = value.substring(0, start) + newText + value.substring(end);
-    form.setValue('content', updatedValue, { shouldValidate: true });
-
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = selectedText ? (start + newText.length) : cursorPosition;
-      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
-    }, 0);
-  };
-
-  const MarkdownToolbar = () => (
-    <div className="flex items-center gap-1 border border-t-0 border-input rounded-b-md p-2 bg-muted/50">
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('bold')} title="Vetgedrukt"><Bold className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('italic')} title="Cursief"><Italic className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h2')} title="Kop 2"><Heading2 className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h3')} title="Kop 3"><Heading3 className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('ul')} title="Lijst"><List className="h-4 w-4" /></Button>
-    </div>
-  );
 
   const handleGenerateContent = async () => {
     if (!aiTopic) {
@@ -121,7 +79,7 @@ export default function NewBlogPostPage() {
       return;
     }
     
-    setAiError(null); // Clear previous errors
+    setAiError(null);
     setIsAiGenerating(true);
     toast({ title: "AI is aan het werk...", description: "Blogpost content wordt gegenereerd." });
     try {
@@ -130,7 +88,7 @@ export default function NewBlogPostPage() {
         personaDescription: selectedPersona.description,
       });
 
-      // Set the fields the AI provides
+      // The AI now returns HTML directly
       form.setValue('title', result.title);
       form.setValue('excerpt', result.excerpt);
       form.setValue('content', result.content);
@@ -258,19 +216,14 @@ export default function NewBlogPostPage() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content (Markdown)</FormLabel>
+                    <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        ref={(e) => {
-                          field.ref(e);
-                          contentRef.current = e;
-                        }}
-                        rows={15}
-                        className="rounded-b-none"
-                      />
+                       <WysiwygEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Schrijf hier de inhoud van je blogpost..."
+                        />
                     </FormControl>
-                    <MarkdownToolbar />
                     <FormMessage />
                   </FormItem>
                 )}

@@ -206,3 +206,15 @@
      color: #555;
   }
 }
+
+/* Custom styles for React-Quill */
+.ql-toolbar {
+  @apply rounded-t-md border-input bg-card;
+}
+.ql-container {
+  @apply rounded-b-md border-input;
+}
+.ql-editor {
+  min-height: 250px;
+  @apply bg-background text-base;
+}

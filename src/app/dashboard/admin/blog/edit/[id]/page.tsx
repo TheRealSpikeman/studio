@@ -1,10 +1,10 @@
 // src/app/dashboard/admin/blog/edit/[id]/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, Edit, AlertTriangle, Bold, Italic, Heading2, Heading3, List } from '@/lib/icons';
+import { ArrowLeft, Save, Loader2, Edit, AlertTriangle } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
+import { WysiwygEditor } from '@/components/common/WysiwygEditor';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -45,71 +46,39 @@ export default function EditBlogPostPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postData, setPostData] = useState<BlogPost | null>(null);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
   });
 
   useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
     try {
       const storedPostsRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedPostsRaw) {
         const storedPosts: BlogPost[] = JSON.parse(storedPostsRaw);
         const foundPost = storedPosts.find(p => p.id === postId);
-        if (foundPost) {
-          setPostData(foundPost);
-          form.reset({
-            ...foundPost,
-            tags: foundPost.tags.join(', '),
-          });
+        if (foundPost && isMounted) {
+            setPostData(foundPost);
+            // Directly set the content. If it's old markdown, user will see markdown text in the editor.
+            // When they re-save, it will be saved as HTML.
+            form.reset({
+                ...foundPost,
+                content: foundPost.content,
+                tags: foundPost.tags.join(', '),
+            });
         }
       }
     } catch (error) {
       console.error("Error loading blog post from localStorage:", error);
+    } finally {
+        if(isMounted) setIsLoading(false);
     }
-    setIsLoading(false);
+
+    return () => { isMounted = false; };
   }, [postId, form]);
 
-  const insertMarkdown = (syntax: 'bold' | 'italic' | 'h2' | 'h3' | 'ul') => {
-    const textarea = contentRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const value = textarea.value; // Changed from form.getValues()
-    const selectedText = value.substring(start, end);
-    let newText;
-    let cursorPosition;
-
-    switch (syntax) {
-      case 'bold': newText = `**${selectedText || 'tekst'}**`; cursorPosition = start + 2; break;
-      case 'italic': newText = `*${selectedText || 'tekst'}*`; cursorPosition = start + 1; break;
-      case 'h2': newText = `\n## ${selectedText || 'Kop'}\n`; cursorPosition = start + 4; break;
-      case 'h3': newText = `\n### ${selectedText || 'Subkop'}\n`; cursorPosition = start + 5; break;
-      case 'ul': newText = `\n* Item 1\n* Item 2`; cursorPosition = start + newText.length; break;
-      default: newText = ''; cursorPosition = start;
-    }
-
-    const updatedValue = value.substring(0, start) + newText + value.substring(end);
-    form.setValue('content', updatedValue, { shouldValidate: true });
-
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = selectedText ? (start + newText.length) : cursorPosition;
-      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
-    }, 0);
-  };
-
-  const MarkdownToolbar = () => (
-    <div className="flex items-center gap-1 border border-t-0 border-input rounded-b-md p-2 bg-muted/50">
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('bold')} title="Vetgedrukt"><Bold className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('italic')} title="Cursief"><Italic className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h2')} title="Kop 2"><Heading2 className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('h3')} title="Kop 3"><Heading3 className="h-4 w-4" /></Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => insertMarkdown('ul')} title="Lijst"><List className="h-4 w-4" /></Button>
-    </div>
-  );
 
   const onSubmit = (data: BlogPostFormData) => {
     if (!postData) return;
@@ -117,6 +86,7 @@ export default function EditBlogPostPage() {
     
     const { tags: tagsString, ...restOfData } = data;
 
+    // The content from the form is now HTML
     const updatedPost: BlogPost = {
       ...postData,
       ...restOfData,
@@ -191,19 +161,13 @@ export default function EditBlogPostPage() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content (Markdown)</FormLabel>
+                    <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        ref={(e) => {
-                          field.ref(e);
-                          contentRef.current = e;
-                        }}
-                        rows={15}
-                        className="rounded-b-none"
-                      />
+                        <WysiwygEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                        />
                     </FormControl>
-                    <MarkdownToolbar />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -223,8 +187,7 @@ export default function EditBlogPostPage() {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
-                  </Select><FormMessage />
-                </FormItem>
+                  </Select><FormMessage /></FormItem>
               )} />
             </CardContent>
           </Card>

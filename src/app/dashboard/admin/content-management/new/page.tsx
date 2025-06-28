@@ -5,23 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { FilePlus, ArrowLeft, Save } from '@/lib/icons';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { WysiwygEditor } from '@/components/common/WysiwygEditor';
 
 export default function NewContentPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [slug, setSlug] = useState('');
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(''); // Now stores HTML
 
   const handleSave = () => {
-    // In a real CMS, this would save to a database or headless CMS.
-    // For this simple start, we can log it or maybe store in localStorage for demo.
     console.log("Nieuwe pagina opslaan (simulatie):", { slug, title, content });
     localStorage.setItem(`cms_page_${slug}`, JSON.stringify({ title, content, slug }));
 
@@ -29,9 +27,7 @@ export default function NewContentPage() {
       title: "Pagina Opgeslagen (Simulatie)",
       description: `De pagina "${title}" met slug "/p/${slug}" is aangemaakt (lokaal opgeslagen).`,
     });
-    // Redirect to the main content management page or the new page itself
-    // router.push('/dashboard/admin/content-management');
-    router.push(`/p/${slug}`); // Go to the newly created page
+    router.push(`/p/${slug}`);
   };
 
   return (
@@ -76,17 +72,12 @@ export default function NewContentPage() {
             />
           </div>
           <div>
-            <Label htmlFor="pageContent">Pagina Inhoud (Markdown of HTML ondersteund)</Label>
-            <Textarea 
-              id="pageContent" 
-              placeholder="Typ hier de inhoud van de pagina. Je kunt Markdown gebruiken voor opmaak." 
-              rows={15}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+            <Label htmlFor="pageContent">Pagina Inhoud</Label>
+            <WysiwygEditor 
+                value={content}
+                onChange={setContent}
+                placeholder="Typ hier de inhoud van de pagina..."
             />
-             <p className="text-xs text-muted-foreground mt-1">
-              Voor nu is dit een simpele textarea. Een toekomstig CMS zou hier een Rich Text Editor (WYSIWYG) kunnen hebben.
-            </p>
           </div>
         </CardContent>
         <CardFooter>

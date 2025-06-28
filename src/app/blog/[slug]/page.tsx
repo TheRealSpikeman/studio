@@ -15,51 +15,9 @@ import { nl } from 'date-fns/locale';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { initialBlogPosts } from '@/lib/data/blog-data';
+import DOMPurify from 'isomorphic-dompurify';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
-
-function markdownToHtml(markdown: string): string {
-  if (typeof markdown !== 'string') return '';
-
-  let html = markdown
-    // Headers
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    // Unordered list items
-    .replace(/^\s*\*\s+(.*$)/gim, '<li>$1</li>');
-
-  // Group consecutive list items into a single <ul>
-  html = html.replace(/<\/li>\n<li>/g, '</li><li>'); 
-  html = html.replace(/(<li>(.*?)<\/li>)/gs, '<ul>$1</ul>'); 
-  html = html.replace(/<\/ul>\n<ul>/g, ''); // Clean up multiple <ul> tags
-
-  // Paragraphs and line breaks
-  html = html.split(/\n\s*\n/).map(block => {
-    if (block.trim().startsWith('<h') || block.trim().startsWith('<ul')) {
-      return block; // Pass through existing HTML blocks
-    }
-    if (block.trim() === '') {
-      return '';
-    }
-    // For paragraphs, convert single newlines to <br>
-    const pContent = block.trim().replace(/\n/g, '<br />');
-    return `<p>${pContent}</p>`;
-  }).join('');
-
-  // Inline styling after block-level elements are set
-  html = html
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-  // Add styling classes
-  html = html
-    .replace(/<h2>/g, '<h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2">')
-    .replace(/<h3>/g, '<h3 class="text-xl font-semibold mt-6 mb-3">')
-    .replace(/<ul>/g, '<ul class="list-disc list-inside space-y-2 mb-4">')
-    .replace(/<p>/g, '<p class="mb-4 leading-relaxed">');
-
-  return html;
-}
 
 const ShareButtons = ({ title, url }: { title: string, url: string }) => {
   const { toast } = useToast();
@@ -106,7 +64,6 @@ export default function BlogPostPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, this would be fetched from a DB. For demo, we use localStorage.
     setIsLoading(true);
     try {
       const storedPostsRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -142,6 +99,9 @@ export default function BlogPostPage() {
       </div>
     );
   }
+
+  // Sanitize the HTML content before rendering
+  const sanitizedContent = DOMPurify.sanitize(post.content);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -188,8 +148,8 @@ export default function BlogPostPage() {
             </div>
             
             <div
-              className="prose prose-lg dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
+              className="prose prose-lg dark:prose-invert max-w-none prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-headings:font-semibold prose-headings:text-foreground prose-a:text-primary hover:prose-a:text-primary/80"
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
 
             <div className="mt-12 pt-8 border-t">
