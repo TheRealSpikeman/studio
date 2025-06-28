@@ -1,6 +1,4 @@
-// src/ai/flows/generate-coaching-insights.ts
 'use server';
-
 /**
  * @fileOverview Generates personalized daily coaching content based on onboarding quiz analysis.
  *

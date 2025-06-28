@@ -48,7 +48,7 @@ Fill out the following fields based on this idea:
 4.  **icon**: Choose the MOST appropriate icon from this list of valid names: {{#each validIconNames}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
 5.  **category**: Choose the MOST appropriate category from this list: {{#each validCategoryNames}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}.
 6.  **reasoning**: Explain WHY this tool is recommended based on a user's quiz score (high, medium, low) for a relevant neurodiversity profile.
-    *   **high**: Why is this tool essential for someone scoring high on a related trait (e.g., high anxiety, low focus)?
+    *   **high**: Why is this tool is essential for someone scoring high on a related trait (e.g., high anxiety, low focus)?
     *   **medium**: Why is it helpful for someone with average scores?
     *   **low**: How could someone who doesn't 'need' it still benefit?
 7.  **usage**: Provide short, practical advice for the user.
