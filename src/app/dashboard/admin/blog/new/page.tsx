@@ -20,6 +20,7 @@ import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import { aiPersonas } from '@/ai/personas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ImageUploader } from '@/components/common/ImageUploader';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -29,6 +30,7 @@ const blogPostFormSchema = z.object({
   excerpt: z.string().min(20, 'Samenvatting moet minimaal 20 tekens zijn.'),
   content: z.string().min(100, 'Content moet minimaal 100 tekens zijn.'),
   tags: z.string().min(1, 'Voer minimaal één tag in (komma-gescheiden).'),
+  featuredImageUrl: z.string().url('Upload een geldige afbeelding om de URL te verkrijgen.').optional().or(z.literal('')),
   featuredImageHint: z.string().min(3, 'Image hint moet minimaal 3 tekens zijn.'),
   status: z.enum(['draft', 'published']),
 });
@@ -48,7 +50,7 @@ export default function NewBlogPostPage() {
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
-      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'draft',
+      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageUrl: '', featuredImageHint: '', status: 'draft',
     },
   });
 
@@ -57,11 +59,11 @@ export default function NewBlogPostPage() {
     if (titleValue) {
       const newSlug = titleValue
         .toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(/[^\w-]+/g, '') // Remove all non-word chars
-        .replace(/--+/g, '-') // Replace multiple - with single -
-        .replace(/^-+/, '') // Trim - from start of text
-        .replace(/-+$/, ''); // Trim - from end of text
+        .replace(/\s+/g, '-') 
+        .replace(/[^\w-]+/g, '') 
+        .replace(/--+/g, '-')
+        .replace(/^-+/, '') 
+        .replace(/-+$/, '');
       form.setValue('slug', newSlug, { shouldValidate: true });
     }
   }, [titleValue, form]);
@@ -117,7 +119,7 @@ export default function NewBlogPostPage() {
       createdAt: new Date().toISOString(),
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
       tags: tagsString.split(',').map(tag => tag.trim()).filter(Boolean),
-      featuredImageUrl: `https://placehold.co/1200x630.png`,
+      featuredImageUrl: data.featuredImageUrl || `https://placehold.co/1200x630.png`,
     };
     
     try {
@@ -194,62 +196,87 @@ export default function NewBlogPostPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Artikel Details</CardTitle>
-              <CardDescription>Bewerk de gegenereerde content en vul de overige velden handmatig in.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="slug" render={({ field }) => (
-                <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>Dit wordt automatisch gegenereerd op basis van de titel.</FormDescription><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="excerpt" render={({ field }) => (
-                <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} placeholder="Schrijf een korte, pakkende samenvatting voor de overzichtspagina." /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                        <CardTitle>Artikel Details</CardTitle>
+                        <CardDescription>Bewerk de gegenereerde content en vul de overige velden handmatig in.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                        <FormField control={form.control} name="title" render={({ field }) => (
+                            <FormItem><FormLabel>Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="slug" render={({ field }) => (
+                            <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>Dit wordt automatisch gegenereerd op basis van de titel.</FormDescription><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="excerpt" render={({ field }) => (
+                            <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} placeholder="Schrijf een korte, pakkende samenvatting voor de overzichtspagina." /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField
+                            control={form.control}
+                            name="content"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Content (HTML)</FormLabel>
+                                <FormControl>
+                                <Textarea
+                                    placeholder="De AI genereert hier HTML-content..."
+                                    className="font-mono text-xs"
+                                    rows={15}
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField control={form.control} name="tags" render={({ field }) => (
+                            <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} placeholder="Focus, Ouders, Neurodiversiteit" /></FormControl><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Afbeelding Trefwoorden</FormLabel>
+                            <FormControl><Input {...field} placeholder="bv. brain connection, teenager studying" /></FormControl>
+                            <FormDescription>1-2 trefwoorden die de sfeer van het artikel beschrijven.</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="status" render={({ field }) => (
+                            <FormItem><FormLabel>Status</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
+                            </Select><FormMessage /></FormItem>
+                        )} />
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="lg:col-span-1 space-y-6">
+                    <ImageUploader 
+                        onUploadComplete={(url) => {
+                            form.setValue('featuredImageUrl', url, { shouldValidate: true });
+                        }}
+                    />
+                </div>
+            </div>
+            
+            <FormField
                 control={form.control}
-                name="content"
+                name="featuredImageUrl"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="De AI genereert hier HTML-content..."
-                        className="font-mono text-xs"
-                        rows={15}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                    <FormItem className="hidden">
+                        <FormLabel>Afbeelding URL (automatisch)</FormLabel>
+                        <FormControl>
+                            <Input {...field} readOnly value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )}
-              />
-              <FormField control={form.control} name="tags" render={({ field }) => (
-                <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} placeholder="Focus, Ouders, Neurodiversiteit" /></FormControl><FormMessage /></FormItem>
-              )} />
-               <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Afbeelding Trefwoorden</FormLabel>
-                  <FormControl><Input {...field} placeholder="bv. brain connection, teenager studying" /></FormControl>
-                  <FormDescription>1-2 trefwoorden die de sfeer van het artikel beschrijven.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
-                  </Select><FormMessage /></FormItem>
-              )} />
-            </CardContent>
-          </Card>
+            />
           
           <div className="flex justify-end">
-            <Button type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving || !form.formState.isValid}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" /> Artikel Opslaan
             </Button>

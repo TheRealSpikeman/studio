@@ -13,12 +13,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
 import { ArrowLeft, Save, Loader2, Edit, AlertTriangle } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
-import Image from 'next/image';
+import { ImageUploader } from '@/components/common/ImageUploader';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -85,6 +84,7 @@ export default function EditBlogPostPage() {
     const updatedPost: BlogPost = {
       ...postData,
       ...restOfData,
+      featuredImageUrl: data.featuredImageUrl || postData.featuredImageUrl, // Keep old if new is empty
       tags: tagsString.split(',').map(tag => tag.trim()).filter(Boolean),
       publishedAt: data.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
     };
@@ -105,8 +105,6 @@ export default function EditBlogPostPage() {
     }
   };
   
-  const generatedImageUrl = form.watch('featuredImageUrl');
-
   if (isLoading) {
     return <div className="p-8">Laden...</div>;
   }
@@ -136,74 +134,81 @@ export default function EditBlogPostPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Artikel Details</CardTitle>
-              <CardDescription>Bewerk hier de gegevens van het artikel.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="slug" render={({ field }) => (
-                <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="excerpt" render={({ field }) => (
-                <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML)</FormLabel>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Artikel Details</CardTitle>
+                  <CardDescription>Bewerk hier de gegevens van het artikel.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField control={form.control} name="title" render={({ field }) => (
+                    <FormItem><FormLabel>Titel</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="slug" render={({ field }) => (
+                    <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="excerpt" render={({ field }) => (
+                    <FormItem><FormLabel>Samenvatting (excerpt)</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Content (HTML)</FormLabel>
+                        <FormControl>
+                            <Textarea
+                                className="font-mono text-xs"
+                                rows={15}
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="tags" render={({ field }) => (
+                    <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Afbeelding Trefwoorden</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormItem><FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
+                      </Select><FormMessage /></FormItem>
+                  )} />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <ImageUploader 
+                onUploadComplete={(url) => form.setValue('featuredImageUrl', url, { shouldValidate: true })}
+                initialImageUrl={postData.featuredImageUrl}
+              />
+            </div>
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="featuredImageUrl"
+            render={({ field }) => (
+                <FormItem className="hidden">
+                    <FormLabel>Afbeelding URL (automatisch)</FormLabel>
                     <FormControl>
-                        <Textarea
-                            className="font-mono text-xs"
-                            rows={15}
-                            {...field}
-                        />
+                        <Input {...field} readOnly value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField control={form.control} name="tags" render={({ field }) => (
-                <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Afbeelding Trefwoorden</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
                 </FormItem>
-              )} />
-              <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
-                  </Select><FormMessage /></FormItem>
-              )} />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader><CardTitle>Uitgelichte Afbeelding</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                <FormField control={form.control} name="featuredImageUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Afbeelding URL</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-                )} />
-                {generatedImageUrl && (
-                    <div>
-                        <Label>Preview</Label>
-                        <div className="mt-2 w-full aspect-[16/9] relative rounded-md overflow-hidden border">
-                            <Image src={generatedImageUrl} alt="Preview" fill style={{objectFit: 'cover'}} data-ai-hint={postData.featuredImageHint || ''}/>
-                        </div>
-                    </div>
-                )}
-            </CardContent>
-          </Card>
+            )}
+          />
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isSaving}>
