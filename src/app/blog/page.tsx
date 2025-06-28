@@ -24,11 +24,18 @@ const getTagClasses = (tag: string): string => {
     case 'focus':
       return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'ouders':
+    case 'opvoeding': // Grouped with 'ouders'
       return 'bg-green-100 text-green-800 border-green-200';
     case 'neurodiversiteit':
       return 'bg-purple-100 text-purple-800 border-purple-200';
     case 'inspiratie':
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'schermtijd':
+      return 'bg-teal-100 text-teal-800 border-teal-200';
+    case 'kinderen':
+      return 'bg-sky-100 text-sky-800 border-sky-200';
+    case 'balans':
+      return 'bg-rose-100 text-rose-800 border-rose-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
