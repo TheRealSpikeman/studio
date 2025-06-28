@@ -1,4 +1,3 @@
-
 // src/ai/flows/generate-blog-post-types.ts
 import { z } from 'zod';
 
@@ -13,5 +12,6 @@ export const GenerateBlogPostOutputSchema = z.object({
   title: z.string().describe('A catchy and SEO-friendly title for the blog post.'),
   excerpt: z.string().describe('A short, catchy one-sentence summary for the blog post.'),
   content: z.string().describe('The full content of the blog post in Markdown format. It should be well-structured with headings, paragraphs, and lists.'),
+  tags: z.array(z.string()).describe('An array of 3-5 relevant, single-word, lowercase tags for the blog post.'),
 });
 export type GenerateBlogPostOutput = z.infer<typeof GenerateBlogPostOutputSchema>;

@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/blog/new/page.tsx
 "use client";
 
@@ -90,15 +89,13 @@ export default function NewBlogPostPage() {
         personaDescription: selectedPersona.description,
       });
 
-      // Set the fields the AI provides, including the new excerpt
+      // Set the fields the AI provides
       form.setValue('title', result.title);
       form.setValue('excerpt', result.excerpt);
       form.setValue('content', result.content);
+      form.setValue('tags', result.tags.join(', '));
       
-      // Clear other fields for manual entry
-      form.setValue('tags', '');
-
-      toast({ title: "Content gegenereerd!", description: "Titel, samenvatting en content zijn ingevuld. Vul de tags handmatig aan." });
+      toast({ title: "Content gegenereerd!", description: "Titel, samenvatting, content en tags zijn ingevuld." });
     } catch (error: any) {
       console.error("AI content generation failed:", error);
       const errorMessage = `Fout: ${error.message || "Onbekende fout."}\n\nDetails: ${error.stack || 'Geen stack trace beschikbaar.'}`;

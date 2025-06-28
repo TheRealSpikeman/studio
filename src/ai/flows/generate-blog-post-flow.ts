@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview A Genkit flow for generating blog post content from a single topic idea.
- * This is the v10 fix: AI returns a raw string with Title (H1), Excerpt, and Content to maximize stability.
+ * This is the v11 fix: AI returns a raw string with Title, Excerpt, Tags, and Content to maximize stability.
  */
 import { ai } from '@/ai/genkit';
 import {
@@ -17,7 +17,7 @@ export async function generateBlogPost(input: GenerateBlogPostInput): Promise<Ge
 }
 
 const prompt = ai.definePrompt({
-  name: 'generateBlogPostPrompt_v10_with_excerpt',
+  name: 'generateBlogPostPrompt_v11_with_tags',
   input: { schema: GenerateBlogPostInputSchema },
   prompt: `
 // ROLE
@@ -39,12 +39,14 @@ Write a comprehensive, engaging, and well-structured blog post on the following 
 5.  Your output MUST be ONLY the raw markdown of the blog post. DO NOT wrap it in JSON or any other format.
 6.  The VERY FIRST line of the markdown MUST be the H1 title, starting with "# ". For example: "# De Toekomst van Leren".
 7.  The SECOND line of the markdown MUST be a short, catchy, one-sentence summary (excerpt) of the blog post. Do not add any special formatting to this line.
-8.  The THIRD line MUST be empty.
-9.  The rest of the content should follow from the FOURTH line onwards.
+8.  The THIRD line MUST be a comma-separated list of 3-5 relevant, single-word, lowercase keywords (tags). Start this line with "TAGS: ". For example: "TAGS: focus, ouders, neurodiversiteit".
+9.  The FOURTH line MUST be empty.
+10. The rest of the content should follow from the FIFTH line onwards.
 
 EXAMPLE OUTPUT STRUCTURE:
 # Titel van de Blogpost
 Dit is een pakkende samenvatting die uitnodigt om verder te lezen.
+TAGS: tag1, tag2, tag3
 
 ## Eerste Sectie
 Hier begint de daadwerkelijke content van het artikel...
@@ -55,7 +57,7 @@ Do not include any text, explanation, or conversational filler before or after t
 
 const generateBlogPostFlow = ai.defineFlow(
   {
-    name: 'generateBlogPostFlow_v10_with_excerpt',
+    name: 'generateBlogPostFlow_v11_with_tags',
     inputSchema: GenerateBlogPostInputSchema,
     outputSchema: GenerateBlogPostOutputSchema,
   },
@@ -71,19 +73,27 @@ const generateBlogPostFlow = ai.defineFlow(
     
     let title = '';
     let excerpt = '';
+    let tags: string[] = [];
     let content = '';
 
     const firstLine = lines[0]?.trim() || '';
     if (firstLine.startsWith('# ')) {
         title = firstLine.substring(2).trim();
         excerpt = lines[1]?.trim() || '';
-        // Skip the blank line (index 2) and join the rest
-        content = lines.slice(3).join('\n').trim();
+        
+        const tagsLine = lines[2]?.trim() || '';
+        if (tagsLine.toUpperCase().startsWith('TAGS:')) {
+          tags = tagsLine.substring(6).split(',').map(tag => tag.trim().toLowerCase()).filter(Boolean);
+        }
+
+        // Skip the title, excerpt, tags line and the blank line
+        content = lines.slice(4).join('\n').trim();
     } else {
         // Fallback if the AI doesn't follow instructions
         console.warn("AI output did not start with '# '. Parsing as fallback.");
         title = "Titel niet gevonden in AI output";
         excerpt = "Samenvatting niet gevonden.";
+        tags = [];
         content = rawMarkdownOutput;
     }
 
@@ -92,6 +102,6 @@ const generateBlogPostFlow = ai.defineFlow(
         throw new Error('Could not parse title, excerpt, and content from the markdown returned by the AI.');
     }
 
-    return { title, content, excerpt };
+    return { title, content, excerpt, tags };
   }
 );
