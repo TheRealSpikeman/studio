@@ -20,7 +20,6 @@ import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import { aiPersonas } from '@/ai/personas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { WysiwygEditor } from '@/components/common/WysiwygEditor';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -88,7 +87,6 @@ export default function NewBlogPostPage() {
         personaDescription: selectedPersona.description,
       });
 
-      // The AI now returns HTML directly
       form.setValue('title', result.title);
       form.setValue('excerpt', result.excerpt);
       form.setValue('content', result.content);
@@ -216,13 +214,14 @@ export default function NewBlogPostPage() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel>Content (HTML)</FormLabel>
                     <FormControl>
-                       <WysiwygEditor
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Schrijf hier de inhoud van je blogpost..."
-                        />
+                      <Textarea
+                        placeholder="De AI genereert hier HTML-content..."
+                        className="font-mono text-xs"
+                        rows={15}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

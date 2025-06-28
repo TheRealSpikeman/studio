@@ -16,7 +16,6 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { initialBlogPosts } from '@/lib/data/blog-data';
 import DOMPurify from 'isomorphic-dompurify';
-import { marked } from 'marked';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -101,16 +100,8 @@ export default function BlogPostPage() {
     );
   }
 
-  // Check if content is likely markdown or already HTML to support both formats.
-  let htmlContent = post.content;
-  const isLikelyHtml = /<[a-z][\s\S]*>/i.test(post.content);
-  if (!isLikelyHtml) {
-    // It looks like markdown, so parse it.
-    htmlContent = marked.parse(post.content) as string;
-  }
-  
-  // Sanitize the final HTML content before rendering.
-  const sanitizedContent = DOMPurify.sanitize(htmlContent);
+  // Sanitize the HTML content from the post before rendering.
+  const sanitizedContent = DOMPurify.sanitize(post.content);
 
   return (
     <div className="flex min-h-screen flex-col">

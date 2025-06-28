@@ -19,7 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import { WysiwygEditor } from '@/components/common/WysiwygEditor';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
@@ -61,11 +60,8 @@ export default function EditBlogPostPage() {
         const foundPost = storedPosts.find(p => p.id === postId);
         if (foundPost && isMounted) {
             setPostData(foundPost);
-            // Directly set the content. If it's old markdown, user will see markdown text in the editor.
-            // When they re-save, it will be saved as HTML.
             form.reset({
                 ...foundPost,
-                content: foundPost.content,
                 tags: foundPost.tags.join(', '),
             });
         }
@@ -86,7 +82,6 @@ export default function EditBlogPostPage() {
     
     const { tags: tagsString, ...restOfData } = data;
 
-    // The content from the form is now HTML
     const updatedPost: BlogPost = {
       ...postData,
       ...restOfData,
@@ -161,11 +156,12 @@ export default function EditBlogPostPage() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel>Content (HTML)</FormLabel>
                     <FormControl>
-                        <WysiwygEditor
-                            value={field.value}
-                            onChange={field.onChange}
+                        <Textarea
+                            className="font-mono text-xs"
+                            rows={15}
+                            {...field}
                         />
                     </FormControl>
                     <FormMessage />
