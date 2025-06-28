@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/page.tsx
 "use client";
 
@@ -30,14 +29,6 @@ const documentationLinks = [
     icon: BrainCircuit,
     href: "/dashboard/admin/documentation/data-flow",
     linkText: "Bekijk Data Flow",
-    isExternal: false,
-  },
-   {
-    title: "AI Persona: Dr. Florentine Sage",
-    description: "Het gedetailleerde profiel en de professionele filosofie van onze AI-gedreven psycholoog, Dr. F. Sage.",
-    icon: Bot,
-    href: "/dashboard/admin/documentation/ai-persona",
-    linkText: "Bekijk Persona Profiel",
     isExternal: false,
   },
     {
