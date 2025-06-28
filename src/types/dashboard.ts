@@ -56,7 +56,7 @@ export interface ProfessionalBase {
 }
 
 // From ouder/kinderen/[kindId]/profiel/page.tsx
-export interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType'> {
+export interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
   firstName: string;
   lastName: string;
   age?: number;

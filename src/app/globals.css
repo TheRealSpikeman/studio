@@ -1,4 +1,5 @@
-
+/* Add this line to app/globals.css */
+@import 'react-quill/dist/quill.snow.css';
 
 @tailwind base;
 @tailwind components;
@@ -210,13 +211,13 @@
 }
 
 /* Custom styles for React-Quill */
-.ql-toolbar {
+.wysiwyg-editor .ql-toolbar {
   @apply rounded-t-md border-input bg-card;
 }
-.ql-container {
+.wysiwyg-editor .ql-container {
   @apply rounded-b-md border-input;
 }
-.ql-editor {
+.wysiwyg-editor .ql-editor {
   min-height: 250px;
   @apply bg-background text-base;
 }
