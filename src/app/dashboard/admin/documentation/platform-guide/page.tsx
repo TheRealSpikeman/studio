@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
@@ -8,14 +7,12 @@ import {
   LayoutDashboard,
   Users,
   Briefcase,
-  GraduationCap,
-  ListChecks,
   Euro,
+  ListChecks,
   Cpu,
   Settings,
   Bot,
   ArrowLeft,
-  BookHeart,
 } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -40,7 +37,6 @@ const GuideSection = ({ title, icon, children }: { title: string, icon: React.El
   );
 };
 
-// XML examples properly escaped as template literals
 const xmlExample = `<changes>
   <description>[Provide a concise summary of the overall changes being made]</description>
   <change>
