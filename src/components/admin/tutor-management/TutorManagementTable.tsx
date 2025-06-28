@@ -1,4 +1,3 @@
-
 // src/components/admin/tutor-management/TutorManagementTable.tsx
 "use client";
 
@@ -162,4 +161,3 @@ export function TutorManagementTable({ tutors, onEditTutor, onDeactivateTutor }:
     </div>
   );
 }
-
