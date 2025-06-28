@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { UploadCloud, Copy, CheckCircle, AlertTriangle } from '@/lib/icons';
+import { UploadCloud, Copy, CheckCircle, AlertTriangle, Trash2 } from '@/lib/icons';
 import { Label } from '@/components/ui/label';
 
 interface ImageUploaderProps {
@@ -100,13 +100,22 @@ export function ImageUploader({ onUploadComplete, initialImageUrl }: ImageUpload
     }
   };
 
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+    setDownloadUrl(null);
+    onUploadComplete('');
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
+    toast({
+      title: 'Afbeelding verwijderd',
+      description: 'De uitgelichte afbeelding is losgekoppeld van deze post.',
+    });
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Uitgelichte Afbeelding</CardTitle>
-        <CardDescription>Upload hier de hoofdafbeelding voor je blogpost.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="space-y-4 pt-4 border-t mt-4">
+        <Label>Uitgelichte Afbeelding</Label>
         <div 
           className="w-full aspect-[16/9] relative rounded-md border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/50 overflow-hidden cursor-pointer"
           onClick={handleFileSelect}
@@ -143,6 +152,13 @@ export function ImageUploader({ onUploadComplete, initialImageUrl }: ImageUpload
             {error}
           </div>
         )}
+        
+        {previewUrl && !isUploading && (
+             <Button type="button" variant="destructive" size="sm" onClick={handleRemoveImage}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Verwijder Afbeelding
+            </Button>
+        )}
 
         {downloadUrl && !isUploading && (
           <div className="space-y-2">
@@ -159,7 +175,6 @@ export function ImageUploader({ onUploadComplete, initialImageUrl }: ImageUpload
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
