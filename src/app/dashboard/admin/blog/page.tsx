@@ -15,47 +15,46 @@ import type { BlogPost } from '@/types/blog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import { initialBlogPosts } from '@/lib/data/blog-data';
 
-// Dummy Data - In a real app, this would be fetched from Firestore
-const dummyBlogPosts: BlogPost[] = [
-  {
-    id: '1', slug: 'hoe-help-ik-mijn-tiener-focussen', title: 'Hoe help ik mijn tiener focussen?',
-    excerpt: 'Ontdek 5 concrete, direct toepasbare tips...',
-    content: '...', authorId: 'admin1', authorName: 'Dr. Florentine Sage',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'teenager studying focused',
-    status: 'published', tags: ['Focus', 'Ouders'],
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    id: '2', slug: 'de-kracht-van-neurodiversiteit', title: 'De Kracht van Anders Denken',
-    excerpt: 'Waarom neurodiversiteit een voordeel is.',
-    content: '...', authorId: 'admin2', authorName: 'Team MindNavigator',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'diverse brains connection',
-    status: 'published', tags: ['Neurodiversiteit', 'Inspiratie'],
-    createdAt: new Date(Date.now() - 10 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 10 * 86400000).toISOString(),
-  },
-  {
-    id: '3', slug: 'volgende-artikel', title: 'Volgende Artikel (Concept)',
-    excerpt: 'Dit is een concept en nog niet zichtbaar voor publiek.',
-    content: '...', authorId: 'admin1', authorName: 'Dr. Florentine Sage',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'writing desk notes',
-    status: 'draft', tags: ['Concept'],
-    createdAt: new Date().toISOString(),
-  },
-];
+const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 export default function BlogManagementPage() {
   const { toast } = useToast();
-  const [posts, setPosts] = useState<BlogPost[]>(dummyBlogPosts);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const storedPosts = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedPosts) {
+        setPosts(JSON.parse(storedPosts));
+      } else {
+        // Load initial data if nothing is in localStorage
+        setPosts(initialBlogPosts);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialBlogPosts));
+      }
+    } catch (error) {
+      console.error("Error loading blog posts from localStorage:", error);
+      setPosts(initialBlogPosts); // Fallback to initial data
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleDelete = () => {
     if (postToDelete) {
-      setPosts(posts.filter(p => p.id !== postToDelete.id));
+      const updatedPosts = posts.filter(p => p.id !== postToDelete.id);
+      setPosts(updatedPosts);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedPosts));
       toast({ title: "Blogpost verwijderd", description: `"${postToDelete.title}" is verwijderd.` });
       setPostToDelete(null);
     }
   };
+
+  if (isLoading) {
+    return <div>Blogposts laden...</div>;
+  }
 
   return (
     <>
@@ -104,8 +103,10 @@ export default function BlogManagementPage() {
                       {post.publishedAt ? format(parseISO(post.publishedAt), 'dd-MM-yyyy', { locale: nl }) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => alert('Bewerken nog niet geïmplementeerd')}>
-                        <Edit className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/dashboard/admin/blog/edit/${post.id}`}>
+                           <Edit className="h-4 w-4" />
+                        </Link>
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => setPostToDelete(post)}>
                         <Trash2 className="h-4 w-4 text-destructive" />

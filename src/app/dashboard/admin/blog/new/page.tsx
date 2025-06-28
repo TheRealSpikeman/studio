@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import { aiPersonas } from '@/ai/personas';
+
+const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 const blogPostFormSchema = z.object({
   title: z.string().min(10, 'Titel moet minimaal 10 tekens zijn.'),
@@ -40,7 +42,7 @@ export default function NewBlogPostPage() {
   const { toast } = useToast();
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [aiTopic, setAiTopic] = useState(''); // Simplified state
+  const [aiTopic, setAiTopic] = useState('');
   const [aiPersona, setAiPersona] = useState<string>(aiPersonas[0].id);
 
   const form = useForm<BlogPostFormData>({
@@ -66,18 +68,20 @@ export default function NewBlogPostPage() {
     setIsAiGenerating(true);
     toast({ title: "AI is aan het werk...", description: "Blogpost content wordt gegenereerd." });
     try {
-      // Updated call to the flow
       const result = await generateBlogPost({
         topic: aiTopic,
         personaDescription: selectedPersona.description,
       });
-      form.setValue('title', result.title);
-      form.setValue('slug', result.slug);
-      form.setValue('excerpt', result.excerpt);
-      form.setValue('content', result.content);
-      form.setValue('tags', result.tags.join(', '));
-      form.setValue('featuredImageHint', result.featuredImageHint);
-      form.setValue('featuredImageUrl', `https://placehold.co/1200x630.png`);
+      form.reset({
+        title: result.title,
+        slug: result.slug,
+        excerpt: result.excerpt,
+        content: result.content,
+        tags: result.tags.join(', '),
+        featuredImageUrl: `https://placehold.co/1200x630.png`,
+        featuredImageHint: result.featuredImageHint,
+        status: 'draft',
+      });
       toast({ title: "Content gegenereerd!", description: "De velden zijn ingevuld met AI-content. U kunt deze nu bewerken." });
     } catch (error) {
       console.error("AI content generation failed:", error);
@@ -100,12 +104,21 @@ export default function NewBlogPostPage() {
       featuredImageHint: data.featuredImageHint || '',
       ...data,
     };
-    console.log("Saving blog post (simulated):", newPost);
-    // In a real app, you would save this to Firestore.
-    // For this prototype, we'll just log and redirect.
-    toast({ title: "Artikel opgeslagen!", description: `"${data.title}" is opgeslagen als ${data.status}.` });
-    router.push('/dashboard/admin/blog');
-    setIsSaving(false);
+    
+    try {
+        const storedPostsRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const storedPosts: BlogPost[] = storedPostsRaw ? JSON.parse(storedPostsRaw) : [];
+        const updatedPosts = [newPost, ...storedPosts];
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedPosts));
+        
+        toast({ title: "Artikel opgeslagen!", description: `"${data.title}" is opgeslagen als ${data.status}.` });
+        router.push('/dashboard/admin/blog');
+    } catch (error) {
+        console.error("Failed to save blog post to localStorage", error);
+        toast({ title: "Opslaan mislukt", description: "Kon het artikel niet lokaal opslaan.", variant: "destructive"});
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   const generatedImageUrl = form.watch('featuredImageUrl');

@@ -6,42 +6,16 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Rss, Search, ArrowRight, Calendar, User } from 'lucide-react';
+import { Rss, Search, Calendar, User } from 'lucide-react';
 import type { BlogPost } from '@/types/blog';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { initialBlogPosts } from '@/lib/data/blog-data';
 
-// Dummy Data - In a real app, this would be fetched from Firestore
-const dummyBlogPosts: BlogPost[] = [
-  {
-    id: '1', slug: 'hoe-help-ik-mijn-tiener-focussen', title: 'Hoe help ik mijn tiener focussen in een wereld vol afleiding?',
-    excerpt: 'In de digitale wereld van vandaag is focus een superkracht. Ontdek 5 concrete, direct toepasbare tips om uw tiener te helpen de concentratie te verbeteren en schoolwerk effectiever aan te pakken.',
-    content: 'Volledige markdown content hier...', authorId: 'admin1', authorName: 'Dr. Florentine Sage',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'teenager studying focused',
-    status: 'published', tags: ['Focus', 'Ouders', 'Studietips'],
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    id: '2', slug: 'de-kracht-van-neurodiversiteit', title: 'De Kracht van Anders Denken: Waarom Neurodiversiteit een Voordeel is',
-    excerpt: 'Neurodiversiteit is meer dan een label; het is een unieke manier van de wereld zien. We duiken in de sterke kanten die vaak gepaard gaan met ADHD, autisme en hoogsensitiviteit.',
-    content: 'Volledige markdown content hier...', authorId: 'admin2', authorName: 'Team MindNavigator',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'diverse brains connection',
-    status: 'published', tags: ['Neurodiversiteit', 'Inspiratie'],
-    createdAt: new Date(Date.now() - 10 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 10 * 86400000).toISOString(),
-  },
-  {
-    id: '3', slug: 'open-gesprek-over-mentale-gezondheid', title: 'Het open gesprek over mentale gezondheid: 3 tips voor ouders',
-    excerpt: 'Praten over gevoelens kan lastig zijn. Met deze 3 tips opent u op een laagdrempelige manier het gesprek met uw tiener over hun mentale welzijn en eventuele zorgen.',
-    content: 'Volledige markdown content hier...', authorId: 'admin1', authorName: 'Dr. Florentine Sage',
-    featuredImageUrl: 'https://placehold.co/600x400.png', featuredImageHint: 'parent child conversation',
-    status: 'published', tags: ['Communicatie', 'Ouders', 'Mentale Gezondheid'],
-    createdAt: new Date(Date.now() - 20 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 20 * 86400000).toISOString(),
-  },
-];
+const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 const BlogPostCard = ({ post }: { post: BlogPost }) => {
   return (
@@ -88,18 +62,33 @@ const BlogPostCard = ({ post }: { post: BlogPost }) => {
 
 export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState(dummyBlogPosts);
+  const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    const filtered = dummyBlogPosts.filter(
-      post =>
-        post.title.toLowerCase().includes(lowerCaseSearch) ||
-        post.excerpt.toLowerCase().includes(lowerCaseSearch) ||
-        post.tags.some(tag => tag.toLowerCase().includes(lowerCaseSearch))
-    );
-    setFilteredPosts(filtered);
-  }, [searchTerm]);
+    try {
+      const storedPosts = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedPosts) {
+        setAllPosts(JSON.parse(storedPosts));
+      } else {
+        setAllPosts(initialBlogPosts);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialBlogPosts));
+      }
+    } catch (error) {
+      console.error("Error loading blog posts:", error);
+      setAllPosts(initialBlogPosts);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const filteredAndPublishedPosts = allPosts.filter(
+    post =>
+      post.status === 'published' &&
+      (searchTerm === '' ||
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -124,13 +113,19 @@ export default function BlogPage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map(post => (
-              <BlogPostCard key={post.id} post={post} />
-            ))}
-          </div>
-          {filteredPosts.length === 0 && (
-            <p className="text-center text-muted-foreground mt-10">Geen blogposts gevonden die voldoen aan uw zoekopdracht.</p>
+          {isLoading ? (
+            <p>Blogposts laden...</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredAndPublishedPosts.map(post => (
+                  <BlogPostCard key={post.id} post={post} />
+                ))}
+              </div>
+              {filteredAndPublishedPosts.length === 0 && (
+                <p className="text-center text-muted-foreground mt-10">Geen blogposts gevonden die voldoen aan uw zoekopdracht.</p>
+              )}
+            </>
           )}
         </div>
       </main>

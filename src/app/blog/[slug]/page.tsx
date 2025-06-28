@@ -7,7 +7,6 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Image from 'next/image';
 import { Rss, Calendar, User, Facebook, Twitter, Linkedin, Copy, ArrowLeft, AlertTriangle } from 'lucide-react';
 import type { BlogPost } from '@/types/blog';
@@ -15,62 +14,9 @@ import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { initialBlogPosts } from '@/lib/data/blog-data';
 
-// Dummy Data - In a real app, this would be fetched from Firestore
-const dummyBlogPosts: BlogPost[] = [
-  {
-    id: '1', slug: 'hoe-help-ik-mijn-tiener-focussen', title: 'Hoe help ik mijn tiener focussen in een wereld vol afleiding?',
-    excerpt: 'In de digitale wereld van vandaag is focus een superkracht. Ontdek 5 concrete, direct toepasbare tips om uw tiener te helpen de concentratie te verbeteren en schoolwerk effectiever aan te pakken.',
-    content: `
-## De Uitdaging van Focus in de 21e Eeuw
-
-In een wereld vol constante notificaties, eindeloze social media feeds en de druk om altijd 'aan' te staan, is het voor tieners moeilijker dan ooit om zich te concentreren. Vooral voor neurodivergente jongeren, die prikkels vaak intenser ervaren, kan dit een dagelijkse strijd zijn. Het is echter geen verloren strijd. Met de juiste strategieën kunt u als ouder een omgeving creëren die focus bevordert.
-
-### Tip 1: Creëer een 'Focus Oase'
-
-De omgeving heeft een enorme impact op onze concentratie. Een 'focus oase' is een specifieke plek in huis die uitsluitend bedoeld is voor geconcentreerd werk.
-
-*   **Geen telefoons:** Maak de regel dat telefoons (en andere afleidende apparaten) buiten deze zone blijven.
-*   **Minimaliseer rommel:** Een opgeruimd bureau zorgt voor een opgeruimd hoofd.
-*   **Goede verlichting en ergonomie:** Zorg voor een comfortabele stoel en voldoende licht.
-
-### Tip 2: De Kracht van de Pomodoro Techniek
-
-De Pomodoro Techniek is simpel maar effectief:
-
-1.  Kies één taak.
-2.  Zet een timer op 25 minuten.
-3.  Werk onafgebroken aan die ene taak.
-4.  Neem na 25 minuten een korte pauze van 5 minuten.
-5.  Herhaal dit. Na 4 'pomodoros' neem je een langere pauze van 15-30 minuten.
-
-Deze techniek doorbreekt de overweldigende gedachte van "uren moeten studeren" en maakt het starten veel laagdrempeliger.
-
-### Tip 3: Samen Plannen, Niet Opleggen
-
-Betrek uw tiener bij het maken van een weekplanning. In plaats van te zeggen "je moet nu huiswerk maken", kunt u vragen: "Wanneer voel je je het meest energiek om aan wiskunde te beginnen?". Dit geeft hen een gevoel van autonomie en eigenaarschap, wat de motivatie aanzienlijk kan verhogen.
-
-### Tip 4: Digitale Hulpmiddelen Slim Inzetten
-
-Technologie hoeft niet altijd de vijand te zijn. Er zijn apps die kunnen helpen:
-
-*   **Site Blockers:** Apps zoals 'Focus' of 'Freedom' kunnen afleidende websites tijdelijk blokkeren.
-*   **Achtergrondgeluiden:** Apps met 'white noise' of natuurgeluiden kunnen helpen om omgevingsgeluiden te dempen.
-
-### Tip 5: Begrijp de 'Waarom'
-
-Praat met uw tiener over het *waarom* achter focus. Het gaat niet alleen om betere cijfers, maar ook om het creëren van meer vrije tijd, het verminderen van stress en het gevoel van voldoening na het afronden van een taak. Wanneer ze het grotere voordeel zien, wordt de interne motivatie om te focussen sterker.
-
-## Conclusie
-
-Focus is een vaardigheid die getraind kan worden. Door samen te werken, een ondersteunende omgeving te creëren en slimme technieken toe te passen, kunt u uw tiener helpen om deze cruciale superkracht voor de toekomst te ontwikkelen.`,
-    authorId: 'admin1', authorName: 'Dr. Florentine Sage',
-    featuredImageUrl: 'https://placehold.co/1200x630.png', featuredImageHint: 'teenager studying focused',
-    status: 'published', tags: ['Focus', 'Ouders', 'Studietips'],
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), publishedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  // Add other posts here for direct navigation testing
-];
+const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 function markdownToHtml(markdown: string): string {
   if (typeof markdown !== 'string') return '';
@@ -135,9 +81,17 @@ export default function BlogPostPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, you'd fetch from Firestore here based on the slug
-    const foundPost = dummyBlogPosts.find(p => p.slug === slug && p.status === 'published');
-    setPost(foundPost || null);
+    // In a real app, this would be fetched from a DB. For demo, we use localStorage.
+    setIsLoading(true);
+    try {
+      const storedPostsRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const allPosts = storedPostsRaw ? JSON.parse(storedPostsRaw) : initialBlogPosts;
+      const foundPost = allPosts.find((p: BlogPost) => p.slug === slug && p.status === 'published');
+      setPost(foundPost || null);
+    } catch (error) {
+      console.error("Error loading blog post from localStorage:", error);
+      setPost(null);
+    }
     setIsLoading(false);
   }, [slug]);
 
