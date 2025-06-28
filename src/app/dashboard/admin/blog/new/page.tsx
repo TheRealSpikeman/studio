@@ -20,6 +20,7 @@ import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import { aiPersonas } from '@/ai/personas';
+import { Label } from '@/components/ui/label';
 
 const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
