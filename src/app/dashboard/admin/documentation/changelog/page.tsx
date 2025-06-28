@@ -21,6 +21,19 @@ interface ChangeLogEntry {
 const changelogData: ChangeLogEntry[] = [
     {
         date: new Date().toISOString(),
+        title: "Architectuur Refactor: Centralisatie & Stabiliteit",
+        icon: GitBranch,
+        description: "Een grote architectonische refactoring doorgevoerd om de codebase te stabiliseren en te organiseren. Alle AI-flows zijn opgesplitst in aparte 'types' en 'flow' bestanden om te voldoen aan de Next.js 'use server' vereisten. Iconen en types zijn gecentraliseerd voor betere onderhoudbaarheid.",
+        details: [
+            "**AI Flows Opgesplitst:** Alle Zod-schema's en TypeScript-types zijn verplaatst naar `*-types.ts` bestanden, waardoor de `*-flow.ts` bestanden met `'use server'` alleen nog serverfuncties exporteren. Dit loste een fundamentele build-fout op.",
+            "**Gecentraliseerde Iconen:** Een nieuw bestand `src/lib/icons.ts` fungeert als één centraal exportpunt voor alle `lucide-react` iconen. Dit voorkomt 'icon not defined' fouten en vereenvoudigt het beheer.",
+            "**Type Beheer Hersteld:** Het `src/types/index.ts` 'barrel file' is hersteld om alle type-definities vanuit één punt te kunnen importeren.",
+            "**Resultaat:** Een stabielere, schone en beter onderhoudbare architectuur die klaar is voor toekomstige uitbreidingen."
+        ],
+        tags: [{ text: "Refactor", variant: "default" }, { text: "Architectuur", variant: "secondary" }, { text: "Stabiliteit", variant: "outline" }]
+    },
+    {
+        date: new Date(Date.now() - 1 * 24 * 3600000).toISOString(),
         title: "Feature: AI-Gedreven Blog & Content Management",
         icon: Rss,
         description: "Een volledig functioneel blogsysteem is geïmplementeerd. Admins kunnen nu blogartikelen genereren met behulp van AI persona's, deze beheren in het dashboard, en publiceren. De publieke blog is live, inclusief een overzichtspagina en individuele artikelpagina's met social sharing.",
@@ -34,7 +47,7 @@ const changelogData: ChangeLogEntry[] = [
         tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Content Management", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 1 * 3600000).toISOString(),
+        date: new Date(Date.now() - 2 * 24 * 3600000).toISOString(),
         title: "Bugfix: Hardnekkige Build Fout Opgelost",
         icon: Wrench,
         description: "Een aanhoudende en frustrerende build-fout (`Unexpected eof`) in de 'Platform Handleiding' documentatiepagina is definitief opgelost. De pagina compileert nu correct, waardoor de stabiliteit van de ontwikkelomgeving is hersteld.",
@@ -47,7 +60,7 @@ const changelogData: ChangeLogEntry[] = [
         tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Stabiliteit", variant: "secondary" }, { text: "Admin Dashboard", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 2 * 3600000).toISOString(), // Adjusted time to be before the fix
+        date: new Date(Date.now() - 3 * 24 * 3600000).toISOString(), 
         title: "Fundamentele Stabiliteits- & Authenticatie-fix",
         icon: Wrench,
         description: "Een reeks diepgewortelde problemen opgelost die de Firebase-verbinding en het inloggen verstoorden. De applicatie is nu stabiel, robuust en correct geconfigureerd.",
@@ -60,42 +73,42 @@ const changelogData: ChangeLogEntry[] = [
         tags: [{ text: "Bugfix", variant: "destructive" }, { text: "Authenticatie", variant: "secondary" }, { text: "Core", variant: "default" }]
     },
     {
-        date: new Date(Date.now() - 4 * 3600000).toISOString(),
+        date: new Date(Date.now() - 4 * 24 * 3600000).toISOString(),
         title: "Architectuur: Feature & Abonnementenbeheer",
         description: "Implementatie van een flexibel systeem voor het beheren van platform-features en abonnementen. Admins kunnen nu dynamisch functionaliteiten definiëren en deze koppelen aan verschillende abonnementen (bijv. 'Gratis Start', 'Gezins Gids'). Dit is een cruciale stap richting een schaalbaar B2B2C-model.",
         icon: Package,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Admin Dashboard", variant: "secondary" }, { text: "Nieuwe Feature", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 5 * 3600000).toISOString(),
+        date: new Date(Date.now() - 5 * 24 * 3600000).toISOString(),
         title: "Prestatie Optimalisatie: Dynamisch Dashboard Laden",
         description: "Het leerling-dashboard laadt nu dynamisch met `next/dynamic` en toont een 'skeleton' UI tijdens het laden. Dit verbetert de initiële laadtijd en gebruikerservaring, conform de technische roadmap.",
         icon: Rocket,
         tags: [{ text: "Prestatie", variant: "default" }, { text: "UX/UI", variant: "secondary" }, { text: "Refactor", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 6 * 3600000).toISOString(),
+        date: new Date(Date.now() - 6 * 24 * 3600000).toISOString(),
         title: "Architectuur & Authenticatie Refactor",
         description: "Een fundamentele verbetering van de app-architectuur. De demo-rolwisselaar is vervangen door een robuuste (gesimuleerde) login flow via een centrale AuthContext. Alle localStorage-logica is verplaatst naar een StorageService, wat de overstap naar een echte database in de toekomst vereenvoudigt.",
         icon: GitBranch,
         tags: [{ text: "Architectuur", variant: "default" }, { text: "Refactor", variant: "secondary" }, { text: "Auth", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 7 * 3600000).toISOString(),
+        date: new Date(Date.now() - 7 * 24 * 3600000).toISOString(),
         title: "Feature: Ouder-Kind Vergelijkende Analyse",
         description: "Implementatie van de volledige 'slice' voor de vergelijkende analyse, inclusief een nieuwe quiz voor ouders, een intelligente voortgangspagina die de AI-flow aanroept, en de weergave van het gegenereerde adviesrapport.",
         icon: Users,
         tags: [{ text: "Nieuwe Feature", variant: "default" }, { text: "AI", variant: "secondary" }, { text: "Ouder Dashboard", variant: "outline" }]
     },
     {
-        date: new Date(Date.now() - 8 * 3600000).toISOString(),
+        date: new Date(Date.now() - 8 * 24 * 3600000).toISOString(),
         title: "Verbetering: Responsive & Inklapbare Dashboard Sidebar",
         description: "De dashboard layout is volledig vernieuwd met een professionele, inklapbare sidebar die correct werkt op zowel desktop als mobiele apparaten. De UX is verbeterd met gecentraliseerde iconen en tooltips voor een strakke, intuïtieve interface.",
         icon: Wrench,
         tags: [{ text: "UX/UI", variant: "default" }, { text: "Layout", variant: "secondary" }]
     },
     {
-        date: new Date(Date.now() - 5 * 86400000).toISOString(),
+        date: new Date(Date.now() - 9 * 24 * 3600000).toISOString(),
         title: "Workflow Automatisering: Tool Component Generatie",
         description: "Het proces voor het aanmaken van tool-componenten is volledig geautomatiseerd. Een server-actie genereert de code en schrijft deze direct naar het bestandssysteem, waarna een live preview wordt getoond. Kopiëren en plakken is niet meer nodig.",
         icon: Bot,
