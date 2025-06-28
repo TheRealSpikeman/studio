@@ -1,8 +1,10 @@
-
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
 import React, { type ReactNode, type ElementType } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   BookUser,
   Users,
@@ -11,31 +13,12 @@ import {
   Cpu,
   Settings,
   Bot,
-  ArrowLeft,
+  ArrowLeft
 } from '@/lib/icons';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-// Helper component for consistent section styling
-const GuideSection = ({ title, icon: Icon, children }: { title: string, icon: React.ElementType, children: React.ReactNode }) => (
-  <AccordionItem value={title} className="border rounded-lg bg-card shadow-sm">
-    <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
-      <div className="flex items-center gap-3">
-        <Icon className="h-6 w-6 text-primary" />
-        {title}
-      </div>
-    </AccordionTrigger>
-    <AccordionContent className="p-4 pt-0 border-t">
-      <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-        {children}
-      </div>
-    </AccordionContent>
-  </AccordionItem>
-);
-
+// This is the variable that was causing the error. It's now correctly formatted as a string.
 const xmlExample = `<changes>
-  <description>[Een korte samenvatting van de wijzigingen]</description>
+  <description>[Provide a concise summary of the overall changes being made]</description>
   <change>
-    <file>[Het volledige, absolute pad naar het bestand]</file>
-    <content><![CDATA[De volledige, definitieve inhoud van het bestand hier. Geen diffs of snippets. Zorg ervoor dat alle code correct is ge-escaped.
+    <file>[Provide the ABSOLUTE, FULL path to the file being modified]</file>
+    <content><![CDATA[Provide the ENTIRE, FINAL, intended content of the file here. Do NOT provide diffs or partial snippets. Ensure all code is properly escaped within the CDATA section.
