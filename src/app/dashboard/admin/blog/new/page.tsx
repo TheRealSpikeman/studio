@@ -110,15 +110,18 @@ export default function NewBlogPostPage() {
 
   const onSubmit = (data: BlogPostFormData) => {
     setIsSaving(true);
+    
+    const { tags: tagsString, ...restOfData } = data;
+
     const newPost: BlogPost = {
+      ...restOfData,
       id: `blog-${Date.now()}`,
       authorId: user?.id || 'unknown',
       authorName: user?.name || 'MindNavigator Team',
       createdAt: new Date().toISOString(),
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
-      tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      tags: tagsString.split(',').map(tag => tag.trim()).filter(Boolean),
       featuredImageUrl: `https://placehold.co/1200x630.png`,
-      ...data,
     };
     
     try {

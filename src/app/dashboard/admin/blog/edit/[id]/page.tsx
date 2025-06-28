@@ -74,10 +74,12 @@ export default function EditBlogPostPage() {
     if (!postData) return;
     setIsSaving(true);
     
+    const { tags: tagsString, ...restOfData } = data;
+
     const updatedPost: BlogPost = {
       ...postData,
-      ...data,
-      tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      ...restOfData,
+      tags: tagsString.split(',').map(tag => tag.trim()).filter(Boolean),
       publishedAt: data.status === 'published' && !postData.publishedAt ? new Date().toISOString() : postData.publishedAt,
     };
     
