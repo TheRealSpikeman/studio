@@ -1,9 +1,19 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';  // <- Correctly added!
+import { useMemo } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Dynamically import to avoid SSR issues, which is the root cause of the findDOMNode error.
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+// Dynamically import to avoid SSR issues
+const ReactQuill = dynamic(() => import('react-quill'), { 
+  ssr: false,
+  loading: () => (
+    <div className="space-y-1.5">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-40 w-full rounded-md border" />
+    </div>
+  )
+});
 
 interface WysiwygEditorProps {
   value: string;
@@ -12,7 +22,6 @@ interface WysiwygEditorProps {
 }
 
 export function WysiwygEditor({ value, onChange, placeholder }: WysiwygEditorProps) {
-
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
@@ -29,15 +38,6 @@ export function WysiwygEditor({ value, onChange, placeholder }: WysiwygEditorPro
     'list', 'bullet', 'blockquote', 'code-block',
     'link', 'image'
   ];
-  
-  // Render a loading state on the server and until the module is loaded on the client.
-  if (!ReactQuill) {
-    return (
-       <div className="flex h-48 w-full animate-pulse items-center justify-center rounded-md border bg-muted">
-        <p className="text-muted-foreground">Editor laden...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="wysiwyg-editor">
