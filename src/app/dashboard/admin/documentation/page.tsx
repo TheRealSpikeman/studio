@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/documentation/page.tsx
 "use client";
 
@@ -8,14 +7,6 @@ import Link from 'next/link';
 import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bot, Users, BrainCircuit, ScrollText, Rocket } from 'lucide-react';
 
 const documentationLinks = [
-  {
-    title: "AI Persona Profiel",
-    description: "Een gedetailleerd overzicht van de primaire AI persona voor content creatie en de principes achter de AI-schrijfstijlen.",
-    icon: Bot,
-    href: "/dashboard/admin/documentation/ai-persona",
-    linkText: "Bekijk Persona",
-    isExternal: false,
-  },
   {
     title: "Development Roadmap",
     description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform, gebaseerd op een Firebase-First strategie.",
