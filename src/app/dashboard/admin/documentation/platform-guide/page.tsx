@@ -37,6 +37,7 @@ const GuideSection = ({ title, icon, children }: { title: string, icon: React.El
   );
 };
 
+// This is the correct way to handle a multi-line string in JSX
 const xmlExample = `<changes>
   <description>[Provide a concise summary of the overall changes being made]</description>
   <change>
