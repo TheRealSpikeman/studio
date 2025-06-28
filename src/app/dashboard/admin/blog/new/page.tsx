@@ -50,7 +50,7 @@ export default function NewBlogPostPage() {
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
-      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'draft',
+      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'published',
     },
   });
 
@@ -232,8 +232,7 @@ export default function NewBlogPostPage() {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent><SelectItem value="draft">Concept</SelectItem><SelectItem value="published">Gepubliceerd</SelectItem></SelectContent>
-                  </Select><FormMessage />
-                </FormItem>
+                  </Select><FormMessage /></FormItem>
               )} />
             </CardContent>
           </Card>
