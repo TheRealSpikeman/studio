@@ -17,14 +17,6 @@ const documentationLinks = [
     isExternal: false,
   },
   {
-    title: "Volledige Platform Handleiding",
-    description: "Een uitgebreide handleiding over alle features, gebruikersrollen, en de architectuur van het MindNavigator platform.",
-    icon: BookUser,
-    href: "/dashboard/admin/documentation/platform-guide",
-    linkText: "Open Handleiding",
-    isExternal: false,
-  },
-  {
     title: "Customer Journey (12-jarige)",
     description: "Stap-voor-stap overzicht van de gebruikersreis voor een nieuwe 12-jarige leerling, van registratie tot dashboard.",
     icon: Users,
