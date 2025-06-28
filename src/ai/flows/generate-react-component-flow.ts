@@ -4,18 +4,13 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import {
+  GenerateReactComponentInputSchema,
+  GenerateReactComponentOutputSchema,
+  type GenerateReactComponentInput,
+  type GenerateReactComponentOutput
+} from './generate-react-component-flow-types';
 
-const GenerateReactComponentInputSchema = z.object({
-  title: z.string().describe('The title of the tool.'),
-  description: z.string().describe('A brief description of what the tool does.'),
-});
-export type GenerateReactComponentInput = z.infer<typeof GenerateReactComponentInputSchema>;
-
-const GenerateReactComponentOutputSchema = z.object({
-  componentCode: z.string().describe('The complete TypeScript code for the React component file.'),
-});
-export type GenerateReactComponentOutput = z.infer<typeof GenerateReactComponentOutputSchema>;
 
 export async function generateReactComponent(input: GenerateReactComponentInput): Promise<GenerateReactComponentOutput> {
   return generateReactComponentFlow(input);

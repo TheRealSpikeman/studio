@@ -1,26 +1,19 @@
-
 'use server';
 
 /**
  * @fileOverview Generates a summary of the user's neurodiversity profile based on their quiz results.
  *
  * - generateQuizSummary - A function that generates the quiz summary.
- * - GenerateQuizSummaryInput - The input type for the generateQuizSummary function.
- * - GenerateQuizSummaryOutput - The return type for the generateQuizSummary function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {
+  GenerateQuizSummaryInputSchema,
+  GenerateQuizSummaryOutputSchema,
+  type GenerateQuizSummaryInput,
+  type GenerateQuizSummaryOutput
+} from './generate-quiz-summary-types';
 
-const GenerateQuizSummaryInputSchema = z.object({
-  quizResults: z.string().describe('A JSON string representing the quiz results.'),
-});
-export type GenerateQuizSummaryInput = z.infer<typeof GenerateQuizSummaryInputSchema>;
-
-const GenerateQuizSummaryOutputSchema = z.object({
-  summary: z.string().describe('A summary of the user\u0027s neurodiversity profile based on their quiz results.'),
-});
-export type GenerateQuizSummaryOutput = z.infer<typeof GenerateQuizSummaryOutputSchema>;
 
 export async function generateQuizSummary(input: GenerateQuizSummaryInput): Promise<GenerateQuizSummaryOutput> {
   if (!input || !input.quizResults) {
