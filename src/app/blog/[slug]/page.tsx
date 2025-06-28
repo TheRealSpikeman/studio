@@ -1,3 +1,4 @@
+
 // src/app/blog/[slug]/page.tsx
 "use client";
 
@@ -20,19 +21,44 @@ const LOCAL_STORAGE_KEY = 'mindnavigator_blog_posts';
 
 function markdownToHtml(markdown: string): string {
   if (typeof markdown !== 'string') return '';
+
   let html = markdown
-    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold mt-6 mb-3">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2">$1</h2>')
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    // Unordered list items
+    .replace(/^\s*\*\s+(.*$)/gim, '<li>$1</li>');
+
+  // Group consecutive list items into a single <ul>
+  html = html.replace(/<\/li>\n<li>/g, '</li><li>'); 
+  html = html.replace(/(<li>(.*?)<\/li>)/gs, '<ul>$1</ul>'); 
+  html = html.replace(/<\/ul>\n<ul>/g, ''); // Clean up multiple <ul> tags
+
+  // Paragraphs and line breaks
+  html = html.split(/\n\s*\n/).map(block => {
+    if (block.trim().startsWith('<h') || block.trim().startsWith('<ul')) {
+      return block; // Pass through existing HTML blocks
+    }
+    if (block.trim() === '') {
+      return '';
+    }
+    // For paragraphs, convert single newlines to <br>
+    const pContent = block.trim().replace(/\n/g, '<br />');
+    return `<p>${pContent}</p>`;
+  }).join('');
+
+  // Inline styling after block-level elements are set
+  html = html
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^\* (.*$)/gim, '<li class="ml-5 list-disc">$1</li>')
-    .replace(/<\/li>\n<li/g, '</li><li')
-    .replace(/(<li>.*<\/li>)/gs, '<ul class="mb-4">$1</ul>')
-    .replace(/<\/ul>\n<ul>/g, '')
-    .split(/\n\s*\n/).map(p => {
-      if (p.startsWith('<') || p.trim() === '') return p;
-      return `<p class="mb-4 leading-relaxed">${p}</p>`;
-    }).join('');
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // Add styling classes
+  html = html
+    .replace(/<h2>/g, '<h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2">')
+    .replace(/<h3>/g, '<h3 class="text-xl font-semibold mt-6 mb-3">')
+    .replace(/<ul>/g, '<ul class="list-disc list-inside space-y-2 mb-4">')
+    .replace(/<p>/g, '<p class="mb-4 leading-relaxed">');
+
   return html;
 }
 
