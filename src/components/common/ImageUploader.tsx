@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { UploadCloud, Copy, CheckCircle, AlertTriangle } from '@/lib/icons';
+import { Label } from '@/components/ui/label';
 
 interface ImageUploaderProps {
   onUploadComplete: (url: string) => void;
