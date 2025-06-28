@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, PlusCircle, Users, Loader2 } from 'lucide-react';
+import { Search, PlusCircle, Users, Loader2 } from '@/lib/icons';
 import { UserManagementTable } from '@/components/admin/user-management/UserManagementTable';
 import { UserEditDialog } from '@/components/admin/user-management/UserEditDialog';
 import { UserDeleteAlertDialog } from '@/components/admin/user-management/UserDeleteAlertDialog';

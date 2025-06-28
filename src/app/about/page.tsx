@@ -1,7 +1,7 @@
 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Users, Target, Lightbulb, CheckCircle, Milestone, ShieldCheck, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Users, Target, Lightbulb, CheckCircle, Milestone, ShieldCheck, AlertTriangle, ExternalLink } from '@/lib/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 

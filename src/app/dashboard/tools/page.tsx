@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { allTools, calculateToolRecommendations, type ToolScores, getToolIconComponent } from '@/lib/quiz-data/tools-data';
-import { ArrowRight, Wrench, Lightbulb } from 'lucide-react';
+import { ArrowRight, Wrench, Lightbulb } from '@/lib/icons';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 
 // Dummy scores for demonstration purposes. In a real app, these would come from the user's state.

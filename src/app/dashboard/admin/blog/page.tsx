@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Edit, Trash2, PlusCircle, Rss, Eye } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, PlusCircle, Rss, Eye } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';

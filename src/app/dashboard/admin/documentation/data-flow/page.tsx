@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Database, FileInput, BrainCircuit, Sparkles, LayoutDashboard, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Database, FileInput, BrainCircuit, Sparkles, LayoutDashboard, ClipboardCheck } from '@/lib/icons';
 
 const flowSteps = [
     {

@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, AlertTriangle } from '@/lib/icons';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { ToolCreatorForm, type ToolFormData } from '@/components/admin/tool-creator/ToolCreatorForm';

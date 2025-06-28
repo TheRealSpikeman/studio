@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Brain } from 'lucide-react'; 
+import { Brain } from '@/lib/icons'; 
 import { cn } from '@/lib/utils';
 
 type SiteLogoProps = {

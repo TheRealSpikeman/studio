@@ -3,7 +3,7 @@ import { QuizCreatorProvider } from '@/contexts/QuizCreatorContext';
 import { QuizCreatorWizard } from '@/components/admin/quiz-creator/QuizCreatorWizard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Brain } from 'lucide-react';
+import { ArrowLeft, Brain } from '@/lib/icons';
 
 export default function CreateQuizPage() {
   return (

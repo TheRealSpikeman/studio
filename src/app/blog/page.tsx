@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Rss, Search, Calendar, User } from 'lucide-react';
+import { Rss, Search, Calendar, User } from '@/lib/icons';
 import type { BlogPost } from '@/types/blog';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';

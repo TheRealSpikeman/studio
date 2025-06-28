@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, Edit, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit, AlertTriangle } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';

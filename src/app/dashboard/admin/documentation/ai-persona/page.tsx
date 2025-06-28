@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Bot, Brain, Briefcase, GraduationCap, Handshake, HeartHandshake, Lightbulb, MessageCircle, Mic, ShieldCheck, Telescope, UserCircle, Users } from 'lucide-react';
+import { ArrowLeft, Bot, Brain, Briefcase, GraduationCap, Handshake, HeartHandshake, Lightbulb, MessageCircle, Mic, ShieldCheck, Telescope, UserCircle, Users } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 

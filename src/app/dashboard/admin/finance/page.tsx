@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Euro, CreditCard, TrendingUp, Download } from 'lucide-react'; // Changed DollarSign to Euro
+import { Euro, CreditCard, TrendingUp, Download } from '@/lib/icons'; // Changed DollarSign to Euro
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 

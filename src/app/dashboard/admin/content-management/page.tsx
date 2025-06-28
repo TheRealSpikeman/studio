@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { FileEdit, PlusCircle, FileText } from 'lucide-react';
+import { FileEdit, PlusCircle, FileText } from '@/lib/icons';
 import Link from 'next/link';
 
 export default function ContentManagementPage() {

@@ -2,7 +2,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button'; 
-import { ExternalLink, FileText, Cookie, Settings, Users, FileClock, Mail, SlidersHorizontal, Info } from 'lucide-react'; 
+import { ExternalLink, FileText, Cookie, Settings, Users, FileClock, Mail, SlidersHorizontal, Info } from '@/lib/icons'; 
 
 export default function CookiesPage() {
   return (

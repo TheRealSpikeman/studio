@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MailCheck, Hourglass, CheckCircle2 } from 'lucide-react'; 
+import { MailCheck, Hourglass, CheckCircle2 } from '@/lib/icons'; 
 import Link from 'next/link';
 import { SiteLogo } from '@/components/common/site-logo';
 import { useToast } from '@/hooks/use-toast';

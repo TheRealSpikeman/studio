@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu } from 'lucide-react';
+import { Menu } from '@/lib/icons';
 
 export function Header() {
   const navLinks = [

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { List, Timer, Volume2 } from 'lucide-react';
+import { List, Timer, Volume2 } from '@/lib/icons';
 import { Slider } from '@/components/ui/slider';
 
 interface Sound {

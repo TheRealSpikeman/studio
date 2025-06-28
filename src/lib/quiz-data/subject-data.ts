@@ -1,5 +1,5 @@
 // src/lib/quiz-data/subject-data.ts
-import { Languages, Calculator, Globe, FlaskConical, History, Users, GraduationCap } from 'lucide-react';
+import { Languages, Calculator, Globe, FlaskConical, History, Users, GraduationCap } from '@/lib/icons';
 import type { ElementType } from 'react';
 
 export interface SubjectOption {

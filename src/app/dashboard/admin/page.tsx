@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from 'lucide-react';
+import { Users, Briefcase, Euro, CalendarClock, LineChart, PieChart, BarChart } from '@/lib/icons';
 
 // Dummy data for KPIs - replace with actual data fetching
 const kpiData = {

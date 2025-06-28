@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Wrench, Search, RefreshCw } from 'lucide-react';
+import { PlusCircle, Wrench, Search, RefreshCw } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { DEFAULT_TOOLS, type Tool } from '@/lib/quiz-data/tools-data';
 import { Input } from '@/components/ui/input';

@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PanelLeft } from '@/lib/icons';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { PanelLeft } from '@/lib/icons';
 import { SidebarNavContent } from '@/components/layout/dashboard-sidebar'; // Import the content part
 
 function DashboardLayoutUI({ children }: { children: ReactNode }) {

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, RefreshCw } from 'lucide-react';
+import { Search, PlusCircle, ListChecks, MoreVertical, Edit, Trash2, Eye, Bot, RefreshCw } from '@/lib/icons';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';

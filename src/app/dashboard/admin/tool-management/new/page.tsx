@@ -3,7 +3,7 @@
 
 import { ToolCreatorForm, type ToolFormData } from '@/components/admin/tool-creator/ToolCreatorForm';
 import { Button } from '@/components/ui/button';
-import { Wrench, ArrowLeft } from 'lucide-react';
+import { Wrench, ArrowLeft } from '@/lib/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';

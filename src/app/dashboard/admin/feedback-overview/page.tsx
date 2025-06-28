@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreVertical, MessageSquareText, CheckCircle, Settings, AlertTriangle, FileText } from 'lucide-react';
+import { MoreVertical, MessageSquareText, CheckCircle, Settings, AlertTriangle, FileText } from '@/lib/icons';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import type { FeedbackEntry, FeedbackType, FeedbackPriority, FeedbackStatus } from '@/types/feedback';
 import { cn } from '@/lib/utils';

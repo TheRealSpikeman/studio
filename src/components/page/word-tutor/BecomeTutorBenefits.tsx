@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { TrendingUp, Euro, Settings2, Star, Users } from 'lucide-react'; // Added Star and Users for testimonial/stats example
+import { TrendingUp, Euro, Settings2, Star, Users } from '@/lib/icons'; // Added Star and Users for testimonial/stats example
 
 const benefits = [
   {

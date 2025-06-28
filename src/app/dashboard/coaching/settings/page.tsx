@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Settings as SettingsIcon, CalendarPlus } from 'lucide-react'; 
+import { Settings as SettingsIcon, CalendarPlus } from '@/lib/icons'; 
 import { useState } from 'react';
 
 export default function CoachingSettingsPage() {

@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, ShieldCheck, PlayCircle, ClipboardList, Target, BarChart3, LayoutDashboard, GitBranch, Users as UsersIcon, Bot } from 'lucide-react';
+import { ArrowLeft, UserPlus, ShieldCheck, PlayCircle, ClipboardList, Target, BarChart3, LayoutDashboard, GitBranch, Users as UsersIcon, Bot } from '@/lib/icons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const journeySteps = [

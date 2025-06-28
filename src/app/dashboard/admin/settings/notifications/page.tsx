@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, Mail } from 'lucide-react';
+import { Bell, Mail } from '@/lib/icons';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 

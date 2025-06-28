@@ -4,7 +4,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles, PlusCircleIcon } from 'lucide-react';
+import { MessageSquare, Users, Hash, FileText, MessageCircle, HelpCircle, Sparkles, PlusCircleIcon, Brain } from '@/lib/icons';
 import Link from 'next/link';
 
 const placeholderCategories = [
@@ -19,40 +19,6 @@ const placeholderPosts = [
   { id: 'post2', title: 'Tips voor concentratie in een drukke klas (ADD)', category: 'Neurodiversiteit Ervaringen', author: 'Tom_B', replies: 12, lastReply: '3 uur geleden' },
   { id: 'post3', title: 'Leuke (rustige) hobby_s voor HSP_ers?', category: 'Algemene Discussie', author: 'Sara_HSP', replies: 8, lastReply: 'Gisteren' },
 ];
-
-// Placeholder Brain icon for categories
-function Brain(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7v0A2.5 2.5 0 0 1 7 4.5v0A2.5 2.5 0 0 1 9.5 2Z" />
-      <path d="M14.5 2A2.5 2.5 0 0 1 17 4.5v0A2.5 2.5 0 0 1 14.5 7v0A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 14.5 2Z" />
-      <path d="M12 17.5A2.5 2.5 0 0 1 9.5 20v0A2.5 2.5 0 0 1 7 17.5v0A2.5 2.5 0 0 1 9.5 15v0A2.5 2.5 0 0 1 12 17.5Z" />
-      <path d="M17 17.5A2.5 2.5 0 0 1 14.5 20v0A2.5 2.5 0 0 1 12 17.5v0A2.5 2.5 0 0 1 14.5 15v0A2.5 2.5 0 0 1 17 17.5Z" />
-      <path d="M17 4.5v1.5" />
-      <path d="M14.5 7V9" />
-      <path d="M12 4.5v3" />
-      <path d="M9.5 7V9" />
-      <path d="M7 4.5v1.5" />
-      <path d="M7 17.5v-1.5" />
-      <path d="M9.5 15v-3" />
-      <path d="M12 17.5v-5" />
-      <path d="M14.5 15v-3" />
-      <path d="M17 17.5v-1.5" />
-    </svg>
-  )
-}
-
 
 export default function CommunityPage() {
   return (

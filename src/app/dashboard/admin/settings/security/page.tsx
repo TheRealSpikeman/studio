@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Shield, KeyRound } from 'lucide-react';
+import { Shield, KeyRound } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminSecurityPage() {

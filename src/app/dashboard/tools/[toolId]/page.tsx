@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from '@/lib/icons';
 import dynamic from 'next/dynamic';
 import { toPascalCase } from '@/lib/string-utils';
 import { Skeleton } from '@/components/ui/skeleton';

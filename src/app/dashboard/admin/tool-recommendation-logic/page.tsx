@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, GitBranch, Lightbulb, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ArrowLeft, GitBranch, Lightbulb, TrendingUp, TrendingDown, Minus } from '@/lib/icons';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { DEFAULT_TOOLS, getToolIconComponent } from '@/lib/quiz-data/tools-data';
 import { Badge } from '@/components/ui/badge';

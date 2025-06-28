@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChartHorizontal } from 'lucide-react';
+import { BarChartHorizontal } from '@/lib/icons';
 import { Badge } from '@/components/ui/badge';
 
 export default function QuizReportsPage() {

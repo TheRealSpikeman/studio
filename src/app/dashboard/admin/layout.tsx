@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2 } from '@/lib/icons';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 

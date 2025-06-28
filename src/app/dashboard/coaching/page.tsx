@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from '@/components/ui/calendar';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import Link from 'next/link';
-import { CalendarDays, Eye, EyeOff, Sparkles, Info } from 'lucide-react';
+import { CalendarDays, Eye, EyeOff, Sparkles, Info } from '@/lib/icons';
 import { COACHING_CONFIG } from '@/lib/constants/coaching';
 
 // Nieuwe, opgesplitste componenten
