@@ -1,3 +1,4 @@
+
 // src/config/dashboard-nav.ts
 import {
   LayoutDashboard, 
@@ -179,7 +180,6 @@ export const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/settings', label: 'Algemeen', icon: Settings, parent: '#settings-parent' },
-      { href: '/dashboard/admin/settings/personas', label: 'AI Personas', icon: Bot, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/roles', label: 'Rollen & Permissies', icon: UsersIcon, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/notifications', label: 'Notificaties', icon: Bell, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/security', label: 'Beveiliging', icon: ShieldCheck, parent: '#settings-parent' },
@@ -192,6 +192,7 @@ export const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/ai-persona', label: 'AI Persona Profiel', icon: Bot, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: BrainCircuit, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
