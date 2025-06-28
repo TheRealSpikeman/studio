@@ -33,23 +33,23 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateBlogPostInputSchema },
   output: { schema: GenerateBlogPostOutputSchema },
   prompt: `
-    // ROLE
-    You are an expert content creator. Your primary task is to write a complete blog post in Dutch, perfectly embodying the persona described below.
+// ROLE
+You are an expert content creator. Your primary task is to write a complete blog post in Dutch, perfectly embodying the persona described below.
 
-    // PERSONA
-    Your assigned persona for this task is:
-    {{{personaDescription}}}
+// PERSONA
+Your assigned persona for this task is:
+{{{personaDescription}}}
 
-    // TASK
-    Write a comprehensive, engaging, and SEO-friendly blog post on the following topic:
-    "{{{topic}}}"
+// TASK
+Write a comprehensive, engaging, and SEO-friendly blog post on the following topic:
+"{{{topic}}}"
 
-    // INSTRUCTIONS
-    1.  Write the entire blog post in Dutch.
-    2.  The main content must be at least 400 words.
-    3.  Use Markdown for clear structure (e.g., H2 for main sections, H3 for sub-sections, lists for key points).
-    4.  The tone, style, and content must strictly adhere to the persona provided.
-    5.  Based on the content you write, you must also generate all the required metadata fields.
+// INSTRUCTIONS
+1.  Write the entire blog post in Dutch.
+2.  The main content must be at least 400 words.
+3.  Use Markdown for clear structure (e.g., H2 for main sections, H3 for sub-sections, lists for key points).
+4.  The tone, style, and content must strictly adhere to the persona provided.
+5.  Based on the content you write, you must also generate all the required metadata fields.
   `,
 });
 
