@@ -1,16 +1,21 @@
 // src/app/dashboard/admin/settings/personas/page.tsx
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, PlusCircle, Edit, Trash2, Linkedin, ExternalLink } from '@/lib/icons';
-import { aiPersonas, type AiPersona } from '@/ai/personas';
+import { Bot, Linkedin, ExternalLink, ShieldCheck, Lightbulb, BookHeart, GraduationCap } from '@/lib/icons';
+import { aiPersonas } from '@/ai/personas';
 
-export default function AiPersonasPage() {
-  const [personas, setPersonas] = useState<AiPersona[]>(aiPersonas);
+// We will focus only on Dr. Sage for this "CV" page to restore the original feel
+const persona = aiPersonas.find(p => p.id === 'dr-florentine-sage');
+
+export default function AiPersonaPage() {
+
+  if (!persona) {
+    return <div>Persona Dr. Florentine Sage niet gevonden in de data.</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -18,72 +23,64 @@ export default function AiPersonasPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Bot className="h-8 w-8 text-primary" />
-            AI Persona Beheer
+            AI Persona Profiel
           </h1>
           <p className="text-muted-foreground">
-            Beheer hier de verschillende AI-persoonlijkheden die op het platform worden gebruikt.
+            Een gedetailleerd overzicht van de primaire AI persona voor content creatie.
           </p>
         </div>
         <Button disabled>
-            <PlusCircle className="mr-2 h-4 w-4" /> Nieuwe Persona (binnenkort)
+            Andere Personas Beheren (Binnenkort)
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {personas.map((persona) => (
-          <Card key={persona.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div className="flex flex-col md:flex-row items-start">
-              <div className="md:w-1/3 flex-shrink-0 relative">
-                <div className="aspect-square w-full md:w-full h-auto md:h-full">
-                  <Image
+      <Card className="shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/3 flex-shrink-0 relative">
+                <div className="aspect-[4/5] w-full md:w-full h-auto md:h-full">
+                <Image
                     src={persona.imageUrl}
                     alt={`Foto van ${persona.name}`}
                     fill
                     style={{ objectFit: 'cover' }}
                     data-ai-hint={persona.imageHint}
-                  />
+                />
                 </div>
-              </div>
-              <div className="md:w-2/3 flex flex-col h-full">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold">{persona.name}</CardTitle>
-                  <CardDescription className="font-medium">{persona.title}</CardDescription>
-                   {persona.linkedinUrl && (
-                      <Link href={persona.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors w-fit">
-                        <Linkedin className="h-5 w-5" />
-                        <span className="sr-only">LinkedIn Profiel</span>
-                      </Link>
-                   )}
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm flex-grow">
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">Bio</h4>
-                    <p className="text-muted-foreground leading-relaxed">{persona.bio}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">Bijdrage aan MindNavigator</h4>
-                    <p className="text-muted-foreground leading-relaxed">{persona.contribution}</p>
-                  </div>
-                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">AI Prompt Instructie</h4>
-                    <p className="text-muted-foreground leading-relaxed italic text-xs">"{persona.description}"</p>
-                  </div>
-                </CardContent>
-                <CardFooter className="mt-auto border-t pt-4">
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" disabled>
-                      <Edit className="mr-2 h-4 w-4" /> Bewerken
-                    </Button>
-                    <Button variant="destructive" size="sm" disabled>
-                      <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                    </Button>
-                  </div>
-                </CardFooter>
-              </div>
             </div>
-          </Card>
-        ))}
-      </div>
+            <div className="md:w-2/3 flex flex-col">
+                <CardHeader className="pb-4">
+                    <h2 className="text-2xl font-bold text-primary">{persona.name}</h2>
+                    <p className="font-semibold text-muted-foreground">{persona.title}</p>
+                    <div className="flex items-center gap-4 pt-2">
+                        {persona.linkedinUrl && (
+                            <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-primary">
+                                <Link href={persona.linkedinUrl} target="_blank" rel="noopener noreferrer"><Linkedin className="mr-2 h-4 w-4" /> LinkedIn</Link>
+                            </Button>
+                        )}
+                        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-primary">
+                            <Link href="#" target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-2 h-4 w-4" /> Website</Link>
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6 text-base">
+                    <div>
+                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><BookHeart className="h-5 w-5 text-primary/80"/> Biografie</h4>
+                        <p className="text-muted-foreground leading-relaxed text-sm">{persona.bio}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><GraduationCap className="h-5 w-5 text-primary/80"/> Expertise & Bijdrage</h4>
+                        <p className="text-muted-foreground leading-relaxed text-sm">{persona.contribution}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Lightbulb className="h-5 w-5 text-primary/80"/> AI Prompt Instructie</h4>
+                        <blockquote className="border-l-4 border-primary/30 pl-4 italic text-sm text-muted-foreground">
+                            "{persona.description}"
+                        </blockquote>
+                    </div>
+                </CardContent>
+            </div>
+        </div>
+      </Card>
     </div>
   );
 }
