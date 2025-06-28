@@ -50,7 +50,7 @@ export default function NewBlogPostPage() {
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
-      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'published',
+      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'draft',
     },
   });
 

@@ -1,4 +1,3 @@
-
 // src/app/blog/[slug]/page.tsx
 "use client";
 
@@ -112,7 +111,7 @@ export default function BlogPostPage() {
     try {
       const storedPostsRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
       const allPosts = storedPostsRaw ? JSON.parse(storedPostsRaw) : initialBlogPosts;
-      const foundPost = allPosts.find((p: BlogPost) => p.slug === slug && p.status === 'published');
+      const foundPost = allPosts.find((p: BlogPost) => p.slug === slug);
       setPost(foundPost || null);
     } catch (error) {
       console.error("Error loading blog post from localStorage:", error);
