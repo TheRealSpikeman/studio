@@ -4,11 +4,9 @@
 import React from 'react';
 import {
   BookUser,
-  LayoutDashboard,
   Users,
-  Briefcase,
-  Euro,
   ListChecks,
+  Euro,
   Cpu,
   Settings,
   Bot,
@@ -18,28 +16,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const GuideSection = ({ title, icon, children }: { title: string, icon: React.ElementType, children: React.ReactNode }) => {
-  const Icon = icon;
-  return (
-    <AccordionItem value={title} className="border bg-card rounded-lg shadow-sm">
-      <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:text-primary">
-        <div className="flex items-center gap-3">
-          <Icon className="h-6 w-6 text-primary" />
-          {title}
-        </div>
-      </AccordionTrigger>
-      <AccordionContent className="p-4 pt-0 border-t">
-        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
-          {children}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  );
-};
-
-// This is the correct way to handle a multi-line string in JSX
 const xmlExample = `<changes>
-  <description>[Provide a concise summary of the overall changes being made]</description>
+  <description>[Een korte samenvatting van de wijzigingen]</description>
   <change>
-    <file>[Provide the ABSOLUTE, FULL path to the file being modified]</file>
-    <content><![CDATA[Provide the ENTIRE, FINAL, intended content of the file here. Do NOT provide diffs or partial snippets. Ensure all code is properly escaped within the CDATA section.
+    <file>[Het volledige, absolute pad naar het bestand]</file>
+    <content><![CDATA[De volledige, definitieve inhoud van het bestand hier. Geen diffs of snippets. Zorg ervoor dat alle code correct is ge-escaped.
