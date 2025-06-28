@@ -20,7 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 const GuideSection = ({ title, icon, children }: { title: string, icon: React.ElementType, children: React.ReactNode }) => {
   const Icon = icon;
@@ -41,7 +40,7 @@ const GuideSection = ({ title, icon, children }: { title: string, icon: React.El
   );
 };
 
-// This is the correct way to handle a multi-line string in JSX
+// XML examples properly escaped as template literals
 const xmlExample = `<changes>
   <description>[Provide a concise summary of the overall changes being made]</description>
   <change>
