@@ -9,7 +9,7 @@ export interface BlogPost {
   authorName: string; // Denormalized for easy display
   authorAvatarUrl?: string; // Optional
   featuredImageUrl: string;
-  featuredImageHint: string;
+  featuredImageHint: string; // Hint for AI image generation
   status: 'draft' | 'published';
   tags: string[];
   createdAt: string; // ISO date string

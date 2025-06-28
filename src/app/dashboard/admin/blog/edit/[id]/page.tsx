@@ -29,6 +29,7 @@ const blogPostFormSchema = z.object({
   content: z.string().min(100, 'Content moet minimaal 100 tekens zijn.'),
   tags: z.string().min(1, 'Voer minimaal één tag in (komma-gescheiden).'),
   featuredImageUrl: z.string().url('Voer een geldige URL in.').optional().or(z.literal('')),
+  featuredImageHint: z.string().min(3, 'Image hint moet minimaal 3 tekens zijn.'),
   status: z.enum(['draft', 'published']),
 });
 
@@ -147,6 +148,13 @@ export default function EditBlogPostPage() {
               )} />
               <FormField control={form.control} name="tags" render={({ field }) => (
                 <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Afbeelding Trefwoorden</FormLabel>
+                  <FormControl><Input {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
               )} />
               <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>Status</FormLabel>

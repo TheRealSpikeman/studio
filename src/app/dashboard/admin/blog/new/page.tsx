@@ -31,6 +31,7 @@ const blogPostFormSchema = z.object({
   excerpt: z.string().min(20, 'Samenvatting moet minimaal 20 tekens zijn.'),
   content: z.string().min(100, 'Content moet minimaal 100 tekens zijn.'),
   tags: z.string().min(1, 'Voer minimaal één tag in (komma-gescheiden).'),
+  featuredImageHint: z.string().min(3, 'Image hint moet minimaal 3 tekens zijn.'),
   status: z.enum(['draft', 'published']),
 });
 
@@ -49,7 +50,7 @@ export default function NewBlogPostPage() {
   const form = useForm<BlogPostFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
-      title: '', slug: '', excerpt: '', content: '', tags: '', status: 'draft',
+      title: '', slug: '', excerpt: '', content: '', tags: '', featuredImageHint: '', status: 'draft',
     },
   });
 
@@ -94,8 +95,9 @@ export default function NewBlogPostPage() {
       form.setValue('excerpt', result.excerpt);
       form.setValue('content', result.content);
       form.setValue('tags', result.tags.join(', '));
+      form.setValue('featuredImageHint', result.featuredImageHint);
       
-      toast({ title: "Content gegenereerd!", description: "Titel, samenvatting, content en tags zijn ingevuld." });
+      toast({ title: "Content gegenereerd!", description: "Alle velden zijn ingevuld door de AI." });
     } catch (error: any) {
       console.error("AI content generation failed:", error);
       const errorMessage = `Fout: ${error.message || "Onbekende fout."}\n\nDetails: ${error.stack || 'Geen stack trace beschikbaar.'}`;
@@ -116,7 +118,6 @@ export default function NewBlogPostPage() {
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
       tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
       featuredImageUrl: `https://placehold.co/1200x630.png`,
-      featuredImageHint: 'abstract digital art', // Generic hint
       ...data,
     };
     
@@ -214,6 +215,14 @@ export default function NewBlogPostPage() {
               )} />
               <FormField control={form.control} name="tags" render={({ field }) => (
                 <FormItem><FormLabel>Tags (komma-gescheiden)</FormLabel><FormControl><Input {...field} placeholder="Focus, Ouders, Neurodiversiteit" /></FormControl><FormMessage /></FormItem>
+              )} />
+               <FormField control={form.control} name="featuredImageHint" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Afbeelding Trefwoorden</FormLabel>
+                  <FormControl><Input {...field} placeholder="bv. brain connection, teenager studying" /></FormControl>
+                  <FormDescription>1-2 trefwoorden die de sfeer van het artikel beschrijven.</FormDescription>
+                  <FormMessage />
+                </FormItem>
               )} />
               <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>Status</FormLabel>
