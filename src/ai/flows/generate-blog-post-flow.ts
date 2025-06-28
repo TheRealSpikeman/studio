@@ -81,12 +81,14 @@ const generateBlogPostFlow = ai.defineFlow(
         content = lines.slice(3).join('\n').trim();
     } else {
         // Fallback if the AI doesn't follow instructions
+        console.warn("AI output did not start with '# '. Parsing as fallback.");
         title = "Titel niet gevonden in AI output";
         excerpt = "Samenvatting niet gevonden.";
         content = rawMarkdownOutput;
     }
 
     if (!title || !content || !excerpt) {
+        console.error("Parsing failed. AI Output was:\n", rawMarkdownOutput);
         throw new Error('Could not parse title, excerpt, and content from the markdown returned by the AI.');
     }
 
