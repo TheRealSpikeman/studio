@@ -1,10 +1,10 @@
-
 // src/app/layout.tsx
 "use client"; // Required for AuthProvider context to work at the root
 
 import type { ReactNode } from 'react';
 import { GeistSans } from 'geist/font/sans';
 import './globals.css';
+import 'react-quill/dist/quill.snow.css'; // <-- Moved here for client-side only loading
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';

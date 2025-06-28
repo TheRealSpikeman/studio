@@ -1,5 +1,4 @@
 'use client';
-import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 
