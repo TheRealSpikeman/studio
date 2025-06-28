@@ -38,6 +38,7 @@ import {
   Cpu,
   Bell,
   Rss,
+  TrendingUp,
 } from '@/lib/icons';
 
 interface NavItem {
