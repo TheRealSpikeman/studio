@@ -3,9 +3,9 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart } from '@/lib/icons';
+import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart as BarChartIcon } from '@/lib/icons';
 import { DUMMY_USERS, initialScheduledLessons } from '@/lib/data/dummy-data';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, BarChart } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/ui/chart';
 import { subDays, format, isSameDay, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -215,7 +215,7 @@ export default function AdminDashboardPage() {
         <Card className="shadow-lg lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
-                <BarChart className="h-5 w-5 text-primary" />
+                <BarChartIcon className="h-5 w-5 text-primary" />
                 Omzet per Tutor/Vak
             </CardTitle>
             <CardDescription>Top presterende tutors en meest populaire vakken.</CardDescription>
