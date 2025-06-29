@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart as BarChartIcon } from '@/lib/icons';
+import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart as BarChartIcon, Activity } from '@/lib/icons';
 import { DUMMY_USERS, initialScheduledLessons } from '@/lib/data/dummy-data';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, BarChart } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/ui/chart';
@@ -43,6 +43,8 @@ const sessionsChartConfig = {
 export default function AdminDashboardPage() {
   
   const kpiData = useMemo(() => {
+    const today = new Date();
+    const thirtyDaysAgo = subDays(today, 30);
     const students = DUMMY_USERS.filter(u => u.role === 'leerling');
     const tutors = DUMMY_USERS.filter(u => u.role === 'tutor');
     
@@ -50,6 +52,8 @@ export default function AdminDashboardPage() {
       const revenue = tutor.tutorDetails?.totalRevenue ?? 0;
       return sum + revenue;
     }, 0);
+    
+    const activeUsers = DUMMY_USERS.filter(u => u.lastLogin && parseISO(u.lastLogin) > thirtyDaysAgo).length;
 
     const ageCounts = students.reduce((acc, student) => {
       const group = student.ageGroup || 'Onbekend';
@@ -63,7 +67,6 @@ export default function AdminDashboardPage() {
     }));
     
     // Process sessions data for the last 30 days
-    const today = new Date();
     const last30Days = Array.from({ length: 30 }, (_, i) => subDays(today, 29 - i));
     
     const sessionsPerDayData = last30Days.map(day => {
@@ -82,6 +85,8 @@ export default function AdminDashboardPage() {
     return {
       totalStudents: students.length,
       totalTutors: tutors.length,
+      totalUsers: DUMMY_USERS.length,
+      activeUsers,
       totalRevenue: totalRevenue,
       sessionsToday: initialScheduledLessons.filter(s => isSameDay(parseISO(s.dateTime), today)).length,
       ageDistributionData,
@@ -99,7 +104,7 @@ export default function AdminDashboardPage() {
       </section>
 
       {/* KPI Cards Section */}
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totaal Aantal Leerlingen</CardTitle>
@@ -118,6 +123,26 @@ export default function AdminDashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{kpiData.totalTutors.toLocaleString('nl-NL')}</div>
             <p className="text-xs text-muted-foreground">+2 nieuwe deze week</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Totaal Aantal Gebruikers</CardTitle>
+            <Users className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kpiData.totalUsers.toLocaleString('nl-NL')}</div>
+            <p className="text-xs text-muted-foreground">Alle rollen gecombineerd</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Actieve Gebruikers (30d)</CardTitle>
+            <Activity className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kpiData.activeUsers.toLocaleString('nl-NL')}</div>
+            <p className="text-xs text-muted-foreground">Gebruikers die recent hebben ingelogd</p>
           </CardContent>
         </Card>
         <Card className="shadow-lg">
