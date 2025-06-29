@@ -3,16 +3,16 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookUser } from '@/lib/icons';
+import { ArrowLeft, AlertTriangle } from '@/lib/icons';
 
-// Renamed to PlatformGuidePlaceholderPage to avoid name collision
-export default function PlatformGuidePlaceholderPage() {
+// Renamed to avoid component name collision, which was causing the build to fail.
+export default function ObsoletePlatformGuidePage() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <BookUser className="h-8 w-8 text-primary" />
-          Platform Handleiding (Admin)
+          <AlertTriangle className="h-8 w-8 text-destructive" />
+          Placeholder Pagina
         </h1>
         <Button variant="outline" asChild>
           <Link href="/dashboard/admin/documentation">
@@ -22,15 +22,8 @@ export default function PlatformGuidePlaceholderPage() {
       </div>
 
       <p className="text-lg text-muted-foreground">
-        Welkom bij de handleiding voor beheerders. Deze pagina is momenteel een placeholder en zal in de toekomst worden uitgebreid met gedetailleerde informatie over alle platformfunctionaliteiten.
+        Deze pagina is geneutraliseerd om een technisch conflict in de applicatie op te lossen. De correcte, werkende versie van de handleiding vindt u op de pagina 'Platform Handleiding'.
       </p>
-
-      <div className="p-6 bg-muted rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">In ontwikkeling</h2>
-          <p className="text-muted-foreground">
-              De uitgebreide handleiding wordt momenteel geschreven. Kom binnenkort terug voor meer details.
-          </p>
-      </div>
     </div>
   );
 }
