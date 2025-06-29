@@ -73,9 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (userDocSnap.exists()) {
             console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}.`);
+            const userDataFromDb = userDocSnap.data() as Omit<User, 'id'>;
             const appUser: User = {
               id: firebaseUser.uid,
-              ...(userDocSnap.data() as Omit<User, 'id'>),
+              ...userDataFromDb, // Spread DB data first
+              email: firebaseUser.email || userDataFromDb.email, // Then ensure email from auth takes precedence
             };
             setUser(appUser);
             // Don't await this, let it run in the background
