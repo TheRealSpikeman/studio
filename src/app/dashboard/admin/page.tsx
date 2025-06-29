@@ -4,8 +4,12 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart } from '@/lib/icons';
-import { DUMMY_USERS } from '@/lib/data/dummy-data';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DUMMY_USERS, initialScheduledLessons } from '@/lib/data/dummy-data';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/ui/chart';
+import { subDays, format, isSameDay, parseISO } from 'date-fns';
+import { nl } from 'date-fns/locale';
+
 
 // Chart component logic integrated here
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', '#a3e635', '#60a5fa'];
@@ -23,6 +27,17 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
         </text>
     );
 };
+
+const sessionsChartConfig = {
+  voltooid: {
+    label: "Voltooid",
+    color: "hsl(var(--primary))",
+  },
+  gepland: {
+    label: "Gepland",
+    color: "hsl(var(--secondary))",
+  },
+} satisfies ChartConfig;
 
 
 export default function AdminDashboardPage() {
@@ -46,13 +61,31 @@ export default function AdminDashboardPage() {
       name: name === 'Onbekend' ? name : `${name} jaar`,
       value,
     }));
+    
+    // Process sessions data for the last 30 days
+    const today = new Date();
+    const last30Days = Array.from({ length: 30 }, (_, i) => subDays(today, 29 - i));
+    
+    const sessionsPerDayData = last30Days.map(day => {
+        const daySessions = initialScheduledLessons.filter(lesson => isSameDay(parseISO(lesson.dateTime), day));
+        const completedCount = daySessions.filter(s => s.status === 'Voltooid').length;
+        const plannedCount = daySessions.filter(s => s.status === 'Gepland').length;
+
+        return {
+            date: format(day, 'dd/MM'),
+            voltooid: completedCount,
+            gepland: plannedCount
+        };
+    });
+
 
     return {
       totalStudents: students.length,
       totalTutors: tutors.length,
       totalRevenue: totalRevenue,
-      sessionsToday: 32, // This remains static for now
+      sessionsToday: initialScheduledLessons.filter(s => isSameDay(parseISO(s.dateTime), today)).length,
       ageDistributionData,
+      sessionsPerDayData
     };
   }, []);
 
@@ -104,7 +137,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpiData.sessionsToday}</div>
-            <p className="text-xs text-muted-foreground">10 gepland, 22 voltooid</p>
+            <p className="text-xs text-muted-foreground">Sessies die vandaag plaatsvinden.</p>
           </CardContent>
         </Card>
       </section>
@@ -120,9 +153,25 @@ export default function AdminDashboardPage() {
             <CardDescription>Trend van het aantal geplande en voltooide sessies.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-muted rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground italic">Grafiek placeholder: Sessies per Dag</p>
-            </div>
+            <ChartContainer config={sessionsChartConfig} className="h-[300px] w-full">
+              <BarChart accessibilityLayer data={kpiData.sessionsPerDayData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 5)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Bar dataKey="voltooid" fill="var(--color-voltooid)" radius={4} />
+                <Bar dataKey="gepland" fill="var(--color-gepland)" radius={4} />
+                 <ChartLegend content={<ChartLegendContent />} />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
          <Card className="shadow-lg lg:col-span-1">
