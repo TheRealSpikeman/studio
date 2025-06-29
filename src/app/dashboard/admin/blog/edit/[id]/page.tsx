@@ -195,6 +195,7 @@ export default function EditBlogPostPage() {
                 )} />
 
                 <ImageUploader 
+                  uploadPath="images/blog/"
                   onUploadComplete={(url) => form.setValue('featuredImageUrl', url, { shouldValidate: true })}
                   initialImageUrl={postData.featuredImageUrl}
                 />

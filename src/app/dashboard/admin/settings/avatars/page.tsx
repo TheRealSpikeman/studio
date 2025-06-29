@@ -119,6 +119,7 @@ export default function AvatarManagementPage() {
         <CardContent className="space-y-6">
            <ImageUploader 
              onUploadComplete={(url) => setNewAvatar(p => ({ ...p, src: url }))}
+             uploadPath="images/avatars/"
              aspectRatio="aspect-square"
              label="1. Avatar Afbeelding"
              description="Upload een vierkante afbeelding. De URL wordt automatisch ingevuld."

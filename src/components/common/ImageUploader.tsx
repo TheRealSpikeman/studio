@@ -19,6 +19,7 @@ interface ImageUploaderProps {
   aspectRatio?: string;
   label?: string;
   description?: string;
+  uploadPath?: string; // New prop
 }
 
 export function ImageUploader({
@@ -27,6 +28,7 @@ export function ImageUploader({
   aspectRatio = 'aspect-[16/9]',
   label = 'Uitgelichte Afbeelding',
   description,
+  uploadPath = 'images/', // New prop with default
 }: ImageUploaderProps) {
   const { isFirebaseConfigured } = useAuth();
   const { toast } = useToast();
@@ -63,7 +65,7 @@ export function ImageUploader({
     setIsUploading(true);
     setUploadProgress(0);
 
-    const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
+    const storageRef = ref(storage, `${uploadPath}${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -91,7 +93,7 @@ export function ImageUploader({
         }
       }
     );
-  }, [isFirebaseConfigured, onUploadComplete, toast]);
+  }, [isFirebaseConfigured, onUploadComplete, toast, uploadPath]);
   
   const handleTriggerUpload = () => {
     fileInputRef.current?.click();

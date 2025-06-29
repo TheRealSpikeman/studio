@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { generateBlogPost } from '@/ai/flows/generate-blog-post-flow';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
-import { aiPersonas } from '@/ai/personas';
+import { initialAiPersonas as aiPersonas } from '@/ai/personas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -261,6 +261,7 @@ export default function NewBlogPostPage() {
                 )} />
                 
                 <ImageUploader 
+                    uploadPath="images/blog/"
                     onUploadComplete={(url) => {
                         form.setValue('featuredImageUrl', url, { shouldValidate: true });
                     }}
