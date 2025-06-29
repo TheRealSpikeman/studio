@@ -1,24 +1,32 @@
-// src/app/dashboard/admin/documentation/platform-guide/page.tsx
-"use client";
-
-import React from 'react';
-import {
-  BookUser,
-  Users,
-  ListChecks,
-  Euro,
-  Cpu,
-  Settings,
-  Bot,
-  ArrowLeft,
-} from '@/lib/icons';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-// This is the correct way to handle a multi-line string in JSX
-const xmlExample = `<changes>
-  <description>[Een korte samenvatting van de wijzigingen]</description>
-  <change>
-    <file>[Het volledige, absolute pad naar het bestand]</file>
-    <content><![CDATA[De volledige, definitieve inhoud van het bestand hier. Geen diffs of snippets. Zorg ervoor dat alle code correct is ge-escaped.
+export default function PlatformGuidePage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          Platform Guide
+        </h1>
+        
+        <div className="prose prose-lg max-w-none">
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              Overview
+            </h2>
+            <p className="text-gray-600 mb-4">
+              This guide provides comprehensive information about our platform.
+            </p>
+          </section>
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              Getting Started
+            </h2>
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+              <p className="text-blue-700">
+                Follow these steps to get started with the platform.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
