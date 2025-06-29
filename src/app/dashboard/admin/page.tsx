@@ -1,18 +1,61 @@
 // src/app/dashboard/admin/page.tsx
 "use client";
 
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Briefcase, Euro, Clock, LineChart, PieChart, BarChart } from '@/lib/icons';
+import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart } from '@/lib/icons';
+import { DUMMY_USERS } from '@/lib/data/dummy-data';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Dummy data for KPIs - replace with actual data fetching
-const kpiData = {
-  totalStudents: 1250,
-  totalTutors: 75,
-  totalRevenue: 45000, // Example in EUR
-  sessionsToday: 32,
+// Chart component logic integrated here
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', '#a3e635', '#60a5fa'];
+const RADIAN = Math.PI / 180;
+
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
+    if (percent < 0.05) return null; // Don't render labels for tiny slices
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+        <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+            {`${(percent * 100).toFixed(0)}%`}
+        </text>
+    );
 };
 
+
 export default function AdminDashboardPage() {
+  
+  const kpiData = useMemo(() => {
+    const students = DUMMY_USERS.filter(u => u.role === 'leerling');
+    const tutors = DUMMY_USERS.filter(u => u.role === 'tutor');
+    
+    const totalRevenue = tutors.reduce((sum, tutor) => {
+      const revenue = tutor.tutorDetails?.totalRevenue ?? 0;
+      return sum + revenue;
+    }, 0);
+
+    const ageCounts = students.reduce((acc, student) => {
+      const group = student.ageGroup || 'Onbekend';
+      acc[group] = (acc[group] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const ageDistributionData = Object.entries(ageCounts).map(([name, value]) => ({
+      name: name === 'Onbekend' ? name : `${name} jaar`,
+      value,
+    }));
+
+    return {
+      totalStudents: students.length,
+      totalTutors: tutors.length,
+      totalRevenue: totalRevenue,
+      sessionsToday: 32, // This remains static for now
+      ageDistributionData,
+    };
+  }, []);
+
   return (
     <div className="space-y-8">
       <section>
@@ -66,7 +109,7 @@ export default function AdminDashboardPage() {
         </Card>
       </section>
 
-      {/* Charts Section - Placeholders */}
+      {/* Charts Section */}
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="shadow-lg">
           <CardHeader>
@@ -82,7 +125,45 @@ export default function AdminDashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="shadow-lg">
+         <Card className="shadow-lg lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+                <PieChartIcon className="h-5 w-5 text-primary" />
+                Leeftijdsverdeling Leerlingen
+            </CardTitle>
+            <CardDescription>Demografisch overzicht van de leerlingen op het platform.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                    <Pie
+                        data={kpiData.ageDistributionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={renderCustomizedLabel}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        nameKey="name"
+                    >
+                        {kpiData.ageDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            borderColor: 'hsl(var(--border))',
+                            borderRadius: 'var(--radius)',
+                        }}
+                    />
+                    <Legend iconType="circle" />
+                </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                 <BarChart className="h-5 w-5 text-primary" />
@@ -93,20 +174,6 @@ export default function AdminDashboardPage() {
           <CardContent>
             <div className="h-[300px] bg-muted rounded-lg flex items-center justify-center">
               <p className="text-muted-foreground italic">Grafiek placeholder: Omzet per Tutor/Vak</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
-                <PieChart className="h-5 w-5 text-primary" />
-                Leeftijdsverdeling Leerlingen
-            </CardTitle>
-            <CardDescription>Demografisch overzicht van de leerlingen op het platform.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] bg-muted rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground italic">Grafiek placeholder: Leeftijdsverdeling</p>
             </div>
           </CardContent>
         </Card>
