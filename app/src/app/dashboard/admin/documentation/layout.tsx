@@ -1,8 +1,1 @@
-// app/src/app/dashboard/admin/documentation/layout.tsx
-export default function DocumentationLayout({
-    children,
-  }: {
-    children: React.ReactNode
-  }) {
-    return <>{children}</>;
-  }
+// This file is obsolete and has been replaced by the correct layout in /src/app.
