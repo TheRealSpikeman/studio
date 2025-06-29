@@ -1,10 +1,7 @@
 // src/app/dashboard/admin/documentation/platform-guide/page.tsx
 "use client";
 
-import React, { type ReactNode, type ElementType } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import React from 'react';
 import {
   BookUser,
   Users,
@@ -13,12 +10,15 @@ import {
   Cpu,
   Settings,
   Bot,
-  ArrowLeft
+  ArrowLeft,
 } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-// This is the variable that was causing the error. It's now correctly formatted as a string.
+// This is the correct way to handle a multi-line string in JSX
 const xmlExample = `<changes>
-  <description>[Provide a concise summary of the overall changes being made]</description>
+  <description>[Een korte samenvatting van de wijzigingen]</description>
   <change>
-    <file>[Provide the ABSOLUTE, FULL path to the file being modified]</file>
-    <content><![CDATA[Provide the ENTIRE, FINAL, intended content of the file here. Do NOT provide diffs or partial snippets. Ensure all code is properly escaped within the CDATA section.
+    <file>[Het volledige, absolute pad naar het bestand]</file>
+    <content><![CDATA[De volledige, definitieve inhoud van het bestand hier. Geen diffs of snippets. Zorg ervoor dat alle code correct is ge-escaped.
