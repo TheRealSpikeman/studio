@@ -112,50 +112,47 @@ export function ImageUploader({
         <Label>{label}</Label>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>
-      
-      <div 
-        className={cn(
-          "w-full relative rounded-md border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/50 overflow-hidden cursor-pointer",
-          aspectRatio
-        )}
-        onClick={handleTriggerUpload}
-      >
-        {currentImageUrl ? (
-          <Image src={currentImageUrl} alt="Preview" fill style={{ objectFit: 'cover' }} />
-        ) : (
-          <div className="text-center text-muted-foreground p-4">
-            <UploadCloud className="mx-auto h-10 w-10" />
-            <p className="mt-2 text-sm font-medium">Klik of sleep om te uploaden</p>
-            <p className="text-xs">PNG, JPG, GIF (max 5MB)</p>
-          </div>
-        )}
-      </div>
 
-      <div className="flex gap-2 items-center">
-        <Button type="button" variant="outline" size="sm" onClick={handleTriggerUpload} disabled={isUploading}>
-          <UploadCloud className="mr-2 h-4 w-4" /> {currentImageUrl ? 'Vervang Afbeelding' : 'Kies Afbeelding'}
-        </Button>
-        {currentImageUrl && (
-          <Button type="button" variant="ghost" size="sm" onClick={handleRemoveImage} disabled={isUploading} className="text-destructive hover:text-destructive">
-            <Trash2 className="mr-2 h-4 w-4" /> Verwijder
+      <div className="flex items-center gap-4 pt-2">
+        <div
+          className={cn(
+            "w-24 h-24 bg-muted rounded-md flex items-center justify-center relative overflow-hidden border",
+            aspectRatio === 'aspect-square' ? 'aspect-square' : 'aspect-video'
+          )}
+        >
+          {currentImageUrl ? (
+            <Image src={currentImageUrl} alt="Preview" fill style={{ objectFit: 'cover' }} />
+          ) : (
+            <UploadCloud className="h-8 w-8 text-muted-foreground" />
+          )}
+        </div>
+        
+        <div className="flex flex-col gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={handleTriggerUpload} disabled={isUploading}>
+            <UploadCloud className="mr-2 h-4 w-4" /> {currentImageUrl ? 'Wijzig...' : 'Upload...'}
           </Button>
-        )}
+          {currentImageUrl && (
+            <Button type="button" variant="ghost" size="sm" onClick={handleRemoveImage} disabled={isUploading} className="text-destructive hover:text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" /> Verwijder
+            </Button>
+          )}
+        </div>
       </div>
-
+      
       {isUploading && (
-        <div className="space-y-1">
+        <div className="space-y-1 pt-2">
           <Progress value={uploadProgress} />
           <p className="text-xs text-muted-foreground text-center">{Math.round(uploadProgress)}%</p>
         </div>
       )}
-
+      
       {error && (
         <p className="text-sm text-destructive flex items-center gap-2">
           <AlertTriangle className="h-4 w-4" /> {error}
         </p>
       )}
 
-       <input
+      <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
