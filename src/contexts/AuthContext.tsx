@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     console.log("[AuthContext] Setting up onAuthStateChanged listener...");
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log(`[AuthContext] onAuthStateChanged triggered. Firebase User:`, firebaseUser);
+      console.log(`[AuthContext] onAuthStateChanged triggered. Firebase User:`, firebaseUser ? firebaseUser.uid : 'null');
       if (firebaseUser) {
         const userDocRef = doc(db, "users", firebaseUser.uid);
         console.log(`[AuthContext] User is authenticated. Checking Firestore for doc:`, userDocRef.path);
@@ -72,38 +72,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}.`);
             const userDataFromDb = userDocSnap.data() as Omit<User, 'id'>;
+            console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}. Role: ${userDataFromDb.role}`);
             const appUser: User = {
               id: firebaseUser.uid,
-              ...userDataFromDb, // Spread DB data first
-              email: firebaseUser.email || userDataFromDb.email, // Then ensure email from auth takes precedence
+              ...userDataFromDb,
+              email: firebaseUser.email || userDataFromDb.email,
             };
             setUser(appUser);
-            // Don't await this, let it run in the background
-            updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+            updateDoc(userDocRef, { lastLogin: new Date().toISOString() }).catch(e => console.error("Failed to update last login", e));
           } else {
             console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for signup method...`);
             const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
             
             if (tempProfileRaw) {
-              // User signed up with email/password, create their doc
               console.log(`[AuthContext] Temp profile data FOUND. Creating Firestore document for email signup...`);
               const profileDataToSet = JSON.parse(tempProfileRaw);
               localStorage.removeItem(TEMP_PROFILE_KEY);
 
-              const finalProfileData = {
-                ...profileDataToSet,
-                email: firebaseUser.email, // Always use the email from the authenticated user
-              };
+              const finalProfileData = { ...profileDataToSet, email: firebaseUser.email };
               await setDoc(userDocRef, finalProfileData);
-              console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}.`);
+              console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}. Role: ${finalProfileData.role}`);
               const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
               setUser(appUser);
             } else {
-              // This is an unprovisioned user (e.g., social login without a profile, or some other edge case).
-              // We sign them out to force them through a proper signup or login flow.
-              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no signup data found. Logging out.`);
+              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no temp signup data found. Logging out.`);
               await signOut(auth);
             }
           }
@@ -113,14 +106,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await signOut(auth);
         }
       } else {
-        console.log(`[AuthContext] No user authenticated.`);
+        console.log(`[AuthContext] No user authenticated. Setting user to null.`);
         setUser(null);
       }
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [toast, router]); // Corrected dependency array
+    return () => {
+      console.log("[AuthContext] Cleaning up onAuthStateChanged listener.");
+      unsubscribe();
+    };
+  }, [toast, router]);
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -139,19 +135,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastLogin: new Date().toISOString(),
     };
     
-    // For email/pass, we save temp data to localStorage to be picked up by onAuthStateChanged
     localStorage.setItem(TEMP_PROFILE_KEY, JSON.stringify(profileData));
     
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.pass);
       
       if (needsParentalApproval && data.parentEmail) {
-        // Send approval request email (simulated)
         console.log(`SIMULATING: Sending approval request to ${data.parentEmail} for teen ${data.email}`);
-        // In a real app, you would call a backend function here to send a templated email.
-        // The email would contain a link like: `/parental-approval?token=...&teenEmail=...`
       } else {
-        // Standard verification for users who don't need parental approval
         await sendEmailVerification(userCredential.user);
       }
       
@@ -173,14 +164,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      router.push('/dashboard');
+      // Let onAuthStateChanged handle user state and redirection
       return true;
     } catch (error: any) {
       console.error("Firebase Login Error:", error);
       toast({ title: "Inloggen Mislukt", description: "De combinatie van e-mail en wachtwoord is onjuist.", variant: "destructive" });
       return false;
     }
-  }, [toast, router]);
+  }, [toast]);
 
   const socialLoginHandler = useCallback(async (provider: GoogleAuthProvider | OAuthProvider): Promise<boolean> => {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -191,24 +182,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await signInWithPopup(auth, provider);
         const firebaseUser = result.user;
         
-        // Check if user document exists
         const userDocRef = doc(db, "users", firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         
         if (!userDocSnap.exists()) {
-            // User does not have a profile in our database. This is an invalid login attempt.
-            await signOut(auth); // Sign them out immediately.
+            await signOut(auth);
             toast({
                 title: "Account niet gevonden",
                 description: "Gebruik alstublieft de aanmeldpagina om een nieuw account aan te maken. U kunt daarna inloggen met deze methode.",
                 variant: "destructive",
                 duration: 8000
             });
-            router.push('/signup'); // Guide them to the correct flow.
+            router.push('/signup');
             return false;
         }
         
-        // If we are here, the user exists. The onAuthStateChanged listener will handle the rest.
         router.push('/dashboard');
         return true;
 
@@ -236,6 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     if (auth) {
+      console.log(`[AuthContext] Logging out user...`);
       await signOut(auth);
     }
     setUser(null);
