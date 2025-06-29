@@ -16,12 +16,13 @@ const documentationLinks = [
     isExternal: false,
   },
   {
-    title: "Development Roadmap",
-    description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform, gebaseerd op een Firebase-First strategie.",
+    title: "Platform Status & Voortgang",
+    description: "Een overzicht van wat er al gebouwd is, wat de volgende stappen zijn en de algehele status van het platform.",
     icon: Rocket,
-    href: "/dashboard/admin/documentation/roadmap",
-    linkText: "Bekijk Roadmap",
+    href: "/dashboard/admin/documentation/platform-status",
+    linkText: "Bekijk Status",
     isExternal: false,
+    isNew: true,
   },
   {
     title: "Customer Journey (12-jarige)",
