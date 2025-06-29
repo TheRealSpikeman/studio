@@ -8,6 +8,7 @@ import { ArrowLeft, ScrollText, GitBranch, CheckCircle, Wrench, ShieldCheck, Use
 import { Badge } from '@/components/ui/badge';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 
 interface ChangeLogEntry {
   date: string; // ISO String
@@ -157,14 +158,32 @@ export default function ChangelogPage() {
           </CardHeader>
           <CardContent>
             <div className="bg-muted p-4 rounded-md border">
-                <p><strong>Wachtwoord (voor alle accounts):</strong> <code className="bg-background px-2 py-1 rounded-sm text-primary font-mono">password</code></p>
-                <div className="mt-2 space-y-1 text-sm">
-                    <p>• <strong>Admin:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">g.bosch@mindnavigator.io</code></p>
-                    <p>• <strong>Ouder:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">glenn.bosch@outlook.com</code></p>
-                    <p>• <strong>Leerling:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">bosch.rgm@gmail.com</code></p>
-                    <p>• <strong>Tutor:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">anna.visser@tutor-platform.com</code></p>
-                    <p>• <strong>Coach:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">edward.coach@coach-circle.net</code></p>
+                <div className="flex items-center gap-2 mb-4">
+                    <p className="font-semibold text-sm">Wachtwoord (voor alle accounts):</p>
+                    <Badge variant="outline" className="font-mono text-base border-primary/50 bg-primary/10 text-primary font-bold tracking-wider">password</Badge>
                 </div>
+                <ul className="space-y-2 text-sm list-none">
+                    <li className="flex items-center gap-3">
+                        <strong className="w-20 text-right">Admin:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">g.bosch@mindnavigator.io</Badge>
+                    </li>
+                    <li className="flex items-center gap-3">
+                        <strong className="w-20 text-right">Ouder:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">glenn.bosch@outlook.com</Badge>
+                    </li>
+                    <li className="flex items-center gap-3">
+                        <strong className="w-20 text-right">Leerling:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">bosch.rgm@gmail.com</Badge>
+                    </li>
+                    <li className="flex items-center gap-3">
+                        <strong className="w-20 text-right">Tutor:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">anna.visser@tutor-platform.com</Badge>
+                    </li>
+                    <li className="flex items-center gap-3">
+                        <strong className="w-20 text-right">Coach:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">edward.coach@coach-circle.net</Badge>
+                    </li>
+                </ul>
             </div>
           </CardContent>
       </Card>
