@@ -22,6 +22,19 @@ const now = new Date(); // Base time to make variations more predictable
 
 const changelogData: ChangeLogEntry[] = [
     {
+        date: new Date(now.getTime() - (1 * 3600 * 1000)).toISOString(), // 1 hour ago
+        title: "End-to-End Quiz Flow Functioneel Gemaakt",
+        icon: CheckCircle,
+        description: "De volledige 'happy path' voor gebruikers is nu functioneel: een quiz invullen, de resultaten opslaan en deze correct weergeven op de resultatenpagina. Dit maakt uitvoerig testen van de kern-quiz-logica mogelijk.",
+        details: [
+            "**Quiz Logica (`QuizPageContent.tsx`):** De component slaat nu na voltooiing het volledige AI-gegenereerde rapport op in de `localStorage` via de `StorageService`.",
+            "**Resultatenpagina (`results/page.tsx`):** Deze pagina haalt nu de opgeslagen quizresultaten op en toont deze, in plaats van dummy data.",
+            "**Data Types & Services:** De `QuizResult` type en `StorageService` zijn bijgewerkt om de volledige data flow te ondersteunen.",
+            "**Resultaat:** Een testbare, naadloze gebruikerservaring van start tot resultaat."
+        ],
+        tags: [{ text: "Fix", variant: "destructive" }, { text: "Quiz Flow", variant: "secondary" }, { text: "Testen", variant: "outline" }]
+    },
+    {
         date: new Date(now.getTime() - (2 * 3600 * 1000)).toISOString(), // 2 hours ago
         title: "Architectuur Refactor: Centralisatie & Stabiliteit",
         icon: GitBranch,
