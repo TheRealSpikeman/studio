@@ -56,67 +56,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth || !db) {
-      console.warn("[AuthContext] Firebase not configured. Halting auth listener.");
+      console.log("[Auth Log] Firebase not configured. Auth flow stopped. isLoading: false");
       setIsLoading(false);
       return;
     }
 
-    console.log("[AuthContext] Setting up onAuthStateChanged listener...");
+    console.log("[Auth Log] Setting up onAuthStateChanged listener...");
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log(`[AuthContext] onAuthStateChanged triggered. Firebase User:`, firebaseUser ? firebaseUser.uid : 'null');
-      if (firebaseUser) {
-        const userDocRef = doc(db, "users", firebaseUser.uid);
-        console.log(`[AuthContext] User is authenticated. Checking Firestore for doc:`, userDocRef.path);
-        
-        try {
+      console.log(`[Auth Log] onAuthStateChanged triggered. User: ${firebaseUser ? firebaseUser.uid : 'null'}`);
+      
+      try {
+        if (firebaseUser) {
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          console.log(`[Auth Log] User authenticated. Checking Firestore doc: ${userDocRef.path}`);
+          
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
             const userDataFromDb = userDocSnap.data() as Omit<User, 'id'>;
-            console.log(`[AuthContext] Existing user doc found for ${firebaseUser.uid}. Role: ${userDataFromDb.role}`);
+            console.log(`[Auth Log] Existing user doc found. Role: ${userDataFromDb.role}`);
             const appUser: User = {
               id: firebaseUser.uid,
               ...userDataFromDb,
               email: firebaseUser.email || userDataFromDb.email,
             };
             setUser(appUser);
-            updateDoc(userDocRef, { lastLogin: new Date().toISOString() }).catch(e => console.error("Failed to update last login", e));
+            updateDoc(userDocRef, { lastLogin: new Date().toISOString() }).catch(e => console.error("[Auth Log] Failed to update last login", e));
           } else {
-            console.log(`[AuthContext] User doc NOT found for ${firebaseUser.uid}. Checking for signup method...`);
+            console.warn(`[Auth Log] User doc NOT found for ${firebaseUser.uid}. Checking for temp profile data...`);
             const tempProfileRaw = localStorage.getItem(TEMP_PROFILE_KEY);
             
             if (tempProfileRaw) {
-              console.log(`[AuthContext] Temp profile data FOUND. Creating Firestore document for email signup...`);
+              console.log(`[Auth Log] Temp profile data FOUND. Creating Firestore document...`);
               const profileDataToSet = JSON.parse(tempProfileRaw);
               localStorage.removeItem(TEMP_PROFILE_KEY);
 
               const finalProfileData = { ...profileDataToSet, email: firebaseUser.email };
               await setDoc(userDocRef, finalProfileData);
-              console.log(`[AuthContext] Firestore document created successfully for ${firebaseUser.uid}. Role: ${finalProfileData.role}`);
+              console.log(`[Auth Log] Firestore document created successfully for ${firebaseUser.uid}. Role: ${finalProfileData.role}`);
               const appUser: User = { id: firebaseUser.uid, ...finalProfileData };
               setUser(appUser);
             } else {
-              console.warn(`[AuthContext] User ${firebaseUser.uid} authenticated, but no doc and no temp signup data found. Logging out.`);
+              console.error(`[Auth Log] CRITICAL: User ${firebaseUser.uid} authenticated, but no doc and no temp signup data. Forcing logout.`);
               await signOut(auth);
             }
           }
-        } catch (error) {
-            console.error("[AuthContext] CRITICAL ERROR during user document fetch/create:", error);
-            toast({ title: "Fout bij profiel laden", description: `Kon gebruikersprofiel niet ophalen of aanmaken. Fout: ${(error as Error).message}`, variant: "destructive", duration: 10000 });
-            await signOut(auth);
+        } else {
+          console.log(`[Auth Log] No user authenticated. Setting user to null.`);
+          setUser(null);
         }
-      } else {
-        console.log(`[AuthContext] No user authenticated. Setting user to null.`);
-        setUser(null);
+      } catch (error) {
+          console.error("[Auth Log] CRITICAL ERROR during user document fetch/create:", error);
+          toast({ title: "Fout bij profiel laden", description: `Kon gebruikersprofiel niet ophalen of aanmaken. Fout: ${(error as Error).message}`, variant: "destructive", duration: 10000 });
+          if(auth) await signOut(auth);
+          setUser(null);
+      } finally {
+          console.log("[Auth Log] Auth state resolved. Setting isLoading to false.");
+          setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => {
-      console.log("[AuthContext] Cleaning up onAuthStateChanged listener.");
+      console.log("[Auth Log] Cleaning up onAuthStateChanged listener.");
       unsubscribe();
     };
-  }, [toast, router]);
+  }, [auth, db, isFirebaseConfigured, toast, router]); // Correct dependency array
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -224,12 +228,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     if (auth) {
-      console.log(`[AuthContext] Logging out user...`);
+      console.log(`[Auth Log] Logging out user...`);
       await signOut(auth);
     }
     setUser(null);
     router.push('/login');
-  }, [router]);
+  }, [router, auth]);
 
   const value: AuthContextType = {
     user,

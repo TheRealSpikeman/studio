@@ -1,12 +1,15 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access for all users until a future date.
-    // Replace with more specific rules before going to production.
+    // This rule allows any user to read and write to any document in your database.
+    // This is NOT recommended for production environments.
+    // It is highly insecure.
+    // TODO: Implement proper security rules before going to production.
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 6, 28);
+      // Allow reads and writes until a future date to prevent accidental lock-out during development.
+      // Make sure to update this date or implement real security rules.
+      allow read, write: if request.time < timestamp.date(2026, 12, 31);
     }
   }
 }
