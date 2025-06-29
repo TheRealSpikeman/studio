@@ -33,11 +33,12 @@ const flowSteps = [
         step: 3,
         icon: Database,
         title: "Opslag: Lokale Browser (localStorage)",
-        description: "De gegenereerde 'onboardingAnalysisText' wordt veilig opgeslagen in de lokale opslag van de browser van de gebruiker. Dit is een efficiënte keuze.",
+        description: "De gegenereerde 'onboardingAnalysisText' en andere resultaten worden tijdelijk opgeslagen in de lokale opslag (localStorage) van de browser van de gebruiker. Dit is een bewuste keuze voor de huidige ontwikkelfase.",
         details: [
-            "De analyse hoeft maar één keer te worden uitgevoerd na de quiz.",
-            "Voorkomt herhaaldelijke, dure AI-aanroepen voor dezelfde basisanalyse.",
-            "Data blijft op het apparaat van de gebruiker, wat privacy-vriendelijk is."
+            "**Snel Prototypen:** Maakt het mogelijk om de volledige flow te testen zonder een complexe database-backend op te zetten.",
+            "**Geen Kosten:** Geen databasekosten tijdens de ontwikkeling en het testen.",
+            "**Offline Toegang:** Resultaten blijven beschikbaar op het apparaat van de gebruiker, zelfs zonder internetverbinding.",
+            "**Volgende Stap:** De volgende grote stap in de roadmap is om deze lokale opslag te vervangen door een robuuste, online database (Firebase Firestore) voor persistentie en synchronisatie tussen apparaten."
         ]
     },
      {
@@ -108,7 +109,7 @@ export default function DataFlowPage() {
                     <h3 className="text-xl font-semibold text-primary mb-1">Stap {item.step}: {item.title}</h3>
                     <p className="text-base text-muted-foreground mb-3">{item.description}</p>
                     <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-foreground/80">
-                        {item.details.map((detail, detailIndex) => <li key={detailIndex}>{detail}</li>)}
+                        {item.details.map((detail, detailIndex) => <li key={detailIndex} dangerouslySetInnerHTML={{ __html: detail.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />)}
                     </ul>
                  </div>
               </div>
