@@ -14,6 +14,8 @@ import { neurotypeDescriptionsTeen, answerOptions } from '@/lib/quiz-data/teen-n
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allTools, calculateToolRecommendations, type ToolScores } from '@/lib/quiz-data/tools-data';
 import { cn } from '@/lib/utils';
+import { StorageService } from '@/services/storage';
+import type { QuizResult, QuizAnswer } from '@/types/dashboard';
 
 // Types (should be in a shared file eventually)
 type Scores = Record<string, number>;
@@ -28,7 +30,6 @@ const sanitizeAiText = (text: string): string => {
 };
 
 const parseAiAnalysis = (analysisText: string): AiAnalysisSection[] => {
-  // (Full function copied from old QuizPageContent.tsx)
     if (!analysisText || typeof analysisText !== 'string') return [];
     let cleanedText = sanitizeAiText(analysisText).replace(/^##\s+/gm, '').replace(/^#\s+/gm, '');
     const sections: AiAnalysisSection[] = [];
@@ -117,7 +118,6 @@ interface ResultsStepProps {
   baseAnswers: (number | undefined)[];
   subtestAnswers: Record<string, (number | undefined)[]>;
   ageGroup: '12-14' | '15-18' | null;
-  relevantSubtests: string[];
   onRestart: () => void;
   currentBaseQuestions: string[];
   currentSubTests: Record<string, string[]>;
@@ -129,10 +129,18 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
   const [isAnalysisLoading, setIsAnalysisLoading] = useState<boolean>(true);
   const [recommendedTools, setRecommendedTools] = useState<{ high: Tool[], medium: Tool[], low: Tool[] }>({ high: [], medium: [], low: [] });
 
+  const generateSummaryText = (scores: Scores): string => {
+    const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && scores[key] >= (neurotypeDescriptionsTeen[key].threshold || 2.5));
+    if (profilesToShow.length === 0) return "Op basis van je antwoorden kom je op dit moment niet opvallend naar voren voor een specifiek neurodivergent profiel. Bekijk de AI analyse hieronder voor een persoonlijker inzicht.";
+    if (profilesToShow.length === 1) return `Je antwoorden wijzen erop dat je kenmerken herkent die vaak geassocieerd worden met ${neurotypeDescriptionsTeen[profilesToShow[0]].title}. De AI analyse hieronder geeft meer context.`;
+    const profileTitles = profilesToShow.map(d => neurotypeDescriptionsTeen[d].title);
+    return `Je antwoorden wijzen erop dat je kenmerken herkent die passen bij meerdere profielen, namelijk ${profileTitles.slice(0, -1).join(', ')} en ${profileTitles.slice(-1)}. De AI analyse hieronder geeft meer context.`;
+  };
+  
   const fetchAndSetAnalysis = useCallback(async () => {
     setIsAnalysisLoading(true);
     try {
-      const answeredQuestions: Array<{ question: string; answer: string; profileKey?: string}> = [];
+      const answeredQuestions: Array<QuizAnswer & { profileKey?: string}> = [];
       currentBaseQuestions.forEach((qText, index) => {
         const answerValue = baseAnswers[index];
         if (answerValue !== undefined) {
@@ -156,11 +164,28 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
       const result = await generateQuizAnalysis(analysisInput);
       setQuizAnalysis(result.analysis);
       setParsedAiAnalysis(parseAiAnalysis(result.analysis));
-      if (typeof window !== 'undefined' && result.analysis) {
+      
+      // Save result to localStorage
+      if (typeof window !== 'undefined') {
+        const summaryText = generateSummaryText(finalScores);
+        const newQuizResult: QuizResult = {
+          id: `quiz-result-${Date.now()}`,
+          title: `Neurodiversiteit Zelfreflectie Quiz (${ageGroup} jaar)`,
+          dateCompleted: new Date().toISOString(),
+          score: summaryText,
+          ageGroup: ageGroup,
+          isShared: false, // Default to not shared
+          reportData: {
+            summary: summaryText,
+            aiAnalysis: result.analysis,
+            answers: answeredQuestions.map(({profileKey, ...rest}) => rest), // Remove profileKey for storage
+          },
+        };
+        StorageService.addCompletedQuiz(newQuizResult);
         localStorage.setItem('mindnavigator_onboardingAnalysis', result.analysis);
-        localStorage.setItem('mindnavigator_onboardingUser', JSON.stringify({ name: "Alex", ageGroup }));
         localStorage.setItem('journey_quiz_completed_v1', 'true');
       }
+
     } catch (error) {
       console.error("Failed to generate quiz analysis:", error);
       const errorMsg = "Er is iets misgegaan bij het laden van de diepgaande analyse. Probeer de pagina later opnieuw te laden of neem contact op als het probleem aanhoudt.";
@@ -176,14 +201,6 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
     setRecommendedTools(calculateToolRecommendations(toolScores));
     fetchAndSetAnalysis();
   }, [finalScores, fetchAndSetAnalysis]);
-
-  const generateSummaryText = (scores: Scores): string => {
-    const profilesToShow = Object.keys(scores).filter(key => neurotypeDescriptionsTeen[key] && scores[key] >= (neurotypeDescriptionsTeen[key].threshold || 2.5));
-    if (profilesToShow.length === 0) return "Op basis van je antwoorden kom je op dit moment niet opvallend naar voren voor een specifiek neurodivergent profiel. Bekijk de AI analyse hieronder voor een persoonlijker inzicht.";
-    if (profilesToShow.length === 1) return `Je antwoorden wijzen erop dat je kenmerken herkent die vaak geassocieerd worden met ${neurotypeDescriptionsTeen[profilesToShow[0]].title}. De AI analyse hieronder geeft meer context.`;
-    const profileTitles = profilesToShow.map(d => neurotypeDescriptionsTeen[d].title);
-    return `Je antwoorden wijzen erop dat je kenmerken herkent die passen bij meerdere profielen, namelijk ${profileTitles.slice(0, -1).join(', ')} en ${profileTitles.slice(-1)}. De AI analyse hieronder geeft meer context.`;
-  };
 
   return (
     <div className="space-y-8 max-w-[800px] mx-auto">
@@ -248,23 +265,26 @@ export const ResultsStep = ({ finalScores, baseAnswers, subtestAnswers, ageGroup
           <CardHeader><h2 className="text-teal-600 text-[1.75rem] font-semibold flex items-center gap-3"><Rocket className="h-8 w-8" /> Aanbevolen Tools voor Jou</h2><CardDescription>Op basis van jouw antwoorden, zijn dit de tools die jou het beste kunnen helpen op dit moment.</CardDescription></CardHeader>
           <CardContent>
               <Accordion type="multiple" className="w-full space-y-4">
-                  {recommendedTools.high.map((tool) => (
-                      <AccordionItem key={tool.id} value={tool.id} className="bg-primary/5 border border-primary/20 rounded-lg">
-                          <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline data-[state=open]:text-primary"><div className="flex items-center gap-3"><tool.icon className="h-6 w-6 text-primary"/>{tool.title}</div></AccordionTrigger>
-                          <AccordionContent className="p-4 pt-0">
-                            <p className="text-muted-foreground mb-3">{tool.description}</p>
-                            <h4 className="font-semibold text-primary mb-1">Waarom is dit voor jou?</h4>
-                            <p className="text-sm text-muted-foreground">{tool.reasoning.high}</p>
-                            <h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4>
-                            <p className="text-sm text-muted-foreground">{tool.usage.when}</p>
-                            <Button asChild size="sm" className="mt-3">
-                                <Link href={`/dashboard/tools/${tool.id}`}>
-                                    Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/>
-                                </Link>
-                            </Button>
-                          </AccordionContent>
-                      </AccordionItem>
-                  ))}
+                  {recommendedTools.high.map((tool) => {
+                       const IconComponent = allTools.find(t => t.id === tool.id)?.icon || HelpCircle;
+                       return (
+                          <AccordionItem key={tool.id} value={tool.id} className="bg-primary/5 border border-primary/20 rounded-lg">
+                              <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline data-[state=open]:text-primary"><div className="flex items-center gap-3"><IconComponent className="h-6 w-6 text-primary"/>{tool.title}</div></AccordionTrigger>
+                              <AccordionContent className="p-4 pt-0">
+                                <p className="text-muted-foreground mb-3">{tool.description}</p>
+                                <h4 className="font-semibold text-primary mb-1">Waarom is dit voor jou?</h4>
+                                <p className="text-sm text-muted-foreground">{tool.reasoning.high}</p>
+                                <h4 className="font-semibold text-primary mt-2 mb-1">Hoe te gebruiken?</h4>
+                                <p className="text-sm text-muted-foreground">{tool.usage.when}</p>
+                                <Button asChild size="sm" className="mt-3">
+                                    <Link href={`/dashboard/tools/${tool.id}`}>
+                                        Ga naar Tool <ArrowRight className="ml-2 h-4 w-4"/>
+                                    </Link>
+                                </Button>
+                              </AccordionContent>
+                          </AccordionItem>
+                       )
+                  })}
               </Accordion>
           </CardContent>
         </Card>

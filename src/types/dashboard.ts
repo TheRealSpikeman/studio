@@ -56,7 +56,7 @@ export interface ProfessionalBase {
 }
 
 // From ouder/kinderen/[kindId]/profiel/page.tsx
-export interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > {
+export interface Child extends Pick<User, 'id' | 'name' | 'ageGroup' | 'avatarUrl' | 'hulpvraagType' > { 
   firstName: string;
   lastName: string;
   age?: number;
@@ -105,7 +105,24 @@ export type EditableChildData = z.infer<typeof editableChildFormSchema>;
 
 // From ouder/kinderen/[kindId]/voortgang/page.tsx
 export interface QuizAnswer { question: string; answer: string; }
-export interface QuizResult { quizId: string; title: string; dateCompleted: string; summary: string; answers?: QuizAnswer[]; isShared: boolean; reportLink?: string; }
+
+// Comprehensive result object saved after a quiz is completed
+export interface QuizResult {
+  id: string; // was quizId
+  title: string;
+  dateCompleted: string; // ISO
+  score: string; // New field, e.g. "Profiel: ADD & HSP"
+  reportData: {
+    summary: string;
+    answers?: QuizAnswer[];
+    aiAnalysis?: string;
+    tips?: string[];
+  };
+  isShared: boolean;
+  ageGroup?: '12-14' | '15-18' | 'adult';
+  reportLink?: string;
+}
+
 export interface TutorFeedback { feedbackId: string; date: string; tutorName: string; lessonSubject: string; comment: string; }
 export interface ActivityPoint { month: string; completedLessons: number; completedQuizzes: number; }
 export interface Goal { goalId: string; description: string; status: 'in_progress' | 'achieved' | 'pending'; }

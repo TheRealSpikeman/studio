@@ -15,52 +15,8 @@ import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } fr
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { compareParentChildInsights, type CompareParentChildInput } from '@/ai/flows/compare-parent-child-insights-flow';
 import { useToast } from '@/hooks/use-toast';
+import type { QuizResult, TutorFeedback, ActivityPoint, Goal, ChildProgressData } from '@/types';
 
-interface QuizAnswer {
-  question: string;
-  answer: string;
-}
-
-interface QuizResult {
-  quizId: string;
-  title: string;
-  dateCompleted: string; // ISO
-  summary: string;
-  answers?: QuizAnswer[]; // Changed from summary
-  isShared: boolean;
-  reportLink?: string;
-}
-
-interface TutorFeedback {
-  feedbackId: string;
-  date: string; // ISO
-  tutorName: string;
-  lessonSubject: string;
-  comment: string;
-}
-
-interface ActivityPoint {
-  month: string;
-  completedLessons: number;
-  completedQuizzes: number;
-}
-
-interface Goal {
-  goalId: string;
-  description: string;
-  status: 'in_progress' | 'achieved' | 'pending';
-}
-
-interface ChildProgressData {
-  id: string; // kindId
-  name: string;
-  avatarUrl?: string;
-  ageGroup?: "12-14" | "15-18" | "adult"; // Toegevoegd voor AI flow
-  recentQuizzes: QuizResult[];
-  tutorFeedback: TutorFeedback[];
-  activityData: ActivityPoint[];
-  goals?: Goal[];
-}
 
 const dummyProgressData: Record<string, ChildProgressData> = {
   'child1': {
@@ -70,28 +26,34 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     ageGroup: '12-14',
     recentQuizzes: [
       { 
-        quizId: 'neuro1', 
+        id: 'neuro1', 
         title: 'Basis Neuroprofiel (12-14 jr)', 
         dateCompleted: new Date(Date.now() - 5 * 86400000).toISOString(), 
-        summary: 'Sofie laat een sterk ontwikkeld empathisch vermogen zien en een goed oog voor detail. Concentratie bij routineuze taken is een aandachtspunt.', 
-        answers: [
-            { question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie" },
-            { question: "Hoe ga je om met onverwachte veranderingen?", answer: "Ik vind het lastig, maar pas me aan." },
-            { question: "Wat doe je als je overprikkeld raakt?", answer: "Ik zoek een rustig plekje op." }
-        ],
+        score: 'HSP & Focus',
+        reportData: {
+          summary: 'Sofie laat een sterk ontwikkeld empathisch vermogen zien en een goed oog voor detail. Concentratie bij routineuze taken is een aandachtspunt.', 
+          answers: [
+              { question: "Hoe voel je je meestal in sociale situaties?", answer: "Afhankelijk van de situatie" },
+              { question: "Hoe ga je om met onverwachte veranderingen?", answer: "Ik vind het lastig, maar pas me aan." },
+              { question: "Wat doe je als je overprikkeld raakt?", answer: "Ik zoek een rustig plekje op." }
+          ],
+        },
         isShared: true, 
         reportLink: '#' 
       },
       { 
-        quizId: 'focus1', 
+        id: 'focus1', 
         title: 'Focus & Planning Quiz', 
         dateCompleted: new Date(Date.now() - 12 * 86400000).toISOString(), 
-        summary: 'Resultaten wijzen op een behoefte aan meer structuur in planning. Tips voor Pomodoro techniek gegeven.', 
+        score: 'Gemiddeld',
+        reportData: {
+          summary: 'Resultaten wijzen op een behoefte aan meer structuur in planning. Tips voor Pomodoro techniek gegeven.',
+          answers: [
+              { question: "Hoe vaak stel je huiswerk uit?", answer: "Soms" },
+              { question: "Gebruik je een agenda of planner?", answer: "Niet altijd consequent" }
+          ],
+        },
         isShared: true,
-        answers: [
-            { question: "Hoe vaak stel je huiswerk uit?", answer: "Soms" },
-            { question: "Gebruik je een agenda of planner?", answer: "Niet altijd consequent" }
-        ],
       },
     ],
     tutorFeedback: [
@@ -114,14 +76,17 @@ const dummyProgressData: Record<string, ChildProgressData> = {
     ageGroup: '15-18',
     recentQuizzes: [
       { 
-        quizId: 'neuro2', 
+        id: 'neuro2', 
         title: 'Basis Neuroprofiel (15-18 jr)', 
         dateCompleted: new Date(Date.now() - 8 * 86400000).toISOString(), 
-        summary: 'Max is een creatieve denker en komt snel tot oplossingen. Het vasthouden van aandacht bij langere uitleg kan een uitdaging zijn.', 
+        score: 'ADHD Kenmerken',
+        reportData: {
+          summary: 'Max is een creatieve denker en komt snel tot oplossingen. Het vasthouden van aandacht bij langere uitleg kan een uitdaging zijn.',
+          answers: [
+               { question: "Hoe ga je om met deadlines?", answer: "Ik werk het beste onder druk, dus vaak op het laatste moment." },
+          ]
+        },
         isShared: false,
-        answers: [
-             { question: "Hoe ga je om met deadlines?", answer: "Ik werk het beste onder druk, dus vaak op het laatste moment." },
-        ]
       },
     ],
     tutorFeedback: [
@@ -168,7 +133,7 @@ export default function KindVoortgangPage() {
     
     const parentDataRaw = localStorage.getItem(`parentObservation_${childData.id}`);
     const parentObservations = parentDataRaw ? JSON.parse(parentDataRaw) : [];
-    const sharedChildQuiz = childData.recentQuizzes.find(q => q.isShared && q.answers && q.answers.length > 0);
+    const sharedChildQuiz = childData.recentQuizzes.find(q => q.isShared && q.reportData.answers && q.reportData.answers.length > 0);
 
     if (parentObservations.length === 0 || !sharedChildQuiz) {
         toast({
@@ -187,7 +152,7 @@ export default function KindVoortgangPage() {
         childName: childData.name,
         childAgeGroup: childData.ageGroup || "onbekend",
         parentObservations: parentObservations,
-        childSelfReflection: sharedChildQuiz.answers || [],
+        childSelfReflection: sharedChildQuiz.reportData.answers || [],
       };
       const result = await compareParentChildInsights(input);
       setVergelijkendAdvies(result.parentingAdvice);
@@ -205,7 +170,7 @@ export default function KindVoortgangPage() {
 
     const parentDataRaw = localStorage.getItem(`parentObservation_${childData.id}`);
     const hasParentObservation = parentDataRaw && JSON.parse(parentDataRaw).length > 0;
-    const hasChildReflection = childData.recentQuizzes.some(q => q.isShared && q.answers && q.answers.length > 0);
+    const hasChildReflection = childData.recentQuizzes.some(q => q.isShared && q.reportData.answers && q.reportData.answers.length > 0);
     
     if (hasParentObservation && hasChildReflection) {
       return (
@@ -337,7 +302,7 @@ export default function KindVoortgangPage() {
             <AccordionContent>
               <CardContent className="space-y-4 pt-6">
                 {childData.recentQuizzes.length > 0 ? childData.recentQuizzes.map(quiz => (
-                  <Card key={quiz.quizId} className="p-4 bg-muted/30">
+                  <Card key={quiz.id} className="p-4 bg-muted/30">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-semibold text-primary">{quiz.title}</h4>
@@ -349,7 +314,7 @@ export default function KindVoortgangPage() {
                       </Badge>
                     </div>
                     {quiz.isShared ? (
-                      <p className="text-sm text-foreground/80 mt-2">{quiz.summary}</p>
+                      <p className="text-sm text-foreground/80 mt-2">{quiz.reportData.summary}</p>
                     ) : (
                       <Alert variant="default" className="mt-2 p-3 text-xs bg-yellow-50/80 border-yellow-200">
                           <ShieldAlert className="h-4 w-4 !text-yellow-600"/>
