@@ -28,7 +28,7 @@ export function ImageUploader({
   aspectRatio = 'aspect-[16/9]',
   label = 'Uitgelichte Afbeelding',
   description,
-  uploadPath = 'images/', // New prop with default
+  uploadPath = 'images/other/', // Fallback to 'other'
 }: ImageUploaderProps) {
   const { isFirebaseConfigured } = useAuth();
   const { toast } = useToast();

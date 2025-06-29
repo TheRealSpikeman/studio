@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription as DialogDesc, DialogFooter, D
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/common/ImageUploader';
 
 // Re-defining options here for self-containment
 const audienceOptions: { id: QuizAudience; label: string }[] = [
@@ -263,7 +264,25 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
             <AccordionItem value="item-5" className="border rounded-lg bg-card shadow-sm">
                 <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">Quiz Afbeelding</AccordionTrigger>
                 <AccordionContent className="p-4 border-t space-y-4">
-                   <FormField control={form.control} name="thumbnailUrl" render={({ field }) => (<FormItem><FormLabel>Thumbnail URL</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                   <ImageUploader
+                        uploadPath="images/quizzes/"
+                        onUploadComplete={(url) => form.setValue('thumbnailUrl', url, { shouldValidate: true })}
+                        initialImageUrl={quizData.thumbnailUrl}
+                        label="Quiz Thumbnail"
+                        description="Upload een afbeelding die de quiz representeert (bijv. 400x200 pixels)."
+                   />
+                   <FormField
+                        control={form.control}
+                        name="thumbnailUrl"
+                        render={({ field }) => (
+                            <FormItem className="hidden">
+                                <FormControl>
+                                    <Input {...field} readOnly value={field.value || ''} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </AccordionContent>
             </AccordionItem>
             

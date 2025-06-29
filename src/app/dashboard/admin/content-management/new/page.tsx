@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FilePlus, ArrowLeft, Save } from '@/lib/icons';
+import { FilePlus, ArrowLeft, Save, Copy } from '@/lib/icons';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { ImageUploader } from '@/components/common/ImageUploader';
 
 export default function NewContentPage() {
   const { toast } = useToast();
@@ -18,6 +19,7 @@ export default function NewContentPage() {
   const [slug, setSlug] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(''); // Now stores HTML
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
 
   const handleSave = () => {
     console.log("Nieuwe pagina opslaan (simulatie):", { slug, title, content });
@@ -80,6 +82,30 @@ export default function NewContentPage() {
                 rows={15}
                 className="font-mono text-xs"
             />
+          </div>
+          <div className="pt-4 border-t">
+              <h4 className="text-sm font-semibold mb-2">Afbeeldingen Uploaden</h4>
+              <p className="text-xs text-muted-foreground mb-2">
+                Upload hier afbeeldingen voor deze pagina. Kopieer de URL en plak deze in een `img` tag in de HTML hierboven.
+              </p>
+              <ImageUploader
+                uploadPath="images/website/"
+                onUploadComplete={(url) => setUploadedImageUrl(url)}
+              />
+              {uploadedImageUrl && (
+                <div className="mt-2 space-y-1">
+                  <Label>Laatst geüploade URL:</Label>
+                  <div className="flex gap-2">
+                    <Input value={uploadedImageUrl} readOnly />
+                    <Button size="sm" variant="outline" type="button" onClick={() => {
+                      navigator.clipboard.writeText(uploadedImageUrl);
+                      toast({ title: 'URL Gekopieerd!' });
+                    }}>
+                      <Copy className="h-4 w-4"/>
+                    </Button>
+                  </div>
+                </div>
+              )}
           </div>
         </CardContent>
         <CardFooter>
