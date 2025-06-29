@@ -8,10 +8,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-// Metadata can still be defined in a Client Component Root Layout
-// export const metadata: Metadata = { ... }; 
-// To avoid build errors in this context, we will omit it for now.
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,6 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl">
+      <head>
+        <title>MindNavigator</title>
+        <meta name="description" content="Jouw partner in het ontdekken en benutten van neurodiversiteit." />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      </head>
       <body className={`${GeistSans.variable} font-sans antialiased`}>
         <AuthProvider>
           <TooltipProvider>
