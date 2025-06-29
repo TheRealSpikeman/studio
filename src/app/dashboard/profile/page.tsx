@@ -1,3 +1,4 @@
+
 // src/app/dashboard/profile/page.tsx
 "use client";
 
@@ -23,12 +24,12 @@ const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 1
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
 const predefinedAvatarsForProfile = [
-  { id: 'profile_avatar1', src: 'https://placehold.co/80x80.png?text=P1', alt: 'Abstract Geometrisch', hint: 'abstract geometric' },
-  { id: 'profile_avatar2', src: 'https://placehold.co/80x80.png?text=P2', alt: 'Natuur', hint: 'nature landscape' },
-  { id: 'profile_avatar3', src: 'https://placehold.co/80x80.png?text=P3', alt: 'Dier', hint: 'animal portrait' },
-  { id: 'profile_avatar4', src: 'https://placehold.co/80x80.png?text=P4', alt: 'Ruimte', hint: 'space galaxy' },
-  { id: 'profile_avatar5', src: 'https://placehold.co/80x80.png?text=P5', alt: 'Stad', hint: 'city skyline' },
-  { id: 'profile_avatar6', src: 'https://placehold.co/80x80.png?text=P6', alt: 'Eten', hint: 'food delicious' },
+  { id: 'profile_avatar1', src: 'https://placehold.co/80x80.png', alt: 'Abstract Geometrisch', hint: 'abstract geometric' },
+  { id: 'profile_avatar2', src: 'https://placehold.co/80x80.png', alt: 'Natuur', hint: 'nature landscape' },
+  { id: 'profile_avatar3', src: 'https://placehold.co/80x80.png', alt: 'Dier', hint: 'animal portrait' },
+  { id: 'profile_avatar4', src: 'https://placehold.co/80x80.png', alt: 'Ruimte', hint: 'space galaxy' },
+  { id: 'profile_avatar5', src: 'https://placehold.co/80x80.png', alt: 'Stad', hint: 'city skyline' },
+  { id: 'profile_avatar6', src: 'https://placehold.co/80x80.png', alt: 'Eten', hint: 'food delicious' },
 ];
 const countryCodeOptions = [
   { value: '+31', label: 'NL (+31)' }, { value: '+32', label: 'BE (+32)' },
