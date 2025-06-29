@@ -164,24 +164,28 @@ export default function ChangelogPage() {
                 </div>
                 <ul className="space-y-2 text-sm list-none">
                     <li className="flex items-center gap-3">
-                        <strong className="w-20 text-right">Admin:</strong>
-                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">g.bosch@mindnavigator.io</Badge>
-                    </li>
-                    <li className="flex items-center gap-3">
-                        <strong className="w-20 text-right">Ouder:</strong>
-                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">glenn.bosch@outlook.com</Badge>
-                    </li>
-                    <li className="flex items-center gap-3">
-                        <strong className="w-20 text-right">Leerling:</strong>
+                        <strong className="w-32 text-right">Admin:</strong>
                         <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">bosch.rgm@gmail.com</Badge>
                     </li>
                     <li className="flex items-center gap-3">
-                        <strong className="w-20 text-right">Tutor:</strong>
-                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">anna.visser@tutor-platform.com</Badge>
+                        <strong className="w-32 text-right">Ouder:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">ouder@mindnavigator.io</Badge>
+                    </li>
+                     <li className="flex items-center gap-3">
+                        <strong className="w-32 text-right">Leerling (12-15):</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">leerling-1@mindnavigator.io</Badge>
+                    </li>
+                     <li className="flex items-center gap-3">
+                        <strong className="w-32 text-right">Leerling (16-18):</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">leerling-2@mindnavigator.io</Badge>
                     </li>
                     <li className="flex items-center gap-3">
-                        <strong className="w-20 text-right">Coach:</strong>
-                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">edward.coach@coach-circle.net</Badge>
+                        <strong className="w-32 text-right">Tutor:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">tutor@mindnavigator.io</Badge>
+                    </li>
+                    <li className="flex items-center gap-3">
+                        <strong className="w-32 text-right">Coach:</strong>
+                        <Badge variant="secondary" className="font-normal font-mono text-left justify-start flex-1 truncate py-1.5 px-2.5">coach@mindnavigator.io</Badge>
                     </li>
                 </ul>
             </div>
