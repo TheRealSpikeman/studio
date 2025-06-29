@@ -39,6 +39,7 @@ import {
   Bell,
   Rss,
   TrendingUp,
+  ImageUp,
 } from '@/lib/icons';
 
 interface NavItem {
@@ -181,6 +182,7 @@ export const navItems: NavItem[] = [
       { href: '/dashboard/admin/settings', label: 'Algemeen', icon: Settings, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/roles', label: 'Rollen & Permissies', icon: UsersIcon, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/personas', label: 'AI Persona\'s', icon: Bot, parent: '#settings-parent' },
+      { href: '/dashboard/admin/settings/avatars', label: 'Standaard Avatars', icon: ImageUp, parent: '#settings-parent', isNew: true },
       { href: '/dashboard/admin/settings/notifications', label: 'Notificaties', icon: Bell, parent: '#settings-parent' },
       { href: '/dashboard/admin/settings/security', label: 'Beveiliging', icon: ShieldCheck, parent: '#settings-parent' },
     ]
@@ -192,11 +194,12 @@ export const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/dashboard/admin/documentation', label: 'Overzicht', icon: BookHeart, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/platform-guide', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
+      { href: '/dashboard/admin/documentation/platform-status', label: 'Platform Status', icon: Rocket, parent: '#documentation-parent', isNew: true },
+      { href: '/dashboard/admin/documentation/platform-handleiding', label: 'Platform Handleiding', icon: BookUser, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/data-flow', label: 'Data & Inzichten Flow', icon: BrainCircuit, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/customer-journey', label: 'Customer Journey', icon: UsersIcon, parent: '#documentation-parent' },
       { href: '/dashboard/admin/tool-recommendation-logic', label: 'Tool Aanbeveling Logica', icon: GitBranch, parent: '#documentation-parent' },
-      { href: '/dashboard/admin/documentation/roadmap', label: 'Roadmap', icon: Rocket, parent: '#documentation-parent', isNew: true },
+      { href: '/dashboard/admin/documentation/roadmap', label: 'Roadmap', icon: Rocket, parent: '#documentation-parent' },
       { href: '/dashboard/admin/documentation/changelog', label: 'Changelog', icon: ScrollText, parent: '#documentation-parent' },
     ]
   },

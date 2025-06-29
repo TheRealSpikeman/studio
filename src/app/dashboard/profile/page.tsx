@@ -18,18 +18,27 @@ import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 
 const LOCAL_STORAGE_STUDENT_FOCUS_SUBJECTS_KEY = 'mindnavigator_student_focus_subjects';
+const LOCAL_STORAGE_AVATARS_KEY = 'mindnavigator_predefined_avatars';
+
+interface PredefinedAvatar {
+  id: string;
+  src: string;
+  alt: string;
+  hint: string;
+}
+
+const defaultPredefinedAvatars: PredefinedAvatar[] = [
+  { id: 'avatar1', src: 'https://picsum.photos/seed/avatar1/80/80', alt: 'Abstract Geometrisch', hint: 'abstract geometric' },
+  { id: 'avatar2', src: 'https://picsum.photos/seed/avatar2/80/80', alt: 'Natuur', hint: 'nature landscape' },
+  { id: 'avatar3', src: 'https://picsum.photos/seed/avatar3/80/80', alt: 'Dier', hint: 'animal portrait' },
+  { id: 'avatar4', src: 'https://picsum.photos/seed/avatar4/80/80', alt: 'Ruimte', hint: 'space galaxy' },
+  { id: 'avatar5', src: 'https://picsum.photos/seed/avatar5/80/80', alt: 'Stad', hint: 'city skyline' },
+  { id: 'avatar6', src: 'https://picsum.photos/seed/avatar6/80/80', alt: 'Eten', hint: 'food delicious' },
+];
 
 const profileAgeOptions = Array.from({ length: (20 - 10) + 1 }, (_, i) => (i + 10).toString());
 const NO_AGE_SPECIFIED_VALUE = "_NO_AGE_SPECIFIED_";
 const schoolTypes = ["VMBO-T", "HAVO", "VWO", "Gymnasium", "Praktijkonderwijs", "Speciaal Onderwijs", "Anders"];
-const predefinedAvatarsForProfile = [
-  { id: 'profile_avatar1', src: 'https://picsum.photos/seed/avatar1/80/80', alt: 'Abstract Geometrisch', hint: 'abstract geometric' },
-  { id: 'profile_avatar2', src: 'https://picsum.photos/seed/avatar2/80/80', alt: 'Natuur', hint: 'nature landscape' },
-  { id: 'profile_avatar3', src: 'https://picsum.photos/seed/avatar3/80/80', alt: 'Dier', hint: 'animal portrait' },
-  { id: 'profile_avatar4', src: 'https://picsum.photos/seed/avatar4/80/80', alt: 'Ruimte', hint: 'space galaxy' },
-  { id: 'profile_avatar5', src: 'https://picsum.photos/seed/avatar5/80/80', alt: 'Stad', hint: 'city skyline' },
-  { id: 'profile_avatar6', src: 'https://picsum.photos/seed/avatar6/80/80', alt: 'Eten', hint: 'food delicious' },
-];
 const countryCodeOptions = [
   { value: '+31', label: 'NL (+31)' }, { value: '+32', label: 'BE (+32)' },
   { value: '+49', label: 'DE (+49)' }, { value: '+44', label: 'UK (+44)' },
@@ -65,6 +74,11 @@ export default function ProfilePage() {
   const [selectedCountryCode, setSelectedCountryCode] = useState(countryCodeOptions[0].value);
   const [basePhoneNumber, setBasePhoneNumber] = useState('');
 
+  // New state for avatars
+  const [predefinedAvatars, setPredefinedAvatars] = useState<PredefinedAvatar[]>([]);
+  const [isLoadingAvatars, setIsLoadingAvatars] = useState(true);
+
+
   // States for password change
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -80,6 +94,23 @@ export default function ProfilePage() {
     setUserName(currentUser.name || '');
     setUserEmail(currentUser.email || '');
     setProfileImageUrl(currentUser.avatarUrl || null);
+
+    if(currentUser.role === 'leerling' || currentUser.role === 'ouder') {
+      try {
+        const storedAvatars = localStorage.getItem(LOCAL_STORAGE_AVATARS_KEY);
+        if (storedAvatars) {
+          setPredefinedAvatars(JSON.parse(storedAvatars));
+        } else {
+          setPredefinedAvatars(defaultPredefinedAvatars);
+          localStorage.setItem(LOCAL_STORAGE_AVATARS_KEY, JSON.stringify(defaultPredefinedAvatars));
+        }
+      } catch (e) {
+        console.error("Failed to load avatars", e);
+      }
+      setIsLoadingAvatars(false);
+    } else {
+        setIsLoadingAvatars(false);
+    }
 
     if(currentUser.role === 'leerling') {
       setUserAgeString(currentUser.age?.toString() || NO_AGE_SPECIFIED_VALUE);
@@ -233,9 +264,7 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Other cards remain the same */}
-      
-      {isEditing && (
+      {(isEditing) && (
         <Card className="shadow-lg">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -247,7 +276,7 @@ export default function ProfilePage() {
             <CardContent className="space-y-6">
                  <div className="flex flex-col sm:flex-row items-center gap-6">
                     <Avatar className="h-24 w-24 text-2xl">
-                        <AvatarImage src={profileImageUrl || undefined} alt={userName} data-ai-hint="person avatar profile" />
+                        <AvatarImage src={profileImageUrl || undefined} alt={userName} data-ai-hint="user avatar profile" />
                         <AvatarFallback className="bg-muted">{getInitials(userName)}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-3 w-full sm:w-auto">
@@ -269,29 +298,31 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                <div>
-                    <Label>Of kies een avatar:</Label>
-                    <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                        {predefinedAvatarsForProfile.map(avatar => (
-                        <button
-                            key={avatar.id}
-                            onClick={() => handleSelectPredefinedAvatar(avatar.src)}
-                            className={`rounded-md overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary w-16 h-16
-                                ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
-                            title={avatar.alt}
-                        >
-                            <Image
-                            src={avatar.src}
-                            alt={avatar.alt}
-                            width={80}
-                            height={80}
-                            className="aspect-square object-cover"
-                            data-ai-hint={avatar.hint}
-                            />
-                        </button>
-                        ))}
-                    </div>
-                </div>
+                {(currentDashboardRole === 'leerling' || currentDashboardRole === 'ouder') && !isLoadingAvatars && predefinedAvatars.length > 0 && (
+                  <div>
+                      <Label>Of kies een avatar:</Label>
+                      <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                          {predefinedAvatars.map(avatar => (
+                          <button
+                              key={avatar.id}
+                              onClick={() => handleSelectPredefinedAvatar(avatar.src)}
+                              className={`rounded-md overflow-hidden border-2 transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary w-16 h-16
+                                  ${profileImageUrl === avatar.src ? 'border-primary ring-2 ring-primary scale-105' : 'border-transparent'}`}
+                              title={avatar.alt}
+                          >
+                              <Image
+                              src={avatar.src}
+                              alt={avatar.alt}
+                              width={80}
+                              height={80}
+                              className="aspect-square object-cover"
+                              data-ai-hint={avatar.hint}
+                              />
+                          </button>
+                          ))}
+                      </div>
+                  </div>
+                )}
             </CardContent>
         </Card>
       )}
