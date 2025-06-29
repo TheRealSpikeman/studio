@@ -8,6 +8,14 @@ import { GitBranch, BookHeart, ExternalLink, MessageCircleQuestion, BookUser, Bo
 
 const documentationLinks = [
   {
+    title: "Platform Handleiding (Admin)",
+    description: "Een gedetailleerde uitleg van alle admin-functionaliteiten, van gebruikersbeheer tot AI-configuratie.",
+    icon: BookUser,
+    href: "/dashboard/admin/documentation/platform-handleiding",
+    linkText: "Bekijk Handleiding",
+    isExternal: false,
+  },
+  {
     title: "Development Roadmap",
     description: "Een interactief overzicht van de ontwikkelingsfasen en taken voor het MindNavigator platform, gebaseerd op een Firebase-First strategie.",
     icon: Rocket,

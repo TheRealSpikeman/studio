@@ -3,31 +3,33 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import type { ElementType, ReactNode } from 'react';
-import {
-  ArrowLeft, BookUser, Users, ListChecks, Euro, Cpu, Settings, Bot
-} from '@/lib/icons';
+import { ArrowLeft, BookUser } from '@/lib/icons';
 
-// Helper component for consistent section styling
-const GuideSection = ({ title, icon: Icon, children }: { title: string, icon: ElementType, children: React.ReactNode }) => (
-  <AccordionItem value={title} className="border rounded-lg bg-card shadow-sm">
-    <AccordionTrigger className="p-4 font-semibold text-lg hover:no-underline">
-      <div className="flex items-center gap-3">
-        <Icon className="h-6 w-6 text-primary" />
-        {title}
+export default function PlatformGuidePage() {
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <BookUser className="h-8 w-8 text-primary" />
+          Platform Handleiding (Admin)
+        </h1>
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/admin/documentation">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Terug naar Documentatie
+          </Link>
+        </Button>
       </div>
-    </AccordionTrigger>
-    <AccordionContent className="p-4 pt-0 border-t">
-      <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-        {children}
-      </div>
-    </AccordionContent>
-  </AccordionItem>
-);
 
-const xmlExample = `<changes>
-  <description>[Een korte samenvatting van de wijzigingen]</description>
-  <change>
-    <file>[Het volledige, absolute pad naar het bestand]</file>
-    <content><![CDATA[De volledige, definitieve inhoud van het bestand hier. Geen diffs of snippets. Zorg ervoor dat alle code correct is ge-escaped.
+      <p className="text-lg text-muted-foreground">
+        Welkom bij de handleiding voor beheerders. Deze pagina is momenteel een placeholder en zal in de toekomst worden uitgebreid met gedetailleerde informatie over alle platformfunctionaliteiten.
+      </p>
+
+      <div className="p-6 bg-muted rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">In ontwikkeling</h2>
+          <p className="text-muted-foreground">
+              De uitgebreide handleiding wordt momenteel geschreven. Kom binnenkort terug voor meer details.
+          </p>
+      </div>
+    </div>
+  );
+}
