@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, PanelLeft } from '@/lib/icons';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { SidebarNavContent } from '@/components/layout/dashboard-sidebar'; // Import the content part
 
@@ -51,6 +51,9 @@ function DashboardLayoutUI({ children }: { children: ReactNode }) {
                       </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="flex flex-col w-72 p-0">
+                      <SheetHeader className="sr-only">
+                        <SheetTitle>Navigatie Menu</SheetTitle>
+                      </SheetHeader>
                       <SidebarNavContent isCollapsed={false} setIsCollapsed={() => {}} />
                   </SheetContent>
               </Sheet>
