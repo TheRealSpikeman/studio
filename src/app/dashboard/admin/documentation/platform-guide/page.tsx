@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BookUser } from '@/lib/icons';
 
-export default function PlatformGuidePage() {
+// Renamed to PlatformGuidePlaceholderPage to avoid name collision
+export default function PlatformGuidePlaceholderPage() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
