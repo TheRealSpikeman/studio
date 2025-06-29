@@ -158,13 +158,13 @@ export default function ChangelogPage() {
           <CardContent>
             <div className="bg-muted p-4 rounded-md border">
                 <p><strong>Wachtwoord (voor alle accounts):</strong> <code className="bg-background px-2 py-1 rounded-sm text-primary font-mono">password</code></p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                    <li><strong>Admin:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">admin@example.com</code></li>
-                    <li><strong>Ouder:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">ouder@example.com</code></li>
-                    <li><strong>Leerling:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">leerling@example.com</code></li>
-                    <li><strong>Tutor:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">tutor@example.com</code></li>
-                    <li><strong>Coach:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">coach@example.com</code></li>
-                </ul>
+                <div className="mt-2 space-y-1 text-sm">
+                    <p>• <strong>Admin:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">alice@example.com</code></p>
+                    <p>• <strong>Ouder:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">olivia.ouder@example.com</code></p>
+                    <p>• <strong>Leerling:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">sofie.kind@example.com</code></p>
+                    <p>• <strong>Tutor:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">anna.visser@example.com</code></p>
+                    <p>• <strong>Coach:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">edward@example.com</code></p>
+                </div>
             </div>
           </CardContent>
       </Card>
