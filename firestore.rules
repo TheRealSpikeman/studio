@@ -1,68 +1,18 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper Functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isUser(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-    
-    function hasRole(role) {
-      // Check for custom claims first, then fall back to document data
-      // Note: Setting custom claims requires a backend (e.g., Cloud Functions)
-      // For this prototype, we rely on the document data.
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
-    }
-
-    function canManageContent() {
-        // Future-proof: If you add a 'content-manager' role, just add it here.
-        // e.g., return hasRole('admin') || hasRole('content-manager');
-        return hasRole('admin');
-    }
-
-    // USER DATA
-    match /users/{userId} {
-      // A user can always read and update their own document.
-      allow get, update: if isUser(userId);
-      // Only admins can create or delete users through the management panel.
-      allow create, delete, list: if hasRole('admin');
-    }
-
-    // QUIZ DATA
-    match /quizzes/{quizId} {
-      // Anyone can read published quizzes.
-      allow get: if resource.data.status == 'published';
-      
-      // Only admins/content managers can manage quizzes.
-      allow list, create, update, delete: if canManageContent();
-    }
-    
-    // TOOLS DATA
-    match /tools/{toolId} {
-        // Anyone can read online tools.
-        allow get: if resource.data.status == 'online';
-        
-        // Admins can manage all tools.
-        allow list, create, update, delete: if hasRole('admin');
-    }
-    
-    // BLOG POSTS
-    match /blogPosts/{postId} {
-      // Anyone can read published posts
-      allow get: if resource.data.status == 'published';
-      
-      // Admins can manage all posts
-      allow list, create, update, delete: if hasRole('admin');
-    }
-    
-    // Default deny all other reads/writes
+    // This rule allows anyone with your Firestore database reference to view, edit,
+    // and delete all data in your Firestore database. It is useful for getting
+    // started, but it is configured to expire after 30 days because it
+    // leaves your app open to attackers. At a minimum, you should update the
+    // rules to block accidental deletions or writes from unauthorized users.
+    //
+    // For more information, see https://firebase.google.com/docs/rules/manage-rules
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if
+          request.time < timestamp.date(2026, 6, 28);
     }
   }
 }
