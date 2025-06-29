@@ -159,11 +159,11 @@ export default function ChangelogPage() {
             <div className="bg-muted p-4 rounded-md border">
                 <p><strong>Wachtwoord (voor alle accounts):</strong> <code className="bg-background px-2 py-1 rounded-sm text-primary font-mono">password</code></p>
                 <div className="mt-2 space-y-1 text-sm">
-                    <p>• <strong>Admin:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">alice@example.com</code></p>
-                    <p>• <strong>Ouder:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">olivia.ouder@example.com</code></p>
-                    <p>• <strong>Leerling:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">sofie.kind@example.com</code></p>
-                    <p>• <strong>Tutor:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">anna.visser@example.com</code></p>
-                    <p>• <strong>Coach:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">edward@example.com</code></p>
+                    <p>• <strong>Admin:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">g.bosch@mindnavigator.io</code></p>
+                    <p>• <strong>Ouder:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">glenn.bosch@outlook.com</code></p>
+                    <p>• <strong>Leerling:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">bosch.rgm@gmail.com</code></p>
+                    <p>• <strong>Tutor:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">anna.visser@tutor-platform.com</code></p>
+                    <p>• <strong>Coach:</strong> <code className="bg-background px-2 py-1 rounded-sm font-mono">edward.coach@coach-circle.net</code></p>
                 </div>
             </div>
           </CardContent>
