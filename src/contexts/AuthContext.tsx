@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [toast]);
+  }, [toast, router]); // Corrected dependency array
 
   const signup = useCallback(async (data: SignupData): Promise<{ success: boolean; error?: string }> => {
     if (!isFirebaseConfigured || !auth || !db) {
