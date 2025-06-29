@@ -58,7 +58,7 @@ export default function AvatarManagementPage() {
 
   const handleAddAvatar = () => {
     if (!newAvatar.src || !newAvatar.alt || !newAvatar.hint) {
-      toast({ title: "Fout", description: "Alle velden zijn verplicht.", variant: "destructive" });
+      toast({ title: "Fout", description: "Alle velden (afbeelding, alt tekst, hint) zijn verplicht.", variant: "destructive" });
       return;
     }
     const newAvatars = [...avatars, { ...newAvatar, id: `avatar-${Date.now()}` }];
@@ -140,7 +140,7 @@ export default function AvatarManagementPage() {
            </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleAddAvatar} disabled={!newAvatar.src || !newAvatar.alt || !newAvatar.hint}>
+          <Button onClick={handleAddAvatar}>
             <Save className="mr-2 h-4 w-4"/>
             Voeg Avatar toe aan lijst
           </Button>
