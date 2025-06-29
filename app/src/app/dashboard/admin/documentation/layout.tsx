@@ -1,4 +1,4 @@
-// src/app/dashboard/admin/documentation/layout.tsx
+// app/src/app/dashboard/admin/documentation/layout.tsx
 export default function DocumentationLayout({
     children,
   }: {
