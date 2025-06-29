@@ -5,14 +5,14 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, Briefcase, Euro, Clock, LineChart, PieChart as PieChartIcon, BarChart as BarChartIcon, Activity } from '@/lib/icons';
 import { DUMMY_USERS, initialScheduledLessons } from '@/lib/data/dummy-data';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, BarChart } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, BarChart, LabelList } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/ui/chart';
 import { subDays, format, isSameDay, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
 
 // Chart component logic integrated here
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', '#a3e635', '#60a5fa'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 const RADIAN = Math.PI / 180;
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
@@ -36,6 +36,13 @@ const sessionsChartConfig = {
   gepland: {
     label: "Gepland",
     color: "hsl(var(--secondary))",
+  },
+} satisfies ChartConfig;
+
+const revenueByTutorChartConfig = {
+  omzet: {
+    label: "Omzet",
+    color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
 
@@ -81,6 +88,15 @@ export default function AdminDashboardPage() {
         };
     });
 
+    const topTutorsByRevenue = DUMMY_USERS
+      .filter(u => u.role === 'tutor' && u.tutorDetails?.totalRevenue && u.tutorDetails.totalRevenue > 0)
+      .map(tutor => ({
+        name: tutor.name.split(' ')[0], // Use first name for brevity
+        omzet: tutor.tutorDetails!.totalRevenue!,
+      }))
+      .sort((a, b) => b.omzet - a.omzet)
+      .slice(0, 5);
+
 
     return {
       totalStudents: students.length,
@@ -90,7 +106,8 @@ export default function AdminDashboardPage() {
       totalRevenue: totalRevenue,
       sessionsToday: initialScheduledLessons.filter(s => isSameDay(parseISO(s.dateTime), today)).length,
       ageDistributionData,
-      sessionsPerDayData
+      sessionsPerDayData,
+      topTutorsByRevenue,
     };
   }, []);
 
@@ -241,14 +258,43 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                 <BarChartIcon className="h-5 w-5 text-primary" />
-                Omzet per Tutor/Vak
+                Omzet per Tutor (laatste 30d)
             </CardTitle>
-            <CardDescription>Top presterende tutors en meest populaire vakken.</CardDescription>
+            <CardDescription>Top 5 presterende tutors op basis van omzet.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-muted rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground italic">Grafiek placeholder: Omzet per Tutor/Vak</p>
-            </div>
+            <ChartContainer config={revenueByTutorChartConfig} className="h-[300px] w-full">
+              <BarChart
+                data={kpiData.topTutorsByRevenue}
+                layout="vertical"
+                margin={{ left: 10, right: 30 }}
+              >
+                <CartesianGrid horizontal={false} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  width={80}
+                  tick={{ fontSize: 12 }}
+                />
+                <XAxis dataKey="omzet" type="number" hide />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="line" formatter={(value) => `€${Number(value).toLocaleString('nl-NL')}`}/>}
+                />
+                <Bar dataKey="omzet" fill="var(--color-omzet)" radius={4}>
+                  <LabelList 
+                    dataKey="omzet" 
+                    position="right" 
+                    offset={8} 
+                    className="fill-foreground text-sm" 
+                    formatter={(value: number) => `€${value.toLocaleString('nl-NL')}`} 
+                  />
+                </Bar>
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </section>
