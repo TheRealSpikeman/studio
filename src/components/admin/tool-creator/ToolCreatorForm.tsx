@@ -22,9 +22,7 @@ import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Switch } from '@/components/ui/switch';
-import { createToolComponentFile, checkToolComponentExists } from '@/app/actions/toolActions';
-import Link from 'next/link';
-import { ToolPreviewer } from "./ToolPreviewer";
+import { createToolComponentFile } from '@/app/actions/toolActions';
 
 const toolFormSchema = z.object({
   id: z.string().min(3, "ID moet minimaal 3 tekens zijn.").regex(/^[a-z0-9-]+$/, "ID mag alleen kleine letters, cijfers en streepjes bevatten."),
@@ -51,16 +49,16 @@ interface ToolCreatorFormProps {
   initialData?: Tool;
   isNewTool: boolean;
   onDelete?: () => void;
+  onComponentGenerated?: () => void; // Callback to notify parent
 }
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
-export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: ToolCreatorFormProps) {
+export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete, onComponentGenerated }: ToolCreatorFormProps) {
   const { toast } = useToast();
   const [toolIdea, setToolIdea] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDeletingDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [livePreviewToolId, setLivePreviewToolId] = useState<string | null>(null);
   
   const form = useForm<ToolFormData>({
     resolver: zodResolver(toolFormSchema),
@@ -72,11 +70,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   useEffect(() => {
     if (initialData) {
       form.reset(initialData);
-      checkToolComponentExists(initialData.id).then(exists => {
-          if (exists) {
-              setLivePreviewToolId(initialData.id);
-          }
-      });
     }
   }, [initialData, form]);
 
@@ -86,7 +79,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
       return;
     }
     setIsGenerating(true);
-    setLivePreviewToolId(null);
     toast({ title: "AI is aan het werk...", description: "De details voor je tool worden nu gegenereerd." });
     
     try {
@@ -115,12 +107,11 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
   const handleGenerateToolComponent = async () => {
     const currentToolData = form.getValues();
     if (!currentToolData.id || !currentToolData.title || !currentToolData.description) {
-      toast({ title: "Fout", description: "Sla de tool eerst op met een ID, titel en beschrijving.", variant: "destructive"});
+      toast({ title: "Fout", description: "Vul eerst een ID, titel en beschrijving in, en sla de eigenschappen op.", variant: "destructive"});
       return;
     };
     
     setIsGenerating(true);
-    setLivePreviewToolId(null); // Reset preview to show loading state
     toast({
         title: "Tool generatie gestart...",
         description: `De AI begint nu met het bouwen van de component voor: ${currentToolData.title}. Dit kan even duren.`
@@ -133,16 +124,10 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     );
 
     if (result.success && result.filePath) {
-      // Set the tool ID to trigger the previewer component
-      setLivePreviewToolId(currentToolData.id);
+      if (onComponentGenerated) onComponentGenerated();
       toast({
         title: "Component Bestand Aangemaakt!",
         description: `Het bestand is succesvol aangemaakt. De live preview wordt hieronder geladen.`,
-        action: (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={result.filePath} target="_blank">Bekijk Tool <ExternalLink className="ml-2 h-4 w-4"/></Link>
-          </Button>
-        )
       });
     } else {
        toast({
@@ -151,7 +136,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
         variant: "destructive",
       });
     }
-
     setIsGenerating(false);
   };
   
@@ -159,7 +143,6 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     <>
       <Form {...form}>
         <form id="tool-creator-form" onSubmit={form.handleSubmit(onSave)} className="space-y-6">
-            
             {isNewTool && (
                 <Card>
                   <CardHeader>
@@ -235,42 +218,27 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
                     </div>
                 </CardContent>
             </Card>
-            
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Wrench className="h-5 w-5 text-primary" />
-                        Component Automatisering
-                    </CardTitle>
-                    <CardDescription>
-                        Genereer of hergenereer automatisch het React component voor deze tool.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button type="button" onClick={handleGenerateToolComponent} disabled={isGenerating}>
-                        {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Bot className="mr-2 h-4 w-4" />}
-                        {livePreviewToolId ? 'Hergenereer Tool Component' : 'Genereer Tool Component'}
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-2">
-                        Klik hier om automatisch een <code>.tsx</code> bestand te laten aanmaken/overschrijven in <code>src/components/tools/</code>.
-                    </p>
-                </CardContent>
-            </Card>
 
-            {livePreviewToolId && (
+            {!isNewTool && (
               <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2 text-primary">
-                        <Wrench className="h-5 w-5" /> Live Component Preview
-                    </CardTitle>
-                    <CardDescription>
-                        Dit is een live weergave van het gegenereerde component. Open in een nieuw tabblad:
-                         <Button variant="link" asChild className="p-0 pl-1 h-auto -mb-1"><Link href={`/dashboard/tools/${livePreviewToolId}`} target="_blank">{`/tools/${livePreviewToolId}`}<ExternalLink className="h-3 w-3 ml-1"/></Link></Button>.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <ToolPreviewer toolId={livePreviewToolId} />
-                </CardContent>
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                          <Wrench className="h-5 w-5 text-primary" />
+                          Component Automatisering
+                      </CardTitle>
+                      <CardDescription>
+                          Genereer of hergenereer automatisch het React component voor deze tool.
+                      </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Button type="button" onClick={handleGenerateToolComponent} disabled={isGenerating}>
+                          {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Bot className="mr-2 h-4 w-4" />}
+                          Hergenereer Tool Component
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">
+                          Let op: dit overschrijft het bestaande <code>.tsx</code> bestand in <code>src/components/tools/</code>.
+                      </p>
+                  </CardContent>
               </Card>
             )}
 
@@ -327,7 +295,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
 
         <Button type="submit" form="tool-creator-form">
           <Save className="mr-2 h-4 w-4"/>
-          {isNewTool ? 'Tool Eigenschappen Creëren' : 'Eigenschappen Opslaan'}
+          {isNewTool ? 'Aanmaken & Genereer Component' : 'Eigenschappen Opslaan'}
         </Button>
       </div>
 

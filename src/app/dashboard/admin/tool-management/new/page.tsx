@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
+import { createToolComponentFile } from '@/app/actions/toolActions';
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
@@ -15,10 +16,11 @@ export default function NewToolPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleSave = (data: ToolFormData) => {
+  const handleSave = async (data: ToolFormData) => {
     const newTool: Tool = { ...data };
 
     try {
+      // 1. Save tool properties to localStorage
       const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
       const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
 
@@ -30,11 +32,29 @@ export default function NewToolPage() {
       const updatedTools = [...existingTools, newTool];
       localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
       
-      toast({ title: "Tool opgeslagen!", description: `De tool "${data.title}" is succesvol opgeslagen.` });
-      router.push('/dashboard/admin/tool-management');
+      toast({ title: "Tool Eigenschappen Opgeslagen!", description: `Component voor "${data.title}" wordt nu gegenereerd...` });
+      
+      // 2. Generate component file via Server Action
+      const result = await createToolComponentFile(data.id, data.title, data.description);
+
+      if (result.success) {
+        toast({
+            title: "Tool Succesvol Aangemaakt!",
+            description: `De tool "${data.title}" is aangemaakt en het component is gegenereerd.`,
+            duration: 5000,
+        });
+        router.push('/dashboard/admin/tool-management');
+      } else {
+        toast({
+            title: "Component Generatie Mislukt",
+            description: result.error || "De tool eigenschappen zijn opgeslagen, maar het component kon niet worden aangemaakt.",
+            variant: "destructive",
+            duration: 8000,
+        });
+      }
     } catch (error) {
-      console.error("Error saving tool to localStorage", error);
-      toast({ title: "Fout", description: "Kon de tool niet opslaan.", variant: "destructive" });
+      console.error("Error saving tool and generating component:", error);
+      toast({ title: "Fout", description: "Kon de tool niet opslaan of genereren.", variant: "destructive" });
     }
   };
 

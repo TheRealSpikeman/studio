@@ -4,11 +4,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit, AlertTriangle } from '@/lib/icons';
+import { ArrowLeft, Edit, AlertTriangle, ExternalLink, Wrench } from '@/lib/icons';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { ToolCreatorForm, type ToolFormData } from '@/components/admin/tool-creator/ToolCreatorForm';
 import type { Tool } from '@/lib/quiz-data/tools-data';
+import { checkToolComponentExists } from '@/app/actions/toolActions';
+import { ToolPreviewer } from '@/components/admin/tool-creator/ToolPreviewer';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const LOCAL_STORAGE_TOOLS_KEY = 'mindnavigator_tools_v1';
 
@@ -19,6 +22,7 @@ export default function EditToolPage() {
   const toolId = params.toolId as string;
   
   const [toolToEdit, setToolToEdit] = useState<Tool | null | undefined>(undefined);
+  const [livePreviewToolId, setLivePreviewToolId] = useState<string | null>(null);
 
   useEffect(() => {
     if (toolId) {
@@ -29,12 +33,11 @@ export default function EditToolPage() {
           const foundTool = allTools.find(t => t.id === toolId);
           
           if (foundTool) {
-            // Apply the same migration logic as the list page
-            const migratedTool = {
-              ...foundTool,
-              status: foundTool.status || 'online',
-            };
+            const migratedTool = { ...foundTool, status: foundTool.status || 'online' };
             setToolToEdit(migratedTool);
+            checkToolComponentExists(toolId).then(exists => {
+              if (exists) setLivePreviewToolId(toolId);
+            });
           } else {
             setToolToEdit(null);
           }
@@ -52,11 +55,7 @@ export default function EditToolPage() {
     try {
       const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
       const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
-      
-      const updatedTools = existingTools.map(t => 
-        t.id === toolId ? { ...t, ...data } : t
-      );
-
+      const updatedTools = existingTools.map(t => t.id === toolId ? { ...t, ...data } : t);
       localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
       
       toast({ title: "Tool bijgewerkt!", description: `De tool "${data.title}" is succesvol bijgewerkt.` });
@@ -73,7 +72,6 @@ export default function EditToolPage() {
         const existingTools: Tool[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
         const updatedTools = existingTools.filter(t => t.id !== toolId);
         localStorage.setItem(LOCAL_STORAGE_TOOLS_KEY, JSON.stringify(updatedTools));
-
         toast({ title: "Tool Verwijderd", description: `De tool "${toolToEdit?.title}" is permanent verwijderd.`});
         router.push('/dashboard/admin/tool-management');
     } catch (error) {
@@ -117,7 +115,25 @@ export default function EditToolPage() {
         initialData={toolToEdit}
         isNewTool={false}
         onDelete={handleDelete}
+        onComponentGenerated={() => setLivePreviewToolId(toolId)}
       />
+
+       {livePreviewToolId && (
+        <Card className="mt-6">
+          <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2 text-primary">
+                  <Wrench className="h-5 w-5" /> Live Component Preview
+              </CardTitle>
+              <CardDescription>
+                  Dit is een live weergave van het gegenereerde component. Open in een nieuw tabblad:
+                    <Button variant="link" asChild className="p-0 pl-1 h-auto -mb-1"><Link href={`/dashboard/tools/${livePreviewToolId}`} target="_blank">{`/tools/${livePreviewToolId}`}<ExternalLink className="h-3 w-3 ml-1"/></Link></Button>.
+              </CardDescription>
+          </CardHeader>
+          <CardContent>
+              <ToolPreviewer toolId={livePreviewToolId} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
