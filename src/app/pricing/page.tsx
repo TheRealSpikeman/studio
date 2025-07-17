@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -57,20 +56,17 @@ export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const fetchedPlans = await getSubscriptionPlans();
-      const fetchedFeatures = getAllFeatures();
+    setIsLoading(true);
+    const fetchedPlans = getSubscriptionPlans();
+    const fetchedFeatures = getAllFeatures();
+    
+    const sortedPlans = fetchedPlans
+      .filter(p => p.active)
+      .sort((a, b) => (a.price || 0) - (b.price || 0));
       
-      const sortedPlans = fetchedPlans
-        .filter(p => p.active)
-        .sort((a, b) => (a.price || 0) - (b.price || 0));
-        
-      setPlans(sortedPlans);
-      setAllAppFeatures(fetchedFeatures);
-      setIsLoading(false);
-    }
-    fetchData();
+    setPlans(sortedPlans);
+    setAllAppFeatures(fetchedFeatures);
+    setIsLoading(false);
   }, []);
   
   const handlePlanSelection = (planId: string) => {
@@ -215,7 +211,7 @@ export default function PricingPage() {
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-0 bg-card rounded-b-lg text-base data-[state=open]:bg-muted/20">
-                    {faq.answer}
+                    <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
                   </AccordionContent>
                 </AccordionItem>
               ))}
