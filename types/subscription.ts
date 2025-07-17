@@ -24,11 +24,11 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number; // Single source of truth for monthly base price
+  price: number;
   currency: 'EUR';
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; 
-  maxChildren?: number;
+  maxParents: number;
+  maxChildren: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
@@ -208,5 +208,6 @@ export const deleteFeature = async (id: string): Promise<void> => {
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
     if (plan.price === 0) return 'Gratis';
-    return `€${plan.price.toFixed(2).replace('.', ',')}/mnd`;
+    const intervalText = plan.billingInterval === 'month' ? '/mnd' : plan.billingInterval === 'year' ? '/jaar' : '';
+    return `€${plan.price.toFixed(2).replace('.', ',')}${intervalText}`;
 };

@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -9,8 +10,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
-import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
+import { useEffect, useState, useMemo } from 'react';
+import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures, formatFullPrice } from '@/types/subscription';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -39,21 +40,21 @@ const getPlanIcon = (planId: string): React.ElementType => {
     return UserIcon;
 };
 
-// Simplified price calculation logic
-const calculatePrice = (baseMonthlyPrice: number, interval: 'month' | 'year', yearlyDiscountPercent?: number): number => {
+// This function calculates the price based on the interval and applies the discount.
+const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
     if (interval === 'year') {
-        const discount = yearlyDiscountPercent || 0;
-        const totalYearly = baseMonthlyPrice * 12;
+        const discount = plan.yearlyDiscountPercent || 0;
+        const totalYearly = plan.price * 12;
         return totalYearly * (1 - discount / 100);
     }
-    return baseMonthlyPrice;
+    return plan.price;
 };
 
-export default function PricingPage() {
+// Main component, now wrapped for async data fetching
+export default function PricingPageWrapper() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
     async function fetchData() {
@@ -62,11 +63,9 @@ export default function PricingPage() {
           getSubscriptionPlans(),
           getAllFeatures()
       ]);
-      
       const sortedPlans = fetchedPlans
         .filter(p => p.active)
         .sort((a, b) => (a.price || 0) - (b.price || 0));
-        
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
       setIsLoading(false);
@@ -74,16 +73,28 @@ export default function PricingPage() {
     fetchData();
   }, []);
 
-  const handlePlanSelection = (planId: string) => {
-    const planWithInterval = billingInterval === 'year' ? `${planId}_yearly` : `${planId}_monthly`;
-    const targetUrl = `/signup?plan=${planWithInterval}`;
-    window.location.href = targetUrl;
-  };
-
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /> Plannen laden...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" /> Plannen laden...
+      </div>
+    );
   }
 
+  return <PricingPageContent plans={plans} allAppFeatures={allAppFeatures} />;
+}
+
+
+// The actual page content component
+function PricingPageContent({ plans, allAppFeatures }: { plans: SubscriptionPlan[], allAppFeatures: AppFeature[] }) {
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+
+  const handlePlanSelection = (planId: string) => {
+    const planIdWithInterval = `${planId}_${billingInterval}`;
+    const targetUrl = `/signup?plan=${planIdWithInterval}`;
+    window.location.href = targetUrl;
+  };
+  
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -123,7 +134,7 @@ export default function PricingPage() {
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
                 {plans.map((plan) => {
                   const Icon = getPlanIcon(plan.id);
-                  const displayPrice = calculatePrice(plan.price, billingInterval, plan.yearlyDiscountPercent);
+                  const displayPrice = calculatePrice(plan, billingInterval);
                   const priceText = billingInterval === 'year'
                     ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
                     : `€${displayPrice.toFixed(2).replace('.', ',')}`;
