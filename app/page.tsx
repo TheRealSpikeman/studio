@@ -4,7 +4,6 @@ import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/landing/hero-section';
 import { PlatformFeaturesSection } from '@/components/landing/platform-features-section';
 import { AssessmentSection } from '@/components/landing/assessment-section';
-import { ComparativeAnalysisPromoSection } from '@/components/landing/comparative-analysis-promo';
 import { TestimonialsSection } from '@/components/landing/testimonials-section';
 import { FinalCtaSection } from '@/components/landing/final-cta-section';
 
@@ -16,7 +15,6 @@ export default function HomePage() {
         <HeroSection />
         <PlatformFeaturesSection />
         <AssessmentSection />
-        <ComparativeAnalysisPromoSection />
         <TestimonialsSection />
         <FinalCtaSection />
       </main>
