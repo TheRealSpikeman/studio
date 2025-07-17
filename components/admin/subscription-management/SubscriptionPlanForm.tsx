@@ -1,3 +1,4 @@
+
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -26,7 +27,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSubscriptionPlans, saveSubscriptionPlans, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience } from '@/types/subscription';
+import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
 
 
 const planFormSchema = z.object({
@@ -79,20 +80,16 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
 
   useEffect(() => {
-    setAllAppFeatures(getAllFeatures());
+    async function fetchFeatures() {
+        const features = await getAllFeatures();
+        setAllAppFeatures(features);
+    }
+    fetchFeatures();
   }, []);
-
-  const defaultFeatureAccess: Record<string, boolean> = {};
-  allAppFeatures.forEach(feature => {
-    defaultFeatureAccess[feature.id] = false; 
-  });
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: !isNew && initialData ? {
-      ...initialData,
-      featureAccess: initialData.featureAccess || defaultFeatureAccess,
-    } : {
+    defaultValues: isNew ? {
       id: "",
       name: "",
       description: "",
@@ -100,28 +97,27 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
       currency: "EUR",
       billingInterval: undefined,
       maxChildren: 1,
-      featureAccess: defaultFeatureAccess,
+      featureAccess: {},
       active: true,
       trialPeriodDays: 0,
       isPopular: false,
-    },
+    } : initialData
   });
-
+  
   useEffect(() => {
-    if (isNew && allAppFeatures.length > 0) {
-      const initialAccess: Record<string, boolean> = {};
-      allAppFeatures.forEach(feature => {
-        initialAccess[feature.id] = false; 
-      });
-      form.reset({
-        ...form.getValues(), 
-        featureAccess: initialAccess,
-      });
-    }
-    if (!isNew && initialData) {
+    if (initialData) {
         form.reset(initialData);
+    } else {
+        const defaultFeatureAccess: Record<string, boolean> = {};
+        allAppFeatures.forEach(feature => {
+            defaultFeatureAccess[feature.id] = false;
+        });
+        form.reset({
+            id: "", name: "", description: "", price: 0, currency: "EUR", billingInterval: undefined,
+            maxChildren: 1, featureAccess: defaultFeatureAccess, active: true, trialPeriodDays: 0, isPopular: false,
+        });
     }
-  }, [allAppFeatures, isNew, initialData, form]);
+  }, [initialData, allAppFeatures, form]);
 
 
   const handleSelectAllFeatures = (select: boolean) => {
@@ -130,45 +126,25 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     });
   };
 
-  const onSubmit = (data: PlanFormData) => {
-    const planToSave: SubscriptionPlan = { ...initialData, ...data };
-
+  const onSubmit = async (data: PlanFormData) => {
+    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = { ...initialData, ...data };
     try {
-      const existingPlans = getSubscriptionPlans();
-      let updatedPlans: SubscriptionPlan[];
-      
-      if (!isNew && initialData) {
-        updatedPlans = existingPlans.map(p => p.id === initialData.id ? planToSave : p);
-         toast({
-          title: "Abonnement Bijgewerkt",
-          description: `Het abonnement "${planToSave.name}" is bijgewerkt.`,
-        });
-      } else {
-        if (existingPlans.some(p => p.id === planToSave.id)) {
-          toast({
-            title: "Fout bij opslaan",
-            description: `Een abonnement met ID "${planToSave.id}" bestaat al. Kies een uniek ID.`,
-            variant: "destructive",
-          });
-          return;
+      if (isNew) {
+        if (!planToSave.id) {
+             toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
+             return;
         }
-        updatedPlans = [...existingPlans, planToSave];
-        toast({
-          title: "Abonnement Aangemaakt",
-          description: `Het abonnement "${planToSave.name}" is aangemaakt.`,
-        });
+        await createSubscriptionPlan(planToSave as SubscriptionPlan);
+        toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
+      } else {
+        if (!initialData?.id) return;
+        await saveSubscriptionPlan(initialData.id, planToSave);
+        toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
-      saveSubscriptionPlans(updatedPlans);
+      router.push('/dashboard/admin/subscription-management');
     } catch (error) {
-      console.error("Failed to save/update subscription plan in localStorage:", error);
-       toast({
-          title: "Opslagfout",
-          description: "Kon het abonnement niet lokaal opslaan.",
-          variant: "destructive",
-        });
-      return;
+      toast({ title: "Opslaan Mislukt", description: (error as Error).message, variant: "destructive" });
     }
-    router.push('/dashboard/admin/subscription-management');
   };
 
   return (
@@ -199,7 +175,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   <FormLabel>Uniek Plan ID</FormLabel>
                   <FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} disabled={!isNew} /></FormControl>
                   <FormDescription className="text-xs">
-                    Gebruik kleine letters, cijfers, underscores. {!isNew ? 'ID kan niet gewijzigd worden na aanmaken.' : 'Dit ID wordt gebruikt in de URL en kan later niet meer gewijzigd worden.'}
+                    Gebruik kleine letters, cijfers, underscores. {!isNew ? 'ID kan niet gewijzigd worden na aanmaken.' : 'Dit ID wordt intern gebruikt en kan later niet meer gewijzigd worden.'}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

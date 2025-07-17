@@ -30,7 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import { getSubscriptionPlans, saveSubscriptionPlans, type AppFeature, type SubscriptionPlan, type TargetAudience } from '@/types/subscription';
+import { type AppFeature, type SubscriptionPlan, type TargetAudience } from '@/types/subscription';
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },
@@ -58,10 +58,10 @@ interface FeatureFormDialogProps {
   onOpenChange: (isOpen: boolean) => void;
   feature: AppFeature | null;
   onSave: (data: FeatureFormData) => void;
+  allSubscriptionPlans: SubscriptionPlan[];
 }
 
-export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: FeatureFormDialogProps) {
-  const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave, allSubscriptionPlans }: FeatureFormDialogProps) {
   
   const form = useForm<FeatureFormData>({
     resolver: zodResolver(featureFormSchema),
@@ -80,12 +80,9 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
 
   useEffect(() => {
     if (isOpen) {
-        setAllSubscriptionPlans(getSubscriptionPlans().filter(p => p.active));
-
       let initialLinkedPlans: string[] = [];
       if (feature) { 
-        const allPlans = getSubscriptionPlans();
-        initialLinkedPlans = allPlans
+        initialLinkedPlans = allSubscriptionPlans
           .filter(plan => plan.featureAccess && plan.featureAccess[feature.id])
           .map(plan => plan.id);
         
@@ -110,7 +107,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
         });
       }
     }
-  }, [feature, isOpen, form]);
+  }, [feature, isOpen, form, allSubscriptionPlans]);
 
   const onSubmit = (values: FeatureFormData) => {
     onSave(values);
@@ -298,7 +295,7 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
                   Annuleren
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit">
                 {isEditing ? 'Wijzigingen Opslaan' : 'Feature Toevoegen'}
               </Button>
             </DialogFooter>

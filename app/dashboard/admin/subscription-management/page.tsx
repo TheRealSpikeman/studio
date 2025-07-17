@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical } from '@/lib/icons';
+import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from '@/lib/icons';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { initialDefaultPlans, getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan } from '@/types/subscription';
+import { getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
 
 // Helper function to format price, moved here to be self-contained
 const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
@@ -28,64 +28,70 @@ export default function SubscriptionManagementPage() {
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
-    useEffect(() => {
+    const fetchPlans = async () => {
         setIsLoading(true);
-        let loadedPlans: SubscriptionPlan[];
         try {
-            const storedPlansRaw = localStorage.getItem('mindnavigator_subscription_plans_v2');
-            // FIX: Check for both null and "undefined" string before parsing
-            if (storedPlansRaw && storedPlansRaw !== 'undefined' && storedPlansRaw !== 'null') {
-                loadedPlans = JSON.parse(storedPlansRaw);
-            } else {
-                // If nothing is stored, or it's invalid, set the defaults and save them.
-                loadedPlans = initialDefaultPlans;
-                saveSubscriptionPlans(initialDefaultPlans);
-            }
-        } catch (e) {
-            console.error("Error parsing plans from localStorage, using defaults", e);
-            loadedPlans = initialDefaultPlans;
-            saveSubscriptionPlans(initialDefaultPlans);
+            const plans = await getSubscriptionPlans();
+            const sortedPlans = plans.sort((a, b) => {
+                if (a.price === 0) return -1;
+                if (b.price === 0) return 1;
+                return a.price - b.price;
+            });
+            setAvailablePlans(sortedPlans);
+        } catch(e) {
+            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
         }
+    };
 
-        const sortedPlans = loadedPlans.sort((a, b) => {
-            if (a.price === 0) return -1;
-            if (b.price === 0) return 1;
-            return a.price - b.price;
-        });
-        setAvailablePlans(sortedPlans);
-        setIsLoading(false);
+    useEffect(() => {
+        fetchPlans();
     }, []);
 
     const handleDeletePlan = (plan: SubscriptionPlan) => {
         setPlanToDelete(plan);
     };
     
-    const confirmDeletePlan = () => {
+    const confirmDeletePlan = async () => {
         if (!planToDelete) return;
         
-        const updatedPlans = availablePlans.filter(p => p.id !== planToDelete.id);
-        saveSubscriptionPlans(updatedPlans);
-        setAvailablePlans(updatedPlans);
-
-        toast({
-            title: "Abonnement Verwijderd",
-            description: `Het abonnement "${planToDelete.name}" is verwijderd.`
-        });
-        setPlanToDelete(null);
+        try {
+            await deleteSubscriptionPlan(planToDelete.id);
+            toast({
+                title: "Abonnement Verwijderd",
+                description: `Het abonnement "${planToDelete.name}" is verwijderd.`
+            });
+            setPlanToDelete(null);
+            fetchPlans(); // Refresh the list from Firestore
+        } catch (error) {
+             toast({
+                title: "Fout bij verwijderen",
+                description: (error as Error).message,
+                variant: "destructive"
+            });
+        }
     };
 
-    const handleRestoreDefaults = () => {
-        saveSubscriptionPlans(initialDefaultPlans);
-        const sortedDefaults = [...initialDefaultPlans].sort((a,b) => a.price - b.price);
-        setAvailablePlans(sortedDefaults);
-        toast({
-            title: "Standaard Abonnementen Hersteld",
-            description: "De originele abonnementen zijn teruggezet."
-        });
+    const handleRestoreDefaults = async () => {
+        try {
+            await seedInitialPlans(true); // Force seeding
+            toast({
+                title: "Standaard Abonnementen Hersteld",
+                description: "De originele abonnementen zijn teruggezet in de database."
+            });
+            fetchPlans(); // Refresh
+        } catch (error) {
+             toast({
+                title: "Herstellen Mislukt",
+                description: (error as Error).message,
+                variant: "destructive"
+            });
+        }
     };
 
     if (isLoading) {
-        return <div className="p-8 text-center">Abonnementen laden...</div>;
+        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
     }
 
     return (

@@ -7,43 +7,33 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { AlertTriangle } from '@/lib/icons';
+import { AlertTriangle, Loader2 } from '@/lib/icons';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
+import { getSubscriptionPlanById } from '@/types/subscription';
 
 export default function EditSubscriptionPlanPage() {
   const params = useParams();
   const planId = params.planId as string;
   const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (planId) {
-      const allPlans = getSubscriptionPlans();
-      const allFeatures = getAllFeatures();
-      const foundPlan = allPlans.find(p => p.id === planId);
-      
-      if (foundPlan) {
-          const defaultFeatureAccess: Record<string, boolean> = {};
-          allFeatures.forEach(feature => { 
-            defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
-          });
-
-          const planWithDefaults: SubscriptionPlan = {
-              ...foundPlan,
-              featureAccess: defaultFeatureAccess, 
-          };
-          setPlanData(planWithDefaults);
-      } else {
-          setPlanData(null);
-      }
+    async function fetchPlan() {
+        if (planId) {
+          setIsLoading(true);
+          const foundPlan = await getSubscriptionPlanById(planId);
+          setPlanData(foundPlan);
+          setIsLoading(false);
+        }
     }
+    fetchPlan();
   }, [planId]);
 
-  if (planData === undefined) {
-    return <div className="p-8 text-center">Abonnementsgegevens laden...</div>;
+  if (isLoading) {
+    return <div className="p-8 text-center flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin mr-2" /> Abonnementsgegevens laden...</div>;
   }
 
-  if (planData === null) {
+  if (!planData) {
     return (
       <div className="p-8 text-center">
         <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
@@ -60,4 +50,3 @@ export default function EditSubscriptionPlanPage() {
   
   return <SubscriptionPlanForm initialData={planData} isNew={false} />;
 }
-    
