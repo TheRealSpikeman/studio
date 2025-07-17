@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions for Role-Based Access ---
+    function hasRole(role) {
+      return request.auth.token.userRole == role;
+    }
+    
+    function hasAnyRole(roles) {
+      return request.auth.token.userRole in roles;
+    }
+
+    // --- NEW: Pending Reports Collection ---
+    // This collection is ONLY accessible by the backend using the Admin SDK.
+    // We explicitly deny all client-side requests to ensure maximum security.
+    match /pending_reports/{reportId} {
+      allow read, write: if false;
+    }
+
+    // --- Content Hub Collections ---
+    match /content/{contentId} {
+      allow read: if resource.data.status == 'published' && hasAnyRole(resource.data.userRoles);
+      allow write: if hasAnyRole(['admin', 'content_manager']);
+    }
+    
+    match /faq/{faqId} {
+      allow read: if hasAnyRole(resource.data.userRoles);
+      allow write: if hasAnyRole(['admin', 'content_manager']);
+    }
+    
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if hasRole('admin');
+    }
+    
+    match /analytics/{document=**} {
+      allow read, write: if hasRole('admin');
+    }
+
+    // --- Platform Collections ---
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if hasAnyRole(['admin', 'content_manager']); 
+    }
+
+    match /changelogEntries/{entryId} {
+      allow read: if true;
+      allow write: if hasAnyRole(['admin', 'content_manager']);
+    }
+
+    match /quizzes/{quizId} {
+      allow read: if true;
+      allow write: if hasAnyRole(['admin', 'content_manager']);
+    }
+
+    match /users/{userId} {
+      allow read: if hasRole('admin') || (request.auth != null && request.auth.uid == userId);
+      // Allow user to create their own document (e.g., during signup)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Allow user to update their own document
+      allow update: if hasRole('admin') || (request.auth != null && request.auth.uid == userId);
+      // Only admins can delete users
+      allow delete: if hasRole('admin');
+    }
+
+    match /users/{userId}/{document=**} {
+      allow read, write: if hasRole('admin') || (request.auth != null && request.auth.uid == userId);
+    }
+
+    match /feedback/{feedbackId} {
+        allow create: if true;
+        allow read, update, delete: if hasRole('admin');
+    }
+    
+    match /notifications/{notificationId} {
+        allow read: if true; // Client-side filtering
+        allow write: if hasRole('admin');
+    }
+    
+    match /quizResults/{resultId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null; // Simplistic rule, consider restricting to owner/admin
+    }
+  }
+}

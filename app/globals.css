@@ -1,0 +1,167 @@
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Oranje & Warm Geel Thema */
+    --background: 200 17% 96%; /* Lichte Grijstint voor achtergrond */
+    --foreground: 210 40% 10%; /* Donkergrijs voor tekst */
+
+    --card: 0 0% 100%; /* Fris Wit voor kaarten */
+    --card-foreground: 210 40% 10%; 
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 10%;
+
+    --primary: 35 91% 55%; /* #f9a825 - Oranje */
+    --primary-foreground: 24 9.8% 10%;
+
+    --secondary: 210 16% 90%; /* Iets donkerder grijs */
+    --secondary-foreground: 210 30% 20%; 
+
+    --muted: 210 16% 85%; /* Nog een grijstint */
+    --muted-foreground: 210 20% 45%; 
+
+    --accent: 45 93% 47%; /* #eab308 - Warm Geel */
+    --accent-foreground: 24 9.8% 10%; 
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 10% 80%; 
+    --input: 210 10% 80%; 
+    --ring: 35 91% 55%; /* Primary color for focus rings - Oranje */
+
+    --radius: 0.75rem; /* Iets rondere hoeken */
+
+    --chart-1: 35 91% 55%; 
+    --chart-2: 45 93% 47%; 
+    --chart-3: 27 87% 67%; 
+    --chart-4: 15 80% 60%; 
+    --chart-5: 210 40% 50%; 
+
+    /* Sidebar specific colors */
+    --sidebar-background: 0 0% 100%; /* White */
+    --sidebar-foreground: 210 40% 10%; /* Dark Gray */
+    --sidebar-primary: 35 91% 55%; /* Oranje */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 45 93% 47%; /* Geel */
+    --sidebar-accent-foreground: 24 9.8% 10%; /* Dark */
+    --sidebar-border: 210 10% 80%; /* Gray */
+    --sidebar-ring: 35 91% 55%; /* Oranje */
+  }
+
+  .dark {
+    --background: 210 40% 10%; 
+    --foreground: 200 17% 94%;
+
+    --card: 210 40% 12%;
+    --card-foreground: 200 17% 94%;
+
+    --popover: 210 40% 12%;
+    --popover-foreground: 200 17% 94%;
+
+    --primary: 35 91% 55%; /* Oranje */
+    --primary-foreground: 24 9.8% 10%; 
+
+    --secondary: 210 30% 20%;
+    --secondary-foreground: 200 17% 94%;
+
+    --muted: 210 30% 25%;
+    --muted-foreground: 210 20% 65%;
+
+    --accent: 45 93% 47%; /* Geel */
+    --accent-foreground: 24 9.8% 10%; 
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 20% 30%;
+    --input: 210 20% 30%;
+    --ring: 35 91% 55%; /* Oranje */
+    
+    --chart-1: 35 91% 55%; 
+    --chart-2: 45 93% 47%; 
+
+    /* Sidebar specific colors for dark mode */
+    --sidebar-background: 210 40% 12%; 
+    --sidebar-foreground: 200 17% 94%; 
+    --sidebar-primary: 35 91% 55%; 
+    --sidebar-primary-foreground: 24 9.8% 10%; 
+    --sidebar-accent: 45 93% 47%; 
+    --sidebar-accent-foreground: 24 9.8% 10%; 
+    --sidebar-border: 210 20% 30%; 
+    --sidebar-ring: 35 91% 55%; 
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main {
+    flex-grow: 1;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%; 
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+}
+
+@layer utilities {
+  .accordion-trigger-no-icon[data-disabled] > svg {
+    visibility: hidden;
+  }
+}
+
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-report-content {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  .prose {
+    font-size: 10pt !important;
+  }
+}
+
+/* Custom styles for React-Quill */
+.wysiwyg-editor .ql-toolbar {
+  @apply rounded-t-md border-input bg-card;
+}
+.wysiwyg-editor .ql-container {
+  @apply rounded-b-md border-input;
+}
+.wysiwyg-editor .ql-editor {
+  min-height: 250px;
+  @apply bg-background text-base;
+}
