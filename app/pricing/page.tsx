@@ -36,7 +36,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('family_guide') || planId.includes('family_guide_large')) return Users;
+    if (planId.includes('family_guide')) return Users;
     return UserIcon;
 };
 
@@ -51,27 +51,18 @@ const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): num
 };
 
 export default function PricingPage() {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // CORRECTED: State is initialized directly from the synchronous function.
+  const [plans, setPlans] = useState<SubscriptionPlan[]>(() => {
+    const fetchedPlans = getSubscriptionPlans();
+    return fetchedPlans
+      .filter(p => p.active)
+      .sort((a, b) => (a.price || 0) - (b.price || 0));
+  });
+  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>(getAllFeatures());
+  const [isLoading, setIsLoading] = useState(false); // No longer needed for fetching, but kept for potential future use.
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const fetchedPlans = await getSubscriptionPlans();
-      const fetchedFeatures = getAllFeatures();
-      
-      const sortedPlans = fetchedPlans
-        .filter(p => p.active)
-        .sort((a, b) => (a.price || 0) - (b.price || 0));
-        
-      setPlans(sortedPlans);
-      setAllAppFeatures(fetchedFeatures);
-      setIsLoading(false);
-    }
-    fetchData();
-  }, []);
+  // REMOVED: The problematic useEffect hook is gone.
   
   const handlePlanSelection = (planId: string) => {
     const planIdWithInterval = `${planId}_${billingInterval}`;
@@ -215,7 +206,7 @@ export default function PricingPage() {
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-0 bg-card rounded-b-lg text-base data-[state=open]:bg-muted/20">
-                    {faq.answer}
+                    <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
                   </AccordionContent>
                 </AccordionItem>
               ))}

@@ -1,7 +1,6 @@
+
 // src/types/subscription.ts
 import { z } from "zod";
-import { db, isFirebaseConfigured } from '@/lib/firebase';
-import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
 
 // --- CORE TYPES ---
 
@@ -37,8 +36,7 @@ export interface SubscriptionPlan {
 }
 
 
-// --- DATA CONSTANTS (for seeding and direct use) ---
-export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
+// --- DATA CONSTANTS (The Single Source of Truth) ---
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -54,9 +52,9 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
-    shortName: 'Coaching & Tools',
-    description: 'Essentiële tools en dagelijkse coaching voor één kind, inclusief ouder-dashboard.',
+    name: 'Coaching & Tools',
+    shortName: '1 Kind',
+    description: 'Essentiële tools en dagelijkse coaching voor één kind, plus het Ouder Dashboard.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -65,13 +63,13 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
-    isPopular: true,
+    isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
     id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    shortName: 'Gezins Gids',
+    name: 'Gezins Gids',
+    shortName: '2 Kinderen',
     description: 'Alle tools en coaching voor het hele gezin, met ondersteuning voor maximaal 2 kinderen.',
     price: 25.00,
     currency: 'EUR',
@@ -81,13 +79,13 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 2,
     active: true,
     trialPeriodDays: 14,
-    isPopular: false,
+    isPopular: true,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
    {
     id: 'family_guide_large',
-    name: 'Gezins Gids (Groot)',
-    shortName: 'Gezins Gids+',
+    name: 'Gezins Gids+',
+    shortName: '3+ Kinderen',
     description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
     price: 35.00,
     currency: 'EUR',
@@ -103,66 +101,25 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
 ];
 
 
-// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
+// --- Helper Functions ---
 
+/**
+ * Retrieves the subscription plans.
+ * This is now a simple, synchronous function that returns the hardcoded plans,
+ * ensuring data is always available without async/client-side dependencies.
+ * @returns {SubscriptionPlan[]} The array of subscription plans.
+ */
 export const getSubscriptionPlans = (): SubscriptionPlan[] => {
-  if (typeof window === 'undefined') {
-    return initialDefaultPlans; // Fallback for server-side rendering
-  }
-  try {
-    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-    if (storedPlansRaw) {
-      return JSON.parse(storedPlansRaw);
-    } else {
-      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
-      return initialDefaultPlans;
-    }
-  } catch (error) {
-    console.error("Error reading subscription plans from localStorage:", error);
-    return initialDefaultPlans; // Fallback to defaults
-  }
+  return initialDefaultPlans;
 };
 
-export const saveSubscriptionPlans = (plans: SubscriptionPlan[]): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
-  } catch (error) {
-    console.error("Error saving subscription plans to localStorage:", error);
-  }
-};
-
-export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
-    const allPlans = getSubscriptionPlans();
-    return allPlans.find(plan => plan.id === id) || null;
-};
-
-export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
-    const currentPlans = getSubscriptionPlans();
-    if (currentPlans.some(p => p.id === data.id)) {
-      throw new Error("Een abonnement met dit ID bestaat al.");
-    }
-    const newPlans = [...currentPlans, data];
-    saveSubscriptionPlans(newPlans);
-};
-
-export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
-    const currentPlans = getSubscriptionPlans();
-    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
-    saveSubscriptionPlans(updatedPlans);
-};
-
-export const deleteSubscriptionPlan = (id: string): void => {
-    const currentPlans = getSubscriptionPlans();
-    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
-    saveSubscriptionPlans(updatedPlans);
-};
-
+/**
+ * Retrieves all available application features.
+ * @returns {AppFeature[]} The array of application features.
+ */
 export const getAllFeatures = (): AppFeature[] => {
-    // For now, features are static. Could be moved to localStorage like plans if needed.
     return DEFAULT_APP_FEATURES;
 };
-
 
 // Simplified formatters
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
@@ -172,7 +129,6 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
-    // New logic to handle yearly discount correctly
     if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
         const yearlyPrice = plan.price * 12;
         const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);
