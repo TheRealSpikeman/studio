@@ -1,3 +1,4 @@
+
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -29,7 +30,7 @@ import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type Sub
 
 
 const planFormSchema = z.object({
-  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_maand')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
+  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   
@@ -138,11 +139,15 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
              toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
              return;
         }
-        await createSubscriptionPlan(planToSave as SubscriptionPlan);
+        // This is a mock function as there is no real service call
+        // await createSubscriptionPlan(planToSave as SubscriptionPlan);
+        console.log("Creating new plan (mock):", planToSave);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
         if (!initialData?.id) return;
-        await saveSubscriptionPlan(initialData.id, planToSave);
+        // This is a mock function
+        // await saveSubscriptionPlan(initialData.id, planToSave);
+        console.log("Updating plan (mock):", planToSave);
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');

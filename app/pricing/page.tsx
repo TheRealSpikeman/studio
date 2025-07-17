@@ -9,7 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -56,7 +56,9 @@ export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
-      // Data fetching is now synchronous and reliable
+    function fetchData() {
+      setIsLoading(true);
+      // Fetch data synchronously
       const fetchedPlans = getSubscriptionPlans();
       const fetchedFeatures = getAllFeatures();
       
@@ -67,6 +69,8 @@ export default function PricingPage() {
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
       setIsLoading(false);
+    }
+    fetchData();
   }, []);
   
   const handlePlanSelection = (planId: string) => {
