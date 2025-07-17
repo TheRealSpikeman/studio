@@ -17,9 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package, CaseLower } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -35,7 +34,6 @@ const planFormSchema = z.object({
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   
-  // New flexible pricing model
   pricePerMonthParent: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }).optional(),
   pricePerMonthChild: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
@@ -125,6 +123,8 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             pricePerMonthParent: initialData.pricePerMonthParent ?? 0,
             pricePerMonthChild: initialData.pricePerMonthChild ?? 0,
             yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
+            maxParents: initialData.maxParents ?? 0,
+            maxChildren: initialData.maxChildren ?? 0,
         });
     } else {
         const defaultFeatureAccess: Record<string, boolean> = {};
@@ -147,7 +147,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   };
 
   const onSubmit = async (data: PlanFormData) => {
-    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = { ...initialData, ...data, billingInterval: 'month' }; // Billing interval is now implicitly monthly/yearly based on pricing model
+    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
+      ...initialData,
+      ...data,
+      billingInterval: 'month', // Billing interval is now implicitly monthly/yearly based on pricing model
+      maxParents: data.maxParents ?? 0, // Ensure we send 0, not undefined
+      maxChildren: data.maxChildren ?? 0, // Ensure we send 0, not undefined
+    };
+
     try {
       if (isNew) {
         if (!planToSave.id) {
@@ -258,8 +265,8 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   control={form.control}
                   name="active"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-10">
-                      <FormLabel className="cursor-pointer text-sm pr-2">Actief?</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-auto">
+                      <FormLabel className="cursor-pointer text-sm pr-2">Plan Actief?</FormLabel>
                       <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
@@ -268,8 +275,8 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   control={form.control}
                   name="isPopular"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-10">
-                      <FormLabel className="cursor-pointer text-sm pr-2">Populair?</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-auto">
+                      <FormLabel className="cursor-pointer text-sm pr-2">Markeer als 'Populair'?</FormLabel>
                       <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
