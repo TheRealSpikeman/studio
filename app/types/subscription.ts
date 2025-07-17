@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -25,9 +24,11 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number;
+  price: number; // The single source of truth for the monthly price
   currency: 'EUR';
+  yearlyDiscountPercent?: number; // Optional yearly discount percentage
   billingInterval: 'month' | 'year' | 'once';
+  maxParents?: number;
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -35,7 +36,8 @@ export interface SubscriptionPlan {
   isPopular?: boolean;
 }
 
-// --- DATA CONSTANTS (for seeding) ---
+
+// --- DATA CONSTANTS (for seeding and direct use) ---
 const PLANS_COLLECTION = 'subscriptionPlans';
 const FEATURES_COLLECTION = 'features';
 
@@ -52,75 +54,50 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', shortName: 'Coaching & Tools',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
-    price: 2.50, currency: 'EUR', billingInterval: 'month', maxChildren: 1, active: true, trialPeriodDays: 14, isPopular: false,
-    featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true,
-    },
+    id: 'coaching_tools_monthly',
+    name: 'Coaching & Tools',
+    shortName: 'Coaching & Tools',
+    description: 'Essentiële tools en dagelijkse coaching voor één kind.',
+    price: 2.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    yearlyDiscountPercent: 15,
+    maxParents: 1,
+    maxChildren: 1,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: true,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezins Gids',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
-    price: 10.00, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: true,
-    featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true,
-    },
+    id: 'family_guide_monthly',
+    name: 'Gezins Gids',
+    shortName: 'Gezins Gids',
+    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard en toegang tot alle begeleiders.',
+    price: 10.00,
+    currency: 'EUR',
+    billingInterval: 'month',
+    yearlyDiscountPercent: 15,
+    maxParents: 2,
+    maxChildren: 4,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
 ];
 
 
-// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE ---
+// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
 
-export async function seedInitialPlans(force: boolean = false): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const plansRef = collection(db, PLANS_COLLECTION);
-    if (force) {
-        const snapshot = await getDocs(plansRef);
-        if (!snapshot.empty) {
-            const batch = writeBatch(db);
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            console.log("Forced re-seed: Existing plans deleted.");
-        }
-    }
-    const snapshot = await getDocs(plansRef);
-    if (snapshot.empty || force) {
-        console.log("Seeding subscription plans...");
-        const batch = writeBatch(db);
-        initialDefaultPlans.forEach(plan => {
-            const docRef = doc(db, PLANS_COLLECTION, plan.id);
-            batch.set(docRef, plan);
-        });
-        await batch.commit();
-    }
-}
-
-export async function seedInitialFeatures(): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const featuresRef = collection(db, FEATURES_COLLECTION);
-    const snapshot = await getDocs(featuresRef);
-    if (snapshot.empty) {
-        console.log("Seeding features...");
-        const batch = writeBatch(db);
-        DEFAULT_APP_FEATURES.forEach(feature => {
-            const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-            batch.set(docRef, feature);
-        });
-        await batch.commit();
-    }
-}
-
-export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
-    if (!isFirebaseConfigured || !db) return [];
-    await seedInitialPlans();
-    const snapshot = await getDocs(collection(db, PLANS_COLLECTION));
-    return snapshot.docs.map(doc => doc.data() as SubscriptionPlan);
+export const getSubscriptionPlans = (): SubscriptionPlan[] => {
+    // This is now a simple, synchronous function that returns the constant data.
+    // This removes all Firestore-related complexity from the client-facing pages.
+    return initialDefaultPlans;
 };
 
 export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
+    // This can remain async for admin panel usage
     if (!isFirebaseConfigured || !db) return null;
     const docRef = doc(db, PLANS_COLLECTION, id);
     const docSnap = await getDoc(docRef);
@@ -144,39 +121,17 @@ export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, PLANS_COLLECTION, id));
 };
 
-export const getAllFeatures = async (): Promise<AppFeature[]> => {
-    if (!isFirebaseConfigured || !db) return [];
-    await seedInitialFeatures();
-    const snapshot = await getDocs(collection(db, FEATURES_COLLECTION));
-    return snapshot.docs.map(doc => doc.data() as AppFeature);
+export const getAllFeatures = (): AppFeature[] => {
+    return DEFAULT_APP_FEATURES;
 };
 
-export const saveAllFeatures = async (features: AppFeature[]): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const batch = writeBatch(db);
-    features.forEach(feature => {
-        const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-        batch.set(docRef, feature);
-    });
-    await batch.commit();
-};
-
-export const saveFeature = async (feature: AppFeature, oldId?: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    if (oldId && oldId !== feature.id) {
-       throw new Error("Changing Feature ID is not supported yet.");
-    }
-    const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-    await setDoc(docRef, feature, { merge: true });
-};
-
-export const deleteFeature = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, FEATURES_COLLECTION, id));
-};
-
+// Simplified formatters
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.',',')}${intervalText}`;
+    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
+};
+
+export const formatFullPrice = (plan: SubscriptionPlan) => {
+    return formatPrice(plan.price, plan.currency, plan.billingInterval);
 };

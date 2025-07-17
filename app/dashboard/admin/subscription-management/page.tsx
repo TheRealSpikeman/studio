@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -7,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from '@/lib/icons';
+import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans, formatFullPrice } from '@/types/subscription';
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, formatFullPrice } from '@/types/subscription';
 
 export default function SubscriptionManagementPage() {
     const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
@@ -20,14 +21,14 @@ export default function SubscriptionManagementPage() {
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
-    const fetchPlans = async () => {
+    const fetchPlans = () => {
         setIsLoading(true);
         try {
-            const plans = await getSubscriptionPlans();
-            const sortedPlans = plans.sort((a, b) => (a.pricePerMonthParent ?? 0) + (a.pricePerMonthChild ?? 0) - ((b.pricePerMonthParent ?? 0) + (b.pricePerMonthChild ?? 0)));
+            const plans = getSubscriptionPlans();
+            const sortedPlans = plans.sort((a, b) => (a.price || 0) - (b.price || 0));
             setAvailablePlans(sortedPlans);
         } catch(e) {
-            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
+            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -51,27 +52,10 @@ export default function SubscriptionManagementPage() {
                 description: `Het abonnement "${planToDelete.name}" is verwijderd.`
             });
             setPlanToDelete(null);
-            fetchPlans(); // Refresh the list from Firestore
+            fetchPlans(); // Refresh the list
         } catch (error) {
              toast({
                 title: "Fout bij verwijderen",
-                description: (error as Error).message,
-                variant: "destructive"
-            });
-        }
-    };
-
-    const handleRestoreDefaults = async () => {
-        try {
-            await seedInitialPlans(true); // Force seeding
-            toast({
-                title: "Standaard Abonnementen Hersteld",
-                description: "De originele abonnementen zijn teruggezet in de database."
-            });
-            fetchPlans(); // Refresh
-        } catch (error) {
-             toast({
-                title: "Herstellen Mislukt",
                 description: (error as Error).message,
                 variant: "destructive"
             });
@@ -97,7 +81,6 @@ export default function SubscriptionManagementPage() {
                             </CardDescription>
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleRestoreDefaults} variant="outline">Standaard Herstellen</Button>
                             <Button asChild>
                                 <Link href="/dashboard/admin/subscription-management/new">
                                     <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement
@@ -112,7 +95,7 @@ export default function SubscriptionManagementPage() {
                         <TableRow>
                           <TableHead className="w-[100px]">Status</TableHead>
                           <TableHead>Plannaam</TableHead>
-                          <TableHead>Prijs Model</TableHead>
+                          <TableHead>Prijs</TableHead>
                           <TableHead className="text-right">Acties</TableHead>
                         </TableRow>
                       </TableHeader>

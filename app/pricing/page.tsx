@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -11,7 +10,7 @@ import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as Us
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
-import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures, formatFullPrice } from '@/types/subscription';
+import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin') || planId.includes('2_kinderen') || planId.includes('3_kinderen')) return Users;
+    if (planId.includes('family_guide')) return Users;
     return UserIcon;
 };
 
@@ -50,28 +49,31 @@ const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): num
     return plan.price;
 };
 
-// Main component, now wrapped for async data fetching
-export default function PricingPageWrapper() {
+export default function PricingPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const [fetchedPlans, fetchedFeatures] = await Promise.all([
-          getSubscriptionPlans(),
-          getAllFeatures()
-      ]);
+      // Data fetching is now synchronous and reliable
+      const fetchedPlans = getSubscriptionPlans();
+      const fetchedFeatures = getAllFeatures();
+      
       const sortedPlans = fetchedPlans
         .filter(p => p.active)
         .sort((a, b) => (a.price || 0) - (b.price || 0));
+        
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
       setIsLoading(false);
-    }
-    fetchData();
   }, []);
+  
+  const handlePlanSelection = (planId: string) => {
+    const planIdWithInterval = `${planId}_${billingInterval}`;
+    const targetUrl = `/signup?plan=${planIdWithInterval}`;
+    window.location.href = targetUrl;
+  };
 
   if (isLoading) {
     return (
@@ -81,20 +83,6 @@ export default function PricingPageWrapper() {
     );
   }
 
-  return <PricingPageContent plans={plans} allAppFeatures={allAppFeatures} />;
-}
-
-
-// The actual page content component
-function PricingPageContent({ plans, allAppFeatures }: { plans: SubscriptionPlan[], allAppFeatures: AppFeature[] }) {
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
-
-  const handlePlanSelection = (planId: string) => {
-    const planIdWithInterval = `${planId}_${billingInterval}`;
-    const targetUrl = `/signup?plan=${planIdWithInterval}`;
-    window.location.href = targetUrl;
-  };
-  
   return (
     <div className="flex min-h-screen flex-col">
       <Header />

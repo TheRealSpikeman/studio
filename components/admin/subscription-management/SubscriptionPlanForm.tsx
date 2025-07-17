@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Package } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Package, CaseLower } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -25,19 +26,16 @@ import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
-import { Switch } from "@/components/ui/switch";
 
 
 const planFormSchema = z.object({
-  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
+  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_maand')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }), // Total monthly price
   yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
 
-  currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
-  
   maxParents: z.coerce.number().int().min(0, "Aantal ouders moet 0 of meer zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen moet 0 of meer zijn.").optional(),
   
@@ -83,18 +81,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
 
   useEffect(() => {
-    async function fetchFeatures() {
-        const features = await getAllFeatures();
-        setAllAppFeatures(features);
-    }
-    fetchFeatures();
+    setAllAppFeatures(getAllFeatures());
   }, []);
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: {
       id: "", name: "", description: "", price: 0, yearlyDiscountPercent: 0,
-      currency: "EUR", maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
+      maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
     }
   });
   
@@ -102,6 +96,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     if (initialData) {
         form.reset({
             ...initialData,
+            price: initialData.price || 0,
             yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
             maxParents: initialData.maxParents ?? 0,
             maxChildren: initialData.maxChildren ?? 0,
@@ -114,7 +109,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
         });
         form.reset({
             id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 15,
-            currency: "EUR", maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
+            maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
             active: true, trialPeriodDays: 14, isPopular: false,
         });
     }
@@ -132,6 +127,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
       ...initialData,
       ...data,
       billingInterval: 'month', // We only support monthly for now
+      currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
     };
@@ -209,7 +205,6 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                <FormField control={form.control} name="maxParents" render={({ field }) => (<FormItem><FormLabel>Max. Ouders</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="maxChildren" render={({ field }) => (<FormItem><FormLabel>Max. Kinderen</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
             </div>
-            <FormField control={form.control} name="currency" render={({ field }) => (<FormItem className="hidden"><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
 
@@ -218,27 +213,27 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
               <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Opties</CardTitle>
           </CardHeader>
            <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                  control={form.control}
-                  name="active"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
-                      <FormLabel className="cursor-pointer text-sm pr-2">Plan Actief?</FormLabel>
-                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                    </FormItem>
-                  )}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
-                  name="isPopular"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
-                      <FormLabel className="cursor-pointer text-sm pr-2">Markeer als 'Populair'?</FormLabel>
-                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                    </FormItem>
-                  )}
-                />
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormLabel className="cursor-pointer text-sm font-medium pr-2">Plan Actief?</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isPopular"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormLabel className="cursor-pointer text-sm font-medium pr-2">Markeer als 'Populair'?</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
             </div>
           </CardContent>
         </Card>

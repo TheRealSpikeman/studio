@@ -1,16 +1,16 @@
-// app/dashboard/ouder/abonnementen/page.tsx
+// src/app/dashboard/ouder/abonnementen/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Euro, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Euro, CreditCard, PlusCircle, Settings, LifeBuoy, ShoppingCart, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { getSubscriptionPlans, formatPrice as formatPlanPrice } from '@/types/subscription';
+import { getSubscriptionPlans, formatFullPrice } from '@/types/subscription';
 
 interface ChildSubscription {
   id: string; // Unique ID for the child's subscription entry
@@ -21,14 +21,13 @@ interface ChildSubscription {
   endDate?: string; // ISO string, for verlopen status
 }
 
-// Initial dummy child subscriptions linked by planId
 const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_sofie',
     childName: 'Sofie de Tester',
-    planId: 'family_guide_monthly', // Matches new planId
+    planId: 'family_guide_monthly',
     status: 'actief',
-    nextBillingDate: new Date(Date.now() + 20 * 86400000).toISOString(), // Approx 20 days from now
+    nextBillingDate: new Date(Date.now() + 20 * 86400000).toISOString(),
   },
   {
     id: 'cs_max',
@@ -39,22 +38,22 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_lisa',
     childName: 'Lisa Voorbeeld',
-    planId: 'coaching_tools_monthly', // Matches new planId
+    planId: 'coaching_tools_monthly',
     status: 'verlopen',
-    endDate: new Date(Date.now() - 30 * 86400000).toISOString(), // Approx 30 days ago
+    endDate: new Date(Date.now() - 30 * 86400000).toISOString(),
   },
 ];
 
 const getStatusBadgeVariant = (status: ChildSubscription['status']): "default" | "secondary" | "destructive" | "outline" => {
   if (status === 'actief') return 'default';
   if (status === 'geen') return 'secondary';
-  return 'destructive'; // verlopen or others
+  return 'destructive';
 };
 
 const getStatusBadgeClasses = (status: ChildSubscription['status']): string => {
   if (status === 'actief') return 'bg-green-100 text-green-700 border-green-300';
   if (status === 'geen') return 'bg-gray-100 text-gray-700 border-gray-300';
-  return 'bg-red-100 text-red-700 border-red-300'; // verlopen
+  return 'bg-red-100 text-red-700 border-red-300';
 };
 
 export default function AbonnementenPage() {
@@ -63,16 +62,12 @@ export default function AbonnementenPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      const plans = await getSubscriptionPlans();
-      setAllSubscriptionPlans(plans);
-      setIsLoading(false);
-    }
-    fetchData();
+    setAllSubscriptionPlans(getSubscriptionPlans());
+    setIsLoading(false);
   }, []);
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin mr-2"/>Abonnementen laden...</div>;
   }
 
   return (
@@ -98,7 +93,7 @@ export default function AbonnementenPage() {
           {childSubscriptions.map(sub => {
             const planDetails = sub.planId ? allSubscriptionPlans.find(p => p.id === sub.planId) : null;
             const planName = planDetails ? planDetails.name : 'Nog geen abonnement';
-            const planPriceDisplay = planDetails ? formatPlanPrice(planDetails.price, planDetails.currency, planDetails.billingInterval) : null;
+            const planPriceDisplay = planDetails ? formatFullPrice(planDetails) : null;
 
             return (
               <Card key={sub.id} className="p-4 bg-muted/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
