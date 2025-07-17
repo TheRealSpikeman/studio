@@ -4,15 +4,15 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Star, Users, Sparkles } from 'lucide-react';
+import { Star, Users, Sparkles, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { type SubscriptionPlan, getSubscriptionPlans } from '@/types/subscription';
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('plus')) return Star;
     if (planId.includes('gezin')) return Users;
-    return Sparkles;
+    if (planId.includes('2_kinderen')) return Users;
+    return UserIcon;
 };
 
 interface PlanSelectionProps {
@@ -36,7 +36,7 @@ export function PlanSelection({ planParam, onPlanSelect }: PlanSelectionProps) {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {availablePlans.map(plan => {
+                {availablePlans.filter(p => p.price > 0).map(plan => { // Filter out free plan
                     const PlanIcon = getPlanIcon(plan.id);
                     return (
                         <Card key={plan.id} className={cn("flex flex-col text-center transition-all duration-200 border-2", plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border", planParam === plan.id ? (plan.isPopular ? "ring-2 ring-primary/50 shadow-2xl scale-105" : "border-primary ring-2 ring-primary/30 shadow-2xl scale-105") : "hover:shadow-lg")}>

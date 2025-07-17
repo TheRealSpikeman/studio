@@ -1,4 +1,3 @@
-
 // src/components/landing/pricing-section.tsx
 "use client";
 
@@ -17,7 +16,7 @@ export function PricingSection() {
                 Heldere Plannen, Directe Waarde
             </CardTitle>
             <CardDescription className="text-lg text-muted-foreground">
-                Start gratis om de basis te ontdekken, of kies een compleet pakket voor de volledige MindNavigator ervaring. Elk pad begint met een waardevolle, persoonlijke assessment voor uw kind.
+                Start met een abonnement dat past bij uw gezin en krijg direct volledige toegang tot alle tools, inzichten en het ouder-dashboard.
             </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
@@ -27,7 +26,7 @@ export function PricingSection() {
               </Link>
             </Button>
              <p className="mt-6 text-sm text-muted-foreground">
-                Transparante prijzen, geen verborgen kosten. Inclusief een gratis startoptie.
+                Transparante prijzen, maandelijks opzegbaar.
             </p>
         </CardContent>
       </div>

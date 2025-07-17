@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from '@/lib/icons';
@@ -15,10 +14,10 @@ export function FinalCtaSection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <Button size="lg" asChild className="shadow-md hover:shadow-lg transition-shadow text-base sm:text-lg px-8 py-3 sm:py-6">
-            <Link href="/signup?plan=family_guide_monthly">Start met Gezins Gids <ArrowRight className="ml-2 h-5 w-5"/></Link>
+            <Link href="/pricing">Bekijk onze Abonnementen <ArrowRight className="ml-2 h-5 w-5"/></Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="shadow-md hover:shadow-lg transition-shadow text-base sm:text-lg px-8 py-3 sm:py-6">
-            <Link href="/quizzes">Doe de gratis start-assessment</Link>
+            <Link href="/for-parents/quizzes">Doe de "Ken je Kind" Check (Gratis)</Link>
           </Button>
         </div>
         <p className="text-muted-foreground flex items-center justify-center gap-2">

@@ -25,15 +25,15 @@ export interface SubscriptionPlan {
   price: number;
   currency: 'EUR';
   billingInterval: 'month' | 'year' | 'once';
+  maxChildren?: number; // Nieuw veld
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
-  maxChildren?: number;
   isPopular?: boolean;
 }
 
 // --- DATA CONSTANTS ---
-export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans';
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans_v2'; // Version bump
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -47,47 +47,14 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'free_start',
-    name: 'Gratis Start',
-    shortName: 'Gratis',
-    description: 'Doe de basis assessment en ontdek je profiel. Een perfecte eerste stap.',
-    price: 0,
-    currency: 'EUR',
-    billingInterval: 'once',
-    featureAccess: {
-        'full-access-tools': true,
-    },
-    active: true,
-    isPopular: false,
-  },
-  {
-    id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
-    shortName: 'Coaching M',
-    description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind.',
-    price: 2.50,
+    id: '1_kind_maand',
+    name: '1 Kind - Maandelijks',
+    shortName: '1 Kind',
+    description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind, plus het ouder-dashboard.',
+    price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
-    featureAccess: {
-        'full-access-tools': true,
-        'daily-coaching': true,
-        'homework-tools': true,
-        'progress-reports': true,
-        'future-updates': true,
-    },
-    active: true,
-    trialPeriodDays: 14,
     maxChildren: 1,
-    isPopular: false,
-  },
-  {
-    id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    shortName: 'Gezin M',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard en toegang tot de marktplaats voor begeleiders.',
-    price: 5.00,
-    currency: 'EUR',
-    billingInterval: 'month',
     featureAccess: {
         'full-access-tools': true,
         'daily-coaching': true,
@@ -99,8 +66,51 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     },
     active: true,
     trialPeriodDays: 14,
-    maxChildren: 3,
     isPopular: true,
+  },
+  {
+    id: '2_kinderen_maand',
+    name: '2 Kinderen - Maandelijks',
+    shortName: '2 Kinderen',
+    description: 'Volledige toegang voor twee kinderen, inclusief alle tools, coaching en het ouder-dashboard.',
+    price: 27.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 2,
+    featureAccess: {
+        'full-access-tools': true,
+        'daily-coaching': true,
+        'homework-tools': true,
+        'progress-reports': true,
+        'expert-network': true,
+        'parent-dashboard': true,
+        'future-updates': true,
+    },
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+  },
+  {
+    id: 'gezin_maand',
+    name: 'Gezin (3-4 Kinderen) - Maandelijks',
+    shortName: 'Gezin',
+    description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
+    price: 37.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 4,
+    featureAccess: {
+        'full-access-tools': true,
+        'daily-coaching': true,
+        'homework-tools': true,
+        'progress-reports': true,
+        'expert-network': true,
+        'parent-dashboard': true,
+        'future-updates': true,
+    },
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
   }
 ];
 

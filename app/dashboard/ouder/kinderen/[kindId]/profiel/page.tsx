@@ -1,4 +1,3 @@
-
 // src/app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx
 "use client";
 
@@ -11,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import type { Child, EditableChildData } from '@/types/dashboard';
 import { KindProfielView } from '@/components/ouder/profiel/KindProfielView';
 import { KindProfielEditForm } from '@/components/ouder/profiel/KindProfielEditForm';
+import { getSubscriptionPlans } from '@/types/subscription';
 
 // Dummy data for now. In a real app, this would be fetched from Firestore.
 const dummyChildren: Child[] = [
-   { id: 'child1', firstName: 'Sofie', lastName: 'de Tester', name: 'Sofie de Tester', age: 13, ageGroup: '12-14', avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80', subscriptionStatus: 'actief', planId: 'family_guide_monthly', planName: 'Gezins Gids - Maandelijks', lastActivity: 'Quiz "Basis Neuroprofiel" voltooid', childEmail: 'sofie.tester@example.com', schoolType: 'HAVO', className: '2B', helpSubjects: ['wiskunde', 'nederlands'], hulpvraagType: ['tutor', 'coach'], leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.', voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met faalangst, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.', deelResultatenMetTutor: true, linkedTutorIds: ['tutor1'], },
-   { id: 'child2', firstName: 'Max', lastName: 'de Tester', name: 'Max de Tester', age: 16, ageGroup: '15-18', avatarUrl: 'https://picsum.photos/seed/maxchild/80/80', subscriptionStatus: 'actief', planId: 'family_guide_monthly', planName: 'Gezins Gids - Maandelijks', lastActivity: 'Laatste les: Engels (1 dag geleden)', childEmail: 'max.tester@example.com', schoolType: 'VWO', helpSubjects: ['engels', 'geschiedenis'], hulpvraagType: ['tutor', 'coach'], leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.', voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.', deelResultatenMetTutor: false, linkedTutorIds: [], },
+   { id: 'child1', firstName: 'Sofie', lastName: 'de Tester', name: 'Sofie de Tester', age: 13, ageGroup: '12-14', avatarUrl: 'https://picsum.photos/seed/sofiechild/80/80', subscriptionStatus: 'actief', planId: '1_kind_maand', planName: '1 Kind - Maandelijks', lastActivity: 'Quiz "Basis Neuroprofiel" voltooid', childEmail: 'sofie.tester@example.com', schoolType: 'HAVO', className: '2B', helpSubjects: ['wiskunde', 'nederlands'], hulpvraagType: ['tutor', 'coach'], leerdoelen: 'Geselecteerd: Beter leren plannen voor toetsen, Omgaan met faalangst. Overig: Kind heeft moeite met beginnen aan taken.', voorkeurTutor: 'Geselecteerde voorkeuren: Ervaring met faalangst, Geduldig. Overig: Iemand met ervaring met visueel ingestelde leerlingen.', deelResultatenMetTutor: true, linkedTutorIds: ['tutor1'], },
+   { id: 'child2', firstName: 'Max', lastName: 'de Tester', name: 'Max de Tester', age: 16, ageGroup: '15-18', avatarUrl: 'https://picsum.photos/seed/maxchild/80/80', subscriptionStatus: 'actief', planId: '2_kinderen_maand', planName: '2 Kinderen - Maandelijks', lastActivity: 'Laatste les: Engels (1 dag geleden)', childEmail: 'max.tester@example.com', schoolType: 'VWO', helpSubjects: ['engels', 'geschiedenis'], hulpvraagType: ['tutor', 'coach'], leerdoelen: 'Geselecteerd: Concentratie verbeteren tijdens de les. Overig: Verbeteren van spreekvaardigheid Engels en essay schrijven.', voorkeurTutor: 'Geselecteerde voorkeuren: Man. Overig: Tutor die ook kan helpen met motivatie.', deelResultatenMetTutor: false, linkedTutorIds: [], },
    { id: 'child3', firstName: 'Lisa', lastName: 'Voorbeeld', name: 'Lisa Voorbeeld', age: 12, ageGroup: '12-14', subscriptionStatus: 'geen', planId: undefined, planName: undefined, lastActivity: 'Coaching tip van gisteren bekeken', childEmail: 'lisa.voorbeeld@example.com', schoolType: 'Anders', otherSchoolType: 'Internationale School', helpSubjects: [], hulpvraagType: ['coach'], leerdoelen: 'Geselecteerd: Zelfvertrouwen vergroten.', voorkeurTutor: 'Geselecteerde voorkeuren: Vrouw, Ervaring met faalangst.', deelResultatenMetTutor: true, linkedTutorIds: ['tutor2', 'tutor3'], },
 ];
 
@@ -33,7 +33,20 @@ export default function KindProfielPage() {
     try {
       const storedChildrenRaw = localStorage.getItem('ouderDashboard_kinderen');
       const allChildren: Child[] = storedChildrenRaw ? JSON.parse(storedChildrenRaw) : dummyChildren;
-      dataToSet = allChildren.find(c => c.id === kindId) || null;
+      const allPlans = getSubscriptionPlans();
+      
+      const foundChild = allChildren.find(c => c.id === kindId);
+      
+      if (foundChild) {
+        const planDetails = allPlans.find(p => p.id === foundChild.planId);
+        dataToSet = {
+            ...foundChild,
+            planName: planDetails?.name || (foundChild.subscriptionStatus === 'geen' ? 'Geen' : 'Onbekend'),
+        };
+      } else {
+        dataToSet = null;
+      }
+      
     } catch (error) {
       console.error("Error parsing children from localStorage, falling back to dummy:", error);
       dataToSet = dummyChildren.find(c => c.id === kindId) || null;

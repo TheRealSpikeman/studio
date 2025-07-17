@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle } from 'lucide-react';
+import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -32,9 +32,9 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('plus')) return Star;
     if (planId.includes('gezin')) return Users;
-    return Sparkles;
+    if (planId.includes('2_kinderen')) return Users;
+    return UserIcon;
 };
 
 export default function PricingPage() {
@@ -49,7 +49,6 @@ export default function PricingPage() {
   }, []);
 
   const handlePlanSelection = (planId: string) => {
-    // Logic to handle plan selection, e.g., redirect to signup
     const targetUrl = `/signup?plan=${planId}`;
     window.location.href = targetUrl;
   };

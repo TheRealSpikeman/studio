@@ -1,4 +1,3 @@
-
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -37,6 +36,7 @@ const planFormSchema = z.object({
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
+  maxChildren: z.coerce.number().int().min(0, "Aantal kinderen moet 0 of meer zijn.").optional(),
   featureAccess: z.record(z.boolean()), 
   active: z.boolean().default(true),
   trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
@@ -99,6 +99,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
       price: 0,
       currency: "EUR",
       billingInterval: undefined,
+      maxChildren: 1,
       featureAccess: defaultFeatureAccess,
       active: true,
       trialPeriodDays: 0,
@@ -252,26 +253,40 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                 </FormItem>
               )}
             />
-            <FormField control={form.control} name="active" render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
-                    <FormDescription>Is dit abonnement momenteel selecteerbaar voor nieuwe gebruikers?</FormDescription>
-                  </div>
+            <FormField
+              control={form.control}
+              name="maxChildren"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Kinderen</FormLabel>
+                  <FormControl><Input type="number" min="0" placeholder="Bijv. 3" {...field} /></FormControl>
+                  <FormDescription className="text-xs">Voor hoeveel kinderen is dit abonnement geldig? (0 voor ongelimiteerd of niet van toepassing)</FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField control={form.control} name="isPopular" render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">Markeer als 'Populair' / 'Meest Gekozen'?</FormLabel>
-                    <FormDescription>Dit plan wordt uitgelicht op de prijspagina.</FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-col gap-4">
+              <FormField control={form.control} name="active" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
+                      <FormDescription>Is dit abonnement momenteel selecteerbaar voor nieuwe gebruikers?</FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField control={form.control} name="isPopular" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="cursor-pointer">Markeer als 'Populair' / 'Meest Gekozen'?</FormLabel>
+                      <FormDescription>Dit plan wordt uitgelicht op de prijspagina.</FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 

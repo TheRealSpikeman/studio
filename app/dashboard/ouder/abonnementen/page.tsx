@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, formatPrice as formatPlanPrice } from '@/types/subscription';
+import { getSubscriptionPlans, formatPrice as formatPlanPrice } from '@/types/subscription';
 
 interface ChildSubscription {
   id: string; // Unique ID for the child's subscription entry
@@ -26,7 +26,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_sofie',
     childName: 'Sofie de Tester',
-    planId: 'family_guide_monthly', // Matches planId from admin section
+    planId: '1_kind_maand', // Matches new planId
     status: 'actief',
     nextBillingDate: new Date(Date.now() + 20 * 86400000).toISOString(), // Approx 20 days from now
   },
@@ -39,7 +39,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_lisa',
     childName: 'Lisa Voorbeeld',
-    planId: 'family_guide_yearly', // Matches planId from admin section
+    planId: 'gezin_maand', // Matches new planId
     status: 'verlopen',
     endDate: new Date(Date.now() - 30 * 86400000).toISOString(), // Approx 30 days ago
   },
@@ -63,20 +63,7 @@ export default function AbonnementenPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-    if (storedPlansRaw) {
-      try {
-        const parsedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        setAllSubscriptionPlans(parsedPlans);
-      } catch (error) {
-        console.error("Error parsing subscription plans from localStorage:", error);
-        // Fallback or set empty if needed
-        setAllSubscriptionPlans([]);
-      }
-    } else {
-      // Handle case where no plans are in localStorage (e.g., set defaults or show message)
-      setAllSubscriptionPlans([]);
-    }
+    setAllSubscriptionPlans(getSubscriptionPlans());
     setIsLoading(false);
   }, []);
 
@@ -182,11 +169,10 @@ export default function AbonnementenPage() {
                 </Button>
             </p>
             <Button variant="link" className="p-0 h-auto" asChild>
-                <Link href="/for-parents#faq-payment">Bekijk FAQ over betalingen</Link>
+                <Link href="/faq#faq-payment">Bekijk FAQ over betalingen</Link>
             </Button>
         </CardContent>
       </Card>
-
     </div>
   );
 }
