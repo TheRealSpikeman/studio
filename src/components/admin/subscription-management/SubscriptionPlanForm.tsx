@@ -189,7 +189,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
 
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField 
                     control={form.control} 
                     name="price" 
@@ -207,6 +207,10 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                         </FormItem>
                     )} 
                 />
+                <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Valuta</FormLabel><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="billingInterval" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Facturatie Interval</FormLabel>
@@ -236,7 +240,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                 />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="maxParents"
@@ -244,7 +248,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                     <FormItem>
                       <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Ouders</FormLabel>
                       <FormControl><Input type="number" min="0" placeholder="Bijv. 2" {...field} /></FormControl>
-                      <FormDescription className="text-xs">Hoeveel ouders kunnen dit plan gebruiken?</FormDescription>
+                      <FormDescription className="text-xs">Voor hoeveel ouders is dit plan geldig?</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -261,26 +265,28 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                     </FormItem>
                   )}
                 />
-                 <div className="flex flex-col gap-4 justify-end">
-                  <FormField control={form.control} name="active" render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 h-full">
-                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField control={form.control} name="isPopular" render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 h-full">
-                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel className="cursor-pointer">Markeer als 'Populair'?</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField control={form.control} name="active" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
+                      <FormDescription>Is dit abonnement selecteerbaar?</FormDescription>
+                    </div>
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField control={form.control} name="isPopular" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="cursor-pointer">Markeer als 'Populair'?</FormLabel>
+                      <FormDescription>Dit plan wordt uitgelicht.</FormDescription>
+                    </div>
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
@@ -353,3 +359,4 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     </Form>
   );
 }
+

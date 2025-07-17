@@ -193,3 +193,4 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
+
