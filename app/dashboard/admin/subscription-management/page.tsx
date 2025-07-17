@@ -1,51 +1,45 @@
-
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { CreditCard, Edit, Trash2, PlusCircle, CheckCircle2, XCircle } from '@/lib/icons';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical } from '@/lib/icons';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
 import { initialDefaultPlans, getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan } from '@/types/subscription';
 
-
-// Helper function to format price
+// Helper function to format price, moved here to be self-contained
 const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2)}${intervalText}`;
+    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
 
 export default function SubscriptionManagementPage() {
     const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const router = useRouter();
-
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
     useEffect(() => {
         setIsLoading(true);
-        // Corrected logic to handle invalid data from localStorage
         let loadedPlans: SubscriptionPlan[];
         try {
             const storedPlansRaw = localStorage.getItem('mindnavigator_subscription_plans');
-            // Check if the raw string is not null and is not the string "undefined"
-            if (storedPlansRaw && storedPlansRaw !== 'undefined') {
+            if (storedPlansRaw && storedPlansRaw !== 'undefined' && storedPlansRaw !== 'null') {
                 loadedPlans = JSON.parse(storedPlansRaw);
             } else {
-                // If it's null or "undefined", use defaults and save them.
                 loadedPlans = initialDefaultPlans;
                 saveSubscriptionPlans(initialDefaultPlans);
             }
         } catch (e) {
-            console.error("Error parsing plans from localStorage, resetting to defaults", e);
+            console.error("Error parsing plans from localStorage, using defaults", e);
             loadedPlans = initialDefaultPlans;
             saveSubscriptionPlans(initialDefaultPlans);
         }
@@ -116,38 +110,55 @@ export default function SubscriptionManagementPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[100px]">Status</TableHead>
+                          <TableHead>Plannaam</TableHead>
+                          <TableHead>Aantal Kinderen</TableHead>
+                          <TableHead>Prijs</TableHead>
+                          <TableHead>Interval</TableHead>
+                          <TableHead className="text-right">Acties</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {availablePlans.map(plan => (
-                            <Card key={plan.id} className="shadow-md flex flex-col">
-                                <CardHeader>
-                                    <CardTitle>{plan.name}</CardTitle>
-                                    <CardDescription className="h-10">{plan.description}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow">
-                                    <p className="text-3xl font-bold">{formatPlanPrice(plan.price, plan.currency, plan.billingInterval)}</p>
-                                    <div className="mt-4 space-y-2">
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            {plan.active ? <CheckCircle2 className="h-4 w-4 text-green-500"/> : <XCircle className="h-4 w-4 text-red-500"/>}
-                                            Status: {plan.active ? "Actief" : "Inactief"}
-                                        </div>
-                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            {plan.isPopular && <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">Populair</Badge>}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="flex gap-2">
-                                    <Button size="sm" variant="outline" asChild>
+                          <TableRow key={plan.id}>
+                            <TableCell>
+                                <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? "Actief" : "Inactief"}</Badge>
+                                {plan.isPopular && <Badge variant="secondary" className="ml-1 text-xs bg-yellow-100 text-yellow-700"><Star className="h-3 w-3 inline-block" /></Badge>}
+                            </TableCell>
+                            <TableCell className="font-medium">{plan.name}</TableCell>
+                            <TableCell>{plan.maxChildren ? (plan.maxChildren > 1 ? `${plan.maxChildren} kinderen` : `${plan.maxChildren} kind`) : 'N.v.t.'}</TableCell>
+                            <TableCell>{formatPlanPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
+                            <TableCell className="capitalize">{plan.billingInterval}</TableCell>
+                            <TableCell className="text-right">
+                               <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreVertical className="h-4 w-4" />
+                                      <span className="sr-only">Acties voor {plan.name}</span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem asChild>
                                         <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
                                             <Edit className="mr-2 h-4 w-4" /> Bewerken
                                         </Link>
-                                    </Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleDeletePlan(plan)}>
-                                        <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                                    </Button>
-                                </CardFooter>
-                            </Card>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => handleDeletePlan(plan)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                    </div>
+                      </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
 
