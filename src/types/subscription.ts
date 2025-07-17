@@ -28,6 +28,7 @@ export interface SubscriptionPlan {
   price: number;
   currency: 'EUR';
   billingInterval: 'month' | 'year' | 'once';
+  maxParents?: number; // Nieuw veld
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -51,7 +52,7 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 ];
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
-  {
+    {
     id: 'coaching_tools_monthly',
     name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
@@ -59,20 +60,12 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     price: 2.50,
     currency: 'EUR',
     billingInterval: 'month',
+    maxParents: 1,
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
     isPopular: true,
-    featureAccess: {
-        'full-access-tools': true,
-        'daily-coaching': true,
-        'homework-tools': true,
-        'progress-reports': true,
-        'parent-dashboard': false,
-        'expert-network-tutor': false,
-        'expert-network-coach': false,
-        'future-updates': true,
-    },
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
     id: 'family_guide_monthly',
@@ -82,62 +75,13 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     price: 10.00,
     currency: 'EUR',
     billingInterval: 'month',
+    maxParents: 2,
     maxChildren: 4,
     active: true,
     trialPeriodDays: 14,
     isPopular: false,
-    featureAccess: {
-        'full-access-tools': true,
-        'daily-coaching': true,
-        'homework-tools': true,
-        'progress-reports': true,
-        'parent-dashboard': true,
-        'expert-network-tutor': true,
-        'expert-network-coach': true,
-        'future-updates': true,
-    },
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
-  {
-    id: 'ouder_inzicht_maand',
-    name: 'Ouder Inzicht - Maandelijks',
-    shortName: 'Ouder Inzicht',
-    description: 'Toegang tot het ouder-dashboard, de "Ken je Kind" vragenlijst en de vergelijkende analyse. Ideaal om te starten en inzicht te krijgen.',
-    price: 7.50,
-    currency: 'EUR',
-    billingInterval: 'month',
-    maxChildren: 0,
-    active: true,
-    trialPeriodDays: 0,
-    isPopular: false,
-    featureAccess: {
-        'parent-dashboard': true,
-        'expert-network-tutor': true,
-        'expert-network-coach': true,
-    },
-  },
-   {
-    id: 'premium_family_monthly',
-    name: 'Premium Familie - Maandelijks',
-    shortName: 'Premium Familie',
-    description: 'Het meest complete pakket voor het hele gezin, inclusief alle tools en onbeperkt aantal kinderen.',
-    price: 45.00,
-    currency: 'EUR',
-    billingInterval: 'month',
-    maxChildren: 99,
-    active: true,
-    trialPeriodDays: 14,
-    isPopular: false,
-    featureAccess: {
-        'full-access-tools': true,
-        'daily-coaching': true,
-        'homework-tools': true,
-        'progress-reports': true,
-        'parent-dashboard': true,
-        'expert-network-tutor': true,
-        'expert-network-coach': true,
-        'future-updates': true,
-    },
-  }
 ];
 
 
