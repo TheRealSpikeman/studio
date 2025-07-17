@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package, CaseLower } from 'lucide-react';
 import Link from 'next/link';
@@ -27,6 +27,7 @@ import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
+import { Switch } from "@/components/ui/switch";
 
 
 const planFormSchema = z.object({
@@ -188,14 +189,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="10.00" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Valuta</FormLabel><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="billingInterval" render={({ field }) => (<FormItem><FormLabel>Facturatie Interval</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecteer interval" /></SelectTrigger></FormControl><SelectContent><SelectItem value="month">Maandelijks</SelectItem><SelectItem value="year">Jaarlijks</SelectItem><SelectItem value="once">Eenmalig</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dgn)</FormLabel><FormControl><Input type="number" min="0" placeholder="14" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
                 <FormField
                   control={form.control}
                   name="maxParents"
@@ -218,18 +219,26 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                     </FormItem>
                   )}
                 />
-                <FormField control={form.control} name="active" render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 md:col-start-3">
-                    <FormLabel className="cursor-pointer text-sm">Actief?</FormLabel>
-                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="isPopular" render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <FormLabel className="cursor-pointer text-sm">Populair?</FormLabel>
-                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  </FormItem>
-                )} />
+                <FormField
+                  control={form.control}
+                  name="active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-10">
+                      <FormLabel className="cursor-pointer text-sm pr-2">Actief?</FormLabel>
+                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isPopular"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-10">
+                      <FormLabel className="cursor-pointer text-sm pr-2">Populair?</FormLabel>
+                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
             </div>
 
           </CardContent>
