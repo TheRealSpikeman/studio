@@ -1,3 +1,4 @@
+
 // src/components/admin/tool-management/ToolTable.tsx
 "use client";
 
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Pencil, Trash2, MoreVertical, Eye, Circle } from '@/lib/icons'; // CORRECTED IMPORT
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { getToolIconComponent } from '@/lib/quiz-data/tools-data';

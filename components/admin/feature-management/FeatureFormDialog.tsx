@@ -30,8 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/types/subscription';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY } from '@/types/subscription';
+import { getSubscriptionPlans, saveSubscriptionPlans, type AppFeature, type SubscriptionPlan, type TargetAudience } from '@/types/subscription';
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },
@@ -46,7 +45,7 @@ const featureFormSchema = z.object({
   id: z.string().min(3, { message: "Feature ID moet minimaal 3 tekens bevatten (bijv. 'dailyCoaching')." }).regex(/^[a-zA-Z0-9-_]+$/, "ID mag alleen letters, cijfers, streepjes en underscores bevatten."),
   label: z.string().min(3, { message: "Label (titel) moet minimaal 3 tekens bevatten." }),
   description: z.string().optional(),
-  targetAudience: z.array(z.string() as z.ZodType<TargetAudience[], any>).min(1, { message: "Selecteer minimaal één doelgroep." }),
+  targetAudience: z.array(z.custom<TargetAudience>()).min(1, { message: "Selecteer minimaal één doelgroep." }),
   category: z.string().optional(),
   isRecommendedTool: z.boolean().optional(),
   linkedPlans: z.array(z.string()).optional(), 
@@ -81,20 +80,12 @@ export function FeatureFormDialog({ isOpen, onOpenChange, feature, onSave }: Fea
 
   useEffect(() => {
     if (isOpen) {
-      try {
-        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-        const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
-        setAllSubscriptionPlans(loadedPlans.filter(p => p.active)); 
-      } catch (error) {
-        console.error("Error loading subscription plans:", error);
-        setAllSubscriptionPlans([]);
-      }
+        setAllSubscriptionPlans(getSubscriptionPlans().filter(p => p.active));
 
       let initialLinkedPlans: string[] = [];
       if (feature) { 
-        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-        const loadedPlans: SubscriptionPlan[] = storedPlansRaw ? JSON.parse(storedPlansRaw) : [];
-        initialLinkedPlans = loadedPlans
+        const allPlans = getSubscriptionPlans();
+        initialLinkedPlans = allPlans
           .filter(plan => plan.featureAccess && plan.featureAccess[feature.id])
           .map(plan => plan.id);
         

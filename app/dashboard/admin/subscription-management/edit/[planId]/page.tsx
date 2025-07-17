@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertTriangle } from '@/lib/icons';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, DEFAULT_APP_FEATURES } from '@/types/subscription';
+import { getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
 
 export default function EditSubscriptionPlanPage() {
   const params = useParams();
@@ -18,32 +18,23 @@ export default function EditSubscriptionPlanPage() {
 
   useEffect(() => {
     if (planId) {
-      const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-      if (storedPlansRaw) {
-        const storedPlans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-        const foundPlan = storedPlans.find(p => p.id === planId);
-        
-        if (foundPlan) {
-            const defaultFeatureAccess: Record<string, boolean> = {};
-            DEFAULT_APP_FEATURES.forEach(feature => { 
-              defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
-            });
+      const allPlans = getSubscriptionPlans();
+      const allFeatures = getAllFeatures();
+      const foundPlan = allPlans.find(p => p.id === planId);
+      
+      if (foundPlan) {
+          const defaultFeatureAccess: Record<string, boolean> = {};
+          allFeatures.forEach(feature => { 
+            defaultFeatureAccess[feature.id] = foundPlan.featureAccess?.[feature.id] || false;
+          });
 
-            const planWithDefaults: SubscriptionPlan = {
-                ...foundPlan,
-                shortName: foundPlan.shortName ?? '',
-                featureAccess: defaultFeatureAccess, 
-                trialPeriodDays: foundPlan.trialPeriodDays ?? (foundPlan.price === 0 ? 0 : 14),
-                maxChildren: foundPlan.maxChildren ?? (foundPlan.id.includes('family') ? 3 : 1),
-                isPopular: foundPlan.isPopular ?? false,
-                tagline: foundPlan.tagline ?? '',
-            };
-            setPlanData(planWithDefaults);
-        } else {
-            setPlanData(null);
-        }
+          const planWithDefaults: SubscriptionPlan = {
+              ...foundPlan,
+              featureAccess: defaultFeatureAccess, 
+          };
+          setPlanData(planWithDefaults);
       } else {
-        setPlanData(null); 
+          setPlanData(null);
       }
     }
   }, [planId]);

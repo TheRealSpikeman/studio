@@ -27,7 +27,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { DEFAULT_APP_FEATURES, LOCAL_STORAGE_FEATURES_KEY, LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, type SubscriptionPlan, type AppFeature, type TargetAudience } from '@/types/subscription';
+import { getSubscriptionPlans, saveSubscriptionPlans, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience } from '@/types/subscription';
+
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
@@ -56,6 +57,8 @@ const getAudienceBadgeVariant = (audience: TargetAudience): "default" | "seconda
   switch (audience) {
     case 'leerling': return 'default'; 
     case 'ouder': return 'secondary';
+    case 'tutor': return 'default';
+    case 'coach': return 'secondary';
     case 'platform': return 'outline';
     case 'beide': return 'outline'; 
     default: return 'outline';
@@ -65,6 +68,8 @@ const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   switch (audience) {
     case 'leerling': return 'bg-blue-100 text-blue-700 border-blue-300';
     case 'ouder': return 'bg-green-100 text-green-700 border-green-300';
+    case 'tutor': return 'bg-violet-100 text-violet-700 border-violet-300';
+    case 'coach': return 'bg-cyan-100 text-cyan-700 border-cyan-300';
     case 'platform': return 'bg-gray-100 text-gray-700 border-gray-300';
     case 'beide': return 'bg-purple-100 text-purple-700 border-purple-300';
     default: return '';
@@ -77,13 +82,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
 
   useEffect(() => {
-    const storedFeaturesRaw = localStorage.getItem(LOCAL_STORAGE_FEATURES_KEY);
-    if (storedFeaturesRaw) {
-      setAllAppFeatures(JSON.parse(storedFeaturesRaw));
-    } else {
-      setAllAppFeatures(DEFAULT_APP_FEATURES);
-      localStorage.setItem(LOCAL_STORAGE_FEATURES_KEY, JSON.stringify(DEFAULT_APP_FEATURES));
-    }
+    setAllAppFeatures(getAllFeatures());
   }, []);
 
   const defaultFeatureAccess: Record<string, boolean> = {};
@@ -95,12 +94,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     resolver: zodResolver(planFormSchema),
     defaultValues: !isNew && initialData ? {
       ...initialData,
-      shortName: initialData.shortName ?? '',
       featureAccess: initialData.featureAccess || defaultFeatureAccess,
-      trialPeriodDays: initialData.trialPeriodDays ?? 0,
-      maxChildren: initialData.maxChildren ?? 0,
-      isPopular: initialData.isPopular ?? false,
-      tagline: initialData.tagline ?? '',
     } : {
       id: "",
       name: "",
@@ -142,21 +136,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   };
 
   const onSubmit = (data: PlanFormData) => {
-    const planToSave: SubscriptionPlan = {
-      ...data,
-      shortName: data.shortName,
-      trialPeriodDays: data.trialPeriodDays,
-      maxChildren: data.maxChildren,
-      isPopular: data.isPopular,
-      tagline: data.tagline,
-    };
+    const planToSave: SubscriptionPlan = { ...data };
 
     try {
-      const existingPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-      let existingPlans: SubscriptionPlan[] = existingPlansRaw ? JSON.parse(existingPlansRaw) : [];
+      const existingPlans = getSubscriptionPlans();
+      let updatedPlans: SubscriptionPlan[];
       
       if (!isNew && initialData) {
-        existingPlans = existingPlans.map(p => p.id === initialData.id ? planToSave : p);
+        updatedPlans = existingPlans.map(p => p.id === initialData.id ? planToSave : p);
          toast({
           title: "Abonnement Bijgewerkt",
           description: `Het abonnement "${planToSave.name}" is bijgewerkt.`,
@@ -170,13 +157,13 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
           });
           return;
         }
-        existingPlans.push(planToSave);
+        updatedPlans = [...existingPlans, planToSave];
         toast({
           title: "Abonnement Aangemaakt",
           description: `Het abonnement "${planToSave.name}" is aangemaakt.`,
         });
       }
-      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(existingPlans));
+      saveSubscriptionPlans(updatedPlans);
     } catch (error) {
       console.error("Failed to save/update subscription plan in localStorage:", error);
        toast({
@@ -223,7 +210,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                 </FormItem>
               )} 
             />
-            <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching &amp; Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="tagline" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Marketing Tagline (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. Slechts €0,13 per dag voor uitgebreide tools!" {...field} /></FormControl><FormDescription className="text-xs">Korte, pakkende zin die onder de prijs getoond wordt.</FormDescription><FormMessage /></FormItem>)} />
             <FormField 

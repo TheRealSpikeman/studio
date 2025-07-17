@@ -1,3 +1,4 @@
+
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
@@ -8,10 +9,10 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Edit, Trash2, MoreVertical, Link2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getSubscriptionPlans } from '@/types/subscription';
 
 interface FeatureTableProps {
   features: AppFeature[];
-  allSubscriptionPlans: SubscriptionPlan[]; 
   onEditFeature: (feature: AppFeature) => void;
   onDeleteFeature: (featureId: string) => void;
 }
@@ -51,7 +52,8 @@ const planBadgeColorClasses = [
   'bg-orange-100 text-orange-700 border-orange-300',
 ];
 
-export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, onDeleteFeature }: FeatureTableProps) {
+export function FeatureTable({ features, onEditFeature, onDeleteFeature }: FeatureTableProps) {
+  const allSubscriptionPlans = getSubscriptionPlans();
   return (
     <div className="overflow-x-auto">
       <Table>

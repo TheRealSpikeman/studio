@@ -1,3 +1,4 @@
+
 // src/components/admin/tool-creator/ToolCreatorForm.tsx
 "use client";
 
@@ -91,7 +92,7 @@ export function ToolCreatorForm({ onSave, initialData, isNewTool, onDelete }: To
     
     try {
       const storedToolsRaw = localStorage.getItem(LOCAL_STORAGE_TOOLS_KEY);
-      const existingTools: {id: string}[] = storedToolsRaw ? JSON.parse(storedToolsRaw) : [];
+      const existingTools: {id: string}[] = (storedToolsRaw && storedToolsRaw !== 'undefined') ? JSON.parse(storedToolsRaw) : [];
       const existingIds = existingTools.map(t => t.id);
 
       const result = await generateToolDetails({ toolIdea, existingIds });
