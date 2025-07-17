@@ -86,9 +86,6 @@ export default function SubscriptionManagementPage() {
         return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
     }
 
-    const mainPlans = availablePlans.filter(p => p.id !== 'ouder_dashboard_addon');
-    const addons = availablePlans.filter(p => p.id === 'ouder_dashboard_addon');
-
     return (
         <div className="space-y-8">
             <Card>
@@ -124,7 +121,7 @@ export default function SubscriptionManagementPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {mainPlans.map(plan => {
+                        {availablePlans.map(plan => {
                             const yearlyPrice = plan.price * 12 * (1 - (plan.yearlyDiscountPercent || 0) / 100);
                             return (
                                 <TableRow key={plan.id}>
@@ -149,44 +146,6 @@ export default function SubscriptionManagementPage() {
                                 </TableRow>
                             )
                         })}
-                      </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">Add-ons</CardTitle>
-                </CardHeader>
-                <CardContent>
-                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Add-on Naam</TableHead>
-                          <TableHead>Beschrijving</TableHead>
-                          <TableHead>Prijs/Maand</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Acties</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                         {addons.map(plan => (
-                             <TableRow key={plan.id}>
-                                 <TableCell className="font-medium">{plan.name}</TableCell>
-                                 <TableCell>{plan.description}</TableCell>
-                                 <TableCell>{formatCurrency(plan.price)}</TableCell>
-                                 <TableCell>
-                                     <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>Actief</Badge>
-                                 </TableCell>
-                                 <TableCell className="text-right">
-                                     <Button asChild variant="outline" size="sm">
-                                         <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
-                                             Bewerken
-                                         </Link>
-                                     </Button>
-                                 </TableCell>
-                             </TableRow>
-                         ))}
                       </TableBody>
                     </Table>
                 </CardContent>

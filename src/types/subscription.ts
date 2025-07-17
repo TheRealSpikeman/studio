@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -27,14 +26,16 @@ export interface SubscriptionPlan {
   tagline?: string;
   price: number;
   currency: 'EUR';
+  yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; // Nieuw veld
+  maxParents?: number; 
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
 }
+
 
 // --- DATA CONSTANTS (for seeding) ---
 const PLANS_COLLECTION = 'subscriptionPlans';
@@ -56,25 +57,43 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     id: 'coaching_tools_monthly',
     name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
-    price: 2.50,
+    description: 'Essentiële tools en dagelijkse coaching voor één kind.',
+    price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 1,
+    yearlyDiscountPercent: 15,
+    maxParents: 2,
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
     isPopular: true,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
     id: 'family_guide_monthly',
     name: 'Gezins Gids - Maandelijks',
     shortName: 'Gezins Gids',
     description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
-    price: 10.00,
+    price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
+    yearlyDiscountPercent: 15,
+    maxParents: 2,
+    maxChildren: 2,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+  },
+   {
+    id: 'family_guide_large',
+    name: 'Gezins Gids (Groot)',
+    shortName: 'Gezins Gids+',
+    description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
+    price: 35.00,
+    currency: 'EUR',
+    billingInterval: 'month',
+    yearlyDiscountPercent: 20,
     maxParents: 2,
     maxChildren: 4,
     active: true,
@@ -194,3 +213,12 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
 
+export const formatFullPrice = (plan: SubscriptionPlan) => {
+    // New logic to handle yearly discount correctly
+    if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
+        const yearlyPrice = plan.price * 12;
+        const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);
+        return `${formatPrice(discountedYearly, plan.currency, 'year')} (${plan.yearlyDiscountPercent}% korting)`;
+    }
+    return formatPrice(plan.price, plan.currency, plan.billingInterval);
+};
