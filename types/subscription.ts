@@ -1,7 +1,6 @@
+
 // src/types/subscription.ts
 import { z } from "zod";
-import { db, isFirebaseConfigured } from '@/lib/firebase';
-import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
 
 // --- CORE TYPES ---
 
@@ -37,9 +36,9 @@ export interface SubscriptionPlan {
 }
 
 
-// --- DATA CONSTANTS (for seeding) ---
-const PLANS_COLLECTION = 'subscriptionPlans';
-const FEATURES_COLLECTION = 'features';
+// --- DATA CONSTANTS (for seeding and direct use) ---
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
+const FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -54,164 +53,119 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: '1_kind_maand',
-    name: '1 Kind - Maandelijks',
-    shortName: '1 Kind',
-    description: 'Volledige toegang voor één kind.',
+    id: 'coaching_tools_monthly',
+    name: 'Coaching & Tools - Maandelijks',
+    shortName: 'Coaching & Tools',
+    description: 'Essentiële tools en dagelijkse coaching voor één kind, inclusief ouder-dashboard.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 10,
+    yearlyDiscountPercent: 15,
+    maxParents: 2,
     maxChildren: 1,
     active: true,
+    trialPeriodDays: 14,
+    isPopular: true,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
-    id: '2_kinderen_maand',
-    name: '2 Kinderen - Maandelijks',
-    shortName: '2 Kinderen',
-    description: 'Volledige toegang voor twee kinderen.',
+    id: 'family_guide_monthly',
+    name: 'Gezins Gids - Maandelijks',
+    shortName: 'Gezins Gids',
+    description: 'Alle tools en coaching voor het hele gezin, met ondersteuning voor maximaal 2 kinderen.',
     price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 10,
+    yearlyDiscountPercent: 15,
+    maxParents: 2,
     maxChildren: 2,
     active: true,
-    isPopular: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
    {
-    id: '3_kinderen_maand',
-    name: '3 Kinderen - Maandelijks',
-    shortName: '3 Kinderen',
-    description: 'Volledige toegang voor 3 tot 4 kinderen.',
+    id: 'family_guide_large',
+    name: 'Gezins Gids (Groot)',
+    shortName: 'Gezins Gids+',
+    description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
     price: 35.00,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 10,
-    maxChildren: 3,
+    yearlyDiscountPercent: 20,
+    maxParents: 2,
+    maxChildren: 4,
     active: true,
-  },
-  {
-    id: 'ouder_dashboard_addon',
-    name: 'Ouder Dashboard Add-on',
-    shortName: 'Ouder Dashboard',
-    description: 'Inzicht in voortgang en coach sessies',
-    price: 7.50,
-    currency: 'EUR',
-    billingInterval: 'month',
-    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
 ];
 
 
-// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE ---
+// --- Helper Functions (Client-side Safe) ---
 
-export async function seedInitialPlans(force: boolean = false): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const plansRef = collection(db, PLANS_COLLECTION);
-    if (force) {
-        const snapshot = await getDocs(plansRef);
-        if (!snapshot.empty) {
-            const batch = writeBatch(db);
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            console.log("Forced re-seed: Existing plans deleted.");
-        }
+// This function now synchronously reads from localStorage, providing a robust fallback.
+export const getSubscriptionPlans = (): SubscriptionPlan[] => {
+  if (typeof window === 'undefined') {
+    return initialDefaultPlans; // Fallback for server-side rendering
+  }
+  try {
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+    if (storedPlansRaw) {
+      return JSON.parse(storedPlansRaw);
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+      return initialDefaultPlans;
     }
-    const snapshot = await getDocs(plansRef);
-    if (snapshot.empty || force) {
-        console.log("Seeding subscription plans...");
-        const batch = writeBatch(db);
-        initialDefaultPlans.forEach(plan => {
-            const docRef = doc(db, PLANS_COLLECTION, plan.id);
-            batch.set(docRef, plan);
-        });
-        await batch.commit();
+  } catch (error) {
+    console.error("Error reading subscription plans from localStorage:", error);
+    return initialDefaultPlans; // Fallback to defaults on error
+  }
+};
+
+export const saveSubscriptionPlans = (plans: SubscriptionPlan[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
+  } catch (error) {
+    console.error("Error saving subscription plans to localStorage:", error);
+  }
+};
+
+export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
+    const allPlans = getSubscriptionPlans();
+    return allPlans.find(plan => plan.id === id) || null;
+};
+
+export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
+    const currentPlans = getSubscriptionPlans();
+    if (currentPlans.some(p => p.id === data.id)) {
+      throw new Error("Een abonnement met dit ID bestaat al.");
     }
-}
-
-export async function seedInitialFeatures(): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const featuresRef = collection(db, FEATURES_COLLECTION);
-    const snapshot = await getDocs(featuresRef);
-    if (snapshot.empty) {
-        console.log("Seeding features...");
-        const batch = writeBatch(db);
-        DEFAULT_APP_FEATURES.forEach(feature => {
-            const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-            batch.set(docRef, feature);
-        });
-        await batch.commit();
-    }
-}
-
-export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
-    if (!isFirebaseConfigured || !db) {
-        console.warn("Firebase not configured. Returning local mock data for subscription plans.");
-        return initialDefaultPlans;
-    }
-    await seedInitialPlans(); // Ensure data exists
-    const snapshot = await getDocs(collection(db, PLANS_COLLECTION));
-    if (snapshot.empty) return initialDefaultPlans; // Fallback
-    return snapshot.docs.map(doc => doc.data() as SubscriptionPlan);
+    const newPlans = [...currentPlans, data];
+    saveSubscriptionPlans(newPlans);
 };
 
-export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
-    if (!isFirebaseConfigured || !db) {
-        return initialDefaultPlans.find(p => p.id === id) || null;
-    }
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() as SubscriptionPlan : null;
+export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
+    saveSubscriptionPlans(updatedPlans);
 };
 
-export const saveSubscriptionPlan = async (id: string, data: Partial<SubscriptionPlan>): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    await updateDoc(docRef, data);
+export const deleteSubscriptionPlan = (id: string): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
+    saveSubscriptionPlans(updatedPlans);
 };
 
-export const createSubscriptionPlan = async (data: SubscriptionPlan): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, data.id);
-    await setDoc(docRef, data);
+export const getAllFeatures = (): AppFeature[] => {
+    // For now, features are static. Could be moved to localStorage like plans if needed.
+    return DEFAULT_APP_FEATURES;
 };
 
-export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, PLANS_COLLECTION, id));
-};
 
-export const getAllFeatures = async (): Promise<AppFeature[]> => {
-    if (!isFirebaseConfigured || !db) return [];
-    await seedInitialFeatures();
-    const snapshot = await getDocs(collection(db, FEATURES_COLLECTION));
-    return snapshot.docs.map(doc => doc.data() as AppFeature);
-};
-
-export const saveAllFeatures = async (features: AppFeature[]): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const batch = writeBatch(db);
-    features.forEach(feature => {
-        const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-        batch.set(docRef, feature);
-    });
-    await batch.commit();
-};
-
-export const saveFeature = async (feature: AppFeature, oldId?: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    if (oldId && oldId !== feature.id) {
-       throw new Error("Changing Feature ID is not supported yet.");
-    }
-    const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-    await setDoc(docRef, feature, { merge: true });
-};
-
-export const deleteFeature = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, FEATURES_COLLECTION, id));
-};
-
+// Simplified formatters
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
@@ -219,7 +173,6 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
-    // New logic to handle yearly discount correctly
     if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
         const yearlyPrice = plan.price * 12;
         const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);

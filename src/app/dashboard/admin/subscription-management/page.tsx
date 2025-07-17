@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -8,18 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from '@/lib/icons';
+import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, formatFullPrice } from '@/types/subscription';
 
-// Helper function to format price, moved here to be self-contained
-const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
 };
 
 export default function SubscriptionManagementPage() {
@@ -28,18 +24,14 @@ export default function SubscriptionManagementPage() {
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
-    const fetchPlans = async () => {
+    const fetchPlans = () => {
         setIsLoading(true);
         try {
-            const plans = await getSubscriptionPlans();
-            const sortedPlans = plans.sort((a, b) => {
-                if (a.price === 0) return -1;
-                if (b.price === 0) return 1;
-                return a.price - b.price;
-            });
+            const plans = getSubscriptionPlans();
+            const sortedPlans = plans.sort((a, b) => (a.price || 0) - (b.price || 0));
             setAvailablePlans(sortedPlans);
         } catch(e) {
-            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
+            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -57,33 +49,16 @@ export default function SubscriptionManagementPage() {
         if (!planToDelete) return;
         
         try {
-            await deleteSubscriptionPlan(planToDelete.id);
+            deleteSubscriptionPlan(planToDelete.id);
             toast({
                 title: "Abonnement Verwijderd",
                 description: `Het abonnement "${planToDelete.name}" is verwijderd.`
             });
             setPlanToDelete(null);
-            fetchPlans(); // Refresh the list from Firestore
+            fetchPlans(); 
         } catch (error) {
              toast({
                 title: "Fout bij verwijderen",
-                description: (error as Error).message,
-                variant: "destructive"
-            });
-        }
-    };
-
-    const handleRestoreDefaults = async () => {
-        try {
-            await seedInitialPlans(true); // Force seeding
-            toast({
-                title: "Standaard Abonnementen Hersteld",
-                description: "De originele abonnementen zijn teruggezet in de database."
-            });
-            fetchPlans(); // Refresh
-        } catch (error) {
-             toast({
-                title: "Herstellen Mislukt",
                 description: (error as Error).message,
                 variant: "destructive"
             });
@@ -101,15 +76,10 @@ export default function SubscriptionManagementPage() {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                                <CreditCard className="h-6 w-6 text-primary" />
-                                Abonnementen Beheer
+                                Huidige Abonnementen
                             </CardTitle>
-                            <CardDescription>
-                                Beheer hier de abonnementsplannen die beschikbaar zijn voor gebruikers.
-                            </CardDescription>
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleRestoreDefaults} variant="outline">Standaard Herstellen</Button>
                             <Button asChild>
                                 <Link href="/dashboard/admin/subscription-management/new">
                                     <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement
@@ -122,52 +92,42 @@ export default function SubscriptionManagementPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[100px]">Status</TableHead>
-                          <TableHead>Plannaam</TableHead>
-                          <TableHead>Max Ouders</TableHead>
-                          <TableHead>Max Kinderen</TableHead>
-                          <TableHead>Prijs</TableHead>
-                          <TableHead>Interval</TableHead>
+                          <TableHead>Plan Naam</TableHead>
+                          <TableHead>Kinderen</TableHead>
+                          <TableHead>Prijs/Maand</TableHead>
+                          <TableHead>Prijs/Jaar</TableHead>
+                          <TableHead>Korting</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Populair</TableHead>
                           <TableHead className="text-right">Acties</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {availablePlans.map(plan => (
-                          <TableRow key={plan.id}>
-                            <TableCell>
-                                <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? "Actief" : "Inactief"}</Badge>
-                                {plan.isPopular && <Badge variant="secondary" className="ml-1 text-xs bg-yellow-100 text-yellow-700"><Star className="h-3 w-3 inline-block" /></Badge>}
-                            </TableCell>
-                            <TableCell className="font-medium">{plan.name}</TableCell>
-                            <TableCell>{plan.maxParents ?? 'N/A'}</TableCell>
-                            <TableCell>{plan.maxChildren ?? 'N/A'}</TableCell>
-                            <TableCell>{formatPlanPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
-                            <TableCell className="capitalize">{plan.billingInterval}</TableCell>
-                            <TableCell className="text-right">
-                               <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                      <MoreVertical className="h-4 w-4" />
-                                      <span className="sr-only">Acties voor {plan.name}</span>
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem asChild>
-                                        <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
-                                            <Edit className="mr-2 h-4 w-4" /> Bewerken
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => handleDeletePlan(plan)}
-                                      className="text-destructive focus:text-destructive"
-                                    >
-                                      <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {availablePlans.map(plan => {
+                            const yearlyPrice = plan.price * 12 * (1 - (plan.yearlyDiscountPercent || 0) / 100);
+                            return (
+                                <TableRow key={plan.id}>
+                                    <TableCell className="font-medium">{plan.name}</TableCell>
+                                    <TableCell>{plan.maxChildren ?? 'N/A'}</TableCell>
+                                    <TableCell>{formatCurrency(plan.price)}</TableCell>
+                                    <TableCell>{formatCurrency(yearlyPrice)}</TableCell>
+                                    <TableCell>{plan.yearlyDiscountPercent || 0}%</TableCell>
+                                    <TableCell>
+                                        <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>Actief</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
+                                                Bewerken
+                                            </Link>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
                       </TableBody>
                     </Table>
                 </CardContent>

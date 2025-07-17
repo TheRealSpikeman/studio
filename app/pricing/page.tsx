@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -58,7 +59,6 @@ export default function PricingPage() {
   useEffect(() => {
     function fetchData() {
       setIsLoading(true);
-      // Fetch data synchronously
       const fetchedPlans = getSubscriptionPlans();
       const fetchedFeatures = getAllFeatures();
       
