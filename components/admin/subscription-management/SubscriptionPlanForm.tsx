@@ -26,20 +26,17 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
+import { saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
 
 
 const planFormSchema = z.object({
-  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
+  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_maand')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
-  
-  price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }), // Total monthly price
+  price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
-
   maxParents: z.coerce.number().int().min(0, "Aantal ouders moet 0 of meer zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen moet 0 of meer zijn.").optional(),
-  
   featureAccess: z.record(z.boolean()), 
   active: z.boolean().default(true),
   trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
@@ -139,15 +136,11 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
              toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
              return;
         }
-        // This is a mock function as there is no real service call
-        // await createSubscriptionPlan(planToSave as SubscriptionPlan);
-        console.log("Creating new plan (mock):", planToSave);
+        await createSubscriptionPlan(planToSave as SubscriptionPlan);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
         if (!initialData?.id) return;
-        // This is a mock function
-        // await saveSubscriptionPlan(initialData.id, planToSave);
-        console.log("Updating plan (mock):", planToSave);
+        await saveSubscriptionPlan(initialData.id, planToSave);
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');
@@ -191,9 +184,9 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   </FormItem>
                 )} 
               />
-              <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
-            <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Essentiële tools en dagelijkse coaching voor één kind." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
         
@@ -203,42 +196,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
              <CardDescription>Definieer de prijzen, limieten en een eventuele jaarkorting.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Totale Prijs per Maand</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="15.00" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel>Proefperiode (dagen)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <FormField control={form.control} name="maxParents" render={({ field }) => (<FormItem><FormLabel>Max. Ouders</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="maxChildren" render={({ field }) => (<FormItem><FormLabel>Max. Kinderen</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Opties</CardTitle>
-          </CardHeader>
-           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                    control={form.control}
-                    name="active"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <FormLabel className="cursor-pointer text-sm font-medium pr-2">Plan Actief?</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isPopular"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <FormLabel className="cursor-pointer text-sm font-medium pr-2">Markeer als 'Populair'?</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                      </FormItem>
-                    )}
-                  />
             </div>
           </CardContent>
         </Card>

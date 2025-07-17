@@ -1,5 +1,8 @@
+
 // src/types/subscription.ts
 import { z } from "zod";
+import { db, isFirebaseConfigured } from '@/lib/firebase';
+import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
 
 // --- CORE TYPES ---
 
@@ -22,9 +25,9 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number; // The single source of truth for the monthly price
+  price: number;
   currency: 'EUR';
-  yearlyDiscountPercent?: number; // Optional yearly discount percentage
+  yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
   maxParents?: number;
   maxChildren?: number;
@@ -33,6 +36,7 @@ export interface SubscriptionPlan {
   trialPeriodDays?: number;
   isPopular?: boolean;
 }
+
 
 // --- DATA CONSTANTS (for seeding and direct use) ---
 const PLANS_COLLECTION = 'subscriptionPlans';
@@ -82,7 +86,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
-  {
+   {
     id: 'family_guide_large',
     name: 'Gezins Gids (Groot)',
     shortName: 'Gezins Gids+',
@@ -100,14 +104,83 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
 ];
 
-// --- Simple, synchronous functions to return the data constants ---
 
-export const getSubscriptionPlans = (): SubscriptionPlan[] => {
-    return initialDefaultPlans;
+// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
+
+export async function seedInitialPlans(force: boolean = false): Promise<void> {
+    if (!isFirebaseConfigured || !db) return;
+    const plansRef = collection(db, PLANS_COLLECTION);
+    if (force) {
+        const snapshot = await getDocs(plansRef);
+        if (!snapshot.empty) {
+            const batch = writeBatch(db);
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            console.log("Forced re-seed: Existing plans deleted.");
+        }
+    }
+    const snapshot = await getDocs(plansRef);
+    if (snapshot.empty || force) {
+        console.log("Seeding subscription plans...");
+        const batch = writeBatch(db);
+        initialDefaultPlans.forEach(plan => {
+            const docRef = doc(db, PLANS_COLLECTION, plan.id);
+            batch.set(docRef, plan);
+        });
+        await batch.commit();
+    }
+}
+
+export async function seedInitialFeatures(): Promise<void> {
+    if (!isFirebaseConfigured || !db) return;
+    const featuresRef = collection(db, FEATURES_COLLECTION);
+    const snapshot = await getDocs(featuresRef);
+    if (snapshot.empty) {
+        console.log("Seeding features...");
+        const batch = writeBatch(db);
+        DEFAULT_APP_FEATURES.forEach(feature => {
+            const docRef = doc(db, FEATURES_COLLECTION, feature.id);
+            batch.set(docRef, feature);
+        });
+        await batch.commit();
+    }
+}
+
+export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
+    if (!isFirebaseConfigured || !db) {
+        console.warn("Firebase not configured. Returning local mock data for subscription plans.");
+        return initialDefaultPlans;
+    }
+    await seedInitialPlans(); // Ensure data exists
+    const snapshot = await getDocs(collection(db, PLANS_COLLECTION));
+    if (snapshot.empty) return initialDefaultPlans; // Fallback
+    return snapshot.docs.map(doc => doc.data() as SubscriptionPlan);
 };
 
-export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
-    return initialDefaultPlans.find(p => p.id === id) || null;
+export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
+    if (!isFirebaseConfigured || !db) {
+        return initialDefaultPlans.find(p => p.id === id) || null;
+    }
+    const docRef = doc(db, PLANS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() as SubscriptionPlan : null;
+};
+
+export const saveSubscriptionPlan = async (id: string, data: Partial<SubscriptionPlan>): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    const docRef = doc(db, PLANS_COLLECTION, id);
+    await updateDoc(docRef, data);
+};
+
+export const createSubscriptionPlan = async (data: SubscriptionPlan): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    const docRef = doc(db, PLANS_COLLECTION, data.id);
+    await setDoc(docRef, data);
+};
+
+export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    await deleteDoc(doc(db, PLANS_COLLECTION, id));
 };
 
 export const getAllFeatures = (): AppFeature[] => {

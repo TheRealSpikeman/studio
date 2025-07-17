@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -6,11 +7,14 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon } from 'lucide-react';
+import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 const faqItems = [
   {
@@ -32,24 +36,35 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin') || planId.includes('2_kinderen')) return Users;
+    if (planId.includes('family_guide')) return Users;
     return UserIcon;
+};
+
+// This function calculates the price based on the interval and applies the discount.
+const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
+    if (interval === 'year') {
+        const discount = plan.yearlyDiscountPercent || 0;
+        const totalYearly = plan.price * 12;
+        return totalYearly * (1 - discount / 100);
+    }
+    return plan.price;
 };
 
 export default function PricingPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       const fetchedPlans = await getSubscriptionPlans();
-      const fetchedFeatures = await getAllFeatures();
+      const fetchedFeatures = getAllFeatures();
       
       const sortedPlans = fetchedPlans
-        .filter(p => p.active && p.billingInterval === 'month') // Only show active monthly plans
-        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0)); // Sort by number of children
+        .filter(p => p.active)
+        .sort((a, b) => (a.price || 0) - (b.price || 0));
         
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
@@ -57,14 +72,19 @@ export default function PricingPage() {
     }
     fetchData();
   }, []);
-
+  
   const handlePlanSelection = (planId: string) => {
-    const targetUrl = `/signup?plan=${planId}`;
+    const planIdWithInterval = `${planId}_${billingInterval}`;
+    const targetUrl = `/signup?plan=${planIdWithInterval}`;
     window.location.href = targetUrl;
   };
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" /> Plannen laden...
+      </div>
+    );
   }
 
   return (
@@ -81,6 +101,22 @@ export default function PricingPage() {
                 <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
                     Kies het plan dat past bij uw gezin en krijg direct volledige toegang.
                 </p>
+                <div className="flex items-center justify-center space-x-3 mt-8">
+                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'month' ? 'text-primary font-semibold' : 'text-muted-foreground')}>Maandelijks</Label>
+                  <Switch
+                    id="billing-toggle"
+                    checked={billingInterval === 'year'}
+                    onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
+                  />
+                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'year' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+                    Jaarlijks
+                    {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0) && (
+                      <Badge variant="default" className="ml-2 bg-green-100 text-green-700 border-green-300">
+                         Bespaar {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0)?.yearlyDiscountPercent}%
+                      </Badge>
+                    )}
+                  </Label>
+                </div>
             </div>
           </div>
         </section>
@@ -90,6 +126,11 @@ export default function PricingPage() {
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
                 {plans.map((plan) => {
                   const Icon = getPlanIcon(plan.id);
+                  const displayPrice = calculatePrice(plan, billingInterval);
+                  const priceText = billingInterval === 'year'
+                    ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
+                    : `€${displayPrice.toFixed(2).replace('.', ',')}`;
+
                   return (
                   <Card
                     key={plan.id}
@@ -109,10 +150,11 @@ export default function PricingPage() {
                       <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
                       <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
                       <p className="text-4xl font-bold text-primary">
-                        €{plan.price.toFixed(2).replace('.',',')}
+                        {priceText}
                       </p>
                       <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
                          per maand
+                         {billingInterval === 'year' && <span className="text-xs"> (jaarlijks betaald)</span>}
                       </p>
                       {plan.trialPeriodDays && plan.trialPeriodDays > 0 && (
                           <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
@@ -127,7 +169,8 @@ export default function PricingPage() {
                         className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
                         variant={plan.isPopular ? 'default' : 'secondary'}
                       >
-                        Start met {plan.trialPeriodDays || 0 > 0 ? `${plan.trialPeriodDays} Dagen Gratis` : 'Proefperiode'}
+                        {plan.trialPeriodDays && plan.trialPeriodDays > 0 ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan'}
+                        <ArrowRight className="ml-2 h-4 w-4"/>
                       </Button>
                     </CardFooter>
                   </Card>
