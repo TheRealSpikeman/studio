@@ -1,3 +1,4 @@
+
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -51,10 +52,28 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
+    id: 'ouder_inzicht_maand',
+    name: 'Ouder Inzicht - Maandelijks',
+    shortName: 'Ouder Inzicht',
+    description: 'Toegang tot het ouder-dashboard, de "Ken je Kind" vragenlijst en de vergelijkende analyse. Ideaal om te starten en inzicht te krijgen.',
+    price: 7.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 0, // Explicitly for the parent
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: {
+        'parent-dashboard': true,
+        'expert-network-tutor': true,
+        'expert-network-coach': true,
+    },
+  },
+  {
     id: '1_kind_maand',
-    name: '1 Kind',
+    name: '1 Kind - Maandelijks',
     shortName: '1 Kind',
-    description: 'Volledige toegang tot alle tools, coaching en het ouder-dashboard voor één kind.',
+    description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind, plus het ouder-dashboard.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -75,7 +94,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
   {
     id: '2_kinderen_maand',
-    name: '2 Kinderen',
+    name: '2 Kinderen - Maandelijks',
     shortName: '2 Kinderen',
     description: 'Volledige toegang voor twee kinderen, inclusief alle tools, coaching en het ouder-dashboard.',
     price: 27.50,
@@ -98,7 +117,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
   {
     id: 'gezin_maand',
-    name: 'Gezin (3-4 Kinderen)',
+    name: 'Gezin (3-4 Kinderen) - Maandelijks',
     shortName: 'Gezin',
     description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
     price: 37.50,
