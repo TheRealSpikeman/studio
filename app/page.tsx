@@ -6,7 +6,6 @@ import { PlatformFeaturesSection } from '@/components/landing/platform-features-
 import { AssessmentSection } from '@/components/landing/assessment-section';
 import { ComparativeAnalysisPromoSection } from '@/components/landing/comparative-analysis-promo';
 import { TestimonialsSection } from '@/components/landing/testimonials-section';
-import { PricingSection } from '@/components/landing/pricing-section';
 import { FinalCtaSection } from '@/components/landing/final-cta-section';
 
 export default function HomePage() {
@@ -19,7 +18,6 @@ export default function HomePage() {
         <AssessmentSection />
         <ComparativeAnalysisPromoSection />
         <TestimonialsSection />
-        <PricingSection />
         <FinalCtaSection />
       </main>
       <Footer />
