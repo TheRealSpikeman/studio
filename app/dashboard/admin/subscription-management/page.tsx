@@ -124,7 +124,8 @@ export default function SubscriptionManagementPage() {
                         <TableRow>
                           <TableHead className="w-[100px]">Status</TableHead>
                           <TableHead>Plannaam</TableHead>
-                          <TableHead>Aantal Kinderen</TableHead>
+                          <TableHead>Max. Ouders</TableHead>
+                          <TableHead>Max. Kinderen</TableHead>
                           <TableHead>Prijs</TableHead>
                           <TableHead>Interval</TableHead>
                           <TableHead className="text-right">Acties</TableHead>
@@ -138,7 +139,8 @@ export default function SubscriptionManagementPage() {
                                 {plan.isPopular && <Badge variant="secondary" className="ml-1 text-xs bg-yellow-100 text-yellow-700"><Star className="h-3 w-3 inline-block" /></Badge>}
                             </TableCell>
                             <TableCell className="font-medium">{plan.name}</TableCell>
-                            <TableCell>{plan.maxChildren ? (plan.maxChildren > 1 ? `${plan.maxChildren} kinderen` : `${plan.maxChildren} kind`) : 'N.v.t.'}</TableCell>
+                            <TableCell>{plan.maxParents ?? 'N/A'}</TableCell>
+                            <TableCell>{plan.maxChildren ?? 'N/A'}</TableCell>
                             <TableCell>{formatPlanPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
                             <TableCell className="capitalize">{plan.billingInterval}</TableCell>
                             <TableCell className="text-right">
