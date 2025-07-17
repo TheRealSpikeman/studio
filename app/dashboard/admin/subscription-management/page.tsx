@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -13,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, formatFullPrice } from '@/types/subscription';
+import { getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, formatFullPrice } from '@/types/subscription';
 
 export default function SubscriptionManagementPage() {
     const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
@@ -28,7 +27,7 @@ export default function SubscriptionManagementPage() {
             const sortedPlans = plans.sort((a, b) => (a.price || 0) - (b.price || 0));
             setAvailablePlans(sortedPlans);
         } catch(e) {
-            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen.", variant: "destructive" });
+            toast({ title: "Fout bij laden", description: (e as Error).message, variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -42,17 +41,17 @@ export default function SubscriptionManagementPage() {
         setPlanToDelete(plan);
     };
     
-    const confirmDeletePlan = async () => {
+    const confirmDeletePlan = () => {
         if (!planToDelete) return;
         
         try {
-            await deleteSubscriptionPlan(planToDelete.id);
+            deleteSubscriptionPlan(planToDelete.id);
             toast({
                 title: "Abonnement Verwijderd",
                 description: `Het abonnement "${planToDelete.name}" is verwijderd.`
             });
             setPlanToDelete(null);
-            fetchPlans(); // Refresh the list
+            fetchPlans(); // Refresh the list from localStorage
         } catch (error) {
              toast({
                 title: "Fout bij verwijderen",

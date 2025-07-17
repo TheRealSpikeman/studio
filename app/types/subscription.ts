@@ -24,9 +24,9 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number; // The single source of truth for the monthly price
+  price: number;
   currency: 'EUR';
-  yearlyDiscountPercent?: number; // Optional yearly discount percentage
+  yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
   maxParents?: number;
   maxChildren?: number;
@@ -38,8 +38,8 @@ export interface SubscriptionPlan {
 
 
 // --- DATA CONSTANTS (for seeding and direct use) ---
-const PLANS_COLLECTION = 'subscriptionPlans';
-const FEATURES_COLLECTION = 'features';
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
+const FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -55,10 +55,10 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools',
+    name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
     description: 'Essentiële tools en dagelijkse coaching voor één kind.',
-    price: 2.50,
+    price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
     yearlyDiscountPercent: 15,
@@ -71,13 +71,29 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
   {
     id: 'family_guide_monthly',
-    name: 'Gezins Gids',
+    name: 'Gezins Gids - Maandelijks',
     shortName: 'Gezins Gids',
     description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard en toegang tot alle begeleiders.',
-    price: 10.00,
+    price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
     yearlyDiscountPercent: 15,
+    maxParents: 2,
+    maxChildren: 2,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+  },
+   {
+    id: 'family_guide_large',
+    name: 'Gezins Gids (Groot)',
+    shortName: 'Gezins Gids+',
+    description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
+    price: 35.00,
+    currency: 'EUR',
+    billingInterval: 'month',
+    yearlyDiscountPercent: 20,
     maxParents: 2,
     maxChildren: 4,
     active: true,
@@ -91,34 +107,58 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
 // --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
 
 export const getSubscriptionPlans = (): SubscriptionPlan[] => {
-    // This is now a simple, synchronous function that returns the constant data.
-    // This removes all Firestore-related complexity from the client-facing pages.
-    return initialDefaultPlans;
+  if (typeof window === 'undefined') {
+    return initialDefaultPlans; // Fallback for server-side rendering
+  }
+  try {
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+    if (storedPlansRaw) {
+      // TODO: Add schema validation here for robustness
+      return JSON.parse(storedPlansRaw);
+    } else {
+      // If nothing in storage, initialize with defaults
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+      return initialDefaultPlans;
+    }
+  } catch (error) {
+    console.error("Error reading subscription plans from localStorage:", error);
+    return initialDefaultPlans; // Fallback to defaults
+  }
 };
 
-export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
-    // This can remain async for admin panel usage
-    if (!isFirebaseConfigured || !db) return null;
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() as SubscriptionPlan : null;
+export const saveSubscriptionPlans = (plans: SubscriptionPlan[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
+  } catch (error) {
+    console.error("Error saving subscription plans to localStorage:", error);
+  }
 };
 
-export const saveSubscriptionPlan = async (id: string, data: Partial<SubscriptionPlan>): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    await updateDoc(docRef, data);
+export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
+    const allPlans = getSubscriptionPlans();
+    return allPlans.find(plan => plan.id === id) || null;
 };
 
-export const createSubscriptionPlan = async (data: SubscriptionPlan): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, data.id);
-    await setDoc(docRef, data);
+export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
+    const currentPlans = getSubscriptionPlans();
+    if (currentPlans.some(p => p.id === data.id)) {
+      throw new Error("Een abonnement met dit ID bestaat al.");
+    }
+    const newPlans = [...currentPlans, data];
+    saveSubscriptionPlans(newPlans);
 };
 
-export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, PLANS_COLLECTION, id));
+export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
+    saveSubscriptionPlans(updatedPlans);
+};
+
+export const deleteSubscriptionPlan = (id: string): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
+    saveSubscriptionPlans(updatedPlans);
 };
 
 export const getAllFeatures = (): AppFeature[] => {
