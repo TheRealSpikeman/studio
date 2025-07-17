@@ -1,5 +1,4 @@
-
-// src/app/dashboard/admin/subscription-management/page.tsx
+// app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
 import { useEffect, useState } from 'react';

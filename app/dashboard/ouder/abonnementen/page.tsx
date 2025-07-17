@@ -1,4 +1,4 @@
-// src/app/dashboard/ouder/abonnementen/page.tsx
+// app/dashboard/ouder/abonnementen/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -26,7 +26,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_sofie',
     childName: 'Sofie de Tester',
-    planId: '1_kind_maand', // Matches new planId
+    planId: 'family_guide_monthly', // Matches new planId
     status: 'actief',
     nextBillingDate: new Date(Date.now() + 20 * 86400000).toISOString(), // Approx 20 days from now
   },
@@ -39,7 +39,7 @@ const initialChildSubscriptions: ChildSubscription[] = [
   {
     id: 'cs_lisa',
     childName: 'Lisa Voorbeeld',
-    planId: 'gezin_maand', // Matches new planId
+    planId: 'coaching_tools_monthly', // Matches new planId
     status: 'verlopen',
     endDate: new Date(Date.now() - 30 * 86400000).toISOString(), // Approx 30 days ago
   },
@@ -63,8 +63,12 @@ export default function AbonnementenPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setAllSubscriptionPlans(getSubscriptionPlans());
-    setIsLoading(false);
+    async function fetchData() {
+      const plans = await getSubscriptionPlans();
+      setAllSubscriptionPlans(plans);
+      setIsLoading(false);
+    }
+    fetchData();
   }, []);
 
   if (isLoading) {

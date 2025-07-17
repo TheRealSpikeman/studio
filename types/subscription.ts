@@ -1,5 +1,4 @@
-
-// src/types/subscription.ts
+// types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
@@ -28,7 +27,7 @@ export interface SubscriptionPlan {
   price: number;
   currency: 'EUR';
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; // Nieuw veld
+  maxParents?: number; // << NIEUW TOEGEVOEGD
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -60,7 +59,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     price: 2.50,
     currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 1,
+    maxParents: 1, // <<< OOK HIER TOEGEVOEGD
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
@@ -75,7 +74,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     price: 10.00,
     currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 2,
+    maxParents: 2, // <<< OOK HIER TOEGEVOEGD
     maxChildren: 4,
     active: true,
     trialPeriodDays: 14,
@@ -193,4 +192,3 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
-

@@ -1,4 +1,4 @@
-// src/app/pricing/page.tsx
+// app/pricing/page.tsx
 "use client";
 
 import { Header } from '@/components/layout/header';
@@ -32,8 +32,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin')) return Users;
-    if (planId.includes('2_kinderen')) return Users;
+    if (planId.includes('gezin') || planId.includes('2_kinderen')) return Users;
     return UserIcon;
 };
 
@@ -43,9 +42,20 @@ export default function PricingPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setAllAppFeatures(getAllFeatures());
-    setPlans(getSubscriptionPlans());
-    setIsLoading(false);
+    async function fetchData() {
+      setIsLoading(true);
+      const fetchedPlans = await getSubscriptionPlans();
+      const fetchedFeatures = await getAllFeatures();
+      
+      const sortedPlans = fetchedPlans
+        .filter(p => p.active && p.billingInterval === 'month') // Only show active monthly plans
+        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0)); // Sort by number of children
+        
+      setPlans(sortedPlans);
+      setAllAppFeatures(fetchedFeatures);
+      setIsLoading(false);
+    }
+    fetchData();
   }, []);
 
   const handlePlanSelection = (planId: string) => {
@@ -69,7 +79,7 @@ export default function PricingPage() {
                     Eenvoudig & Transparant
                 </h1>
                 <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
-                    Eén compleet pakket, schaalbaar voor uw gezin. Kies het aantal kinderen en krijg direct volledige toegang.
+                    Kies het plan dat past bij uw gezin en krijg direct volledige toegang.
                 </p>
             </div>
           </div>
