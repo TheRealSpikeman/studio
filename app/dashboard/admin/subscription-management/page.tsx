@@ -1,4 +1,5 @@
 
+// src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
@@ -11,7 +12,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, initialDefaultPlans, type SubscriptionPlan } from '@/types/subscription';
+import { initialDefaultPlans, getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan } from '@/types/subscription';
+
 
 // Helper function to format price
 const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
@@ -30,19 +32,22 @@ export default function SubscriptionManagementPage() {
 
     useEffect(() => {
         setIsLoading(true);
-        const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
-        let loadedPlans: SubscriptionPlan[] = [];
-        if (storedPlansRaw) {
-            try {
+        // Corrected logic to handle invalid data from localStorage
+        let loadedPlans: SubscriptionPlan[];
+        try {
+            const storedPlansRaw = localStorage.getItem('mindnavigator_subscription_plans');
+            // Check if the raw string is not null and is not the string "undefined"
+            if (storedPlansRaw && storedPlansRaw !== 'undefined') {
                 loadedPlans = JSON.parse(storedPlansRaw);
-            } catch (e) {
-                console.error("Error parsing plans from localStorage, using defaults", e);
+            } else {
+                // If it's null or "undefined", use defaults and save them.
                 loadedPlans = initialDefaultPlans;
-                localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+                saveSubscriptionPlans(initialDefaultPlans);
             }
-        } else {
+        } catch (e) {
+            console.error("Error parsing plans from localStorage, resetting to defaults", e);
             loadedPlans = initialDefaultPlans;
-            localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+            saveSubscriptionPlans(initialDefaultPlans);
         }
 
         const sortedPlans = loadedPlans.sort((a, b) => {
@@ -62,8 +67,9 @@ export default function SubscriptionManagementPage() {
         if (!planToDelete) return;
         
         const updatedPlans = availablePlans.filter(p => p.id !== planToDelete.id);
+        saveSubscriptionPlans(updatedPlans);
         setAvailablePlans(updatedPlans);
-        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(updatedPlans));
+
         toast({
             title: "Abonnement Verwijderd",
             description: `Het abonnement "${planToDelete.name}" is verwijderd.`
@@ -72,7 +78,7 @@ export default function SubscriptionManagementPage() {
     };
 
     const handleRestoreDefaults = () => {
-        localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+        saveSubscriptionPlans(initialDefaultPlans);
         const sortedDefaults = [...initialDefaultPlans].sort((a,b) => a.price - b.price);
         setAvailablePlans(sortedDefaults);
         toast({
@@ -125,7 +131,6 @@ export default function SubscriptionManagementPage() {
                                             Status: {plan.active ? "Actief" : "Inactief"}
                                         </div>
                                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Badge variant="outline" className="text-xs">{plan.shortName || plan.id}</Badge>
                                             {plan.isPopular && <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">Populair</Badge>}
                                         </div>
                                     </div>

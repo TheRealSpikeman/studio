@@ -33,16 +33,13 @@ import { getSubscriptionPlans, saveSubscriptionPlans, getAllFeatures, type Subsc
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
-  shortName: z.string().optional(),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
-  tagline: z.string().optional(),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
   billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
   featureAccess: z.record(z.boolean()), 
   active: z.boolean().default(true),
   trialPeriodDays: z.coerce.number().int().min(0, "Proefperiode moet 0 of meer dagen zijn.").optional(),
-  maxChildren: z.coerce.number().int().min(0, "Aantal kinderen mag niet negatief zijn.").optional(),
   isPopular: z.boolean().default(false),
 });
 
@@ -98,16 +95,13 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     } : {
       id: "",
       name: "",
-      shortName: "",
       description: "",
-      tagline: "",
       price: 0,
       currency: "EUR",
       billingInterval: undefined,
       featureAccess: defaultFeatureAccess,
       active: true,
       trialPeriodDays: 0,
-      maxChildren: 0,
       isPopular: false,
     },
   });
@@ -136,7 +130,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   };
 
   const onSubmit = (data: PlanFormData) => {
-    const planToSave: SubscriptionPlan = { ...data };
+    const planToSave: SubscriptionPlan = { ...initialData, ...data };
 
     try {
       const existingPlans = getSubscriptionPlans();
@@ -212,19 +206,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             />
             <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="tagline" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Marketing Tagline (optioneel)</FormLabel><FormControl><Input placeholder="Bijv. Slechts €0,13 per dag voor uitgebreide tools!" {...field} /></FormControl><FormDescription className="text-xs">Korte, pakkende zin die onder de prijs getoond wordt.</FormDescription><FormMessage /></FormItem>)} />
-            <FormField 
-                control={form.control} 
-                name="shortName" 
-                render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                        <FormLabel className="flex items-center gap-1"><CaseLower className="h-4 w-4"/>Afkorting voor badges (optioneel)</FormLabel>
-                        <FormControl><Input placeholder="Bijv. Gezin M, Prem J" {...field} /></FormControl>
-                        <FormDescription className="text-xs">Korte naam die in overzichten (bijv. Feature Management tabel) wordt gebruikt voor compactheid.</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )} 
-            />
+            
             <FormField 
                 control={form.control} 
                 name="price" 
@@ -236,7 +218,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                             <FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl>
                         </div>
                         <FormDescription className="text-xs">
-                            Voor maandelijkse plannen, voer de maandprijs in. Voor jaarlijkse plannen, voer de totale jaarprijs in (incl. eventuele korting).
+                            Voer de totale prijs in voor het interval (bv. jaarprijs voor jaarlijks plan).
                         </FormDescription>
                         <FormMessage />
                     </FormItem>
@@ -246,7 +228,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             <FormField control={form.control} name="billingInterval" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Facturatie Interval</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Selecteer interval" /></SelectTrigger></FormControl>
                     <SelectContent>
                       <SelectItem value="month">Maandelijks</SelectItem>
@@ -266,18 +248,6 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   <FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dagen)</FormLabel>
                   <FormControl><Input type="number" min="0" placeholder="Bijv. 14" {...field} /></FormControl>
                   <FormDescription className="text-xs">Aantal dagen gratis proefperiode. Voer 0 in voor geen proefperiode.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="maxChildren"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximum Aantal Kinderen</FormLabel>
-                  <FormControl><Input type="number" min="0" placeholder="0 voor geen limiet" {...field} /></FormControl>
-                  <FormDescription className="text-xs">Typisch 1 voor individuele plannen, of 3-5 voor gezinsplannen. 0 betekent geen specifieke limiet.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
