@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -29,7 +28,7 @@ export interface SubscriptionPlan {
   currency: 'EUR';
   yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number;
+  maxParents?: number; // Nieuw veld
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -38,7 +37,7 @@ export interface SubscriptionPlan {
 }
 
 
-// --- DATA CONSTANTS (for seeding and direct use) ---
+// --- DATA CONSTANTS (for seeding) ---
 const PLANS_COLLECTION = 'subscriptionPlans';
 const FEATURES_COLLECTION = 'features';
 
@@ -55,57 +54,52 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools',
-    shortName: 'Coaching & Tools',
-    description: 'Essentiële tools en dagelijkse coaching voor één kind.',
+    id: '1_kind_maand',
+    name: '1 Kind',
+    description: 'Volledige toegang voor één kind.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 15,
-    maxParents: 1,
+    yearlyDiscountPercent: 10,
     maxChildren: 1,
     active: true,
-    trialPeriodDays: 14,
-    isPopular: true,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
-    id: 'family_guide_monthly',
-    name: 'Gezins Gids',
-    shortName: 'Gezins Gids',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard en toegang tot alle begeleiders.',
-    price: 25.00,
+    id: '2_kinderen_maand',
+    name: '2 Kinderen',
+    description: 'Volledige toegang voor twee kinderen.',
+    price: 27.50,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 15,
-    maxParents: 2,
+    yearlyDiscountPercent: 10,
     maxChildren: 2,
     active: true,
-    trialPeriodDays: 14,
-    isPopular: false,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+    isPopular: true,
   },
    {
-    id: 'family_guide_large',
-    name: 'Gezins Gids (Groot)',
-    shortName: 'Gezins Gids+',
-    description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
-    price: 35.00,
+    id: '3_4_kinderen_maand',
+    name: '3-4 Kinderen',
+    description: 'Volledige toegang voor 3 tot 4 kinderen.',
+    price: 37.50,
     currency: 'EUR',
     billingInterval: 'month',
-    yearlyDiscountPercent: 20,
-    maxParents: 2,
+    yearlyDiscountPercent: 10,
     maxChildren: 4,
     active: true,
-    trialPeriodDays: 14,
-    isPopular: false,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+  },
+  {
+    id: 'ouder_dashboard_addon',
+    name: 'Ouder Dashboard',
+    description: 'Inzicht in voortgang en coach sessies',
+    price: 7.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    active: true,
   },
 ];
 
 
-// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
+// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE ---
 
 export async function seedInitialPlans(force: boolean = false): Promise<void> {
     if (!isFirebaseConfigured || !db) return;
@@ -183,11 +177,37 @@ export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, PLANS_COLLECTION, id));
 };
 
-export const getAllFeatures = (): AppFeature[] => {
-    return DEFAULT_APP_FEATURES;
+export const getAllFeatures = async (): Promise<AppFeature[]> => {
+    if (!isFirebaseConfigured || !db) return [];
+    await seedInitialFeatures();
+    const snapshot = await getDocs(collection(db, FEATURES_COLLECTION));
+    return snapshot.docs.map(doc => doc.data() as AppFeature);
 };
 
-// Simplified formatters
+export const saveAllFeatures = async (features: AppFeature[]): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    const batch = writeBatch(db);
+    features.forEach(feature => {
+        const docRef = doc(db, FEATURES_COLLECTION, feature.id);
+        batch.set(docRef, feature);
+    });
+    await batch.commit();
+};
+
+export const saveFeature = async (feature: AppFeature, oldId?: string): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    if (oldId && oldId !== feature.id) {
+       throw new Error("Changing Feature ID is not supported yet.");
+    }
+    const docRef = doc(db, FEATURES_COLLECTION, feature.id);
+    await setDoc(docRef, feature, { merge: true });
+};
+
+export const deleteFeature = async (id: string): Promise<void> => {
+    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
+    await deleteDoc(doc(db, FEATURES_COLLECTION, id));
+};
+
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
@@ -195,5 +215,11 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
+    // New logic to handle yearly discount correctly
+    if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
+        const yearlyPrice = plan.price * 12;
+        const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);
+        return `${formatPrice(discountedYearly, plan.currency, 'year')} (${plan.yearlyDiscountPercent}% korting)`;
+    }
     return formatPrice(plan.price, plan.currency, plan.billingInterval);
 };

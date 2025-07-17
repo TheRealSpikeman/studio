@@ -1,4 +1,3 @@
-
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -30,7 +29,7 @@ import { saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFe
 
 
 const planFormSchema = z.object({
-  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_maand')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
+  id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
@@ -79,7 +78,11 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
 
   useEffect(() => {
-    setAllAppFeatures(getAllFeatures());
+    async function fetchFeatures() {
+        const features = await getAllFeatures();
+        setAllAppFeatures(features);
+    }
+    fetchFeatures();
   }, []);
 
   const form = useForm<PlanFormData>({
@@ -106,7 +109,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             defaultFeatureAccess[feature.id] = false;
         });
         form.reset({
-            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 15,
+            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
             maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
             active: true, trialPeriodDays: 14, isPopular: false,
         });
@@ -197,8 +200,8 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Totale Prijs per Maand</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="15.00" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs per Maand</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="15.00" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="10" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel>Proefperiode (dagen)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
