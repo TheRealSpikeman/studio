@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use client";
 
@@ -13,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 const faqItems = [
   {
