@@ -1,4 +1,3 @@
-
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -224,7 +223,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   control={form.control}
                   name="active"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-auto">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <FormLabel className="cursor-pointer text-sm pr-2">Plan Actief?</FormLabel>
                       <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
@@ -234,7 +233,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   control={form.control}
                   name="isPopular"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2.5 h-auto">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <FormLabel className="cursor-pointer text-sm pr-2">Markeer als 'Populair'?</FormLabel>
                       <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>

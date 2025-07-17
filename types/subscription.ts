@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -58,7 +57,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: '1 Kind - Maandelijks',
     shortName: '1 Kind',
     description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind, plus het ouder-dashboard.',
-    price: 15.00, // Corrected total price
+    price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -74,7 +73,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: '2 Kinderen - Maandelijks',
     shortName: '2 Kinderen',
     description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 2 kinderen, plus het ouder-dashboard.',
-    price: 25.00, // Corrected total price
+    price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -90,7 +89,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: '3+ Kinderen - Maandelijks',
     shortName: '3+ Kinderen',
     description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
-    price: 35.00, // Corrected total price
+    price: 35.00,
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -205,12 +204,6 @@ export const saveFeature = async (feature: AppFeature, oldId?: string): Promise<
 export const deleteFeature = async (id: string): Promise<void> => {
     if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
     await deleteDoc(doc(db, FEATURES_COLLECTION, id));
-};
-
-export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
