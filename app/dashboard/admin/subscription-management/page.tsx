@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -24,14 +25,14 @@ export default function SubscriptionManagementPage() {
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
-    const fetchPlans = async () => {
+    const fetchPlans = () => {
         setIsLoading(true);
         try {
-            const plans = await getSubscriptionPlans();
+            const plans = getSubscriptionPlans();
             const sortedPlans = plans.sort((a, b) => (a.price || 0) - (b.price || 0));
             setAvailablePlans(sortedPlans);
         } catch(e) {
-            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
+            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -49,13 +50,13 @@ export default function SubscriptionManagementPage() {
         if (!planToDelete) return;
         
         try {
-            await deleteSubscriptionPlan(planToDelete.id);
+            deleteSubscriptionPlan(planToDelete.id);
             toast({
                 title: "Abonnement Verwijderd",
                 description: `Het abonnement "${planToDelete.name}" is verwijderd.`
             });
             setPlanToDelete(null);
-            fetchPlans(); // Refresh the list from Firestore
+            fetchPlans(); 
         } catch (error) {
              toast({
                 title: "Fout bij verwijderen",
@@ -65,14 +66,14 @@ export default function SubscriptionManagementPage() {
         }
     };
 
-    const handleRestoreDefaults = async () => {
+    const handleRestoreDefaults = () => {
         try {
-            await seedInitialPlans(true); // Force seeding
+            seedInitialPlans(true); // Force seeding
             toast({
                 title: "Standaard Abonnementen Hersteld",
-                description: "De originele abonnementen zijn teruggezet in de database."
+                description: "De originele abonnementen zijn teruggezet. De pagina wordt vernieuwd."
             });
-            fetchPlans(); // Refresh
+            fetchPlans(); // Refresh the data
         } catch (error) {
              toast({
                 title: "Herstellen Mislukt",
@@ -131,7 +132,7 @@ export default function SubscriptionManagementPage() {
                                     <TableCell>{formatCurrency(yearlyPrice)}</TableCell>
                                     <TableCell>{plan.yearlyDiscountPercent || 0}%</TableCell>
                                     <TableCell>
-                                        <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>Actief</Badge>
+                                        <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
                                     </TableCell>
                                     <TableCell>
                                         {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}
