@@ -1,4 +1,4 @@
-// types/subscription.ts
+// src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
@@ -24,10 +24,15 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number;
+  
+  // New flexible pricing model
+  pricePerMonthParent?: number; // Price for a single parent
+  pricePerMonthChild: number; // Price for a single child
+  yearlyDiscountPercent?: number; // e.g., 15 for 15% discount
   currency: 'EUR';
-  billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; // << NIEUW TOEGEVOEGD
+  
+  billingInterval: 'month' | 'year' | 'once'; // Remains for logic, but pricing is now monthly based
+  maxParents?: number;
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -53,29 +58,67 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
+    name: 'Coaching & Tools',
     shortName: 'Coaching & Tools',
     description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
-    price: 2.50,
+    pricePerMonthParent: 0,
+    pricePerMonthChild: 2.50,
+    yearlyDiscountPercent: 15,
     currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 1, // <<< OOK HIER TOEGEVOEGD
+    maxParents: 0,
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
-    isPopular: true,
+    isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
   },
   {
-    id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    shortName: 'Gezins Gids',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
-    price: 10.00,
+    id: 'parent_insight_monthly',
+    name: 'Ouder Inzicht',
+    shortName: 'Ouder Inzicht',
+    description: "Toegang tot het ouder-dashboard en de 'Ken je Kind' vragenlijsten. Ideaal om te starten.",
+    pricePerMonthParent: 7.50,
+    pricePerMonthChild: 0,
+    yearlyDiscountPercent: 15,
     currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 2, // <<< OOK HIER TOEGEVOEGD
+    maxParents: 1,
+    maxChildren: 0,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
+    featureAccess: { 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true },
+  },
+  {
+    id: 'family_guide_monthly',
+    name: 'Gezins Gids',
+    shortName: 'Gezins Gids',
+    description: 'Alles voor het hele gezin: alle tools, Ouder Dashboard en ondersteuning voor meerdere kinderen.',
+    pricePerMonthParent: 7.50,
+    pricePerMonthChild: 2.50,
+    yearlyDiscountPercent: 15,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxParents: 2,
     maxChildren: 4,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: true,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+  },
+  {
+    id: 'premium_family_monthly',
+    name: 'Premium Familie',
+    shortName: 'Premium Familie',
+    description: 'Voor grotere gezinnen, met alle premium features en uitgebreide ondersteuning.',
+    pricePerMonthParent: 6.00,
+    pricePerMonthChild: 2.00,
+    yearlyDiscountPercent: 20,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxParents: 2,
+    maxChildren: 10,
     active: true,
     trialPeriodDays: 14,
     isPopular: false,
