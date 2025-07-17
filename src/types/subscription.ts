@@ -37,9 +37,8 @@ export interface SubscriptionPlan {
 }
 
 
-// --- DATA CONSTANTS (for seeding) ---
-const PLANS_COLLECTION = 'subscriptionPlans';
-const FEATURES_COLLECTION = 'features';
+// --- DATA CONSTANTS (for seeding and direct use) ---
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -57,7 +56,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     id: 'coaching_tools_monthly',
     name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
-    description: 'Essentiële tools en dagelijkse coaching voor één kind.',
+    description: 'Essentiële tools en dagelijkse coaching voor één kind, inclusief ouder-dashboard.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -73,7 +72,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     id: 'family_guide_monthly',
     name: 'Gezins Gids - Maandelijks',
     shortName: 'Gezins Gids',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
+    description: 'Alle tools en coaching voor het hele gezin, met ondersteuning voor maximaal 2 kinderen.',
     price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -104,109 +103,69 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
 ];
 
 
-// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE ---
+// --- Helper Functions (Client-side Safe) ---
 
-export async function seedInitialPlans(force: boolean = false): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const plansRef = collection(db, PLANS_COLLECTION);
-    if (force) {
-        const snapshot = await getDocs(plansRef);
-        if (!snapshot.empty) {
-            const batch = writeBatch(db);
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            console.log("Forced re-seed: Existing plans deleted.");
-        }
+// This function now synchronously reads from localStorage, providing a robust fallback.
+export const getSubscriptionPlans = (): SubscriptionPlan[] => {
+  if (typeof window === 'undefined') {
+    return initialDefaultPlans; // Fallback for server-side rendering
+  }
+  try {
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
+    if (storedPlansRaw) {
+      return JSON.parse(storedPlansRaw);
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
+      return initialDefaultPlans;
     }
-    const snapshot = await getDocs(plansRef);
-    if (snapshot.empty || force) {
-        console.log("Seeding subscription plans...");
-        const batch = writeBatch(db);
-        initialDefaultPlans.forEach(plan => {
-            const docRef = doc(db, PLANS_COLLECTION, plan.id);
-            batch.set(docRef, plan);
-        });
-        await batch.commit();
+  } catch (error) {
+    console.error("Error reading subscription plans from localStorage:", error);
+    return initialDefaultPlans; // Fallback to defaults on error
+  }
+};
+
+export const saveSubscriptionPlans = (plans: SubscriptionPlan[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
+  } catch (error) {
+    console.error("Error saving subscription plans to localStorage:", error);
+  }
+};
+
+export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
+    const allPlans = getSubscriptionPlans();
+    return allPlans.find(plan => plan.id === id) || null;
+};
+
+export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
+    const currentPlans = getSubscriptionPlans();
+    if (currentPlans.some(p => p.id === data.id)) {
+      throw new Error("Een abonnement met dit ID bestaat al.");
     }
-}
-
-export async function seedInitialFeatures(): Promise<void> {
-    if (!isFirebaseConfigured || !db) return;
-    const featuresRef = collection(db, FEATURES_COLLECTION);
-    const snapshot = await getDocs(featuresRef);
-    if (snapshot.empty) {
-        console.log("Seeding features...");
-        const batch = writeBatch(db);
-        DEFAULT_APP_FEATURES.forEach(feature => {
-            const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-            batch.set(docRef, feature);
-        });
-        await batch.commit();
-    }
-}
-
-export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
-    if (!isFirebaseConfigured || !db) return [];
-    await seedInitialPlans();
-    const snapshot = await getDocs(collection(db, PLANS_COLLECTION));
-    return snapshot.docs.map(doc => doc.data() as SubscriptionPlan);
+    const newPlans = [...currentPlans, data];
+    saveSubscriptionPlans(newPlans);
 };
 
-export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
-    if (!isFirebaseConfigured || !db) return null;
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() as SubscriptionPlan : null;
+export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
+    saveSubscriptionPlans(updatedPlans);
 };
 
-export const saveSubscriptionPlan = async (id: string, data: Partial<SubscriptionPlan>): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, id);
-    await updateDoc(docRef, data);
+export const deleteSubscriptionPlan = (id: string): void => {
+    const currentPlans = getSubscriptionPlans();
+    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
+    saveSubscriptionPlans(updatedPlans);
 };
 
-export const createSubscriptionPlan = async (data: SubscriptionPlan): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const docRef = doc(db, PLANS_COLLECTION, data.id);
-    await setDoc(docRef, data);
+export const getAllFeatures = (): AppFeature[] => {
+    // For now, features are static. Could be moved to localStorage like plans if needed.
+    return DEFAULT_APP_FEATURES;
 };
 
-export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, PLANS_COLLECTION, id));
-};
 
-export const getAllFeatures = async (): Promise<AppFeature[]> => {
-    if (!isFirebaseConfigured || !db) return [];
-    await seedInitialFeatures();
-    const snapshot = await getDocs(collection(db, FEATURES_COLLECTION));
-    return snapshot.docs.map(doc => doc.data() as AppFeature);
-};
-
-export const saveAllFeatures = async (features: AppFeature[]): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    const batch = writeBatch(db);
-    features.forEach(feature => {
-        const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-        batch.set(docRef, feature);
-    });
-    await batch.commit();
-};
-
-export const saveFeature = async (feature: AppFeature, oldId?: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    if (oldId && oldId !== feature.id) {
-       throw new Error("Changing Feature ID is not supported yet.");
-    }
-    const docRef = doc(db, FEATURES_COLLECTION, feature.id);
-    await setDoc(docRef, feature, { merge: true });
-};
-
-export const deleteFeature = async (id: string): Promise<void> => {
-    if (!isFirebaseConfigured || !db) throw new Error("DB not configured");
-    await deleteDoc(doc(db, FEATURES_COLLECTION, id));
-};
-
+// Simplified formatters
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';

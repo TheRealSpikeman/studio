@@ -1,4 +1,3 @@
-
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -17,8 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package, CaseLower } from 'lucide-react';
 import Link from 'next/link';
@@ -27,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
+import { saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
 
 
 const planFormSchema = z.object({
@@ -35,8 +33,7 @@ const planFormSchema = z.object({
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
-  currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
-  billingInterval: z.enum(['month', 'year', 'once'], { required_error: "Selecteer een facturatie-interval." }),
+  yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
   maxParents: z.coerce.number().int().min(0, "Aantal ouders moet 0 of meer zijn.").optional(),
   maxChildren: z.coerce.number().int().min(0, "Aantal kinderen moet 0 of meer zijn.").optional(),
   featureAccess: z.record(z.boolean()), 
@@ -90,33 +87,31 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: isNew ? {
-      id: "",
-      name: "",
-      description: "",
-      price: 0,
-      currency: "EUR",
-      billingInterval: undefined,
-      maxParents: 1,
-      maxChildren: 1,
-      featureAccess: {},
-      active: true,
-      trialPeriodDays: 0,
-      isPopular: false,
-    } : initialData
+    defaultValues: {
+      id: "", name: "", description: "", price: 0, yearlyDiscountPercent: 0,
+      maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
+    }
   });
   
   useEffect(() => {
     if (initialData) {
-        form.reset(initialData);
+        form.reset({
+            ...initialData,
+            price: initialData.price || 0,
+            yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
+            maxParents: initialData.maxParents ?? 0,
+            maxChildren: initialData.maxChildren ?? 0,
+            trialPeriodDays: initialData.trialPeriodDays ?? 0,
+        });
     } else {
         const defaultFeatureAccess: Record<string, boolean> = {};
         allAppFeatures.forEach(feature => {
             defaultFeatureAccess[feature.id] = false;
         });
         form.reset({
-            id: "", name: "", description: "", price: 0, currency: "EUR", billingInterval: undefined,
-            maxParents: 1, maxChildren: 1, featureAccess: defaultFeatureAccess, active: true, trialPeriodDays: 0, isPopular: false,
+            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
+            maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
+            active: true, trialPeriodDays: 14, isPopular: false,
         });
     }
   }, [initialData, allAppFeatures, form]);
@@ -129,7 +124,15 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   };
 
   const onSubmit = async (data: PlanFormData) => {
-    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = { ...initialData, ...data };
+    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
+      ...initialData,
+      ...data,
+      billingInterval: 'month', // We only support monthly for now
+      currency: 'EUR',
+      maxParents: data.maxParents ?? 0, 
+      maxChildren: data.maxChildren ?? 0, 
+    };
+
     try {
       if (isNew) {
         if (!planToSave.id) {
@@ -170,126 +173,74 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField 
-                  control={form.control} 
-                  name="id" 
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Uniek Plan ID</FormLabel>
-                      <FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} disabled={!isNew} /></FormControl>
-                      <FormDescription className="text-xs">
-                        Gebruik kleine letters, cijfers, underscores. {!isNew ? 'ID kan niet gewijzigd worden na aanmaken.' : 'Dit ID wordt intern gebruikt en kan later niet meer gewijzigd worden.'}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )} 
-                />
-                <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools - Maandelijks" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField 
+                control={form.control} 
+                name="id" 
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Uniek Plan ID</FormLabel>
+                    <FormControl><Input placeholder="bijv. coaching_maandelijks" {...field} disabled={!isNew} /></FormControl>
+                    <FormDescription className="text-xs">
+                      Gebruik kleine letters, cijfers, underscores. {!isNew ? 'ID kan niet gewijzigd worden na aanmaken.' : 'Dit ID wordt intern gebruikt en kan later niet meer gewijzigd worden.'}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )} 
+              />
+              <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Plannaam (Publiek)</FormLabel><FormControl><Input placeholder="Bijv. Coaching & Tools" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
-
-            <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Korte omschrijving van het plan en de voordelen..." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField 
-                    control={form.control} 
-                    name="price" 
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Prijs</FormLabel>
-                            <div className="relative">
-                                <Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                <FormControl><Input type="number" step="0.01" placeholder="3.99" {...field} className="pl-10" /></FormControl>
-                            </div>
-                            <FormDescription className="text-xs">
-                                Totale prijs voor het interval.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )} 
-                />
-                <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Valuta</FormLabel><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="billingInterval" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Facturatie Interval</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Selecteer interval" /></SelectTrigger></FormControl>
-                        <SelectContent>
-                          <SelectItem value="month">Maandelijks</SelectItem>
-                          <SelectItem value="year">Jaarlijks</SelectItem>
-                          <SelectItem value="once">Eenmalig</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="trialPeriodDays"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dagen)</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="Bijv. 14" {...field} /></FormControl>
-                       <FormDescription className="text-xs">0 voor geen proefperiode.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="maxParents"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Ouders</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="Bijv. 2" {...field} /></FormControl>
-                      <FormDescription className="text-xs">Voor hoeveel ouders is dit plan geldig?</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="maxChildren"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Kinderen</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="Bijv. 3" {...field} /></FormControl>
-                      <FormDescription className="text-xs">Voor hoeveel kinderen is dit geldig?</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Korte Beschrijving</FormLabel><FormControl><Textarea placeholder="Essentiële tools en dagelijkse coaching voor één kind." {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+             <CardTitle className="flex items-center gap-2"><Euro className="h-5 w-5 text-primary"/>Prijs & Limieten</CardTitle>
+             <CardDescription>Definieer de prijzen, limieten en een eventuele jaarkorting.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Prijs per Maand</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="15.00" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="10" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel>Proefperiode (dagen)</FormLabel><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} /></FormControl><FormDescription className="text-xs">0 voor geen proefperiode.</FormDescription><FormMessage /></FormItem>)} />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="active" render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
-                      <FormDescription>Is dit abonnement selecteerbaar?</FormDescription>
-                    </div>
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField control={form.control} name="isPopular" render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="cursor-pointer">Markeer als 'Populair'?</FormLabel>
-                      <FormDescription>Dit plan wordt uitgelicht.</FormDescription>
-                    </div>
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  </FormItem>
-                )}
-              />
+               <FormField control={form.control} name="maxParents" render={({ field }) => (<FormItem><FormLabel>Max. Ouders</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormDescription className="text-xs">Voor hoeveel ouders is dit plan geldig?</FormDescription><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="maxChildren" render={({ field }) => (<FormItem><FormLabel>Max. Kinderen</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormDescription className="text-xs">Voor hoeveel kinderen is dit geldig?</FormDescription><FormMessage /></FormItem>)} />
             </div>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+             <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5 text-primary"/>Overige Instellingen</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="active" render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="cursor-pointer">Plan Actief?</FormLabel>
+                        <FormDescription>Is dit abonnement selecteerbaar?</FormDescription>
+                      </div>
+                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField control={form.control} name="isPopular" render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="cursor-pointer">Markeer als 'Populair'?</FormLabel>
+                        <FormDescription>Dit plan wordt uitgelicht.</FormDescription>
+                      </div>
+                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+          </CardContent>
+        </Card>
+
 
         <Card>
             <CardHeader>
@@ -314,7 +265,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                         render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-2.5 py-2.5 border-b border-border/30 last:border-b-0">
                                 <FormControl className="mt-1">
-                                    <Checkbox
+                                    <Switch
                                         checked={!!field.value} 
                                         onCheckedChange={field.onChange}
                                     />
@@ -359,4 +310,3 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     </Form>
   );
 }
-

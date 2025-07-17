@@ -36,7 +36,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('family_guide')) return Users;
+    if (planId.includes('family_guide') || planId.includes('family_guide_large')) return Users;
     return UserIcon;
 };
 
@@ -57,9 +57,9 @@ export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
-    function fetchData() {
+    async function fetchData() {
       setIsLoading(true);
-      const fetchedPlans = getSubscriptionPlans();
+      const fetchedPlans = await getSubscriptionPlans();
       const fetchedFeatures = getAllFeatures();
       
       const sortedPlans = fetchedPlans

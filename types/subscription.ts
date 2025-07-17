@@ -1,6 +1,7 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
+import { db, isFirebaseConfigured } from '@/lib/firebase';
+import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
 
 // --- CORE TYPES ---
 
@@ -38,7 +39,6 @@ export interface SubscriptionPlan {
 
 // --- DATA CONSTANTS (for seeding and direct use) ---
 export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
-const FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'full-access-tools', label: 'Volledige toegang tot alle zelfreflectie-instrumenten', targetAudience: ['leerling'] },
@@ -103,9 +103,8 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
 ];
 
 
-// --- Helper Functions (Client-side Safe) ---
+// --- ASYNC HELPER FUNCTIONS FOR FIRESTORE (for backend/admin use) ---
 
-// This function now synchronously reads from localStorage, providing a robust fallback.
 export const getSubscriptionPlans = (): SubscriptionPlan[] => {
   if (typeof window === 'undefined') {
     return initialDefaultPlans; // Fallback for server-side rendering
@@ -120,7 +119,7 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => {
     }
   } catch (error) {
     console.error("Error reading subscription plans from localStorage:", error);
-    return initialDefaultPlans; // Fallback to defaults on error
+    return initialDefaultPlans; // Fallback to defaults
   }
 };
 
@@ -173,6 +172,7 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
+    // New logic to handle yearly discount correctly
     if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
         const yearlyPrice = plan.price * 12;
         const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);
