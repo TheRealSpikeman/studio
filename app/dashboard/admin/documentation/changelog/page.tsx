@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState, useEffect, type ElementType } from 'react';
 import type { ChangelogEntry } from '@/types/changelog';
+import { getChangelogEntries } from '@/app/services/changelogService'; // Restored service import
 
 const iconMap: { [key: string]: ElementType } = {
   Database, GitBranch, Wrench, Sparkles, Rss, CheckCircle, Package, Rocket, Users, Bot, ScrollText,
@@ -23,9 +24,16 @@ export default function ChangelogPage() {
   useEffect(() => {
     const fetchChangelog = async () => {
       setIsLoading(true);
-      // Directly use an empty array as the service and data file are removed.
-      setChangelogData([]);
-      setIsLoading(false);
+      try {
+        const entries = await getChangelogEntries();
+        // Assuming getChangelogEntries returns entries sorted by date descending
+        setChangelogData(entries);
+      } catch (error) {
+        console.error("Failed to fetch changelog:", error);
+        // Optionally set some error state to show in the UI
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchChangelog();
   }, []);

@@ -1,12 +1,11 @@
-
 {
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
+    "genkit:dev": "genkit start -- tsx app/ai/dev.ts",
+    "genkit:watch": "genkit start -- tsx --watch app/ai/dev.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -39,6 +38,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tanstack-query-firebase/react": "^1.0.5",
     "@tanstack/react-query": "^5.66.0",
+    "@types/recharts": "^1.8.29",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -53,6 +53,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "recharts": "^3.1.0",
     "resend": "^3.5.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
