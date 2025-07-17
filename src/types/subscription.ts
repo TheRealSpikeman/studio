@@ -52,18 +52,18 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezins Gids',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor het hele gezin.',
-    price: 15.00, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
+    id: 'solo_gids_monthly', name: 'Solo Gids - Maandelijks', shortName: 'Solo Gids',
+    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
+    price: 9.99, currency: 'EUR', billingInterval: 'month', maxChildren: 1, active: true, trialPeriodDays: 14, isPopular: false,
     featureAccess: {
         'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
         'parent-dashboard': true, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true,
     },
   },
   {
-    id: 'family_guide_yearly', name: 'Gezins Gids - Jaarlijks', shortName: 'Gezins Gids Jaar',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning. Krijg 2 maanden gratis bij een jaarabonnement.',
-    price: 150.00, currency: 'EUR', billingInterval: 'year', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
+    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezins Gids',
+    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor het hele gezin.',
+    price: 15.00, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
     featureAccess: {
         'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
         'parent-dashboard': true, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true,
@@ -76,33 +76,6 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     featureAccess: {
         'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
         'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': false, 'future-updates': true,
-    },
-  },
-  {
-    id: 'coaching_tools_yearly', name: 'Coaching & Tools - Jaarlijks', shortName: 'Coaching & Tools Jaar',
-    description: 'Alles van Gezins Gids, plus tutor toegang. Krijg 2 maanden gratis bij een jaarabonnement.',
-    price: 275.00, currency: 'EUR', billingInterval: 'year', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
-    featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': false, 'future-updates': true,
-    },
-  },
-  {
-    id: 'premium_family_monthly', name: 'Premium Familie - Maandelijks', shortName: 'Premium Familie',
-    description: 'Het meest complete pakket, inclusief toegang tot gespecialiseerde coaches voor persoonlijke begeleiding.',
-    price: 37.50, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
-    featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true,
-    },
-  },
-  {
-    id: 'premium_family_yearly', name: 'Premium Familie - Jaarlijks', shortName: 'Premium Familie Jaar',
-    description: 'Het meest complete pakket met 2 maanden korting. Toegang tot alle tools, tutors en coaches.',
-    price: 375.00, currency: 'EUR', billingInterval: 'year', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
-    featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true,
     },
   },
 ];
