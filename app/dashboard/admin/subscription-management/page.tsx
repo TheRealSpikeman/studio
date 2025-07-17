@@ -12,24 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
-
-const formatPlanPrice = (plan: SubscriptionPlan) => {
-    const parentPrice = plan.pricePerMonthParent ?? 0;
-    const childPrice = plan.pricePerMonthChild ?? 0;
-    
-    if (parentPrice === 0 && childPrice === 0) return 'Gratis';
-
-    const yearlyDiscount = plan.yearlyDiscountPercent || 0;
-    const yearlyFactor = 12 * (1 - yearlyDiscount / 100);
-
-    const monthlyPriceText = `${parentPrice > 0 ? `€${parentPrice.toFixed(2)}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${childPrice.toFixed(2)}/kind` : ''}`;
-    const yearlyPriceParent = (parentPrice * yearlyFactor).toFixed(2);
-    const yearlyPriceChild = (childPrice * yearlyFactor).toFixed(2);
-    const yearlyPriceText = `${parentPrice > 0 ? `€${yearlyPriceParent}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${yearlyPriceChild}/kind` : ''}`;
-
-    return `${monthlyPriceText.replace(/\./g, ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
-};
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans, formatFullPrice } from '@/types/subscription';
 
 export default function SubscriptionManagementPage() {
     const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
@@ -141,7 +124,7 @@ export default function SubscriptionManagementPage() {
                                 {plan.isPopular && <Badge variant="secondary" className="ml-1 text-xs bg-yellow-100 text-yellow-700"><Star className="h-3 w-3 inline-block" /></Badge>}
                             </TableCell>
                             <TableCell className="font-medium">{plan.name}</TableCell>
-                            <TableCell className="text-xs">{formatPlanPrice(plan)}</TableCell>
+                            <TableCell className="text-xs">{formatFullPrice(plan)}</TableCell>
                             <TableCell className="text-right">
                                <DropdownMenu>
                                   <DropdownMenuTrigger asChild>

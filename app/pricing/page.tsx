@@ -1,4 +1,4 @@
-// app/pricing/page.tsx
+// src/app/pricing/page.tsx
 "use client";
 
 import { Header } from '@/components/layout/header';
@@ -6,20 +6,22 @@ import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon } from 'lucide-react';
+import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const faqItems = [
   {
     question: "Zijn alle features inbegrepen in elk plan?",
-    answer: "Ja, alle abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content en het ouder-dashboard. Het enige verschil is het aantal kinderen dat u kunt toevoegen aan uw gezinsaccount.",
+    answer: "Ja, alle abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content, het ouder-dashboard en toegang tot ons expert netwerk.",
   },
   {
-    question: "Zijn 1-op-1 coaching sessies inbegrepen?",
-    answer: "Nee, live coaching en tutoring worden apart betaald per sessie (indicatie: €25-125/uur afhankelijk van specialist). Met een abonnement krijgt u toegang tot onze marktplaats om deze professionals te boeken en te betalen.",
+    question: "Zijn 1-op-1 coaching of tutoring sessies inbegrepen?",
+    answer: "Nee, live 1-op-1 sessies worden apart betaald (indicatie: €25-125/uur afhankelijk van specialist). Elk abonnement geeft u toegang tot onze marktplaats om deze professionals te vinden, te boeken en te betalen.",
   },
   {
     question: "Kan ik mijn abonnement op elk moment wijzigen of opzeggen?",
@@ -32,24 +34,39 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin') || planId.includes('2_kinderen')) return Users;
+    if (planId.includes('gezin') || (planId.match(/(\d+)/)?.[0] || '1') > '1') return Users;
     return UserIcon;
+};
+
+const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
+    const parentPrice = plan.pricePerMonthParent || 0;
+    const childPrice = plan.pricePerMonthChild || 0;
+    const monthlyTotal = parentPrice + (childPrice * (plan.maxChildren || 1));
+
+    if (interval === 'year') {
+        const discount = plan.yearlyDiscountPercent || 0;
+        return (monthlyTotal * 12 * (1 - discount / 100)) / 12; // Price per month for yearly plan
+    }
+    return monthlyTotal;
 };
 
 export default function PricingPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
-      const fetchedPlans = await getSubscriptionPlans();
-      const fetchedFeatures = await getAllFeatures();
+      const [fetchedPlans, fetchedFeatures] = await Promise.all([
+          getSubscriptionPlans(),
+          getAllFeatures()
+      ]);
       
       const sortedPlans = fetchedPlans
-        .filter(p => p.active && p.billingInterval === 'month') // Only show active monthly plans
-        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0)); // Sort by number of children
+        .filter(p => p.active)
+        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0));
         
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
@@ -59,12 +76,13 @@ export default function PricingPage() {
   }, []);
 
   const handlePlanSelection = (planId: string) => {
-    const targetUrl = `/signup?plan=${planId}`;
+    const planWithInterval = billingInterval === 'year' ? `${planId}_yearly` : `${planId}_monthly`;
+    const targetUrl = `/signup?plan=${planWithInterval}`;
     window.location.href = targetUrl;
   };
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Abonnementen laden...</div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /> Plannen laden...</div>;
   }
 
   return (
@@ -81,6 +99,22 @@ export default function PricingPage() {
                 <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
                     Kies het plan dat past bij uw gezin en krijg direct volledige toegang.
                 </p>
+                <div className="flex items-center justify-center space-x-3 mt-8">
+                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'month' ? 'text-primary font-semibold' : 'text-muted-foreground')}>Maandelijks</Label>
+                  <Switch
+                    id="billing-toggle"
+                    checked={billingInterval === 'year'}
+                    onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
+                  />
+                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'year' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+                    Jaarlijks
+                    {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0) && (
+                      <Badge variant="success" className="ml-2 bg-green-100 text-green-700 border-green-300">
+                         Bespaar {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0)?.yearlyDiscountPercent}%
+                      </Badge>
+                    )}
+                  </Label>
+                </div>
             </div>
           </div>
         </section>
@@ -90,6 +124,7 @@ export default function PricingPage() {
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
                 {plans.map((plan) => {
                   const Icon = getPlanIcon(plan.id);
+                  const displayPrice = calculatePrice(plan, billingInterval);
                   return (
                   <Card
                     key={plan.id}
@@ -109,7 +144,7 @@ export default function PricingPage() {
                       <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
                       <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
                       <p className="text-4xl font-bold text-primary">
-                        €{plan.price.toFixed(2).replace('.',',')}
+                        €{displayPrice.toFixed(2).replace('.',',')}
                       </p>
                       <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
                          per maand
@@ -127,7 +162,8 @@ export default function PricingPage() {
                         className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
                         variant={plan.isPopular ? 'default' : 'secondary'}
                       >
-                        Start met {plan.trialPeriodDays || 0 > 0 ? `${plan.trialPeriodDays} Dagen Gratis` : 'Proefperiode'}
+                        {plan.trialPeriodDays && plan.trialPeriodDays > 0 ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan'}
+                        <ArrowRight className="ml-2 h-4 w-4"/>
                       </Button>
                     </CardFooter>
                   </Card>

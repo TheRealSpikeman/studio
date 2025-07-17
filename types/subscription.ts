@@ -33,7 +33,7 @@ export interface SubscriptionPlan {
   // Kept for logical grouping, but prices are now per-user type
   billingInterval: 'month' | 'year' | 'once'; 
 
-  maxParents?: number; // Nieuw veld
+  maxParents?: number;
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -74,7 +74,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
-    isPopular: false,
+    isPopular: true,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
   },
   {
@@ -90,7 +90,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 4,
     active: true,
     trialPeriodDays: 14,
-    isPopular: true,
+    isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
 ];
@@ -203,4 +203,18 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
+};
+
+export const formatFullPrice = (plan: SubscriptionPlan) => {
+    const parentPrice = plan.pricePerMonthParent ?? 0;
+    const childPrice = plan.pricePerMonthChild ?? 0;
+    
+    if (parentPrice === 0 && childPrice === 0) return 'Gratis';
+
+    const yearlyDiscount = plan.yearlyDiscountPercent || 0;
+    const yearlyFactor = 12 * (1 - yearlyDiscount / 100);
+
+    const monthlyPriceText = `${parentPrice > 0 ? `€${parentPrice.toFixed(2)}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${childPrice.toFixed(2)}/kind` : ''}`;
+    
+    return `${monthlyPriceText.replace(/\./g, ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
 };
