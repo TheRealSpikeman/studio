@@ -1,4 +1,4 @@
-// src/lib/constants/coaching.ts
+// app/lib/constants/coaching.ts
 
 import { startOfDay, format } from 'date-fns';
 

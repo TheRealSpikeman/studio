@@ -14,11 +14,21 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
 
-// Helper function to format price, moved here to be self-contained
-const formatPlanPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
+const formatPlanPrice = (plan: SubscriptionPlan) => {
+    const parentPrice = plan.pricePerMonthParent || 0;
+    const childPrice = plan.pricePerMonthChild || 0;
+    
+    if (parentPrice === 0 && childPrice === 0) return 'Gratis';
+
+    const yearlyDiscount = plan.yearlyDiscountPercent || 0;
+    const yearlyFactor = 12 * (1 - yearlyDiscount / 100);
+
+    const monthlyPriceText = `${parentPrice > 0 ? `€${parentPrice.toFixed(2)}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${childPrice.toFixed(2)}/kind` : ''}`;
+    const yearlyPriceParent = (parentPrice * yearlyFactor).toFixed(2);
+    const yearlyPriceChild = (childPrice * yearlyFactor).toFixed(2);
+    const yearlyPriceText = `${parentPrice > 0 ? `€${yearlyPriceParent}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${yearlyPriceChild}/kind` : ''}`;
+
+    return `${monthlyPriceText.replace('.', ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
 };
 
 export default function SubscriptionManagementPage() {
@@ -31,11 +41,7 @@ export default function SubscriptionManagementPage() {
         setIsLoading(true);
         try {
             const plans = await getSubscriptionPlans();
-            const sortedPlans = plans.sort((a, b) => {
-                if (a.price === 0) return -1;
-                if (b.price === 0) return 1;
-                return a.price - b.price;
-            });
+            const sortedPlans = plans.sort((a, b) => (a.pricePerMonthParent || 0) + (a.pricePerMonthChild || 0) - ((b.pricePerMonthParent || 0) + (b.pricePerMonthChild || 0)));
             setAvailablePlans(sortedPlans);
         } catch(e) {
             toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
@@ -123,10 +129,7 @@ export default function SubscriptionManagementPage() {
                         <TableRow>
                           <TableHead className="w-[100px]">Status</TableHead>
                           <TableHead>Plannaam</TableHead>
-                          <TableHead>Max. Ouders</TableHead>
-                          <TableHead>Max. Kinderen</TableHead>
                           <TableHead>Prijs</TableHead>
-                          <TableHead>Interval</TableHead>
                           <TableHead className="text-right">Acties</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -138,10 +141,7 @@ export default function SubscriptionManagementPage() {
                                 {plan.isPopular && <Badge variant="secondary" className="ml-1 text-xs bg-yellow-100 text-yellow-700"><Star className="h-3 w-3 inline-block" /></Badge>}
                             </TableCell>
                             <TableCell className="font-medium">{plan.name}</TableCell>
-                            <TableCell>{plan.maxParents ?? 'N/A'}</TableCell>
-                            <TableCell>{plan.maxChildren ?? 'N/A'}</TableCell>
-                            <TableCell>{formatPlanPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
-                            <TableCell className="capitalize">{plan.billingInterval}</TableCell>
+                            <TableCell className="text-xs">{formatPlanPrice(plan)}</TableCell>
                             <TableCell className="text-right">
                                <DropdownMenu>
                                   <DropdownMenuTrigger asChild>

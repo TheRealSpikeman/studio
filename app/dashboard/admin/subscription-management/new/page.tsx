@@ -1,4 +1,4 @@
-// src/app/dashboard/admin/subscription-management/new/page.tsx
+// app/dashboard/admin/subscription-management/new/page.tsx
 import { SubscriptionPlanForm } from '@/components/admin/subscription-management/SubscriptionPlanForm';
 
 export default function NewSubscriptionPlanPage() {

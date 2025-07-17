@@ -1,4 +1,4 @@
-// src/components/admin/subscription-management/SubscriptionPlanForm.tsx
+// components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,7 +35,7 @@ const planFormSchema = z.object({
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   
-  // New pricing model
+  // New flexible pricing model
   pricePerMonthParent: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }).optional(),
   pricePerMonthChild: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
   yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
@@ -215,9 +215,9 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               <FormField control={form.control} name="pricePerMonthParent" render={({ field }) => (<FormItem><FormLabel>Prijs per Ouder/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="7.50" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="pricePerMonthChild" render={({ field }) => (<FormItem><FormLabel>Prijs per Kind/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="2.50" {...field} className="pl-10" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" {...field} className="pl-10"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="pricePerMonthParent" render={({ field }) => (<FormItem><FormLabel>Prijs per Ouder/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="7.50" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="pricePerMonthChild" render={({ field }) => (<FormItem><FormLabel>Prijs per Kind/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="2.50" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" /></FormControl></div><FormMessage /></FormItem>)} />
             </div>
             <FormField control={form.control} name="currency" render={({ field }) => (<FormItem className="hidden"><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>

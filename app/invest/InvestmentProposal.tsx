@@ -1,4 +1,4 @@
-// src/app/invest/InvestmentProposal.tsx
+// app/invest/InvestmentProposal.tsx
 "use client";
 
 import React, { useState } from 'react';

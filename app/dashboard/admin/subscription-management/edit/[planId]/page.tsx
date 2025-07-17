@@ -1,5 +1,4 @@
-
-// src/app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
+// app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
 "use client";
 
 import { SubscriptionPlanForm } from '@/components/admin/subscription-management/SubscriptionPlanForm';

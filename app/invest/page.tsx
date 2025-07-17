@@ -1,4 +1,4 @@
-// src/app/invest/page.tsx
+// app/invest/page.tsx
 "use client";
 
 import { useState } from 'react';
