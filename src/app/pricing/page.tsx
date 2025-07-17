@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -16,11 +15,11 @@ import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFea
 const faqItems = [
   {
     question: "Zijn alle features inbegrepen in elk plan?",
-    answer: "Ja, alle abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content en het ouder-dashboard. Het enige verschil is het aantal kinderen dat u kunt toevoegen aan uw gezinsaccount en de toegang tot het externe netwerk van tutors en coaches.",
+    answer: "Ja, alle abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content, het ouder-dashboard en toegang tot ons expert netwerk.",
   },
   {
-    question: "Zijn 1-op-1 coaching sessies inbegrepen?",
-    answer: "Nee, live coaching en tutoring worden apart betaald per sessie (indicatie: €25-125/uur afhankelijk van specialist). Het 'Coaching & Tools' abonnement is vereist om toegang te krijgen tot onze marktplaats om deze professionals te boeken en te betalen.",
+    question: "Zijn 1-op-1 coaching of tutoring sessies inbegrepen?",
+    answer: "Nee, live 1-op-1 sessies worden apart betaald (indicatie: €25-125/uur afhankelijk van specialist). Elk abonnement geeft u toegang tot onze marktplaats om deze professionals te vinden, te boeken en te betalen.",
   },
   {
     question: "Kan ik mijn abonnement op elk moment wijzigen of opzeggen?",
@@ -33,7 +32,7 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('family_guide') || planId.includes('coaching_tools')) return Users;
+    if (planId.includes('gezin') || planId.includes('2_kinderen')) return Users;
     return UserIcon;
 };
 
@@ -49,8 +48,8 @@ export default function PricingPage() {
       const fetchedFeatures = await getAllFeatures();
       
       const sortedPlans = fetchedPlans
-        .filter(p => p.active)
-        .sort((a, b) => a.price - b.price);
+        .filter(p => p.active && p.billingInterval === 'month') // Only show active monthly plans
+        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0)); // Sort by number of children
         
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);

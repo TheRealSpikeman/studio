@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -52,32 +51,74 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'solo_gids_monthly', name: 'Solo Gids - Maandelijks', shortName: 'Solo Gids',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
-    price: 9.99, currency: 'EUR', billingInterval: 'month', maxChildren: 1, active: true, trialPeriodDays: 14, isPopular: false,
+    id: '1_kind_maand',
+    name: '1 Kind',
+    shortName: '1 Kind',
+    description: 'Volledige toegang tot alle tools, coaching en het ouder-dashboard voor één kind.',
+    price: 15.00,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 1,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: true, // Marked as popular
     featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true,
+        'full-access-tools': true,
+        'daily-coaching': true,
+        'homework-tools': true,
+        'progress-reports': true,
+        'parent-dashboard': true,
+        'expert-network-tutor': true,
+        'expert-network-coach': true,
+        'future-updates': true,
     },
   },
   {
-    id: 'family_guide_monthly', name: 'Gezins Gids - Maandelijks', shortName: 'Gezins Gids',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor het hele gezin.',
-    price: 15.00, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: false,
+    id: '2_kinderen_maand',
+    name: '2 Kinderen',
+    shortName: '2 Kinderen',
+    description: 'Volledige toegang voor twee kinderen, inclusief alle tools, coaching en het ouder-dashboard.',
+    price: 27.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 2,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
     featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true,
+        'full-access-tools': true,
+        'daily-coaching': true,
+        'homework-tools': true,
+        'progress-reports': true,
+        'parent-dashboard': true,
+        'expert-network-tutor': true,
+        'expert-network-coach': true,
+        'future-updates': true,
     },
   },
   {
-    id: 'coaching_tools_monthly', name: 'Coaching & Tools - Maandelijks', shortName: 'Coaching & Tools',
-    description: 'Alles van Gezins Gids, plus toegang tot ons netwerk van gekwalificeerde tutors voor 1-op-1 huiswerkbegeleiding.',
-    price: 27.50, currency: 'EUR', billingInterval: 'month', maxChildren: 4, active: true, trialPeriodDays: 14, isPopular: true,
+    id: 'gezin_maand',
+    name: 'Gezin (3-4 Kinderen)',
+    shortName: 'Gezin',
+    description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
+    price: 37.50,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxChildren: 4,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
     featureAccess: {
-        'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true,
-        'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': false, 'future-updates': true,
+        'full-access-tools': true,
+        'daily-coaching': true,
+        'homework-tools': true,
+        'progress-reports': true,
+        'parent-dashboard': true,
+        'expert-network-tutor': true,
+        'expert-network-coach': true,
+        'future-updates': true,
     },
-  },
+  }
 ];
 
 
