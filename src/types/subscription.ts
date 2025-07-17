@@ -52,7 +52,7 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 ];
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
-    {
+  {
     id: 'coaching_tools_monthly',
     name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
@@ -65,7 +65,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     active: true,
     trialPeriodDays: 14,
     isPopular: true,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
   },
   {
     id: 'family_guide_monthly',
@@ -191,5 +191,5 @@ export const deleteFeature = async (id: string): Promise<void> => {
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.',',')}${intervalText}`;
+    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
