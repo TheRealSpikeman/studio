@@ -11,6 +11,7 @@ export * from './quiz-admin';
 export * from './status';
 export * from './subscription';
 export * from './user';
+export type { QuizResult } from './dashboard';
 
 
 // New type for the pending report claim
