@@ -28,7 +28,7 @@ export interface SubscriptionPlan {
   currency: 'EUR';
   yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; // Nieuw veld
+  maxParents?: number; 
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
@@ -55,7 +55,8 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: '1_kind_maand',
-    name: '1 Kind',
+    name: '1 Kind - Maandelijks',
+    shortName: '1 Kind',
     description: 'Volledige toegang voor één kind.',
     price: 15.00,
     currency: 'EUR',
@@ -66,9 +67,10 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
   {
     id: '2_kinderen_maand',
-    name: '2 Kinderen',
+    name: '2 Kinderen - Maandelijks',
+    shortName: '2 Kinderen',
     description: 'Volledige toegang voor twee kinderen.',
-    price: 27.50,
+    price: 25.00,
     currency: 'EUR',
     billingInterval: 'month',
     yearlyDiscountPercent: 10,
@@ -77,19 +79,21 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     isPopular: true,
   },
    {
-    id: '3_4_kinderen_maand',
-    name: '3-4 Kinderen',
+    id: '3_kinderen_maand',
+    name: '3 Kinderen - Maandelijks',
+    shortName: '3 Kinderen',
     description: 'Volledige toegang voor 3 tot 4 kinderen.',
-    price: 37.50,
+    price: 35.00,
     currency: 'EUR',
     billingInterval: 'month',
     yearlyDiscountPercent: 10,
-    maxChildren: 4,
+    maxChildren: 3,
     active: true,
   },
   {
     id: 'ouder_dashboard_addon',
-    name: 'Ouder Dashboard',
+    name: 'Ouder Dashboard Add-on',
+    shortName: 'Ouder Dashboard',
     description: 'Inzicht in voortgang en coach sessies',
     price: 7.50,
     currency: 'EUR',

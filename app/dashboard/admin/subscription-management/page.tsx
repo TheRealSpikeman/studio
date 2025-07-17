@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans, formatFullPrice } from '@/types/subscription';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -129,7 +129,7 @@ export default function SubscriptionManagementPage() {
                             return (
                                 <TableRow key={plan.id}>
                                     <TableCell className="font-medium">{plan.name}</TableCell>
-                                    <TableCell>{plan.maxChildren ? (plan.maxChildren > 2 ? '3-4' : plan.maxChildren) : 'N/A'}</TableCell>
+                                    <TableCell>{plan.maxChildren ?? 'N/A'}</TableCell>
                                     <TableCell>{formatCurrency(plan.price)}</TableCell>
                                     <TableCell>{formatCurrency(yearlyPrice)}</TableCell>
                                     <TableCell>{plan.yearlyDiscountPercent || 0}%</TableCell>
