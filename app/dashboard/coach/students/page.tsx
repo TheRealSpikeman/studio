@@ -13,7 +13,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle, History, Handshake } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import type { ClientEntry } from '@/types/dashboard';
-import { dummyClients } from '@/lib/data/dummy-data';
+
+const dummyClients: ClientEntry[] = [
+  { id: 'clientA', name: 'Anna Visser', avatarUrl: 'https://picsum.photos/seed/annavisser/40/40', coachingFocusAreas: ['Zelfvertrouwen', 'Stressmanagement'], lastSessionDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), totalSessionsWithCoach: 8 },
+  { id: 'clientB', name: 'Ben Kramer', coachingFocusAreas: ['Communicatievaardigheden'], lastSessionDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), totalSessionsWithCoach: 4 },
+  { id: 'clientC', name: 'Carla de Jong', avatarUrl: 'https://picsum.photos/seed/carladejong/40/40', coachingFocusAreas: ['Doelen stellen', 'Perfectionisme'], totalSessionsWithCoach: 12 },
+];
 
 function ClientTable({ clients }: { clients: ClientEntry[] }) { // Renamed from StudentTable
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';

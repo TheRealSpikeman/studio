@@ -16,8 +16,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from '@/hooks/use-toast';
-import { allStudentDetails } from '@/lib/data/dummy-data';
 import type { StudentDetails, LessonForHistory } from '@/types/dashboard';
+
+const allStudentDetails: Record<string, StudentDetails> = {
+  s1: { id: 's1', name: 'Eva de Vries', avatarUrl: 'https://picsum.photos/seed/evavries/80/80', email: 'eva.devries@example.com', lessonHistory: [ { id: 'l1', subject: 'Wiskunde A', dateTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Gepland' }, { id: 'p1s1', subject: 'Wiskunde A', dateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 60, status: 'Voltooid', report: "Eva begrijpt de basis van functies goed. Volgende keer focussen op afgeleiden." }, { id: 'p4s1', subject: 'Natuurkunde', dateTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Voltooid', report: "Mechanica doorgenomen, huiswerkopgaven besproken. Goede vooruitgang." }, ], },
+  s2: { id: 's2', name: 'Tom Bakker', email: 'tom.bakker@example.com', lessonHistory: [ { id: 'l2', subject: 'Engels Spreken', dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Gepland' }, { id: 'p2s2', subject: 'Engels Grammatica', dateTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 45, status: 'Voltooid' }, ], },
+};
 
 type LessonStatus = 'Gepland' | 'Voltooid' | 'Geannuleerd' | 'Bezig';
 type ReportRecipient = 'student' | 'parent' | 'both';

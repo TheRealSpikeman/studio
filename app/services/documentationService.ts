@@ -1,8 +1,9 @@
 // src/services/documentationService.ts
+// This service is now client-side safe because it doesn't rely on server-only data.
 'use client';
 
 import { MOCK_DOCUMENTATION_PAGES } from '@/lib/data/documentation-data';
-import type { DocumentationPage, ContentBlock } from '@/types';
+import type { DocumentationPage, ContentBlock } from '@/types/content-hub';
 
 // This service is now simplified to work with an empty data source
 // to save space and resolve build issues.
@@ -30,7 +31,7 @@ export const updateDocumentationPage = async (id: string, content: ContentBlock[
     if (pageIndex !== -1) {
        // In a real scenario, you'd update the data source.
        // For this mock, we don't modify the empty array.
-       return { ...MOCK_DOCUMENTATION_PAGES[pageIndex], content };
+       return { ...MOCK_DOCUMENTATION_PAGES[pageIndex], content, title: `Doc - ${id}`, metadata: { targetAudiences: ['admin'] } };
     }
     // Handle creating a new page if the ID doesn't exist (for AI docs generator)
     const newPage: DocumentationPage = { id, title: `AI Doc - ${id}`, content, metadata: { targetAudiences: ['admin'] } };

@@ -19,7 +19,16 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from '@/hooks/use-toast';
 import type { CoachingSession } from '@/types/dashboard';
-import { dummyUpcomingCoachSessions, dummyPastCoachSessions } from '@/lib/data/dummy-data';
+
+const dummyUpcomingCoachSessions: CoachingSession[] = [
+  { id: 'cs1', clientId: 'clientA', clientName: 'Anna Visser', clientAvatar: 'https://picsum.photos/seed/annavisser/40/40', sessionTopic: 'Doelen stellen & motivatie', dateTime: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(), durationMinutes: 50, status: 'Gepland', meetingLink: '#' },
+  { id: 'cs2', clientId: 'clientB', clientName: 'Ben Kramer', sessionTopic: 'Omgaan met studiestress', dateTime: new Date(Date.now() + 28 * 60 * 60 * 1000).toISOString(), durationMinutes: 50, status: 'Gepland' },
+];
+
+const dummyPastCoachSessions: CoachingSession[] = [
+  { id: 'pcs1', clientId: 'clientC', clientName: 'Carla de Jong', clientAvatar: 'https://picsum.photos/seed/carladejong/40/40', sessionTopic: 'Communicatievaardigheden', dateTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 50, status: 'Voltooid', report: "Carla heeft goede stappen gezet in het assertief uiten van haar behoeften. Oefening voor volgende week: een 'ik'-boodschap formuleren in een lastige situatie." },
+  { id: 'pcs2', clientId: 'clientD', clientName: 'David Smit', sessionTopic: 'Zelfvertrouwen versterken', dateTime: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), durationMinutes: 50, status: 'Geannuleerd', report: "Sessie geannuleerd door cliënt ivm ziekte." },
+];
 
 
 type SessionStatus = 'Gepland' | 'Voltooid' | 'Geannuleerd' | 'Bezig'; // Renamed from LessonStatus

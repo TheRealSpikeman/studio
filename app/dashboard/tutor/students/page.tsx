@@ -12,7 +12,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ArrowLeft, Users, MoreVertical, FileText, MessageSquare, AlertTriangle, History } from 'lucide-react';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import type { StudentEntry } from '@/types/dashboard';
-import { dummyStudents } from '@/lib/data/dummy-data';
+
+const dummyStudents: StudentEntry[] = [
+  { id: 's1', name: 'Eva de Vries', avatarUrl: 'https://picsum.photos/seed/evavries/40/40', subjectsTaughtByTutor: ['Wiskunde A', 'Natuurkunde'], lastLessonDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 5 },
+  { id: 's2', name: 'Tom Bakker', subjectsTaughtByTutor: ['Engels Spreken'], lastLessonDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 8 },
+  { id: 's3', name: 'Sara El Idrissi', avatarUrl: 'https://picsum.photos/seed/saraidrissi/40/40', subjectsTaughtByTutor: ['Scheikunde'], totalLessonsWithTutor: 2 },
+  { id: 'p1', name: 'Jan Janssen', subjectsTaughtByTutor: ['Wiskunde B'], lastLessonDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), totalLessonsWithTutor: 12 },
+];
 
 function StudentTable({ students }: { students: StudentEntry[] }) {
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase() || 'NN';

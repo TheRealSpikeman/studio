@@ -1,6 +1,5 @@
-// src/lib/data/initial-changelog.ts
+// This file is intentionally left empty to reduce project size.
+// The changelog will be populated from Firestore or an admin-facing form.
+// See `services/changelogService.ts` for implementation.
 import type { ChangelogEntry } from '@/types/changelog';
-
-// This file is now empty to save space.
-// The changelogService will return an empty array.
 export const initialChangelogEntries: ChangelogEntry[] = [];
