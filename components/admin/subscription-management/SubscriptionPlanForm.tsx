@@ -1,4 +1,4 @@
-// components/admin/subscription-management/SubscriptionPlanForm.tsx
+// src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Users2, BookOpenCheck, Brain, Zap, ShieldCheck, Package, CaseLower } from 'lucide-react';
 import Link from 'next/link';
@@ -220,14 +220,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                 />
                 <FormField control={form.control} name="active" render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 md:col-start-3">
-                    <div className="space-y-0.5"><FormLabel className="cursor-pointer">Actief?</FormLabel></div>
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormLabel className="cursor-pointer text-sm">Actief?</FormLabel>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="isPopular" render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5"><FormLabel className="cursor-pointer">Populair?</FormLabel></div>
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormLabel className="cursor-pointer text-sm">Populair?</FormLabel>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                   </FormItem>
                 )} />
             </div>
@@ -258,7 +258,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                         render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-2.5 py-2.5 border-b border-border/30 last:border-b-0">
                                 <FormControl className="mt-1">
-                                    <Checkbox
+                                    <Switch
                                         checked={!!field.value} 
                                         onCheckedChange={field.onChange}
                                     />
