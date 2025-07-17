@@ -242,7 +242,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   name="maxParents"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Aantal Ouders</FormLabel>
+                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Ouders</FormLabel>
                       <FormControl><Input type="number" min="0" placeholder="Bijv. 2" {...field} /></FormControl>
                       <FormDescription className="text-xs">Hoeveel ouders kunnen dit plan gebruiken?</FormDescription>
                       <FormMessage />
@@ -254,7 +254,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   name="maxChildren"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Aantal Kinderen</FormLabel>
+                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Maximaal Aantal Kinderen</FormLabel>
                       <FormControl><Input type="number" min="0" placeholder="Bijv. 3" {...field} /></FormControl>
                       <FormDescription className="text-xs">Voor hoeveel kinderen is dit geldig?</FormDescription>
                       <FormMessage />
