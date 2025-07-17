@@ -12,11 +12,11 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, saveSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans } from '@/types/subscription';
 
 const formatPlanPrice = (plan: SubscriptionPlan) => {
-    const parentPrice = plan.pricePerMonthParent || 0;
-    const childPrice = plan.pricePerMonthChild || 0;
+    const parentPrice = plan.pricePerMonthParent ?? 0;
+    const childPrice = plan.pricePerMonthChild ?? 0;
     
     if (parentPrice === 0 && childPrice === 0) return 'Gratis';
 
@@ -28,7 +28,7 @@ const formatPlanPrice = (plan: SubscriptionPlan) => {
     const yearlyPriceChild = (childPrice * yearlyFactor).toFixed(2);
     const yearlyPriceText = `${parentPrice > 0 ? `€${yearlyPriceParent}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${yearlyPriceChild}/kind` : ''}`;
 
-    return `${monthlyPriceText.replace('.', ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
+    return `${monthlyPriceText.replace(/\./g, ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
 };
 
 export default function SubscriptionManagementPage() {
@@ -41,7 +41,7 @@ export default function SubscriptionManagementPage() {
         setIsLoading(true);
         try {
             const plans = await getSubscriptionPlans();
-            const sortedPlans = plans.sort((a, b) => (a.pricePerMonthParent || 0) + (a.pricePerMonthChild || 0) - ((b.pricePerMonthParent || 0) + (b.pricePerMonthChild || 0)));
+            const sortedPlans = plans.sort((a, b) => (a.pricePerMonthParent ?? 0) + (a.pricePerMonthChild ?? 0) - ((b.pricePerMonthParent ?? 0) + (b.pricePerMonthChild ?? 0)));
             setAvailablePlans(sortedPlans);
         } catch(e) {
             toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen uit de database.", variant: "destructive" });
@@ -129,7 +129,7 @@ export default function SubscriptionManagementPage() {
                         <TableRow>
                           <TableHead className="w-[100px]">Status</TableHead>
                           <TableHead>Plannaam</TableHead>
-                          <TableHead>Prijs</TableHead>
+                          <TableHead>Prijs Model</TableHead>
                           <TableHead className="text-right">Acties</TableHead>
                         </TableRow>
                       </TableHeader>

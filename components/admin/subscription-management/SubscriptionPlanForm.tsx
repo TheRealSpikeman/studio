@@ -1,4 +1,4 @@
-// components/admin/subscription-management/SubscriptionPlanForm.tsx
+// src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Package } from 'lucide-react';
 import Link from 'next/link';
@@ -94,25 +93,9 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: isNew ? {
-      id: "",
-      name: "",
-      description: "",
-      pricePerMonthParent: 7.50,
-      pricePerMonthChild: 2.50,
-      yearlyDiscountPercent: 15,
-      currency: "EUR",
-      maxParents: 1,
-      maxChildren: 1,
-      featureAccess: {},
-      active: true,
-      trialPeriodDays: 14,
-      isPopular: false,
-    } : {
-        ...initialData,
-        pricePerMonthParent: initialData?.pricePerMonthParent ?? 0,
-        pricePerMonthChild: initialData?.pricePerMonthChild ?? 0,
-        yearlyDiscountPercent: initialData?.yearlyDiscountPercent ?? 0,
+    defaultValues: {
+      id: "", name: "", description: "", pricePerMonthParent: 0, pricePerMonthChild: 0, yearlyDiscountPercent: 0,
+      currency: "EUR", maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
     }
   });
   
@@ -125,6 +108,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
             maxParents: initialData.maxParents ?? 0,
             maxChildren: initialData.maxChildren ?? 0,
+            trialPeriodDays: initialData.trialPeriodDays ?? 0,
         });
     } else {
         const defaultFeatureAccess: Record<string, boolean> = {};
@@ -150,9 +134,10 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
       ...initialData,
       ...data,
-      billingInterval: 'month', // Billing interval is now implicitly monthly/yearly based on pricing model
-      maxParents: data.maxParents ?? 0, // Ensure we send 0, not undefined
-      maxChildren: data.maxChildren ?? 0, // Ensure we send 0, not undefined
+      billingInterval: 'month', 
+      price: data.pricePerMonthParent ?? 0, // Fallback for old price field
+      maxParents: data.maxParents ?? 0, 
+      maxChildren: data.maxChildren ?? 0, 
     };
 
     try {
@@ -222,9 +207,9 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               <FormField control={form.control} name="pricePerMonthParent" render={({ field }) => (<FormItem><FormLabel>Prijs per Ouder/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="7.50" {...field} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="pricePerMonthChild" render={({ field }) => (<FormItem><FormLabel>Prijs per Kind/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="2.50" {...field} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="pricePerMonthParent" render={({ field }) => (<FormItem><FormLabel>Prijs per Ouder/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="7.50" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="pricePerMonthChild" render={({ field }) => (<FormItem><FormLabel>Prijs per Kind/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="2.50" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
             </div>
             <FormField control={form.control} name="currency" render={({ field }) => (<FormItem className="hidden"><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
@@ -235,14 +220,14 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
               <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Limieten & Opties</CardTitle>
           </CardHeader>
            <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
                 <FormField
                   control={form.control}
                   name="maxParents"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Ouders</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="1" {...field} /></FormControl>
+                      <FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value || ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -253,12 +238,12 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Kinderen</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="1" {...field} /></FormControl>
+                      <FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value || ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                 <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dgn)</FormLabel><FormControl><Input type="number" min="0" placeholder="14" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dgn)</FormLabel><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
               <FormField

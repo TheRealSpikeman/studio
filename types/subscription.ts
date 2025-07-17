@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -28,17 +27,22 @@ export interface SubscriptionPlan {
   
   // New flexible pricing model
   pricePerMonthParent?: number; // Price for a single parent
-  pricePerMonthChild: number; // Price for a single child
+  pricePerMonthChild?: number; // Price for a single child
   yearlyDiscountPercent?: number; // e.g., 15 for 15% discount
-  currency: 'EUR';
   
-  billingInterval: 'month' | 'year' | 'once'; // Remains for logic, but pricing is now monthly based
-  maxParents?: number;
+  // Kept for logical grouping, but prices are now per-user type
+  billingInterval: 'month' | 'year' | 'once'; 
+
+  maxParents?: number; // Nieuw veld
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
+  
+  // Deprecated, will be removed after migration
+  price?: number;
+  currency?: 'EUR';
 }
 
 // --- DATA CONSTANTS (for seeding) ---
@@ -59,13 +63,12 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools',
+    name: 'Coaching & Tools - Maandelijks',
     shortName: 'Coaching & Tools',
     description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
     pricePerMonthParent: 0,
     pricePerMonthChild: 2.50,
     yearlyDiscountPercent: 15,
-    currency: 'EUR',
     billingInterval: 'month',
     maxParents: 0,
     maxChildren: 1,
@@ -75,54 +78,19 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
   },
   {
-    id: 'parent_insight_monthly',
-    name: 'Ouder Inzicht',
-    shortName: 'Ouder Inzicht',
-    description: "Toegang tot het ouder-dashboard en de 'Ken je Kind' vragenlijsten. Ideaal om te starten.",
-    pricePerMonthParent: 7.50,
-    pricePerMonthChild: 0,
-    yearlyDiscountPercent: 15,
-    currency: 'EUR',
-    billingInterval: 'month',
-    maxParents: 1,
-    maxChildren: 0,
-    active: true,
-    trialPeriodDays: 14,
-    isPopular: false,
-    featureAccess: { 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true },
-  },
-  {
     id: 'family_guide_monthly',
-    name: 'Gezins Gids',
+    name: 'Gezins Gids - Maandelijks',
     shortName: 'Gezins Gids',
-    description: 'Alles voor het hele gezin: alle tools, Ouder Dashboard en ondersteuning voor meerdere kinderen.',
+    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
     pricePerMonthParent: 7.50,
     pricePerMonthChild: 2.50,
     yearlyDiscountPercent: 15,
-    currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
     maxChildren: 4,
     active: true,
     trialPeriodDays: 14,
     isPopular: true,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
-  },
-  {
-    id: 'premium_family_monthly',
-    name: 'Premium Familie',
-    shortName: 'Premium Familie',
-    description: 'Voor grotere gezinnen, met alle premium features en uitgebreide ondersteuning.',
-    pricePerMonthParent: 6.00,
-    pricePerMonthChild: 2.00,
-    yearlyDiscountPercent: 20,
-    currency: 'EUR',
-    billingInterval: 'month',
-    maxParents: 2,
-    maxChildren: 10,
-    active: true,
-    trialPeriodDays: 14,
-    isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
 ];
@@ -236,4 +204,3 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
     const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
     return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
 };
-
