@@ -1,3 +1,4 @@
+
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -31,10 +32,12 @@ export default function SubscriptionManagementPage() {
         setIsLoading(true);
         let loadedPlans: SubscriptionPlan[];
         try {
-            const storedPlansRaw = localStorage.getItem('mindnavigator_subscription_plans');
+            const storedPlansRaw = localStorage.getItem('mindnavigator_subscription_plans_v2');
+            // FIX: Check for both null and "undefined" string before parsing
             if (storedPlansRaw && storedPlansRaw !== 'undefined' && storedPlansRaw !== 'null') {
                 loadedPlans = JSON.parse(storedPlansRaw);
             } else {
+                // If nothing is stored, or it's invalid, set the defaults and save them.
                 loadedPlans = initialDefaultPlans;
                 saveSubscriptionPlans(initialDefaultPlans);
             }
