@@ -1,3 +1,4 @@
+
 // src/components/admin/subscription-management/SubscriptionPlanForm.tsx
 "use client";
 
@@ -33,8 +34,7 @@ const planFormSchema = z.object({
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   
-  pricePerMonthParent: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }).optional(),
-  pricePerMonthChild: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
+  price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }), // Total monthly price
   yearlyDiscountPercent: z.coerce.number().min(0).max(100, "Korting moet tussen 0 en 100 zijn.").optional(),
 
   currency: z.string().length(3, { message: "Valuta code moet 3 tekens zijn (bijv. EUR)." }).default("EUR"),
@@ -94,7 +94,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: {
-      id: "", name: "", description: "", pricePerMonthParent: 0, pricePerMonthChild: 0, yearlyDiscountPercent: 0,
+      id: "", name: "", description: "", price: 0, yearlyDiscountPercent: 0,
       currency: "EUR", maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
     }
   });
@@ -103,8 +103,6 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     if (initialData) {
         form.reset({
             ...initialData,
-            pricePerMonthParent: initialData.pricePerMonthParent ?? 0,
-            pricePerMonthChild: initialData.pricePerMonthChild ?? 0,
             yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
             maxParents: initialData.maxParents ?? 0,
             maxChildren: initialData.maxChildren ?? 0,
@@ -116,8 +114,8 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             defaultFeatureAccess[feature.id] = false;
         });
         form.reset({
-            id: "", name: "", description: "", pricePerMonthParent: 7.50, pricePerMonthChild: 2.50, yearlyDiscountPercent: 15,
-            currency: "EUR", maxParents: 1, maxChildren: 1, featureAccess: defaultFeatureAccess, 
+            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 15,
+            currency: "EUR", maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
             active: true, trialPeriodDays: 14, isPopular: false,
         });
     }
@@ -134,8 +132,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
       ...initialData,
       ...data,
-      billingInterval: 'month', 
-      price: data.pricePerMonthParent ?? 0, // Fallback for old price field
+      billingInterval: 'month', // We only support monthly for now
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
     };
@@ -202,14 +199,16 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
         
         <Card>
           <CardHeader>
-             <CardTitle className="flex items-center gap-2"><Euro className="h-5 w-5 text-primary"/>Prijsmatrix</CardTitle>
-             <CardDescription>Definieer de prijzen per maand en een eventuele jaarkorting.</CardDescription>
+             <CardTitle className="flex items-center gap-2"><Euro className="h-5 w-5 text-primary"/>Prijs & Limieten</CardTitle>
+             <CardDescription>Definieer de prijzen, limieten en een eventuele jaarkorting.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               <FormField control={form.control} name="pricePerMonthParent" render={({ field }) => (<FormItem><FormLabel>Prijs per Ouder/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="7.50" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
-               <FormField control={form.control} name="pricePerMonthChild" render={({ field }) => (<FormItem><FormLabel>Prijs per Kind/mnd</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="2.50" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Totale Prijs per Maand</FormLabel><div className="relative"><Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" step="0.01" placeholder="15.00" {...field} value={field.value || ''} className="pl-8" /></FormControl></div><FormMessage /></FormItem>)} />
                <FormField control={form.control} name="yearlyDiscountPercent" render={({ field }) => (<FormItem><FormLabel>Jaarkorting (%)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" max="100" placeholder="15" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel>Proefperiode (dagen)</FormLabel><div className="relative"><Percent className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} className="pl-8"/></FormControl></div><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="maxParents" render={({ field }) => (<FormItem><FormLabel>Max. Ouders</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+               <FormField control={form.control} name="maxChildren" render={({ field }) => (<FormItem><FormLabel>Max. Kinderen</FormLabel><FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
             </div>
             <FormField control={form.control} name="currency" render={({ field }) => (<FormItem className="hidden"><FormControl><Input placeholder="EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
           </CardContent>
@@ -217,35 +216,10 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
 
         <Card>
           <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Limieten & Opties</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/>Opties</CardTitle>
           </CardHeader>
-           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
-                <FormField
-                  control={form.control}
-                  name="maxParents"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Ouders</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value || ''} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="maxChildren"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1"><Users className="h-4 w-4"/>Max. Kinderen</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="1" {...field} value={field.value || ''} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField control={form.control} name="trialPeriodDays" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-1"><Percent className="h-4 w-4"/>Proefperiode (dgn)</FormLabel><FormControl><Input type="number" min="0" placeholder="14" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+           <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                   control={form.control}
                   name="active"
@@ -327,6 +301,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
                  </div>
             </CardContent>
         </Card>
+
 
         <CardFooter className="flex justify-end gap-3 pt-8 border-t">
           <Button type="submit" disabled={form.formState.isSubmitting}>

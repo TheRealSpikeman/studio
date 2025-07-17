@@ -36,17 +36,18 @@ const faqItems = [
 ];
 
 const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin') || (planId.match(/(\d+)/)?.[0] || '1') > '1') return Users;
+    if (planId.includes('gezin') || planId.includes('2_kinderen') || planId.includes('3_kinderen')) return Users;
     return UserIcon;
 };
 
-const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
-    // This calculation now assumes plan.price already holds the correct monthly base price for the entire plan.
+// Simplified price calculation logic
+const calculatePrice = (baseMonthlyPrice: number, interval: 'month' | 'year', yearlyDiscountPercent?: number): number => {
     if (interval === 'year') {
-        const discount = plan.yearlyDiscountPercent || 0;
-        return (plan.price * 12 * (1 - discount / 100)); // Total yearly price
+        const discount = yearlyDiscountPercent || 0;
+        const totalYearly = baseMonthlyPrice * 12;
+        return totalYearly * (1 - discount / 100);
     }
-    return plan.price; // Monthly price
+    return baseMonthlyPrice;
 };
 
 export default function PricingPage() {
@@ -123,7 +124,7 @@ export default function PricingPage() {
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
                 {plans.map((plan) => {
                   const Icon = getPlanIcon(plan.id);
-                  const displayPrice = calculatePrice(plan, billingInterval);
+                  const displayPrice = calculatePrice(plan.price, billingInterval, plan.yearlyDiscountPercent);
                   const priceText = billingInterval === 'year'
                     ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
                     : `€${displayPrice.toFixed(2).replace('.', ',')}`;

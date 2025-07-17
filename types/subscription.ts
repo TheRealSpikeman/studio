@@ -25,16 +25,16 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  price: number;
+  price: number; // Single source of truth for monthly base price
   currency: 'EUR';
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number;
+  maxParents?: number; 
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
-  yearlyDiscountPercent?: number; // Added for year discount
+  yearlyDiscountPercent?: number;
 }
 
 // --- DATA CONSTANTS (for seeding) ---
@@ -58,7 +58,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: '1 Kind - Maandelijks',
     shortName: '1 Kind',
     description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind, plus het ouder-dashboard.',
-    price: 15.00,
+    price: 15.00, // Corrected total price
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -74,7 +74,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: '2 Kinderen - Maandelijks',
     shortName: '2 Kinderen',
     description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 2 kinderen, plus het ouder-dashboard.',
-    price: 55.00,
+    price: 25.00, // Corrected total price
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -87,10 +87,10 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   },
    {
     id: '3_kinderen_maand',
-    name: '3 Kinderen - Maandelijks',
+    name: '3+ Kinderen - Maandelijks',
     shortName: '3+ Kinderen',
     description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
-    price: 112.50,
+    price: 35.00, // Corrected total price
     currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
@@ -214,11 +214,6 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 };
 
 export const formatFullPrice = (plan: SubscriptionPlan) => {
-    const parentPrice = plan.pricePerMonthParent ?? 0;
-    const childPrice = plan.pricePerMonthChild ?? 0;
-    const totalMonthlyPrice = (plan.price ?? (parentPrice + (childPrice * (plan.maxChildren || 1)))).toFixed(2).replace('.', ',');
-    
     if (plan.price === 0) return 'Gratis';
-    
-    return `€${totalMonthlyPrice}/mnd`;
+    return `€${plan.price.toFixed(2).replace('.', ',')}/mnd`;
 };
