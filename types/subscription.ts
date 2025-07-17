@@ -1,3 +1,4 @@
+
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -24,25 +25,16 @@ export interface SubscriptionPlan {
   shortName?: string;
   description: string;
   tagline?: string;
-  
-  // New flexible pricing model
-  pricePerMonthParent?: number; // Price for a single parent
-  pricePerMonthChild?: number; // Price for a single child
-  yearlyDiscountPercent?: number; // e.g., 15 for 15% discount
-  
-  // Kept for logical grouping, but prices are now per-user type
-  billingInterval: 'month' | 'year' | 'once'; 
-
+  price: number;
+  currency: 'EUR';
+  billingInterval: 'month' | 'year' | 'once';
   maxParents?: number;
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
-  
-  // Deprecated, will be removed after migration
-  price?: number;
-  currency?: 'EUR';
+  yearlyDiscountPercent?: number; // Added for year discount
 }
 
 // --- DATA CONSTANTS (for seeding) ---
@@ -62,35 +54,51 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
-    id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
-    shortName: 'Coaching & Tools',
-    description: 'De essentiële tools voor inzicht en dagelijkse ondersteuning voor één kind.',
-    pricePerMonthParent: 0,
-    pricePerMonthChild: 2.50,
-    yearlyDiscountPercent: 15,
+    id: '1_kind_maand',
+    name: '1 Kind - Maandelijks',
+    shortName: '1 Kind',
+    description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 1 kind, plus het ouder-dashboard.',
+    price: 15.00,
+    currency: 'EUR',
     billingInterval: 'month',
-    maxParents: 0,
+    maxParents: 2,
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
     isPopular: true,
-    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': false, 'expert-network-tutor': false, 'expert-network-coach': false, 'future-updates': true, },
+    yearlyDiscountPercent: 15,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
-    id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    shortName: 'Gezins Gids',
-    description: 'Alles van "Coaching & Tools", plus het Ouder Dashboard voor volledig inzicht en ondersteuning.',
-    pricePerMonthParent: 7.50,
-    pricePerMonthChild: 2.50,
+    id: '2_kinderen_maand',
+    name: '2 Kinderen - Maandelijks',
+    shortName: '2 Kinderen',
+    description: 'Volledige toegang tot alle tools en de dagelijkse coaching hub voor 2 kinderen, plus het ouder-dashboard.',
+    price: 55.00,
+    currency: 'EUR',
+    billingInterval: 'month',
+    maxParents: 2,
+    maxChildren: 2,
+    active: true,
+    trialPeriodDays: 14,
+    isPopular: false,
     yearlyDiscountPercent: 15,
+    featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
+  },
+   {
+    id: '3_kinderen_maand',
+    name: '3 Kinderen - Maandelijks',
+    shortName: '3+ Kinderen',
+    description: 'Het beste pakket voor grotere gezinnen. Volledige toegang voor maximaal 4 kinderen.',
+    price: 112.50,
+    currency: 'EUR',
     billingInterval: 'month',
     maxParents: 2,
     maxChildren: 4,
     active: true,
     trialPeriodDays: 14,
     isPopular: false,
+    yearlyDiscountPercent: 15,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
 ];
@@ -208,13 +216,9 @@ export const formatPrice = (price: number, currency: string, interval: 'month' |
 export const formatFullPrice = (plan: SubscriptionPlan) => {
     const parentPrice = plan.pricePerMonthParent ?? 0;
     const childPrice = plan.pricePerMonthChild ?? 0;
+    const totalMonthlyPrice = (plan.price ?? (parentPrice + (childPrice * (plan.maxChildren || 1)))).toFixed(2).replace('.', ',');
     
-    if (parentPrice === 0 && childPrice === 0) return 'Gratis';
-
-    const yearlyDiscount = plan.yearlyDiscountPercent || 0;
-    const yearlyFactor = 12 * (1 - yearlyDiscount / 100);
-
-    const monthlyPriceText = `${parentPrice > 0 ? `€${parentPrice.toFixed(2)}/ouder` : ''}${parentPrice > 0 && childPrice > 0 ? ' + ' : ''}${childPrice > 0 ? `€${childPrice.toFixed(2)}/kind` : ''}`;
+    if (plan.price === 0) return 'Gratis';
     
-    return `${monthlyPriceText.replace(/\./g, ',')}/mnd (${yearlyDiscount}% korting per jaar)`;
+    return `€${totalMonthlyPrice}/mnd`;
 };

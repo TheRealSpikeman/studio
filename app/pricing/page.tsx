@@ -41,15 +41,12 @@ const getPlanIcon = (planId: string): React.ElementType => {
 };
 
 const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
-    const parentPrice = plan.pricePerMonthParent || 0;
-    const childPrice = plan.pricePerMonthChild || 0;
-    const monthlyTotal = parentPrice + (childPrice * (plan.maxChildren || 1));
-
+    // This calculation now assumes plan.price already holds the correct monthly base price for the entire plan.
     if (interval === 'year') {
         const discount = plan.yearlyDiscountPercent || 0;
-        return (monthlyTotal * 12 * (1 - discount / 100)) / 12; // Price per month for yearly plan
+        return (plan.price * 12 * (1 - discount / 100)); // Total yearly price
     }
-    return monthlyTotal;
+    return plan.price; // Monthly price
 };
 
 export default function PricingPage() {
@@ -68,7 +65,7 @@ export default function PricingPage() {
       
       const sortedPlans = fetchedPlans
         .filter(p => p.active)
-        .sort((a, b) => (a.maxChildren || 0) - (b.maxChildren || 0));
+        .sort((a, b) => (a.price || 0) - (b.price || 0));
         
       setPlans(sortedPlans);
       setAllAppFeatures(fetchedFeatures);
@@ -111,7 +108,7 @@ export default function PricingPage() {
                   <Label htmlFor="billing-toggle" className={cn(billingInterval === 'year' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
                     Jaarlijks
                     {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0) && (
-                      <Badge variant="success" className="ml-2 bg-green-100 text-green-700 border-green-300">
+                      <Badge variant="default" className="ml-2 bg-green-100 text-green-700 border-green-300">
                          Bespaar {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0)?.yearlyDiscountPercent}%
                       </Badge>
                     )}
@@ -127,6 +124,10 @@ export default function PricingPage() {
                 {plans.map((plan) => {
                   const Icon = getPlanIcon(plan.id);
                   const displayPrice = calculatePrice(plan, billingInterval);
+                  const priceText = billingInterval === 'year'
+                    ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
+                    : `€${displayPrice.toFixed(2).replace('.', ',')}`;
+
                   return (
                   <Card
                     key={plan.id}
@@ -146,10 +147,11 @@ export default function PricingPage() {
                       <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
                       <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
                       <p className="text-4xl font-bold text-primary">
-                        €{displayPrice.toFixed(2).replace('.',',')}
+                        {priceText}
                       </p>
                       <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
                          per maand
+                         {billingInterval === 'year' && <span className="text-xs"> (jaarlijks betaald)</span>}
                       </p>
                       {plan.trialPeriodDays && plan.trialPeriodDays > 0 && (
                           <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
