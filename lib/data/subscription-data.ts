@@ -1,4 +1,4 @@
-// src/data/subscription-data.ts
+// src/lib/data/subscription-data.ts
 import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
 
 export const DEFAULT_APP_FEATURES: AppFeature[] = [

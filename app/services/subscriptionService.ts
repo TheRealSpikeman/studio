@@ -1,66 +1,92 @@
 // src/services/subscriptionService.ts
-import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
+import type { SubscriptionPlan } from '@/types/subscription';
 import { initialDefaultPlans } from '@/lib/data/subscription-data';
 
-// This is a server-safe service. No 'use client' needed.
+// This is now a server-safe service layer.
 
-// IMPORTANT: The localStorage logic has been removed. 
-// The functions now operate on the static data or a future database.
-// This allows them to be called from Server Components.
+const LOCAL_STORAGE_KEY = 'adminDashboard_SubscriptionPlans_v3';
+
+// --- Client-side helper ---
+const getPlansFromStorage = (): SubscriptionPlan[] => {
+  if (typeof window === 'undefined') {
+    // On the server, always return the defaults from the code.
+    return initialDefaultPlans;
+  }
+  try {
+    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedPlansRaw) {
+      return JSON.parse(storedPlansRaw);
+    }
+  } catch (error) {
+    console.error("Error reading from localStorage, falling back to defaults:", error);
+  }
+  // If nothing in storage or on server, return defaults.
+  return initialDefaultPlans;
+};
+
+// --- Public API ---
 
 /**
- * Retrieves all subscription plans.
+ * Retrieves all subscription plans. Server-safe.
  * @returns {Promise<SubscriptionPlan[]>} The array of subscription plans.
  */
 export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
-    // In a real app, this would fetch from Firestore or another database.
-    // For this prototype, we return the static data directly.
-    return Promise.resolve(initialDefaultPlans);
+  // This simulates an async fetch, but uses the deterministic client-safe helper.
+  return Promise.resolve(getPlansFromStorage());
 };
 
 /**
- * Retrieves a single subscription plan by its ID.
+ * Retrieves a single subscription plan by its ID. Server-safe.
  * @param {string} id - The ID of the plan to retrieve.
  * @returns {Promise<SubscriptionPlan | null>} The plan object or null if not found.
  */
 export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
-    const allPlans = await getSubscriptionPlans();
-    return allPlans.find(plan => plan.id === id) || null;
+  const allPlans = await getSubscriptionPlans();
+  return allPlans.find(plan => plan.id === id) || null;
 };
 
-// The following functions are placeholders. In a real application, they would
-// interact with a database (like Firestore) to persist changes.
-// They are defined here to satisfy the imports in the components.
+/**
+ * Saves all subscription plans. CLIENT-SIDE ONLY.
+ * @param {SubscriptionPlan[]} plans - The array of plans to save.
+ */
+const savePlansToStorage = (plans: SubscriptionPlan[]): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(plans));
+  }
+};
 
 /**
- * Adds a new subscription plan to a persistent store. (Placeholder)
+ * Adds a new subscription plan. CLIENT-SIDE ONLY.
  * @param {SubscriptionPlan} data - The new plan data.
  */
-export const createSubscriptionPlan = async (data: SubscriptionPlan): Promise<void> => {
-    console.log("Simulating creation of new subscription plan:", data);
-    // In a real app: await db.collection('subscriptions').doc(data.id).set(data);
-    return Promise.resolve();
+export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
+    const currentPlans = getPlansFromStorage();
+    if (currentPlans.some(p => p.id === data.id)) {
+      throw new Error("Een abonnement met dit ID bestaat al.");
+    }
+    const newPlans = [...currentPlans, data];
+    savePlansToStorage(newPlans);
 };
 
 /**
- * Updates an existing subscription plan in a persistent store. (Placeholder)
+ * Updates an existing subscription plan. CLIENT-SIDE ONLY.
  * @param {string} id - The ID of the plan to update.
  * @param {Partial<SubscriptionPlan>} data - The fields to update.
  */
-export const saveSubscriptionPlan = async (id: string, data: Partial<SubscriptionPlan>): Promise<void> => {
-    console.log(`Simulating update for subscription plan ${id}:`, data);
-    // In a real app: await db.collection('subscriptions').doc(id).update(data);
-    return Promise.resolve();
+export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
+    const currentPlans = getPlansFromStorage();
+    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
+    savePlansToStorage(updatedPlans);
 };
 
 /**
- * Deletes a subscription plan from a persistent store. (Placeholder)
+ * Deletes a subscription plan. CLIENT-SIDE ONLY.
  * @param {string} id - The ID of the plan to delete.
  */
-export const deleteSubscriptionPlan = async (id: string): Promise<void> => {
-    console.log(`Simulating deletion of subscription plan: ${id}`);
-    // In a real app: await db.collection('subscriptions').doc(id).delete();
-    return Promise.resolve();
+export const deleteSubscriptionPlan = (id: string): void => {
+    const currentPlans = getPlansFromStorage();
+    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
+    savePlansToStorage(updatedPlans);
 };
 
 // --- Formatting Helpers ---

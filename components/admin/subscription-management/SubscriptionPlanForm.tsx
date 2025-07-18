@@ -22,7 +22,7 @@ import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChec
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
@@ -96,7 +96,6 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
             maxParents: initialData.maxParents ?? 0,
             maxChildren: initialData.maxChildren ?? 0,
             trialPeriodDays: initialData.trialPeriodDays ?? 0,
-            featureAccess: initialData.featureAccess || {},
         });
     } else {
         const defaultFeatureAccess: Record<string, boolean> = {};
@@ -118,11 +117,11 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
     });
   };
 
-  const onSubmit = async (data: PlanFormData) => {
+  const onSubmit = (data: PlanFormData) => {
     const planToSave: SubscriptionPlan = {
-      ...(initialData || { id: data.id }), // Ensure ID is present
+      ...(initialData || { id: data.id }),
       ...data,
-      billingInterval: 'month', // We only support monthly for now
+      billingInterval: 'month',
       currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
@@ -130,14 +129,14 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
 
     try {
       if (isNew) {
-        await createSubscriptionPlan(planToSave);
+        createSubscriptionPlan(planToSave);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
-        await saveSubscriptionPlan(planToSave.id, planToSave);
+        saveSubscriptionPlan(planToSave.id, planToSave);
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');
-      router.refresh(); // Force refresh of the overview page
+      router.refresh();
     } catch (error) {
       toast({ title: "Opslaan Mislukt", description: (error as Error).message, variant: "destructive" });
     }
