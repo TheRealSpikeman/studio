@@ -1,4 +1,3 @@
-
 // src/types/subscription.ts
 import { z } from "zod";
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -55,9 +54,9 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'coaching_tools_monthly',
-    name: 'Coaching & Tools - Maandelijks',
-    shortName: 'Coaching & Tools',
-    description: 'Essentiële tools en dagelijkse coaching voor één kind, inclusief ouder-dashboard.',
+    name: 'Coaching & Tools',
+    shortName: '1 Kind',
+    description: 'Essentiële tools en dagelijkse coaching voor één kind, plus het Ouder Dashboard.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -66,13 +65,13 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 1,
     active: true,
     trialPeriodDays: 14,
-    isPopular: true,
+    isPopular: false,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
   {
     id: 'family_guide_monthly',
-    name: 'Gezins Gids - Maandelijks',
-    shortName: 'Gezins Gids',
+    name: 'Gezins Gids',
+    shortName: '2 Kinderen',
     description: 'Alle tools en coaching voor het hele gezin, met ondersteuning voor maximaal 2 kinderen.',
     price: 25.00,
     currency: 'EUR',
@@ -82,13 +81,13 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     maxChildren: 2,
     active: true,
     trialPeriodDays: 14,
-    isPopular: false,
+    isPopular: true,
     featureAccess: { 'full-access-tools': true, 'daily-coaching': true, 'homework-tools': true, 'progress-reports': true, 'parent-dashboard': true, 'expert-network-tutor': true, 'expert-network-coach': true, 'future-updates': true, },
   },
    {
     id: 'family_guide_large',
-    name: 'Gezins Gids (Groot)',
-    shortName: 'Gezins Gids+',
+    name: 'Gezins Gids+',
+    shortName: '3+ Kinderen',
     description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
     price: 35.00,
     currency: 'EUR',
