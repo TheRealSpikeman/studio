@@ -1,6 +1,4 @@
 // src/services/subscriptionService.ts
-"use client";
-
 import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
 import { initialDefaultPlans } from '@/lib/data/subscription-data';
 

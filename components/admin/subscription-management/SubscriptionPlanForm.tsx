@@ -25,8 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSubscriptionPlanById, saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
-import { getAllFeatures } from '@/services/featureService';
+import { saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
 import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
 
 
@@ -49,6 +48,8 @@ export type PlanFormData = z.infer<typeof planFormSchema>;
 interface SubscriptionPlanFormProps {
   initialData?: SubscriptionPlan; 
   isNew: boolean;
+  allSubscriptionPlans: SubscriptionPlan[];
+  allAppFeatures: AppFeature[];
 }
 
 const getAudienceBadgeVariant = (audience: TargetAudience): "default" | "secondary" | "outline" => {
@@ -74,18 +75,9 @@ const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   }
 };
 
-export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFormProps) {
+export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans, allAppFeatures }: SubscriptionPlanFormProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
-
-  useEffect(() => {
-    async function fetchFeatures() {
-        const features = await getAllFeatures();
-        setAllAppFeatures(features);
-    }
-    fetchFeatures();
-  }, []);
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
@@ -149,6 +141,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');
+      router.refresh(); // Force refresh of the overview page
     } catch (error) {
       toast({ title: "Opslaan Mislukt", description: (error as Error).message, variant: "destructive" });
     }
