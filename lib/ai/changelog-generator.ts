@@ -1,8 +1,8 @@
 // lib/ai/changelog-generator.ts
 import { generate } from 'genkit'; // Corrected: import from the root package
-import { configureGenkit } from '@/app/ai/genkit';
+import { configureGenkit } from '@/ai/genkit';
 import { z } from 'zod';
-import { softwareEngineerPersona } from '@/app/ai/personas'; // Assuming a persona definition exists
+import { softwareEngineerPersona } from '@/ai/personas'; // Assuming a persona definition exists
 
 // Define the expected structure of the AI's output using Zod for validation
 const ChangelogSchema = z.object({

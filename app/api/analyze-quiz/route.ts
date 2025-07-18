@@ -1,7 +1,7 @@
 // src/app/api/analyze-quiz/route.ts
 import { NextResponse } from 'next/server';
-import { generateQuizAnalysis } from '@/app/ai/flows/generate-quiz-analysis-flow';
-import type { GenerateQuizAnalysisInput } from '@/app/ai/flows/generate-quiz-analysis-flow-types';
+import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
+import type { GenerateQuizAnalysisInput } from '@/ai/flows/generate-quiz-analysis-flow-types';
 
 export async function POST(request: Request) {
   try {

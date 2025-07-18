@@ -12,7 +12,7 @@ import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck,
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { compareParentChildInsights, type CompareParentChildInput } from '@/app/ai/flows/compare-parent-child-insights-flow';
+import { compareParentChildInsights, type CompareParentChildInput } from '@/ai/flows/compare-parent-child-insights-flow';
 import type { QuizResult, TutorFeedback, ActivityPoint, Goal, ChildProgressData } from '@/types';
 
 

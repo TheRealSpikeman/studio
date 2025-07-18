@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 
-import { generateChangelogDraft, submitChangelogEntry } from '@/app/actions/changelogActions';
-import type { GenerateChangelogDraftResult } from '@/app/actions/changelogActions';
+import { generateChangelogDraft, submitChangelogEntry } from '@/actions/changelogActions';
+import type { GenerateChangelogDraftResult } from '@/actions/changelogActions';
 
 // Define the type for the form data explicitly
 type ChangelogFormData = {

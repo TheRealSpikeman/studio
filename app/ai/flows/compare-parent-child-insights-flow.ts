@@ -6,7 +6,7 @@
  * - compareParentChildInsights - A function that handles the comparison and advice generation.
  */
 
-import {ai} from '@/app/ai/genkit';
+import {ai} from '@/ai/genkit';
 import {
   CompareParentChildInputSchema,
   CompareParentChildOutputSchema,

@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use client";
 
@@ -51,18 +50,24 @@ const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): num
 };
 
 export default function PricingPage() {
-  // CORRECTED: State is initialized directly from the synchronous function.
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(() => {
-    const fetchedPlans = getSubscriptionPlans();
-    return fetchedPlans
-      .filter(p => p.active)
-      .sort((a, b) => (a.price || 0) - (b.price || 0));
-  });
-  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>(getAllFeatures());
-  const [isLoading, setIsLoading] = useState(false); // No longer needed for fetching, but kept for potential future use.
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
-  // REMOVED: The problematic useEffect hook is gone.
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchedPlans = getSubscriptionPlans();
+    const fetchedFeatures = getAllFeatures();
+    
+    const sortedPlans = fetchedPlans
+      .filter(p => p.active)
+      .sort((a, b) => (a.price || 0) - (b.price || 0));
+      
+    setPlans(sortedPlans);
+    setAllAppFeatures(fetchedFeatures);
+    setIsLoading(false);
+  }, []);
   
   const handlePlanSelection = (planId: string) => {
     const planIdWithInterval = `${planId}_${billingInterval}`;

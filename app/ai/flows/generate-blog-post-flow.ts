@@ -4,7 +4,7 @@
  * @fileOverview A Genkit flow for generating blog post content from a single topic idea.
  * This is the v19 fix: Removed the output schema to force raw text output, aligning with the prompt's instructions.
  */
-import { ai } from '@/app/ai/genkit';
+import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import {
   GenerateBlogPostInputSchema,

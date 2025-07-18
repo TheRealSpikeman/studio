@@ -3,7 +3,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { generateReactComponent } from '@/app/ai/flows/generate-react-component-flow';
+import { generateReactComponent } from '@/ai/flows/generate-react-component-flow';
 import { toPascalCase } from '@/lib/string-utils';
 
 interface CreateToolComponentFileResult {

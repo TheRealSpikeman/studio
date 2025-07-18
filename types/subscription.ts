@@ -114,6 +114,15 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => {
 };
 
 /**
+ * Retrieves a single subscription plan by its ID.
+ * @param {string} id The ID of the plan to retrieve.
+ * @returns {SubscriptionPlan | undefined} The found plan or undefined.
+ */
+export const getSubscriptionPlanById = (id: string): SubscriptionPlan | undefined => {
+  return initialDefaultPlans.find(plan => plan.id === id);
+};
+
+/**
  * Retrieves all available application features.
  * @returns {AppFeature[]} The array of application features.
  */

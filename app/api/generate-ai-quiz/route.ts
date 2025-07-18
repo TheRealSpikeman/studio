@@ -1,7 +1,7 @@
 // src/app/api/generate-ai-quiz/route.ts
 import { NextResponse } from 'next/server';
 import { generateAiQuiz } from '@/ai/flows/generate-ai-quiz-flow';
-import type { GenerateAiQuizInput } from '@/app/ai/flows/generate-ai-quiz-flow-types';
+import type { GenerateAiQuizInput } from '@/ai/flows/generate-ai-quiz-flow-types';
 
 export async function POST(request: Request) {
   try {

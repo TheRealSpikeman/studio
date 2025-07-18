@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Trash2, Plus, Save, Loader2, ArrowLeft, ListChecks, Star } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { blogTagConfig, type BlogTagCategories } from '@/config/blog-tags'; // Adjust the import path as needed
-import { updateBlogTagConfigFile } from '@/app/actions/blogActions';
+import { updateBlogTagConfigFile } from '@/actions/blogActions';
 import Link from 'next/link';
 import {
   Select,

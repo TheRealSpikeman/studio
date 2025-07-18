@@ -3,7 +3,7 @@
  * @fileOverview A Genkit flow for generating a React component for a tool.
  */
 
-import { ai } from '@/app/ai/genkit';
+import { ai } from '@/ai/genkit';
 import {
   GenerateReactComponentInputSchema,
   GenerateReactComponentOutputSchema,

@@ -5,7 +5,7 @@
  * - generateCoachingInsights - A function that generates daily coaching content.
  */
 
-import {ai} from '@/app//ai/genkit';
+import {ai} from '@//ai/genkit';
 import {
   GenerateCoachingInsightsInputSchema,
   GenerateCoachingInsightsOutputSchema,

@@ -2,7 +2,7 @@
 /**
  * @fileOverview A Genkit flow for generating a single blog topic idea based on a persona.
  */
-import { ai } from '@/app/ai/genkit';
+import { ai } from '@/ai/genkit';
 import {
   GenerateBlogTopicInputSchema,
   GenerateBlogTopicOutputSchema,

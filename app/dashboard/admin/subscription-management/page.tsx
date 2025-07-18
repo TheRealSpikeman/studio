@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/subscription-management/page.tsx
 "use client";
 
@@ -7,13 +6,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, seedInitialPlans, formatFullPrice } from '@/types/subscription';
+import { getSubscriptionPlans, type SubscriptionPlan, deleteSubscriptionPlan, formatFullPrice } from '@/types/subscription';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -66,23 +64,6 @@ export default function SubscriptionManagementPage() {
         }
     };
 
-    const handleRestoreDefaults = () => {
-        try {
-            seedInitialPlans(true); // Force seeding
-            toast({
-                title: "Standaard Abonnementen Hersteld",
-                description: "De originele abonnementen zijn teruggezet. De pagina wordt vernieuwd."
-            });
-            fetchPlans(); // Refresh the data
-        } catch (error) {
-             toast({
-                title: "Herstellen Mislukt",
-                description: (error as Error).message,
-                variant: "destructive"
-            });
-        }
-    };
-
     if (isLoading) {
         return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
     }
@@ -98,7 +79,6 @@ export default function SubscriptionManagementPage() {
                             </CardTitle>
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleRestoreDefaults} variant="outline">Standaard Herstellen</Button>
                             <Button asChild>
                                 <Link href="/dashboard/admin/subscription-management/new">
                                     <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement

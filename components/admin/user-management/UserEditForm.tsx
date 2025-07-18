@@ -30,7 +30,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Mail, Link as LinkIcon, Euro, Cpu, User as UserIcon, Home, MessageSquarePlus } from 'lucide-react';
-import { updateUserAction } from '@/app/dashboard/admin/user-management/_actions';
+import { updateUserAction } from '@/dashboard/admin/user-management/_actions';
 
 const userStatuses: UserStatus[] = [
   'actief', 'niet geverifieerd', 'geblokkeerd', 'pending_onboarding', 'pending_approval', 'rejected', 'wacht_op_ouder_goedkeuring',

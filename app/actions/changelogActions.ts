@@ -3,7 +3,7 @@
 
 import { runTerminalCommand } from '@/lib/run-command'; // A wrapper for running terminal commands safely
 import { generateChangelogFromDiff } from '@/lib/ai/changelog-generator'; // Hypothetical AI service
-import { addChangelogEntry } from '@/app/services/changelogService'; // Corrected import path
+import { addChangelogEntry } from '@/services/changelogService'; // Corrected import path
 import { revalidatePath } from 'next/cache';
 
 export interface GenerateChangelogDraftResult {

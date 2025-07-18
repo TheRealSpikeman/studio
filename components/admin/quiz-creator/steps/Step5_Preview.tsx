@@ -21,7 +21,7 @@ import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion, QuizStat
 import type { BlogPost } from '@/types/blog';
 import { answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
 import { verifyQuizQuestions } from '@/ai/flows/verify-quiz-questions-flow';
-import type { VerifyQuizQuestionsOutput } from '@/app/generate-ai-quiz-flow-types';
+import type { VerifyQuizQuestionsOutput } from '@/generate-ai-quiz-flow-types';
 import Link from 'next/link';
 import { storageService } from '@/services/storageService'; 
 
