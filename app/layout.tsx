@@ -3,8 +3,7 @@ import type { ReactNode } from 'react';
 import { GeistSans } from 'geist/font/sans';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AppProviders } from '@/components/providers/AppProviders';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 import { MaintenanceModeHandler } from '@/components/layout/MaintenanceModeHandler';
 
@@ -16,13 +15,11 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <body className={`${GeistSans.variable} font-sans antialiased`}>
-        <AuthProvider>
+        <AppProviders>
           <MaintenanceModeHandler>
-            <TooltipProvider>
-              {children}
-            </TooltipProvider>
+            {children}
           </MaintenanceModeHandler>
-        </AuthProvider>
+        </AppProviders>
         <Toaster />
         <CookieConsentBanner />
       </body>

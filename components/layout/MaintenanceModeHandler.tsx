@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from '@/lib/icons';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 const MAINTENANCE_MODE_KEY = 'mindnavigator_maintenance_mode';
 
