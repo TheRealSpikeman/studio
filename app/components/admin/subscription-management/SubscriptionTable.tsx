@@ -1,4 +1,3 @@
-
 // src/components/admin/subscription-management/SubscriptionTable.tsx
 'use client';
 
