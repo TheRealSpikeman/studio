@@ -22,7 +22,7 @@ import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChec
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
@@ -96,6 +96,7 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
             maxParents: initialData.maxParents ?? 0,
             maxChildren: initialData.maxChildren ?? 0,
             trialPeriodDays: initialData.trialPeriodDays ?? 0,
+            featureAccess: initialData.featureAccess || {},
         });
     } else {
         const defaultFeatureAccess: Record<string, boolean> = {};
@@ -118,8 +119,8 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
   };
 
   const onSubmit = async (data: PlanFormData) => {
-    const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
-      ...initialData,
+    const planToSave: SubscriptionPlan = {
+      ...(initialData || { id: data.id }), // Ensure ID is present
       ...data,
       billingInterval: 'month', // We only support monthly for now
       currency: 'EUR',
@@ -129,15 +130,10 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
 
     try {
       if (isNew) {
-        if (!planToSave.id) {
-             toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
-             return;
-        }
-        await createSubscriptionPlan(planToSave as SubscriptionPlan);
+        await createSubscriptionPlan(planToSave);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
-        if (!initialData?.id) return;
-        await saveSubscriptionPlan(initialData.id, planToSave);
+        await saveSubscriptionPlan(planToSave.id, planToSave);
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');

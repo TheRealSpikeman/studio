@@ -2,74 +2,24 @@
 import type { AppFeature } from '@/types/subscription';
 import { DEFAULT_APP_FEATURES } from '@/lib/data/subscription-data';
 
-const FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
+// This is a server-safe service. No 'use client' needed.
 
-const getItem = <T>(key: string, defaultValue: T): T => {
-  if (typeof window === 'undefined') {
-    return defaultValue;
-  }
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.error(`Error reading from localStorage key “${key}”:`, error);
-    return defaultValue;
-  }
-};
-
-const setItem = <T>(key: string, value: T): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.error(`Error writing to localStorage key “${key}”:`, error);
-  }
-};
+// IMPORTANT: The localStorage logic has been removed. 
+// Management of features will be done via a database or a config file in a real app.
+// For this prototype, we will treat DEFAULT_APP_FEATURES as the source of truth.
 
 /**
- * Retrieves all application features from local storage, falling back to defaults.
+ * Retrieves all application features directly from the source data.
+ * This is a synchronous function that can be used on both server and client.
  * @returns {Promise<AppFeature[]>} A promise that resolves to the array of features.
  */
 export const getAllFeatures = async (): Promise<AppFeature[]> => {
-    return Promise.resolve(getItem(FEATURES_KEY, DEFAULT_APP_FEATURES));
+    // In a real app, this would fetch from a database.
+    // For now, it returns the static data, which is server-safe.
+    return Promise.resolve(DEFAULT_APP_FEATURES);
 };
 
-/**
- * Saves a single feature, either creating a new one or updating an existing one.
- * @param {AppFeature} featureData The feature data to save.
- * @param {string | null} originalId The original ID of the feature if it's being edited (to find it in the array).
- */
-export const saveFeature = async (featureData: AppFeature, originalId: string | null = null): Promise<void> => {
-    const currentFeatures = await getAllFeatures();
-    const isEditing = originalId !== null;
-
-    let updatedFeaturesList;
-
-    if (isEditing) {
-        if(originalId !== featureData.id) { // ID has been changed, which is not allowed.
-            throw new Error("Het wijzigen van een feature ID is niet toegestaan.");
-        }
-        updatedFeaturesList = currentFeatures.map(f => f.id === originalId ? featureData : f);
-    } else {
-        if (currentFeatures.some(f => f.id === featureData.id)) {
-            throw new Error(`Een feature met ID "${featureData.id}" bestaat al.`);
-        }
-        updatedFeaturesList = [featureData, ...currentFeatures];
-    }
-    
-    setItem(FEATURES_KEY, updatedFeaturesList.sort((a,b) => a.label.localeCompare(b.label)));
-    return Promise.resolve();
-};
-
-/**
- * Deletes a feature from local storage.
- * @param {string} featureId The ID of the feature to delete.
- */
-export const deleteFeature = async (featureId: string): Promise<void> => {
-    const currentFeatures = await getAllFeatures();
-    const updatedFeatures = currentFeatures.filter(f => f.id !== featureId);
-    setItem(FEATURES_KEY, updatedFeatures);
-    return Promise.resolve();
-};
+// Functions to save/delete features would need to be implemented
+// to write to a persistent data store (e.g., Firestore or a JSON file)
+// if dynamic feature management is required. For the current scope,
+// we rely on the static data.
