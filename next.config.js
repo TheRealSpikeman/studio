@@ -1,13 +1,6 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // Deze configuratie is toegevoegd om cross-origin requests
-    // vanuit de ontwikkelomgeving toe te staan.
-    allowedDevOrigins: [
-      "https://*.cloudworkstations.dev",
-    ],
-  },
   images: {
     remotePatterns: [
       {
