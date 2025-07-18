@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, deleteSubscriptionPlan, formatFullPrice } from '@/services/subscriptionService';
+import { getSubscriptionPlans, deleteSubscriptionPlan, formatFullPrice, seedInitialPlans } from '@/services/subscriptionService';
 import type { SubscriptionPlan } from '@/types/subscription';
 
 const formatCurrency = (amount: number) => {
@@ -38,6 +38,8 @@ export default function SubscriptionManagementPage() {
     };
 
     useEffect(() => {
+        // Seed plans if localStorage is empty
+        seedInitialPlans();
         fetchPlans();
     }, []);
 

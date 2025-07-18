@@ -2,7 +2,7 @@
 import type { AppFeature } from '@/types/subscription';
 import { DEFAULT_APP_FEATURES } from '@/lib/data/subscription-data';
 
-// This is a server-safe service.
+// This is a server-safe service. No 'use client' needed.
 
 const FEATURES_KEY = 'adminDashboard_AppFeatures_v1';
 
@@ -21,12 +21,15 @@ const getFeaturesFromStorage = (): AppFeature[] => {
 };
 
 /**
- * Retrieves all application features. Server-safe.
- * @returns {Promise<AppFeature[]>} A promise that resolves to the array of features.
+ * Retrieves all application features. This function is now server-safe.
+ * It will read from localStorage on the client, and from the initial data on the server.
+ * @returns {AppFeature[]} The array of application features.
  */
-export const getAllFeatures = async (): Promise<AppFeature[]> => {
-    return Promise.resolve(getFeaturesFromStorage());
+export const getAllFeatures = (): AppFeature[] => {
+    return getFeaturesFromStorage();
 };
+
+// --- Client-side only functions ---
 
 const saveFeaturesToStorage = (features: AppFeature[]): void => {
     if (typeof window !== 'undefined') {
@@ -39,8 +42,8 @@ const saveFeaturesToStorage = (features: AppFeature[]): void => {
  * @param {AppFeature} featureData The feature data to save.
  * @param {string | null} originalId The original ID of the feature if it's being edited.
  */
-export const saveFeature = async (featureData: AppFeature, originalId: string | null = null): Promise<void> => {
-    const currentFeatures = await getAllFeatures();
+export const saveFeature = (featureData: AppFeature, originalId: string | null = null): void => {
+    const currentFeatures = getFeaturesFromStorage();
     const isEditing = originalId !== null;
 
     let updatedFeaturesList;
@@ -63,8 +66,8 @@ export const saveFeature = async (featureData: AppFeature, originalId: string | 
  * Deletes a feature. CLIENT-SIDE ONLY.
  * @param {string} featureId The ID of the feature to delete.
  */
-export const deleteFeature = async (featureId: string): Promise<void> => {
-    const currentFeatures = await getAllFeatures();
+export const deleteFeature = (featureId: string): void => {
+    const currentFeatures = getFeaturesFromStorage();
     const updatedFeatures = currentFeatures.filter(f => f.id !== featureId);
     saveFeaturesToStorage(updatedFeatures);
 };

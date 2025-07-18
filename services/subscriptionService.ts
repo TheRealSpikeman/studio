@@ -1,27 +1,21 @@
-// src/services/subscriptionService.ts
-"use client";
+// services/subscriptionService.ts
+import type { SubscriptionPlan } from '@/types/subscription';
+import { initialDefaultPlans } from '@/lib/data/subscription-data';
 
-import { type SubscriptionPlan, type AppFeature } from '@/types/subscription';
-import { initialDefaultPlans, DEFAULT_APP_FEATURES } from '@/lib/data/subscription-data';
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
 
-// --- Local Storage Key ---
-const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
-
-// --- Helper Functions (Client-side Safe) ---
-
-/**
- * Retrieves the subscription plans from localStorage, falling back to initial defaults.
- * @returns {SubscriptionPlan[]} The array of subscription plans.
- */
-export const getSubscriptionPlans = (): SubscriptionPlan[] => {
+// --- Client-side helper ---
+const getPlansFromStorage = (): SubscriptionPlan[] => {
   if (typeof window === 'undefined') {
-    return initialDefaultPlans; // Fallback for server-side rendering
+    // On the server, always return the defaults from the code.
+    return initialDefaultPlans;
   }
   try {
     const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     if (storedPlansRaw) {
       return JSON.parse(storedPlansRaw);
     } else {
+      // Initialize localStorage if it's the first time on the client
       localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(initialDefaultPlans));
       return initialDefaultPlans;
     }
@@ -32,83 +26,81 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => {
 };
 
 /**
- * Saves an array of subscription plans to localStorage.
- * @param {SubscriptionPlan[]} plans - The array of plans to save.
+ * Retrieves all subscription plans. This function is now server-safe.
+ * It will read from localStorage on the client, and from the initial data on the server.
+ * @returns {SubscriptionPlan[]} The array of subscription plans.
  */
-export const saveSubscriptionPlans = (plans: SubscriptionPlan[]): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
-  } catch (error) {
-    console.error("Error saving subscription plans to localStorage:", error);
-  }
+export const getSubscriptionPlans = (): SubscriptionPlan[] => {
+  return getPlansFromStorage();
 };
 
 /**
- * Retrieves a single subscription plan by its ID.
+ * Retrieves a single subscription plan by its ID. Server-safe.
  * @param {string} id - The ID of the plan to retrieve.
  * @returns {SubscriptionPlan | null} The plan object or null if not found.
  */
 export const getSubscriptionPlanById = (id: string): SubscriptionPlan | null => {
-    const allPlans = getSubscriptionPlans();
-    return allPlans.find(plan => plan.id === id) || null;
+  const allPlans = getPlansFromStorage();
+  return allPlans.find(plan => plan.id === id) || null;
+};
+
+// --- Client-side only functions ---
+
+const savePlansToStorage = (plans: SubscriptionPlan[]): void => {
+  if (typeof window === 'undefined') {
+      console.warn("Attempted to save subscription plans on the server. This is a client-side only operation.");
+      return;
+  }
+  localStorage.setItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY, JSON.stringify(plans));
 };
 
 /**
- * Adds a new subscription plan.
+ * Adds a new subscription plan. CLIENT-SIDE ONLY.
  * @param {SubscriptionPlan} data - The new plan data.
  */
 export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
-    const currentPlans = getSubscriptionPlans();
+    const currentPlans = getPlansFromStorage();
     if (currentPlans.some(p => p.id === data.id)) {
       throw new Error("Een abonnement met dit ID bestaat al.");
     }
     const newPlans = [...currentPlans, data];
-    saveSubscriptionPlans(newPlans);
+    savePlansToStorage(newPlans);
 };
 
 /**
- * Updates an existing subscription plan.
+ * Updates an existing subscription plan. CLIENT-SIDE ONLY.
  * @param {string} id - The ID of the plan to update.
  * @param {Partial<SubscriptionPlan>} data - The fields to update.
  */
 export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
-    const currentPlans = getSubscriptionPlans();
+    const currentPlans = getPlansFromStorage();
     const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
-    saveSubscriptionPlans(updatedPlans);
+    savePlansToStorage(updatedPlans);
 };
 
 /**
- * Deletes a subscription plan.
+ * Deletes a subscription plan. CLIENT-SIDE ONLY.
  * @param {string} id - The ID of the plan to delete.
  */
 export const deleteSubscriptionPlan = (id: string): void => {
-    const currentPlans = getSubscriptionPlans();
+    const currentPlans = getPlansFromStorage();
     const updatedPlans = currentPlans.filter(plan => plan.id !== id);
-    saveSubscriptionPlans(updatedPlans);
+    savePlansToStorage(updatedPlans);
 };
 
 /**
- * Resets the subscription plans in localStorage to the initial defaults.
+ * Resets the subscription plans in localStorage to the initial defaults. CLIENT-SIDE ONLY.
  * @param {boolean} force - If true, overwrites existing plans.
  */
 export const seedInitialPlans = (force: boolean = false): void => {
     if (typeof window === 'undefined') return;
     const existingPlans = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     if (!existingPlans || force) {
-        saveSubscriptionPlans(initialDefaultPlans);
+        savePlansToStorage(initialDefaultPlans);
     }
 };
 
-/**
- * Retrieves all available application features.
- * @returns {AppFeature[]} The array of application features.
- */
-export const getAllFeatures = (): AppFeature[] => {
-    return DEFAULT_APP_FEATURES;
-};
-
-// --- Formatting Helpers ---
+// --- Formatting Helpers (Server-safe) ---
 
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
