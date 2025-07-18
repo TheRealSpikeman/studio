@@ -1,147 +1,47 @@
 // src/app/dashboard/admin/subscription-management/page.tsx
-"use client";
+"use server"; // Make this a Server Component
 
-import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CreditCard, Edit, Trash2, PlusCircle, Star, MoreVertical, Loader2 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { getSubscriptionPlans, deleteSubscriptionPlan, seedInitialPlans, formatFullPrice } from '@/services/subscriptionService';
-import type { SubscriptionPlan } from '@/types/subscription';
+import { CreditCard, PlusCircle, Loader2 } from 'lucide-react';
+import { getSubscriptionPlans } from '@/services/subscriptionService';
+import { SubscriptionTable } from '@/components/admin/subscription-management/SubscriptionTable';
 
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
-};
+// The main page component is now a Server Component that fetches data
+export default async function SubscriptionManagementPage() {
+  const plans = await getSubscriptionPlans();
 
-export default function SubscriptionManagementPage() {
-    const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { toast } = useToast();
-    const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
-
-    const fetchPlans = () => {
-        setIsLoading(true);
-        try {
-            const plans = getSubscriptionPlans();
-            const sortedPlans = plans.sort((a, b) => (a.price || 0) - (b.price || 0));
-            setAvailablePlans(sortedPlans);
-        } catch(e) {
-            toast({ title: "Fout bij laden", description: "Kon abonnementen niet ophalen.", variant: "destructive" });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        // Seed plans if localStorage is empty
-        seedInitialPlans();
-        fetchPlans();
-    }, []);
-
-    const handleDeletePlan = (plan: SubscriptionPlan) => {
-        setPlanToDelete(plan);
-    };
-    
-    const confirmDeletePlan = () => {
-        if (!planToDelete) return;
-        
-        try {
-            deleteSubscriptionPlan(planToDelete.id);
-            toast({
-                title: "Abonnement Verwijderd",
-                description: `Het abonnement "${planToDelete.name}" is verwijderd.`
-            });
-            setPlanToDelete(null);
-            fetchPlans(); 
-        } catch (error) {
-             toast({
-                title: "Fout bij verwijderen",
-                description: (error as Error).message,
-                variant: "destructive"
-            });
-        }
-    };
-
-    if (isLoading) {
-        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-    }
-
-    return (
-        <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                                Huidige Abonnementen
-                            </CardTitle>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button asChild>
-                                <Link href="/dashboard/admin/subscription-management/new">
-                                    <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Plan Naam</TableHead>
-                          <TableHead>Prijs</TableHead>
-                          <TableHead>Interval</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Populair</TableHead>
-                          <TableHead className="text-right">Acties</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {availablePlans.map(plan => (
-                          <TableRow key={plan.id}>
-                            <TableCell className="font-medium">{plan.name}</TableCell>
-                            <TableCell>{formatCurrency(plan.price)}</TableCell>
-                            <TableCell className="capitalize">{plan.billingInterval}</TableCell>
-                            <TableCell>
-                                <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
-                            </TableCell>
-                            <TableCell>
-                                {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <Button asChild variant="outline" size="sm">
-                                    <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
-                                        Bewerken
-                                    </Link>
-                                </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            <AlertDialog open={!!planToDelete} onOpenChange={(isOpen) => !isOpen && setPlanToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Weet u het zeker?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Deze actie kan niet ongedaan worden gemaakt. Dit zal het abonnement "{planToDelete?.name}" permanent verwijderen. Gebruikers op dit plan behouden hun toegang tot de volgende betaalperiode, maar nieuwe gebruikers kunnen zich niet aanmelden.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDeletePlan} className="bg-destructive hover:bg-destructive/90">Ja, verwijder</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </div>
-    );
+  return (
+    <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                <CreditCard className="h-6 w-6 text-primary" />
+                Abonnementenbeheer
+              </CardTitle>
+              <CardDescription>
+                Beheer hier alle abonnementen, prijzen en gekoppelde features.
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link href="/dashboard/admin/subscription-management/new">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Nieuw Abonnement
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
+            <SubscriptionTable initialPlans={plans} />
+          </Suspense>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

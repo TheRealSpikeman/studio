@@ -12,11 +12,26 @@ export const DEFAULT_APP_FEATURES: AppFeature[] = [
     { id: 'future-updates', label: 'Alle toekomstige updates en nieuwe features', targetAudience: ['platform'] },
 ];
 
-export const initialDefaultPlans: SubscriptionPlan[] = [
+export const initialDefaultPlans: Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'>[] = [
+  {
+    id: 'free_start',
+    name: 'Gratis Start',
+    description: 'Doe de basis assessment en krijg een eerste inzicht in jouw unieke profiel. Ideaal om te starten.',
+    price: 0,
+    currency: 'EUR',
+    billingInterval: 'once',
+    maxParents: 1,
+    maxChildren: 1,
+    active: true,
+    trialPeriodDays: 0,
+    isPopular: false,
+    featureAccess: {
+      'full-access-tools': true,
+    },
+  },
   {
     id: 'coaching_tools_monthly',
     name: 'Coaching & Tools',
-    shortName: '1 Kind',
     description: 'Essentiële tools en dagelijkse coaching voor één kind, plus het Ouder Dashboard.',
     price: 15.00,
     currency: 'EUR',
@@ -32,7 +47,6 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'family_guide_monthly',
     name: 'Gezins Gids',
-    shortName: '2 Kinderen',
     description: 'Alle tools en coaching voor het hele gezin, met ondersteuning voor maximaal 2 kinderen.',
     price: 25.00,
     currency: 'EUR',
@@ -48,7 +62,6 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
    {
     id: 'family_guide_large',
     name: 'Gezins Gids+',
-    shortName: '3+ Kinderen',
     description: 'De beste optie voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
     price: 35.00,
     currency: 'EUR',

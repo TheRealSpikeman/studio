@@ -1,24 +1,19 @@
 // src/app/pricing/page.tsx
-"use client";
+"use server";
 
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { CreditCard, HelpCircle, ArrowRight } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Users, CreditCard, Sparkles, Star, HelpCircle, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
+import { getSubscriptionPlans, getAllFeatures } from '@/services/subscriptionService';
+import { PricingTable } from '@/components/pricing/PricingTable';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
-import { type SubscriptionPlan, type AppFeature, getSubscriptionPlans, getAllFeatures } from '@/types/subscription';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 
 const faqItems = [
   {
     question: "Zijn alle features inbegrepen in elk plan?",
-    answer: "Ja, alle abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content, het ouder-dashboard en toegang tot ons expert netwerk.",
+    answer: "Ja, alle betaalde abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content, het ouder-dashboard en toegang tot ons expert netwerk.",
   },
   {
     question: "Zijn 1-op-1 coaching of tutoring sessies inbegrepen?",
@@ -34,54 +29,10 @@ const faqItems = [
   },
 ];
 
-const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('family_guide')) return Users;
-    return UserIcon;
-};
 
-// This function calculates the price based on the interval and applies the discount.
-const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
-    if (interval === 'year') {
-        const discount = plan.yearlyDiscountPercent || 0;
-        const totalYearly = plan.price * 12;
-        return totalYearly * (1 - discount / 100);
-    }
-    return plan.price;
-};
-
-export default function PricingPage() {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [allAppFeatures, setAllAppFeatures] = useState<AppFeature[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
-
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchedPlans = getSubscriptionPlans();
-    const fetchedFeatures = getAllFeatures();
-    
-    const sortedPlans = fetchedPlans
-      .filter(p => p.active)
-      .sort((a, b) => (a.price || 0) - (b.price || 0));
-      
-    setPlans(sortedPlans);
-    setAllAppFeatures(fetchedFeatures);
-    setIsLoading(false);
-  }, []);
-  
-  const handlePlanSelection = (planId: string) => {
-    const planIdWithInterval = `${planId}_${billingInterval}`;
-    const targetUrl = `/signup?plan=${planIdWithInterval}`;
-    window.location.href = targetUrl;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" /> Plannen laden...
-      </div>
-    );
-  }
+export default async function PricingPage() {
+  const plans = await getSubscriptionPlans();
+  const allFeatures = await getAllFeatures();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -97,102 +48,18 @@ export default function PricingPage() {
                 <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
                     Kies het plan dat past bij uw gezin en krijg direct volledige toegang.
                 </p>
-                <div className="flex items-center justify-center space-x-3 mt-8">
-                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'month' ? 'text-primary font-semibold' : 'text-muted-foreground')}>Maandelijks</Label>
-                  <Switch
-                    id="billing-toggle"
-                    checked={billingInterval === 'year'}
-                    onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
-                  />
-                  <Label htmlFor="billing-toggle" className={cn(billingInterval === 'year' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
-                    Jaarlijks
-                    {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0) && (
-                      <Badge variant="default" className="ml-2 bg-green-100 text-green-700 border-green-300">
-                         Bespaar {plans.find(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0)?.yearlyDiscountPercent}%
-                      </Badge>
-                    )}
-                  </Label>
-                </div>
             </div>
           </div>
         </section>
 
         <section className="pb-12 md:pb-20"> 
           <div className="container">
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
-                {plans.map((plan) => {
-                  const Icon = getPlanIcon(plan.id);
-                  const displayPrice = calculatePrice(plan, billingInterval);
-                  const priceText = billingInterval === 'year'
-                    ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
-                    : `€${displayPrice.toFixed(2).replace('.', ',')}`;
-
-                  return (
-                  <Card
-                    key={plan.id}
-                    className={cn(
-                      `flex flex-col shadow-lg relative border-2 hover:shadow-xl transition-all duration-300`,
-                      plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border"
-                    )}
-                  >
-                    {plan.isPopular && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
-                          <Star className="h-4 w-4 fill-current" /> Meest gekozen
-                        </span>
-                      </div>
-                    )}
-                    <CardHeader className="text-center pt-10">
-                      <Icon className="mx-auto h-12 w-12 text-primary mb-3" />
-                      <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
-                      <p className="text-4xl font-bold text-primary">
-                        {priceText}
-                      </p>
-                      <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
-                         per maand
-                         {billingInterval === 'year' && <span className="text-xs"> (jaarlijks betaald)</span>}
-                      </p>
-                      {plan.trialPeriodDays && plan.trialPeriodDays > 0 && (
-                          <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
-                      )}
-                    </CardHeader>
-                    <CardContent className="flex-grow space-y-3 mt-1 px-4 sm:px-6">
-                      <p className="mb-3 text-sm text-muted-foreground">{plan.description}</p>
-                    </CardContent>
-                    <CardFooter className="mt-auto pt-5 pb-6 px-4 sm:px-6">
-                      <Button
-                        onClick={() => handlePlanSelection(plan.id)}
-                        className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
-                        variant={plan.isPopular ? 'default' : 'secondary'}
-                      >
-                        {plan.trialPeriodDays && plan.trialPeriodDays > 0 ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan'}
-                        <ArrowRight className="ml-2 h-4 w-4"/>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                  );
-                })}
-              </div>
+              <PricingTable 
+                initialPlans={plans.filter(p => p.active)}
+                allFeatures={allFeatures}
+              />
           </div>
         </section>
-
-         <section className="py-12 md:py-16">
-            <div className="container max-w-4xl">
-              <Card className="bg-muted/30">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl">Alle abonnementen bevatten volledige toegang:</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-muted-foreground">
-                  {allAppFeatures.map(feature => (
-                    <div key={feature.id} className="flex items-start gap-3">
-                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                       <span>{feature.label}</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </section>
 
         <section className="pt-12 md:pt-16 pb-12 md:pb-16 bg-secondary/20"> 
           <div className="container max-w-3xl">
@@ -207,7 +74,7 @@ export default function PricingPage() {
                   value={`faq-${index}`}
                   className="bg-card rounded-lg shadow-sm border"
                 >
-                  <AccordionTrigger className="text-left text-lg hover:no-underline font-medium text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary">
+                  <AccordionTrigger className="text-left text-lg hover:no-underline font-medium text-foreground py-5 px-6 data-[state=open]:text-primary [&[data-state=open]>svg]:text-primary [&[data-state=open]>svg]:rotate-180 transition-all">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed px-6 pb-5 pt-0 bg-card rounded-b-lg text-base data-[state=open]:bg-muted/20">

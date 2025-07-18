@@ -18,14 +18,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, HelpCircle, CheckSquare, XSquare, Package, CaseLower } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChecks, CheckSquare, XSquare, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
+import { createSubscriptionPlan, updateSubscriptionPlan } from '@/services/subscriptionService';
 import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
 
 
@@ -81,35 +80,19 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: {
-      id: "", name: "", description: "", price: 0, yearlyDiscountPercent: 0,
-      maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
-    }
+    defaultValues: initialData ? {
+        ...initialData,
+        price: initialData.price || 0,
+        yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
+        maxParents: initialData.maxParents ?? 0,
+        maxChildren: initialData.maxChildren ?? 0,
+        trialPeriodDays: initialData.trialPeriodDays ?? 0,
+    } : {
+      id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
+      maxParents: 2, maxChildren: 1, featureAccess: {}, 
+      active: true, trialPeriodDays: 14, isPopular: false,
+    },
   });
-  
-  useEffect(() => {
-    if (initialData) {
-        form.reset({
-            ...initialData,
-            price: initialData.price || 0,
-            yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
-            maxParents: initialData.maxParents ?? 0,
-            maxChildren: initialData.maxChildren ?? 0,
-            trialPeriodDays: initialData.trialPeriodDays ?? 0,
-        });
-    } else {
-        const defaultFeatureAccess: Record<string, boolean> = {};
-        allAppFeatures.forEach(feature => {
-            defaultFeatureAccess[feature.id] = false;
-        });
-        form.reset({
-            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
-            maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
-            active: true, trialPeriodDays: 14, isPopular: false,
-        });
-    }
-  }, [initialData, allAppFeatures, form]);
-
 
   const handleSelectAllFeatures = (select: boolean) => {
     allAppFeatures.forEach(feature => {
@@ -117,22 +100,28 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
     });
   };
 
-  const onSubmit = (data: PlanFormData) => {
-    const planToSave: SubscriptionPlan = {
-      ...(initialData || { id: data.id }),
+  const onSubmit = async (data: PlanFormData) => {
+    const planToSave: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'> & { id?: string } = {
       ...data,
       billingInterval: 'month',
       currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
     };
-
+    
     try {
       if (isNew) {
-        createSubscriptionPlan(planToSave);
+        if (!planToSave.id) { throw new Error("Plan ID is vereist."); }
+        const existingPlans = await allSubscriptionPlans;
+        if (existingPlans.some(p => p.id === planToSave.id)) {
+            toast({ title: "Fout", description: `Plan met ID '${planToSave.id}' bestaat al.`, variant: "destructive" });
+            return;
+        }
+        await createSubscriptionPlan(planToSave as Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
-        saveSubscriptionPlan(planToSave.id, planToSave);
+        if (!initialData?.id) return;
+        await updateSubscriptionPlan(initialData.id, planToSave);
         toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');

@@ -1,95 +1,135 @@
-// src/services/subscriptionService.ts
+// services/subscriptionService.ts
+'use server';
+
+import { db, isFirebaseConfigured, adminDb } from '@/lib/firebase-admin'; // Use Admin SDK for server actions
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, Timestamp, orderBy, query } from 'firebase/firestore';
 import type { SubscriptionPlan } from '@/types/subscription';
 import { initialDefaultPlans } from '@/lib/data/subscription-data';
 
-// This is now a server-safe service layer.
+const PLANS_COLLECTION = 'subscriptionPlans';
 
-const LOCAL_STORAGE_KEY = 'adminDashboard_SubscriptionPlans_v3';
-
-// --- Client-side helper ---
-const getPlansFromStorage = (): SubscriptionPlan[] => {
-  if (typeof window === 'undefined') {
-    // On the server, always return the defaults from the code.
-    return initialDefaultPlans;
+/**
+ * Seeds the database with initial plans if the collection is empty.
+ * This is a one-time operation.
+ */
+async function seedInitialPlansIfNeeded() {
+  if (!isFirebaseConfigured) return;
+  const plansRef = collection(db, PLANS_COLLECTION);
+  const snapshot = await getDocs(query(plansRef, orderBy('price'), limit(1)));
+  
+  if (snapshot.empty) {
+    console.log("Seeding initial subscription plans to Firestore...");
+    const batch = db.batch();
+    initialDefaultPlans.forEach(plan => {
+      const docRef = doc(db, PLANS_COLLECTION, plan.id);
+      batch.set(docRef, {
+        ...plan,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+    });
+    await batch.commit();
+    console.log("Seeding complete.");
   }
-  try {
-    const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedPlansRaw) {
-      return JSON.parse(storedPlansRaw);
-    }
-  } catch (error) {
-    console.error("Error reading from localStorage, falling back to defaults:", error);
-  }
-  // If nothing in storage or on server, return defaults.
-  return initialDefaultPlans;
-};
+}
 
 // --- Public API ---
 
 /**
- * Retrieves all subscription plans. Server-safe.
+ * Retrieves all subscription plans from Firestore. Server-safe.
  * @returns {Promise<SubscriptionPlan[]>} The array of subscription plans.
  */
-export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
-  // This simulates an async fetch, but uses the deterministic client-safe helper.
-  return Promise.resolve(getPlansFromStorage());
+export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  if (!isFirebaseConfigured) return [];
+  
+  await seedInitialPlansIfNeeded();
+
+  const plansRef = collection(db, PLANS_COLLECTION);
+  const snapshot = await getDocs(query(plansRef, orderBy('price')));
+  
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      ...data,
+      id: doc.id,
+      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
+      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
+    } as SubscriptionPlan;
+  });
 };
 
 /**
- * Retrieves a single subscription plan by its ID. Server-safe.
+ * Retrieves a single subscription plan by its ID from Firestore. Server-safe.
  * @param {string} id - The ID of the plan to retrieve.
  * @returns {Promise<SubscriptionPlan | null>} The plan object or null if not found.
  */
-export const getSubscriptionPlanById = async (id: string): Promise<SubscriptionPlan | null> => {
-  const allPlans = await getSubscriptionPlans();
-  return allPlans.find(plan => plan.id === id) || null;
-};
-
-/**
- * Saves all subscription plans. CLIENT-SIDE ONLY.
- * @param {SubscriptionPlan[]} plans - The array of plans to save.
- */
-const savePlansToStorage = (plans: SubscriptionPlan[]): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(plans));
+export async function getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {
+  if (!isFirebaseConfigured || !id) return null;
+  const docRef = doc(db, PLANS_COLLECTION, id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return {
+      ...data,
+      id: docSnap.id,
+      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
+      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
+    } as SubscriptionPlan;
   }
+  return null;
 };
 
 /**
- * Adds a new subscription plan. CLIENT-SIDE ONLY.
- * @param {SubscriptionPlan} data - The new plan data.
+ * Creates a new subscription plan in Firestore. Server-side only.
+ * @param {Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>} data - The new plan data.
  */
-export const createSubscriptionPlan = (data: SubscriptionPlan): void => {
-    const currentPlans = getPlansFromStorage();
-    if (currentPlans.some(p => p.id === data.id)) {
-      throw new Error("Een abonnement met dit ID bestaat al.");
-    }
-    const newPlans = [...currentPlans, data];
-    savePlansToStorage(newPlans);
+export async function createSubscriptionPlan(data: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<SubscriptionPlan> {
+  if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+  
+  const plansRef = collection(db, PLANS_COLLECTION);
+  // Use a custom ID if provided, otherwise Firestore generates one
+  const docRef = doc(plansRef, data.id);
+
+  const planWithTimestamps = {
+    ...data,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+
+  await setDoc(docRef, planWithTimestamps);
+  
+  return {
+    ...planWithTimestamps,
+    createdAt: planWithTimestamps.createdAt.toDate().toISOString(),
+    updatedAt: planWithTimestamps.updatedAt.toDate().toISOString(),
+  };
 };
 
 /**
- * Updates an existing subscription plan. CLIENT-SIDE ONLY.
+ * Updates an existing subscription plan in Firestore. Server-side only.
  * @param {string} id - The ID of the plan to update.
  * @param {Partial<SubscriptionPlan>} data - The fields to update.
  */
-export const saveSubscriptionPlan = (id: string, data: Partial<SubscriptionPlan>): void => {
-    const currentPlans = getPlansFromStorage();
-    const updatedPlans = currentPlans.map(plan => plan.id === id ? { ...plan, ...data, id } : plan);
-    savePlansToStorage(updatedPlans);
+export async function updateSubscriptionPlan(id: string, data: Partial<Omit<SubscriptionPlan, 'id'>>): Promise<void> {
+    if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+    const docRef = doc(db, PLANS_COLLECTION, id);
+    await updateDoc(docRef, {
+        ...data,
+        updatedAt: Timestamp.now(),
+    });
 };
 
 /**
- * Deletes a subscription plan. CLIENT-SIDE ONLY.
+ * Deletes a subscription plan from Firestore. Server-side only.
  * @param {string} id - The ID of the plan to delete.
  */
-export const deleteSubscriptionPlan = (id: string): void => {
-    const currentPlans = getPlansFromStorage();
-    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
-    savePlansToStorage(updatedPlans);
+export async function deleteSubscriptionPlan(id: string): Promise<void> {
+    if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+    const docRef = doc(db, PLANS_COLLECTION, id);
+    await deleteDoc(docRef);
 };
 
-// --- Formatting Helpers ---
+// --- Formatting Helpers (Server-safe) ---
 
 export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
     if (price === 0 && interval === 'once') return 'Gratis';
