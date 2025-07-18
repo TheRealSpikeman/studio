@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { deleteSubscriptionPlan } from '@/services/subscriptionService';
 import type { SubscriptionPlan } from '@/types/subscription';
 import { formatPrice } from '@/lib/utils';
 import {
@@ -22,9 +21,10 @@ import {
 
 interface SubscriptionTableProps {
     initialPlans: SubscriptionPlan[];
+    deletePlanAction: (id: string) => Promise<void>;
 }
 
-export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
+export function SubscriptionTable({ initialPlans, deletePlanAction }: SubscriptionTableProps) {
     const [plans, setPlans] = useState<SubscriptionPlan[]>(initialPlans);
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
@@ -33,7 +33,7 @@ export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
         if (!planToDelete) return;
         
         try {
-            await deleteSubscriptionPlan(planToDelete.id);
+            await deletePlanAction(planToDelete.id);
             setPlans(currentPlans => currentPlans.filter(p => p.id !== planToDelete.id));
             toast({
                 title: "Abonnement Verwijderd",

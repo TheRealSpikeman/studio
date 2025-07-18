@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, PlusCircle, Loader2 } from 'lucide-react';
-import { getSubscriptionPlans } from '@/services/subscriptionService';
+import { getSubscriptionPlans, deleteSubscriptionPlan } from '@/services/subscriptionService';
 import { SubscriptionTable } from '@/components/admin/subscription-management/SubscriptionTable';
 
 // The main page component is now a Server Component that fetches data
@@ -38,7 +38,10 @@ export default async function SubscriptionManagementPage() {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
-            <SubscriptionTable initialPlans={plans} />
+            <SubscriptionTable 
+              initialPlans={plans} 
+              deletePlanAction={deleteSubscriptionPlan} 
+            />
           </Suspense>
         </CardContent>
       </Card>

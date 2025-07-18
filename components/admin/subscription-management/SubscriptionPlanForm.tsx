@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSubscriptionPlans as getPlansFromStorage, saveSubscriptionPlans } from '@/services/subscriptionService';
+import { saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
 import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
 
 
@@ -75,25 +75,41 @@ const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   }
 };
 
-export function SubscriptionPlanForm({ initialData, isNew, allAppFeatures }: SubscriptionPlanFormProps) {
+export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans, allAppFeatures }: SubscriptionPlanFormProps) {
   const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
-    defaultValues: initialData ? {
-        ...initialData,
-        price: initialData.price || 0,
-        yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
-        maxParents: initialData.maxParents ?? 0,
-        maxChildren: initialData.maxChildren ?? 0,
-        trialPeriodDays: initialData.trialPeriodDays ?? 0,
-    } : {
-      id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
-      maxParents: 2, maxChildren: 1, featureAccess: {}, 
-      active: true, trialPeriodDays: 14, isPopular: false,
-    },
+    defaultValues: {
+      id: "", name: "", description: "", price: 0, yearlyDiscountPercent: 0,
+      maxParents: 0, maxChildren: 0, featureAccess: {}, active: true, trialPeriodDays: 0, isPopular: false,
+    }
   });
+  
+  useEffect(() => {
+    if (initialData) {
+        form.reset({
+            ...initialData,
+            price: initialData.price || 0,
+            yearlyDiscountPercent: initialData.yearlyDiscountPercent ?? 0,
+            maxParents: initialData.maxParents ?? 0,
+            maxChildren: initialData.maxChildren ?? 0,
+            trialPeriodDays: initialData.trialPeriodDays ?? 0,
+        });
+    } else {
+        const defaultFeatureAccess: Record<string, boolean> = {};
+        allAppFeatures.forEach(feature => {
+            defaultFeatureAccess[feature.id] = false;
+        });
+        form.reset({
+            id: "", name: "", description: "", price: 15.00, yearlyDiscountPercent: 10,
+            maxParents: 2, maxChildren: 1, featureAccess: defaultFeatureAccess, 
+            active: true, trialPeriodDays: 14, isPopular: false,
+        });
+    }
+  }, [initialData, allAppFeatures, form]);
+
 
   const handleSelectAllFeatures = (select: boolean) => {
     allAppFeatures.forEach(feature => {
@@ -101,35 +117,31 @@ export function SubscriptionPlanForm({ initialData, isNew, allAppFeatures }: Sub
     });
   };
 
-  const onSubmit = (data: PlanFormData) => {
-    const planToSave: SubscriptionPlan = {
+  const onSubmit = async (data: PlanFormData) => {
+    const planToSave: Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'> = {
+      ...initialData,
       ...data,
-      billingInterval: 'month',
+      billingInterval: 'month', // We only support monthly for now
       currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
-      // Ensure timestamps are handled correctly if they exist
-      createdAt: initialData?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
-    
+
     try {
-      const existingPlans = getPlansFromStorage();
       if (isNew) {
-        if (existingPlans.some(p => p.id === planToSave.id)) {
-            toast({ title: "Fout", description: `Plan met ID '${planToSave.id}' bestaat al.`, variant: "destructive" });
-            return;
+        if (!planToSave.id) {
+             toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
+             return;
         }
-        saveSubscriptionPlans([planToSave, ...existingPlans]);
-        toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is lokaal opgeslagen.` });
+        await createSubscriptionPlan(planToSave);
+        toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
         if (!initialData?.id) return;
-        const updatedPlans = existingPlans.map(p => p.id === initialData.id ? planToSave : p);
-        saveSubscriptionPlans(updatedPlans);
-        toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is lokaal bijgewerkt.` });
+        await saveSubscriptionPlan(initialData.id, planToSave);
+        toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');
-      router.refresh();
+      router.refresh(); // Force refresh of the overview page
     } catch (error) {
       toast({ title: "Opslaan Mislukt", description: (error as Error).message, variant: "destructive" });
     }

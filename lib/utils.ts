@@ -6,14 +6,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const isTutorServiceCoveredByPlan = (plan?: SubscriptionPlan | null): boolean => {
-  if (!plan) return false;
-  return plan.featureAccess?.['expert-network-tutor'] ?? false;
+export const isTutorServiceCoveredByPlan = (planId?: string): boolean => {
+  if (!planId) return false;
+  return planId.includes('family_guide') || planId.includes('premium_family');
 };
 
-export const isCoachServiceCoveredByPlan = (plan?: SubscriptionPlan | null): boolean => {
-  if (!plan) return false;
-  return plan.featureAccess?.['expert-network-coach'] ?? false;
+export const isCoachServiceCoveredByPlan = (planId?: string): boolean => {
+  if (!planId) return false;
+  return planId.includes('family_guide') || planId.includes('premium_family') || planId.includes('coaching_tools');
 };
 
 // --- Formatting Helpers (Server-safe) ---
