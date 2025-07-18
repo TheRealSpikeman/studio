@@ -1,7 +1,7 @@
 // services/subscriptionService.ts
 'use server';
 
-import { db, isFirebaseConfigured, adminDb } from '@/lib/firebase-admin'; // Use Admin SDK for server actions
+import { db, isFirebaseConfigured } from '@/lib/firebase-admin'; // Use Admin SDK for server actions
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, Timestamp, orderBy, query, limit } from 'firebase/firestore';
 import type { SubscriptionPlan } from '@/types/subscription';
 import { initialDefaultPlans } from '@/lib/data/subscription-data';
@@ -140,21 +140,4 @@ export async function deleteSubscriptionPlan(id: string): Promise<void> {
     if (!isFirebaseConfigured) throw new Error("Firebase not configured");
     const docRef = doc(db, PLANS_COLLECTION, id);
     await deleteDoc(docRef);
-};
-
-// --- Formatting Helpers (Server-safe) ---
-
-export const formatPrice = (price: number, currency: string, interval: 'month' | 'year' | 'once') => {
-    if (price === 0 && interval === 'once') return 'Gratis';
-    const intervalText = interval === 'month' ? '/mnd' : interval === 'year' ? '/jaar' : '';
-    return `${currency === 'EUR' ? '€' : currency}${price.toFixed(2).replace('.', ',')}${intervalText}`;
-};
-
-export const formatFullPrice = (plan: SubscriptionPlan) => {
-    if (plan.billingInterval === 'year' && plan.yearlyDiscountPercent) {
-        const yearlyPrice = plan.price * 12;
-        const discountedYearly = yearlyPrice * (1 - plan.yearlyDiscountPercent / 100);
-        return `${formatPrice(discountedYearly, plan.currency, 'year')} (${plan.yearlyDiscountPercent}% korting)`;
-    }
-    return formatPrice(plan.price, plan.currency, plan.billingInterval);
 };

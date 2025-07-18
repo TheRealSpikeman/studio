@@ -5,21 +5,24 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, MoreVertical } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { deleteSubscriptionPlan } from '@/services/subscriptionService';
 import type { SubscriptionPlan } from '@/types/subscription';
+import { formatPrice } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SubscriptionTableProps {
     initialPlans: SubscriptionPlan[];
 }
-
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
-};
 
 export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
     const [plans, setPlans] = useState<SubscriptionPlan[]>(initialPlans);
@@ -64,7 +67,7 @@ export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
                 {plans.map(plan => (
                   <TableRow key={plan.id}>
                     <TableCell className="font-medium">{plan.name}</TableCell>
-                    <TableCell>{formatCurrency(plan.price)}</TableCell>
+                    <TableCell>{formatPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
                     <TableCell className="capitalize">{plan.billingInterval}</TableCell>
                     <TableCell>
                         <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
@@ -72,15 +75,25 @@ export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
                     <TableCell>
                         {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}
                     </TableCell>
-                    <TableCell className="text-right space-x-2">
-                        <Button asChild variant="outline" size="sm">
-                            <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
+                    <TableCell className="text-right">
+                       <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                              <span className="sr-only">Open acties menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/admin/subscription-management/edit/${plan.id}`}>
                                 <Edit className="mr-2 h-4 w-4" /> Bewerken
-                            </Link>
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => setPlanToDelete(plan)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
-                        </Button>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPlanToDelete(plan)} className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" /> Verwijderen
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

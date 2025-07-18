@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Star, User as UserIcon, Users, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
+import { formatPrice, formatFullPrice } from '@/lib/utils';
 
 const getPlanIcon = (planId: string): React.ElementType => {
   if (planId.includes('family_guide') || planId.includes('2_kinderen')) return Users;
