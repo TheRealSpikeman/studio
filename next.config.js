@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -23,10 +24,6 @@ const nextConfig = {
         hostname: 'picsum.photos',
       },
     ],
-  },
-  webpack: (config) => {
-    config.resolve.alias['@'] = __dirname;
-    return config;
   },
 };
 
