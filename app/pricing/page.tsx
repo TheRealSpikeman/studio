@@ -1,3 +1,4 @@
+
 // src/app/pricing/page.tsx
 "use server";
 
@@ -5,7 +6,8 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CreditCard, HelpCircle, ArrowRight } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { getSubscriptionPlans, getAllFeatures } from '@/services/subscriptionService';
+import { getSubscriptionPlans } from '@/services/subscriptionService';
+import { getAllFeatures } from '@/services/featureService';
 import { PricingTable } from '@/components/pricing/PricingTable';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
