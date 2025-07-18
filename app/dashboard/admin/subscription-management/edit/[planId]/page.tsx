@@ -20,7 +20,7 @@ export default function EditSubscriptionPlanPage() {
     async function fetchPlan() {
         if (planId) {
           setIsLoading(true);
-          const foundPlan = await getSubscriptionPlanById(planId);
+          const foundPlan = getSubscriptionPlanById(planId); // Now synchronous
           setPlanData(foundPlan);
           setIsLoading(false);
         }

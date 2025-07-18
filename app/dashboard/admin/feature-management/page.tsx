@@ -1,4 +1,3 @@
-
 // src/app/dashboard/admin/feature-management/page.tsx
 "use client";
 
@@ -11,22 +10,16 @@ import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feat
 import { useToast } from '@/hooks/use-toast';
 import {
   type AppFeature,
-  type SubscriptionPlan,
-  type TargetAudience,
-  getSubscriptionPlans,
-  saveSubscriptionPlans,
-  getAllFeatures,
-  saveAllFeatures,
-  deleteFeature,
-  saveFeature
+  type TargetAudience
 } from '@/types/subscription';
+import { getSubscriptionPlans, saveSubscriptionPlans } from '@/services/subscriptionService';
+import { getAllFeatures, saveFeature, deleteFeature } from '@/services/featureService';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FeatureManagementPage() {
   const { toast } = useToast();
   const [features, setFeatures] = useState<AppFeature[]>([]);
-  const [allSubscriptionPlans, setAllSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [featureToEdit, setFeatureToEdit] = useState<AppFeature | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,14 +33,10 @@ export default function FeatureManagementPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-        const [fetchedFeatures, fetchedPlans] = await Promise.all([
-            getAllFeatures(),
-            getSubscriptionPlans()
-        ]);
+        const fetchedFeatures = await getAllFeatures();
         setFeatures(fetchedFeatures.sort((a, b) => a.label.localeCompare(b.label)));
-        setAllSubscriptionPlans(fetchedPlans.filter(p => p.active).sort((a,b) => a.id.localeCompare(b.id)));
     } catch (e) {
-        toast({ title: "Fout bij laden", description: "Kon features of abonnementen niet ophalen.", variant: "destructive" });
+        toast({ title: "Fout bij laden", description: "Kon features niet ophalen.", variant: "destructive" });
     }
     setIsLoading(false);
   };
@@ -69,6 +58,7 @@ export default function FeatureManagementPage() {
   }, [features]);
 
   const filteredFeatures = useMemo(() => {
+    const allSubscriptionPlans = getSubscriptionPlans();
     return features.filter(feature => {
       const matchesSearch = searchTerm === '' ||
         feature.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,7 +74,7 @@ export default function FeatureManagementPage() {
 
       return matchesSearch && matchesAudience && matchesCategory && matchesPlan;
     });
-  }, [features, searchTerm, targetAudienceFilter, categoryFilter, linkedPlanFilter, allSubscriptionPlans]);
+  }, [features, searchTerm, targetAudienceFilter, categoryFilter, linkedPlanFilter]);
 
 
   const handleSaveFeature = async (featureFormData: FeatureFormData) => {
@@ -102,30 +92,26 @@ export default function FeatureManagementPage() {
 
       toast({ title: featureToEdit ? "Feature Bijgewerkt" : "Feature Toegevoegd", description: `Feature "${featureCoreData.label}" is succesvol opgeslagen.` });
       
-      const plansToUpdate = await getSubscriptionPlans();
+      const plansToUpdate = getSubscriptionPlans();
       const featureId = featureCoreData.id;
       const linkedPlanIdsSet = new Set(featureFormData.linkedPlans || []);
 
-      const updatePromises = plansToUpdate.map(plan => {
+      const updatedPlans = plansToUpdate.map(plan => {
           const newFeatureAccess = { ...(plan.featureAccess || {}) };
           const isLinked = linkedPlanIdsSet.has(plan.id);
-          const wasLinked = plan.featureAccess ? plan.featureAccess[featureId] === true : false;
           
-          if(isLinked !== wasLinked) {
-              if (isLinked) {
-                  newFeatureAccess[featureId] = true;
-              } else {
-                  delete newFeatureAccess[featureId];
-              }
-              return saveSubscriptionPlan(plan.id, { featureAccess: newFeatureAccess });
+          if (isLinked) {
+              newFeatureAccess[featureId] = true;
+          } else {
+              delete newFeatureAccess[featureId];
           }
-          return Promise.resolve();
+          return { ...plan, featureAccess: newFeatureAccess };
       });
 
-      await Promise.all(updatePromises);
+      saveSubscriptionPlans(updatedPlans);
       toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt.`})
 
-      fetchData(); // Refresh all data from DB
+      fetchData(); // Refresh all data
       setIsFormDialogOpen(false);
       setFeatureToEdit(null);
 
@@ -211,7 +197,7 @@ export default function FeatureManagementPage() {
               <SelectTrigger><SelectValue placeholder="Filter op gekoppeld plan" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle/Geen Gekoppeld Plan</SelectItem>
-                {allSubscriptionPlans.map(plan => (
+                {getSubscriptionPlans().filter(p=>p.active).map(plan => (
                   <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -219,7 +205,7 @@ export default function FeatureManagementPage() {
           </div>
           <FeatureTable
             features={filteredFeatures}
-            allSubscriptionPlans={allSubscriptionPlans}
+            allSubscriptionPlans={getSubscriptionPlans()}
             onEditFeature={handleEditFeature}
             onDeleteFeature={handleDeleteFeature}
           />
@@ -231,7 +217,7 @@ export default function FeatureManagementPage() {
         onOpenChange={setIsFormDialogOpen}
         feature={featureToEdit}
         onSave={handleSaveFeature}
-        allSubscriptionPlans={allSubscriptionPlans}
+        allSubscriptionPlans={getSubscriptionPlans()}
       />
     </div>
   );
