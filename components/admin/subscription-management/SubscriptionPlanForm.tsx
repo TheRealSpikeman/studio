@@ -269,6 +269,26 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
             </CardContent>
         </Card>
 
+        <Card>
+            <CardHeader>
+                <CardTitle>Plan Status</CardTitle>
+            </CardHeader>
+             <CardContent className="space-y-6">
+                <FormField control={form.control} name="active" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                    <div className="space-y-0.5"><FormLabel className="text-base cursor-pointer">Actief?</FormLabel><FormDescription>Actieve plannen zijn zichtbaar voor nieuwe klanten.</FormDescription></div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="isPopular" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                    <div className="space-y-0.5"><FormLabel className="text-base cursor-pointer">Populair?</FormLabel><FormDescription>Markeer dit plan als 'Meest Gekozen'.</FormDescription></div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )} />
+            </CardContent>
+        </Card>
+
 
         <CardFooter className="flex justify-end gap-3 pt-8 border-t">
           <Button type="submit" disabled={form.formState.isSubmitting}>

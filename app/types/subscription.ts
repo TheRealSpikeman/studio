@@ -1,7 +1,5 @@
 // src/types/subscription.ts
 import { z } from "zod";
-import { db, isFirebaseConfigured } from '@/lib/firebase';
-import { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, writeBatch, setDoc } from 'firebase/firestore';
 
 // --- CORE TYPES ---
 
@@ -28,9 +26,9 @@ export interface SubscriptionPlan {
   currency: 'EUR';
   yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number;
+  maxParents?: number; 
   maxChildren?: number;
-  featureAccess?: Record<string, boolean>;
+  featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
