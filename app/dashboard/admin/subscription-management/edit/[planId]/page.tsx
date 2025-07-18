@@ -1,51 +1,37 @@
 // app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
-"use client";
+"use server"; // Dit is nu een Server Component
 
+import { notFound } from 'next/navigation';
 import { SubscriptionPlanForm } from '@/components/admin/subscription-management/SubscriptionPlanForm';
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { AlertTriangle, Loader2 } from '@/lib/icons';
-import type { SubscriptionPlan } from '@/types/subscription';
-import { getSubscriptionPlanById } from '@/services/subscriptionService';
+import { getSubscriptionPlanById, getSubscriptionPlans, type SubscriptionPlan } from '@/services/subscriptionService';
+import { getAllFeatures } from '@/services/featureService';
 
-export default function EditSubscriptionPlanPage() {
-  const params = useParams();
-  const planId = params.planId as string;
-  const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+interface EditSubscriptionPlanPageProps {
+  params: {
+    planId: string;
+  };
+}
 
-  useEffect(() => {
-    async function fetchPlan() {
-        if (planId) {
-          setIsLoading(true);
-          const foundPlan = getSubscriptionPlanById(planId); // Now synchronous
-          setPlanData(foundPlan);
-          setIsLoading(false);
-        }
-    }
-    fetchPlan();
-  }, [planId]);
+export default async function EditSubscriptionPlanPage({ params }: EditSubscriptionPlanPageProps) {
+  const { planId } = params;
+  
+  // Data wordt nu op de server opgehaald
+  const planData = await getSubscriptionPlanById(planId);
+  const allSubscriptionPlans = await getSubscriptionPlans(); // Fetch all for context if needed
+  const allAppFeatures = await getAllFeatures(); // Fetch features for the form
 
-  if (isLoading) {
-    return <div className="p-8 text-center flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin mr-2" /> Abonnementsgegevens laden...</div>;
-  }
-
+  // Als het plan niet wordt gevonden, toon een 404-pagina.
   if (!planData) {
-    return (
-      <div className="p-8 text-center">
-        <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
-        <h1 className="text-2xl font-bold text-destructive">Abonnement niet gevonden</h1>
-        <p className="text-muted-foreground mb-6">Het abonnement met ID "{planId}" kon niet worden geladen.</p>
-        <Button asChild variant="outline">
-          <Link href="/dashboard/admin/subscription-management">
-            Terug naar Overzicht
-          </Link>
-        </Button>
-      </div>
-    );
+    notFound();
   }
   
-  return <SubscriptionPlanForm initialData={planData} isNew={false} />;
+  // Het client component `SubscriptionPlanForm` wordt gerenderd met de data als prop.
+  return (
+    <SubscriptionPlanForm 
+      initialData={planData} 
+      isNew={false} 
+      allSubscriptionPlans={allSubscriptionPlans}
+      allAppFeatures={allAppFeatures}
+    />
+  );
 }

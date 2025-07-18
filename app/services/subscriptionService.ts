@@ -2,7 +2,7 @@
 "use client";
 
 import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
-import { initialDefaultPlans, DEFAULT_APP_FEATURES } from '@/data/subscription-data';
+import { initialDefaultPlans } from '@/lib/data/subscription-data';
 
 // --- Local Storage Key ---
 const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
@@ -98,14 +98,6 @@ export const seedInitialPlans = (force: boolean = false): void => {
     if (!existingPlans || force) {
         saveSubscriptionPlans(initialDefaultPlans);
     }
-};
-
-/**
- * Retrieves all available application features.
- * @returns {AppFeature[]} The array of application features.
- */
-export const getAllFeatures = (): AppFeature[] => {
-    return DEFAULT_APP_FEATURES;
 };
 
 // --- Formatting Helpers ---
