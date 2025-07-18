@@ -1,6 +1,10 @@
 // src/types/subscription.ts
 import { z } from "zod";
 
+// --- CORE TYPES ---
+
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
+
 export type TargetAudience = 'leerling' | 'ouder' | 'tutor' | 'coach' | 'platform' | 'beide';
 
 export const appFeatureSchema = z.object({
@@ -17,17 +21,19 @@ export type AppFeature = z.infer<typeof appFeatureSchema>;
 export interface SubscriptionPlan {
   id: string;
   name: string;
+  shortName?: string;
   description: string;
+  tagline?: string;
   price: number;
   currency: 'EUR';
-  billingInterval: 'month' | 'year' | 'once';
   yearlyDiscountPercent?: number;
+  billingInterval: 'month' | 'year' | 'once';
   maxParents?: number; 
   maxChildren?: number;
   featureAccess?: Record<string, boolean>; 
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
-  createdAt: string; // ISO String
-  updatedAt: string; // ISO String
+  createdAt: string; // ISO String for client-side compatibility
+  updatedAt: string; // ISO String for client-side compatibility
 }

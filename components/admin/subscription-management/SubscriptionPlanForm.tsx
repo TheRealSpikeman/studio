@@ -22,9 +22,10 @@ import { PlusCircle, ArrowLeft, Save, Euro, Info, Edit, Users, Percent, ListChec
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { createSubscriptionPlan, updateSubscriptionPlan } from '@/services/subscriptionService';
+import { getSubscriptionPlans as getPlansFromStorage, saveSubscriptionPlans } from '@/services/subscriptionService';
 import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
 
 
@@ -74,7 +75,7 @@ const getAudienceBadgeClasses = (audience: TargetAudience): string => {
   }
 };
 
-export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans, allAppFeatures }: SubscriptionPlanFormProps) {
+export function SubscriptionPlanForm({ initialData, isNew, allAppFeatures }: SubscriptionPlanFormProps) {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -100,29 +101,32 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
     });
   };
 
-  const onSubmit = async (data: PlanFormData) => {
-    const planToSave: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'> & { id?: string } = {
+  const onSubmit = (data: PlanFormData) => {
+    const planToSave: SubscriptionPlan = {
       ...data,
       billingInterval: 'month',
       currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
+      // Ensure timestamps are handled correctly if they exist
+      createdAt: initialData?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     
     try {
+      const existingPlans = getPlansFromStorage();
       if (isNew) {
-        if (!planToSave.id) { throw new Error("Plan ID is vereist."); }
-        const existingPlans = await allSubscriptionPlans;
         if (existingPlans.some(p => p.id === planToSave.id)) {
             toast({ title: "Fout", description: `Plan met ID '${planToSave.id}' bestaat al.`, variant: "destructive" });
             return;
         }
-        await createSubscriptionPlan(planToSave as Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>);
-        toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
+        saveSubscriptionPlans([planToSave, ...existingPlans]);
+        toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is lokaal opgeslagen.` });
       } else {
         if (!initialData?.id) return;
-        await updateSubscriptionPlan(initialData.id, planToSave);
-        toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is bijgewerkt.` });
+        const updatedPlans = existingPlans.map(p => p.id === initialData.id ? planToSave : p);
+        saveSubscriptionPlans(updatedPlans);
+        toast({ title: "Abonnement Bijgewerkt", description: `Het abonnement "${planToSave.name}" is lokaal bijgewerkt.` });
       }
       router.push('/dashboard/admin/subscription-management');
       router.refresh();
