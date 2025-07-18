@@ -25,7 +25,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { saveSubscriptionPlan, getAllFeatures, type SubscriptionPlan, type AppFeature, type TargetAudience, createSubscriptionPlan } from '@/types/subscription';
+import { getSubscriptionPlanById, saveSubscriptionPlan, getAllFeatures, createSubscriptionPlan } from '@/services/subscriptionService';
+import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
 
 
 const planFormSchema = z.object({

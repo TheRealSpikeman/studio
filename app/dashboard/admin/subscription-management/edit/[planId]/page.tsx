@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertTriangle, Loader2 } from '@/lib/icons';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { getSubscriptionPlanById } from '@/types/subscription';
+import { getSubscriptionPlanById } from '@/services/subscriptionService';
 
 export default function EditSubscriptionPlanPage() {
   const params = useParams();
