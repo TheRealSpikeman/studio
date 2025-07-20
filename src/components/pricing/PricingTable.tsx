@@ -16,8 +16,7 @@ import { Separator } from '@/components/ui/separator';
 
 const getPlanIcon = (plan: SubscriptionPlan): React.ElementType => {
     if (plan.maxChildren && plan.maxChildren > 1) return Users;
-    if (plan.maxChildren === 1) return UserIcon;
-    return Users; // Default for parent-only or other plans
+    return UserIcon;
 };
 
 const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
@@ -89,7 +88,7 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               )}
             >
               {plan.isPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 transform">
                   <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-primary-foreground shadow-lg">
                     <Star className="h-5 w-5 shrink-0 fill-current" />
                     <div className="flex flex-col text-left text-sm font-semibold leading-tight">
@@ -135,7 +134,7 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               <CardFooter className="mt-auto pt-5 pb-6 px-4 sm:px-6">
                 <Button
                   onClick={() => handlePlanSelection(plan.id)}
-                  className="w-full h-11 sm:h-12 text-base font-semibold"
+                  className="w-full h-12 text-base font-semibold"
                   variant={plan.isPopular ? 'default' : 'outline'}
                 >
                   {plan.price === 0 ? 'Start Gratis' : (plan.trialPeriodDays ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan')}
@@ -149,4 +148,3 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
     </div>
   );
 }
-
