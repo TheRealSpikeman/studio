@@ -2,13 +2,23 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package } from '@/lib/icons';
+import { Package, FileText, MessageSquareText, BookOpenCheck, Users, BarChart3, Handshake } from '@/lib/icons';
 import type { PlatformTool } from '@/types/subscription';
 import { cn } from '@/lib/utils';
+import type { ElementType } from 'react';
 
 interface ToolShowcaseProps {
     tools: PlatformTool[];
 }
+
+const iconMap: { [key: string]: ElementType } = {
+  'full-access-tools': FileText,
+  'daily-coaching': MessageSquareText,
+  'homework-tools': BookOpenCheck,
+  'progress-reports': BarChart3,
+  'parent-dashboard': Users,
+  'expert-network': Handshake,
+};
 
 export function ToolShowcase({ tools }: ToolShowcaseProps) {
     if (!tools || tools.length === 0) {
@@ -29,19 +39,25 @@ export function ToolShowcase({ tools }: ToolShowcaseProps) {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tools.map(tool => (
-                <Card 
-                  key={tool.id} 
-                  className="bg-muted/30 border-border/50 text-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ease-in-out"
-                >
-                    <CardHeader>
-                        <CardTitle className="text-base font-semibold text-foreground">{tool.label}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                        <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    </CardContent>
-                </Card>
-              ))}
+              {tools.map(tool => {
+                const Icon = iconMap[tool.id] || Package;
+                return (
+                  <Card 
+                    key={tool.id} 
+                    className="text-center shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out border-transparent hover:border-primary/20 bg-muted/20"
+                  >
+                      <CardHeader className="items-center pb-4">
+                          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4 transition-transform duration-300 group-hover:scale-110">
+                              <Icon className="h-8 w-8 text-primary" />
+                          </div>
+                          <CardTitle className="text-base font-semibold text-foreground">{tool.label}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                          <p className="text-sm text-muted-foreground">{tool.description}</p>
+                      </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
