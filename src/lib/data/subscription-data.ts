@@ -61,9 +61,9 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     isPopular: true,
   },
    {
-    id: 'gezin_plus_maand',
+    id: '3_kind_maand',
     name: '3 Kind - Maandelijks', // As per image
-    shortName: '3+ Kinderen',
+    shortName: '3 Kinderen',
     tagline: 'Alle opties zijn beschikbaar', // As per image
     description: 'De beste waarde voor grotere gezinnen, met ondersteuning voor maximaal 3 kinderen.',
     price: 40.00, // As per image

@@ -11,7 +11,6 @@ import { getAllTools } from '@/services/toolService';
 import { PricingTable } from '@/components/pricing/PricingTable';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ToolShowcase } from '@/components/pricing/ToolShowcase';
 import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
 
 const faqItems = [
@@ -41,13 +40,18 @@ export default function PricingPage() {
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
-      const [fetchedPlans, fetchedTools] = await Promise.all([
-        getSubscriptionPlans(),
-        getAllTools()
-      ]);
-      setPlans(fetchedPlans);
-      setTools(fetchedTools);
-      setIsLoading(false);
+      try {
+        const [fetchedPlans, fetchedTools] = await Promise.all([
+          getSubscriptionPlans(),
+          getAllTools()
+        ]);
+        setPlans(fetchedPlans);
+        setTools(fetchedTools);
+      } catch (error) {
+        console.error("Failed to fetch pricing data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchData();
   }, []);
@@ -84,9 +88,7 @@ export default function PricingPage() {
             )}
           </div>
         </section>
-
-        <ToolShowcase tools={tools} />
-
+        
         <section className="pt-12 md:pt-16 pb-12 md:pb-16 bg-secondary/20"> 
           <div className="container max-w-3xl">
             <h2 className="text-2xl font-semibold text-primary mb-4 flex items-center gap-3">

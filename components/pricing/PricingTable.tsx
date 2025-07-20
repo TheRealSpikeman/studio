@@ -11,27 +11,28 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Star, User as UserIcon, Users, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
-import { formatPrice } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
-const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin')) return Users;
-    return UserIcon;
+const getPlanIcon = (plan: SubscriptionPlan): React.ElementType => {
+    if (plan.maxChildren && plan.maxChildren > 1) return Users;
+    if (plan.maxChildren === 1) return Users; // Ook voor 1 kind, de 'gezins' icoon
+    return UserIcon; // Alleen voor 0 kinderen (ouder-only)
 };
 
 const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
-  if (interval === 'year' && plan.price > 0) {
-    const discount = plan.yearlyDiscountPercent || 0;
+  if (interval === 'year' && plan.price > 0 && plan.yearlyDiscountPercent) {
     const totalYearly = plan.price * 12;
-    return totalYearly * (1 - discount / 100);
+    return totalYearly * (1 - plan.yearlyDiscountPercent / 100);
   }
   return plan.price;
 };
 
 interface PricingTableProps {
   initialPlans: SubscriptionPlan[];
+  tools: PlatformTool[];
 }
 
-export function PricingTable({ initialPlans }: PricingTableProps) {
+export function PricingTable({ initialPlans, tools }: PricingTableProps) {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const router = useRouter();
 
@@ -41,6 +42,10 @@ export function PricingTable({ initialPlans }: PricingTableProps) {
   };
 
   const hasAnyYearlyDiscount = initialPlans.some(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0);
+
+  const freeFeatures = [
+    { id: 'basic-assessment', label: 'Basis "Ken je Kind" Assessment' },
+  ];
 
   return (
     <div>
@@ -66,11 +71,13 @@ export function PricingTable({ initialPlans }: PricingTableProps) {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch justify-center">
         {initialPlans.map((plan) => {
-          const PlanIcon = getPlanIcon(plan.id);
+          const PlanIcon = getPlanIcon(plan);
           const displayPrice = calculatePrice(plan, billingInterval);
           const priceText = billingInterval === 'year' && plan.price > 0
             ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
             : `€${displayPrice.toFixed(2).replace('.', ',')}`;
+          
+          const includedTools = plan.price > 0 ? tools : freeFeatures;
 
           return (
             <Card
@@ -81,10 +88,11 @@ export function PricingTable({ initialPlans }: PricingTableProps) {
               )}
             >
               {plan.isPopular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
-                    <Star className="h-4 w-4 fill-current" /> Meest gekozen
-                  </span>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
+                    <Star className="h-4 w-4 fill-current" />
+                    <span>Meest gekozen</span>
+                  </div>
                 </div>
               )}
               <CardHeader className="text-center pt-10">
@@ -98,19 +106,32 @@ export function PricingTable({ initialPlans }: PricingTableProps) {
                 </p>
                 <CardDescription className="h-10 text-xs">{plan.tagline || plan.description}</CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow space-y-3 mt-1 px-4 sm:px-6">
-                <p className="text-xs text-muted-foreground text-center">
-                    Voor max. <strong>{plan.maxChildren} kind</strong> en <strong>{plan.maxParents} ouder(s)</strong>
-                </p>
-                {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
-                  <p className="text-xs text-green-600 font-medium text-center">{plan.trialPeriodDays} dagen gratis proberen!</p>
-                )}
-                 <div className="text-sm text-left font-medium text-foreground pt-4 border-t">Alle tools inbegrepen:</div>
+              <CardContent className="flex flex-grow flex-col justify-between px-4 sm:px-6">
+                <div>
+                  <p className="text-xs text-muted-foreground text-center mb-2">
+                      Voor max. <strong>{plan.maxChildren} kind(eren)</strong> en <strong>{plan.maxParents} ouder(s)</strong>
+                  </p>
+                  {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
+                      <p className="text-xs text-green-600 font-semibold text-center">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                  )}
+                  <Separator className="my-4" />
+                  <h4 className="text-sm font-semibold mb-2 text-left">
+                      {plan.price > 0 ? "Alle tools inbegrepen:" : "Inbegrepen feature:"}
+                  </h4>
+                  <ul className="space-y-2 text-xs text-muted-foreground text-left">
+                      {includedTools.map(tool => (
+                          <li key={tool.id} className="flex items-start gap-2">
+                              <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                              <span className="flex-1">{tool.label}</span>
+                          </li>
+                      ))}
+                  </ul>
+                </div>
               </CardContent>
               <CardFooter className="mt-auto pt-5 pb-6 px-4 sm:px-6">
                 <Button
                   onClick={() => handlePlanSelection(plan.id)}
-                  className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
+                  className="w-full h-12 text-base font-semibold"
                   variant={plan.isPopular ? 'default' : 'outline'}
                 >
                   {plan.price === 0 ? 'Start Gratis' : (plan.trialPeriodDays ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan')}
