@@ -1,39 +1,35 @@
 // src/types/subscription.ts
 import { z } from "zod";
 
-// --- CORE TYPES ---
-
-export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'adminDashboard_SubscriptionPlans_v3';
-
+// DEPRECATED, but kept for reference if needed by other components.
+// The new model uses PlatformTool.
 export type TargetAudience = 'leerling' | 'ouder' | 'tutor' | 'coach' | 'platform' | 'beide';
 
-export const appFeatureSchema = z.object({
-    id: z.string(),
-    label: z.string(),
-    description: z.string().optional(),
-    targetAudience: z.array(z.custom<TargetAudience>()),
-    category: z.string().optional(),
-    isRecommendedTool: z.boolean().optional(),
-    adminOnly: z.boolean().optional(),
-});
-export type AppFeature = z.infer<typeof appFeatureSchema>;
+// The new, separate Tool type, replacing AppFeature for this purpose
+export interface PlatformTool {
+    id: string;
+    label: string;
+    description: string;
+    targetAudience: TargetAudience[];
+    category: string;
+    // Potentially other fields like 'iconName', 'link', etc.
+}
 
+// The new, simplified SubscriptionPlan
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  shortName?: string;
+  shortName?: string; // e.g., "1 Kind", "Gezin"
   description: string;
-  tagline?: string;
+  tagline?: string; // e.g. "Beste voor startende gezinnen"
   price: number;
   currency: 'EUR';
   yearlyDiscountPercent?: number;
   billingInterval: 'month' | 'year' | 'once';
   maxParents?: number; 
   maxChildren?: number;
-  featureAccess?: Record<string, boolean>; 
+  // REMOVED: featureAccess is no longer part of the plan itself
   active: boolean;
   trialPeriodDays?: number;
   isPopular?: boolean;
-  createdAt: string; // ISO String for client-side compatibility
-  updatedAt: string; // ISO String for client-side compatibility
 }

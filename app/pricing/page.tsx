@@ -1,4 +1,3 @@
-
 // src/app/pricing/page.tsx
 "use server";
 
@@ -7,34 +6,35 @@ import { Footer } from '@/components/layout/footer';
 import { CreditCard, HelpCircle, ArrowRight } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { getSubscriptionPlans } from '@/services/subscriptionService';
-import { getAllFeatures } from '@/services/featureService';
+import { getAllTools } from '@/services/toolService';
 import { PricingTable } from '@/components/pricing/PricingTable';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ToolShowcase } from '@/components/pricing/ToolShowcase';
 
 const faqItems = [
   {
-    question: "Zijn alle features inbegrepen in elk plan?",
-    answer: "Ja, alle betaalde abonnementen geven volledige toegang tot alle huidige en toekomstige digitale tools, coaching content, het ouder-dashboard en toegang tot ons expert netwerk.",
+    question: "Zijn alle tools inbegrepen in elk betaald plan?",
+    answer: "Ja, alle betaalde abonnementen ('Gezins Gids') geven volledige toegang tot alle huidige en toekomstige digitale tools, de coaching hub en het ouder-dashboard.",
   },
   {
     question: "Zijn 1-op-1 coaching of tutoring sessies inbegrepen?",
-    answer: "Nee, live 1-op-1 sessies worden apart betaald (indicatie: €25-125/uur afhankelijk van specialist). Elk abonnement geeft u toegang tot onze marktplaats om deze professionals te vinden, te boeken en te betalen.",
+    answer: "Nee, live 1-op-1 sessies worden apart betaald. Het tarief wordt bepaald door de professional zelf. Elk abonnement geeft u toegang tot onze marktplaats om deze professionals te vinden, te boeken en te betalen.",
   },
   {
     question: "Kan ik mijn abonnement op elk moment wijzigen of opzeggen?",
-    answer: "Ja, u kunt op elk moment van plan wisselen via uw accountinstellingen, bijvoorbeeld als uw gezinssituatie verandert. Opzeggen kan ook maandelijks.",
+    answer: "Ja, u kunt op elk moment van plan wisselen via uw accountinstellingen, bijvoorbeeld als uw gezinssituatie verandert. Opzeggen kan maandelijks (voor maandabonnementen) of jaarlijks (voor jaarabonnementen).",
   },
   {
     question: "Is er een proefperiode?",
-    answer: "Ja, elk betaald abonnement start met een gratis proefperiode van 14 dagen. U kunt in deze periode alles uitproberen en kosteloos opzeggen.",
+    answer: "Ja, elk betaald abonnement start met een gratis proefperiode van 14 dagen. U kunt in deze periode alles uitproberen en kosteloos opzeggen als het niet bevalt.",
   },
 ];
 
 
 export default async function PricingPage() {
   const plans = await getSubscriptionPlans();
-  const allFeatures = await getAllFeatures();
+  const allTools = await getAllTools();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -48,7 +48,7 @@ export default async function PricingPage() {
                     Eenvoudig & Transparant
                 </h1>
                 <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
-                    Kies het plan dat past bij uw gezin en krijg direct volledige toegang.
+                    Kies het plan dat past bij uw gezin en krijg direct volledige toegang. Alle plannen zijn maandelijks opzegbaar en starten met een gratis proefperiode van 14 dagen.
                 </p>
             </div>
           </div>
@@ -58,10 +58,11 @@ export default async function PricingPage() {
           <div className="container">
               <PricingTable 
                 initialPlans={plans.filter(p => p.active)}
-                allFeatures={allFeatures}
               />
           </div>
         </section>
+
+        <ToolShowcase tools={allTools} />
 
         <section className="pt-12 md:pt-16 pb-12 md:pb-16 bg-secondary/20"> 
           <div className="container max-w-3xl">

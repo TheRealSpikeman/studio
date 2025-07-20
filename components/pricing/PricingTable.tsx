@@ -10,16 +10,16 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Star, User as UserIcon, Users, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
-import { formatPrice, formatFullPrice } from '@/lib/utils';
+import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
+import { formatPrice } from '@/lib/utils';
 
 const getPlanIcon = (planId: string): React.ElementType => {
-  if (planId.includes('family_guide') || planId.includes('2_kinderen')) return Users;
-  return UserIcon;
+    if (planId.includes('gezin')) return Users;
+    return UserIcon;
 };
 
 const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
-  if (interval === 'year') {
+  if (interval === 'year' && plan.price > 0) {
     const discount = plan.yearlyDiscountPercent || 0;
     const totalYearly = plan.price * 12;
     return totalYearly * (1 - discount / 100);
@@ -29,10 +29,9 @@ const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): num
 
 interface PricingTableProps {
   initialPlans: SubscriptionPlan[];
-  allFeatures: AppFeature[];
 }
 
-export function PricingTable({ initialPlans, allFeatures }: PricingTableProps) {
+export function PricingTable({ initialPlans }: PricingTableProps) {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const router = useRouter();
 
@@ -46,25 +45,26 @@ export function PricingTable({ initialPlans, allFeatures }: PricingTableProps) {
   return (
     <div>
       <div className="flex items-center justify-center space-x-3 mb-8">
-        <Label htmlFor="billing-toggle" className={cn(billingInterval === 'month' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+        <Label htmlFor="billing-toggle" className={cn("font-semibold", billingInterval === 'month' ? 'text-primary' : 'text-muted-foreground')}>
           Maandelijks
         </Label>
         <Switch
           id="billing-toggle"
           checked={billingInterval === 'year'}
           onCheckedChange={(checked) => setBillingInterval(checked ? 'year' : 'month')}
+          aria-label="Wissel tussen maandelijkse en jaarlijkse betaling"
         />
-        <Label htmlFor="billing-toggle" className={cn(billingInterval === 'year' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+        <Label htmlFor="billing-toggle" className={cn("font-semibold", billingInterval === 'year' ? 'text-primary' : 'text-muted-foreground')}>
           Jaarlijks
           {hasAnyYearlyDiscount && (
-            <Badge variant="default" className="ml-2 bg-green-100 text-green-700 border-green-300">
-              Bespaar
+            <Badge variant="default" className="ml-2 bg-green-500 hover:bg-green-600 text-primary-foreground">
+              Bespaar 10%
             </Badge>
           )}
         </Label>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch justify-center">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch justify-center">
         {initialPlans.map((plan) => {
           const PlanIcon = getPlanIcon(plan.id);
           const displayPrice = calculatePrice(plan, billingInterval);
@@ -77,7 +77,7 @@ export function PricingTable({ initialPlans, allFeatures }: PricingTableProps) {
               key={plan.id}
               className={cn(
                 `flex flex-col shadow-lg relative border-2 hover:shadow-xl transition-all duration-300`,
-                plan.isPopular ? "border-primary ring-2 ring-primary/50" : "border-border"
+                plan.isPopular ? "border-primary ring-4 ring-primary/20" : "border-border"
               )}
             >
               {plan.isPopular && (
@@ -89,39 +89,32 @@ export function PricingTable({ initialPlans, allFeatures }: PricingTableProps) {
               )}
               <CardHeader className="text-center pt-10">
                 <PlanIcon className="mx-auto h-12 w-12 text-primary mb-3" />
-                <CardTitle className="text-2xl font-semibold mb-1">{plan.name}</CardTitle>
+                <CardTitle className="text-xl font-semibold mb-1">{plan.name}</CardTitle>
                 <p className="text-4xl font-bold text-primary">
                   {priceText}
                 </p>
                 <p className="text-sm font-normal text-muted-foreground -mt-1 h-5"> 
-                  {plan.price > 0 ? 'per maand' : ''}
-                  {billingInterval === 'year' && plan.price > 0 && <span className="text-xs"> (jaarlijks betaald)</span>}
+                  {plan.price > 0 ? (billingInterval === 'month' ? 'per maand' : '/mnd, jaarlijks betaald') : ''}
                 </p>
-                {plan.trialPeriodDays && plan.trialPeriodDays > 0 && (
-                  <p className="text-xs text-green-600 font-medium mt-1">{plan.trialPeriodDays} dagen gratis proberen!</p>
-                )}
+                <CardDescription className="h-10 text-xs">{plan.tagline || plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-3 mt-1 px-4 sm:px-6">
-                <p className="mb-3 text-sm text-muted-foreground">{plan.description}</p>
-                <ul className="space-y-2 text-sm text-left">
-                  {allFeatures
-                    .filter(feature => plan.featureAccess?.[feature.id])
-                    .map(feature => (
-                      <li key={feature.id} className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                        <span>{feature.label}</span>
-                      </li>
-                  ))}
-                </ul>
+                <p className="text-xs text-muted-foreground text-center">
+                    Voor max. <strong>{plan.maxChildren} kind</strong> en <strong>{plan.maxParents} ouder(s)</strong>
+                </p>
+                {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
+                  <p className="text-xs text-green-600 font-medium text-center">{plan.trialPeriodDays} dagen gratis proberen!</p>
+                )}
+                 <div className="text-sm text-left font-medium text-foreground pt-4 border-t">Alle tools inbegrepen:</div>
               </CardContent>
               <CardFooter className="mt-auto pt-5 pb-6 px-4 sm:px-6">
                 <Button
                   onClick={() => handlePlanSelection(plan.id)}
                   className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
-                  variant={plan.isPopular ? 'default' : 'secondary'}
+                  variant={plan.isPopular ? 'default' : 'outline'}
                 >
-                  {plan.trialPeriodDays && plan.trialPeriodDays > 0 ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan'}
-                  <ArrowRight className="ml-2 h-4 w-4"/>
+                  {plan.price === 0 ? 'Start Gratis' : (plan.trialPeriodDays ? `Start ${plan.trialPeriodDays} Dagen Gratis` : 'Kies Plan')}
+                  {plan.price > 0 && <ArrowRight className="ml-2 h-4 w-4"/>}
                 </Button>
               </CardFooter>
             </Card>
