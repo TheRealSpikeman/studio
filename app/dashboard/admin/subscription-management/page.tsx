@@ -1,16 +1,29 @@
-// src/app/dashboard/admin/subscription-management/page.tsx
-"use server";
+// app/dashboard/admin/subscription-management/page.tsx
+"use client"; // This page now fetches client-side data
 
-import { Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, PlusCircle, Loader2 } from 'lucide-react';
 import { getSubscriptionPlans, deleteSubscriptionPlan } from '@/services/subscriptionService';
 import { SubscriptionTable } from '@/components/admin/subscription-management/SubscriptionTable';
+import type { SubscriptionPlan } from '@/types/subscription';
 
-export default async function SubscriptionManagementPage() {
-  const plans = await getSubscriptionPlans();
+export default function SubscriptionManagementPage() {
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchPlans = async () => {
+    setIsLoading(true);
+    const fetchedPlans = await getSubscriptionPlans();
+    setPlans(fetchedPlans);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -36,12 +49,15 @@ export default async function SubscriptionManagementPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
+          {isLoading ? (
+            <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div>
+          ) : (
             <SubscriptionTable 
               initialPlans={plans} 
               deletePlanAction={deleteSubscriptionPlan} 
+              onDataChange={fetchPlans} // Pass a function to refetch data
             />
-          </Suspense>
+          )}
         </CardContent>
       </Card>
     </div>

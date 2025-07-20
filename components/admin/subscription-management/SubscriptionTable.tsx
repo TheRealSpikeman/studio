@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { formatPrice } from '@/lib/utils';
+import { formatFullPrice } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,10 +22,10 @@ import {
 interface SubscriptionTableProps {
     initialPlans: SubscriptionPlan[];
     deletePlanAction: (id: string) => Promise<void>;
+    onDataChange: () => void; // Callback to refresh data in parent
 }
 
-export function SubscriptionTable({ initialPlans, deletePlanAction }: SubscriptionTableProps) {
-    const [plans, setPlans] = useState<SubscriptionPlan[]>(initialPlans);
+export function SubscriptionTable({ initialPlans, deletePlanAction, onDataChange }: SubscriptionTableProps) {
     const { toast } = useToast();
     const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
 
@@ -34,11 +34,11 @@ export function SubscriptionTable({ initialPlans, deletePlanAction }: Subscripti
         
         try {
             await deletePlanAction(planToDelete.id);
-            setPlans(currentPlans => currentPlans.filter(p => p.id !== planToDelete.id));
             toast({
                 title: "Abonnement Verwijderd",
                 description: `Het abonnement "${planToDelete.name}" is verwijderd.`
             });
+            onDataChange(); // Refresh data in parent component
         } catch (error) {
              toast({
                 title: "Fout bij verwijderen",
@@ -56,7 +56,7 @@ export function SubscriptionTable({ initialPlans, deletePlanAction }: Subscripti
               <TableHeader>
                 <TableRow>
                   <TableHead>Plan Naam</TableHead>
-                  <TableHead>Prijs</TableHead>
+                  <TableHead>Prijs (Maand/Jaar)</TableHead>
                   <TableHead>Kinderen</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Populair</TableHead>
@@ -64,10 +64,10 @@ export function SubscriptionTable({ initialPlans, deletePlanAction }: Subscripti
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {plans.map(plan => (
+                {initialPlans.map(plan => (
                   <TableRow key={plan.id}>
                     <TableCell className="font-medium">{plan.name}</TableCell>
-                    <TableCell>{formatPrice(plan.price, plan.currency, plan.billingInterval)}</TableCell>
+                    <TableCell>{formatFullPrice(plan)}</TableCell>
                     <TableCell>{plan.maxChildren}</TableCell>
                     <TableCell>
                         <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
