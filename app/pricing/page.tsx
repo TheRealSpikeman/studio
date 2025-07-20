@@ -1,9 +1,10 @@
 // src/app/pricing/page.tsx
-"use server";
+"use client";
 
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { CreditCard, HelpCircle, ArrowRight } from 'lucide-react';
+import { CreditCard, HelpCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { getSubscriptionPlans } from '@/services/subscriptionService';
 import { getAllTools } from '@/services/toolService';
@@ -11,6 +12,7 @@ import { PricingTable } from '@/components/pricing/PricingTable';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ToolShowcase } from '@/components/pricing/ToolShowcase';
+import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
 
 const faqItems = [
   {
@@ -31,10 +33,24 @@ const faqItems = [
   },
 ];
 
+export default function PricingPage() {
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [tools, setTools] = useState<PlatformTool[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default async function PricingPage() {
-  const plans = await getSubscriptionPlans();
-  const allTools = await getAllTools();
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      const [fetchedPlans, fetchedTools] = await Promise.all([
+        getSubscriptionPlans(),
+        getAllTools()
+      ]);
+      setPlans(fetchedPlans);
+      setTools(fetchedTools);
+      setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -56,13 +72,19 @@ export default async function PricingPage() {
 
         <section className="pb-12 md:pb-20"> 
           <div className="container">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
               <PricingTable 
                 initialPlans={plans.filter(p => p.active)}
               />
+            )}
           </div>
         </section>
 
-        <ToolShowcase tools={allTools} />
+        <ToolShowcase tools={tools} />
 
         <section className="pt-12 md:pt-16 pb-12 md:pb-16 bg-secondary/20"> 
           <div className="container max-w-3xl">
