@@ -21,14 +21,7 @@
       }
     ],
     "paths": {
-      "@/components/*": ["components/*"],
-      "@/lib/*": ["lib/*"],
-      "@/app/*": ["app/*"],
-      "@/hooks/*": ["hooks/*"],
-      "@/types/*": ["types/*"],
-      "@/services/*": ["services/*"],
-      "@/config/*": ["config/*"],
-      "@/ai/*": ["app/ai/*"]
+      "@/*": ["./*"]
     }
   },
   "include": [

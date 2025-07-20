@@ -25,6 +25,13 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    // Deze optie is verplaatst en hoort hier niet meer.
+    // We laten de experimental-key leeg of verwijderen deze.
+  },
+  // De correcte plek voor `allowedDevOrigins` in nieuwere Next.js versies.
+  // We staan de specifieke cloud dev origin toe.
+  allowedDevOrigins: ['https://6000-firebase-studio-1746800952268.cluster-oayqgyglpfgseqclbygurw4xd4.cloudworkstations.dev'],
 };
 
 module.exports = nextConfig;

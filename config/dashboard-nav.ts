@@ -1,4 +1,5 @@
 
+
 // src/config/dashboard-nav.ts
 import {
   LayoutDashboard, 
@@ -172,7 +173,6 @@ export const navItems: NavItem[] = [
     icon: Euro,
     adminOnly: true,
     children: [
-      { href: '/dashboard/admin/subscription-management', label: 'Abonnementen', icon: CreditCard, parent: '#finance-parent' },
       { href: '/dashboard/admin/finance', label: 'Betalingen', icon: Euro, parent: '#finance-parent' },
     ]
   },

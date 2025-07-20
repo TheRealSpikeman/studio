@@ -1,0 +1,6 @@
+      <SubscriptionPlanForm
+        initialData={planData}
+        isNew={false}
+        allSubscriptionPlans={allSubscriptionPlans}
+        allAppFeatures={allFeatures}
+      />
