@@ -1,3 +1,4 @@
+
 // src/components/pricing/PricingTable.tsx
 'use client';
 
@@ -88,13 +89,10 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               )}
             >
               {plan.isPopular && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 transform">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-primary-foreground shadow-lg">
-                    <Star className="h-5 w-5 shrink-0 fill-current" />
-                    <div className="flex flex-col text-left text-sm font-semibold leading-tight">
-                        <span>Meest</span>
-                        <span>gekozen</span>
-                    </div>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
+                    <Star className="h-4 w-4 fill-current" />
+                    <span>Meest gekozen</span>
                   </div>
                 </div>
               )}

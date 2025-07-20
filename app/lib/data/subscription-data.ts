@@ -1,3 +1,4 @@
+
 // src/lib/data/subscription-data.ts
 import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
 
@@ -16,14 +17,14 @@ export const DEFAULT_PLATFORM_TOOLS: PlatformTool[] = [
 export const initialDefaultPlans: SubscriptionPlan[] = [
   {
     id: 'free_start',
-    name: 'Gratis Start voor ouders',
+    name: 'Gratis Start',
     shortName: 'Gratis',
-    description: 'Doe de basis "Ken je Kind" assessment en krijg een eerste inzicht in het profiel van uw kind.',
+    description: 'Doe de basis assessment en krijg een eerste inzicht in jouw unieke profiel. Ideaal om te starten.',
     price: 0,
     currency: 'EUR',
     billingInterval: 'once',
     maxParents: 1,
-    maxChildren: 0,
+    maxChildren: 1, // Adjusted based on latest user feedback/image
     active: true,
     trialPeriodDays: 0,
     isPopular: false,
@@ -33,7 +34,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     name: 'Gezins Gids (1 Kind)',
     shortName: '1 Kind',
     tagline: 'Perfect voor een gericht begin.',
-    description: 'Alle tools en dagelijkse coaching voor één kind, plus het Ouder Dashboard.',
+    description: 'Alle tools en het ouder-dashboard voor één kind. Ideaal voor gerichte ondersteuning.',
     price: 15.00,
     currency: 'EUR',
     billingInterval: 'month',
@@ -66,7 +67,7 @@ export const initialDefaultPlans: SubscriptionPlan[] = [
     shortName: '3+ Kinderen',
     tagline: 'Voor grotere gezinnen.',
     description: 'De beste waarde voor grotere gezinnen, met ondersteuning voor maximaal 4 kinderen.',
-    price: 40.00,
+    price: 35.00,
     currency: 'EUR',
     billingInterval: 'month',
     yearlyDiscountPercent: 10,
