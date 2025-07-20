@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 const getPlanIcon = (plan: SubscriptionPlan): React.ElementType => {
     if (plan.maxChildren && plan.maxChildren > 1) return Users;
     if (plan.maxChildren === 1) return UserIcon;
-    return Users; // Default for parent-only (0 children) or other plans
+    return Users; // Default for parent-only or other plans
 };
 
 const calculatePrice = (plan: SubscriptionPlan, interval: 'month' | 'year'): number => {
@@ -88,8 +88,8 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               )}
             >
               {plan.isPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-1.5 text-sm font-semibold text-primary-foreground shadow-lg">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 transform">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-1.5 text-sm font-semibold text-primary-foreground shadow-md">
                     <Star className="h-4 w-4 fill-current" />
                     <span>Meest gekozen</span>
                   </div>
