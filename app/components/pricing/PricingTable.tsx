@@ -13,9 +13,8 @@ import { cn } from '@/lib/utils';
 import type { SubscriptionPlan, PlatformTool } from '@/types/subscription';
 import { Separator } from '@/components/ui/separator';
 
-const getPlanIcon = (planId: string): React.ElementType => {
-    if (planId.includes('gezin')) return Users;
-    if (planId.includes('2_kinderen')) return Users;
+const getPlanIcon = (plan: SubscriptionPlan): React.ElementType => {
+    if (plan.maxChildren && plan.maxChildren > 1) return Users;
     return UserIcon;
 };
 
@@ -59,7 +58,7 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
           Jaarlijks
           {hasAnyYearlyDiscount && (
             <Badge variant="default" className="ml-2 bg-green-500 hover:bg-green-600 text-primary-foreground">
-              Bespaar {initialPlans.find(p => p.yearlyDiscountPercent)?.yearlyDiscountPercent}%
+              Bespaar 10%
             </Badge>
           )}
         </Label>
@@ -67,13 +66,17 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch justify-center">
         {initialPlans.map((plan) => {
-          const PlanIcon = getPlanIcon(plan.id);
+          const PlanIcon = getPlanIcon(plan);
           const displayPrice = calculatePrice(plan, billingInterval);
           const priceText = billingInterval === 'year' && plan.price > 0
             ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
             : `€${displayPrice.toFixed(2).replace('.', ',')}`;
           
-          const includedTools = plan.price > 0 ? tools : tools.filter(t => t.id === 'full-access-tools');
+          const freeFeatures = [
+            { id: 'basic-assessment', label: 'Basis "Ken je Kind" Assessment' },
+          ];
+          
+          const includedTools = plan.price > 0 ? tools : freeFeatures;
 
           return (
             <Card
@@ -104,7 +107,7 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               <CardContent className="flex flex-grow flex-col justify-between px-4 sm:px-6">
                 <div>
                   <p className="text-xs text-muted-foreground text-center mb-2">
-                      Voor max. <strong>{plan.maxChildren} kind</strong> en <strong>{plan.maxParents} ouder(s)</strong>
+                      Voor max. <strong>{plan.maxChildren} kind(eren)</strong> en <strong>{plan.maxParents} ouder(s)</strong>
                   </p>
                   {plan.trialPeriodDays && plan.trialPeriodDays > 0 && plan.price > 0 && (
                       <p className="text-xs text-green-600 font-semibold text-center">{plan.trialPeriodDays} dagen gratis proberen!</p>
@@ -115,8 +118,8 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
                   </h4>
                   <ul className="space-y-2 text-xs text-muted-foreground text-left">
                       {includedTools.map(tool => (
-                          <li key={tool.id} className="flex items-center gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <li key={tool.id} className="flex items-start gap-2">
+                              <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                               <span className="flex-1">{tool.label}</span>
                           </li>
                       ))}
