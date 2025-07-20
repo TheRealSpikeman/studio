@@ -20,10 +20,10 @@ import { Save, Bot, Loader2, Trash2, AlertTriangle, Wrench, ExternalLink } from 
 import { useToast } from '@/hooks/use-toast';
 import type { Tool } from '@/lib/quiz-data/tools-data';
 import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
-import { generateToolDetails } from '@/ai/flows/generate-tool-details-flow';
+import { generateToolDetails } from '@/app/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Switch } from '@/components/ui/switch';
-import { createToolComponentFile, checkToolComponentExists } from '@/actions/toolActions';
+import { createToolComponentFile, checkToolComponentExists } from '../../../../app/actions/toolActions';
 import Link from 'next/link';
 import { ToolPreviewer } from "./ToolPreviewer";
 

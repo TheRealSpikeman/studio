@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 
-import { generateChangelogDraft, submitChangelogEntry } from '@/actions/changelogActions';
-import type { GenerateChangelogDraftResult } from '@/actions/changelogActions';
+import { generateChangelogDraft, submitChangelogEntry } from '../../../../../actions/changelogActions';
+import type { GenerateChangelogDraftResult } from '../../../../../actions/changelogActions';
 
 // Define the type for the form data explicitly
 type ChangelogFormData = {
@@ -133,10 +133,12 @@ export default function NewChangelogPage() {
                                 <Label htmlFor="details">Details (één per regel)</Label>
                                 <Textarea 
                                     id="details" 
-                                    value={formData.details.join('\n')} 
+                                    value={formData.details.join('
+')} 
                                     onChange={e => setFormData({ 
                                         ...formData, 
-                                        details: e.target.value.split('\n') 
+                                        details: e.target.value.split('
+') 
                                     })} 
                                     rows={5} 
                                 />

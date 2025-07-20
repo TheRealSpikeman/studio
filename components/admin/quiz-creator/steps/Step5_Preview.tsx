@@ -20,8 +20,8 @@ import { useRouter } from 'next/navigation';
 import type { QuizAdmin, QuizAudience, QuizCategory, QuizAdminQuestion, QuizStatusAdmin } from '@/types/quiz-admin';
 import type { BlogPost } from '@/types/blog';
 import { answerOptions } from '@/lib/quiz-data/teen-neurodiversity-quiz';
-import { verifyQuizQuestions } from '@/ai/flows/verify-quiz-questions-flow';
-import type { VerifyQuizQuestionsOutput } from '@/generate-ai-quiz-flow-types';
+import { verifyQuizQuestions } from '../../../../app/ai/flows/verify-quiz-questions-flow';
+import type { VerifyQuizQuestionsOutput } from '@/app/ai/flows/generate-ai-quiz-flow-types';
 import Link from 'next/link';
 import { storageService } from '@/services/storageService'; 
 
@@ -295,7 +295,7 @@ export const Step5_Preview = () => {
                                             <Button onClick={handlePreviewNext} disabled={!previewSelectedOption}>{previewQuestionIndex === questions.length - 1 ? "Voltooi preview" : "Volgende"}<ArrowRight className="ml-2 h-4 w-4"/></Button>
                                         </CardFooter>
                                     )}
-                                </Card>
+                                 </Card>
                             </div>
                         </div>
                       </CardContent>

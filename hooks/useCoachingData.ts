@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { generateCoachingInsights, type GenerateCoachingInsightsOutput } from '@/ai/flows/generate-coaching-insights';
+import { generateCoachingInsights, type GenerateCoachingInsightsOutput } from '../app/ai/flows/generate-coaching-insights';
 import { storageService } from '@/services/storageService';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';

@@ -15,11 +15,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { ArrowLeft, Bot, Save, Loader2, Rss, AlertTriangle, Lightbulb, Link2, Brain, Link as LinkIcon } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { generateBlogPost } from '@/ai/flows/generate-blog-post-flow';
-import { generateBlogTopic } from '@/ai/flows/generate-blog-topic-flow';
+import { generateBlogPost } from '../../../../ai/flows/generate-blog-post-flow';
+import { generateBlogTopic } from '../../../../ai/flows/generate-blog-topic-flow';
 import type { BlogPost } from '@/types/blog';
 import { useAuth } from '@/contexts/AuthContext';
-import { initialAiPersonas } from '@/ai/personas';
+import { initialAiPersonas } from '../../../../ai/personas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -151,7 +151,9 @@ export default function NewBlogPostPage() {
       toast({ title: "Content gegenereerd!", description: "Alle velden zijn ingevuld door de AI." });
     } catch (error: any) {
       console.error("AI content generation failed:", error);
-      const errorMessage = `Fout: ${error.message || "Onbekende fout."}\n\nDetails: ${error.stack || 'Geen stack trace beschikbaar.'}`;
+      const errorMessage = `Fout: ${error.message || "Onbekende fout."}
+
+Details: ${error.stack || 'Geen stack trace beschikbaar.'}`;
       setAiError(errorMessage);
       toast({ title: "Genereren mislukt", description: "Zie de foutmelding op de pagina voor details.", variant: "destructive" });
     } finally {

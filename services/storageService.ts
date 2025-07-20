@@ -35,7 +35,7 @@ import {
   dummyStudents,
   allStudentDetails,
   dummyCompletedQuizzes,
-} from '@/lib/data/dummy-data';
+} from '../lib/data/dummy-data';
 
 import type { User, FeedbackEntry, Conversation, OuderSubscription, PayableLesson, ChildBase, ProfessionalBase, ChildProfile, ChildProgressData, Lesson, CoachingSession, StudentEntry, StudentDetails, ScheduledLesson, SubscriptionPlan, AppFeature, QuizAdmin, QuizResult } from '@/types';
 import { initialDefaultPlans, DEFAULT_APP_FEATURES } from '@/types/subscription';

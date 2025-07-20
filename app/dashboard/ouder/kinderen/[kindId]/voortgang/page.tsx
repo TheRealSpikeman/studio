@@ -12,7 +12,7 @@ import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck,
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { compareParentChildInsights, type CompareParentChildInput } from '@/ai/flows/compare-parent-child-insights-flow';
+import { compareParentChildInsights, type CompareParentChildInput } from '../../../../../ai/flows/compare-parent-child-insights-flow';
 import type { QuizResult, TutorFeedback, ActivityPoint, Goal, ChildProgressData } from '@/types';
 
 
@@ -185,7 +185,8 @@ export default function KindVoortgangPage() {
           )}
           {vergelijkendAdvies && (
             <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-md border">
-              <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/\n/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
+              <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/
+/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
             </div>
           )}
         </div>
