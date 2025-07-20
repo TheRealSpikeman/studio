@@ -41,11 +41,6 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
   };
 
   const hasAnyYearlyDiscount = initialPlans.some(p => p.yearlyDiscountPercent && p.yearlyDiscountPercent > 0);
-  
-  const freeFeatures = [
-    { id: 'basic-assessment', label: 'Basis "Ken je Kind" Assessment' },
-    { id: 'limited-insights', label: 'Beperkte AI-inzichten na assessment' }
-  ];
 
   return (
     <div>
@@ -77,6 +72,10 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
             ? `€${(displayPrice / 12).toFixed(2).replace('.', ',')}`
             : `€${displayPrice.toFixed(2).replace('.', ',')}`;
           
+          const freeFeatures = [
+            { id: 'basic-assessment', label: 'Basis "Ken je Kind" Assessment' },
+          ];
+          
           const includedTools = plan.price > 0 ? tools : freeFeatures;
 
           return (
@@ -88,17 +87,16 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
               )}
             >
               {plan.isPopular && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 transform">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-primary-foreground shadow-lg">
-                    <Star className="h-5 w-5 fill-current" />
-                    <div className="flex flex-col text-sm font-semibold leading-tight">
-                      <span>Meest</span>
-                      <span>gekozen</span>
-                    </div>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg">
+                    <Star className="h-5 w-5 flex-shrink-0 fill-current" />
+                    <span className="leading-tight text-left">
+                      Meest<br/>gekozen
+                    </span>
                   </div>
                 </div>
               )}
-              <CardHeader className="text-center pt-12">
+              <CardHeader className="text-center pt-10">
                 <PlanIcon className="mx-auto h-12 w-12 text-primary mb-3" />
                 <CardTitle className="text-xl font-semibold mb-1">{plan.name}</CardTitle>
                 <p className="text-4xl font-bold text-primary">
@@ -119,7 +117,7 @@ export function PricingTable({ initialPlans, tools }: PricingTableProps) {
                   )}
                   <Separator className="my-4" />
                   <h4 className="text-sm font-semibold mb-2 text-left">
-                      {plan.price > 0 ? "Alle tools inbegrepen:" : "Inbegrepen features:"}
+                      {plan.price > 0 ? "Alle tools inbegrepen:" : "Inbegrepen feature:"}
                   </h4>
                   <ul className="space-y-2 text-xs text-muted-foreground text-left">
                       {includedTools.map(tool => (
