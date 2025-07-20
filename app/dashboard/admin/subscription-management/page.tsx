@@ -1,7 +1,7 @@
-// app/dashboard/admin/subscription-management/page.tsx
-"use client"; // This page now fetches client-side data
+// src/app/dashboard/admin/subscription-management/page.tsx
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,16 +14,16 @@ export default function SubscriptionManagementPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     setIsLoading(true);
     const fetchedPlans = await getSubscriptionPlans();
     setPlans(fetchedPlans);
     setIsLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [fetchPlans]);
 
   return (
     <div className="space-y-8">

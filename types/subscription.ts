@@ -33,3 +33,6 @@ export interface SubscriptionPlan {
   trialPeriodDays?: number;
   isPopular?: boolean;
 }
+
+// Key for localStorage, can be shared between client components and services.
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans_v3';

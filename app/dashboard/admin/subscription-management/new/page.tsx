@@ -1,16 +1,11 @@
 // app/dashboard/admin/subscription-management/new/page.tsx
-"use server";
+"use client";
 
 import { SubscriptionPlanForm } from '@/components/admin/subscription-management/SubscriptionPlanForm';
-import { getSubscriptionPlans } from '@/services/subscriptionService';
-import { getAllFeatures } from '@/services/featureService';
 
-export default async function NewSubscriptionPlanPage() {
-  // Hoewel het formulier is vereenvoudigd, halen we de data op voor eventuele toekomstige validatie of context.
-  const allSubscriptionPlans = await getSubscriptionPlans();
-  const allAppFeatures = await getAllFeatures();
-
-  // Pass data as props to the client component
+export default function NewSubscriptionPlanPage() {
+  // This page is now a client component to be consistent with the rest of the flow.
+  // The form component handles all logic internally.
   return (
     <SubscriptionPlanForm 
         isNew={true}

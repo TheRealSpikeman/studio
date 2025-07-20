@@ -1,5 +1,5 @@
 // app/dashboard/admin/subscription-management/edit/[planId]/page.tsx
-"use client"; // This page now fetches client-side data
+"use client";
 
 import { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
@@ -31,7 +31,6 @@ export default function EditSubscriptionPlanPage() {
   }
 
   if (planData === null) {
-    // A better user experience than notFound() for client-side rendering
     return <div className="text-center p-8">Abonnement niet gevonden.</div>;
   }
 

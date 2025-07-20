@@ -1,131 +1,105 @@
 // services/subscriptionService.ts
-'use server';
+'use client'; // This service now uses localStorage and is client-side.
 
-import { getFirebaseServices } from '@/lib/firebase-helpers';
 import type { SubscriptionPlan } from '@/types/subscription';
-import { Timestamp } from 'firebase-admin/firestore';
+import { initialDefaultPlans } from '@/lib/data/subscription-data';
 
-const PLANS_COLLECTION = 'subscriptionPlans';
+const LOCAL_STORAGE_KEY = 'mindnavigator_subscription_plans_v3';
+
+// --- Helper Functions for localStorage ---
+
+const getPlansFromStorage = (): SubscriptionPlan[] => {
+  if (typeof window === 'undefined') {
+    return initialDefaultPlans; // Return initial data during SSR
+  }
+  try {
+    const item = localStorage.getItem(LOCAL_STORAGE_KEY);
+    // If nothing is in storage, initialize it with default plans.
+    if (!item || item === 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialDefaultPlans));
+      return initialDefaultPlans;
+    }
+    return JSON.parse(item);
+  } catch (error) {
+    console.error("Error reading subscription plans from localStorage:", error);
+    return initialDefaultPlans; // Fallback to default
+  }
+};
+
+const savePlansToStorage = (plans: SubscriptionPlan[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(plans));
+  } catch (error) {
+    console.error("Error writing subscription plans to localStorage:", error);
+  }
+};
+
+
+// --- Public API (mimics async behavior of a real API) ---
 
 /**
- * Retrieves all subscription plans from Firestore.
- * @returns {Promise<SubscriptionPlan[]>}
+ * Retrieves all subscription plans from localStorage.
+ * @returns {Promise<SubscriptionPlan[]>} The array of subscription plans.
  */
 export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-  const { db } = await getFirebaseServices();
-  const plansRef = db.collection(PLANS_COLLECTION);
-  const snapshot = await plansRef.orderBy('price').get();
-  
-  return snapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      ...data,
-      id: doc.id,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
-    } as SubscriptionPlan;
-  });
+  await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
+  return getPlansFromStorage().sort((a,b) => a.price - b.price);
 };
 
 /**
- * Retrieves a single subscription plan by its ID from Firestore.
- * @param {string} id
- * @returns {Promise<SubscriptionPlan | null>}
+ * Retrieves a single subscription plan by its ID from localStorage.
+ * @param {string} id - The ID of the plan to retrieve.
+ * @returns {Promise<SubscriptionPlan | null>} The plan object or null if not found.
  */
 export async function getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {
-  const { db } = await getFirebaseServices();
-  if (!id) return null;
-
-  const docRef = db.collection(PLANS_COLLECTION).doc(id);
-  const docSnap = await docRef.get();
-
-  if (docSnap.exists) {
-    const data = docSnap.data()!;
-    return {
-      ...data,
-      id: docSnap.id,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
-    } as SubscriptionPlan;
-  }
-  return null;
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const plans = getPlansFromStorage();
+  return plans.find(plan => plan.id === id) || null;
 };
 
 /**
- * Creates a new subscription plan in Firestore.
- * @param {Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'>} data
+ * Creates a new subscription plan in localStorage.
+ * @param {Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'>} data - The new plan data.
  */
 export async function createSubscriptionPlan(data: Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'>): Promise<SubscriptionPlan> {
-  const { db } = await getFirebaseServices();
-  
-  const { id, ...planData } = data;
-  if (!id) throw new Error("Plan ID is required to create a new plan.");
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const currentPlans = getPlansFromStorage();
+  if (currentPlans.some(p => p.id === data.id)) {
+      throw new Error(`Een abonnement met ID "${data.id}" bestaat al.`);
+  }
 
-  const docRef = db.collection(PLANS_COLLECTION).doc(id);
-  
-  const dataToSave = {
-    ...planData,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+  const newPlan: SubscriptionPlan = {
+      ...data,
+      // No longer adding createdAt/updatedAt as they are not in the simplified type
   };
 
-  await docRef.set(dataToSave);
-  
-  return {
-    ...data,
-    id,
-    createdAt: dataToSave.createdAt.toDate().toISOString(),
-    updatedAt: dataToSave.updatedAt.toDate().toISOString(),
-  };
+  const updatedPlans = [...currentPlans, newPlan];
+  savePlansToStorage(updatedPlans);
+  return newPlan;
 };
 
 /**
- * Updates an existing subscription plan in Firestore.
- * @param {string} id
- * @param {Partial<Omit<SubscriptionPlan, 'id'>>} data
+ * Updates an existing subscription plan in localStorage.
+ * @param {string} id - The ID of the plan to update.
+ * @param {Partial<SubscriptionPlan>} data - The fields to update.
  */
-export async function saveSubscriptionPlan(id: string, data: Partial<Omit<SubscriptionPlan, 'id'>>): Promise<void> {
-    const { db } = await getFirebaseServices();
-
-    const docRef = db.collection(PLANS_COLLECTION).doc(id);
-    await docRef.update({
-        ...data,
-        updatedAt: Timestamp.now(),
-    });
+export async function updateSubscriptionPlan(id: string, data: Partial<Omit<SubscriptionPlan, 'id'>>): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const currentPlans = getPlansFromStorage();
+    const updatedPlans = currentPlans.map(plan => 
+        plan.id === id ? { ...plan, ...data } : plan
+    );
+    savePlansToStorage(updatedPlans);
 };
 
 /**
- * Deletes a subscription plan from Firestore.
- * @param {string} id
+ * Deletes a subscription plan from localStorage.
+ * @param {string} id - The ID of the plan to delete.
  */
 export async function deleteSubscriptionPlan(id: string): Promise<void> {
-    const { db } = await getFirebaseServices();
-    
-    const docRef = db.collection(PLANS_COLLECTION).doc(id);
-    await docRef.delete();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const currentPlans = getPlansFromStorage();
+    const updatedPlans = currentPlans.filter(plan => plan.id !== id);
+    savePlansToStorage(updatedPlans);
 };
-
-/**
- * Retrieves all subscriptions for a specific user.
- * Final test case for the new robust architecture.
- * @param {string} userId
- */
-export async function getUserSubscriptions(userId: string) {
-  try {
-    const { db } = await getFirebaseServices();
-    
-    const subscriptions = await db
-      .collection('subscriptions')
-      .where('userId', '==', userId)
-      .get();
-    
-    return subscriptions.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  } catch (error) {
-    console.error('Failed to get user subscriptions:', error);
-    // Re-throwing the error allows the calling component to handle it, e.g., by showing a toast.
-    throw new Error('Could not retrieve user subscriptions.');
-  }
-}
