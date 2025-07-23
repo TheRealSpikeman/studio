@@ -23,7 +23,7 @@ import { allToolCategories, allToolIcons } from '@/lib/quiz-data/tools-data';
 import { generateToolDetails } from '@/app/ai/flows/generate-tool-details-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Switch } from '@/components/ui/switch';
-import { createToolComponentFile, checkToolComponentExists } from '../../../../app/actions/toolActions';
+import { createToolComponentFile, checkToolComponentExists } from '@/app/actions/toolActions';
 import Link from 'next/link';
 import { ToolPreviewer } from "./ToolPreviewer";
 

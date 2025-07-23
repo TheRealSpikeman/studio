@@ -46,7 +46,7 @@ export default function AdminFinancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">€ 875,20</div>
-            <p className="text-xs text-muted-foreground">3 facturen > 30 dagen</p>
+            <p className="text-xs text-muted-foreground">3 facturen &gt; 30 dagen</p>
           </CardContent>
         </Card>
       </div>

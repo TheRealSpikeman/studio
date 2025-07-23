@@ -1,10 +1,9 @@
-
 'use server';
 /**
  * @fileOverview A Genkit flow for generating blog post content from a single topic idea.
  * This is the v19 fix: Removed the output schema to force raw text output, aligning with the prompt's instructions.
  */
-import { ai } from '../genkit';
+import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import {
   GenerateBlogPostInputSchema,
@@ -94,8 +93,7 @@ const generateBlogPostFlow = ai.defineFlow(
       throw new Error('AI did not return any content.');
     }
     
-    const lines = rawTextOutput.split('
-');
+    const lines = rawTextOutput.split('\n');
     
     let title = '';
     let excerpt = '';
@@ -118,8 +116,7 @@ const generateBlogPostFlow = ai.defineFlow(
         }
 
         // Skip the title, excerpt, tags, hint and the blank line
-        content = lines.slice(5).join('
-').trim();
+        content = lines.slice(5).join('\n').trim();
     } else {
         // Fallback if the AI doesn't follow instructions
         console.warn("AI output did not follow the header structure. Parsing as fallback.");
@@ -131,8 +128,7 @@ const generateBlogPostFlow = ai.defineFlow(
     }
 
     if (!title || !content) {
-        console.error("Parsing failed for title or content. AI Output was:
-", rawTextOutput);
+        console.error("Parsing failed for title or content. AI Output was:\n", rawTextOutput);
         throw new Error('Could not parse title or content from the text returned by the AI.');
     }
 

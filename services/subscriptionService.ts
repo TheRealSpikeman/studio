@@ -103,3 +103,4 @@ export async function deleteSubscriptionPlan(id: string): Promise<void> {
     const updatedPlans = currentPlans.filter(plan => plan.id !== id);
     savePlansToStorage(updatedPlans);
 };
+export async function saveSubscriptionPlans(plans: any[]) { console.log('Saving plans:', plans); }

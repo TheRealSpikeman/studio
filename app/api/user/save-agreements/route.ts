@@ -10,6 +10,7 @@ export async function POST(request: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    if (!auth) { return NextResponse.json({ error: "Authentication not configured" }, { status: 500 }); }
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
         return new NextResponse('Bad Request: Missing agreements object.', { status: 400 });
     }
 
-    const userDocRef = doc(db, 'users', userId);
+    if (!db) { return NextResponse.json({ error: "Database not configured" }, { status: 500 }); }
+    const userDocRef = db.collection('users').doc(userId);
 
     const dataToStore = {
       onboardingAgreements: {
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
     };
 
     // Use setDoc with { merge: true } for a robust "upsert" operation.
-    await setDoc(userDocRef, dataToStore, { merge: true });
+    await userDocRef.set(dataToStore, { merge: true });
 
     return NextResponse.json({ success: true, message: 'Agreements saved successfully.' });
 

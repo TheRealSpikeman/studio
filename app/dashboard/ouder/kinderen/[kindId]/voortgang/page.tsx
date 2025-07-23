@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown, Bot, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, BarChart3, MessageSquareText, Activity, Target, ShieldCheck, ShieldAlert, FileText, BookOpen, Brain, ChevronDown, Bot, Loader2, Info, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import { Alert, AlertDescription as AlertDescUi, AlertTitle as AlertTitleUi } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -185,8 +186,7 @@ export default function KindVoortgangPage() {
           )}
           {vergelijkendAdvies && (
             <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-md border">
-              <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/
-/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
+              <div dangerouslySetInnerHTML={{ __html: vergelijkendAdvies.replace(/\n/g, '<br />').replace(/## (.*?)(<br \/>|$)/g, '<h3>$1</h3>').replace(/\* (.*?)(<br \/>|$)/g, '<li>$1</li>') }} />
             </div>
           )}
         </div>

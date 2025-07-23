@@ -17,12 +17,12 @@ function VerifyEmailContent() {
   const { toast } = useToast();
   const { auth, isFirebaseConfigured } = useAuth();
   const searchParams = useSearchParams();
-  const planParam = searchParams.get("plan");
-  const isNewRegistration = searchParams.get("newRegistration") === "true";
-  const flow = searchParams.get("flow"); 
-  const userType = searchParams.get("userType"); 
-  const parentApproved = searchParams.get("parentApproved") === "true";
-  const teenEmailForParentContext = searchParams.get("teenEmail");
+  const planParam = searchParams?.get("plan");
+  const isNewRegistration = searchParams?.get("newRegistration") === "true";
+  const flow = searchParams?.get("flow"); 
+  const userType = searchParams?.get("userType"); 
+  const parentApproved = searchParams?.get("parentApproved") === "true";
+  const teenEmailForParentContext = searchParams?.get("teenEmail");
 
 
   const planNames: { [key: string]: string } = {

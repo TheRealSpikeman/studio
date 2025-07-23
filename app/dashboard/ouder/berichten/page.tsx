@@ -13,11 +13,10 @@ import { MessagesSquare, Send, PlusCircle, Search, User, FileText, MessageCircle
 import { cn } from '@/lib/utils';
 import { FormattedDateCell } from '@/components/admin/user-management/FormattedDateCell';
 import type { Conversation, Message } from '@/types';
-import { dummyConversations } from '../../../../lib/data/dummy-data';
 
 export default function BerichtencentrumPage() {
-  const [conversations, setConversations] = useState<Conversation[]>(dummyConversations.sort((a,b) => new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()));
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversations[0] || null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 

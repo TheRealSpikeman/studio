@@ -1,38 +1,32 @@
-// src/types/subscription.ts
-import { z } from "zod";
+// types/subscription.ts
 
-// DEPRECATED, but kept for reference if needed by other components.
-// The new model uses PlatformTool.
-export type TargetAudience = 'leerling' | 'ouder' | 'tutor' | 'coach' | 'platform' | 'beide';
-
-// The new, separate Tool type, replacing AppFeature for this purpose
-export interface PlatformTool {
-    id: string;
-    label: string;
-    description: string;
-    targetAudience: TargetAudience[];
-    category: string;
-    // Potentially other fields like 'iconName', 'link', etc.
+export const initialDefaultPlans = [];
+export const DEFAULT_APP_FEATURES = {};
+export function getSubscriptionPlans() { return initialDefaultPlans; }
+export function formatPrice(price: number): string { 
+  return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(price); 
 }
+export { formatPrice as formatPlanPrice };
+export type SubscriptionPlan = {
+    id: string;
+    name: string;
+    price: number;
+    features: string[];
+  maxChildren?: number;
+  yearlyDiscountPercent?: number;
+  isPopular?: boolean;
+  tagline?: string;
+  description?: string;
+  maxParents?: number;
+  trialPeriodDays?: number;
+};
+export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans_v3';
 
-// The new, simplified SubscriptionPlan
-export interface SubscriptionPlan {
+export interface PlatformTool {
   id: string;
   name: string;
-  shortName?: string; // e.g., "1 Kind", "Gezin"
   description: string;
-  tagline?: string; // e.g. "Beste voor startende gezinnen"
-  price: number;
-  currency: 'EUR';
-  yearlyDiscountPercent?: number;
-  billingInterval: 'month' | 'year' | 'once';
-  maxParents?: number; 
-  maxChildren?: number;
-  // REMOVED: featureAccess is no longer part of the plan itself
-  active: boolean;
-  trialPeriodDays?: number;
-  isPopular?: boolean;
+  label?: string;
+  category?: string;
+  icon?: string;
 }
-
-// Key for localStorage, can be shared between client components and services.
-export const LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY = 'mindnavigator_subscription_plans_v3';

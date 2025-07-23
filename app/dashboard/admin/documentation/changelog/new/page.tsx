@@ -133,12 +133,10 @@ export default function NewChangelogPage() {
                                 <Label htmlFor="details">Details (één per regel)</Label>
                                 <Textarea 
                                     id="details" 
-                                    value={formData.details.join('
-')} 
+                                    value={formData.details.join('\n')} 
                                     onChange={e => setFormData({ 
                                         ...formData, 
-                                        details: e.target.value.split('
-') 
+                                        details: e.target.value.split('\n') 
                                     })} 
                                     rows={5} 
                                 />

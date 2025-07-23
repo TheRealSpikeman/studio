@@ -1,11 +1,11 @@
 // src/app/api/analyze-quiz/route.ts
 import { NextResponse } from 'next/server';
 import { generateQuizAnalysis } from '@/ai/flows/generate-quiz-analysis-flow';
-import type { GenerateQuizAnalysisInput } from '@/ai/flows/generate-quiz-analysis-flow-types';
+import type { QuizAnalysisInput } from '@/ai/flows/generate-quiz-analysis-flow-types';
 
 export async function POST(request: Request) {
   try {
-    const input: GenerateQuizAnalysisInput = await request.json();
+    const input: QuizAnalysisInput = await request.json();
 
     if (!input || !input.quizTitle || !input.answeredQuestions) {
       return NextResponse.json({ error: 'Invalid input provided for analysis.' }, { status: 400 });

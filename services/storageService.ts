@@ -15,28 +15,6 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '@/lib/firebase';
-
-import {
-  DUMMY_USERS,
-  dummyFeedbackEntries,
-  dummyConversations,
-  dummySubscriptions,
-  dummyPayableLessons,
-  dummyChildrenData,
-  dummyProfessionalsData,
-  dummyChildren,
-  dummyProgressData,
-  initialScheduledLessons,
-  dummyUpcomingCoachSessions,
-  dummyPastCoachSessions,
-  dummyUpcomingLessons,
-  dummyPastLessons,
-  dummyClients,
-  dummyStudents,
-  allStudentDetails,
-  dummyCompletedQuizzes,
-} from '../lib/data/dummy-data';
-
 import type { User, FeedbackEntry, Conversation, OuderSubscription, PayableLesson, ChildBase, ProfessionalBase, ChildProfile, ChildProgressData, Lesson, CoachingSession, StudentEntry, StudentDetails, ScheduledLesson, SubscriptionPlan, AppFeature, QuizAdmin, QuizResult } from '@/types';
 import { initialDefaultPlans, DEFAULT_APP_FEATURES } from '@/types/subscription';
 import { getQuizzes } from './quizService';
@@ -133,16 +111,6 @@ export const storageService = {
         const usersCollectionRef = collection(db, USERS_COLLECTION);
         const q = query(usersCollectionRef, orderBy('createdAt', 'desc'));
         let querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            console.warn("Users collection is empty. Seeding with dummy data for demonstration.");
-            for (const user of DUMMY_USERS) {
-                const docRef = doc(db, USERS_COLLECTION, user.id);
-                const { id, ...userData } = user;
-                await setDoc(docRef, userData);
-            }
-            querySnapshot = await getDocs(q);
-        }
 
         return querySnapshot.docs.map(doc => {
             const data = doc.data();
@@ -262,14 +230,6 @@ export const storageService = {
         const q = query(resultsCollectionRef, orderBy('dateCompleted', 'desc'));
         let querySnapshot = await getDocs(q);
         
-        if (querySnapshot.empty) {
-          console.warn("No quiz results found in Firestore. Seeding with dummy data for demonstration.");
-          for (const result of dummyCompletedQuizzes) {
-            await addDoc(resultsCollectionRef, result);
-          }
-          querySnapshot = await getDocs(q);
-        }
-
         return querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
@@ -307,15 +267,15 @@ export const storageService = {
   setFirstCoachingViewed: (): void => setItem(FIRST_COACHING_VIEWED_KEY, true),
   setJourneyQuizCompleted: (): void => setItem(JOURNEY_QUIZ_COMPLETED_KEY, true),
   
-  getFeedbackEntries: (): FeedbackEntry[] => dummyFeedbackEntries,
-  getConversations: (): Conversation[] => dummyConversations,
-  getPayableLessons: (): PayableLesson[] => dummyPayableLessons,
-  getChildrenForParent: (): ChildProfile[] => dummyChildren,
-  getChildProgressData: (childId: string): ChildProgressData | null => dummyProgressData[childId] || null,
-  getScheduledLessons: (): ScheduledLesson[] => initialScheduledLessons,
-  getCoachSessions: (): { upcoming: CoachingSession[], past: CoachingSession[] } => ({ upcoming: dummyUpcomingCoachSessions, past: dummyPastCoachSessions }),
-  getTutorLessons: (): { upcoming: Lesson[], past: Lesson[] } => ({ upcoming: dummyUpcomingLessons, past: dummyPastLessons }),
-  getClientsForCoach: (): ClientEntry[] => dummyClients,
-  getStudentsForTutor: (): StudentEntry[] => dummyStudents,
-  getStudentDetails: (studentId: string): StudentDetails | null => allStudentDetails[studentId] || null,
+  getFeedbackEntries: (): FeedbackEntry[] => [],
+  getConversations: (): Conversation[] => [],
+  getPayableLessons: (): PayableLesson[] => [],
+  getChildrenForParent: (): ChildProfile[] => [],
+  getChildProgressData: (childId: string): ChildProgressData | null => null,
+  getScheduledLessons: (): ScheduledLesson[] => [],
+  getCoachSessions: (): { upcoming: CoachingSession[], past: CoachingSession[] } => ({ upcoming: [], past: [] }),
+  getTutorLessons: (): { upcoming: Lesson[], past: Lesson[] } => ({ upcoming: [], past: [] }),
+  getClientsForCoach: (): any[] => [],
+  getStudentsForTutor: (): StudentEntry[] => [],
+  getStudentDetails: (studentId: string): StudentDetails | null => null,
 };

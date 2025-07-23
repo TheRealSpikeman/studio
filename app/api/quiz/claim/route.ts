@@ -43,6 +43,9 @@ export async function POST(request: Request) {
     };
     
     // 4. Save to Firestore
+    if (!firestore) {
+      throw new Error('Firestore is not initialized.');
+    }
     const pendingReportsRef = firestore.collection('pending_reports');
     await pendingReportsRef.add(pendingReport);
     
