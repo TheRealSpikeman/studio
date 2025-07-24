@@ -1,22 +1,16 @@
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   typescript: { 
     ignoreBuildErrors: true 
   },
-  output: 'export',
-  distDir: '.next',
-  trailingSlash: true,
-  generateStaticParams: false,
-  experimental: {
-    appDir: true,
-    esmExternals: false
+  eslint: {
+    ignoreDuringBuilds: true
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = config.externals || [];
-      config.externals.push({
-        'next/document': 'commonjs next/document'
-      });
-    }
-    return config;
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
   }
 }
+
+module.exports = nextConfig
