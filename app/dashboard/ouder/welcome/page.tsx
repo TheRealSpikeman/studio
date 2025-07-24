@@ -16,7 +16,7 @@ function OuderWelcomePageContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   
-  const planParam = searchParams.get('plan');
+  const planParam = searchParams?.get('plan');
   const hasChosenPlan = !!planParam;
 
   const handleCompleteOnboarding = () => {
@@ -36,7 +36,7 @@ function OuderWelcomePageContent() {
 
   const handlePlanSelect = (planId: string) => {
     const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('plan', planId);
+    newUrl.searchParams?.set('plan', planId);
     window.history.pushState({ path: newUrl.href }, '', newUrl.href);
     router.replace(newUrl.href, { scroll: false });
   };

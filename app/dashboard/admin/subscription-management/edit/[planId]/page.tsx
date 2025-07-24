@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function EditSubscriptionPlanPage() {
   const params = useParams();
-  const planId = params.planId as string;
+  const planId = params?.planId as string;
   const [planData, setPlanData] = useState<SubscriptionPlan | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 

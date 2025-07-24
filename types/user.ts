@@ -71,3 +71,4 @@ export interface User {
   helpSubjects?: string[]; 
   hulpvraagType?: ('tutor' | 'coach')[]; 
 }
+export { UserStatus } from './status';

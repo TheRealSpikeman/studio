@@ -88,12 +88,12 @@ const BlogPostCard = ({ post, onPostUpdate }: { post: BlogPost; onPostUpdate: (u
           <span>{post.authorName}</span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1" title="Leestijd">
+          <div className="flex items-center gap-1">
               <BookOpenCheck className="h-4 w-4" />
               <span>{calculateReadingTime(post.content)}</span>
           </div>
           {post.linkedQuizId && (
-              <div className="flex items-center gap-1 text-primary font-semibold" title="Inclusief zelfreflectie tool">
+              <div className="flex items-center gap-1 text-primary font-semibold">
                   <Brain className="h-4 w-4" />
               </div>
           )}

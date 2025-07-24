@@ -1,0 +1,279 @@
+app/dashboard/admin/tool-management/edit/[toolId]/page.tsx(19,18): error TS18047: 'params' is possibly 'null'.
+app/dashboard/admin/tool-management/new/page.tsx(19,11): error TS2322: Type '{ title: string; description: string; id: string; category: string; icon: string; reasoning: { low: string; medium: string; high: string; }; usage: { when: string; benefit: string; }; status?: "online" | "offline" | undefined; }' is not assignable to type 'Tool'.
+app/dashboard/coaching/page.tsx(117,25): error TS2304: Cannot find name 'nl'.
+app/dashboard/leerling/quizzes/page.tsx(91,31): error TS18047: 'searchParams' is possibly 'null'.
+app/dashboard/ouder/abonnementen/page.tsx(102,87): error TS2554: Expected 1 arguments, but got 3.
+app/dashboard/ouder/abonnementen/page.tsx(102,99): error TS2339: Property 'currency' does not exist on type 'SubscriptionPlan'.
+app/dashboard/ouder/abonnementen/page.tsx(102,121): error TS2339: Property 'billingInterval' does not exist on type 'SubscriptionPlan'.
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(17,97): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(18,93): error TS2820: Type '"15-18"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"16-18"'?
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(19,95): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(25,18): error TS18047: 'params' is possibly 'null'.
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(41,50): error TS2339: Property 'id' does not exist on type 'never'.
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(44,36): error TS2339: Property 'name' does not exist on type 'never'.
+app/dashboard/ouder/kinderen/[kindId]/profiel/page.tsx(73,9): error TS2322: Type '"adult" | "12-14" | "15-18"' is not assignable to type 'AgeGroup | undefined'.
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(16,43): error TS2724: '"../../../../../ai/flows/compare-parent-child-insights-flow"' has no exported member named 'CompareParentChildInput'. Did you mean 'compareParentChildInsights'?
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(25,5): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(27,7): error TS2741: Property 'quizId' is missing in type '{ id: string; title: string; dateCompleted: string; score: string; reportData: { summary: string; answers: { question: string; answer: string; }[]; }; isShared: true; reportLink: string; }' but required in type 'QuizResult'.
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(43,7): error TS2741: Property 'quizId' is missing in type '{ id: string; title: string; dateCompleted: string; score: string; reportData: { summary: string; answers: { question: string; answer: string; }[]; }; isShared: true; }' but required in type 'QuizResult'.
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(75,5): error TS2820: Type '"15-18"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"16-18"'?
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(77,7): error TS2741: Property 'quizId' is missing in type '{ id: string; title: string; dateCompleted: string; score: string; reportData: { summary: string; answers: { question: string; answer: string; }[]; }; isShared: false; }' but required in type 'QuizResult'.
+app/dashboard/ouder/kinderen/[kindId]/voortgang/page.tsx(106,18): error TS18047: 'params' is possibly 'null'.
+app/dashboard/ouder/kinderen/page.tsx(44,5): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+app/dashboard/ouder/kinderen/page.tsx(64,5): error TS2820: Type '"15-18"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"16-18"'?
+app/dashboard/ouder/kinderen/page.tsx(83,5): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+app/dashboard/ouder/kinderen/page.tsx(153,7): error TS2322: Type '"adult" | "12-14" | "15-18"' is not assignable to type 'AgeGroup | undefined'.
+app/dashboard/ouder/lessen/aankomend/page.tsx(110,95): error TS2322: Type '{ className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+app/dashboard/ouder/lessen/overzicht/page.tsx(109,95): error TS2322: Type '{ className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+app/dashboard/ouder/quizzes/page.tsx(44,3): error TS2741: Property 'category' is missing in type '{ id: string; title: string; description: string; status: "Nog niet gestart"; audience: QuizAudience; imageUrl: string; dataAiHint: string; ageGroup: "12-14" | "15-18" | "all"; ... 6 more ...; isNeuroIntake: boolean; }' but required in type 'QuizCardProps'.
+app/dashboard/ouder/welcome/page.tsx(19,21): error TS18047: 'searchParams' is possibly 'null'.
+app/dashboard/ouder/zoek-professional/page.tsx(184,25): error TS18047: 'searchParams' is possibly 'null'.
+app/dashboard/profile/_actions.ts(34,21): error TS18047: 'db' is possibly 'null'.
+app/dashboard/profile/email_actions.ts(22,32): error TS2339: Property 'app' does not exist on type '{ firestore: () => Firestore | null; auth: () => Auth | null; storage: () => Storage | null; }'.
+app/dashboard/profile/email_actions.ts(27,21): error TS2531: Object is possibly 'null'.
+app/dashboard/profile/email_actions.ts(42,9): error TS18046: 'error' is of type 'unknown'.
+app/dashboard/profile/email_actions.ts(45,9): error TS18046: 'error' is of type 'unknown'.
+app/dashboard/profile/page.tsx(85,9): error TS2322: Type '{ street?: string | undefined; city?: string | undefined; zip?: string | undefined; country?: string | undefined; }' is not assignable to type '{ street: string; city: string; zip: string; country: string; }'.
+app/dashboard/profile/page.tsx(86,9): error TS2322: Type '{ street?: string | undefined; city?: string | undefined; zip?: string | undefined; country?: string | undefined; }' is not assignable to type '{ street: string; city: string; zip: string; country: string; }'.
+app/dashboard/profile/page.tsx(158,12): error TS2790: The operand of a 'delete' operator must be optional.
+app/dashboard/profile/page.tsx(176,159): error TS2322: Type '"success"' is not assignable to type '"destructive" | "default" | null | undefined'.
+app/dashboard/profile/page.tsx(178,50): error TS2322: Type '"success"' is not assignable to type '"destructive" | "default" | null | undefined'.
+app/dashboard/profile/page.tsx(198,107): error TS2322: Type '"success"' is not assignable to type '"destructive" | "default" | null | undefined'.
+app/dashboard/profile/password_actions.ts(14,3): error TS7006: Parameter 'newPassword' implicitly has an 'any' type.
+app/dashboard/profile/password_actions.ts(21,32): error TS2339: Property 'app' does not exist on type '{ firestore: () => Firestore | null; auth: () => Auth | null; storage: () => Storage | null; }'.
+app/dashboard/tools/[toolId]/page.tsx(44,18): error TS18047: 'params' is possibly 'null'.
+app/dashboard/tools/[toolId]/page.tsx(54,7): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'DynamicOptions<{}>'.
+app/dashboard/tools/page.tsx(7,10): error TS2305: Module '"@/lib/quiz-data/tools-data"' has no exported member 'allTools'.
+app/dashboard/tutor/students/[studentId]/page.tsx(51,21): error TS18047: 'params' is possibly 'null'.
+app/for-parents/quizzes/page.tsx(59,5): error TS2322: Type '"laag" | "gemiddeld" | "hoog"' is not assignable to type '"laag" | "gemiddeld" | "moeilijk" | undefined'.
+app/hooks/useCoachingData.ts(5,41): error TS2724: '"@/ai/flows/generate-coaching-insights"' has no exported member named 'GenerateCoachingInsightsOutput'. Did you mean 'generateCoachingInsights'?
+app/hooks/useNotifications.ts(102,43): error TS2367: This comparison appears to be unintentional because the types '"ouders" | "coaches" | "tutors" | "leerlingen" | "admins"' and 'UserRole' have no overlap.
+app/lib/data/blog-data.ts(7,3): error TS2741: Property 'targetAudience' is missing in type '{ id: string; slug: string; title: string; excerpt: string; content: string; authorId: string; authorName: string; personaId: string; featuredImageUrl: string; featuredImageHint: string; status: "published"; tags: string[]; createdAt: string; publishedAt: string; }' but required in type 'BlogPost'.
+app/lib/data/blog-data.ts(30,3): error TS2741: Property 'targetAudience' is missing in type '{ id: string; slug: string; title: string; excerpt: string; content: string; authorId: string; authorName: string; personaId: string; featuredImageUrl: string; featuredImageHint: string; status: "published"; ... 4 more ...; linkedQuizTitle: string; }' but required in type 'BlogPost'.
+app/lib/data/blog-data.ts(44,3): error TS2741: Property 'targetAudience' is missing in type '{ id: string; slug: string; title: string; excerpt: string; content: string; authorId: string; authorName: string; personaId: string; featuredImageUrl: string; featuredImageHint: string; status: "draft"; tags: string[]; createdAt: string; }' but required in type 'BlogPost'.
+app/lib/data/documentation-data.ts(4,15): error TS2305: Module '"@/types"' has no exported member 'DocumentationPage'.
+app/lib/data/subscription-data.ts(7,179): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(8,152): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(9,138): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(10,162): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(11,157): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(12,147): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+app/lib/data/subscription-data.ts(20,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+app/lib/data/subscription-data.ts(34,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+app/lib/data/subscription-data.ts(50,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+app/lib/data/subscription-data.ts(66,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+app/pricing/page.tsx(85,51): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+app/quiz/[quizId]/page.tsx(11,26): error TS2305: Module '"@/types/quiz-admin"' has no exported member 'GenerateQuizAnalysisInput'.
+app/quiz/[quizId]/page.tsx(11,53): error TS2305: Module '"@/types/quiz-admin"' has no exported member 'GenerateQuizAnalysisOutput'.
+app/quiz/[quizId]/page.tsx(11,81): error TS2305: Module '"@/types/quiz-admin"' has no exported member 'QuizFocus'.
+app/quiz/[quizId]/page.tsx(128,20): error TS18047: 'params' is possibly 'null'.
+app/report/view/[reportId]/page.tsx(14,20): error TS18047: 'params' is possibly 'null'.
+app/services/changelogService.ts(13,33): error TS18047: 'adminDb' is possibly 'null'.
+app/services/documentationService.ts(6,15): error TS2305: Module '"@/types/content-hub"' has no exported member 'DocumentationPage'.
+app/services/documentationService.ts(6,34): error TS2305: Module '"@/types/content-hub"' has no exported member 'ContentBlock'.
+app/services/documentationService.ts(57,32): error TS7006: Parameter 'block' implicitly has an 'any' type.
+app/services/featureService.ts(19,5): error TS2740: Type '{ maxChildren: number; maxQuizzes: number; advancedAnalytics: boolean; customReports: boolean; }' is missing the following properties from type '{ id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]': length, pop, push, concat, and 35 more.
+app/services/quizService.ts(28,7): error TS2741: Property 'allowedPlans' is missing in type '{ isPublic: true; }' but required in type '{ isPublic: boolean; allowedPlans: string[]; }'.
+app/services/quizService.ts(61,5): error TS2820: Type '"Ouder (over kind 12-18 jr)"' is not assignable to type 'QuizAudience'. Did you mean '"Ouder (over kind 12-14 jr)"'?
+app/services/quizService.ts(75,7): error TS2741: Property 'allowedPlans' is missing in type '{ isPublic: true; }' but required in type '{ isPublic: boolean; allowedPlans: string[]; }'.
+app/services/storageService.ts(19,236): error TS2305: Module '"@/types"' has no exported member 'AppFeature'.
+app/services/storageService.ts(19,271): error TS2305: Module '"@/types"' has no exported member 'DocumentationPage'.
+app/services/storageService.ts(181,39): error TS2740: Type '{}' is missing the following properties from type 'AppFeature[]': length, pop, push, concat, and 35 more.
+app/services/storageService.ts(309,27): error TS2304: Cannot find name 'ClientEntry'.
+app/services/subscriptionService.ts(74,7): error TS2353: Object literal may only specify known properties, and 'createdAt' does not exist in type 'SubscriptionPlan'.
+app/test-firebase/page.tsx(50,18): error TS18048: 'result.plans' is possibly 'undefined'.
+backup-old-mess/subscription-management/SubscriptionPlanForm.tsx(28,35): error TS2724: '"@/services/subscriptionService"' has no exported member named 'saveSubscriptionPlan'. Did you mean 'saveSubscriptionPlans'?
+backup-old-mess/subscription-management/SubscriptionPlanForm.tsx(137,38): error TS2345: Argument of type 'SubscriptionPlan' is not assignable to parameter of type 'Omit<SubscriptionPlan, "createdAt" | "updatedAt">'.
+backup-old-mess/subscription-management/SubscriptionTable.tsx(74,61): error TS2339: Property 'billingInterval' does not exist on type 'SubscriptionPlan'.
+backup-old-mess/subscription-management/SubscriptionTable.tsx(76,46): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+backup-old-mess/subscription-management/SubscriptionTable.tsx(76,99): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+backup-old-mess/subscription-management/SubscriptionTable.tsx(76,209): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+backup-old-mess/subscription-management/edit/[planId]/page.tsx(37,11): error TS2322: Type '{ initialData: SubscriptionPlan; isNew: false; allSubscriptionPlans: SubscriptionPlan[]; allAppFeatures: { id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]; }' is not assignable to type 'IntrinsicAttributes & SubscriptionPlanFormProps'.
+backup-old-mess/subscription-management/new/page.tsx(17,9): error TS2322: Type '{ isNew: true; allSubscriptionPlans: SubscriptionPlan[]; allAppFeatures: { id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]; }' is not assignable to type 'IntrinsicAttributes & SubscriptionPlanFormProps'.
+backup-old-mess/subscription-management/page.tsx(41,14): error TS2741: Property 'onDataChange' is missing in type '{ initialPlans: SubscriptionPlan[]; deletePlanAction: (id: string) => Promise<void>; }' but required in type 'SubscriptionTableProps'.
+components/admin/coach-management/CoachManagementTable.tsx(24,10): error TS2678: Type '"pending_onboarding"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/coach-management/CoachManagementTable.tsx(25,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/coach-management/CoachManagementTable.tsx(35,10): error TS2678: Type '"pending_onboarding"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/coach-management/CoachManagementTable.tsx(36,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/coach-management/CoachManagementTable.tsx(133,23): error TS2367: This comparison appears to be unintentional because the types '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"' and '"geblokkeerd"' have no overlap.
+components/admin/feature-management/FeatureTable.tsx(87,107): error TS2322: Type '{ className: string; title: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+components/admin/feature-management/page.tsx(13,8): error TS2305: Module '"@/types/subscription"' has no exported member 'AppFeature'.
+components/admin/feature-management/page.tsx(15,8): error TS2305: Module '"@/types/subscription"' has no exported member 'TargetAudience'.
+components/admin/feature-management/page.tsx(17,3): error TS2724: '"@/types/subscription"' has no exported member named 'saveSubscriptionPlans'. Did you mean 'getSubscriptionPlans'?
+components/admin/feature-management/page.tsx(18,3): error TS2305: Module '"@/types/subscription"' has no exported member 'getAllFeatures'.
+components/admin/feature-management/page.tsx(19,3): error TS2305: Module '"@/types/subscription"' has no exported member 'saveAllFeatures'.
+components/admin/feature-management/page.tsx(39,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(39,43): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(45,52): error TS7006: Parameter 'ta' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(68,48): error TS2339: Property 'id' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(68,80): error TS2339: Property 'featureAccess' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(68,102): error TS2339: Property 'featureAccess' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(88,49): error TS7006: Parameter 'f' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(91,32): error TS7006: Parameter 'f' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(98,61): error TS7006: Parameter 'a' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(98,64): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(109,49): error TS2339: Property 'featureAccess' does not exist on type 'SubscriptionPlan'.
+components/admin/feature-management/page.tsx(139,44): error TS2339: Property 'featureAccess' does not exist on type 'SubscriptionPlan'.
+components/admin/feature-management/page.tsx(149,52): error TS7006: Parameter 'f' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(151,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(151,41): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/admin/feature-management/page.tsx(217,55): error TS2339: Property 'active' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(218,41): error TS2339: Property 'id' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(218,57): error TS2339: Property 'id' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(218,67): error TS2339: Property 'name' does not exist on type 'never'.
+components/admin/feature-management/page.tsx(223,12): error TS2741: Property 'allSubscriptionPlans' is missing in type '{ features: AppFeature[]; onEditFeature: (feature: AppFeature) => void; onDeleteFeature: (featureId: string) => void; }' but required in type 'FeatureTableProps'.
+components/admin/feature-management/page.tsx(231,8): error TS2741: Property 'allSubscriptionPlans' is missing in type '{ isOpen: boolean; onOpenChange: Dispatch<SetStateAction<boolean>>; feature: any; onSave: (featureFormData: { id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; isRecommendedTool?: boolean | undefined; linkedPlans?: string[] | undefined; }) =...' but required in type 'FeatureFormDialogProps'.
+components/admin/ouder-management/OuderManagementTable.tsx(24,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/ouder-management/OuderManagementTable.tsx(33,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/quiz-creator/QuizCreatorWizard.tsx(62,17): error TS2322: Type '"Tiener (12-14 jr, voor zichzelf)" | "Tiener (15-18 jr, voor zichzelf)" | "Tiener (undefined jr, voor zichzelf)" | "Tiener (18+ jr, voor zichzelf)" | "Tiener (all jr, voor zichzelf)"' is not assignable to type 'QuizAudience'.
+components/admin/quiz-creator/QuizCreatorWizard.tsx(65,17): error TS2322: Type '"Ouder (over kind 12-14 jr)" | "Ouder (over kind 15-18 jr)" | "Ouder (over kind undefined jr)" | "Ouder (over kind 18+ jr)" | "Ouder (over kind all jr)"' is not assignable to type 'QuizAudience'.
+components/admin/quiz-creator/steps/Step4_Settings.tsx(40,61): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(24,15): error TS2305: Module '"@/app/ai/flows/generate-ai-quiz-flow-types"' has no exported member 'VerifyQuizQuestionsOutput'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(68,26): error TS2322: Type '"Tiener (12-14 jr, voor zichzelf)" | "Tiener (15-18 jr, voor zichzelf)" | "Tiener (undefined jr, voor zichzelf)" | "Tiener (18+ jr, voor zichzelf)" | "Tiener (all jr, voor zichzelf)"' is not assignable to type 'QuizAudience'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(69,28): error TS2322: Type '"Ouder (over kind 12-14 jr)" | "Ouder (over kind 15-18 jr)" | "Ouder (over kind undefined jr)" | "Ouder (over kind 18+ jr)" | "Ouder (over kind all jr)"' is not assignable to type 'QuizAudience'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(99,63): error TS2339: Property 'getPostById' does not exist on type '{ getUsers: () => Promise<User[]>; getTutors: () => Promise<User[]>; updateUser: (updatedUser: User) => Promise<void>; addUser: (newUser: User) => Promise<...>; ... 31 more ...; getStudentDetails: (studentId: string) => StudentDetails | null; }'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(107,42): error TS2339: Property 'updatePost' does not exist on type '{ getUsers: () => Promise<User[]>; getTutors: () => Promise<User[]>; updateUser: (updatedUser: User) => Promise<void>; addUser: (newUser: User) => Promise<...>; ... 31 more ...; getStudentDetails: (studentId: string) => StudentDetails | null; }'.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(342,86): error TS7006: Parameter 's' implicitly has an 'any' type.
+components/admin/quiz-creator/steps/Step5_Preview.tsx(342,89): error TS7006: Parameter 'i' implicitly has an 'any' type.
+components/admin/quiz-creator/steps/adaptive/Step3_AdaptiveContent.tsx(433,26): error TS2304: Cannot find name 'DialogFooter'.
+components/admin/quiz-creator/steps/adaptive/Step3_AdaptiveContent.tsx(436,27): error TS2304: Cannot find name 'DialogFooter'.
+components/admin/quiz-management/QuizEditForm.tsx(113,92): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+components/admin/quiz-management/QuizEditForm.tsx(138,17): error TS2322: Type '"visual_report" | "text_summary" | "score_only" | "visual_report_with_cta"' is not assignable to type '"visual_report" | "text_summary" | "score_only" | undefined'.
+components/admin/quiz-management/QuizEditForm.tsx(152,11): error TS2322: Type '{ audience: QuizAdmin["audience"]; category: QuizAdmin["category"]; lastUpdatedAt: string; settings: { accessibility: { isPublic: boolean; allowedPlans: string[]; }; resultPresentation: { ...; }; ... 8 more ...; estimatedDuration?: string; }; ... 12 more ...; createdAt: string; }' is not assignable to type 'QuizAdmin'.
+components/admin/subscription-management/SubscriptionPlanForm.tsx(87,7): error TS2353: Object literal may only specify known properties, and 'billingInterval' does not exist in type 'Omit<SubscriptionPlan, "id" | "createdAt" | "updatedAt"> & { id?: string | undefined; }'.
+components/admin/subscription-management/SubscriptionTable.tsx(73,46): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+components/admin/subscription-management/SubscriptionTable.tsx(73,99): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+components/admin/subscription-management/SubscriptionTable.tsx(73,209): error TS2339: Property 'active' does not exist on type 'SubscriptionPlan'.
+components/admin/tool-creator/ToolPreviewer.tsx(34,7): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'DynamicOptions<{}>'.
+components/admin/tool-management/ToolTable.tsx(58,19): error TS2322: Type '{ "aria-label": string; title: string; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>'.
+components/admin/tool-management/ToolTable.tsx(91,22): error TS2304: Cannot find name 'DropdownMenuSeparator'.
+components/admin/tool-management/edit/[toolId]/page.tsx(20,18): error TS18047: 'params' is possibly 'null'.
+components/admin/tutor-management/TutorManagementTable.tsx(25,10): error TS2678: Type '"pending_onboarding"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/tutor-management/TutorManagementTable.tsx(26,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/tutor-management/TutorManagementTable.tsx(36,10): error TS2678: Type '"pending_onboarding"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/tutor-management/TutorManagementTable.tsx(37,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/tutor-management/TutorManagementTable.tsx(143,23): error TS2367: This comparison appears to be unintentional because the types '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"' and '"geblokkeerd"' have no overlap.
+components/admin/user-management/UserEditDialog.tsx(98,47): error TS2322: Type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"' is not assignable to type '"actief" | "pending_approval" | "niet geverifieerd" | "rejected" | "wacht_op_ouder_goedkeuring" | "geblokkeerd" | "pending_onboarding" | undefined'.
+components/admin/user-management/UserEditDialog.tsx(134,43): error TS2322: Type '"actief" | "pending_approval" | "niet geverifieerd" | "rejected" | "wacht_op_ouder_goedkeuring" | "geblokkeerd" | "pending_onboarding"' is not assignable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserEditForm.tsx(36,34): error TS2322: Type '"geblokkeerd"' is not assignable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserEditForm.tsx(36,49): error TS2322: Type '"pending_onboarding"' is not assignable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserEditForm.tsx(36,103): error TS2322: Type '"wacht_op_ouder_goedkeuring"' is not assignable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserEditForm.tsx(40,65): error TS2353: Object literal may only specify known properties, and ''geblokkeerd'' does not exist in type 'Record<"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected", string>'.
+components/admin/user-management/UserEditForm.tsx(85,108): error TS2322: Type '"success"' is not assignable to type '"destructive" | "default" | null | undefined'.
+components/admin/user-management/UserManagementTable.tsx(40,10): error TS2678: Type '"pending_onboarding"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserManagementTable.tsx(42,10): error TS2678: Type '"wacht_op_ouder_goedkeuring"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/admin/user-management/UserManagementTable.tsx(43,10): error TS2678: Type '"geblokkeerd"' is not comparable to type '"actief" | "pending_approval" | "niet geverifieerd" | "gedeactiveerd" | "rejected"'.
+components/auth/signup-form.tsx(27,15): error TS2724: '"@/types/user"' has no exported member named 'UserRoleType'. Did you mean 'UserRole'?
+components/auth/signup-form.tsx(67,11): error TS2339: Property 'signup' does not exist on type 'AuthContextType'.
+components/auth/signup-form.tsx(72,16): error TS18047: 'searchParams' is possibly 'null'.
+components/common/MediaLibraryDialog.tsx(99,28): error TS2769: No overload matches this call.
+components/dashboard/coaching/JournalSection.tsx(24,41): error TS2339: Property 'getJournalEntry' does not exist on type '{ getUsers: () => Promise<User[]>; getTutors: () => Promise<User[]>; updateUser: (updatedUser: User) => Promise<void>; addUser: (newUser: User) => Promise<...>; ... 31 more ...; getStudentDetails: (studentId: string) => StudentDetails | null; }'.
+components/dashboard/coaching/JournalSection.tsx(31,22): error TS2339: Property 'setJournalEntry' does not exist on type '{ getUsers: () => Promise<User[]>; getTutors: () => Promise<User[]>; updateUser: (updatedUser: User) => Promise<void>; addUser: (newUser: User) => Promise<...>; ... 31 more ...; getStudentDetails: (studentId: string) => StudentDetails | null; }'.
+components/dashboard/coaching/MediaAndProgressSection.tsx(16,69): error TS2339: Property 'getVideoSeedForDate' does not exist on type '{ START_DATE: Date; JOURNEY_STEPS: { WELCOME_SEEN: string; QUIZ_COMPLETED: string; FIRST_COACHING_VIEWED: string; SEVEN_DAY_STREAK: string; }; generateStaticDailyTasks: (date: Date) => DailyTask[]; }'.
+components/dashboard/coaching/TasksSection.tsx(65,83): error TS2322: Type 'string' is not assignable to type 'Pick<Locale, "options" | "localize" | "formatLong">'.
+components/dashboard/profile/page.tsx(117,36): error TS2339: Property 'age' does not exist on type 'User'.
+components/dashboard/profile/page.tsx(118,23): error TS2345: Argument of type 'AgeGroup | undefined' is not assignable to parameter of type 'SetStateAction<"adult" | "12-14" | "15-18" | undefined>'.
+components/dashboard/results/AnonymousResultView.tsx(13,30): error TS2307: Cannot find module '@/components/quiz/quiz-steps/ResultsChart' or its corresponding type declarations.
+components/dashboard/results/LoggedInResultsView.tsx(39,23): error TS18047: 'searchParams' is possibly 'null'.
+components/dashboard/results/RecommendedToolsSection.tsx(7,10): error TS2305: Module '"@/lib/quiz-data/tools-data"' has no exported member 'allTools'.
+components/dynamic-page-client.tsx(4,58): error TS2307: Cannot find module 'next-mdx-remote' or its corresponding type declarations.
+components/layout/MaintenanceModeHandler.tsx(30,46): error TS18047: 'pathname' is possibly 'null'.
+components/layout/dashboard-layout.tsx(15,28): error TS2339: Property 'isLoggingOut' does not exist on type 'AuthContextType'.
+components/layout/dashboard-sidebar.tsx(71,36): error TS18047: 'pathname' is possibly 'null'.
+components/layout/dashboard-sidebar.tsx(116,75): error TS18047: 'pathname' is possibly 'null'.
+components/ouder/profiel/KindProfielEditForm.tsx(29,6): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+components/ouder/profiel/KindProfielEditForm.tsx(30,6): error TS2820: Type '"15-18"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"16-18"'?
+components/ouder/profiel/KindProfielEditForm.tsx(31,6): error TS2322: Type '"adult"' is not assignable to type 'AgeGroup | undefined'.
+components/ouder/profiel/KindProfielEditForm.tsx(70,67): error TS1361: 'editableChildFormSchema' cannot be used as a value because it was imported using 'import type'.
+components/ouder/profiel/KindProfielEditForm.tsx(86,73): error TS2322: Type '"12-14" | AgeGroup' is not assignable to type '"adult" | "12-14" | "15-18" | undefined'.
+components/ouder/profiel/KindProfielEditForm.tsx(121,470): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+components/ouder/welcome/OnboardingSteps.tsx(45,7): error TS2322: Type 'false' is not assignable to type 'true'.
+components/ouder/welcome/OnboardingSteps.tsx(46,7): error TS2322: Type 'false' is not assignable to type 'true'.
+components/ouder/welcome/OnboardingSteps.tsx(47,7): error TS2322: Type 'false' is not assignable to type 'true'.
+components/ouder/welcome/OnboardingSteps.tsx(48,7): error TS2322: Type 'false' is not assignable to type 'true'.
+components/ouder/welcome/OnboardingSteps.tsx(49,7): error TS2322: Type 'false' is not assignable to type 'true'.
+components/ouder/welcome/OnboardingSteps.tsx(84,41): error TS2345: Argument of type '(data: z.infer<typeof termsFormSchema>) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+components/ouder/welcome/OnboardingSteps.tsx(95,22): error TS2322: Type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, TFieldValues>' is not assignable to type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, { medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }>'.
+components/ouder/welcome/OnboardingSteps.tsx(96,22): error TS2322: Type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, TFieldValues>' is not assignable to type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, { medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }>'.
+components/ouder/welcome/OnboardingSteps.tsx(97,22): error TS2322: Type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, TFieldValues>' is not assignable to type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, { medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }>'.
+components/ouder/welcome/OnboardingSteps.tsx(98,22): error TS2322: Type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, TFieldValues>' is not assignable to type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, { medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }>'.
+components/ouder/welcome/OnboardingSteps.tsx(99,22): error TS2322: Type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, TFieldValues>' is not assignable to type 'Control<{ medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }, any, { medicalDisclaimer: true; generalTerms: true; privacyTerms: true; ageConsent: true; coachingLimits: true; }>'.
+components/ouder/welcome/OnboardingSteps.tsx(144,27): error TS2339: Property 'onboardingAgreements' does not exist on type 'User'.
+components/ouder/welcome/OnboardingSteps.tsx(196,51): error TS2339: Property 'onboardingAgreements' does not exist on type 'User'.
+components/ouder/welcome/PlanSelection.tsx(53,30): error TS2304: Cannot find name 'CardFooter'.
+components/ouder/welcome/PlanSelection.tsx(57,31): error TS2304: Cannot find name 'CardFooter'.
+components/ui/chart.tsx(119,7): error TS2339: Property 'payload' does not exist on type 'Omit<Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; includeHidden?: boolean | undefined; ... 17 more ...; axisId?: AxisId | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }, "ref">'.
+components/ui/chart.tsx(124,7): error TS2339: Property 'label' does not exist on type 'Omit<Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; includeHidden?: boolean | undefined; ... 17 more ...; axisId?: AxisId | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }, "ref">'.
+components/ui/chart.tsx(188,25): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(188,31): error TS7006: Parameter 'index' implicitly has an 'any' type.
+components/ui/chart.tsx(264,41): error TS2344: Type '"payload" | "verticalAlign"' does not satisfy the constraint '"string" | "media" | "spacing" | "order" | "height" | "width" | "transformOrigin" | "rotate" | "scale" | "cursor" | "fill" | "stroke" | "strokeWidth" | "fontFamily" | "fontSize" | ... 428 more ... | "onBBoxUpdate"'.
+components/ui/chart.tsx(275,19): error TS2339: Property 'length' does not exist on type '{}'.
+components/ui/chart.tsx(288,18): error TS2339: Property 'map' does not exist on type '{}'.
+components/ui/chart.tsx(288,23): error TS7006: Parameter 'item' implicitly has an 'any' type.
+contexts/AuthContext.tsx(63,11): error TS2353: Object literal may only specify known properties, and 'displayName' does not exist in type 'User'.
+contexts/AuthContext.tsx(76,21): error TS2345: Argument of type 'Auth | null' is not assignable to parameter of type 'Auth'.
+contexts/AuthContext.tsx(102,21): error TS2345: Argument of type 'Auth | null' is not assignable to parameter of type 'Auth'.
+hooks/useCoachingData.ts(5,41): error TS2724: '"@/app/ai/flows/generate-coaching-insights"' has no exported member named 'GenerateCoachingInsightsOutput'. Did you mean 'generateCoachingInsights'?
+hooks/useNotifications.ts(102,43): error TS2367: This comparison appears to be unintentional because the types '"ouders" | "coaches" | "tutors" | "leerlingen" | "admins"' and 'UserRole' have no overlap.
+lib/ai/changelog-generator.ts(2,10): error TS2305: Module '"genkit"' has no exported member 'generate'.
+lib/data/blog-data.ts(7,3): error TS2741: Property 'targetAudience' is missing in type '{ id: string; slug: string; title: string; excerpt: string; content: string; authorId: string; authorName: string; personaId: string; featuredImageUrl: string; featuredImageHint: string; status: "published"; tags: string[]; createdAt: string; publishedAt: string; }' but required in type 'BlogPost'.
+lib/data/blog-data.ts(30,3): error TS2741: Property 'targetAudience' is missing in type '{ id: string; slug: string; title: string; excerpt: string; content: string; authorId: string; authorName: string; personaId: string; featuredImageUrl: string; featuredImageHint: string; status: "published"; ... 4 more ...; linkedQuizTitle: string; }' but required in type 'BlogPost'.
+lib/data/blog-data.ts(55,5): error TS2322: Type 'null' is not assignable to type 'string | undefined'.
+lib/data/documentation-data.ts(2,15): error TS2305: Module '"@/types"' has no exported member 'DocumentationPage'.
+lib/firebase-helpers.ts(4,10): error TS2614: Module '"./firebase-admin"' has no exported member 'getFirebaseServices'. Did you mean to use 'import getFirebaseServices from "./firebase-admin"' instead?
+lib/firebase-verification.ts(27,11): error TS18047: 'adminDb' is possibly 'null'.
+lib/firebase-verification.ts(35,11): error TS18047: 'adminAuth' is possibly 'null'.
+lib/firebase-verification.ts(43,11): error TS18047: 'adminStorage' is possibly 'null'.
+lib/utils.ts(28,14): error TS2339: Property 'billingInterval' does not exist on type 'SubscriptionPlan'.
+lib/utils.ts(31,54): error TS2339: Property 'currency' does not exist on type 'SubscriptionPlan'.
+lib/utils.ts(33,41): error TS2339: Property 'currency' does not exist on type 'SubscriptionPlan'.
+lib/utils.ts(33,56): error TS2339: Property 'billingInterval' does not exist on type 'SubscriptionPlan'.
+scripts/direct-firebase-test.ts(73,50): error TS18046: 'firestoreError' is of type 'unknown'.
+scripts/direct-firebase-test.ts(93,53): error TS18046: 'error' is of type 'unknown'.
+scripts/direct-firebase-test.ts(94,9): error TS18046: 'error' is of type 'unknown'.
+scripts/direct-firebase-test.ts(95,39): error TS18046: 'error' is of type 'unknown'.
+scripts/direct-firebase-test.ts(97,9): error TS18046: 'error' is of type 'unknown'.
+scripts/direct-firebase-test.ts(98,40): error TS18046: 'error' is of type 'unknown'.
+services/blogService.ts(43,28): error TS2769: No overload matches this call.
+services/contentHubService.ts(20,37): error TS2305: Module '"@/types/content-hub"' has no exported member 'Category'.
+services/contentHubService.ts(26,38): error TS2769: No overload matches this call.
+services/contentHubService.ts(27,34): error TS2769: No overload matches this call.
+services/contentHubService.ts(28,41): error TS2769: No overload matches this call.
+services/contentHubService.ts(29,46): error TS2769: No overload matches this call.
+services/featureService.ts(12,5): error TS2740: Type '{ maxChildren: number; maxQuizzes: number; advancedAnalytics: boolean; customReports: boolean; }' is missing the following properties from type '{ id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]': length, pop, push, concat, and 35 more.
+services/featureService.ts(16,38): error TS2740: Type '{ maxChildren: number; maxQuizzes: number; advancedAnalytics: boolean; customReports: boolean; }' is missing the following properties from type '{ id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]': length, pop, push, concat, and 35 more.
+services/featureService.ts(19,5): error TS2740: Type '{ maxChildren: number; maxQuizzes: number; advancedAnalytics: boolean; customReports: boolean; }' is missing the following properties from type '{ id: string; label: string; targetAudience: TargetAudience[]; description?: string | undefined; category?: string | undefined; adminOnly?: boolean | undefined; isRecommendedTool?: boolean | undefined; }[]': length, pop, push, concat, and 35 more.
+services/progressService.ts(48,5): error TS2820: Type '"12-14"' is not assignable to type 'AgeGroup | undefined'. Did you mean '"12-15"'?
+services/quizService.ts(28,7): error TS2741: Property 'allowedPlans' is missing in type '{ isPublic: true; }' but required in type '{ isPublic: boolean; allowedPlans: string[]; }'.
+services/quizService.ts(61,5): error TS2820: Type '"Ouder (over kind 12-18 jr)"' is not assignable to type 'QuizAudience'. Did you mean '"Ouder (over kind 12-14 jr)"'?
+services/quizService.ts(75,7): error TS2741: Property 'allowedPlans' is missing in type '{ isPublic: true; }' but required in type '{ isPublic: boolean; allowedPlans: string[]; }'.
+services/storageService.ts(18,236): error TS2305: Module '"@/types"' has no exported member 'AppFeature'.
+services/storageService.ts(125,31): error TS2339: Property 'coaching' does not exist on type '{ id: string; createdAt: any; lastLogin: any; }'.
+services/storageService.ts(125,57): error TS2339: Property 'coaching' does not exist on type '{ id: string; createdAt: any; lastLogin: any; }'.
+services/storageService.ts(126,31): error TS2339: Property 'coaching' does not exist on type '{ id: string; createdAt: any; lastLogin: any; }'.
+services/storageService.ts(126,66): error TS2339: Property 'coaching' does not exist on type '{ id: string; createdAt: any; lastLogin: any; }'.
+services/storageService.ts(168,39): error TS2740: Type '{}' is missing the following properties from type 'AppFeature[]': length, pop, push, concat, and 35 more.
+services/userService.ts(8,37): error TS2503: Cannot find namespace 'admin'.
+services/userService.ts(25,29): error TS18047: 'db' is possibly 'null'.
+services/userService.ts(46,21): error TS18047: 'db' is possibly 'null'.
+src/components/pricing/FeatureList.tsx(20,34): error TS2322: Type '{ className: string; }' is not assignable to type 'IntrinsicAttributes'.
+src/components/pricing/FeatureList.tsx(21,29): error TS2339: Property 'title' does not exist on type '{ id: string; name: string; description: string; category: string; icon: string; }'.
+src/components/pricing/FeatureList.tsx(24,29): error TS2339: Property 'features' does not exist on type '{ id: string; name: string; description: string; category: string; icon: string; }'.
+src/components/pricing/FeatureList.tsx(24,43): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/components/pricing/FeatureList.tsx(24,52): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/pricing/ToolShowcase.tsx(39,35): error TS2339: Property 'features' does not exist on type '{ id: string; name: string; description: string; category: string; icon: string; }'.
+src/components/pricing/ToolShowcase.tsx(39,49): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/components/pricing/ToolShowcase.tsx(39,58): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/lib/data/subscription-data.ts(7,179): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(8,152): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(9,138): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(10,162): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(11,157): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(12,147): error TS2353: Object literal may only specify known properties, and 'targetAudience' does not exist in type 'PlatformTool'.
+src/lib/data/subscription-data.ts(20,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+src/lib/data/subscription-data.ts(34,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+src/lib/data/subscription-data.ts(50,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+src/lib/data/subscription-data.ts(66,5): error TS2353: Object literal may only specify known properties, and 'shortName' does not exist in type 'SubscriptionPlan'.
+types/index.ts(13,1): error TS2308: Module './content-hub' has already exported a member named 'UserRole'. Consider explicitly re-exporting to resolve the ambiguity.
+types/index.ts(22,15): error TS2304: Cannot find name 'QuizResult'.
+types/user.ts(74,10): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.

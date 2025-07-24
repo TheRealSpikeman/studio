@@ -181,7 +181,7 @@ function ZoekProfessionalContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   
-  const initialKindId = searchParams.get('kindId');
+  const initialKindId = searchParams?.get('kindId');
   const [selectedChildId, setSelectedChildId] = useState<string | undefined>(initialKindId || undefined);
   const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
   const [selectedProfessionalForModal, setSelectedProfessionalForModal] = useState<Professional | null>(null);
@@ -190,7 +190,6 @@ function ZoekProfessionalContent() {
   const [vakFilter, setVakFilter] = useState<string>('all');
   const [ervaringFilter, setErvaringFilter] = useState<string>('all');
   
-  const activeChildren = dummyChildren.filter(c => c.active);
   const selectedChildDetails = selectedChildId ? dummyChildren.find(c => c.id === selectedChildId) : null;
 
   useEffect(() => {

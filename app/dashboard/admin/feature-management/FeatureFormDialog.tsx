@@ -29,8 +29,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import { type AppFeature, type TargetAudience } from '@/types/subscription';
-import { type SubscriptionPlan, getSubscriptionPlans } from '@/services/subscriptionService';
+import { type AppFeature, type TargetAudience, type SubscriptionPlan } from '@/app/types/subscription';
+import { getSubscriptionPlans } from '@/services/subscriptionService';
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },

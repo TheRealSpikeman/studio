@@ -125,7 +125,7 @@ export default function StudentManagementPage() {
                 <SelectItem value="all">Alle Statussen</SelectItem>
                 <SelectItem value="actief">Actief</SelectItem>
                 <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
-                <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
+                <SelectItem value="gedeactiveerd">Geblokkeerd</SelectItem>
               </SelectContent>
             </Select>
             <Select value={ageGroupFilter} onValueChange={(value) => {setAgeGroupFilter(value as 'all' | AgeGroup); setCurrentPage(1);}}>
@@ -146,9 +146,6 @@ export default function StudentManagementPage() {
           ) : (
             <UserManagementTable
               users={paginatedStudents}
-              onEditUser={handleViewStudentDetails} 
-              onDeleteUser={handleDeleteStudent}
-              showAgeGroupColumn={true} // Tell the table to show this column
             />
           )}
 

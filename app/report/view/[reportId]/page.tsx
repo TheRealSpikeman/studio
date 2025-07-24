@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 
 export default function ReportViewPage() {
   const params = useParams();
-  const reportId = params.reportId as string;
+  const reportId = params?.reportId as string;
   const [reportData, setReportData] = useState<any>(null); // Replace any with your report data type
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

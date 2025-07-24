@@ -82,7 +82,7 @@ export function UserEditForm({ user: initialUser }: UserEditFormProps) {
     startTransition(async () => {
       const result = await updateUserAction(user.id, user);
       if (result.success) {
-        toast({ title: "Succesvol Opgeslagen", description: `Gegevens voor ${user.name} zijn bijgewerkt.`, variant: "success" });
+        toast({ title: "Succesvol Opgeslagen", description: `Gegevens voor ${user.name} zijn bijgewerkt.`, variant: "default" });
       } else {
         toast({ title: "Opslaan Mislukt", description: result.error, variant: "destructive" });
       }

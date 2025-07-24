@@ -103,7 +103,7 @@ const dummyProgressData: Record<string, ChildProgressData> = {
 export default function KindVoortgangPage() {
   const params = useParams();
   const router = useRouter();
-  const kindId = params.kindId as string;
+  const kindId = params?.kindId as string;
   const { toast } = useToast();
   const [childData, setChildData] = useState<ChildProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

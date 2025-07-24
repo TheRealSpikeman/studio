@@ -91,7 +91,7 @@ export default function AiDocsPage() {
        toast({
             title: "Generation Complete",
             description: "Documentation has been generated. Please review.",
-            variant: "success",
+            variant: "default",
         });
 
     } catch (error: any) {
@@ -111,7 +111,7 @@ export default function AiDocsPage() {
           toast({
               title: "No Content to Save",
               description: "Generate documentation before attempting to save.",
-              variant: "warning",
+              variant: "destructive",
           });
           return;
       }
@@ -138,7 +138,7 @@ export default function AiDocsPage() {
               toast({
                   title: "Documentation Saved",
                   description: `Content saved as "${pageTitle}".`,
-                  variant: "success",
+                  variant: "default",
               });
               setGeneratedContent(null); // Clear preview after saving (optional)
                // TODO: Redirect to the edit page of the newly saved documentation?

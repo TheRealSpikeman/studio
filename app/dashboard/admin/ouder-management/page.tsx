@@ -122,7 +122,7 @@ export default function OuderManagementPage() {
                 <SelectItem value="all">Alle Statussen</SelectItem>
                 <SelectItem value="actief">Actief</SelectItem>
                 <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
-                <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
+                <SelectItem value="gedeactiveerd">Geblokkeerd</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -74,22 +74,22 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
             <Accordion type="single" collapsible className="w-full">
                 
                 {/* --- Part 1 Content --- */}
-                <Section title="1. Wie wij zijn en wat deze voorwaarden betekenen" icon={Building} value="item-1">
-                    <SubSection title="1.1 Over MindNavigator">
+                <Section icon={Building} value="item-1">
+                    <SubSection>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem icon={Anchor}><strong>Bedrijf:</strong> MindNavigator B.V., gevestigd in Nederland (KvK: [nummer])</ListItem>
                             <ListItem icon={Star}><strong>Wat we doen:</strong> Een online platform voor persoonlijke ontwikkeling van neurodivergente jongeren.</ListItem>
                             <ListItem icon={CircleSlash}><strong>Wat we NIET doen:</strong> Medische diagnoses, therapie of behandelingen.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="1.2 Deze voorwaarden zijn belangrijk">
+                    <SubSection>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Door ons platform te gebruiken, gaat u akkoord met deze regels.</ListItem>
                             <ListItem>Bent u het er niet mee eens? Dan kunt u ons platform niet gebruiken.</ListItem>
                             <ListItem>We gebruiken soms juridische termen, maar proberen alles zo duidelijk mogelijk uit te leggen.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="1.3 Belangrijke begrippen">
+                    <SubSection>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Platform:</strong> Onze website, app en alle diensten.</ListItem>
                             <ListItem><strong>Deelnemer:</strong> Jongere (12-18 jaar) die onze tools gebruikt.</ListItem>
@@ -99,8 +99,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="2. Leeftijd en toestemming - Dit is belangrijk!" icon={Users2} value="item-2">
-                    <SubSection title="2.1 Voor jongeren van 12-15 jaar">
+                <Section icon={Users2} value="item-2">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">👨‍👩‍👧‍👦 Je ouders moeten meedoen</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Je ouders moeten toestemming geven voor je account.</ListItem>
@@ -109,7 +109,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem>Voor coaching sessies moet een ouder toestemming geven.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="2.2 Voor jongeren van 16-17 jaar">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🔓 Meer vrijheid, maar ouders zijn nog betrokken</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Je kunt zelf een account aanmaken.</ListItem>
@@ -118,7 +118,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem>Je kunt zelf coaching sessies boeken (als je ouders betalen).</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="2.3 Voor volwassenen (18+ jaar)">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">✅ Volledige zelfstandigheid</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Je bent volledig verantwoordelijk voor je eigen account.</ListItem>
@@ -128,8 +128,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="3. Account en platformgebruik" icon={BookUser} value="item-3">
-                     <SubSection title="3.1 Account aanmaken">
+                <Section icon={BookUser} value="item-3">
+                     <SubSection>
                          <h4 className="font-semibold text-lg mb-2">📝 Geef juiste informatie</h4>
                         <ul className="list-none space-y-2 pl-0">
                            <ListItem>Vul altijd echte, correcte informatie in.</ListItem>
@@ -137,7 +137,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                            <ListItem>Houd je wachtwoord geheim en veilig.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="3.2 Wat mag je NIET doen?">
+                    <SubSection>
                          <h4 className="font-semibold text-lg mb-2">🚫 Verboden acties</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Misbruik maken:</strong> Het platform gebruiken voor dingen waar het niet voor is.</ListItem>
@@ -147,8 +147,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="4. Onze Marktplaats - Coaching en Begeleiding" icon={Handshake} value="item-4">
-                     <SubSection title="4.1 Hoe werkt het?">
+                <Section icon={Handshake} value="item-4">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🤝 Wij brengen jou in contact met begeleiders</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Wij zijn de verbinding tussen jou en coaches/tutors.</ListItem>
@@ -156,7 +156,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem>Wij zorgen voor veilige betalingen en communicatie.</ListItem>
                         </ul>
                     </SubSection>
-                     <SubSection title="4.2 Onze begeleiders">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">✅ Zorgvuldig geselecteerd</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Screening:</strong> Alle begeleiders hebben relevante diploma's.</ListItem>
@@ -166,8 +166,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="5. Abonnementen en betalingen" icon={CreditCard} value="item-5">
-                    <SubSection title="5.1 Betaalde abonnementen">
+                <Section icon={CreditCard} value="item-5">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">💰 Duidelijke prijzen, geen verrassingen</h4>
                         <p>De actuele prijzen en plannen staan op onze <Link href="/pricing" className="text-primary hover:underline">prijzenpagina</Link>.</p>
                          <ul className="list-none space-y-2 pl-0 mt-2">
@@ -175,14 +175,14 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem><strong>Prijswijzigingen:</strong> 30 dagen vooraf aangekondigd.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="5.2 Opzeggen kan altijd">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🚪 Vrijheid om te stoppen</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Tot 24 uur voor verlenging</strong> kun je opzeggen via je account.</ListItem>
                             <ListItem><strong>Geen restitutie</strong> van al betaalde bedragen (tenzij wettelijk verplicht).</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="5.3 Herroepingsrecht">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🔄 14 dagen bedenktijd</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Nieuwe abonnementen:</strong> 14 dagen om je te bedenken en je geld terug te krijgen.</ListItem>
@@ -191,8 +191,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="6. Medische disclaimer - DIT IS BELANGRIJK!" icon={AlertTriangle} value="item-6">
-                    <SubSection title="6.1 Wat MindNavigator NIET is">
+                <Section icon={AlertTriangle} value="item-6">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">⚠️ Wij zijn GEEN medische instelling</h4>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Geen diagnoses:</strong> Wij stellen geen ADHD, autisme of andere diagnoses.</ListItem>
@@ -200,7 +200,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem><strong>Geen vervanging:</strong> Wij vervangen geen professionele hulp.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="6.2 Wanneer heb je professionele hulp nodig?">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🏥 Ga naar een professional bij:</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Ernstige problemen, angsten, depressie, of als je je grote zorgen maakt.</ListItem>
@@ -210,8 +210,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                 </Section>
 
                 {/* --- Part 2 Content --- */}
-                <Section title="7. Privacy en veiligheid van je gegevens" icon={ShieldCheck} value="item-7">
-                    <SubSection title="7.1 Jouw privacy is belangrijk">
+                <Section icon={ShieldCheck} value="item-7">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🔒 Wij beschermen je gegevens goed</h4>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem>We voldoen aan de AVG-wetgeving.</ListItem>
@@ -220,7 +220,7 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                             <ListItem>Lees ons volledige <Link href="/privacy" className="text-primary hover:underline">Privacybeleid</Link> voor alle details.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="7.2 Jouw rechten">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🔧 Jij hebt controle over je gegevens</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Inzien, Corrigeren, Verwijderen:</strong> Je kunt via je account of via <a href="mailto:privacy@mindnavigator.nl" className="text-primary hover:underline">privacy@mindnavigator.nl</a> je gegevens beheren.</ListItem>
@@ -228,22 +228,22 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="8. Veiligheid en meldcode" icon={Shield} value="item-8">
-                     <SubSection title="8.1 Onze veiligheidstaak">
+                <Section icon={Shield} value="item-8">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🛡️ Wij zorgen voor een veilige omgeving</h4>
                         <p>Bij signalen van onveilige situaties (zoals huiselijk geweld, kindermishandeling, of zelfmoordgedachten) zijn wij wettelijk verplicht de meldcode te volgen en professionele hulp zoals Veilig Thuis (0800-2000) in te schakelen.</p>
                         <p className="mt-2"><strong>Veiligheid gaat boven privacy in acute situaties.</strong></p>
                     </SubSection>
                 </Section>
 
-                <Section title="9. Intellectueel eigendom" icon={Copyright} value="item-9">
-                     <SubSection title="9.1 Wat is van MindNavigator">
+                <Section icon={Copyright} value="item-9">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">© Ons platform en content</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Alle tools, tests, en educatieve content zijn van ons en mag je niet kopiëren of commercieel gebruiken.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="9.2 Jouw eigen content">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">✍️ Wat jij deelt is van jou</h4>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem>Jij blijft eigenaar van wat je schrijft en deelt. Jij bent hier ook verantwoordelijk voor.</ListItem>
@@ -251,23 +251,23 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="10. Accounts beëindigen" icon={XCircle} value="item-10">
-                     <SubSection title="10.1 Jij beëindigt je account">
+                <Section icon={XCircle} value="item-10">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🚪 Altijd jouw keuze om te stoppen</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Dit kan via je accountinstellingen.</ListItem>
                             <ListItem>Je toegang stopt en je gegevens worden verwijderd volgens ons privacybeleid.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="10.2 Wij beëindigen je account">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">⚠️ Alleen in ernstige gevallen</h4>
                         <p>Wij kunnen je account sluiten bij herhaalde of ernstige schending van de voorwaarden, illegale activiteiten of veiligheidsrisico's.</p>
                     </SubSection>
                 </Section>
                 
                 {/* --- Part 3 Content --- */}
-                <Section title="11. Aansprakelijkheid" icon={Scale} value="item-11">
-                     <SubSection title="11.1 Onze beperkingen">
+                <Section icon={Scale} value="item-11">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">⚠️ Waarvoor wij NIET aansprakelijk zijn</h4>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem>We garanderen geen specifieke resultaten.</ListItem>
@@ -277,8 +277,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                      </SubSection>
                 </Section>
                 
-                <Section title="12. Wijzigingen in deze voorwaarden" icon={GitBranch} value="item-12">
-                     <SubSection title="12.1 Hoe laten we wijzigingen weten?">
+                <Section icon={GitBranch} value="item-12">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">📬 Je krijgt altijd bericht</h4>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>30 dagen vooraf</strong> krijg je een e-mail bij belangrijke wijzigingen.</ListItem>
@@ -288,8 +288,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="13. Geschillen en contact" icon={Gavel} value="item-13">
-                     <SubSection title="13.1 Stap voor stap problemen oplossen">
+                <Section icon={Gavel} value="item-13">
+                     <SubSection>
                         <h4 className="font-semibold text-lg mb-2">🤝 We lossen het liefst samen op</h4>
                          <ol className="list-decimal list-inside space-y-2">
                             <li><strong>Stap 1: Contact onze klantenservice</strong> via <a href="mailto:support@mindnavigator.nl" className="text-primary hover:underline">support@mindnavigator.nl</a>.</li>
@@ -299,8 +299,8 @@ export function TermsPageContent({ hideTitle = false }: TermsPageContentProps) {
                     </SubSection>
                 </Section>
 
-                <Section title="14. Contact en ondersteuning" icon={PhoneCall} value="item-14">
-                    <SubSection title="14.1 MindNavigator contactgegevens">
+                <Section icon={PhoneCall} value="item-14">
+                    <SubSection>
                         <h4 className="font-semibold text-lg mb-2">📞 Bereikbaar voor al je vragen</h4>
                          <ul className="list-none space-y-2 pl-0 mt-2">
                              <ListItem><strong>Algemene vragen:</strong> <a href="mailto:support@mindnavigator.nl" className="text-primary hover:underline">support@mindnavigator.nl</a></ListItem>

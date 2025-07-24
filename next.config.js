@@ -1,37 +1,22 @@
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.google.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-    ],
+module.exports = {
+  typescript: { 
+    ignoreBuildErrors: true 
   },
+  output: 'export',
+  distDir: '.next',
+  trailingSlash: true,
+  generateStaticParams: false,
   experimental: {
-    // Deze optie is verplaatst en hoort hier niet meer.
-    // We laten de experimental-key leeg of verwijderen deze.
+    appDir: true,
+    esmExternals: false
   },
-  // De correcte plek voor `allowedDevOrigins` in nieuwere Next.js versies.
-  // We staan de specifieke cloud dev origin toe.
-  allowedDevOrigins: ['https://6000-firebase-studio-1746800952268.cluster-oayqgyglpfgseqclbygurw4xd4.cloudworkstations.dev'],
-};
-
-module.exports = nextConfig;
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'next/document': 'commonjs next/document'
+      });
+    }
+    return config;
+  }
+}

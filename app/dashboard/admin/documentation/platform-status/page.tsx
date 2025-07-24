@@ -66,25 +66,25 @@ export default function PlatformStatusPage() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StatusItem 
                 icon={ShieldCheck}
-                title="Authenticatie & Autorisatie"
+               
                 description="Gebruikers kunnen registreren, inloggen en uitloggen. Rol-gebaseerde toegang tot dashboards is actief."
                 status="done"
             />
              <StatusItem 
                 icon={Database}
-                title="Database & Data Structuur"
+               
                 description="De Firestore database structuur is gedefinieerd. De applicatie draait momenteel op dummy data."
                 status="in_progress"
             />
              <StatusItem 
                 icon={Bot}
-                title="AI (Genkit) Integratie"
+               
                 description="Alle AI-flows voor het genereren van content (quizzen, analyses, coaching) zijn geïmplementeerd en functioneel."
                 status="done"
             />
              <StatusItem 
                 icon={LayoutDashboard}
-                title="Basis UI & Layout"
+               
                 description="De algemene layout, navigatie, header en de inklapbare sidebar zijn volledig geïmplementeerd en responsive."
                 status="done"
             />
@@ -99,25 +99,25 @@ export default function PlatformStatusPage() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StatusItem 
                 icon={Cpu}
-                title="Admin Dashboard"
+               
                 description="Zeer compleet. Beheer van gebruikers, quizzen, features, abonnementen, tools en content is functioneel (met dummy data)."
                 status="done"
             />
             <StatusItem 
                 icon={CreditCard}
-                title="Betalingen & Abonnementen"
+               
                 description="De logica voor het definiëren van abonnementen is klaar. De daadwerkelijke betaal-integratie is de volgende stap."
                 status="next"
             />
             <StatusItem 
                 icon={UsersIcon}
-                title="Ouder & Leerling Dashboards"
+               
                 description="Basisstructuur is aanwezig. De volledige functionaliteit (voortgang, coaching-hub etc.) moet nog worden gebouwd."
                 status="in_progress"
             />
             <StatusItem 
                 icon={Wrench}
-                title="Coach & Tutor Dashboards"
+               
                 description="Placeholder dashboards zijn aanwezig. Specifieke functionaliteiten zoals lesbeheer zijn de volgende stap."
                 status="next"
             />

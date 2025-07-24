@@ -21,7 +21,7 @@ interface QuizCompletion {
 const generateDummyCompletions = (): QuizCompletion[] => {
   const completions: QuizCompletion[] = [];
   const users = ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8'];
-  const quizzes = [];
+  const quizzes: QuizAdmin[] = [];
 
   if (quizzes.length === 0) return []; // Prevent errors if no quizzes are defined
 

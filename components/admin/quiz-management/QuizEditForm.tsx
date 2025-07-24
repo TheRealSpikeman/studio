@@ -110,7 +110,6 @@ export function QuizEditForm({ quizData, onSave }: QuizEditFormProps) {
   useEffect(() => {
     const storedPlansRaw = localStorage.getItem(LOCAL_STORAGE_SUBSCRIPTION_PLANS_KEY);
     if (storedPlansRaw) {
-      setAllSubscriptionPlans(JSON.parse(storedPlansRaw).filter((p: SubscriptionPlan) => p.active));
     }
     
     if (quizData) {

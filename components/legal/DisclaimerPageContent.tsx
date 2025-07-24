@@ -61,8 +61,8 @@ export function DisclaimerPageContent() {
             
             <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                 
-                <Section title="1. Wat MindNavigator WEL is" icon={CheckCircle} value="item-1">
-                    <SubSection title="1.1 Educatief Platform voor Persoonlijke Ontwikkeling">
+                <Section icon={CheckCircle} value="item-1">
+                    <SubSection>
                         <p>Onze kernfuncties zijn:</p>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem>Zelfreflectie-instrumenten en dagelijkse coaching tips.</ListItem>
@@ -70,52 +70,52 @@ export function DisclaimerPageContent() {
                             <ListItem>Een community voor verbinding en een dashboard voor ouder-kind inzicht.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="1.2 Onze Doelgroep">
+                    <SubSection>
                         <p>Wij zijn er voor neurodivergente jongeren (12-18 jaar) en hun ouders/verzorgers die ondersteuning zoeken bij dagelijkse uitdagingen en persoonlijke groei.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="2. Wat MindNavigator NIET is" icon={Ban} value="item-2">
-                    <SubSection title="2.1 Geen Medische Instelling">
+                <Section icon={Ban} value="item-2">
+                    <SubSection>
                         <p>Wij bieden nadrukkelijk GEEN medische diagnoses, psychologische behandelingen, medicatie-advies of crisisinterventie. Wij vervangen nooit een huisarts, psycholoog of andere zorgprofessional.</p>
                     </SubSection>
-                    <SubSection title="2.2 Geen Juridische of Officiële Autoriteit">
+                    <SubSection>
                         <p>Ons platform doet geen officiële uitspraken over schoolcapaciteiten, werkgeschiktheid of juridische procedures en vervangt geen officiële rapporten of verklaringen.</p>
                     </SubSection>
                 </Section>
                 
-                <Section title="3. Onze AI en Geautomatiseerde Systemen" icon={Bot} value="item-3">
-                    <SubSection title="3.1 AI-Gegenereerde Content">
+                <Section icon={Bot} value="item-3">
+                    <SubSection>
                         <p>Onze AI analyseert tool-antwoorden om gepersonaliseerde tips en aanbevelingen te genereren. Deze AI is niet perfect en de inzichten moeten worden gezien als een startpunt voor reflectie, niet als een eindconclusie.</p>
                     </SubSection>
-                    <SubSection title="3.2 Patroonherkenning vs. Diagnose">
+                    <SubSection>
                         <p>Onze tools herkennen patronen in gedrag en voorkeuren. Dit is géén medische of psychologische diagnose en vervangt nooit een professionele beoordeling.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="4. Marktplaats en Externe Begeleiders" icon={Handshake} value="item-4">
-                    <SubSection title="4.1 Onze Rol als Facilitator">
+                <Section icon={Handshake} value="item-4">
+                    <SubSection>
                         <p>MindNavigator faciliteert het contact, de communicatie en de betalingen tussen u en een begeleider. Wij zijn echter niet verantwoordelijk voor de inhoud, kwaliteit of resultaten van de individuele sessies.</p>
                     </SubSection>
-                    <SubSection title="4.2 Verantwoordelijkheid van Begeleiders">
+                    <SubSection>
                         <p>Alle begeleiders zijn zelfstandige professionals die verantwoordelijk zijn voor hun eigen diensten. Wij screenen hen op kwalificaties en VOG.</p>
                     </SubSection>
                 </Section>
                 
-                <Section title="5. Specifieke Disclaimers voor Minderjarigen" icon={ShieldCheck} value="item-5">
-                    <SubSection title="5.1 Veiligheidsprocedures">
+                <Section icon={ShieldCheck} value="item-5">
+                    <SubSection>
                         <p>Bij signalen van onveilige situaties (zoals mishandeling of zelfmoordgedachten) zijn wij wettelijk verplicht te handelen volgens de meldcode en professionele hulp (zoals Veilig Thuis) in te schakelen.</p>
                     </SubSection>
-                    <SubSection title="5.2 Balans Privacy en Veiligheid">
+                    <SubSection>
                         <p>In acute veiligheidssituaties gaat de veiligheid van een kind altijd vóór privacy. Wij zullen dan de nodige stappen zetten om hulp in te schakelen.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="6. Wanneer Professionele Hulp Zoeken" icon={PhoneCall} value="item-6">
-                    <SubSection title="6.1 Duidelijke Signalen voor Professionele Hulp">
+                <Section icon={PhoneCall} value="item-6">
+                    <SubSection>
                         <p>Ons platform is niet voldoende bij acute situaties (zelfmoordgedachten, paniekaanvallen) of structurele problemen (depressie, eetstoornissen, trauma). Zoek in zulke gevallen direct professionele hulp.</p>
                     </SubSection>
-                    <SubSection title="6.2 Waar Kunt u Terecht">
+                    <SubSection>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Acute problemen:</strong> Bel 112 (spoed) of 113 (zelfmoordpreventie).</ListItem>
                             <ListItem><strong>Structurele ondersteuning:</strong> De huisarts is het eerste aanspreekpunt voor een verwijzing naar de (Jeugd-)GGZ.</ListItem>
@@ -124,32 +124,32 @@ export function DisclaimerPageContent() {
                     </SubSection>
                 </Section>
                 
-                <Section title="7. Aansprakelijkheid en Risico's" icon={Scale} value="item-7">
-                    <SubSection title="7.1 Beperking van Aansprakelijkheid">
+                <Section icon={Scale} value="item-7">
+                    <SubSection>
                         <p>MindNavigator is niet aansprakelijk voor de gevolgen van AI-adviezen, de resultaten van zelfhulp, of de dienstverlening van externe begeleiders. Uw eigen interpretatie en het tijdig zoeken van professionele hulp blijven uw eigen verantwoordelijkheid.</p>
                     </SubSection>
-                    <SubSection title="7.2 Uw Eigen Verantwoordelijkheid">
+                    <SubSection>
                          <p>Als gebruiker bent u verantwoordelijk voor het verstrekken van eerlijke informatie, het correct interpreteren van de beperkingen van ons platform en het tijdig zoeken van professionele zorg. Ouders zijn eindverantwoordelijk voor het welzijn van hun kind.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="8. Gebruik van Platform Gegevens" icon={Database} value="item-8">
+                <Section icon={Database} value="item-8">
                      <p>Wij gebruiken volledig geanonimiseerde gegevens om ons platform te verbeteren, content te ontwikkelen en onze AI te trainen. Deze data is nooit herleidbaar tot individuele gebruikers. Voor wetenschappelijk onderzoek vragen wij altijd apart om uw expliciete toestemming.</p>
                 </Section>
 
-                <Section title="9. Technische Disclaimers" icon={HardDrive} value="item-9">
+                <Section icon={HardDrive} value="item-9">
                      <p>Wij streven naar maximale beschikbaarheid maar kunnen geen 100% uptime of foutloze werking garanderen. Onderhoud en storingen kunnen voorkomen. Wij nemen uitgebreide maatregelen om uw gegevens te beveiligen, maar uw eigen waakzaamheid (bv. een sterk wachtwoord) is ook cruciaal.</p>
                 </Section>
                 
-                <Section title="10. Contact en Ondersteuning" icon={Mail} value="item-10">
+                <Section icon={Mail} value="item-10">
                     <p>Voor vragen over deze disclaimer of onze medische grenzen, kunt u contact opnemen met <a href="mailto:legal@mindnavigator.nl" className="text-primary hover:underline">legal@mindnavigator.nl</a>. Bij acute veiligheidszorgen, gebruik de daarvoor bestemde kanalen.</p>
                 </Section>
 
-                <Section title="11. Wijzigingen in Deze Disclaimer" icon={GitBranch} value="item-11">
+                <Section icon={GitBranch} value="item-11">
                     <p>Bij belangrijke wijzigingen in deze disclaimer informeren wij u 30 dagen van tevoren. Voortgezet gebruik van het platform na deze periode geldt als acceptatie van de nieuwe disclaimer.</p>
                 </Section>
                 
-                <Section title="12. Juridische Informatie" icon={Gavel} value="item-12">
+                <Section icon={Gavel} value="item-12">
                      <p>Deze disclaimer moet worden gelezen in samenhang met onze Algemene Voorwaarden en ons Privacybeleid. Nederlands recht is van toepassing op deze disclaimer.</p>
                 </Section>
             </Accordion>

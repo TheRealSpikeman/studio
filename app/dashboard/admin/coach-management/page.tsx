@@ -140,9 +140,9 @@ export default function CoachManagementPage() {
               <SelectContent>
                 <SelectItem value="all">Alle Statussen</SelectItem>
                 <SelectItem value="actief">Actief</SelectItem>
-                <SelectItem value="pending_onboarding">Wacht op Onboarding</SelectItem>
+                <SelectItem value="pending_approval">Wacht op Onboarding</SelectItem>
                 <SelectItem value="pending_approval">Wacht op Goedkeuring</SelectItem>
-                <SelectItem value="geblokkeerd">Geblokkeerd/Inactief</SelectItem>
+                <SelectItem value="gedeactiveerd">Geblokkeerd/Inactief</SelectItem>
                 <SelectItem value="rejected">Afgewezen</SelectItem>
               </SelectContent>
             </Select>

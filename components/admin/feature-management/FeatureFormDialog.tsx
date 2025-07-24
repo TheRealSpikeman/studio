@@ -30,7 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import { type AppFeature, type SubscriptionPlan, type TargetAudience } from '@/types/subscription';
+import { type AppFeature, type SubscriptionPlan, type TargetAudience } from '@/app/types/subscription';
 
 const targetAudienceOptions: { id: TargetAudience; label: string }[] = [
   { id: 'leerling', label: 'Leerling' },

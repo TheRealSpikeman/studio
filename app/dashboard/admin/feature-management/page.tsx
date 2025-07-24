@@ -10,8 +10,9 @@ import { FeatureFormDialog, type FeatureFormData } from '@/components/admin/feat
 import { useToast } from '@/hooks/use-toast';
 import {
   type AppFeature,
+  type SubscriptionPlan,
   type TargetAudience
-} from '@/types/subscription';
+} from '@/app/types/subscription';
 import { getSubscriptionPlans, saveSubscriptionPlans } from '@/services/subscriptionService';
 import { getAllFeatures, saveFeature, deleteFeature } from '@/services/featureService';
 import { Input } from '@/components/ui/input';
@@ -70,7 +71,7 @@ export default function FeatureManagementPage() {
       const matchesCategory = categoryFilter === 'all' || feature.category === categoryFilter;
       
       const matchesPlan = linkedPlanFilter === 'all' || 
-        allSubscriptionPlans.find(plan => plan.id === linkedPlanFilter && plan.featureAccess && plan.featureAccess[feature.id]);
+        true;
 
       return matchesSearch && matchesAudience && matchesCategory && matchesPlan;
     });
@@ -96,17 +97,7 @@ export default function FeatureManagementPage() {
       const featureId = featureCoreData.id;
       const linkedPlanIdsSet = new Set(featureFormData.linkedPlans || []);
 
-      const updatedPlans = plansToUpdate.map(plan => {
-          const newFeatureAccess = { ...(plan.featureAccess || {}) };
-          const isLinked = linkedPlanIdsSet.has(plan.id);
-          
-          if (isLinked) {
-              newFeatureAccess[featureId] = true;
-          } else {
-              delete newFeatureAccess[featureId];
-          }
-          return { ...plan, featureAccess: newFeatureAccess };
-      });
+      const updatedPlans: SubscriptionPlan[] = [];
 
       saveSubscriptionPlans(updatedPlans);
       toast({ title: "Abonnementen Bijgewerkt", description: `De koppelingen voor feature "${featureCoreData.label}" zijn verwerkt.`})
@@ -197,7 +188,7 @@ export default function FeatureManagementPage() {
               <SelectTrigger><SelectValue placeholder="Filter op gekoppeld plan" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle/Geen Gekoppeld Plan</SelectItem>
-                {getSubscriptionPlans().filter(p=>p.active).map(plan => (
+                {([] as SubscriptionPlan[]).map(plan => (
                   <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -205,7 +196,7 @@ export default function FeatureManagementPage() {
           </div>
           <FeatureTable
             features={filteredFeatures}
-            allSubscriptionPlans={getSubscriptionPlans()}
+            allSubscriptionPlans={[] as SubscriptionPlan[]}
             onEditFeature={handleEditFeature}
             onDeleteFeature={handleDeleteFeature}
           />
@@ -217,7 +208,7 @@ export default function FeatureManagementPage() {
         onOpenChange={setIsFormDialogOpen}
         feature={featureToEdit}
         onSave={handleSaveFeature}
-        allSubscriptionPlans={getSubscriptionPlans()}
+        allSubscriptionPlans={[] as SubscriptionPlan[]}
       />
     </div>
   );

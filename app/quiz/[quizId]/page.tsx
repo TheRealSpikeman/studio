@@ -125,7 +125,7 @@ const focusFlagMap: Record<QuizFocus, GenerateQuizAnalysisInput['quizFocus'][num
 export default function GenericQuizPage() {
     const params = useParams();
     const router = useRouter();
-    const quizId = params.quizId as string;
+    const quizId = params?.quizId as string;
     const { user } = useAuth();
     const { toast } = useToast();
     const [childsName, setChildsName] = useState('');

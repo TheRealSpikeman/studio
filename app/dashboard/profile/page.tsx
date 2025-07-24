@@ -173,9 +173,9 @@ export default function ProfilePage() {
       if (result.success) {
         await refreshUser();
         if (emailResult?.success) {
-            toast({ title: "Profiel Opgeslagen & Email Verificatie Verzonden", description: "Controleer je nieuwe emailadres om de wijziging te bevestigen.", variant: "success" });
+            toast({ title: "Profiel Opgeslagen & Email Verificatie Verzonden", description: "Controleer je nieuwe emailadres om de wijziging te bevestigen.", variant: "default" });
         } else {
-            toast({ title: "Profiel Opgeslagen", variant: "success" });
+            toast({ title: "Profiel Opgeslagen", variant: "default" });
         }
         setIsEditing(false);
       } else {
@@ -195,7 +195,7 @@ export default function ProfilePage() {
     startTransition(async () => {
         const result = await changePassword(user.id, passwordData.newPassword);
         if (result.success) {
-            toast({ title: "Wachtwoord Gewijzigd", description: "Je wachtwoord is succesvol bijgewerkt.", variant: "success" });
+            toast({ title: "Wachtwoord Gewijzigd", description: "Je wachtwoord is succesvol bijgewerkt.", variant: "default" });
             setShowPasswordDialog(false);
         } else {
             toast({ title: "Fout", description: result.error, variant: "destructive" });

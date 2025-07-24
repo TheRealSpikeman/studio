@@ -24,7 +24,6 @@ interface SubscriptionTableProps {
 }
 
 const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
 };
 
 export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
@@ -73,7 +72,6 @@ export function SubscriptionTable({ initialPlans }: SubscriptionTableProps) {
                     <TableCell>{formatCurrency(plan.price)}</TableCell>
                     <TableCell className="capitalize">{plan.billingInterval}</TableCell>
                     <TableCell>
-                        <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
                     </TableCell>
                     <TableCell>
                         {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}

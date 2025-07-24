@@ -55,7 +55,7 @@ export default function EditBlogPostPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const postId = params.id as string;
+  const postId = params?.id as string;
   
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,7 +99,7 @@ export default function EditBlogPostPage() {
                 targetAudience: foundPost.targetAudience || 'Ouders',
             });
             
-            const showQuiz = searchParams.get('showQuiz');
+            const showQuiz = searchParams?.get('showQuiz');
             if (showQuiz === 'true' || foundPost.linkedQuizId) {
                 setShowQuizLinker(true);
             }

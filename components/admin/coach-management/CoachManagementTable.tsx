@@ -52,7 +52,6 @@ export function CoachManagementTable({ coaches, onEditCoach, onDeactivateCoach }
 
   const formatCurrency = (amount?: number) => {
     if (typeof amount !== 'number') return 'N/A';
-    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
   return (

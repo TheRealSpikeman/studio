@@ -115,7 +115,6 @@ export default function BlogManagementPage() {
                       {post.linkedQuizId && (
                         <Brain
                           className="h-5 w-5 text-primary mx-auto"
-                          title="Dit artikel heeft een gekoppelde quiz"
                         />
                       )}
                     </TableCell>

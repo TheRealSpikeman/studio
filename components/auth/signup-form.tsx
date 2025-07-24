@@ -69,7 +69,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const plan = searchParams.get('plan');
+  const plan = searchParams?.get('plan');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -287,14 +287,14 @@ export function SignupForm() {
                       <FormLabel htmlFor="agreeToTerms" className="cursor-pointer">
                         Ik ga akkoord met de{' '}
                         <LegalDocumentDialog
-                            title="Algemene Voorwaarden"
+                           
                             triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">algemene voorwaarden</span></Button>}
                         >
                             <TermsContent />
                         </LegalDocumentDialog>
                         {' '}en het{' '}
                         <LegalDocumentDialog
-                            title="Privacybeleid"
+                           
                             triggerNode={<Button type="button" variant="link" asChild className="p-0 h-auto -my-1"><span className="cursor-pointer">privacybeleid</span></Button>}
                         >
                             <PrivacyPolicyContent />

@@ -131,9 +131,9 @@ export default function ToolRecommendationLogicPage() {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col lg:flex-row gap-4">
-                    <ScoreLevelCard title="Hoge Score" icon={TrendingUp} toolIds={matrixItem.recommendations.high} scoreRange="> 5.0" />
-                    <ScoreLevelCard title="Gem. Score" icon={Minus} toolIds={matrixItem.recommendations.medium} scoreRange="2.1 - 5.0" />
-                    <ScoreLevelCard title="Lage Score" icon={TrendingDown} toolIds={matrixItem.recommendations.low} scoreRange="0.0 - 2.0" />
+                    <ScoreLevelCard icon={TrendingUp} toolIds={matrixItem.recommendations.high} scoreRange="> 5.0" />
+                    <ScoreLevelCard icon={Minus} toolIds={matrixItem.recommendations.medium} scoreRange="2.1 - 5.0" />
+                    <ScoreLevelCard icon={TrendingDown} toolIds={matrixItem.recommendations.low} scoreRange="0.0 - 2.0" />
                 </div>
             </CardContent>
           </Card>

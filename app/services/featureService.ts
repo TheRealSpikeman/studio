@@ -1,5 +1,5 @@
 // services/featureService.ts
-import type { AppFeature } from '@/types/subscription';
+import type { AppFeature } from '@/app/types/subscription';
 import { DEFAULT_APP_FEATURES } from '@/lib/data/subscription-data';
 
 // This is a server-safe service. No 'use client' needed.

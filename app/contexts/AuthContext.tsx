@@ -18,14 +18,14 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
-import type { User, UserRoleType, UserStatus } from '@/types/user';
+import type { User, UserRole, UserStatus } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
 
 export interface SignupData {
   email: string;
   pass: string;
   name: string;
-  role: UserRoleType;
+  role: UserRole;
   ageGroup?: '12-14' | '15-18' | 'adult';
   status?: UserStatus;
   parentEmail?: string;

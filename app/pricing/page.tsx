@@ -82,7 +82,6 @@ export default function PricingPage() {
               </div>
             ) : (
               <PricingTable 
-                initialPlans={plans.filter(p => p.active)}
                 tools={tools}
               />
             )}

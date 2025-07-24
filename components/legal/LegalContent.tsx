@@ -40,19 +40,19 @@ export const TermsContent = () => (
 
 export const DisclaimerContent = () => (
     <div className="text-sm">
-        <Section title="Geen Medische Diagnose of Advies" icon={AlertTriangle}>
+        <Section icon={AlertTriangle}>
             <p>MindNavigator en de daarin aangeboden zelfreflectie-instrumenten, coaching tips, en andere content zijn uitsluitend bedoeld voor educatieve en informatieve doeleinden. Ze zijn <strong>nadrukkelijk geen vervanging</strong> voor professioneel medisch, psychologisch, of orthopedagogisch advies, diagnose, of behandeling.</p>
         </Section>
 
-        <Section title="Raadpleeg Altijd een Professional" icon={Stethoscope}>
+        <Section icon={Stethoscope}>
             <p>De informatie op dit platform mag niet worden gebruikt voor het diagnosticeren of behandelen van een gezondheidsprobleem of ziekte. Als u of uw kind vragen of zorgen heeft over mentale of fysieke gezondheid, dient u altijd contact op te nemen met een gekwalificeerde zorgverlener (huisarts, psycholoog, kinderarts, etc.).</p>
         </Section>
         
-        <Section title="Gebruik van AI-gegenereerde Content" icon={Bot}>
+        <Section icon={Bot}>
             <p>Delen van de inzichten en aanbevelingen op dit platform worden gegenereerd met behulp van kunstmatige intelligentie (AI). Hoewel we streven naar hoge kwaliteit, kan AI-gegenereerde content onnauwkeurigheden bevatten of niet van toepassing zijn op uw specifieke situatie. Gebruik deze inzichten als een startpunt voor reflectie en gesprek, niet als een absolute waarheid.</p>
         </Section>
         
-        <Section title="Beperking van Aansprakelijkheid" icon={Scale}>
+        <Section icon={Scale}>
             <p>Het gebruik van de informatie en tools op dit platform is geheel op eigen risico. MindNavigator, haar medewerkers en partners zijn niet aansprakelijk voor enige directe of indirecte schade die voortvloeit uit het gebruik van de Dienst of het vertrouwen op de verstrekte informatie.</p>
         </Section>
     </div>

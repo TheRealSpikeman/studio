@@ -22,7 +22,7 @@ const dummyChildren: Child[] = [
 export default function KindProfielPage() {
   const params = useParams();
   const { toast } = useToast();
-  const kindId = params.kindId as string;
+  const kindId = params?.kindId as string;
   const [childData, setChildData] = useState<Child | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);

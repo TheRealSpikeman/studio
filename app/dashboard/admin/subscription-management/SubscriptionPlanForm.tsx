@@ -23,14 +23,13 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import type { SubscriptionPlan, AppFeature } from '@/types/subscription';
+import type { SubscriptionPlan } from '@/types/subscription';
 import { createSubscriptionPlan, updateSubscriptionPlan } from '@/services/subscriptionService';
 
 
 const planFormSchema = z.object({
   id: z.string().min(3, { message: "Plan ID moet minimaal 3 tekens bevatten (bijv. 'gezins_gids_jaar')." }).regex(/^[a-z0-9_]+$/, "ID mag alleen kleine letters, cijfers en underscores bevatten."),
   name: z.string().min(3, { message: "Plannaam moet minimaal 3 tekens bevatten." }),
-  shortName: z.string().optional(),
   description: z.string().min(10, { message: "Beschrijving moet minimaal 10 tekens bevatten." }),
   tagline: z.string().optional(),
   price: z.coerce.number().min(0, { message: "Prijs moet 0 of hoger zijn." }),
@@ -56,7 +55,6 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: {
-      id: "", name: "", shortName: "", description: "", tagline: "", price: 0, yearlyDiscountPercent: 0,
       maxParents: 0, maxChildren: 0, active: true, trialPeriodDays: 0, isPopular: false,
     }
   });
@@ -73,7 +71,6 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
         });
     } else {
         form.reset({
-            id: "", name: "", shortName: "", description: "", tagline: "", price: 15.00, yearlyDiscountPercent: 10,
             maxParents: 2, maxChildren: 1, active: true, trialPeriodDays: 14, isPopular: false,
         });
     }
@@ -83,9 +80,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
     // Note: featureAccess is no longer part of the form or data model
     const planToSave: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt' | 'featureAccess'> & { id?: string } = {
       ...initialData,
-      ...data,
-      billingInterval: 'month', // All prices are defined as monthly now
-      currency: 'EUR',
+      ...data, features: [],
     };
 
     try {
@@ -94,7 +89,7 @@ export function SubscriptionPlanForm({ initialData, isNew }: SubscriptionPlanFor
              toast({ title: "Fout", description: "Plan ID is vereist.", variant: "destructive" });
              return;
         }
-        await createSubscriptionPlan(planToSave as Omit<SubscriptionPlan, 'createdAt' | 'updatedAt' | 'featureAccess'>);
+        await createSubscriptionPlan(planToSave as Omit<SubscriptionPlan, 'createdAt' | 'updatedAt'>);
         toast({ title: "Abonnement Aangemaakt", description: `Het abonnement "${planToSave.name}" is aangemaakt.` });
       } else {
         if (!initialData?.id) return;

@@ -37,7 +37,6 @@ export const Step4_Settings = () => {
         if (storedPlansRaw) {
             try {
                 const plans: SubscriptionPlan[] = JSON.parse(storedPlansRaw);
-                setAllSubscriptionPlans(plans.filter(p => p.active));
             } catch (error) {
                 console.error("Error loading subscription plans from localStorage:", error);
             }

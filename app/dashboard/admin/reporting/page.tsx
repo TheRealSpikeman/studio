@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { FileBarChart, Users, Briefcase, Clock, Download, Filter, TrendingUp } from '@/lib/icons';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerWithRange } from '@/components/common/date-picker-with-range'; 
 import { Input } from '@/components/ui/input'; 
 import { Badge } from '@/components/ui/badge';
 

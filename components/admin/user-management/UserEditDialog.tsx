@@ -281,8 +281,8 @@ export function UserEditDialog({ isOpen, onOpenChange, user, isAddingNewUser, on
                         <SelectItem value="actief">Actief</SelectItem>
                         <SelectItem value="niet geverifieerd">Niet Geverifieerd</SelectItem>
                         <SelectItem value="wacht_op_ouder_goedkeuring">Wacht op Ouder Goedkeuring (Leerling)</SelectItem>
-                        <SelectItem value="geblokkeerd">Geblokkeerd</SelectItem>
-                        {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="pending_onboarding">Wacht op Onboarding (Tutor/Coach)</SelectItem>}
+                        <SelectItem value="gedeactiveerd">Geblokkeerd</SelectItem>
+                        {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="pending_approval">Wacht op Onboarding (Tutor/Coach)</SelectItem>}
                         {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="pending_approval">Wacht op Goedkeuring (Tutor/Coach)</SelectItem>}
                         {(currentRole === 'tutor' || currentRole === 'coach' || isAddingNewUser) && <SelectItem value="rejected">Afgewezen (Tutor/Coach)</SelectItem>}
                       </SelectContent>

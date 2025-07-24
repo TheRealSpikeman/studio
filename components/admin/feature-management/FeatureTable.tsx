@@ -2,7 +2,7 @@
 // src/components/admin/feature-management/FeatureTable.tsx
 "use client";
 
-import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/types/subscription';
+import type { AppFeature, SubscriptionPlan, TargetAudience } from '@/app/types/subscription';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,7 +84,7 @@ export function FeatureTable({ features, allSubscriptionPlans, onEditFeature, on
                 <TableCell className="font-mono text-xs text-muted-foreground">{feature.id}</TableCell>
                 <TableCell className="font-medium flex items-center gap-2">
                   {feature.label}
-                  {feature.isRecommendedTool && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" title="Aanbevolen Tool" />}
+                  {feature.isRecommendedTool && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                   {feature.description || '-'}

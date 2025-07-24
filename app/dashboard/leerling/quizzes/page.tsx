@@ -88,7 +88,7 @@ function DashboardQuizContent() {
 
   useEffect(() => {
     // This is now only used for the intro text, not for filtering.
-    const ageGroupFromQuery = searchParams.get('ageGroup') as AgeFilterType;
+    const ageGroupFromQuery = searchParams?.get('ageGroup') as AgeFilterType;
     if (ageGroupFromQuery && (ageGroupFromQuery === '12-14' || ageGroupFromQuery === '15-18')) {
       setCurrentUserAgeGroup(ageGroupFromQuery);
     } else {

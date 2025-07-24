@@ -107,7 +107,7 @@ function LessonTable({ lessons, onCancelLesson, onViewReport }: {
               <TableCell>
                 <Badge variant={getStatusBadgeVariant(lesson.status)} className={getStatusBadgeClasses(lesson.status)}>
                   {lesson.status}
-                  {lesson.recurringGroupId && <Repeat className="ml-1.5 h-3 w-3 inline-block" title="Herhalende les"/>}
+                  {lesson.recurringGroupId && <Repeat className="ml-1.5 h-3 w-3 inline-block"/>}
                 </Badge>
               </TableCell>
               <TableCell>

@@ -58,7 +58,7 @@ const SessionsChartComponent = ({ data }: { data: SessionsData[] }) => (
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
         <Bar dataKey="voltooid" fill="var(--color-voltooid)" radius={4} />
         <Bar dataKey="gepland" fill="var(--color-gepland)" radius={4} />
-        <ChartLegend content={<ChartLegendContent />} />
+        <ChartLegend content={<ChartLegendContent payload={[]} />} />
       </BarChart>
     </ChartContainer>
 );
@@ -75,7 +75,7 @@ const RevenueByTutorChartComponent = ({ data }: { data: RevenueData[] }) => (
         <XAxis dataKey="omzet" type="number" hide />
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" formatter={(value) => `€${Number(value).toLocaleString('nl-NL')}`}/>} />
         <Bar dataKey="omzet" fill="var(--color-omzet)" radius={4}>
-          <LabelList dataKey="omzet" position="right" offset={8} className="fill-foreground text-sm" formatter={(value: number) => `€${value.toLocaleString('nl-NL')}`} />
+          <LabelList dataKey="omzet" position="right" offset={8} className="fill-foreground text-sm" formatter={(value: any) => `€${value.toLocaleString('nl-NL')}`} />
         </Bar>
       </BarChart>
     </ChartContainer>
@@ -175,7 +175,6 @@ export default function AdminDashboardPage() {
             <Activity className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.activeUsers.toLocaleString('nl-NL')}</div>
             <p className="text-xs text-muted-foreground">Gebruikers die recent hebben ingelogd</p>
           </CardContent>
         </Card>

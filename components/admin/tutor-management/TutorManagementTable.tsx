@@ -53,7 +53,6 @@ export function TutorManagementTable({ tutors, onEditTutor, onDeactivateTutor }:
 
   const formatCurrency = (amount?: number) => {
     if (typeof amount !== 'number') return 'N/A';
-    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
   const formatRating = (rating?: number) => {

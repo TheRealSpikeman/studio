@@ -36,7 +36,7 @@ export function LoggedInResultsView({ completedQuizzes, user }: { completedQuizz
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const newResult = searchParams.get('newResult');
+    const newResult = searchParams?.get('newResult');
     if (newResult === 'true') {
       toast({
         title: "Resultaat Opgeslagen!",

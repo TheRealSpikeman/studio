@@ -41,7 +41,7 @@ const ComponentNotFound = ({ toolId } : { toolId: string }) => (
 
 export default function ToolDisplayPage() {
   const params = useParams();
-  const toolId = params.toolId as string;
+  const toolId = params?.toolId as string;
   const componentName = toPascalCase(toolId);
 
   // Use next/dynamic to load the component based on the toolId

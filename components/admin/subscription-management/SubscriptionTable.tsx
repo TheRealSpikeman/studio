@@ -70,7 +70,6 @@ export function SubscriptionTable({ initialPlans, deletePlanAction, onDataChange
                     <TableCell>{formatFullPrice(plan)}</TableCell>
                     <TableCell>{plan.maxChildren}</TableCell>
                     <TableCell>
-                        <Badge variant={plan.active ? 'default' : 'secondary'} className={cn(plan.active ? "bg-green-100 text-green-700 border-green-300" : "bg-gray-100 text-gray-700 border-gray-300")}>{plan.active ? 'Actief' : 'Inactief'}</Badge>
                     </TableCell>
                     <TableCell>
                         {plan.isPopular ? <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">Populair</Badge> : '-'}

@@ -124,9 +124,9 @@ export default function OuderRichtlijnenPage() {
                 </CardContent>
             </Card>
 
-            <GuidelineSection id="wat-is-mindnavigator" title="Wat is MindNavigator? - Voor Ouders Uitgelegd" icon={Target}>
+            <GuidelineSection id="wat-is-mindnavigator" icon={Target}>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <SubSectionCard title="Wat MindNavigator WEL Is" icon={CheckCircle2}>
+                    <SubSectionCard icon={CheckCircle2}>
                         <ul className="list-none space-y-2 pl-0">
                             <li>🧠 **Zelfinzicht Platform:** Tools om patronen in gedrag en emoties te herkennen</li>
                             <li>📚 **Educatieve Ondersteuning:** Huiswerk planning, focus technieken, organisatietools</li>
@@ -135,7 +135,7 @@ export default function OuderRichtlijnenPage() {
                             <li>💪 **Empowerment Focus:** Sterke punten ontdekken en benutten</li>
                         </ul>
                     </SubSectionCard>
-                    <SubSectionCard title="Wat MindNavigator NIET Is" icon={XCircle}>
+                    <SubSectionCard icon={XCircle}>
                         <ul className="list-none space-y-2 pl-0">
                             <li>❌ **Geen Medische Dienst:** We stellen geen diagnoses of behandelen geen aandoeningen</li>
                             <li>❌ **Geen Therapie Vervanging:** Coaching is ondersteuning, geen behandeling</li>
@@ -149,8 +149,8 @@ export default function OuderRichtlijnenPage() {
                 </EmphasisBlock>
             </GuidelineSection>
 
-             <GuidelineSection id="leeftijdsspecifieke-richtlijnen" title="Leeftijdsspecifieke Richtlijnen" icon={Users}>
-                <SubSectionCard title="12-15 Jaar: Actieve Ouderlijke Begeleiding" icon={Handshake}>
+             <GuidelineSection id="leeftijdsspecifieke-richtlijnen" icon={Users}>
+                <SubSectionCard icon={Handshake}>
                         <p><strong>Uw Rol:</strong> Primaire Beslisser & Begeleider</p>
                         <h4 className="font-semibold text-foreground mt-3">✅ Wat U Doet:</h4>
                         <ul className="list-disc pl-5">
@@ -167,7 +167,7 @@ export default function OuderRichtlijnenPage() {
                         <li><strong>Grenzen Respecteren:</strong> Geef ruimte voor persoonlijke reflectie</li>
                         </ul>
                 </SubSectionCard>
-                <SubSectionCard title="16-17 Jaar: Ondersteunende Partnerschap" icon={Handshake}>
+                <SubSectionCard icon={Handshake}>
                         <p><strong>Uw Rol:</strong> Advisor & Safety Net</p>
                         <h4 className="font-semibold text-foreground mt-3">✅ Wat U Kunt Doen:</h4>
                         <ul className="list-disc pl-5">
@@ -177,7 +177,7 @@ export default function OuderRichtlijnenPage() {
                         <li><strong>Noodcontact:</strong> Beschikbaar zijn voor escalatie situaties</li>
                         </ul>
                 </SubSectionCard>
-                <SubSectionCard title="18+ Jaar: Respectvolle Afstand" icon={Handshake}>
+                <SubSectionCard icon={Handshake}>
                     <p><strong>Uw Rol:</strong> Uitgenodigd Supporter</p>
                     <h4 className="font-semibold text-foreground mt-3">✅ Wat Mogelijk Is:</h4>
                     <ul className="list-disc pl-5">
@@ -187,8 +187,8 @@ export default function OuderRichtlijnenPage() {
                 </SubSectionCard>
             </GuidelineSection>
 
-            <GuidelineSection id="uw-rol-per-ontwikkelingsfase" title="Uw Rol per Ontwikkelingsfase" icon={Handshake}>
-                 <SubSectionCard title="Startfase (Eerste 2 Maanden)">
+            <GuidelineSection id="uw-rol-per-ontwikkelingsfase" icon={Handshake}>
+                 <SubSectionCard>
                     <h4 className="font-semibold text-foreground mt-3">Samen Exploreren:</h4>
                         <ul className="list-disc pl-5">
                         <li><strong>Onboarding Samen Doen:</strong> Eerste assessment en profiel setup ondersteunen</li>
@@ -196,7 +196,7 @@ export default function OuderRichtlijnenPage() {
                         <li><strong>Verwachtingen Afstemmen:</strong> Bespreken wat iedereen hoopt te bereiken</li>
                         </ul>
                 </SubSectionCard>
-                <SubSectionCard title="Ontwikkelingsfase (Maand 3-12)">
+                <SubSectionCard>
                     <h4 className="font-semibold text-foreground mt-3">Ondersteunend Begeleiden:</h4>
                         <ul className="list-disc pl-5">
                         <li><strong>Voortgang Monitoren:</strong> Regelmatig (maar niet dagelijks) dashboard bekijken</li>
@@ -204,7 +204,7 @@ export default function OuderRichtlijnenPage() {
                         <li><strong>Successen Celebreren:</strong> Vooruitgang erkennen en waarderen</li>
                         </ul>
                 </SubSectionCard>
-                <SubSectionCard title="Zelfstandigheidsfase (Jaar 2+)">
+                <SubSectionCard>
                     <h4 className="font-semibold text-foreground mt-3">Loslaten met Liefde:</h4>
                         <ul className="list-disc pl-5">
                         <li><strong>Vertrouwen Tonen:</strong> Minder frequent checken, meer ruimte geven</li>
@@ -213,16 +213,16 @@ export default function OuderRichtlijnenPage() {
                 </SubSectionCard>
             </GuidelineSection>
             
-            <GuidelineSection id="privacy-autonomie-balans" title="Privacy & Autonomie Balans" icon={ShieldCheck}>
+            <GuidelineSection id="privacy-autonomie-balans" icon={ShieldCheck}>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <SubSectionCard title="Wat Ziet U Wel?" icon={CheckCircle2}>
+                    <SubSectionCard icon={CheckCircle2}>
                         <h4 className="font-semibold text-foreground mt-3">Dashboard Overzicht:</h4>
                         <ul className="list-disc pl-5">
                             <li>Algemene Voortgang & Platform Activiteit</li>
                             <li>Coaching Statistieken (aantal, aanwezigheid)</li>
                         </ul>
                     </SubSectionCard>
-                    <SubSectionCard title="Wat Ziet U NIET?" icon={XCircle}>
+                    <SubSectionCard icon={XCircle}>
                         <h4 className="font-semibold text-foreground mt-3">Privé Reflecties:</h4>
                         <ul className="list-disc pl-5">
                             <li>Dagboek Entries</li>
@@ -233,19 +233,19 @@ export default function OuderRichtlijnenPage() {
                 </div>
             </GuidelineSection>
 
-             <GuidelineSection id="ouder-dashboard" title="Het Ouder-Dashboard: Wat Ziet U?" icon={BarChart}>
-                    <SubSectionCard title="Hoofdoverzicht">
+             <GuidelineSection id="ouder-dashboard" icon={BarChart}>
+                    <SubSectionCard>
                         <p>Weekly Summary: "Emma heeft deze week 4 van de 7 dagen ingelogd".</p>
                     </SubSectionCard>
              </GuidelineSection>
 
-             <GuidelineSection id="coaching-begeleiding" title="Coaching & Begeleiding: Uw Betrokkenheid" icon={Users}>
-                 <SubSectionCard title="Coach Selectie Process">
+             <GuidelineSection id="coaching-begeleiding" icon={Users}>
+                 <SubSectionCard>
                     <p>U speelt een actieve rol in het selectieproces, vooral voor jongere tieners. Voor oudere tieners is uw rol meer adviserend.</p>
                  </SubSectionCard>
              </GuidelineSection>
 
-            <GuidelineSection id="professionele-hulp" title="Wanneer Professionele Hulp Zoeken" icon={Stethoscope}>
+            <GuidelineSection id="professionele-hulp" icon={Stethoscope}>
                 <div className="p-4 border-l-4 border-destructive bg-destructive/10">
                     <h3 className="text-xl font-bold text-destructive mb-2">Onmiddellijk Hulp Zoeken Bij:</h3>
                     <ul className="list-disc pl-5 text-destructive/90 font-medium">
@@ -256,8 +256,8 @@ export default function OuderRichtlijnenPage() {
                 </div>
             </GuidelineSection>
             
-            <GuidelineSection id="praktische-tips" title="Praktische Tips voor Thuis" icon={HomeIcon}>
-                 <SubSectionCard title="Communicatie Verbeteren">
+            <GuidelineSection id="praktische-tips" icon={HomeIcon}>
+                 <SubSectionCard>
                     <h4 className="font-semibold text-foreground mt-3">Effectieve Vragen:</h4>
                     <ul className="list-disc pl-5">
                         <li>"Wat heb je vandaag ontdekt over jezelf?"</li>
@@ -266,7 +266,7 @@ export default function OuderRichtlijnenPage() {
                  </SubSectionCard>
             </GuidelineSection>
 
-            <GuidelineSection id="veelgestelde-vragen" title="Veelgestelde Vragen" icon={HelpCircle}>
+            <GuidelineSection id="veelgestelde-vragen" icon={HelpCircle}>
                 <Accordion type="single" collapsible className="w-full space-y-2">
                     {faqItems.map((faq) => (
                       <AccordionItem key={faq.id} value={faq.id} className="bg-card border rounded-md">
@@ -279,8 +279,8 @@ export default function OuderRichtlijnenPage() {
                 </Accordion>
             </GuidelineSection>
             
-            <GuidelineSection id="crisis-contact" title="Crisis & Noodcontact" icon={AlertTriangle}>
-                <SubSectionCard title="MindNavigator Crisis Ondersteuning" icon={AlertTriangle}>
+            <GuidelineSection id="crisis-contact" icon={AlertTriangle}>
+                <SubSectionCard icon={AlertTriangle}>
                     <p>Bij een crisis-melding via ons platform, ondernemen wij de volgende stappen:</p>
                     <ul className="list-disc pl-5">
                         <li>Onmiddellijke Respons: Reactie binnen 1 uur.</li>

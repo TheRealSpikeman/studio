@@ -45,7 +45,7 @@ export default function NewChangelogPage() {
         if (result.success && result.draft) {
             setFormData(result.draft);
             setDiff(result.diff);
-            toast({ title: "Concept gegenereerd!", description: "De AI heeft een concept voor je klaargezet.", variant: 'success' });
+            toast({ title: "Concept gegenereerd!", description: "De AI heeft een concept voor je klaargezet.", variant: 'default' });
         } else {
             setError(result.error || 'Er is een onbekende fout opgetreden.');
             setDiff(result.diff);
@@ -63,7 +63,7 @@ export default function NewChangelogPage() {
         setIsSubmitting(false);
 
         if (result.success) {
-            toast({ title: "Publicatie Gelukt!", description: "De nieuwe changelog entry is succesvol opgeslagen.", variant: 'success' });
+            toast({ title: "Publicatie Gelukt!", description: "De nieuwe changelog entry is succesvol opgeslagen.", variant: 'default' });
             router.push('/dashboard/admin/documentation/changelog');
         } else {
             toast({ title: "Publicatie Mislukt", description: result.error, variant: 'destructive' });

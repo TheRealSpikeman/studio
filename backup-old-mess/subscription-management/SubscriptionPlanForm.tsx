@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSubscriptionPlanById, saveSubscriptionPlan, createSubscriptionPlan } from '@/services/subscriptionService';
 import { getAllFeatures } from '@/services/featureService';
-import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/types/subscription';
+import type { SubscriptionPlan, AppFeature, TargetAudience } from '@/app/types/subscription';
 
 
 const planFormSchema = z.object({
@@ -122,8 +122,6 @@ export function SubscriptionPlanForm({ initialData, isNew, allSubscriptionPlans,
     const planToSave: Omit<SubscriptionPlan, 'id'> & { id?: string } = {
       ...initialData,
       ...data,
-      billingInterval: 'month', // We only support monthly for now
-      currency: 'EUR',
       maxParents: data.maxParents ?? 0, 
       maxChildren: data.maxChildren ?? 0, 
     };

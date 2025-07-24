@@ -213,12 +213,12 @@ export default function FeatureManagementPage() {
             <Select value={linkedPlanFilter} onValueChange={setLinkedPlanFilter}>
               <SelectTrigger><SelectValue placeholder="Filter op gekoppeld plan" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle/Geen Gekoppeld Plan</SelectItem>
-                {getSubscriptionPlans().filter(p => p.active).map(plan => (
-                  <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <SelectContent>
+                  <SelectItem value="all">Alle/Geen Gekoppeld Plan</SelectItem>
+                  {allSubscriptionPlans.map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
+                  ))}
+                </SelectContent>
           </div>
           <FeatureTable
             features={filteredFeatures}

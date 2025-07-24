@@ -83,14 +83,14 @@ export function PrivacyPageContent() {
             {/* --- Accordion Structure --- */}
             <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                 
-                <Section title="1. Wie zijn wij en waarom dit beleid?" icon={Building} value="item-1">
-                    <SubSection title="1.1 Verantwoordelijke voor gegevensverwerking">
+                <Section icon={Building} value="item-1">
+                    <SubSection>
                         <p><strong>MindNavigator B.V.</strong><br/>Adres: [Bedrijfsadres]<br/>KvK: [Nummer]<br/>E-mail: <a href="mailto:privacy@mindnavigator.nl" className="text-primary hover:underline">privacy@mindnavigator.nl</a><br/>Website: www.mindnavigator.nl</p>
                     </SubSection>
-                    <SubSection title="1.2 Functionaris Gegevensbescherming">
+                    <SubSection>
                          <p><strong>Data Protection Officer (DPO):</strong><br/>E-mail: <a href="mailto:dpo@mindnavigator.nl" className="text-primary hover:underline">dpo@mindnavigator.nl</a><br/>Voor alle privacy-gerelateerde vragen en klachten.</p>
                     </SubSection>
-                    <SubSection title="1.3 Waarom dit beleid?">
+                    <SubSection>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Transparantie</strong>: U heeft recht om te weten wat er met uw gegevens gebeurt.</ListItem>
                             <ListItem><strong>Controle</strong>: U moet controle hebben over uw persoonlijke informatie.</ListItem>
@@ -100,86 +100,86 @@ export function PrivacyPageContent() {
                     </SubSection>
                 </Section>
 
-                <Section title="2. Welke gegevens verzamelen wij?" icon={ListChecks} value="item-2">
-                    <SubSection title="2.1 Accountgegevens (Verplicht)">
+                <Section icon={ListChecks} value="item-2">
+                    <SubSection>
                         <p>Naam, e-mailadres, geboortedatum, versleuteld wachtwoord, en IP-adres.</p>
                     </SubSection>
-                     <SubSection title="2.2 Profielgegevens (Optioneel)">
+                     <SubSection>
                         <p>Schoolinformatie, interesses, doelen, en voorkeuren.</p>
                     </SubSection>
-                    <SubSection title="2.3 Platform Gebruik (Automatisch)">
+                    <SubSection>
                         <p>Antwoorden op tools, voortgangsdata, login activiteit, en platform gedrag.</p>
                     </SubSection>
-                    <SubSection title="2.4 Communicatie Gegevens">
+                    <SubSection>
                         <p>Berichten met klantenservice en begeleiders, feedback, en meldingen.</p>
                     </SubSection>
-                    <SubSection title="2.5 Betalingsgegevens (Alleen bij betaalde abonnementen)">
+                    <SubSection>
                         <p>Factuurgegevens, type betalingsmethode (geen kaartgegevens), en transactiehistorie.</p>
                     </SubSection>
-                    <SubSection title="2.6 AI-Gegenereerde Content">
+                    <SubSection>
                         <p>Persoonlijke rapporten, coaching suggesties en voortgangsanalyses.</p>
                     </SubSection>
                 </Section>
                 
-                <Section title="3. Waarom verzamelen wij deze gegevens? (Rechtsgronden AVG)" icon={Gavel} value="item-3">
-                    <SubSection title="3.1 Contractuitvoering (Art. 6.1.b AVG)">
+                <Section icon={Gavel} value="item-3">
+                    <SubSection>
                         <p>Om onze diensten te leveren, zoals accountbeheer, platformfunctionaliteit en klantenservice.</p>
                     </SubSection>
-                    <SubSection title="3.2 Gerechtvaardigd belang (Art. 6.1.f AVG)">
+                    <SubSection>
                         <p>Voor platformverbetering, beveiliging en onderzoek (anoniem).</p>
                     </SubSection>
-                    <SubSection title="3.3 Toestemming (Art. 6.1.a AVG)">
+                    <SubSection>
                         <p>Voor optionele zaken zoals marketing e-mails, analytics cookies en geavanceerde personalisatie. U kunt toestemming altijd intrekken.</p>
                     </SubSection>
-                    <SubSection title="3.4 Wettelijke verplichting (Art. 6.1.c AVG)">
+                    <SubSection>
                         <p>Waar de wet het vereist, zoals het 7 jaar bewaren van belastinggegevens.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="4. Speciale bescherming voor minderjarigen (Art. 8 AVG)" icon={ShieldCheck} value="item-4">
-                    <SubSection title="4.1 Kinderen van 12-15 jaar">
+                <Section icon={ShieldCheck} value="item-4">
+                    <SubSection>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Ouderlijke toestemming vereist</strong> voor alle gegevensverwerking.</ListItem>
                             <ListItem>Ouders hebben recht op inzage, correctie en verwijdering van de gegevens van hun kind.</ListItem>
                         </ul>
                     </SubSection>
-                     <SubSection title="4.2 Jongeren van 16-17 jaar">
+                     <SubSection>
                          <ul className="list-none space-y-2 pl-0">
                             <ListItem>Jongeren kunnen <strong>zelf toestemming geven</strong> en hun privacy beheren.</ListItem>
                             <ListItem>Ouderlijke betrokkenheid is nog nodig voor betalingen en bij veiligheidszorgen.</ListItem>
                         </ul>
                     </SubSection>
-                     <SubSection title="4.3 Privacy tussen ouder en kind">
+                     <SubSection>
                         <p>Voor 12-15 jarigen kunnen ouders de voortgang zien, maar geen privéberichten. 16-17 jarigen bepalen zelf wat ouders zien, behalve voor betalingsgerelateerde info.</p>
                     </SubSection>
                 </Section>
                 
-                <Section title="5. Hoe gebruiken wij uw gegevens?" icon={Rocket} value="item-5">
-                    <SubSection title="5.1 Platform Functionaliteit & AI">
+                <Section icon={Rocket} value="item-5">
+                    <SubSection>
                         <p>We gebruiken uw data om het platform te laten werken, content te personaliseren en met behulp van AI (zoals OpenAI en Google Cloud AI) rapporten en coaching tips te genereren. Uw data wordt nooit gebruikt om AI-modellen te trainen.</p>
                     </SubSection>
-                    <SubSection title="5.2 Marktplaats, Communicatie & Verbetering">
+                    <SubSection>
                         <p>We gebruiken gegevens om u te verbinden met begeleiders, met u te communiceren over onze diensten, en om ons platform te analyseren en te verbeteren.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="6. Met wie delen wij uw gegevens?" icon={Share2} value="item-6">
-                    <SubSection title="6.1 Binnen MindNavigator & Externe Dienstverleners">
+                <Section icon={Share2} value="item-6">
+                    <SubSection>
                         <p>Gegevens worden alleen op 'need-to-know' basis gedeeld met ons personeel. We gebruiken vertrouwde externe partners (processors) voor hosting (AWS/Google Cloud in EU), betalingen (Stripe/Mollie) en support (Zendesk). Al deze partijen zijn AVG-compliant.</p>
                     </SubSection>
-                    <SubSection title="6.2 Begeleiders op ons Platform & Wettelijke Verplichtingen">
+                    <SubSection>
                          <p>Met uw toestemming delen we relevante gegevens met de door u gekozen begeleider. In uitzonderlijke gevallen delen we gegevens als de wet dit vereist (bv. met de Belastingdienst of Veilig Thuis).</p>
                     </SubSection>
-                     <SubSection title="6.3 Wat wij NOOIT doen">
+                     <SubSection>
                         <p><strong>Wij verkopen uw data nooit.</strong> We delen het niet met adverteerders of databrokers.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="7. Internationale gegevensoverdracht" icon={Globe} value="item-7">
+                <Section icon={Globe} value="item-7">
                     <p>Onze data wordt primair binnen de EU verwerkt en opgeslagen. Voor de enkele diensten buiten de EU (zoals OpenAI) zorgen we voor de juiste wettelijke bescherming via Standard Contractual Clauses (SCC's) en aanvullende waarborgen.</p>
                 </Section>
                 
-                <Section title="8. Hoe lang bewaren wij uw gegevens?" icon={Archive} value="item-8">
+                <Section icon={Archive} value="item-8">
                     <Table 
                         headers={["Type Gegevens", "Bewaartermijn", "Reden"]}
                         rows={[
@@ -191,8 +191,8 @@ export function PrivacyPageContent() {
                     />
                 </Section>
 
-                <Section title="9. Beveiliging van uw gegevens" icon={Lock} value="item-9">
-                    <SubSection title="9.1 Technische & Organisatorische Beveiliging">
+                <Section icon={Lock} value="item-9">
+                    <SubSection>
                          <p>Wij beschermen uw gegevens met state-of-the-art beveiliging, waaronder:</p>
                         <ul className="list-none space-y-2 pl-0">
                             <ListItem><strong>Versleuteling</strong> (in transit en at rest).</ListItem>
@@ -201,12 +201,12 @@ export function PrivacyPageContent() {
                             <ListItem>Een helder <strong>Data Breach Protocol</strong>.</ListItem>
                         </ul>
                     </SubSection>
-                    <SubSection title="9.2 Wat u kunt doen">
+                    <SubSection>
                         <p>Gebruik een sterk, uniek wachtwoord en wees voorzichtig op openbare WiFi-netwerken.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="10. Uw privacy rechten (AVG)" icon={UserCheck} value="item-10">
+                <Section icon={UserCheck} value="item-10">
                     <p>U heeft diverse rechten onder de AVG. U kunt deze uitoefenen via uw account of door een e-mail te sturen naar <a href="mailto:privacy@mindnavigator.nl" className="text-primary hover:underline">privacy@mindnavigator.nl</a>.</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <li className="font-semibold">✓ Recht op Inzage</li>
@@ -219,22 +219,22 @@ export function PrivacyPageContent() {
                      <p className="mt-4">Wij nemen geen belangrijke beslissingen volledig geautomatiseerd; er is altijd menselijke controle mogelijk.</p>
                 </Section>
                 
-                <Section title="11. Cookies en tracking" icon={Cookie} value="item-11">
-                    <SubSection title="11.1 Cookie Beheer">
+                <Section icon={Cookie} value="item-11">
+                    <SubSection>
                         <p>We gebruiken essentiële, analytische, functionele en marketing cookies. U kunt uw voorkeuren beheren via de cookie banner bij uw eerste bezoek en later via uw accountinstellingen. Wij respecteren "Do Not Track" signalen van uw browser.</p>
                     </SubSection>
                 </Section>
 
-                <Section title="12. Profilering en geautomatiseerde besluitvorming" icon={Bot} value="item-12">
+                <Section icon={Bot} value="item-12">
                     <p>We gebruiken profilering voor het personaliseren van content en aanbevelingen. Echter, we nemen geen belangrijke beslissingen (zoals het blokkeren van een account) volledig geautomatiseerd. U heeft altijd recht op menselijke tussenkomst en uitleg.</p>
                 </Section>
 
-                <Section title="13. Wijzigingen in dit privacybeleid" icon={GitBranch} value="item-13">
+                <Section icon={GitBranch} value="item-13">
                     <p>Bij grote wijzigingen in ons beleid informeren wij u 30 dagen van tevoren per e-mail. Door het platform te blijven gebruiken, gaat u akkoord met de wijzigingen.</p>
                 </Section>
 
-                <Section title="14. Contact en klachten" icon={PhoneCall} value="item-14">
-                    <SubSection title="14.1 Vragen of klachten?">
+                <Section icon={PhoneCall} value="item-14">
+                    <SubSection>
                         <p>Neem eerst contact met ons op via <a href="mailto:privacy@mindnavigator.nl" className="text-primary hover:underline">privacy@mindnavigator.nl</a>. Komen we er samen niet uit, dan kunt u een klacht indienen bij de <a href="https://autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Autoriteit Persoonsgegevens</a>.</p>
                     </SubSection>
                 </Section>

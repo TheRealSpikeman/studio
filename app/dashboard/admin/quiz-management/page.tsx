@@ -215,14 +215,8 @@ export default function QuizManagementPage() {
                         <div className="flex flex-col">
                           <span>{quiz.title}</span>
                            <div className="flex items-center gap-2 mt-1">
-                                {quiz.audience.toLowerCase().includes('ouder') && (
-                                    <Users className="h-4 w-4 text-muted-foreground" title="Ouder Observatie Quiz"/>
-                                )}
-                                {quiz.id.startsWith('ai-') && (
-                                    <Bot className="h-4 w-4 text-primary" title="AI Gegenereerd"/>
-                                )}
                                 {quiz.thumbnailUrl && !quiz.thumbnailUrl.includes('placehold.co') && (
-                                    <ImageUp className="h-4 w-4 text-green-500" title="Heeft een thumbnail afbeelding"/>
+                                    <ImageUp className="h-4 w-4 text-green-500"/>
                                 )}
                             </div>
                         </div>

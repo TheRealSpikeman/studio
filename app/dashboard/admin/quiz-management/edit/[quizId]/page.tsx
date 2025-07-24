@@ -28,7 +28,7 @@ export default function EditQuizPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const quizId = params.quizId as string;
+  const quizId = params?.quizId as string;
   const [quizData, setQuizData] = useState<QuizAdmin | null | undefined>(undefined); 
 
   useEffect(() => {

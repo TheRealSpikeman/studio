@@ -12,7 +12,7 @@ import { StartQuizCta } from '@/components/leerling/welcome/StartQuizCta';
 // Dummy user data - in a real app, this would come from context/auth
 const currentUser = {
   name: "Alex", 
-  ageGroup: "15-18" as "12-14" | "15-18" | "adult", 
+  ageGroup: "16-18" as "12-15" | "16-18" | "adult", 
 };
 
 const ONBOARDING_KEY_LEERLING = 'onboardingCompleted_leerling_v1';

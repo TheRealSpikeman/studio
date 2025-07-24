@@ -48,7 +48,7 @@ const getStatusBadgeClasses = (status: LessonStatus): string => {
 
 export default function StudentDetailPage() {
   const params = useParams();
-  const studentId = params.studentId as string;
+  const studentId = params?.studentId as string;
   const [student, setStudent] = useState<StudentDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

@@ -38,7 +38,7 @@ export const createRole = async (roleData: Omit<Role, 'id'>): Promise<Role> => {
 export const deleteRole = async (id: string): Promise<{ success: boolean }> => {
     try {
         const { rowCount } = await query('DELETE FROM roles WHERE id = $1', [id]);
-        return { success: rowCount > 0 };
+        return { success: rowCount !== null && rowCount > 0 };
     } catch (error) {
         console.error(`Error in deleteRole for id ${id}:`, error);
         if ((error as any).code === '23503') {
