@@ -6,10 +6,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
-  // Remove 'output: export' for server-side rendering
   trailingSlash: true,
   images: {
     unoptimized: true
+  },
+  // Force App Router only, disable Pages Router
+  experimental: {
+    appDir: true
   }
 }
 
