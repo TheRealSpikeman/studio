@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { storageService } from '@/services/storageService';
 import type { QuizAdmin } from '@/types/quiz-admin';
 
-export const dynamic = 'force-dynamic'; // Ensures the route is not cached
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

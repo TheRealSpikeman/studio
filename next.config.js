@@ -6,7 +6,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
-  output: 'export',
+  // Remove 'output: export' for server-side rendering
   trailingSlash: true,
   images: {
     unoptimized: true

@@ -1,6 +1,3 @@
-
-"use server";
-
 import { EmailTemplate } from "@/components/emails/email-template";
 import { Resend } from "resend";
 import * as React from "react";
